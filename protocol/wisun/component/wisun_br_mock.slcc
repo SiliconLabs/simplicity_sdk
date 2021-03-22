@@ -1,0 +1,12 @@
+id: "wisun_br_stack_mock"
+label: "Do not use: Wi-SUN BR Mock"
+description: "Empty component to workaround a configuration issue"
+package: "wisun"
+category: "Wi-SUN"
+quality: "production"
+
+ui_hints:
+  visibility: never
+
+provides:
+  - name: "wisun_br_stack"

@@ -1,0 +1,27 @@
+id: hal_common
+label: Common Headers
+package: platform
+description: >
+  Common headers for the Peripheral's library providing register
+  and RAM access, ramfunc, assert functions, macros for alignment,
+  min/max/ceil/floor, pack, section, weak, noreturn, fallthrough
+  and the Silicon Labs CMSIS-Device part headers for the used part.
+category: Platform|Peripheral
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: platform/peripheral
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_hal_bus.h"
+provides:
+  - name: hal_common
+  - name: hal_generic_common
+    condition: [device_series_3]
+requires:
+  - name: device
+  - name: sl_common
+  - name: sl_assert
+  - name: sl_core

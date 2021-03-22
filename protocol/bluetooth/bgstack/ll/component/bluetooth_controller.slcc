@@ -1,0 +1,60 @@
+id: bluetooth_controller
+label: Bluetooth Low Energy Controller Only
+package: Bluetooth
+description: |-
+  BLE controller to be used by a Bluetooth stack
+
+category: Bluetooth|Bluetooth LE Controller (Link Layer)
+quality: production
+root_path: protocol/bluetooth/bgstack/ll
+config_file:
+  - path: config/sl_btctrl_config.h
+provides:
+  - name: bluetooth_controller
+  - name: wireless_stack
+    allow_multiple: true
+template_file:
+  - path: src/sl_bluetooth_controller.c.jinja
+source:
+  - path: utils/baremetal/src/sl_btctrl_baremetal.c
+    unless:
+      - kernel
+include:
+  - path: inc
+    file_list:
+      - path: sl_bt_ll_config.h
+      - path: sl_btctrl_callbacks.h
+      - path: sl_btctrl_linklayer.h
+      - path: sl_btctrl_packets.h
+requires:
+  - name: bluetooth_controller_libraries
+  - name: bluetooth_controller_rtos_adaptation
+    condition:
+      - kernel
+  - name: cmsis_rtos2
+    condition:
+      - kernel
+template_contribution:
+  - name: component_catalog
+    value: bluetooth_controller_only
+  - name: event_handler
+    value:
+      event: stack_init
+      include: sl_btctrl_linklayer.h
+      handler: sl_bt_controller_init
+    priority: 0
+  - name: bluetooth_controller_init
+    value:
+      function: sl_btctrl_init_multiprotocol()
+    condition:
+      - rail_lib_multiprotocol
+    priority: 10
+  - name: bluetooth_controller_init
+    value:
+      function: sl_bt_init_coex_hal()
+      include: coexistence-ble.h
+    priority: 10
+    condition:
+      - rail_util_coex
+  - name: application_type
+    value: APPLICATION_TYPE_BLUETOOTH_APP

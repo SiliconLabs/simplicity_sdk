@@ -1,0 +1,50 @@
+id: emlib_msc
+label: MSC
+package: platform
+description: >
+  Flash controller (MSC) peripheral API
+category: Platform|Peripheral
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: "platform/emlib"
+source:
+  - path: "src/em_msc.c"
+    unless: [tz_secure_key_library_ns]
+include:
+  - path: "inc"
+    file_list:
+    - path: "em_msc.h"
+    - path: "em_msc_compat.h"
+provides:
+  - name: emlib_msc
+requires:
+  - name: device
+  - name: device_has_msc
+  - name: emlib_cmu
+  - name: emlib_common
+  - name: emlib_core
+  - name: emlib_system    # TODO: This dependency seems unnecessary
+  - name: cmsis_core
+  - name: tz_service_msc
+    condition: [tz_secure_key_library_ns]
+conflicts:
+  - name: device_series_3
+documentation:
+  docset: gecko-platform
+  document:
+    - page: platform-emlib-efr32xg21/msc
+      condition: [device_sdid_200]
+    - page: platform-emlib-efr32xg22/msc
+      condition: [device_sdid_205]
+    - page: platform-emlib-efr32xg23/msc
+      condition: [device_sdid_210]
+    - page: platform-emlib-efr32xg24/msc
+      condition: [device_sdid_215]
+    - page: platform-emlib-efr32xg25/msc
+      condition: [device_sdid_220]
+    - page: platform-emlib-efr32xg27/msc
+      condition: [device_sdid_230]
+    - page: platform-emlib-efr32xg28/msc
+      condition: [device_sdid_235]

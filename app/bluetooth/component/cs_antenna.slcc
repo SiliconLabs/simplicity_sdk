@@ -1,0 +1,19 @@
+id: cs_antenna
+package: Bluetooth
+label: CS Antenna
+description: >
+  Manage CS antenna offset settings.
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_antenna
+include:
+  - path: .
+    file_list:
+      - path: cs_antenna.h
+source:
+  - path: cs_antenna.c
+provides:
+  - name: cs_antenna
+requires:
+  - name: rail_util_ble_cs
+  - name: bluetooth_api

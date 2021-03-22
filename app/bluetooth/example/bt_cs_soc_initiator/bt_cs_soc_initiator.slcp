@@ -1,0 +1,104 @@
+project_name: bt_cs_soc_initiator
+package: Bluetooth
+label: Bluetooth - SoC CS Initiator
+description: >
+  CS initiator for Bluetooth. The example connects to an CS reflector
+  and starts distance measurement. Results are printed on the display of the WSTK.
+category: Bluetooth Examples
+quality: experimental
+
+filter:
+  - name: "Wireless Technology"
+    value: ["Bluetooth"]
+  - name: "Device Type"
+    value: ["SoC"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+
+component:
+  - id: app_assert
+  - id: app_log
+  - id: bluetooth_stack
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_sm
+  - id: bluetooth_feature_system
+  - id: bluetooth_feature_extended_scanner
+  - id: ble_peer_manager_common
+  - id: ble_peer_manager_central
+  - id: ble_peer_manager_filter
+  - id: bt_post_build
+  - id: clock_manager
+  - id: component_catalog
+  - id: cs_initiator
+  - id: cs_initiator_display
+  - id: cs_antenna
+  - id: device_init
+  - id: glib
+  - id: dmd_memlcd
+  - id: iostream_recommended_stream
+  - id: in_place_ota_dfu
+  - id: ls013b7dh03
+  - id: mpu
+  - id: simple_button
+    instance:
+      - btn0
+  - id: toolchain_gcc
+  - id: sl_system
+
+source:
+  - path: app.c
+  - path: main.c
+  - path: rtl_log.c
+
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: rtl_log.h
+
+readme:
+  - path: readme.md
+
+config_file:
+  - path: config/initiator_app_config.h
+
+other_file:
+  - path: image/cs_lcd.png
+  - path: log_filter.py
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: 2752
+  - name: SL_BT_CONFIG_BUFFER_SIZE
+    value: 10000
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: 0
+    condition:
+      - psa_crypto
+  - name: SL_BOARD_ENABLE_DISPLAY
+    value: 1
+  - name: SL_BOARD_ENABLE_VCOM
+    value : 1
+  - name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: 0
+  - name: CS_INITIATOR_ANTENNA_OFFSET
+    value: 0
+
+tag:
+  - prebuilt_demo
+  - hardware:rf:band:2400
+
+template_contribution:
+  - name: ble_peer_manager_event_handler
+    value:
+      include: app.h
+      handler: ble_peer_manager_on_event_initiator
+
+ui_hints:
+  highlight:
+    - path: config/btconf/gatt_configuration.btconf
+    - path: readme.md
+      focus: true
+
+library:
+  - system: stdc++

@@ -1,0 +1,45 @@
+
+==========================================================
+The output of the size tool: (e.g. arm-none-ambi-size.exe)
+==========================================================
+
+zwave_soc_multilevel_sensor.out  :
+section                     size         addr
+.vectors                   0x170    0x8006000
+.stack                    0x1000   0x20000000
+.bss                      0x8e70   0x20001000
+text_application_ram       0x1ac   0x20009e70
+.rodata                    0x2f8    0x800631c
+.text                    0x39be0    0x8006620
+.ARM.exidx                   0x8    0x8040200
+.copy.table                  0xc    0x8040208
+.zero.table                  0x0    0x8040214
+.data                      0x450   0x2000a01c
+.memory_manager_heap         0x4   0x2000a46c
+.internal_storage        0x30000    0x8040664
+.zwave_nvm                   0x0    0x8070664
+.nvm                      0x8000    0x8070664
+.ARM.attributes             0x36          0x0
+.comment                    0x45          0x0
+.debug_line_str            0x2a7          0x0
+.debug_frame             0x13798          0x0
+.debug_info             0xe056fa          0x0
+.debug_abbrev            0x2b3c4          0x0
+.debug_aranges            0x7168          0x0
+.debug_rnglists           0x5a45          0x0
+.debug_line              0x87458          0x0
+.debug_str               0x9cbed          0x0
+.debug_loclists          0x3382a          0x0
+.debug_loc               0x28f6a          0x0
+.debug_ranges             0x4788          0x0
+Total                  0x1052552
+
+The calculated FLASH and SRAM usage summary:
+============================================
+FLASH used as program memory:  (Including only the sections: .text, .ARM.exidx, .data, _cc_handlers_v3)
+   238764
+FLASH used for storage: (Including only the sections: .zwavenvm, .simee, .nvm, .zwave_nvm)
+   32768
+SRAM usage:             (Including only the sections: .data, .bss, .heap (limited to 2048 per sl_memory_config.h), .stack_dummy, .reset_info)
+   42096
+

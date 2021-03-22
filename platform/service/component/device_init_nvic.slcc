@@ -1,0 +1,36 @@
+id: device_init_nvic
+label: "Nested Vector Interrupt Controller (NVIC) - DEPRECATED"
+package: platform
+description: >
+  THIS COMPONENT IS DEPRECATED. It is replaced by the component interrupt_manager.
+
+  Initialize the ARM Cortex-M Nested Vector Interrupt Controller (NVIC) by
+  setting all interrupts to the default priority level, except for Fault
+  exceptions. For more details on the NVIC, refer to the ARM Cortex-M
+  documentation.
+category: Services|Device Initialization|Peripherals
+quality: deprecated
+metadata:
+  sbom:
+    license: Zlib
+root_path: platform/service/device_init
+include:
+  - path: inc
+    file_list:
+      - path: sl_device_init_nvic.h
+source:
+  - path: src/sl_device_init_nvic.c
+provides:
+  - name: device_init_nvic
+requires:
+  - name: device_series_2
+    condition: [device_efx]
+  - name: status
+  - name: emlib_core
+  - name: sl_common
+template_contribution:
+  - name: component_catalog
+    value: device_init_nvic
+documentation:
+  docset: gecko-platform
+  document: platform-service/device-init-nvic

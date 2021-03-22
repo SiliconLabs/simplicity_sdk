@@ -1,0 +1,22 @@
+Platform 5.0.0
+- Removed support for Series 0/1
+- Support for EFR32xG26, EFR32xG22E and EFR32xG24 devices
+- Peripherals
+  - New API names introduced for low-level drivers (with compatibility layer for old names)
+- Services
+  - Memory Manager, APIs to manage embedded dynamic memory allocations
+  - Clock Manager, for clock tree initialization
+  - Event System, for inter-process communication.
+  - Interrupt manager, APIs to manage embedded interrupts
+  - APIs for accessing value of tokens added to Token Manager
+- CPC
+  - Small improvement and bug fixes
+- Security
+  - Mbed TLS upgraded (to version 3.5.0)
+- RAIL 5.0.0
+  - Added support for collision detection feature on the EFR32xG25 parts
+  - Added support for additional Coex TX and RX metrics events to RAIL coexistence utility
+  - Updated some RAIL APIs to better prepare for future API changes while retaining backwards compile-time compatibility
+- Other Components
+  - Compilers upgraded (to GCC 12.2.1 and IAR 9.40.1)
+

@@ -1,0 +1,27 @@
+id: "wisun_keychain"
+label: "Wi-SUN application keychain"
+description: "Wi-SUN application keychain"
+package: "wisun"
+category: "Wi-SUN"
+quality: "production"
+root_path: "protocol/wisun"
+
+provides:
+  - name: wisun_keychain
+
+ui_hints:
+  visibility: never
+
+config_file:
+  - path: plugin/config/sl_wisun_keychain_nvm_config.h
+
+template_file:
+  - path: plugin/template/sl_wisun_keychain_builtin.c.jinja
+
+source:
+  - path: plugin/sl_wisun_keychain.c
+
+include:
+  - path: plugin/
+    file_list:
+      - path: sl_wisun_keychain.h

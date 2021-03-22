@@ -1,0 +1,105 @@
+project_name: bt_cs_ncp
+package: Bluetooth
+label: Bluetooth - NCP for Channel Sounding
+description: >
+  Network Co-Processor (NCP) target application for Channel Sounding.
+  Runs the Bluetooth stack and provides access to it by exposing the
+  Bluetooth API (BGAPI) via UART connection. Addition to the standard
+  NCP features, it listens to HADM specific user messages, and executes
+  them. This application also features a CS Initiator with RTL and reflector.
+  In case of brd4406a it uses custom BGAPI message for antenna switching.
+category: Bluetooth Examples
+quality: experimental
+
+filter:
+  - name: "Wireless Technology"
+    value: ["Bluetooth"]
+  - name: "Device Type"
+    value: ["NCP"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+
+component:
+  - id: toolchain_gcc
+  - id: bluetooth_stack
+  - id: bluetooth_feature_legacy_advertiser
+  - id: bluetooth_feature_extended_advertiser
+  - id: bluetooth_feature_periodic_advertiser
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_gap
+  - id: bluetooth_feature_gatt
+  - id: bluetooth_feature_gatt_server
+  - id: bluetooth_feature_nvm
+  - id: bluetooth_feature_legacy_scanner
+  - id: bluetooth_feature_extended_scanner
+  - id: bluetooth_feature_sm
+  - id: bluetooth_feature_sync
+  - id: bluetooth_feature_system
+  - id: bluetooth_feature_dynamic_gattdb
+  - id: bluetooth_feature_test
+  - id: bluetooth_feature_cs
+  - id: bluetooth_feature_cs_test
+  - id: ncp
+  - id: uartdrv_usart
+    instance:
+      - vcom
+  - id: mpu
+  - id: sl_system
+  - id: clock_manager
+  - id: device_init
+  - id: bootloader_interface
+  - id: rtllib
+  - id: rail_util_cs_antenna_offset
+  - id: cs_reflector
+  - id: cs_initiator
+  - id: cs_antenna
+  - id: iostream_rtt
+  - id: bt_post_build
+
+source:
+  - path: main.c
+  - path: app.c
+  - path: rtl_log.c
+
+include:
+  - path: .
+    file_list:
+      - path: app.h
+      - path: rtl_log.h
+  - path: ../../common/cs_acp
+    file_list:
+      - path: cs_acp.h
+  - path: ../../common/cs_initiator/inc
+    file_list:
+      - path: cs_initiator_configurator.h
+
+readme:
+  - path: readme.md
+
+other_file:
+  - path: image/readme_img0.png
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: 2752
+  - name: SL_BT_CONFIG_BUFFER_SIZE
+    value: 10000
+  - name: SL_BT_CONFIG_USER_ADVERTISERS
+    value: 4
+  - name: SL_BOARD_ENABLE_VCOM
+    value: 1
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHw
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: "0"
+    condition:
+      - psa_crypto
+
+tag:
+  - prebuilt_demo
+  - hardware:rf:band:2400
+
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true

@@ -1,0 +1,103 @@
+id: wisun_config
+label: "Wi-SUN Configurator"
+package: wisun
+description: >
+  When initiating a new Wi-SUN project, a Wi-SUN Configurator is automatically
+  included. This Configurator serves as an interface to the main settings of
+  the Wi-SUN application, comprising three panels: Application, Security and
+  Radio. For some examples, the Wi-SUN Configurator only displays the Radio panel.
+  These examples do not have the application and security infrastructure.
+category: Wi-SUN|Application
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/wisun/component/wisun_config"
+provides:
+- name: wisun_config
+- name: wisun_stack_configuration
+- name: wisun_phy_configuration
+
+config_file:
+#------------------------------------------------ restriction files with conditions
+# LFN not support
+- path: config/restrictions/lfn_not_supported.restriction
+  directory: wisun
+  unless:
+    - "wisun_stack_lfn"
+# tabs' restriction files
+- path: config/restrictions/only_radio.restriction
+  directory: wisun
+  unless:
+    - "sl_wisun_full_config"
+
+#------------------------------------------------ default full configuration
+- path: config/EU_1_1a/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4271a
+
+# NA_1_1b
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4270a
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4270b
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4400a
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4400b
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4400c
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4401a
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4401b
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4401c
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd2705a
+
+# CN_1_1b
+- path: config/CN_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - brd4272a
+
+# based on IC all NA_1_1b
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - device_sdid_220
+  unless:
+    - hardware_board
+- path: config/NA_1_1b/wisun_settings.wisunconf
+  directory: wisun
+  condition:
+    - device_sdid_235
+  unless:
+    - hardware_board
+
+#------------------------------------------------ default configuration end
+
+template_contribution:
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: wisun_config

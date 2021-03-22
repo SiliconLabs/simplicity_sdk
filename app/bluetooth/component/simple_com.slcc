@@ -1,0 +1,89 @@
+id: simple_com
+label: Simple Communication Interface (UART)
+package: Bluetooth
+description: >
+  Component that provides simple communication interface using UART.
+  This component is mainly used in NCP communication cases.
+
+  This is a No-Code component if used together with NCP Interface or
+  NCP Host Communication Interface components.
+category: Application|Utility
+quality: production
+root_path: app/bluetooth/common/simple_com
+tag:
+  - No-Code
+config_file:
+  - path: config/sl_simple_com_config.h
+  - path: config/sl_simple_com_freertos_config.h
+    condition:
+      - freertos
+  - path: config/sl_simple_com_micriumos_config.h
+    condition:
+      - micriumos_kernel
+source:
+  - path: sl_simple_com_usart.c
+    condition:
+      - uartdrv_core
+  - path: sl_simple_com_cpc.c
+    condition:
+      - cpc_core
+  - path: sl_simple_com_freertos.c
+    condition:
+      - freertos
+  - path: sl_simple_com_micriumos.c
+    condition:
+      - micriumos_kernel
+  - path: sl_simple_com_robust.c
+include:
+  - path: .
+    file_list:
+      - path: sl_simple_com.h
+      - path: sl_simple_com_robust.h
+provides:
+  - name: simple_com
+requires:
+  - name: uartdrv_usart
+    condition:
+      - uartdrv_core
+  - name: cpc_secondary
+    condition:
+      - cpc_core
+  - name: app_assert
+  - name: status
+  - name: emlib_common
+  - name: emlib_core
+  - name: clock_manager_runtime
+template_file:
+  - path: template/sl_simple_com_isr.c.jinja
+    condition: [uartdrv_instance]
+template_contribution:
+  - name: component_catalog
+    value: simple_com
+  - name: component_catalog
+    value: bluetooth_ncp
+    condition:
+      - cpc_core
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: sl_simple_com.h
+      handler: sl_simple_com_init
+    priority: 2
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: sl_simple_com.h
+      handler: sl_simple_com_os_task_init
+    priority: 1
+    condition:
+      - kernel
+  - name: event_handler
+    value:
+      event: service_process_action
+      include: sl_simple_com.h
+      handler: sl_simple_com_step
+    unless:
+      - kernel
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/simple-com

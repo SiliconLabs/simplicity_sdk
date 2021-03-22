@@ -1,0 +1,45 @@
+
+==========================================================
+The output of the size tool: (e.g. arm-none-ambi-size.exe)
+==========================================================
+
+zwave_soc_multilevel_sensor.out  :
+section                     size         addr
+.vectors                   0x17c    0x8006000
+.stack                    0x1000   0x20000000
+.bss                      0x8cec   0x20001000
+text_application_ram       0x1ac   0x20009cec
+.rodata                    0x2f8    0x8006328
+.text                    0x38690    0x8006620
+.ARM.exidx                   0x8    0x803ecb0
+.copy.table                  0xc    0x803ecb8
+.zero.table                  0x0    0x803ecc4
+.data                      0x44c   0x20009e98
+.memory_manager_heap         0x4   0x2000a2e4
+.internal_storage        0x30000    0x803f110
+.zwave_nvm                   0x0    0x806f110
+.nvm                      0x8000    0x806f110
+.ARM.attributes             0x36          0x0
+.comment                    0x45          0x0
+.debug_line_str            0x29a          0x0
+.debug_frame             0x12ca8          0x0
+.debug_info             0xe01d70          0x0
+.debug_abbrev            0x2a76e          0x0
+.debug_aranges            0x6e58          0x0
+.debug_rnglists           0x57be          0x0
+.debug_line              0x84b76          0x0
+.debug_str               0x9c1dd          0x0
+.debug_loclists          0x322c1          0x0
+.debug_loc               0x28e5a          0x0
+.debug_ranges             0x4788          0x0
+Total                  0x1046ea7
+
+The calculated FLASH and SRAM usage summary:
+============================================
+FLASH used as program memory:  (Including only the sections: .text, .ARM.exidx, .data, _cc_handlers_v3)
+   233316
+FLASH used for storage: (Including only the sections: .zwavenvm, .simee, .nvm, .zwave_nvm)
+   32768
+SRAM usage:             (Including only the sections: .data, .bss, .heap (limited to 2048 per sl_memory_config.h), .stack_dummy, .reset_info)
+   41704
+

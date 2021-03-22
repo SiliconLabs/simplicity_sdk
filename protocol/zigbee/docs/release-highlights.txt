@@ -1,0 +1,14 @@
+Zigbee EmberZNet SDK 8.0.0.0
+- Zigbee
+  - Zigbee re-architecture to support stack and framework to be fully RTOS based
+  - Memory management update
+  - New clock manager component integrated in  Zigbee applications
+  - Removed support for Series 0/1
+  - Added support for series 3 – Alpha
+  - Added support for new platform xG26, xG22E
+  - Zigbee GP 1.1.2
+  - Support Sleepy NCP use case
+  - New application for Zigbee Unified Test Harness - Alpha
+- Multiprotocol
+  - Alpha support for OpenWRT on host pro-cessor of multiprotocol RCP solution
+  - Alpha support for Concurrent Zigbee and Matter over OpenThread, with DMP BLE

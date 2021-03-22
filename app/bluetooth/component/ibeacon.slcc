@@ -1,0 +1,41 @@
+id: ibeacon
+label: iBeacon
+package: Bluetooth
+description: iBeacon component for beacon advertising
+
+  This is a No-Code component.
+category: Bluetooth|Application|Miscellaneous
+quality: production
+root_path: app/bluetooth/common/ibeacon
+tag:
+  - No-Code
+source:
+  - path: sl_bt_ibeacon.c
+include:
+  - path: .
+    file_list:
+      - path: sl_bt_ibeacon.h
+provides:
+  - name: ibeacon
+requires:
+  - name: bluetooth_stack
+  - name: gatt_configuration
+  - name: bluetooth_feature_legacy_advertiser
+  - name: bluetooth_feature_system
+  - name: app_assert
+template_contribution:
+  - name: bluetooth_on_event
+    value:
+      include: sl_bt_ibeacon.h
+      function: sli_bt_ibeacon_on_event
+  - name: bluetooth_advertisers
+    value:
+      name: ibeacon_advertiser
+      count: 1
+  - name: component_catalog
+    value: ibeacon
+#validation_helper:
+#  - path: ibeacon_validation.py
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/ibeacon

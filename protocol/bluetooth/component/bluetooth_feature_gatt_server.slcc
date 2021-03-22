@@ -1,0 +1,24 @@
+id: "bluetooth_feature_gatt_server"
+label: "GATT Server"
+package: "Bluetooth"
+description: >
+  GATT Server feature
+
+  Enables the ability to browse and manage attributes in a local GATT database. 
+category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events
+quality: "production"
+root_path: "protocol/bluetooth"
+requires:
+  - name: "bluetooth_stack"
+  - name: "bluetooth_gatt_database"
+provides:
+  - name: "bluetooth_feature_gatt_server"
+template_contribution:
+  - name: component_catalog
+    value: bluetooth_feature_gatt_server
+documentation:
+  docset: bluetooth
+  document: bluetooth-stack-api/sl-bt-gatt-server
+metadata:
+  sbom:
+    license: MSLA

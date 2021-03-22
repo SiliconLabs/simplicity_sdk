@@ -1,0 +1,29 @@
+id: mic_i2s_driver
+package: platform
+label: I2S Microphone
+description: >
+  Sound level I2S microphone driver
+category: Platform|Board Drivers
+quality: production
+root_path: hardware/driver/mic
+provides:
+  - name: mic_driver_implementation
+  - name: mic_i2s_driver
+requires:
+  - name: clock_manager_runtime
+  - name: emlib_ldma
+  - name: emlib_usart
+  - name: hal_generic_gpio
+  - name: dmadrv
+include:
+  - path: inc
+    file_list:
+      - path: sl_mic.h
+source:
+  - path: src/sl_mic_i2s.c
+config_file:
+  - path: config/sl_mic_i2s_config.h
+    file_id: mic_i2s_config
+documentation:
+    docset: gecko-platform
+    document: platform-hardware-driver/mic

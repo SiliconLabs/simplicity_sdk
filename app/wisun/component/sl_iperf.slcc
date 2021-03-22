@@ -1,0 +1,63 @@
+id: "sl_iperf"
+label: "iPerf2"
+package: "wisun"
+description: >
+  The iPerf component offers a solution compatible with
+  [iPerf2] (https://sourceforge.net/projects/iperf2/) for measuring UDP
+  throughput. It provides comprehensive UDP support and implements both server
+  and client modes, enabling the exchange of packets to assess bandwidth
+  performance, inter-arrival jitter, and packet loss.To configure and execute
+  your iPerf test, the component relies on various functions. You can customize
+  parameters such as the server and client ports, preferred bandwidth, packet
+  count, and remote peer address. Upon completion of each iPerf test, an iPerf
+  report is generated.
+  The component can be used with any network stack, thanks to its portable
+  custom network interface. To integrate the iPerf component into your
+  application, simply add it to your project and initialize it using
+  sl_iperf_service_init().
+category: "Wi-SUN|Wi-SUN Services"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/wisun/component/iperf"
+provides:
+  - name: sl_iperf
+
+source:
+  - path: "sl_iperf_network_interface.c"
+  - path: "sl_iperf.c"
+  - path: "sl_iperf_log.c"
+  - path: "sl_iperf_util.c"
+  - path: "sl_iperf_udp_srv.c"
+  - path: "sl_iperf_udp_clnt.c"
+
+include:
+  - path: "."
+    file_list:
+    - "path": "sl_iperf_types.h"
+    - "path": "sl_iperf_network_interface.h"
+    - "path": "sl_iperf.h"
+    - "path": "sl_iperf_log.h"
+    - "path": "sl_iperf_util.h"
+    - "path": "sl_iperf_udp_srv.h"
+    - "path": "sl_iperf_udp_clnt.h"
+config_file:
+  - path: "config/sl_iperf_config.h"
+
+#-------------- Template Contribution ----------------
+template_contribution:
+  - name: "event_handler"
+    value:
+      event: "internal_app_init"
+      include: "sl_iperf.h"
+      handler: "sl_iperf_service_init"
+
+
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: iperf
+
+documentation:
+  docset: wisun
+  document: wisun-stack-api/sl-iperf

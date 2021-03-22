@@ -1,0 +1,35 @@
+id: ram_interrupt_vector_init
+label: "RAM interrupt vector initialization - DEPRECATED"
+package: platform
+description: >
+  THIS COMPONENT IS DEPRECATED. It is replaced by the component interrupt_manager.
+
+  Instantiate the RAM interrupt vector component. This copies the interrupt
+  vector table from flash to RAM and modifies the VTOR register to point to that
+  location in RAM.
+category: Services|Interrupt
+quality: deprecated
+metadata:
+  sbom:
+    license: Zlib
+source:
+  - path: platform/service/ram_interrupt_vector_init/src/sl_ram_interrupt_vector_init.c
+include:
+  - path: platform/service/ram_interrupt_vector_init/inc
+    file_list:
+      - path: sl_ram_interrupt_vector_init.h
+provides:
+  - name: ram_interrupt_vector_init
+requires:
+  - name: emlib_common
+  - name: emlib_core
+template_contribution:
+  - name: event_handler
+    value:
+      event: platform_init
+      include: sl_ram_interrupt_vector_init.h
+      handler: sl_ram_interrupt_vector_init
+    priority: -1
+documentation:
+  docset: gecko-platform
+  document: platform-service/ram-interrupt-vector-init

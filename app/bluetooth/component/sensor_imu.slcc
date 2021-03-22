@@ -1,0 +1,27 @@
+id: sensor_imu
+label: Inertial Measurement Unit sensor
+package: Bluetooth
+description: Inertial Measurement Unit sensor driver abstraction designed for Thunderboard.
+category: Bluetooth|Application|Miscellaneous
+quality: production
+root_path: app/bluetooth/common/sensor_imu
+tag:
+  - No-Code
+source:
+  - path: sl_sensor_imu.c
+include:
+  - path: .
+    file_list:
+      - path: sl_sensor_imu.h
+provides:
+  - name: sensor_imu
+requires:
+  - name: imu_driver
+  - name: app_assert
+  - name: board_control
+template_contribution:
+  - name: component_catalog
+    value: sensor_imu
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/sensor-imu

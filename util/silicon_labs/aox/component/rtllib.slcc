@@ -1,0 +1,31 @@
+id: rtllib
+label: Real-Time Locationing Library
+package: aox
+description: Real time locationing library component for SoC
+category: Bluetooth|Direction Finding
+quality: experimental
+metadata:
+  sbom:
+    license: MSLA
+root_path: util/silicon_labs/aox
+provides:
+  - name: rtllib
+include:
+  - path: inc
+    file_list:
+      - path: sl_rtl_clib_api.h
+library:
+  - path: lib/release/gcc/arm_m33/generic/libaox_static.a
+
+requires:
+  - name: cortexm33
+  - name: toolchain_gcc
+  - name: memory_manager_cpp
+  - name: printf
+  - name: rtllib_eigen
+  - name: rtllib_cmsis_dsp
+  - name: rtllib_printf
+
+documentation:
+    docset: rtl-lib
+    document: modules

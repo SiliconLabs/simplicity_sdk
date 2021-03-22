@@ -1,0 +1,23 @@
+id: ot_stack_ram_objects
+label: Stack (Common)
+package: OpenThread
+category: OpenThread
+quality: production
+description: This component selects OpenThread common stack objects to be placed in RAM.
+provides:
+  - name: ot_stack_ram_objects
+metadata:
+  sbom:
+    reference: ot_sbom_openthread
+ui_hints:
+  visibility: never
+template_contribution:
+  - name: third_party_ram_objects
+    # src/core/diags/factory_diags.cpp
+    value: factory_diags
+  - name: third_party_ram_objects
+    # src/core/thread/link_metrics.cpp
+    value: link_metrics
+  - name: third_party_ram_objects
+    # src/core/mac/mac.cpp
+    value: mac

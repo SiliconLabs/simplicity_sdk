@@ -1,0 +1,23 @@
+id: "zw_ota"
+label: Z-Wave OTA
+category: Z-Wave
+description: >
+  The Z-Wave OTA component can be used by applications that support OTA (Over The Air Firmware
+  Update). This component defines custom bootloader storage size in flash for Z-Wave applications
+  both for Series 1 and Series 2 devices.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+root_path: protocol/z-wave
+provides:
+  - name: "zw_ota"
+requires:
+  - name: flash_storage
+config_file:
+  - path: platform/SiliconLabs/PAL/config/zw_ota/sl_storage_config.h
+    condition: [device_series_2]
+    override:
+      component: flash_storage
+      file_id: storage_config

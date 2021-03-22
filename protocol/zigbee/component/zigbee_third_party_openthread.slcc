@@ -1,0 +1,62 @@
+id: zigbee_third_party_openthread
+label: Zigbee Thirdparty OpenThread
+package: Zigbee
+category: Zigbee
+quality: production
+description: This component provices source/header fileds of openthread from thirdparty.
+ui_hints:
+  visibility: never
+
+provides:
+  - name: zigbee_third_party_openthread
+
+include:
+# for openthread/src/posix/platform
+  - path: util/third_party/openthread/src
+    file_list:
+      - path: core/common/code_utils.hpp
+      - path: core/common/encoding.hpp
+      - path: core/radio/max_power_table.hpp
+      - path: lib/spinel/coprocessor_type.h
+      - path: lib/spinel/multi_frame_buffer.hpp
+      - path: lib/spinel/openthread-spinel-config.h
+      - path: lib/spinel/radio_spinel.hpp
+      - path: lib/spinel/spi_frame.hpp
+      - path: lib/spinel/spinel_decoder.hpp
+      - path: lib/spinel/spinel_driver.hpp
+      - path: ncp/ncp_config.h
+      - path: posix/platform/daemon.hpp
+      - path: posix/platform/firewall.hpp
+      - path: posix/platform/infra_if.hpp
+      - path: posix/platform/mdns_socket.hpp
+      - path: posix/platform/multicast_routing.hpp
+      - path: posix/platform/mainloop.hpp
+      - path: posix/platform/radio.hpp
+      - path: posix/platform/radio_url.hpp
+      - path: posix/platform/resolver.hpp
+      - path: posix/platform/spinel_manager.hpp
+      - path: posix/platform/system.hpp
+      - path: posix/platform/udp.hpp
+
+source:
+# OT source 
+  - path: util/third_party/openthread/src/lib/spinel/logger.cpp
+  - path: util/third_party/openthread/src/lib/spinel/radio_spinel.cpp
+  - path: util/third_party/openthread/src/lib/spinel/spinel_driver.cpp
+  - path: util/third_party/openthread/src/posix/platform/alarm.cpp
+  - path: util/third_party/openthread/src/posix/platform/backtrace.cpp
+  - path: util/third_party/openthread/src/posix/platform/ble.cpp
+  - path: util/third_party/openthread/src/posix/platform/entropy.cpp
+  - path: util/third_party/openthread/src/posix/platform/logging.cpp
+  - path: util/third_party/openthread/src/posix/platform/mdns_socket.cpp
+  - path: util/third_party/openthread/src/posix/platform/memory.cpp
+  - path: util/third_party/openthread/src/posix/platform/mainloop.cpp
+  - path: util/third_party/openthread/src/posix/platform/radio.cpp
+  - path: util/third_party/openthread/src/posix/platform/radio_url.cpp
+  - path: util/third_party/openthread/src/posix/platform/resolver.cpp
+  - path: util/third_party/openthread/src/posix/platform/spinel_manager.cpp
+  - path: util/third_party/openthread/src/posix/platform/system.cpp
+
+metadata:
+  sbom:
+    reference: ot_sbom_openthread

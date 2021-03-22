@@ -1,0 +1,25 @@
+id: clock_manager_init_hal_s2
+label: Clock Manager Init HAL Series 2
+package: platform
+description: >
+  Series 2 HAL for Clock Manager Initialization part
+category: Services|Clock Manager
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+ui_hints:
+  visibility: never
+provides:
+  - name: clock_manager_init_hal
+    condition: [device_series_2]
+  - name: clock_manager_init_hal_s2
+requires:
+  - name: device_series_2
+  - name: status
+  - name: sl_assert
+  - name: emlib_cmu
+root_path: platform/service/clock_manager
+source:
+  - path: src/sl_clock_manager_init_hal_s2.c
+    condition: [device_series_2]

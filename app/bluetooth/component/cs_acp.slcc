@@ -1,0 +1,19 @@
+id: cs_acp
+package: Bluetooth
+label: CS ACP
+description: >
+  CS ACP common provides the ACP commands and events to the CS device roles.
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_acp
+
+include:
+  - path: ./
+    file_list:
+      - path: cs_acp.h
+
+requires:
+  - name: component_catalog
+
+provides:
+  - name: cs_acp

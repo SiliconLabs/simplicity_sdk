@@ -1,0 +1,157 @@
+project_name: bt_ncp_esl_ap
+package: Bluetooth
+label: Bluetooth - NCP ESL Access Point
+description: >
+  Network Co-Processor (NCP) target application with additional features to
+  support the Electronic Shelf Label Profile ESL Access Point role.
+  Note: Some BLE features unused by the ESL Access Point are removed compared
+  to the NCP target application.
+category: Bluetooth Examples
+quality: production
+
+filter:
+  - name: "Wireless Technology"
+    value: ["Bluetooth"]
+  - name: "Device Type"
+    value: ["NCP"]
+  - name: "Project Difficulty"
+    value: ["Advanced"]
+
+component:
+  - id: ncp
+  - id: ncp_sec
+  - id: sl_system
+  - id: clock_manager
+  - id: device_init
+  - id: bt_post_build
+  - id: bootloader_interface
+  - id: uartdrv_usart
+    instance:
+      - vcom
+  - id: mpu
+  - id: bluetooth_feature_nvm
+
+requires:
+  - name: bluetooth_stack
+  - name: bluetooth_feature_sm
+  - name: bluetooth_feature_gap
+  - name: bluetooth_feature_gatt
+  - name: bluetooth_feature_l2cap
+  - name: bluetooth_feature_system
+  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_gatt_server
+  - name: bluetooth_feature_dynamic_gattdb
+  - name: bluetooth_feature_legacy_scanner
+  - name: bluetooth_feature_advertiser_past
+  - name: bluetooth_feature_pawr_advertiser
+  - name: bluetooth_feature_extended_scanner
+  - name: bluetooth_feature_legacy_advertiser
+  - name: bluetooth_feature_extended_advertiser
+  - name: bluetooth_feature_periodic_advertiser
+  - name: bluetooth_feature_connection_phy_update
+  - name: bluetooth_feature_external_bonding_database
+  - name: bluetooth_feature_connection_pawr_scheduling
+  - name: bluetooth_feature_use_accurate_api_address_types
+
+source:
+  - path: main.c
+  - path: app.c
+
+include:
+  - path: .
+    file_list:
+      - path: app.h
+
+readme:
+  - path: readme.md
+
+other_file:
+  - path: image/readme_img0.png
+  - path: image/readme_img1.png
+  - path: image/readme_img2.png
+  - path: image/readme_img3.png
+  - path: image/readme_img4.png
+  - path: image/readme_img5.png
+  - path: image/readme_img7.png
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: "2752"
+  - name: SL_NCP_CMD_BUF_SIZE
+    value: "288"
+  - name: SL_NCP_EVT_BUF_SIZE
+    value: "264"
+  - name: SL_SIMPLE_COM_TX_BUF_SIZE
+    value: "528"
+  - name: SL_SIMPLE_COM_RX_BUF_SIZE
+    value: "288"
+  - name: SL_NCP_CMD_TIMEOUT_MS
+    value: "50"
+  - name: SL_BT_CONFIG_MAX_CONNECTIONS
+    value: "8"
+  - name: SL_BT_CONFIG_USER_L2CAP_COC_CHANNELS
+    value: "8"
+  - name: SL_BT_CONFIG_MAX_SOFTWARE_TIMERS
+    value: "0"
+  - name: SL_BT_CONFIG_BUFFER_SIZE
+    value: "8192"
+  - name: SL_BT_CONFIG_USER_ADVERTISERS
+    value: "3"
+  - name: SL_BT_CONFIG_MAX_PERIODIC_ADVERTISERS
+    value: "2"
+  - name: SL_BT_CONFIG_MAX_PAWR_ADVERTISED_DATA_LENGTH_HINT
+    value: "74"
+  - name: SL_BT_CONFIG_MAX_PAWR_ADVERTISERS
+    value: "2"
+  - name: SL_CLOCK_MANAGER_LFRCO_PRECISION
+    value: "cmuPrecisionHigh"
+  - name: SL_CLOCK_MANAGER_LFXO_PRECISION
+    value: "50"
+    condition:
+      - hardware_board_has_lfxo
+  - name: SL_CLOCK_MANAGER_LFXO_CTUNE
+    value: "37"
+    condition:
+      - hardware_board_has_lfxo
+  - name: SL_BOARD_ENABLE_VCOM
+    value: "1"
+  - name: SL_UARTDRV_USART_VCOM_TX_BUFFER_SIZE
+    value: "2"
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHw
+    condition:
+      - brd4002a
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHw
+    condition:
+      - brd4001c
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHw
+    condition:
+      # Does not work out of the box with uartdrvFlowControlHwUart because of the adapter FW VCOM default config.
+      - brd2710a
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHwUart
+    unless:
+      - brd2710a
+      - brd4002a
+      - brd4001c
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: "0"
+    condition:
+      - psa_crypto
+  - name: SL_BT_GATTDB_INCLUDE_STATIC_DATABASE
+    value: "0"
+  - name: SL_BT_GATTDB_ENABLE_GATT_CACHING
+    value: "0"
+  - name: NVM3_DEFAULT_NVM_SIZE
+    value: "32768"
+
+tag:
+  - prebuilt_demo
+  - hardware:rf:band:2400
+
+ui_hints:
+  highlight:
+    - path: readme.md
+      focus: true

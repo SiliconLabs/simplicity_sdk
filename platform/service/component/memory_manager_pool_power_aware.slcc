@@ -1,0 +1,37 @@
+id: memory_manager_pool_power_aware
+label: "Memory Manager Memory Pool Power Aware"
+package: platform
+description: >
+  This component provides a memory pool API.
+  This API allows to reserve a chunk of memory large enough to hold a number of fixed-size blocks.
+  This construct should only be used for models where a random dynamic memory allocation failure
+  would be irrecoverable.
+  The Memory Manager also offers another memory pool API called Memory Pool.
+  The Memory Manager Memory Pool Power Aware API has a bigger memory footprint in RAM compared to the Memory Pool
+  but offers a better placement in RAM to limit the heap fragmentation.
+category: Services|Memory Manager
+quality: production
+ui_hints:
+  visibility: never
+metadata:
+  sbom:
+    license: Zlib
+root_path: platform/service/memory_manager
+include:
+  - path: inc
+    file_list:
+      - path: sl_memory_manager.h
+  - path: src
+    file_list:
+      - path: sli_memory_manager.h
+source:
+  - path: src/sl_memory_manager_pool_power_aware.c
+provides:
+  - name: memory_manager_pool_implementation
+  - name: memory_manager_pool_power_aware
+requires:
+  - name: bit
+  - name: sl_core
+  - name: sl_assert
+  - name: cmsis_core
+  - name: memory_manager

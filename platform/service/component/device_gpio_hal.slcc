@@ -1,0 +1,19 @@
+id: device_gpio_hal
+label: Device Manager GPIO HAL
+package: platform
+description: >
+  This component represent the Device Manager GPIO HAL layer.
+category: Services
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+ui_hints:
+  visibility: never
+provides:
+  - name: device_gpio_hal
+requires:
+  - name: device_gpio
+root_path: platform/service/device_manager
+source:
+  - path: gpios/sl_device_gpio_common.c

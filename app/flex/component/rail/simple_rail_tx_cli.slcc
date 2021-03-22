@@ -1,0 +1,33 @@
+id: "simple_rail_tx_cli"
+label: "Simple RAIL Tx CLI"
+package: "Flex"
+description: >
+  This component introduces RAIL transmit functionality via the command-line
+  interface (CLI). When invoked, it triggers the state machine of the Simple
+  RAIL Tx component using a CLI event. This component is compatible with the
+  Blink and RAIL - SoC Empty example applications only.
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/flex/component/rail/simple_rail_tx_cli"
+
+provides:
+  - name: "simple_rail_tx_cli"
+requires:
+  - name: "simple_rail_tx"
+  - name: "cli"
+source:
+  - path: "simple_rail_tx_cli.c"
+
+template_contribution:
+
+  - name: cli_command
+    value:
+      name: send
+      handler: cli_send_packet
+      help: "Send a given packet"
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: simple_rail_tx_cli

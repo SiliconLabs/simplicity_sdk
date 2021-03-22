@@ -1,0 +1,34 @@
+id: cs_initiator_display
+package: Bluetooth
+label: CS Initiator Display
+description: >
+  Prints CS Initiator status information to the LCD of the WSTK.
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_initiator_display
+include:
+  - path: ./inc
+    file_list:
+      - path: cs_initiator_display.h
+
+config_file:
+  - path: config/cs_initiator_display_config.h
+
+source:
+  - path: src/cs_initiator_display.c
+
+requires:
+  - name: dmd_memlcd
+  - name: glib
+
+provides:
+  - name: cs_initiator_display
+
+template_contribution:
+  - name: component_catalog
+    value: cs_initiator_display
+  - name: bluetooth_on_event
+    value:
+      include: cs_initiator_display.h
+      function: cs_initiator_display_on_event
+    priority: 9999

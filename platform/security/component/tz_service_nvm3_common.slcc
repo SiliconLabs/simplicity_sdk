@@ -1,0 +1,47 @@
+id: tz_service_nvm3_common
+package: platform
+label: NVM3 and ITS service helper component for TrustZone secure library
+description: >-
+  This component provides the common files required for the NVM3 and ITS services
+category: Platform|Security|TrustZone
+quality: production
+component_root_path: platform/security/sl_component/sl_trustzone/
+ui_hints:
+  visibility: never
+
+provides:
+  - name: tz_service_nvm3_common
+
+requires:
+  - name: mpu
+
+include:
+  - path: inc/common
+    condition: [trustzone_nonsecure]
+    file_list:
+      - path: sli_tz_service_nvm3.h
+
+  - path: ../../../emdrv/nvm3/inc
+    condition: [trustzone_nonsecure]
+    file_list:
+      - path: nvm3_default.h
+      - path: nvm3.h
+      - path: nvm3_generic.h
+      - path: nvm3_hal.h
+      - path: nvm3_hal_flash.h
+      - path: nvm3_lock.h
+
+source:
+  - path: src/sli_tz_service_nvm3_ns.c
+    condition: [trustzone_nonsecure]
+
+template_contribution:
+  - name: tz_nvm3_sid_func_mapping_default
+    value:
+      sid:  SLI_TZ_SERVICE_NVM3_INITDEFAULT_SID
+      func: sli_tz_nvm3_init_default
+
+  - name: tz_nvm3_sid_func_mapping_default
+    value:
+      sid: SLI_TZ_SERVICE_NVM3_DEINITDEFAULT_SID
+      func: sli_tz_nvm3_deinit_default

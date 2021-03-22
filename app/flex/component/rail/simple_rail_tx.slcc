@@ -1,0 +1,63 @@
+id: "simple_rail_tx"
+label: "Simple RAIL Tx"
+package: "Flex"
+description: >
+  This component introduces minimalist RAIL transmit functionality with a
+  dedicated RAIL event callback for Tx events and an embedded transmit state
+  machine. The transmit event can be initiated through the command-line
+  interface (Simple RAIL Tx CLI), button press (Simple RAIL Tx Button), or
+  other methods. The payload and channel configurations are hardcoded. This
+  component is compatible with the Blink and RAIL - SoC Empty example
+  applications only.
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/flex/component/rail/simple_rail_tx"
+
+provides:
+  - name: "simple_rail_tx"
+requires:
+  - name: "rail_util_pa"
+  - name: "app_log"
+  - name: "app_assert"
+  - name: "printf"
+  - name: "iostream_transport"
+  - name: "a_radio_config"
+  - name: "status"
+  - name: "device_has_radio"
+  - name: "sl_flex_rail_config"
+recommends:
+  - id: "radio_config_simple_rail_singlephy"
+source:
+  - path: "simple_rail_tx.c"
+include:
+  - path: "."
+    file_list:
+    - "path": "simple_rail_tx.h"
+
+template_contribution:
+  - name: rail_util_callbacks
+    value:
+      event: rail_event
+      include: simple_rail_tx.h
+      handler: sl_simple_rail_tx_on_event
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: "simple_rail_tx.h"
+      handler: "sl_simple_rail_tx_init"
+    priority: 100
+  - name: event_handler
+    value:
+      event: internal_app_process_action
+      include: "simple_rail_tx.h"
+      handler: "sl_simple_rail_tx_tick"
+    priority: 1
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: simple_rail_tx
+
+validation_helper:
+  - path: "simple_rail_tx_validation.lua"

@@ -1,0 +1,36 @@
+id: "simple_rail_assistance"
+label: "Simple RAIL Assistance"
+package: "Flex"
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+description: >
+  This component provides fine-grained control over the dedicated LEDs on the
+  board, as well as essential logging functionality.
+  The logging functions allow you to capture important events and diagnostic
+  information. These logs can be invaluable for debugging, monitoring, and
+  analyzing the behavior of your system.
+  Whether you want to indicate reception or transmission, this component
+  provides the necessary functionality along with robust logging capabilities.
+root_path: "app/flex/component/rail/simple_rail_assistance"
+
+requires:
+  - name: component_catalog
+
+include:
+  - path: "."
+    file_list:
+    - "path": "simple_rail_assistance.h"
+
+source:
+  - path: "simple_rail_assistance.c"
+
+provides:
+  - name: "simple_rail_assistance"
+
+template_contribution:
+#----------------- Component Catalog -----------------
+  - name: component_catalog
+    value: simple_rail_assistance

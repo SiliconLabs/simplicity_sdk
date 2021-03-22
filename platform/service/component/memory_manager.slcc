@@ -1,0 +1,70 @@
+id: memory_manager
+label: "Memory Manager"
+package: platform
+description: >
+  This component provides different APIs to manage embedded dynamic memory allocations.
+  Different memory management constructs are supported.
+  * Dynamic allocation/free: dynamically allocate and free memory blocks of various sizes.
+  * Memory pools: reserve a chunk of memory large enough to hold a number of fixed-size blocks. This construct should only be used for models where a random dynamic memory allocation failure would be irrecoverable.
+  * Dynamic reservation/free: similar to the dynamic allocation to reserve and free a block. A reserved block is meant to have a long life duration during the application execution.
+  * Memory regions: Provides configuration and getter function of the C stack and heap for the supported toolchains. For GCC, it also adds support for _sbrk() for heap allocation. It is used in the newlib version of malloc().
+category: Services|Memory Manager
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+root_path: platform/service/memory_manager
+config_file:
+  - path: config/sl_memory_manager_config.h
+include:
+  - path: inc
+    file_list:
+      - path: sl_memory_manager.h
+  - path: src
+    file_list:
+      - path: sli_memory_manager.h
+source:
+  - path: src/sl_memory_manager.c
+  - path: src/sl_memory_manager_dynamic_reservation.c
+  - path: src/sli_memory_manager_common.c
+  - path: src/sl_memory_manager_retarget.c
+    unless: [device_host]
+provides:
+  - name: memory_manager
+  - name: sl_malloc
+requires:
+  - name: bit
+  - name: sl_core
+  - name: sl_assert
+  - name: sl_common
+  - name: status
+  - name: memory_manager_region
+  - name: memory_manager_pool_implementation
+  - name: memory_manager_pool
+    condition: [device_series_2]
+  - name: memory_manager_cpp
+    condition: [cpp_support]
+recommends:
+  - id: memory_manager_pool
+    condition: [device_series_2]
+  - id: memory_manager_pool_power_aware
+    condition: [device_series_3]
+  - id: memory_manager_pool
+    condition: [device_host]
+template_contribution:
+  - name: component_catalog
+    value: memory_manager
+  - name: event_handler
+    unless: [cpp_support]
+    value:
+      event: platform_init
+      include: sl_memory_manager.h
+      handler: sl_memory_init
+    priority: -9200
+documentation:
+    docset: gecko-platform
+    document: platform-service/memory-manager
+toolchain_settings:
+  - option: gcc_linker_option
+    value: "-Wl,--wrap=_free_r -Wl,--wrap=_malloc_r -Wl,--wrap=_calloc_r -Wl,--wrap=_realloc_r"
+    unless: [device_host]

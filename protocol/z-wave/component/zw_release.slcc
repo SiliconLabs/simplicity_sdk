@@ -1,0 +1,16 @@
+id: zw_release
+label: Z-Wave Release
+category: Z-Wave
+description: >
+  This component switches off the debug print functionality through the NO_DEBUGPRINT definition.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+provides:
+- name: zw_release
+- name: zw_build_mode
+define:
+- name: NO_DEBUGPRINT
+- name: NDEBUG

@@ -1,0 +1,22 @@
+id: tensorflow_lite_micro_reference_kernels
+package: platform
+label: Reference Kernels
+description: >
+  This component includes the available reference kernel implementations used
+  with TensorFlow Lite for Microcontrollers. The reference kernels are pure C/C++
+  implementations, and do not include any platform-specific optimizations.
+
+  If any other kernel implementation components are included in the project,
+  each included kernel will replace the corresponding reference kernel implementation.
+
+category: Machine Learning|TensorFlow|Kernels
+quality: production
+provides:
+  - name: tensorflow_lite_micro_reference_kernels
+  - name: tensorflow_kernel_implementation
+    allow_multiple: true
+requires:
+  - name: tensorflow_lite_micro
+root_path: util/third_party/tflite-micro
+include:
+  - path: .

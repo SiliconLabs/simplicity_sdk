@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<demos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://www.silabs.com/ss/Studio.ecore" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/Demo.ecore">
+  <demo name="brd4198b.demo.bt_cs_ncp" label="Bluetooth - NCP for Channel Sounding">
+    <model:description>Network Co-Processor (NCP) target application for Channel Sounding. Runs the Bluetooth stack and provides access to it by exposing the Bluetooth API (BGAPI) via UART connection. Addition to the standard NCP features, it listens to HADM specific user messages, and executes them. This application also features a CS Initiator with RTL and reflector. In case of brd4406a it uses custom BGAPI message for antenna switching.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - NCP for Channel Sounding"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4198b"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_ncp/bt_cs_ncp-brd4198b.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_ncp/readme.md"/>
+    <property key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-uart-bgapi/bootloader-uart-bgapi-brd4198b.s37"/>
+  </demo>
+  <demo name="brd4335a.demo.bt_cs_ncp" label="Bluetooth - NCP for Channel Sounding">
+    <model:description>Network Co-Processor (NCP) target application for Channel Sounding. Runs the Bluetooth stack and provides access to it by exposing the Bluetooth API (BGAPI) via UART connection. Addition to the standard NCP features, it listens to HADM specific user messages, and executes them. This application also features a CS Initiator with RTL and reflector. In case of brd4406a it uses custom BGAPI message for antenna switching.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - NCP for Channel Sounding"/>
+    <property key="core.partCompatibility" value=".*bgm241sd22vna.*"/>
+    <property key="core.boardCompatibility" value="brd4335a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_ncp/bt_cs_ncp-brd4335a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_ncp/readme.md"/>
+    <property key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-uart-bgapi/bootloader-uart-bgapi-brd4335a.s37"/>
+  </demo>
+  <demo name="brd4198b.demo.bt_cs_soc_initiator" label="Bluetooth - SoC CS Initiator">
+    <model:description>CS initiator for Bluetooth. The example connects to an CS reflector and starts distance measurement. Results are printed on the display of the WSTK.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC CS Initiator"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4198b"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_soc_initiator/bt_cs_soc_initiator-brd4198b.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_soc_initiator/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198b.s37"/>
+  </demo>
+  <demo name="brd4335a.demo.bt_cs_soc_initiator" label="Bluetooth - SoC CS Initiator">
+    <model:description>CS initiator for Bluetooth. The example connects to an CS reflector and starts distance measurement. Results are printed on the display of the WSTK.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC CS Initiator"/>
+    <property key="core.partCompatibility" value=".*bgm241sd22vna.*"/>
+    <property key="core.boardCompatibility" value="brd4335a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_soc_initiator/bt_cs_soc_initiator-brd4335a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_soc_initiator/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4335a.s37"/>
+  </demo>
+  <demo name="brd4198b.demo.bt_cs_soc_reflector" label="Bluetooth - SoC CS reflector">
+    <model:description>Channel Sounding reflector for Bluetooth. The example sends measurement results to the initiator via GATT. The application starts advertising after boot and restarts advertising after a connection is closed. It also supports Over-the-Air Device Firmware Upgrade (OTA DFU).
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC CS reflector"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4198b"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_soc_reflector/bt_cs_soc_reflector-brd4198b.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_soc_reflector/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198b.s37"/>
+  </demo>
+  <demo name="brd4335a.demo.bt_cs_soc_reflector" label="Bluetooth - SoC CS reflector">
+    <model:description>Channel Sounding reflector for Bluetooth. The example sends measurement results to the initiator via GATT. The application starts advertising after boot and restarts advertising after a connection is closed. It also supports Over-the-Air Device Firmware Upgrade (OTA DFU).
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC CS reflector"/>
+    <property key="core.partCompatibility" value=".*bgm241sd22vna.*"/>
+    <property key="core.boardCompatibility" value="brd4335a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/app/bluetooth/demos/bt_cs_soc_reflector/bt_cs_soc_reflector-brd4335a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_cs_soc_reflector/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.0/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4335a.s37"/>
+  </demo>
+</demos>

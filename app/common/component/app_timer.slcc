@@ -1,0 +1,80 @@
+id: app_timer
+label: Timer
+package: platform
+description: >
+  Timer service for applications with less strict timing requirements.
+  This module is based on the sleeptimer, but runs the timer callbacks in
+  non-interrupt context. This behavior gives more flexibility for the callback
+  implementation but causes a less precise timing.
+  If your application requires precise timing, please use the sleeptimer
+  directly.
+category: Application|Utility
+quality: production
+root_path: app/common/util/app_timer
+source:
+  - path: bm/app_timer.c
+    unless:
+      - kernel
+  - path: freertos/app_timer_freertos.c
+    condition:
+      - freertos
+  - path: micriumos/app_timer_micriumos.c
+    condition:
+      - micriumos_kernel
+include:
+  - path: .
+    file_list:
+      - path: app_timer.h
+      - path: sl_simple_timer.h
+  - path: bm
+    file_list:
+      - path: app_timer_internal.h
+      - path: app_timer_types.h
+    unless:
+      - kernel
+  - path: freertos
+    file_list:
+      - path: app_timer_types.h
+    condition:
+      - freertos
+  - path: micriumos
+    file_list:
+      - path: app_timer_types.h
+    condition:
+      - micriumos_kernel
+provides:
+  - name: app_timer
+requires:
+  - name: power_manager
+  - name: sleeptimer
+template_contribution:
+  - name: component_catalog
+    value: app_timer
+  - name: event_handler
+    value:
+      event: service_process_action
+      include: app_timer_internal.h
+      handler: sli_app_timer_step
+    unless:
+      - kernel
+  - name: power_manager_handler
+    value:
+      event: is_ok_to_sleep
+      include: app_timer_internal.h
+      handler: sli_app_timer_is_ok_to_sleep
+    unless:
+      - kernel
+  - name: power_manager_handler
+    value:
+      event: sleep_on_isr_exit
+      include: app_timer_internal.h
+      handler: sli_app_timer_sleep_on_isr_exit
+    unless:
+      - kernel
+validation_helper:
+  - path: freertos/app_timer_freertos_validation.lua
+    condition:
+      - freertos
+  - path: micriumos/app_timer_micriumos_validation.lua
+    condition:
+      - micriumos_kernel

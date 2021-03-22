@@ -1,0 +1,28 @@
+id: "bluetooth_host_release_libraries"
+label: "Bluetooth Low Energy Host Library"
+ui_hints:
+  visibility: never
+package: "Bluetooth"
+description: >
+  BLE host libraries to be used by the Bluetooth stack
+category: Bluetooth|Bluetooth Host (Stack)
+quality: "production"
+root_path: "protocol/bluetooth"
+requires:
+  - name: "bluetooth_common_release"
+  - name: "bluetooth_controller_libraries"
+provides:
+  - name: "bluetooth_host_libraries"
+  - name: "bluetooth_host_release_libraries"
+library:
+  - path: build/gcc/cortex-m33/bt_host/release/libbt_host.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+  - path: build/iar/cortex-m33/bt_host/release/libbt_host.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+metadata:
+  sbom:
+    license: MSLA

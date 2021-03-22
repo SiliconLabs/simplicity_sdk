@@ -1,0 +1,42 @@
+id: ble_peer_manager_central
+package: Bluetooth
+label: BLE Peer Manager Central
+description: >
+  Peer Manager for Bluetooth Low Energy. Responsible for scanning and 
+  creating connections. Filters can be used for setting Bluetooth 
+  specific parameters.
+category: Bluetooth|Application|Miscellaneous|BLE Peer Manager
+quality: production
+root_path: app/bluetooth/common/ble_peer_manager/central
+include:
+  - path: inc
+    file_list:
+      - path: ble_peer_manager_central.h
+      - path: ble_peer_manager_central_internal.h
+source:
+  - path: src/ble_peer_manager_central.c
+requires:
+  - name: app_log
+  - name: app_timer
+  - name: bluetooth_stack
+  - name: bluetooth_feature_system
+  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_legacy_scanner
+  - name: bluetooth_feature_extended_scanner
+  - name: ble_peer_manager_common
+  - name: ble_peer_manager_filter
+recommends:
+  - id: app_timer
+config_file:
+  - path: config/ble_peer_manager_central_config.h
+provides:
+  - name: ble_peer_manager_central
+template_contribution:
+  - name: bluetooth_on_event
+    value:
+      include: ble_peer_manager_central_internal.h
+      function: ble_peer_manager_central_on_bt_event
+    priority: 0
+documentation:
+  docset: bluetooth
+  document: bluetooth-service-api/ble-peer-manager-central

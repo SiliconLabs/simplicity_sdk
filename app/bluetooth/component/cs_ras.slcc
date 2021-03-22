@@ -1,0 +1,19 @@
+id: cs_ras
+package: Bluetooth
+label: CS Ranging Service
+description: >
+  CS Ranging Service
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_ras
+include:
+  - path: .
+    file_list:
+      - path: cs_ras.h
+source:
+  - path: cs_ras.c
+requires:
+  - name: app_log
+  - name: app_assert
+provides:
+  - name: cs_ras

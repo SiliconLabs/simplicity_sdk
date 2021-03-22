@@ -1,0 +1,72 @@
+id: "sl_flex_rail_package_assistant"
+label: "Flex - RAIL Packaging Assistant"
+package: "Flex"
+description: >
+  This component is a versatile radio interface layer designed to support both
+  proprietary and standards-based wireless protocols. It empowers developers by
+  providing an intuitive and easily-customizable radio interface. The component
+  offers a consistent radio API. This ensures application portability and
+  simplifies complex radio register configurations.
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/flex/component/rail/sl_flex_rail_package_assistant"
+provides:
+  - name: sl_flex_rail_package_assistant
+
+requires:
+  - name: sl_flex_rail_packet_asm
+  - name: device_has_radio
+  - name: restrictions_profile_wisun_fan_1_0
+  - name: restrictions_profile_wisun_fan_1_1
+  - name: restrictions_profile_wisun_han
+  - name: restrictions_profile_wisun_ofdm
+  - name: restrictions_profile_sun
+
+# according to standards the packet assembler is chosen.
+source:
+  - path: "sl_flex_rail_package_assistant.c"
+  - path: "sl_flex_rail_package_assistant_cli.c"
+    condition:
+      - "cli"
+include:
+  - path: "."
+    file_list:
+    - "path": "sl_flex_rail_package_assistant.h"
+
+config_file:
+  - path: config/sl_flex_rail_package_assistant_config.h
+
+#-------------- Template Contribution ----------------
+template_contribution:
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: rail_package_assistant
+
+  - name: cli_command
+    value:
+      name: get_print_package_info
+      handler: cli_get_print_package_info
+      help: "Get the print setting"
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: set_print_package_info
+      handler: cli_set_print_package_info
+      help: "Set the print setting"
+      argument:
+      - type: uint8
+        help: "ON/OFF"
+    condition:
+      - "cli"
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: "sl_flex_rail_package_assistant.h"
+      handler: "validation_check"
+    priority: 1000
+
+

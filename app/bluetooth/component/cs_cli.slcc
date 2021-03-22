@@ -1,0 +1,72 @@
+id: "cs_initiator_cli"
+label: "Channel Sounding Command Line Interface"
+package: Bluetooth
+description: >
+ Channel Sounding CLI
+ This is a CLI component for bt_cs_soc_initiator.
+category: Bluetooth|Application|Miscellaneous
+quality: "experimental"
+root_path: "app/bluetooth/common/cs_initiator_cli"
+include:
+  - path: .
+    file_list:
+      - path: cs_initiator_cli.h
+source:
+  - path: "cs_initiator_cli.c"
+provides:
+  - name: "cs_initiator_cli"
+requires:
+  - name: "ble_peer_manager_filter"
+  - name: "ble_peer_manager_central"
+  - name: "component_catalog"
+  - name: "bluetooth_api"
+  - name: "app_log"
+  - name: "cli"
+template_contribution: 
+  - name: cli_command
+    value:
+      name: mode
+      handler: cs_initiator_cli_initiator_mode
+      shortcuts:
+        - name: sm
+      help: "Set mode"
+      argument:
+        - type: uint8
+          help: "PBR:2 or RTT:1"
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: filter_address
+      handler: cs_initiator_cli_initiator_filter_address
+      shortcuts:
+        - name: fa
+      help: "Set filter"
+      argument:
+        - type: hex
+          help: "Filter address {AA BB CC DD EE FF} format."
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: log_level
+      handler: cs_initiator_cli_initiator_log_level
+      shortcuts:
+        - name: ll
+      help: "Set log level"
+      argument:
+        - type: uint8
+          help: "Values: error:1 warning:2 info:3 debug:4 critical:5."
+    condition:
+      - "cli"
+  - name: cli_command
+    value:
+      name: start
+      handler: cs_initiator_cli_initiator_start
+      shortcuts:
+        - name: s
+      help: "Start scanning"
+    condition:
+      - "cli"
+  - name: component_catalog
+    value: cs_initiator_cli

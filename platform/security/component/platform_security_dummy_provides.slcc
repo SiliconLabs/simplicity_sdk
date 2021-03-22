@@ -1,0 +1,16 @@
+id: platform_security_dummy_provides
+package: platform
+description: Platform Security dummy provider.
+category: Platform|Security|Internal
+quality: production
+ui_hints:
+  visibility: never
+provides:
+  - name: platform_security_dummy_provides
+    condition: [platform_security_dummy_provides]
+  - name: sxsymcrypt
+    condition: [platform_security_dummy_provides]
+  - name: mbedtls_entropy_dummy_nvseed
+    condition: [platform_security_dummy_provides]
+  - name: psa_driver_source_s3
+    condition: [platform_security_dummy_provides]

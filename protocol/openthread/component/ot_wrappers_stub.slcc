@@ -1,0 +1,14 @@
+id: ot_rtos_wrapers_stub
+label: SL RTOS stub component
+package: OpenThread
+category: OpenThread
+quality: production
+description: This component provides a stub for wrapper component.
+ui_hints:
+  visibility: never
+provides:
+  - name: ot_rtos_wrappers
+
+metadata:
+  sbom:
+    license: Zlib

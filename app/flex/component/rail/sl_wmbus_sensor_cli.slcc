@@ -1,0 +1,43 @@
+id: "sl_wmbus_sensor_cli"
+label: "Wireless M-bus sensor CLI"
+package: "Flex"
+description: "Wireless M-bus sensor CLI support."
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/flex/component/rail/sl_wmbus_sensor_cli"
+
+provides:
+  - name: "sl_wmbus_sensor_cli"
+requires:
+  - name: "sl_wmbus_sensor_core"
+  - name: "cli"
+  - name: "app_log"
+  - name: "iostream_recommended_stream"
+source:
+  - path: "sl_wmbus_sensor_cli.c"
+
+template_contribution:
+  - name: cli_command
+    value:
+      name: list_sensors
+      handler: cli_list_sensors
+      help: "List avaiable sensors"
+  - name: cli_command
+    value:
+      name: get_active_sensor
+      handler: cli_get_active_sensor
+      help: "Get active sensor"
+  - name: cli_command
+    value:
+      name: set_active_sensor
+      handler: cli_set_active_sensor
+      help: "Set active sensor (Set after TX frame sending)"
+      argument:
+      - type: uint8
+        help: "Sensor id"
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: sl_wmbus_sensor_cli

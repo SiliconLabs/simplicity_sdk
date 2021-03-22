@@ -1,0 +1,118 @@
+id: "bluetooth_stack"
+label: "Bluetooth Core"
+package: "Bluetooth"
+description: >
+  Bluetooth Low Energy stack and configurations
+
+  In addition to this core component, select features needed by the application.
+category: Bluetooth|Bluetooth Host (Stack)
+quality: "production"
+root_path: "protocol/bluetooth"
+config_file:
+  - path: "config/sl_bluetooth_config.h"
+include:
+  - path: "inc/"
+    file_list:
+      - path: "sl_bt_stack_config.h"
+      - path: "sl_bt_ll_config.h"
+      - path: "sl_bgapi.h"
+      - path: "sl_bt_api.h"
+      - path: "sl_bt_api_compatibility.h"
+      - path: "sl_bt_stack_init.h"
+      - path: "sl_bt_types.h"
+  - path: "bgstack/ll/inc/"
+    file_list:
+      - path: sl_btctrl_linklayer.h
+source:
+  - path: "src/sl_bt_stack_init.c"
+template_file:
+  - path: "src/sl_bluetooth.c.jinja"
+  - path: "src/sl_bluetooth.h.jinja"
+other_file:
+  - path: "api/sl_bt.xapi"
+template_contribution:
+  - name: component_catalog
+    value: bluetooth
+  - name: component_catalog
+    value: bluetooth_feature_multiprotocol
+    condition:
+      - "rail_lib_multiprotocol"
+  - name: power_manager_handler
+    value:
+      event: is_ok_to_sleep
+      include: "sl_bluetooth.h"
+      handler: sli_bt_is_ok_to_sleep
+  - name: power_manager_handler
+    value:
+      event: sleep_on_isr_exit
+      include: "sl_bluetooth.h"
+      handler: sli_bt_sleep_on_isr_exit
+  - name: event_handler
+    value:
+      event: stack_init
+      include: "sl_bluetooth.h"
+      handler: "sl_bt_init"
+    unless:
+      - "kernel"
+    priority: 0
+  - name: event_handler
+    value:
+      event: stack_init
+      include: "sl_bt_rtos_adaptation.h"
+      handler: "sl_bt_rtos_init"
+    condition:
+      - "kernel"
+    priority: -1000
+  - name: event_handler
+    value:
+      event: stack_process_action
+      include: "sl_bluetooth.h"
+      handler: "sl_bt_step"
+    priority: 9
+  - name: application_type
+    value: "APPLICATION_TYPE_BLUETOOTH_APP"
+requires:
+  - name: "bluetooth_version"
+  - name: "bluetooth_configuration"
+  - name: "bluetooth_host_adaptation"
+  - name: "bluetooth_host_libraries"
+  - name: "bluetooth_gattdb_definition"
+  - name: "emlib_system"
+  - name: "sleeptimer"
+  - name: "rail_lib"
+  - name: "rail_util_pa"
+  - name: "rail_util_built_in_phys"
+  - name: "nvm_system"
+  - name: "nvm3_default"
+    condition:
+      - "nvm3"
+  - name: "device_supports_bluetooth"
+  - name: "bluetooth_crypto"
+  - name: "component_catalog"
+  - name: "power_manager"
+  - name: "kernel"
+    condition:
+      - "device_series_3"
+  - name: "bluetooth_rtos_adaptation"
+    condition:
+      - "kernel"
+  - name: "cmsis_rtos2"
+    condition:
+      - "kernel"
+  - name: "sl_system"
+  - name: "sl_assert"
+  - name: "memory_manager"
+  - name: "memory_profiler_api"
+  - name: "bluetooth_device_compatibility"
+recommends:
+  - id: "librail_singleprotocol"
+  - id: "bluetooth_host_release_libraries"
+provides:
+  - name: "bluetooth_api"
+  - name: "bluetooth_stack"
+  - name: "bluetooth_controller"
+  - name: "wireless_stack"
+    allow_multiple: true
+metadata:
+  sbom:
+    license: Zlib AND MSLA

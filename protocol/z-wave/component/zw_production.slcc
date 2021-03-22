@@ -1,0 +1,28 @@
+id: zw_production
+label: Z-Wave Production
+category: Z-Wave
+description: >
+  This component includes diferent libraries for 700 and 800 series processor types, for
+  end devices, and for controller and portable controller devices.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+requires:
+  - name: zw_zpal_quality_mode
+provides:
+  - name: zw_production
+  - name: zw_quality_mode
+recommends:
+  - id: zw_zpal_production
+library:
+  # Release build
+  ## End devices
+  ### Series 2
+  - path: protocol/z-wave/dist/lib/libZWaveSlave_series2.a
+    condition: [device_series_2, zw_end_device]
+  ## Controllers
+  ### Series 2
+  - path: protocol/z-wave/dist/lib/libZWaveController_series2.a
+    condition: [device_series_2, zw_role_type_central_static_controller]

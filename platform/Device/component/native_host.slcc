@@ -1,0 +1,14 @@
+id: native_host
+label: Native Host Device
+package: platform
+description: Device component for native binary.
+category: Platform|Device|Native
+quality: production
+provides:
+  - name: device
+  - name: device_host
+  - name: native_host
+requires:
+  - name: operating_system
+recommends:
+  - id: linux

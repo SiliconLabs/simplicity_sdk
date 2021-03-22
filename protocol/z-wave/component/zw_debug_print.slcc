@@ -1,0 +1,24 @@
+id: zw_debug_print
+label: Z-Wave Debug Print
+category: Z-Wave
+description: Enables debug print. Install this component to get debug output.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+provides:
+- name: zw_debug_print
+
+include:
+  - path: "protocol/z-wave/ZAF/ApplicationUtilities"
+    file_list:
+    - path: "ZAF_PrintAppInfo.h"
+source:
+  - path: "protocol/z-wave/ZAF/ApplicationUtilities/ZAF_PrintAppInfo.c"
+  - path: "protocol/z-wave/Components/DebugPrint/DebugPrint.c"
+requires:
+  - name: iostream_recommended_stream
+  - name: zw_debug
+  - name: iostream_swo
+    condition: [zw_api_controller]

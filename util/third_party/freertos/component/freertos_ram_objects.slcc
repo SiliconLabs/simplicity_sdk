@@ -1,0 +1,38 @@
+id: freertos_ram_objects
+label: FreeRTOS
+package: platform
+description: >
+  Select FreeRTOS objects to be placed in RAM.
+category: RTOS|FreeRTOS
+quality: production
+metadata:
+  sbom:
+    license: MSLA
+ui_hints:
+  visibility: never
+template_contribution:
+  - name: third_party_ram_objects
+    value: cmsis_os2
+  - name: third_party_ram_objects
+    value: croutine
+  - name: third_party_ram_objects
+    value: event_groups
+  - name: third_party_ram_objects
+    value: list
+  - name: third_party_ram_objects
+    value: queue
+  - name: third_party_ram_objects
+    value: stream_buffer
+  - name: third_party_ram_objects
+    value: tasks
+  - name: third_party_ram_objects
+    value: timers
+  - name: third_party_ram_objects
+    value: portasm
+  - name: third_party_ram_objects
+    value: port
+  - name: third_party_ram_objects
+    value: tick_power_manager
+    condition: [power_manager]
+provides:
+  - name: freertos_ram_objects

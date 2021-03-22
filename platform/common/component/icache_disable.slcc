@@ -1,0 +1,33 @@
+id: icache_disable
+label: "ICACHE Disable"
+description: >
+  This component creates MPU regions for FLASH and RAM functions to execute
+  without cache enabled.
+package: platform
+category: Platform|Toolchain
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+ui_hints:
+  visibility: never
+root_path: platform/common
+include:
+  - path: inc
+    file_list:
+      - path: sli_icache_disable.h
+source:
+  - path: src/sli_icache_disable.c
+requires:
+  - name: event_handler
+  - name: device
+provides:
+  - name: icache_disable
+template_contribution:
+  - name: event_handler
+    value:
+      event: service_init
+      include: sli_icache_disable.h
+      handler: sli_icache_disable
+    priority: 1
+

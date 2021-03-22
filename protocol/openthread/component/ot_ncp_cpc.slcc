@@ -1,0 +1,48 @@
+id: ot_ncp_cpc
+label: NCP CPC
+package: OpenThread
+category: OpenThread
+quality: production
+description: This component provides Co-Processor Communication (CPC) support for the OpenThread stack. It requires that the OpenThread NCP component be included with the project. Currently only the OpenThread RCP stack is supported.
+provides:
+  - name: ot_ncp_cpc
+requires:
+  - name: ot_stack
+  - name: ot_ncp
+  - name: ot_ncp_vendor_extension
+  - name: cpc_secondary
+  - name: ot_coex
+  - name: rail_util_ieee802154_fast_channel_switching
+    condition:
+      - "rail_ieee802154_supports_rx_channel_switching"
+# For concurrent listening on xG24
+  - name: rail_util_dma
+    condition:
+      - device_sdid_215
+# For concurrent listening on xG21    
+  - name: rail_util_dma
+    condition:
+      - device_sdid_200
+recommends:
+  - id: ot_stack_rcp
+include:
+  - path: protocol/openthread/platform-abstraction/ncp/
+    file_list:
+      - path: ncp_cpc.hpp
+source:
+  - path: protocol/openthread/platform-abstraction/ncp/ncp_cpc.cpp
+template_contribution:
+  - name: component_catalog
+    value: 15_4_ncp
+define:
+  - name: OPENTHREAD_CONFIG_NCP_HDLC_ENABLE
+    value: 0
+  - name: OPENTHREAD_CONFIG_NCP_CPC_ENABLE
+    value: 1
+  - name: OPENTHREAD_CONFIG_NCP_CPC_TX_CHUNK_SIZE
+    value: 2048
+validation_helper:
+  - path: protocol/openthread/component/script/ot_multipan_config_validation.lua
+metadata:
+  sbom:
+    license: Zlib

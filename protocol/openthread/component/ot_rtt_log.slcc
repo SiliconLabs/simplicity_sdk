@@ -1,0 +1,22 @@
+id: ot_rtt_log
+label: RTT Logger
+package: OpenThread
+category: OpenThread
+quality: production
+description: This component adds support for RTT logging which is the mechanism used for the platform defined logging interface.
+provides:
+  - name: ot_logging
+  - name: ot_rtt_log
+requires:
+  - name: ot_platform_abstraction_implementation
+  - name: segger_rtt
+recommends:
+  - id: ot_platform_abstraction_source
+source:
+  - path: protocol/openthread/platform-abstraction/efr32/logging_rtt.c
+define:
+  - name: OPENTHREAD_CONFIG_LOG_OUTPUT
+    value: OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED
+metadata:
+  sbom:
+    license: BSD-3-Clause

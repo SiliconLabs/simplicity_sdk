@@ -1,0 +1,18 @@
+id: ot_coap_cert_libs
+label: OpenThread CoAP Certification Libraries
+package: OpenThread
+category: OpenThread
+quality: production
+description: >
+  Includes OpenThread stack and PAL libraries that could be used for certification by inheritance. Uses default certification configurations.
+  Note: Please refer to the release notes to verify if the SDK has been qualified for certification.
+provides:
+  - name: ot_coap_cert_libs
+requires:
+  - name: ot_cert_libs
+metadata:
+  sbom:
+    # BSD-3-Clause covers the files included in the libraries from
+    # util/third_party/openthread and protocol/openthread/platform-abstraction/efr32.
+    # MSLA covers the files from util/plugin/security_manager.
+    license: BSD-3-Clause AND MSLA

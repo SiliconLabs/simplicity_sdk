@@ -1,0 +1,174 @@
+project_name: ZigbeeUnifiedTestHarness
+label: ZigbeeUnifiedTestHarness - SoC
+package: Zigbee
+category: Zigbee Application
+quality: production
+description: This is a Zigbee 3.0 Zigbee Unified Test Harness (ZUTH) dongle application.
+component:
+  - id: cli
+    instance:
+      - example
+  - id: iostream_recommended_stream
+  - id: zigbee_address_table
+  - id: zigbee_debug_print
+  - id: zigbee_pro_stack
+  - id: zigbee_source_route
+  - id: zigbee_concentrator
+  - id: zigbee_trust_center_nwk_key_update_broadcast
+  - id: zigbee_form_and_join
+  - id: zigbee_stack_diagnostics
+  - id: zigbee_zcl_framework_core
+  - id: zigbee_zcl_cli
+  - id: zigbee_core_cli
+  - id: zigbee_groups_server
+  - id: zigbee_identify
+  - id: zigbee_identify_feedback
+  - id: zigbee_level_control
+  - id: zigbee_on_off
+  - id: zigbee_counters
+  - id: zigbee_find_and_bind_initiator
+  - id: zigbee_find_and_bind_target
+  - id: zigbee_interpan
+  - id: zigbee_network_creator
+  - id: zigbee_network_creator_security
+  - id: zigbee_network_steering
+  - id: zigbee_scenes
+  - id: zigbee_scan_dispatch
+  - id: zigbee_update_tc_link_key
+  - id: zigbee_application_bootloader
+  - id: zigbee_packet_handoff
+  - id: zigbee_poll_control_client
+  - id: zigbee_poll_control_server
+  - id: zigbee_price_common
+  - id: zigbee_security_link_keys
+  - id: zigbee_test_harness
+  - id: zigbee_test_harness_z3
+  - id: zigbee_strong_random_api_radio
+  - id: zigbee_time_server
+  - id: zigbee_zll
+  - id: zigbee_zll_commissioning_common
+  - id: zigbee_zll_commissioning_server
+  - id: zigbee_zll_commissioning_client
+  - id: zigbee_zll_identify_server
+  - id: zigbee_zll_level_control_server
+  - id: zigbee_zll_scenes_server
+  - id: zigbee_zll_utility_client
+  - id: zigbee_zll_on_off_server
+  - id: bootloader_interface
+  - id: clock_manager
+configuration:
+  - name: SL_CLI_PROMPT_STRING
+    value: "\"ZigbeeTH>\""
+  - name: SL_BOARD_ENABLE_VCOM
+    value: 1
+  - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
+    value: usartHwFlowControlCtsAndRts
+    condition:
+      - iostream_usart
+  - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
+    value: eusartHwFlowControlCtsAndRts
+    condition:
+      - iostream_eusart
+  - name: SL_CLI_MAX_INPUT_ARGUMENTS
+    value: 20
+  - name: SL_CLI_INPUT_BUFFER_SIZE
+    value: 256
+  - name: SL_CLI_OUTPUT_BUFFER_SIZE
+    value: 256
+  - name: SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE
+    value: SLI_ZIGBEE_NETWORK_DEVICE_TYPE_COORDINATOR_OR_ROUTER
+  - name: SLI_ZIGBEE_PRIMARY_NETWORK_SECURITY_TYPE
+    value: SLI_ZIGBEE_NETWORK_SECURITY_TYPE_3_0
+  - name: SLI_ZIGBEE_SECONDARY_NETWORK_DEVICE_TYPE
+    value: SLI_ZIGBEE_NETWORK_DEVICE_TYPE_SLEEPY_END_DEVICE
+  - name: SLI_ZIGBEE_SECONDARY_NETWORK_SECURITY_TYPE
+    value: SLI_ZIGBEE_NETWORK_SECURITY_TYPE_3_0
+  - name: SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_HA_DEVICES_TO_STAY
+    value: 0
+  - name: SL_ZIGBEE_BINDING_TABLE_SIZE
+    value: 10
+  - name: SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE
+    value: 20
+  - name: SL_ZIGBEE_GP_SINK_TABLE_SIZE
+    value: 5
+  - name: SL_ZIGBEE_AF_PLUGIN_ZLL_COMMISSIONING_CLIENT_SUB_DEVICE_TABLE_SIZE
+    value: 3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZLL_COMMISSIONING_CLIENT_TOUCH_LINK_SECONDS_DELAY
+    value: 3
+  - name: SL_ZIGBEE_ZLL_GROUP_ADDRESSES
+    value: 10
+  - name: SL_ZIGBEE_AF_PLUGIN_ZLL_COMMISSIONING_COMMON_SCAN_SECONDARY_CHANNELS
+    value: 0
+  - name: SL_ZIGBEE_AF_PLUGIN_INTERPAN_ALLOW_REQUIRED_SMART_ENERGY_MESSAGES
+    value: 0
+  - name: SL_CLI_LOCAL_ECHO
+    value: 0
+  - name: SL_ZIGBEE_PROMISCUOUS_MODE_SUPPORT
+    value: 1
+  - name: SL_ZIGBEE_APPLICATION_HAS_RAW_HANDLER
+    value: 1
+  - name: ZTT_FIRMWARE_APPLICATION_VERSION
+    value: "\"1.0.2.7\""
+  - name: SL_HEAP_SIZE
+    value: 6096
+  - name: SL_ZIGBEE_BROADCAST_TABLE_SIZE
+    value: 21
+source:
+  - path: main.c
+  - path: app.c
+config_file:
+  - path: config/zcl/zcl_config.zap
+    file_id: zap_configuration_file_id
+    directory: zcl
+
+include:
+  - path: ./
+
+# Custom CLI for this application
+template_contribution:
+  - name: cli_group
+    value:
+      name: custom
+      help: Custom commands
+  - name: cli_command
+    value:
+      group: custom
+      name: lookup
+      handler: customLookupNeighbourTable
+      help: Custom command to look up the short address given an IEEE address
+      argument:
+        - type: hex
+  - name: cli_command
+    value:
+      group: custom
+      name: resetBootloader
+      handler: customResetBootloader
+      help: Invokes serial bootloader
+  - name: cli_command
+    value:
+      group: custom
+      name: addJoiner
+      handler: customAddKnownJoiner
+      help: Adds known joiner to TC
+      argument:
+        - type: hex
+        - type: hex
+
+tag:
+  - prebuilt_demo
+
+readme:
+  - path: ./readme.html
+
+ui_hints:
+  highlight:
+    - path: readme.html
+      focus: false
+
+filter:
+  - name: Wireless Technology
+    value: [Zigbee]
+  - name: Device Type
+    value: [SoC]
+  - name: Project Difficulty
+    value: [Beginner]

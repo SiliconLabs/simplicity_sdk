@@ -1,0 +1,19 @@
+!!omap
+- id: cpc_recommend_spi_exp_usart
+- label: "CPC: Recommend SPI Expansion Header USART interface"
+- package: platform
+- description: CPC Recommend SPI Expansion Header USART interface
+- category: Services|Co-Processor Communication|Secondary Device
+- quality: production
+- metadata:
+    sbom:
+      license: Zlib
+- ui_hints:
+    visibility: never
+- provides:
+  - name: cpc_recommend_spi_exp
+  - name: cpc_recommend_spi_exp_usart
+- recommends:
+  - id: cpc_secondary_driver_spi_usart
+    instance:
+    - exp

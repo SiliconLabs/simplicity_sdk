@@ -1,0 +1,26 @@
+id: "bluetooth_feature_cs_test"
+label: "Channel Sounding test"
+package: "Bluetooth"
+description: >
+  This component, corresponding to the "cs_test" class in Bluetooth APIs,
+  provides the additional Channel Sounding test feature.
+category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events
+quality: "experimental"
+root_path: "protocol/bluetooth"
+requires:
+  - name: "bluetooth_controller"
+  - name: "bluetooth_feature_cs"
+  - name: "bluetooth_feature_test"
+  - name: "device_supports_bluetooth_cs"
+provides:
+  - name: "bluetooth_feature_cs_test"
+template_contribution:
+  - name: component_catalog
+    value: bluetooth_feature_cs_test
+    priority: 10
+documentation:
+  docset: bluetooth
+  document: bluetooth-stack-api/sl-bt-cs-test
+metadata:
+  sbom:
+    license: MSLA

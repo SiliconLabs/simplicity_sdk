@@ -1,0 +1,50 @@
+id: device_peripheral_hal
+label: Device Manager Peripheral HAL
+package: platform
+description: >
+  This component represent the Device Manager peripherals HAL layer.
+category: Services
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+ui_hints:
+  visibility: never
+provides:
+  - name: device_peripheral_hal
+    condition: [device_sdid_200]
+  - name: device_peripheral_hal
+    condition: [device_sdid_205]
+  - name: device_peripheral_hal
+    condition: [device_sdid_210]
+  - name: device_peripheral_hal
+    condition: [device_sdid_215]
+  - name: device_peripheral_hal
+    condition: [device_sdid_220]
+  - name: device_peripheral_hal
+    condition: [device_sdid_225]
+  - name: device_peripheral_hal
+    condition: [device_sdid_230]
+  - name: device_peripheral_hal
+    condition: [device_sdid_235]
+requires:
+  - name: device_clock
+  - name: device_peripheral
+root_path: platform/service/device_manager
+source:
+  - path: devices/sl_device_peripheral_hal_efr32xg21.c
+    condition: [device_sdid_200]
+  - path: devices/sl_device_peripheral_hal_efr32xg22.c
+    condition: [device_sdid_205]
+  - path: devices/sl_device_peripheral_hal_efr32xg23.c
+    condition: [device_sdid_210]
+  - path: devices/sl_device_peripheral_hal_efr32xg24.c
+    condition: [device_sdid_215]
+  - path: devices/sl_device_peripheral_hal_efr32xg25.c
+    condition: [device_sdid_220]
+  - path: devices/sl_device_peripheral_hal_efr32xg26.c
+    condition: [device_sdid_225]
+  - path: devices/sl_device_peripheral_hal_efr32xg27.c
+    condition: [device_sdid_230]
+  - path: devices/sl_device_peripheral_hal_efr32xg28.c
+    condition: [device_sdid_235]

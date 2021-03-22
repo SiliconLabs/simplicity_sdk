@@ -1,0 +1,25 @@
+id: zw_zpal_zniffer_app_production
+label: Z-Wave ZPAL Zniffer Application Production
+category: Z-Wave
+description: >
+  This component contains ZPAL libraries used for the Z-Wave Zniffer Application production build. It
+  includes processor-specific libraries for Series 1 and Series 2 chips.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+provides:
+  - name: zw_zpal_zniffer_app_production
+  - name: zw_zpal_zniffer_app_quality_mode
+  - name: zw_zpal_quality_mode
+requires:
+  - name: device_supports_zwave
+library:
+  ## Series 2
+  - path: protocol/z-wave/dist/lib/libzpal_EFR32ZG23_zniffer_app.a
+    condition: [device_family_efr32zg23]
+  - path: protocol/z-wave/dist/lib/libzpal_EFR32ZG28_zniffer_app.a
+    condition: [device_family_efr32zg28]
+  - path: protocol/z-wave/dist/lib/libzpal_ZGM23_zniffer_app.a
+    condition: [device_family_zgm23, device_is_module]

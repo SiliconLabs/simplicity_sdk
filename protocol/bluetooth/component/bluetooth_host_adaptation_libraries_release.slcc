@@ -1,0 +1,39 @@
+id: "bluetooth_host_adaptation_libraries_release"
+package: "Bluetooth"
+ui_hints:
+  visibility: never
+description: >
+  BLE host adaptation library used by the Bluetooth stack
+category: Bluetooth|Bluetooth Host (Stack)
+quality: "production"
+provides:
+  - name: "bluetooth_host_adaptation_libraries_release"
+  - name: "bluetooth_host_adaptation_libraries"
+root_path: "protocol/bluetooth"
+template_contribution:
+  - name: component_catalog
+    value: bluetooth_host_adaptation_libraries_release
+library:
+  - path: build/gcc/cortex-m33/bt_host/hal/release/libbt_hal_series2.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+      - device_series_2
+  - path: build/gcc/cortex-m33/bt_host/hal/release/libbt_hal_series3.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+      - device_series_3
+  - path: build/iar/cortex-m33/bt_host/hal/release/libbt_hal_series2.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+      - device_series_2
+  - path: build/iar/cortex-m33/bt_host/hal/release/libbt_hal_series3.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+      - device_series_3
+metadata:
+  sbom:
+    license: MSLA

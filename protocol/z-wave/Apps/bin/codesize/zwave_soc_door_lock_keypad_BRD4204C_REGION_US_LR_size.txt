@@ -1,0 +1,45 @@
+
+==========================================================
+The output of the size tool: (e.g. arm-none-ambi-size.exe)
+==========================================================
+
+zwave_soc_door_lock_keypad.out  :
+section                     size         addr
+.vectors                   0x170    0x8006000
+.stack                    0x1000   0x20000000
+.bss                      0x8c80   0x20001000
+text_application_ram       0x1ac   0x20009c80
+.rodata                    0x318    0x800631c
+.text                    0x36570    0x8006640
+.ARM.exidx                   0x8    0x803cbb0
+.copy.table                  0xc    0x803cbb8
+.zero.table                  0x0    0x803cbc4
+.data                      0x43c   0x20009e2c
+.memory_manager_heap         0x0   0x2000a268
+.internal_storage        0x30000    0x803d000
+.zwave_nvm                   0x0    0x806d000
+.nvm                      0x8000    0x806d000
+.ARM.attributes             0x36          0x0
+.comment                    0x45          0x0
+.debug_line_str            0x29a          0x0
+.debug_frame             0x124dc          0x0
+.debug_info             0xdee2b1          0x0
+.debug_abbrev            0x287b7          0x0
+.debug_loclists          0x2e913          0x0
+.debug_aranges            0x6af8          0x0
+.debug_rnglists           0x515b          0x0
+.debug_line              0x7f8d6          0x0
+.debug_str               0x98710          0x0
+.debug_loc               0x28f6b          0x0
+.debug_ranges             0x4788          0x0
+Total                  0x1021b0c
+
+The calculated FLASH and SRAM usage summary:
+============================================
+FLASH used as program memory:  (Including only the sections: .text, .ARM.exidx, .data, _cc_handlers_v3)
+   224840
+FLASH used for storage: (Including only the sections: .zwavenvm, .simee, .nvm, .zwave_nvm)
+   32768
+SRAM usage:             (Including only the sections: .data, .bss, .heap (limited to 2048 per sl_memory_config.h), .stack_dummy, .reset_info)
+   41576
+

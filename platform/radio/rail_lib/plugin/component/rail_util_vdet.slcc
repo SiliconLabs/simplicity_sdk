@@ -1,0 +1,36 @@
+id: rail_util_vdet
+label: RAIL Utility, VDET
+description: Utility to provide RAIL with Front End Module Voltage Detect (VDET) support. Allows ADC voltage measurements timed with the start of TX packets for tuning FEM performance.
+package: platform
+category: Platform|Radio
+quality: experimental
+requires:
+  - name: device
+  - name: rail_lib
+  - name: device_sdid_220
+provides:
+  - name: rail_util_vdet
+documentation:
+  docset: rail
+  document: rail-api/rail-util-vdet
+config_file:
+  - path: platform/radio/rail_lib/plugin/rail_util_vdet/config/efr32xg2x/sl_rail_util_vdet_config.h
+    file_id: rail_util_vdet_config
+    condition:
+      - device_sdid_220
+include:
+  - path: platform/radio/rail_lib/plugin
+  - path: platform/radio/rail_lib/plugin/rail_util_vdet/
+    file_list:
+      - path: sl_rail_util_vdet.h
+source:
+  - path: platform/radio/rail_lib/plugin/rail_util_vdet/sl_rail_util_vdet.c
+template_contribution:
+  - name: event_handler
+    value:
+      event: stack_init
+      include: sl_rail_util_vdet.h
+      handler: sl_rail_util_vdet_init
+    priority: -9010
+  - name: component_catalog
+    value: rail_util_vdet

@@ -1,0 +1,8 @@
+Wi-SUN SDK 2.0.0
+- Wi-SUN Stack
+  - Dropped the legacy socket API
+  - Stability improvements
+  - Removed support for Series 0/1
+- Wi-SUN Applications
+  - Underlying platform changes only
+

@@ -1,0 +1,68 @@
+id: cs_initiator
+package: Bluetooth
+label: CS initiator 
+description: >
+  CS initiator  provides an instantiable initiator (central) logic that produce its own CS results
+  and also collects CS results from CS reflector (peripheral) devices.
+  Once all initiator and reflector results collected correctly it is forwarded to the RTL lib that shall
+  produce the high-level measurement values e.g. distance, likeliness of the current distance, etc.
+category: Bluetooth|Application|Miscellaneous
+quality: experimental
+root_path: app/bluetooth/common/cs_initiator
+
+include:
+  - path: ./inc
+    file_list:
+      - path: cs_initiator.h
+      - path: cs_initiator_configurator.h
+
+config_file:
+  - path: config/cs_initiator_config.h
+
+source:
+  - path: src/cs_initiator.c
+  - path: src/cs_initiator_configurator.c
+
+requires:
+  - name: app_assert
+  - name: app_log
+  - name: app_timer
+  - name: bluetooth_stack
+  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_cs
+  - name: bluetooth_feature_cs_test
+  - name: bluetooth_feature_extended_scanner
+  - name: bluetooth_feature_gatt
+  - name: bluetooth_feature_legacy_scanner
+  - name: bluetooth_feature_power_control
+  - name: cs_ras
+  - name: cs_acp
+  - name: component_catalog
+  - name: power_manager
+  - name: rtllib
+  - name: printf
+  - name: sleeptimer
+
+provides:
+  - name: cs_initiator
+
+template_contribution:
+  - name: component_catalog
+    value: cs_initiator
+  - name: ncp_local_evt_process
+    value:
+      include: cs_initiator.h
+      handler: cs_initiator_on_event
+    condition:
+      - ncp
+  - name: bluetooth_on_event
+    value:
+      include: cs_initiator.h
+      function: cs_initiator_on_event
+    unless:
+      - ncp
+  - name: event_handler
+    value:
+      event: internal_app_process_action
+      include: cs_initiator.h
+      handler: cs_initiator_step

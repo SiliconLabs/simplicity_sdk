@@ -1,0 +1,34 @@
+id: "sl_wmbus_packet_assembler"
+label: "Wireless M-bus sensor packet assembler"
+package: "Flex"
+description: "Packet assembler component for Wireless M-bus sensors"
+category: "Flex|RAIL|Utility"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/flex/component/rail/sl_wmbus_packet_assembler"
+
+provides:
+  - name: sl_wmbus_packet_assembler
+
+requires:
+  - name: "mbedtls_aes"
+  - name: "mbedtls_cipher_cbc"
+  - name: "mbedtls_slcrypto"
+  - name: "emlib_gpcrc"
+  - name: "device_has_radio"
+  - name: "app_assert"
+
+source:
+  - path: "sl_wmbus_packet_assembler.c"
+include:
+  - path: "."
+    file_list:
+    - "path": "sl_wmbus_packet_assembler.h"
+
+#-------------- Template Contribution ----------------
+template_contribution:
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: wmbus_packet_assembler

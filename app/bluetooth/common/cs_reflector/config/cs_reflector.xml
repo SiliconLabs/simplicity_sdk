@@ -1,0 +1,31 @@
+<gatt>
+  <!--Ranging Service (RAS)-->
+  <service advertise="true" id="ras" name="Ranging Service (RAS)" requirement="mandatory" sourceId="" type="primary" uuid="bbb99e70-fff7-46cf-abc7-2d32c71820f3">
+
+    <!--RAS Control point-->
+    <characteristic const="false" id="ras_control_point" name="RAS Control point" sourceId="" uuid="929f95ec-1391-4303-9b49-3c22a418be89">
+      <value length="255" type="hex" variable_length="true">00</value>
+      <properties>
+        <write authenticated="false" bonded="false" encrypted="true"/>
+        <indicate authenticated="false" bonded="false" encrypted="true"/>
+      </properties>
+    </characteristic>
+
+    <!--Procedure Enable Data-->
+    <characteristic const="false" id="ras_procedure_enable_data" name="Procedure Enable Data" sourceId="" uuid="929f95ec-1391-4303-9b49-3c22a418be90">
+      <value length="0" type="hex" variable_length="false">00</value>
+      <properties>
+        <notify authenticated="false" bonded="false" encrypted="true"/>
+      </properties>
+    </characteristic>
+
+    <!--Subevent Ranging Data-->
+    <characteristic const="false" id="ras_subevent_ranging_data" name="Subevent Ranging Data" sourceId="" uuid="929f95ec-1391-4303-9b49-3c22a418be91">
+      <value length="4" type="hex" variable_length="false">00</value>
+      <properties>
+        <notify authenticated="false" bonded="false" encrypted="true"/>
+      </properties>
+    </characteristic>
+  </service>
+
+</gatt>

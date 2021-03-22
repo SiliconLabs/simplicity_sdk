@@ -1,0 +1,27 @@
+id: sl_system
+label: System Setup
+package: platform
+category: Services|System Setup
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+provides:
+  - name: sl_system
+requires:
+  - name: interrupt_manager
+    condition: [device_efx]
+  - name: device_init_core
+    condition: [device_series_2]
+  - name: sl_system_init
+  - name: sl_system_process_action
+  - name: component_catalog
+documentation:
+    docset: gecko-platform
+    document: platform-service/system
+description: |
+  The System Setup component provides a set of events that can be used by
+  other components to register handlers that should be run when the system
+  is initialized and is running. For a detailed list of the handlers that can be
+  registered using the Event Handler API and a usage example, please refer to 
+  the documentation.

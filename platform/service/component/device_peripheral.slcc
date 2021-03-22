@@ -1,0 +1,26 @@
+id: device_peripheral
+label: Device Manager Peripheral
+package: platform
+description: >
+  The Device Peripheral component defines the different peripherals
+  that exist accross all Silicon Labs devices and their utility functions.
+category: Services
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+root_path: platform/service/device_manager
+source:
+  - path: src/sl_device_peripheral.c
+include:
+  - path: inc
+    file_list:
+      - path: sl_device_peripheral.h
+provides:
+  - name: device_peripheral
+requires:
+  - name: device_clock
+  - name: device_peripheral_hal
+documentation:
+  docset: gecko-platform
+  document: platform-service/device-manager-peripheral

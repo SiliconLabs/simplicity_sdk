@@ -1,0 +1,200 @@
+id: "sl_wisun_ota_dfu_cli"
+label: "Wi-SUN Over-The-Air Device Firmware Upgrade (OTA DFU) CLI module"
+package: "wisun"
+description: "CLI implementation for Wi-SUN Over-the-Air Device Firmware Upgrade (OTA DFU) component."
+category: "Wi-SUN|Application"
+quality: "production"
+metadata:
+  sbom:
+    license: Zlib
+root_path: "app/wisun/component/ota_dfu_cli"
+provides:
+  - name: sl_wisun_ota_dfu_cli
+
+source:
+  - path: "sl_wisun_ota_dfu_cli.c"
+
+requires:
+  - name: "sl_wisun_ota_dfu"
+
+ui_hints:
+  visibility: never
+
+#-------------- Template Contribution ----------------
+template_contribution:
+  - name: "cli_group"
+    value:
+      name: "ota-dfu"
+      help: "OTA DFU commands"
+      shortcuts:
+        - name: "od"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "start_firmware_update"
+      handler: "app_fw_update_start"
+      help: "Start firmware update"
+      shortcuts:
+        - name: "fb"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "stop_firmware_update"
+      handler: "app_fw_update_stop"
+      help: "Stop firmware update"
+      shortcuts:
+        - name: "fq"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "reboot_and_install_fw"
+      handler: "app_fw_reboot_and_install"
+      help: "Reboot and install firmware"
+      shortcuts:
+        - name: "fr"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "firmware_update_status"
+      handler: "app_fw_update_status"
+      help: "Get firmware update status"
+      shortcuts:
+        - name: "fs"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_host_addr"
+      handler: "app_set_host_addr"
+      help: "Set host address"
+      shortcuts:
+        - name: "sha"
+      argument:
+        - type: string
+          help: "Host address"
+        - type: uint16
+          help: "Port"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_host_addr"
+      handler: "app_get_host_addr"
+      help: "Get host address"
+      shortcuts:
+        - name: "gha"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_host_uri"
+      handler: "app_set_host_uri"
+      help: "Set host uri path"
+      shortcuts:
+        - name: "shu"
+      argument:
+        - type: string
+          help: "Host uri path"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_host_uri"
+      handler: "app_get_host_uri"
+      help: "Get host uri path"
+      shortcuts:
+        - name: "ghu"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_gbl_path"
+      handler: "app_set_gbl_path"
+      help: "Set gbl path"
+      shortcuts:
+        - name: "sgp"
+      argument:
+        - type: string
+          help: "Gbl file path"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_gbl_path"
+      handler: "app_get_gbl_path"
+      help: "Get gbl path"
+      shortcuts:
+        - name: "ggp"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_notify_host_addr"
+      handler: "app_set_notify_host_addr"
+      help: "Set notify host address"
+      shortcuts:
+        - name: "snha"
+      argument:
+        - type: string
+          help: "Host address"
+        - type: uint16
+          help: "Port"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_notify_host_addr"
+      handler: "app_get_notify_host_addr"
+      help: "Get notify host address"
+      shortcuts:
+        - name: "gnha"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_notify_host_uri"
+      handler: "app_set_notify_host_uri"
+      help: "Set notify host uri path"
+      shortcuts:
+        - name: "snhu"
+      argument:
+        - type: string
+          help: "Notify host uri path"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_notify_host_uri"
+      handler: "app_get_notify_host_uri"
+      help: "Get notify host uri path"
+      shortcuts:
+        - name: "gnhu"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "set_notify_download_chunk"
+      handler: "app_set_notify_download_chunk"
+      help: "Set notify download chunk"
+      shortcuts:
+        - name: "sndc"
+      argument:
+        - type: uint16
+          help: "Number or chunks"
+
+  - name: "cli_command"
+    value:
+      group: "ota-dfu"
+      name: "get_notify_download_chunk"
+      handler: "app_get_notify_download_chunk"
+      help: "Get notify download chunk"
+      shortcuts:
+        - name: "gndc"
+
+#---------------- Component Catalog ------------------
+  - name: component_catalog
+    value: wisun_ota_dfu_cli

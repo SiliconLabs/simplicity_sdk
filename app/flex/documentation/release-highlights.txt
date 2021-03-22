@@ -1,0 +1,10 @@
+Flex SDK 3.8.0.0
+- RAIL Apps and Library
+  - Flex-RAIL SDK support for EFR32xG22E Devices
+  - LCD Display usage in WM-BUS Meter Sample Application on DK2600
+  - Collision Detection support in RAIL Library in concurrent mode on FG25
+  - Added support for additional Coex TX and RX metrics events to RAIL coexistence utility
+  - Updated some RAIL APIs to better prepare for future API changes while retaining backwards compile-time compatibility
+- Connect Apps and Stack
+  - Flex-Connect SDK support for EFR32xG22E Devices
+  - Removed support for Series 0/1

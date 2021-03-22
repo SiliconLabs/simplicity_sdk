@@ -1,0 +1,9 @@
+numpy
+pillow
+cryptography
+colorlog
+intelhex
+bincopy
+qrcode
+ctypesgen>=1.1.0
+pyserial

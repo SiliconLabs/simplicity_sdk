@@ -1,0 +1,32 @@
+id: hal_gpio
+label: GPIO
+package: platform
+description: >
+  General Purpose Input Output (GPIO) peripheral API
+category: Platform|Peripheral
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+component_root_path: "platform/peripheral"
+source:
+  - path: "src/sl_hal_gpio.c"
+include:
+  - path: "inc"
+    file_list:
+    - path: "sl_hal_gpio.h"
+provides:
+  - name: hal_gpio
+  - name: hal_generic_gpio
+    condition: [device_series_3]
+requires:
+  - name: device
+  - name: device_has_gpio
+  - name: hal_common
+  - name: sl_core
+  - name: device_gpio
+  - name: cmsis_core
+  - name: component_catalog
+template_contribution:
+  - name: component_catalog
+    value: gpio

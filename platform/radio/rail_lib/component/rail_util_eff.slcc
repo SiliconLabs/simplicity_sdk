@@ -1,0 +1,11 @@
+id: rail_util_eff
+label: RAIL Utility, EFF
+description: Utility to provide RAIL with EFF support
+package: platform
+category: Platform|Radio
+quality: deprecated
+requires:
+  - name: device
+  - name: rail_lib
+provides:
+  - name: rail_util_eff

@@ -1,0 +1,100 @@
+project_name: bt_cs_soc_reflector
+package: Bluetooth
+label: Bluetooth - SoC CS reflector
+description: >
+  Channel Sounding reflector for Bluetooth. The example sends measurement results to the initiator via GATT.
+  The application starts advertising after boot and restarts advertising after a connection is closed.
+  It also supports Over-the-Air Device Firmware Upgrade (OTA DFU).
+category: Bluetooth Examples
+quality: experimental
+
+filter:
+  - name: "Wireless Technology"
+    value: ["Bluetooth"]
+  - name: "Device Type"
+    value: ["SoC"]
+  - name: "Project Difficulty"
+    value: ["Beginner"]
+
+component:
+  - id: toolchain_gcc
+  - id: bluetooth_stack
+  - id: gatt_configuration
+  - id: gatt_service_device_information
+  - id: bluetooth_feature_legacy_advertiser
+  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_gatt
+  - id: bluetooth_feature_gatt_server
+  - id: bluetooth_feature_extended_scanner
+  - id: bluetooth_feature_sm
+  - id: bluetooth_feature_system
+  - id: app_assert
+  - id: app_log
+  - id: iostream_usart
+    instance:
+      - vcom
+  - id: cs_reflector
+  - id: cs_antenna
+  - id: mpu
+  - id: in_place_ota_dfu
+  - id: bt_post_build
+  - id: sl_system
+  - id: clock_manager
+  - id: device_init
+  - id: ble_peer_manager_common
+  - id: ble_peer_manager_peripheral
+
+source:
+  - path: main.c
+  - path: app.c
+
+include:
+  - path: .
+    file_list:
+      - path: app.h
+
+config_file:
+  - override:
+      component: gatt_configuration
+      file_id: gatt_configuration_file_id
+    path: gatt_configuration.btconf
+    directory: btconf
+
+readme:
+  - path: readme.md
+
+configuration:
+  - name: SL_STACK_SIZE
+    value: 2752
+  - name: SL_BT_CONFIG_BUFFER_SIZE
+    value: 10000
+  - name: SL_BT_CONFIG_MAX_CS_PROCEDURES
+    value: 4
+  - name: SL_PSA_KEY_USER_SLOT_COUNT
+    value: "0"
+    condition:
+      - psa_crypto
+  - name: SL_DEVICE_INIT_HFXO_FREQ
+    value: 40000000
+  - name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: 0
+  - name: SL_BOARD_ENABLE_VCOM
+    value: 1
+  - name: CS_REFLECTOR_ANTENNA_OFFSET
+    value: 0
+
+template_contribution:
+  - name: ble_peer_manager_event_handler
+    value:
+      include: app.h
+      handler: ble_peer_manager_on_event_reflector
+
+tag:
+  - hardware:rf:band:2400
+  - prebuilt_demo
+
+ui_hints:
+  highlight:
+    - path: config/btconf/gatt_configuration.btconf
+    - path: readme.md
+      focus: true

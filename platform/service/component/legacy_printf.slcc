@@ -1,0 +1,24 @@
+id: legacy_printf
+label: Legacy Printf
+package: platform
+category: Services|Ember Legacy
+quality: production
+description: Legacy sli_legacy_serial_printf API.
+provides:
+  - name: legacy_printf
+requires:
+  - name: component_catalog
+  - name: status
+  - name: iostream
+source:
+  - path: platform/service/legacy_printf/src/sl_legacy_printf.c
+include:
+  - path: platform/service/legacy_printf/inc
+    file_list:
+    - path: sl_legacy_printf.h
+template_contribution:
+  - name: component_catalog
+    value: legacy_printf
+#documentation:
+#    docset: gecko-platform
+#    document: platform-service/legacyprintf

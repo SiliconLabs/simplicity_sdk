@@ -1,0 +1,12 @@
+id: rail_util_ble_cs
+label: RAIL Utility, BLE Channel Sounding
+description: Utility to aid with RAIL BLE Channel Sounding (CS) Support
+package: platform
+category: Platform|Radio
+quality: experimental
+requires:
+  - name: rail_lib
+  - name: rail_util_cs_antenna_offset
+  - name: rail_util_cs_gdcomp
+provides:
+  - name: rail_util_ble_cs
