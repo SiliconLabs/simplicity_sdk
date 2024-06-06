@@ -23,7 +23,7 @@ google-pasta==0.2.0
 grpcio==1.32.0
 h5py==2.10.0
 icetea==1.2.4
-idna==2.7
+idna==3.7
 importlib-metadata==3.7.3
 intelhex==2.2.1
 Jinja2==2.11.3
