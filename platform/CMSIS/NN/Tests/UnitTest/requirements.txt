@@ -53,7 +53,7 @@ psutil==5.6.6
 pyasn1==0.2.3
 pyasn1-modules==0.2.8
 pycparser==2.20
-pycryptodome==3.7.3
+pycryptodome==3.19.1
 pyelftools==0.25
 pyparsing==2.4.7
 pyserial==3.4
