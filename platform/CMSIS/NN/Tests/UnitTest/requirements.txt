@@ -73,7 +73,7 @@ tensorflow==2.4.1
 tensorflow-estimator==2.4.0
 termcolor==1.1.0
 typing-extensions==3.7.4.3
-urllib3==1.24.2
+urllib3==1.26.19
 wcwidth==0.2.5
 Werkzeug==1.0.1
 wrapt==1.12.1
