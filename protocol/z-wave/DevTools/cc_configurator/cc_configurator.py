@@ -11,6 +11,9 @@ from typing import Any, List
 from os import walk
 from enum import IntEnum
 
+class CCConfigGenerationError(Exception):
+    pass
+
 class ExitCode(IntEnum):
     """Exit code for the application"""
     SUCCESS = 0
@@ -18,6 +21,7 @@ class ExitCode(IntEnum):
     ERROR_VERIFY = 2
     ERROR_WRITTEN_NOT_GENERATED = 3
     ERROR_GENERATED_NOT_WRITTEN = 4
+    ERROR_DURING_GENERATION = 5
 
 def handle_templates(configuration: Any) -> List[cc_data]:
     """Handle all the templates
@@ -67,12 +71,16 @@ def generate(input_dir: str) -> List[cc_data]:
         List[cc_data]: A list of Command Class data
     """
     ret = []
-    for file in glob.glob(os.path.join(input_dir, "*.cc_config")):
+    config_files = glob.glob(os.path.join(input_dir, "*.cc_config"))
+    for file in config_files:
         with open(file) as fd:
             configuration = yaml.load(fd, Loader=yaml.SafeLoader)
 
-        ret += handle_templates(configuration)
+        if configuration is not None:
+            ret += handle_templates(configuration)
 
+    if config_files and not ret:
+        raise CCConfigGenerationError("There are .cc_config files present, but no component was found!")
     return ret
 
 
@@ -138,7 +146,14 @@ if __name__ == "__main__":
     subparsers.add_parser('verify', help='Verify that the files generate match the templates')
     args = parser.parse_args()
 
-    files = generate(args.i)
-    ret = take_action(files, args.action, args.o)
-    logging.error(ExitCode(ret).name) if ret != ExitCode.SUCCESS else None
+    ret = ExitCode.SUCCESS
+    try:
+        files = generate(args.i)
+        if files:
+            ret = take_action(files, args.action, args.o)
+        if ExitCode(ret) != ExitCode.SUCCESS:
+            logging.error(ExitCode(ret).name)
+    except (KeyError, CCConfigGenerationError) as e:
+        logging.error(f"{e.__class__.__name__}:{e} Please check the .cc_config files!")
+        ret = ExitCode.ERROR_DURING_GENERATION
     sys.exit(ret)

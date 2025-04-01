@@ -14,12 +14,9 @@ config_file:
   - path: "config/s2/xg21/sl_radioprs_config_{{instance}}.h"
     condition: [ 'device_generic_family_efr32xg21' ]
     file_id: sl_radioprs_config
-  - path: "config/s2/xg21/sl_radioprs_config_{{instance}}.h"
-    condition: [ 'device_generic_family_efr32xr21' ]
-    file_id: sl_radioprs_config
   - path: "config/s2/sl_radioprs_config_{{instance}}.h"
     condition: [ 'device_series_2' ]
-    unless: [ 'device_generic_family_efr32xg21', 'device_generic_family_efr32xr21' ]
+    unless: [ 'device_generic_family_efr32xg21' ]
     file_id: sl_radioprs_config
 template_file:
   - path: template/s2/sl_radioprs_init_instances.c.jinja

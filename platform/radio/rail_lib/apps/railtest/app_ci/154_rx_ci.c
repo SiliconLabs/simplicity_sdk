@@ -771,10 +771,10 @@ channelMaskBorder_t eu33ChannelMaskBorderList[] = { { 27, 26 }, { 30, 29 }, { 32
 channelMaskBorder_t eu35ChannelMaskBorderList[] = { { 27, 26 } };
 channelMaskBorder_t eu37ChannelMaskBorderList[] = { { 27, 26 }, { 30, 29 }, { 32, 34 }, { 62, 61 } };
 
-channelMaskBorder_t bz2ChannelMaskBorderList[] = { { 12, 11 }, { 32, 33 } };
-channelMaskBorder_t bz3ChannelMaskBorderList[] = { { 8, 7 }, { 21, 22 } };
-channelMaskBorder_t bz4ChannelMaskBorderList[] = { { 6, 5 }, { 15, 16 } };
-channelMaskBorder_t bz5ChannelMaskBorderList[] = { { 3, 2 }, { 10, 11 } };
+channelMaskBorder_t bz2ChannelMaskBorderList[] = { { 6, 5 }, { 32, 33 } };
+channelMaskBorder_t bz3ChannelMaskBorderList[] = { { 4, 3 }, { 21, 22 } };
+channelMaskBorder_t bz4ChannelMaskBorderList[] = { { 2, 1 }, { 3, 1 }, { 16, 17 } };
+channelMaskBorder_t bz5ChannelMaskBorderList[] = { { 1, 0 }, { 10, 11 } };
 
 channelMask_t euChannelMaskList[] = {
   { 33U, COUNTOF(eu33ChannelMaskBorderList), eu33ChannelMaskBorderList },

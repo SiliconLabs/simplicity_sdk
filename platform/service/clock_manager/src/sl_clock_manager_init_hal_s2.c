@@ -638,10 +638,12 @@ FUNCTION_SCOPE sl_status_t init_clock_branches(void)
 #endif
 
   // Initialize IADCCLK clock branch.
+#if defined(_CMU_IADCCLKCTRL_MASK)
 #if defined(SL_CLOCK_MANAGER_IADCCLK_SOURCE)
   CLOCK_MANAGER_CLOCK_SELECT_SET(IADCCLK, SL_CLOCK_MANAGER_IADCCLK_SOURCE);
 #else
   EFM_ASSERT(false);
+#endif
 #endif
 
   // Initialize LESENSEHFCLK clock branch.

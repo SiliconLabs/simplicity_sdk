@@ -31,6 +31,11 @@
 #ifndef CS_ACP_H
 #define CS_ACP_H
 
+/***********************************************************************************************//**
+ * @addtogroup cs_acp
+ * @{
+ **************************************************************************************************/
+
 #include "sl_bgapi.h"
 #include "sl_common.h"
 #include "sl_component_catalog.h"
@@ -181,4 +186,5 @@ typedef struct {
 } SL_ATTRIBUTE_PACKED cs_acp_event_t;
 SL_PACK_END()
 
+/** @} (end addtogroup cs_acp) */
 #endif

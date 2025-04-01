@@ -53,7 +53,7 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-
+static uint16_t _socket_buff_length = 0U;
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -61,9 +61,10 @@
 /* create udp client */
 int32_t sl_wisun_udp_client_create(void)
 {
-  // create client socket
-  int32_t sockid = socket(AF_INET6, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
+  int32_t sockid = 0;
 
+  // create client socket
+  sockid = socket(AF_INET6, SOCK_DGRAM | SOCK_NONBLOCK, IPPROTO_UDP);
   if (sockid == SOCKET_INVALID_ID) {
     printf("[Failed to create socket: %ld]\n", sockid);
     return SOCKET_INVALID_ID;
@@ -85,11 +86,14 @@ void sl_wisun_udp_client_close(const int32_t sockid)
 }
 
 /* write to udp client socket */
-void sl_wisun_udp_client_write(const int32_t sockid, const char *remote_ip_address,
-                               const uint16_t remote_port, const char *str)
+void sl_wisun_udp_client_write(const int32_t sockid,
+                               const char *remote_ip_address,
+                               const uint16_t remote_port,
+                               const char *str)
 {
-  int32_t res;
-  static sockaddr_in6_t server_addr;
+  int32_t res = 0;
+  static sockaddr_in6_t server_addr = { 0 };
+
   if (remote_ip_address == NULL) {
     printf("[Failed: IP address is NULL ptr]\n");
     return;
@@ -100,40 +104,58 @@ void sl_wisun_udp_client_write(const int32_t sockid, const char *remote_ip_addre
     return;
   }
 
-  // setting the server address
+  // set the server address
   server_addr.sin6_family = AF_INET6;
   server_addr.sin6_port = htons(remote_port);
-  if (inet_pton(AF_INET6, remote_ip_address,
-                &server_addr.sin6_addr) != 1) {
+
+  if (inet_pton(AF_INET6, remote_ip_address, &server_addr.sin6_addr) != 1) {
     printf("[Invalid IP address: %s]\n", remote_ip_address);
     return;
   }
 
-  res = sendto(sockid, str, strlen(str), 0,
-               (const struct sockaddr *) &server_addr, sizeof(server_addr));
+  // send data
+  res = sendto(sockid, str, strlen(str), 0, (const struct sockaddr *) &server_addr, sizeof(server_addr));
   if (res == SOCKET_RETVAL_ERROR) {
     printf("[Failed to send on socket: %ld]\n", sockid);
   }
+
+  // Save socket buffer length for read
+  _socket_buff_length += strlen(str);
+
 }
 
 /* read on udp client socket */
-void sl_wisun_udp_client_read(const int32_t sockid, const uint16_t size)
+void sl_wisun_udp_client_read(const int32_t sockid)
 {
-  char *c = (char *)app_wisun_malloc(size + 1);
-  int32_t res;
-  static sockaddr_in6_t server_addr;
+  char *socket_buff = NULL;
+  int32_t res = 0;
+  static sockaddr_in6_t server_addr = { 0 };
   socklen_t len = sizeof(server_addr);
 
-  memset(c, 0U, size + 1);
-
-  res = recvfrom(sockid, c, size, 0, (struct sockaddr *)&server_addr, &len);
-  if (res == SOCKET_RETVAL_ERROR) {
-    app_wisun_free(c);
+  // Socket is empty
+  if (_socket_buff_length == 0U) {
     return;
   }
 
-  printf("%s\n", c);
-  app_wisun_free(c);
+  // Allocate memory for socket buffer
+  socket_buff = (char *)app_wisun_malloc(_socket_buff_length + 1);
+  memset(socket_buff, 0U, _socket_buff_length + 1);
+
+  // Read from socket
+  res = recvfrom(sockid, socket_buff, _socket_buff_length, 0, (struct sockaddr *)&server_addr, &len);
+  if (res <= 0L) {
+    app_wisun_free(socket_buff);
+    // Reset socket buffer length
+    _socket_buff_length = 0U;
+    return;
+  }
+
+  // Print received data
+  printf("%s\n", socket_buff);
+  app_wisun_free(socket_buff);
+
+  // Update socket buffer length
+  _socket_buff_length -= res;
 }
 
 // -----------------------------------------------------------------------------

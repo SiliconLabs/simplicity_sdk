@@ -261,41 +261,47 @@ static int32_t ncp_host_get_msg(void)
   uint8_t msg_header;
 
   msg_len = ncp_host_lazy_peek();
-  if (msg_len <= 0) {
-    return msg_len;
+  // wait for two bytes to ensure receiving message type & length
+  if (msg_len < SL_BGAPI_MSG_HEADER_LEN / 2 ) {
+    return 0;
   }
 
   // Read first byte
-  ret = host_comm_rx(1, &buf_ncp_raw.buf[0]);
+  (void)host_comm_rx(1, &buf_ncp_raw.buf[0]);
   msg_header = (uint8_t)(buf_ncp_raw.buf[0] & 0xf8);
   msg_len = 256 * (buf_ncp_raw.buf[0] & 0x07); // Get the high bits of the message length
   // Check if proper ncp header arrived
   if ((msg_header & (uint32_t)(~MSG_HEADER_MASK)) != sl_bgapi_dev_type_bt) {
+    app_log_error("Unexpected device ID: 0x%08x" APP_LOG_NL, msg_header);
     // Unexpected device ID
     return -1;
   }
   // If header seems to be ok, read length
-  ret = ncp_host_peek_timeout(1, MSG_RECV_TIMEOUT_COUNT);
-  if (ret < 0) {
-    return -1;
-  }
-  ret = host_comm_rx(1, (void *)&buf_ncp_raw.buf[1]);
+  (void)host_comm_rx(1, (void *)&buf_ncp_raw.buf[1]);
   msg_len |= buf_ncp_raw.buf[1];
-  msg_len += 2;
   // Check if length will fit to buffer
-  if (msg_len >= DEFAULT_HOST_BUFLEN - 2) {
+  if (msg_len >= DEFAULT_HOST_BUFLEN) {
+    app_log_error("Invalid message length: %d, the BGAPI data stream may become corrupted." APP_LOG_NL, msg_len);
     return -1;
+  } else {
+    // add half the BGAPI header size to the whole remaining message length
+    msg_len += SL_BGAPI_MSG_HEADER_LEN / 2;
   }
   ret = ncp_host_peek_timeout(msg_len, MSG_RECV_TIMEOUT_COUNT * msg_len);
   if (ret < 0) {
+    app_log_error("Message reveice timeout occured, the BGAPI data stream has been corrupted!" APP_LOG_NL);
     return -1;
   }
   // Read the rest of the message
   ret = host_comm_rx(msg_len, (void *)&buf_ncp_raw.buf[2]);
   if (ret < 0) {
+    app_log_error("Message receive failed, expected %d, return value %d!" APP_LOG_NL, msg_len, ret);
     return -1;
+  } else if (ret != msg_len) {
+    app_log_warning("Message length mismatch, expected %d, received %d!" APP_LOG_NL, msg_len, ret);
   }
-  msg_len += 2;
+  // add the first two bytes count to the whole message size in the end
+  msg_len +=  SL_BGAPI_MSG_HEADER_LEN / 2;
   buf_ncp_raw.len = msg_len;
 #if defined(SECURITY) && SECURITY == 1
   if (SL_BT_MSG_ENCRYPTED((uint8_t)msg_header) !=  0) {

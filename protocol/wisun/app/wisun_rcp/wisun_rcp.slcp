@@ -12,7 +12,6 @@ quality: production
 component:
   - id: iostream_rtt
   - id: iostream_retarget_stdio
-  - id: iostream_stdlib_config
   - id: cpc_security_secondary_none
   - id: wisun_default_radioconf
   - id: wisun_stack_ffn
@@ -28,10 +27,10 @@ configuration:
     condition: [cpc_secondary]
   - name: SL_CPC_DRV_UART_VCOM_FLOW_CONTROL_TYPE
     value: usartHwFlowControlCtsAndRts
-    condition: [cpc_secondary, device_has_usart]
+    condition: [cpc_secondary, cpc_secondary_driver_uart_usart]
   - name: SL_CPC_DRV_UART_VCOM_FLOW_CONTROL_TYPE
     value: eusartHwFlowControlCtsAndRts
-    condition: [cpc_secondary, device_has_eusart]
+    condition: [cpc_secondary, cpc_secondary_driver_uart_eusart]
   - name: SL_CPC_RX_PAYLOAD_MAX_LENGTH
     value: 2038
   - name: SL_BOARD_ENABLE_VCOM

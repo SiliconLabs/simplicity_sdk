@@ -54,6 +54,11 @@
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
 #warning Power Manager component is presented. Features/peripherals are constrained.
 #endif
+
+#if defined(WISUN_CONFIG_DDP)
+#include "sl_wisun_keychain.h"
+#include "sl_memory_manager.h"
+#endif
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -88,6 +93,8 @@ typedef struct app_setting_wisun {
   uint8_t lfn_profile;
   bool is_default_phy;
   sl_wisun_phy_config_t phy;
+  uint8_t keychain;
+  uint8_t keychain_index;
 } app_setting_wisun_t;
 #endif
 
@@ -161,6 +168,7 @@ __STATIC_INLINE void _app_wisun_core_clear_state(const sl_wisun_app_core_state_t
  *****************************************************************************/
 static void _store_current_addresses(void);
 
+#if !defined(WISUN_CONFIG_DDP)
 /**************************************************************************//**
  * @brief Get Length of certificate string
  * @details special port of strnlen with different types
@@ -169,6 +177,7 @@ static void _store_current_addresses(void);
  * @return uint16_t length of certificate string
  *****************************************************************************/
 static uint16_t _get_cert_str_len(const uint8_t *cert, const uint16_t max_cert_len);
+#endif
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -794,6 +803,7 @@ static sl_status_t _app_wisun_application_setting(const app_setting_wisun_t * co
   return ret;
 }
 
+#if !defined(WISUN_CONFIG_DDP)
 static sl_status_t _app_wisun_security_setting(void)
 {
   sl_status_t ret = SL_STATUS_FAIL;
@@ -833,6 +843,74 @@ static sl_status_t _app_wisun_security_setting(void)
 
   return ret;
 }
+#else
+static sl_status_t _app_wisun_security_setting(void)
+{
+  sl_status_t ret = SL_STATUS_FAIL;
+  sl_wisun_keychain_credential_t *credential = NULL;
+  uint8_t trustedca_count;
+  uint8_t idx;
+  sl_wisun_keychain_entry_t *trustedca = NULL;
+  uint16_t certificate_options;
+
+  credential = sl_wisun_keychain_get_credential((sl_wisun_keychain_t)_setting.keychain, _setting.keychain_index);
+
+  // set the trusted certificate
+  trustedca_count = sl_wisun_keychain_get_trustedca_count();
+  if (!trustedca_count) {
+    printf("[Failed: unable to locate trusted CAs]\r\n");
+  }
+
+  certificate_options = SL_WISUN_CERTIFICATE_OPTION_IS_REF;
+  for (idx = 0; idx < trustedca_count; ++idx) {
+    trustedca = sl_wisun_keychain_get_trustedca(idx);
+    if (!trustedca) {
+      printf("[Failed to load trusted CA]\r\n");
+      return ret;
+    }
+
+    ret = sl_wisun_set_trusted_certificate(certificate_options,
+                                           trustedca->data_length,
+                                           trustedca->data);
+    if (ret != SL_STATUS_OK) {
+      printf("[Failed: unable to set the trusted certificate: %lu]\r\n", ret);
+      return ret;
+    }
+
+    sl_free(trustedca);
+    trustedca = NULL;
+    certificate_options |= SL_WISUN_CERTIFICATE_OPTION_APPEND;
+  }
+
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set the trusted certificate: %lu]\n", ret);
+    _app_wisun_core_set_state(SL_WISUN_APP_CORE_STATE_SET_TRUSTED_CERTIFICATE_ERROR);
+    return ret;
+  }
+
+  // set the device certificate
+  ret = sl_wisun_set_device_certificate(SL_WISUN_CERTIFICATE_OPTION_IS_REF | SL_WISUN_CERTIFICATE_OPTION_HAS_KEY,
+                                        credential->certificate.data_length,
+                                        credential->certificate.data);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set the device certificate: %lu]\n", ret);
+    _app_wisun_core_set_state(SL_WISUN_APP_CORE_STATE_SET_DEVICE_CERTIFICATE_ERROR);
+    return ret;
+  }
+
+  // set the device private key
+  // NOTE: to use a wrapped PSA private key, the app needs to import the key
+  // and use the API sl_wisun_set_device_private_key_id() instead of the one below
+  ret = sl_wisun_set_device_private_key_id(credential->pk.u.key_id);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set the device private key: %lu]\n", ret);
+    _app_wisun_core_set_state(SL_WISUN_APP_CORE_STATE_SET_DEVICE_PRIVATE_KEY_ERROR);
+    return ret;
+  }
+
+  return ret;
+}
+#endif
 
 #if (SL_WISUN_APP_CORE_REGULATION != SL_WISUN_APP_CORE_REGULATION_NONE)
 __STATIC_INLINE sl_status_t _app_wisun_regulation_setting(void)
@@ -938,6 +1016,7 @@ static void _store_current_addresses(void)
   _store_address("SECONDARY_PARENT", SL_WISUN_IP_ADDRESS_TYPE_SECONDARY_PARENT, &_current_addr.secondary_parent);
 }
 
+#if !defined(WISUN_CONFIG_DDP)
 /* Get certificate length */
 static uint16_t _get_cert_str_len(const uint8_t *cert, const uint16_t max_cert_len)
 {
@@ -950,3 +1029,4 @@ static uint16_t _get_cert_str_len(const uint8_t *cert, const uint16_t max_cert_l
   }
   return n;
 }
+#endif

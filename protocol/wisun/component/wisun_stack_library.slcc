@@ -16,6 +16,11 @@ provides:
   - name: "wisun_implementation"
   - name: "wisun_stack_library"
 
+source:
+  - path: "src/sl_wisun_regdb.c"
+    project:
+      transfer_ownership: true
+
 library:
   - path: "libwisun_ffn_efr32xg2x_gcc_debug.a"
     condition:

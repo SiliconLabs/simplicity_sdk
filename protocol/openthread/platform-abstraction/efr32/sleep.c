@@ -111,7 +111,7 @@ sl_power_manager_on_isr_exit_t sl_ot_sleep_on_isr_exit(void)
 
 void sl_ot_sleep_update(void)
 {
-    setWakeRequirement(shouldStayAwake());
+    CORE_CRITICAL_SECTION(setWakeRequirement(shouldStayAwake());)
 }
 
 //------------------------------------------------------------------------------

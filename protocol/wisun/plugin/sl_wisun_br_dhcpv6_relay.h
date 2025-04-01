@@ -38,6 +38,7 @@
 
 /***************************************************************************//**
  * Initialize DHCPv6 Relay.
+ * This function must be called before any other DHCPv6 Relay function.
  *
  * @return SL_STATUS_OK if successful, an error code otherwise
  ******************************************************************************/
@@ -46,14 +47,16 @@ sl_status_t sl_wisun_br_dhcpv6_relay_init(void);
 /***************************************************************************//**
  * Start DHCPv6 Relay.
  *
- * @param[in] socket Socket open on PAN interface
+ * @param[in] socket Socket open and bound to DHCPv6 Server port on PAN interface.
+ * It will be used to relay the replies from the external DHCPv6 Server.
  * @param[in] server_addr External DHCPv6 Server's IPv6 address
  * @return SL_STATUS_OK if successful, an error code otherwise
  ******************************************************************************/
 sl_status_t sl_wisun_br_dhcpv6_relay_start(int socket, const uint8_t *server_addr);
 
 /***************************************************************************//**
- * Handle DHCPv6 relay-forward or solicit messages from PAN interface.
+ * Handle DHCPv6 relay-forward or solicit messages received from the socket open
+ * on PAN interface.
  *
  * @param[in] buffer Message's buffer
  * @param[in] length Message length

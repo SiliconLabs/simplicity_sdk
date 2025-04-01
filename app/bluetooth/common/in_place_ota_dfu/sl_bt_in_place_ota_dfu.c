@@ -125,12 +125,10 @@ void sl_bt_in_place_ota_dfu_on_event(sl_bt_msg_t *evt)
  *****************************************************************************/
 static void delay_timer_cb(app_timer_t *handle, void *data)
 {
-  sl_status_t sc;
   uint32_t conn_handle = (uint32_t)data;
   if (handle == &connection_close_delay && boot_to_dfu) {
     // Close connection before booting into DFU mode.
-    sc = sl_bt_connection_close((uint8_t)conn_handle);
-    app_assert_status(sc);
+    (void)sl_bt_connection_close((uint8_t)conn_handle);
   }
 }
 

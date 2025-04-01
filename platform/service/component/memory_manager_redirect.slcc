@@ -32,3 +32,6 @@ requires:
   - name: status
 conflicts:
   - name: memory_manager
+    condition: [device_series_2]
+  - name: memory_manager
+    condition: [device_series_3]

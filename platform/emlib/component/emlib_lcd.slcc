@@ -29,5 +29,7 @@ documentation:
   document:
     - page: platform-emlib-efr32xg23/lcd
       condition: [device_sdid_210]
+    - page: platform-emlib-efr32xg26/lcd
+      condition: [device_sdid_225]
     - page: platform-emlib-efr32xg28/lcd
       condition: [device_sdid_235]

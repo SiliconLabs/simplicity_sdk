@@ -23,7 +23,6 @@
   - file_list:
     - path: efm32pg26b500f3200il136.h
     - path: efm32pg26_acmp.h
-    - path: efm32pg26_aes.h
     - path: efm32pg26_amuxcp.h
     - path: efm32pg26_buram.h
     - path: efm32pg26_burtc.h
@@ -86,7 +85,6 @@
   - name: armv8m.main
   - name: device_security_vault
   - name: device_dcdc_buck
-  - name: device_pa_0dbm
   - name: device_has_acmp
   - name: device_has_acmp0
   - name: device_has_acmp1
@@ -142,7 +140,6 @@
   - name: device_has_pcnt
   - name: device_has_pcnt0
   - name: device_has_prs
-  - name: device_has_radioaes
   - name: device_has_semailbox
   - name: device_has_smu
   - name: device_has_syscfg
@@ -175,9 +172,6 @@
   - name: device_has_emu_temp_sensor
   - name: device_has_fpu
   - name: device_has_mpu
-  - name: device_supports_rail
-  - name: device_supports_rail_stack
-  - name: device_supports_connect
   - name: device_compute_mvp
 - recommends:
   - id: trustzone_unaware

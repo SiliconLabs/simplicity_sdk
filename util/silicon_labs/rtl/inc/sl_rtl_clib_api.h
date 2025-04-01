@@ -795,7 +795,7 @@ typedef enum {
 } sl_rtl_cs_rtt_type;
 
 typedef PACKSTRUCT (struct {
-  uint8_t channel_map[SL_RTL_CS_CHANNEL_MAP_SIZE]; ///< Bluetooth channel bitmap
+  uint8_t channel_map[SL_RTL_CS_CHANNEL_MAP_SIZE]; /**< Bluetooth channel bitmap */
 }) sl_rtl_cs_params;
 
 typedef PACKSTRUCT (struct {
@@ -872,7 +872,7 @@ typedef PACKSTRUCT (struct {
   uint8_t packet_antenna;
 }) sl_rtl_cs_mode_rtt_data;
 
-typedef PACKSTRUCT (struct tone {
+typedef PACKSTRUCT (struct {
   int32_t pct_i : SL_RTL_CS_PCT_IQ_BIT_LEN;
   int32_t pct_q : SL_RTL_CS_PCT_IQ_BIT_LEN;
   uint8_t quality_indicator;

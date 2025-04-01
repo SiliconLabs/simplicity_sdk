@@ -29,6 +29,8 @@
  *
  ******************************************************************************/
 
+#include <inttypes.h>
+
 #include "sl_fem_util_config.h"
 #include "sl_fem_util.h"
 #include "rail.h"
@@ -46,6 +48,22 @@
   #include "em_bus.h"
   #include "em_cmu.h"
   #include "em_prs.h"
+
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif // SL_COMPONENT_CATALOG_PRESENT
+#ifdef SL_CATALOG_APP_ASSERT_PRESENT
+#include "app_assert.h"
+#define APP_ASSERT(expr, ...) app_assert(expr, __VA_ARGS__)
+#else
+#define APP_ASSERT(expr, ...) \
+  do {                        \
+    if (!(expr)) {            \
+      while (1)               \
+        ;                     \
+    }                         \
+  } while (0)
+#endif // SL_CATALOG_APP_ASSERT_PRESENT
 
 #if SL_FEM_UTIL_RX_ENABLE == 1
   #if (!defined(SL_FEM_UTIL_RX_CHANNEL) \
@@ -91,6 +109,22 @@
       #error "SL_FEM_UTIL_TX_CHANNEL number higher than number of PRS channels"
     #endif
   #endif
+
+#if SL_FEM_UTIL_BYPASS_ENABLE == 1
+  #if (!defined(SL_FEM_UTIL_BYPASS_PORT) || !defined(SL_FEM_UTIL_BYPASS_PIN))
+      #error "SL_FEM_UTIL_BYPASS_PORT/PIN must be defined."
+  #endif
+#endif // SL_FEM_UTIL_BYPASS_ENABLE == 1
+
+#if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE == 1
+  #if !defined(SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL)
+      #error "SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL must be defined."
+  #endif
+  #if ((SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE != SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE) \
+  && !defined(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL))
+    #error "SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL must be defined."
+  #endif
+#endif // SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE == 1
 #endif // SL_FEM_UTIL_GLOBAL_ENABLE
 
 void sl_fem_util_init(void)
@@ -164,15 +198,16 @@ void sl_fem_util_init(void)
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
   #endif //SL_FEM_UTIL_BYPASS_ENABLE
 
-  #if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
-    #if RAIL_SUPPORTS_PRS_LNA_BYPASS
+  #if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE && RAIL_SUPPORTS_PRS_LNA_BYPASS
+    #if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE == SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE
   PRS_PinOutput(SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL, prsTypeAsync, SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN);
-    #endif //RAIL_SUPPORTS_PRS_LNA_BYPASS
-  #endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
+    #else //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE != SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE
+  PRS_PinOutput(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL, prsTypeAsync, SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN);
+    #endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE == SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE
+  #endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE && RAIL_SUPPORTS_PRS_LNA_BYPASS
 #endif //SL_FEM_UTIL_BYPASS_PORT
 
-#if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
-  #if RAIL_SUPPORTS_PRS_LNA_BYPASS
+#if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE && RAIL_SUPPORTS_PRS_LNA_BYPASS
   RAIL_PrsLnaBypassConfig_t PrsLnaBypassConfig = {
     .timeoutUs = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_TIMEOUT_US,
     .threshold = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_THRESHOLD,
@@ -180,13 +215,38 @@ void sl_fem_util_init(void)
     .prsChannel = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL,
     .polarity = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_POLARITY
   };
-  (void) RAIL_EnablePrsLnaBypass(RAIL_EFR32_HANDLE,
-                                 true,
-                                 &PrsLnaBypassConfig);
+  RAIL_Status_t status = RAIL_EnablePrsLnaBypass(RAIL_EFR32_HANDLE,
+                                                 true,
+                                                 &PrsLnaBypassConfig);
+  APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
+             "RAIL_EnablePrsLnaBypass failed, return value: %" PRIu32,
+             status);
   // To perform logical operation on SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL,
   // any call to PRS_Combine() must be done after RAIL_EnablePrsLnaBypass().
-  #endif //RAIL_SUPPORTS_PRS_LNA_BYPASS
-#endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
+  #if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE == SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_OR_PAEN_COMBINE
+  PRS_SourceAsyncSignalSet(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL,
+                           0U,
+    #ifdef PRS_RACL_PAEN
+                           PRS_RACL_PAEN);
+    #elif defined(PRS_RAC_PAEN)
+                           PRS_RAC_PAEN);
+    #else
+    #error "No PRS setting defined for Source=RAC, Signal=PAEN"
+    #endif //PRS_RACL_PAEN
+  PRS_Combine(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL, SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL, prsLogic_A_OR_B);
+  #elif SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE == SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_XOR_LNAEN_COMBINE
+  PRS_SourceAsyncSignalSet(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL,
+                           0U,
+    #ifdef PRS_RACL_LNAEN
+                           PRS_RACL_LNAEN);
+    #elif defined(PRS_RAC_LNAEN)
+                           PRS_RAC_LNAEN);
+    #else
+    #error "No PRS setting defined for Source=RAC, Signal=LNAEN"
+    #endif //PRS_RACL_LNAEN
+  PRS_Combine(SL_FEM_UTIL_BYPASS_PRS_COMBINE_CHANNEL, SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL, prsLogic_A_XOR_B);
+  #endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE == SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_OR_PAEN_COMBINE
+#endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE && RAIL_SUPPORTS_PRS_LNA_BYPASS
 
 // if fem has a tx power pin (FEM pin CHL)
 #ifdef SL_FEM_UTIL_TX_HIGH_POWER_PORT

@@ -1,6 +1,6 @@
 id: rail_util_rf_path_switch
-label: RAIL Utility, RF Path Switch
-description: Utility to aid with RAIL RF Path Switch control.
+label: RAIL Utility, External RF Switch Control
+description: Utility to aid with controlling an external RF switch connected to a bonded-out RF path or antenna port.
 package: platform
 category: Platform|Radio
 quality: production

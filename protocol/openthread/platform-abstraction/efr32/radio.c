@@ -145,6 +145,7 @@
 #define FLAG_WAITING_FOR_ACK 0x00000008
 #define FLAG_CURRENT_TX_USE_CSMA 0x00000010
 #define FLAG_SCHEDULED_RX_PENDING 0x00000020
+#define FLAG_SCHEDULED_TX_PENDING 0x00000040
 
 // Radio Events
 #define EVENT_TX_SUCCESS 0x00000100
@@ -1058,7 +1059,7 @@ static otError radioScheduleRx(uint8_t aChannel, uint32_t aStart, uint32_t aDura
                                      .startMode               = RAIL_TIME_ABSOLUTE,
                                      .end                     = aDuration,
                                      .endMode                 = RAIL_TIME_DELAY,
-                                     .rxTransitionEndSchedule = 1, // This lets us idle after a scheduled-rx
+                                     .rxTransitionEndSchedule = 0, // To stay in schedule Rx state after packet receive.
                                      .hardWindowEnd = 0}; // This lets us receive a packet near a window-end-event
 
     status = RAIL_ScheduleRx(gRailHandle, aChannel, &rxCfg, &bgRxSchedulerInfo);
@@ -1691,13 +1692,12 @@ exit:
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
 otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t aStart, uint32_t aDuration)
 {
-    otError       error = OT_ERROR_NONE;
-    RAIL_Status_t status;
-    int8_t        txPower = sl_get_tx_power_for_current_channel(aInstance);
+    otError error   = OT_ERROR_NONE;
+    int8_t  txPower = sl_get_tx_power_for_current_channel(aInstance);
 
     // We can only have one schedule request i.e. either Rx or Tx as they use the
     // same RAIL resources.
-    otEXPECT_ACTION(!getInternalFlag(EVENT_SCHEDULED_TX_STARTED), error = OT_ERROR_FAILED);
+    otEXPECT_ACTION(!getInternalFlag(FLAG_SCHEDULED_TX_PENDING | EVENT_SCHEDULED_TX_STARTED), error = OT_ERROR_FAILED);
 
     otEXPECT_ACTION(sl_ot_rtos_task_can_access_pal(), error = OT_ERROR_REJECTED);
     OT_UNUSED_VARIABLE(aInstance);
@@ -1705,9 +1705,12 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
     error = efr32RadioLoadChannelConfig(aChannel, txPower);
     otEXPECT(error == OT_ERROR_NONE);
 
-    status = radioScheduleRx(aChannel, aStart, aDuration);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    // Set the flag first and then schedule the Rx as the rail scheduler can trigger the events even before
+    // RAIL_ScheduleRx() API returns the status if start time is too close to the current time which could
+    // otherwise cause the race condition.
     setInternalFlag(FLAG_SCHEDULED_RX_PENDING, true);
+    error = radioScheduleRx(aChannel, aStart, aDuration);
+    otEXPECT_ACTION(error == OT_ERROR_NONE, setInternalFlag(FLAG_SCHEDULED_RX_PENDING, false));
 
     sReceive.frame.mChannel    = aChannel;
     sReceiveAck.frame.mChannel = aChannel;
@@ -1957,9 +1960,12 @@ void txCurrentPacket(void)
     }
 #endif
 
-    // We can only have one schedule request i.e. either Rx or Tx as they use the same RAIL resources.
-    // Reject the transmit request if there is scheduled Rx.
-    otEXPECT_ACTION(!getInternalFlag(FLAG_SCHEDULED_RX_PENDING), status = RAIL_STATUS_INVALID_STATE);
+    // Prioritize the Tx over schedule Rx to avoid missing data check-ins such as data polls.
+    if (getInternalFlag(FLAG_SCHEDULED_RX_PENDING))
+    {
+        RAIL_Idle(gRailHandle, RAIL_IDLE, true);
+        setInternalFlag(FLAG_SCHEDULED_RX_PENDING | EVENT_SCHEDULED_RX_STARTED, false);
+    }
 
     if (sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay == 0)
     {
@@ -2024,6 +2030,7 @@ void txCurrentPacket(void)
 
         if (status == RAIL_STATUS_NO_ERROR)
         {
+            setInternalFlag(FLAG_SCHEDULED_TX_PENDING, true);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
             railDebugCounters.mRailEventsScheduledTxTriggeredCount++;
 #endif
@@ -2032,7 +2039,6 @@ void txCurrentPacket(void)
 #endif
     }
 
-exit:
     if (status == RAIL_STATUS_NO_ERROR)
     {
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
@@ -2265,6 +2271,26 @@ void otPlatRadioSetMacKey(otInstance             *aInstance,
 
     otEXPECT(sl_ot_rtos_task_can_access_pal());
     OT_ASSERT(aPrevKey != NULL && aCurrKey != NULL && aNextKey != NULL);
+
+    // MAC frame counters are reset before updating keys. This order
+    // safeguards against issues that can arise when the radio
+    // platform handles TX security and counter assignment.  The
+    // radio platform might prepare an enhanced ACK to a received
+    // frame from an parallel (e.g., ISR) context, which consumes
+    // a MAC frame counter value.
+    //
+    // If the MAC key is updated before the frame counter is cleared,
+    // the radio could receive and send an enhanced ACK between these
+    // two actions, possibly using the new MAC key with a larger
+    // (current) frame counter value. This could then prevent the
+    // receiver from accepting subsequent transmissions after the
+    // frame counter reset for a long time.
+    //
+    // While resetting counters first might briefly cause an enhanced
+    // ACK to be sent with the old key and a zero counter (which might
+    // be rejected by the receiver), this is a transient issue that
+    // quickly resolves itself.
+    otPlatRadioSetMacFrameCounter(aInstance, 0);
 
     sMacKeys[iid].keyId = aKeyId;
     memcpy(&sMacKeys[iid].keys[MAC_KEY_PREV], aPrevKey, sizeof(otMacKeyMaterial));
@@ -2929,6 +2955,7 @@ static void schedulerEventCallback(RAIL_Handle_t aRailHandle)
     case RAIL_SCHEDULER_STATUS_INTERNAL_ERROR:
     case RAIL_SCHEDULER_STATUS_TASK_FAIL:
     case RAIL_SCHEDULER_STATUS_EVENT_INTERRUPTED:
+        setInternalFlag(FLAG_SCHEDULED_RX_PENDING | FLAG_SCHEDULED_TX_PENDING | EVENT_SCHEDULED_TX_STARTED, false);
         if (getInternalFlag(FLAG_ONGOING_TX_ACK))
         {
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_ABORTED, (uint32_t)isReceivingFrame());
@@ -3057,12 +3084,14 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
         if (aEvents & RAIL_EVENT_SCHEDULED_TX_STARTED)
         {
             setInternalFlag(EVENT_SCHEDULED_TX_STARTED, true);
+            setInternalFlag(FLAG_SCHEDULED_TX_PENDING, false);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
             railDebugCounters.mRailEventsScheduledTxStartedCount++;
 #endif
         }
         else if (aEvents & RAIL_EVENT_TX_SCHEDULED_TX_MISSED)
         {
+            setInternalFlag(FLAG_SCHEDULED_TX_PENDING, false);
             txFailedCallback(false, EVENT_TX_SCHEDULER_ERROR);
         }
     }

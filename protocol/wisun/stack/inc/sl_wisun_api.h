@@ -767,7 +767,7 @@ sl_status_t sl_wisun_get_rpl_info(sl_wisun_rpl_info_t *rpl_info);
  *****************************************************************************/
 sl_status_t sl_wisun_get_excluded_channel_mask(sl_wisun_channel_mask_type_t type,
                                                sl_wisun_channel_mask_t *channel_mask,
-                                               uint8_t *channel_count);
+                                               uint32_t *channel_count);
 
 /**************************************************************************//**
  * Set the maximum TX power.

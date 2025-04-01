@@ -130,6 +130,14 @@ static const app_enum_t app_mac_enum[] =
   { NULL, 0 }
 };
 
+static const app_enum_t app_regulation_tx_level_enum[] =
+{
+  { "low", SL_WISUN_REGULATION_TX_LEVEL_LOW },
+  { "warning", SL_WISUN_REGULATION_TX_LEVEL_WARNING },
+  { "alert", SL_WISUN_REGULATION_TX_LEVEL_ALERT },
+  { NULL, 0 }
+};
+
 /// socket options
 SL_PACK_START(1)
 typedef union {
@@ -535,6 +543,17 @@ static void app_handle_socket_data_sent_ind(sl_wisun_evt_t *evt)
   // Handle socket data sent indications only for UDP and TCP sockets.
   if (evt->evt.socket_data_sent.socket_id != app_ping_socket_id) {
     app_handle_socket_data_sent(evt);
+  }
+}
+
+static void app_handle_regulation_tx_level_ind(sl_wisun_evt_t *evt)
+{
+  const app_enum_t *ptr;
+
+  ptr = app_util_get_enum_by_integer(app_regulation_tx_level_enum,
+                                     evt->evt.regulation_tx_level.tx_level);
+  if (ptr) {
+    printf("[Regulation TX level: %s (%lu) (%lu ms)]\r\n", ptr->value_str, ptr->value, evt->evt.regulation_tx_level.tx_duration_ms);
   }
 }
 
@@ -1409,6 +1428,7 @@ void app_set_lfn_support(sl_cli_command_arg_t *arguments)
   app_wisun_cli_mutex_unlock();
 }
 
+#ifdef SL_CATALOG_WISUN_BR_DHCPV6_SERVER_PRESENT
 void app_set_dhcp_vendor_data(sl_cli_command_arg_t *arguments)
 {
   sl_status_t ret;
@@ -1422,13 +1442,14 @@ void app_set_dhcp_vendor_data(sl_cli_command_arg_t *arguments)
   data = sl_cli_get_argument_hex(arguments, 1, &data_length);
   printf("%d\r\n", data_length);
 
-  ret = sl_wisun_br_set_dhcp_vendor_data(enterprise_number, (uint16_t)data_length, data);
+  ret = sl_wisun_br_dhcpv6_set_vendor_data(enterprise_number, (uint16_t)data_length, data);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set DHCP Vendor data: %lu]\r\n", ret);
   }
 
   app_wisun_cli_mutex_unlock();
 }
+#endif
 
 void app_pan_defect_advertise(sl_cli_command_arg_t *arguments)
 {
@@ -1655,6 +1676,9 @@ void sl_wisun_on_event(sl_wisun_evt_t *evt)
     case SL_WISUN_MSG_SOCKET_DATA_SENT_IND_ID:
       app_handle_socket_data_sent_ind(evt);
       sl_wisun_check_write_sockfd_set();
+      break;
+    case SL_WISUN_MSG_REGULATION_TX_LEVEL_IND_ID:
+      app_handle_regulation_tx_level_ind(evt);
       break;
     case SL_WISUN_MSG_MODE_SWITCH_FALLBACK_IND_ID:
       result = app_util_get_mac_address_string(mac_str, &evt->evt.mode_switch_fallback.address);

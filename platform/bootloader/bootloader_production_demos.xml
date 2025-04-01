@@ -6,7 +6,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd2603a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd2603a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd2603a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -17,7 +17,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im48.*"/>
     <property key="core.boardCompatibility" value="brd2705a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd2705a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd2705a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -28,7 +28,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -39,7 +39,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -50,7 +50,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -61,7 +61,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204d"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204d.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4204d.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -72,7 +72,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sa27hnn.*"/>
     <property key="core.boardCompatibility" value="brd4205a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4205a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4205a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -83,7 +83,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd4205b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4205b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4205b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -94,7 +94,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b020f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4210a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4210a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4210a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -105,7 +105,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4400b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4400b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -116,7 +116,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4400c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4400c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -127,7 +127,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4401b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4401b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -138,7 +138,7 @@
     <property key="demos.blurb" value="Bootloader - NCP UART XMODEM (OTW for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4401c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-uart-xmodem-zwave-otw/bootloader-uart-xmodem-zwave-otw-brd4401c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|NCP MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -149,7 +149,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd2603a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd2603a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd2603a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -160,7 +160,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im48.*"/>
     <property key="core.boardCompatibility" value="brd2705a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd2705a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd2705a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -171,7 +171,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -182,7 +182,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -193,7 +193,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -204,7 +204,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204d"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204d.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4204d.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -215,7 +215,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sa27hnn.*"/>
     <property key="core.boardCompatibility" value="brd4205a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4205a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4205a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -226,7 +226,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*zgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd4205b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4205b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4205b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -237,7 +237,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg23b020f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4210a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4210a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4210a.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -248,7 +248,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4400b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4400b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -259,7 +259,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4400c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4400c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -270,7 +270,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4401b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4401b.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -281,7 +281,7 @@
     <property key="demos.blurb" value="Bootloader - SoC Internal Storage (OTA for Z-Wave Applications)"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.1/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4401c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/platform/bootloader/demos/bootloader-storage-internal-single-zwave-ota/bootloader-storage-internal-single-zwave-ota-brd4401c.s37"/>
     <property key="core.readmeFiles" value=""/>
     <property key="filters" value="Device\ Type|SoC MCU|Bootloader Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <property key="core.quality" value="PRODUCTION"/>

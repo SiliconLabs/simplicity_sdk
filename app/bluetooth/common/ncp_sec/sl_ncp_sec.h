@@ -88,11 +88,13 @@ sl_bt_msg_t* sl_ncp_sec_process_response(sl_bt_msg_t* msg,
  * @brief
  * Main state machine for secure NCP handling.
  * Increases security in case of ncp_sec_increase_security user command arrives.
- * Automatically decripts received messages if encription is enabled.
+ * Automatically decrypts received messages if encryption is enabled.
  * In case of error assembles an error message and sends it out.
  *
- * @param[in] msg
+ * @param[in] data
  *   Pointer to the received message buffer
+ * @param[in] len
+ *   Size of the message buffer
  *
  * @return
  *   SL_NCP_SEC_EVT_PROCESS if event was generated, and it has to be processed
@@ -101,6 +103,6 @@ sl_bt_msg_t* sl_ncp_sec_process_response(sl_bt_msg_t* msg,
  *     be processed further
  *   or the combination of above (like cmd and rsp has to be processed as well)
  ******************************************************************************/
-uint32_t sl_ncp_sec_command_handler(uint8_t* data);
+uint32_t sl_ncp_sec_command_handler(uint8_t* data, size_t len);
 
 #endif // NCP_SEC_H

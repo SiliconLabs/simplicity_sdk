@@ -17,7 +17,10 @@
 // automatically generated from message.h.  Do not manually edit
 #include "stack/internal/src/ipc/message_ipc_callback_events.h"
 #include "stack/internal/src/ipc/zigbee_ipc_callback_events.h"
+#include "stack/include/multi-network.h"
 extern void sl_zigbee_wakeup_common_task(void);
+extern sl_status_t sl_zigbee_af_push_network_index(uint8_t networkIndex);
+extern sl_status_t sl_zigbee_af_pop_network_index(void);
 
 void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_status_t status,
                                                     uint8_t gpdLink,
@@ -63,6 +66,9 @@ void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_status_t status
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_GPEP_INCOMING_MESSAGE_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -72,6 +78,9 @@ void sli_zigbee_stack_id_conflict_handler(sl_802154_short_addr_t conflictingId)
   sl_zigbee_stack_cb_event_t *cb_event = (sl_zigbee_stack_cb_event_t *) malloc(sizeof(sl_zigbee_stack_cb_event_t));
   cb_event->data.id_conflict_handler.conflictingId = conflictingId;
   cb_event->tag = SLI_ZIGBEE_STACK_ID_CONFLICT_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -89,6 +98,9 @@ void sli_zigbee_stack_incoming_many_to_one_route_request_handler(sl_802154_short
 
   cb_event->data.incoming_many_to_one_route_request_handler.cost = cost;
   cb_event->tag = SLI_ZIGBEE_STACK_INCOMING_MANY_TO_ONE_ROUTE_REQUEST_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -117,6 +129,9 @@ void sli_zigbee_stack_incoming_message_handler(sl_zigbee_incoming_message_type_t
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_INCOMING_MESSAGE_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -128,6 +143,9 @@ void sli_zigbee_stack_incoming_network_status_handler(uint8_t errorCode,
   cb_event->data.incoming_network_status_handler.errorCode = errorCode;
   cb_event->data.incoming_network_status_handler.target = target;
   cb_event->tag = SLI_ZIGBEE_STACK_INCOMING_NETWORK_STATUS_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -139,6 +157,9 @@ void sli_zigbee_stack_incoming_route_error_handler(sl_status_t status,
   cb_event->data.incoming_route_error_handler.status = status;
   cb_event->data.incoming_route_error_handler.target = target;
   cb_event->tag = SLI_ZIGBEE_STACK_INCOMING_ROUTE_ERROR_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -160,6 +181,9 @@ void sli_zigbee_stack_incoming_route_record_handler(sl_zigbee_rx_packet_info_t *
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_INCOMING_ROUTE_RECORD_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -189,6 +213,9 @@ void sli_zigbee_stack_message_sent_handler(sl_status_t status,
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_MESSAGE_SENT_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -215,6 +242,9 @@ void sli_zigbee_stack_override_incoming_route_record_handler(sl_zigbee_rx_packet
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_OVERRIDE_INCOMING_ROUTE_RECORD_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
@@ -234,12 +264,18 @@ void sli_zigbee_stack_redirect_outgoing_message_handler(uint8_t mac_index,
 
   cb_event->data.redirect_outgoing_message_handler.priority = priority;
   cb_event->tag = SLI_ZIGBEE_STACK_REDIRECT_OUTGOING_MESSAGE_HANDLER_IPC_EVENT_TYPE;
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  cb_event->network_idx = sl_zigbee_get_callback_network();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   sl_event_publish(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, 1 /*priority*/, cb_event);
   sl_zigbee_wakeup_common_task();
 }
 
 void sli_zigbee_message_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_event)
 {
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  (void)sl_zigbee_af_push_network_index(cb_event->network_idx);
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   switch (cb_event->tag) {
     case SLI_ZIGBEE_STACK_GPEP_INCOMING_MESSAGE_HANDLER_IPC_EVENT_TYPE:
       sl_zigbee_gpep_incoming_message_handler(cb_event->data.gpep_incoming_message_handler.status,
@@ -321,4 +357,7 @@ void sli_zigbee_message_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_event)
       /* do nothing */
       break;
   }
+  #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+  sl_zigbee_af_pop_network_index();
+  #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
 }

@@ -90,6 +90,10 @@ typedef struct app_setting_wisun{
   bool is_default_phy;
   /// PHY settings
   sl_wisun_phy_config_t phy;
+  /// Key chain
+  uint8_t keychain;
+  /// Key chain index
+  uint8_t keychain_index;
 } app_setting_wisun_t;
 /** @} (end APP_SETTING_TYPES) */
 

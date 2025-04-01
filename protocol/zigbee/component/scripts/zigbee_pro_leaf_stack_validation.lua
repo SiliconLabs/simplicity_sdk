@@ -30,11 +30,15 @@ elseif rfd_device_list_val[device_type_primary_val] == nil or rfd_device_list_va
         nil)
 end
 
---- An end device neighbor table can not be sized greater than 1.
+--- An end device neighbor table can not be sized greater than 1, except CSL case.
 local neighbor_table_size = tonumber(slc.config("SL_ZIGBEE_NEIGHBOR_TABLE_SIZE").value)
-if neighbor_table_size > 1 then
-    validation.error("An end device neighbor table can not be sized greater than 1.",
-        validation.target_for_defines({"SL_ZIGBEE_NEIGHBOR_TABLE_SIZE"}),
-        nil,
-        nil)
+local leaf_with_csl_configuration = slc.is_selected("zigbee_pro_leaf_stack_with_csl")
+
+if leaf_with_csl_configuration == false then
+    if neighbor_table_size > 1 then
+        validation.error("An end device neighbor table can not be sized greater than 1.",
+            validation.target_for_defines({"SL_ZIGBEE_NEIGHBOR_TABLE_SIZE"}),
+            nil,
+            nil)
+    end
 end

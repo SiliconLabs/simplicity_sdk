@@ -44,11 +44,12 @@ include:
   - path: "inc/"
     file_list:
       - path: "sl_wisun_api.h"
+      - path: "sl_wisun_common.h"
       - path: "sl_wisun_events.h"
+      - path: "sl_wisun_regdb.h"
       - path: "sl_wisun_stack.h"
       - path: "sl_wisun_types.h"
       - path: "sl_wisun_version.h"
-      - path: "sl_wisun_common.h"
       - path: "sli_wisun_internal_api.h"
       - path: "sli_wisun_timer_service.h"
       - path: "sl_wisun_connection_params_api.h"

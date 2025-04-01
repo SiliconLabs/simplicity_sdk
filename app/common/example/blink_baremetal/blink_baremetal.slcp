@@ -28,6 +28,7 @@ component:
   - id: sleeptimer
   - id: simple_led
     instance: [led0]
+  - id: code_classification
 define:
   - name: DEBUG_EFM
 readme:

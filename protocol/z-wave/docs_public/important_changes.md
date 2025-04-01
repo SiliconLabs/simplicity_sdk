@@ -3,6 +3,22 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.23.2 {#section-7-23-2}
+
+## Restore NVM migration script
+Fix the issue about missing NVM migration script in the controller.
+
+## Restore NVM handler after backup/restore operations
+To avoid NVM acces by the stack or the application during backup/restore operations, the NVM3 handler is closed by the SAPI command NVMBackupRestoreOperationOpen. However it was never restored.
+The NVM3 handler of the stack is restored by the SAPI command NVMBackupRestoreOperationClose. It should no longer be required to reset the controller after a backup operation. The controller must always be restarted after a restore operation.
+The SAPI command NVM backup close now send an answer with the result of the operation (as specified). In case of error when restoring the NVM3 handler, the controller wil answer an error. In this case, the controller should be reset.
+*Breaking change*
+zpal_nvm_backup_close return a zpal_status_t instead of void.
+
+## Exclusion from foreign network
+After an exclusion from a foreign network, the controller sent nops. However, nops were sent on the controller's network instead of the foreign network.
+So according to the network specification (NWK:01C8.1 & LR-NWK:0078.1), the controller no longer sends nops in case of foreign exclusion.
+
 # 7.23.1 {#section-7-23-1}
 
 ## S2V2 specification update

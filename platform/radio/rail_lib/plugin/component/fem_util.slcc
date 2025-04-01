@@ -15,6 +15,7 @@ requires:
   - name: emlib_gpio
   - name: emlib_cmu
   - name: emlib_prs
+  - name: component_catalog
 provides:
   - name: fem_util
 documentation:

@@ -206,20 +206,6 @@ sl_status_t sl_wisun_br_set_lfn_parameters(const sl_wisun_br_lfn_params_t *param
 sl_status_t sl_wisun_br_set_lfn_support(uint8_t lfn_limit, bool lfn_support_pan);
 
 /**************************************************************************//**
- * Set DHCPv6 Vendor Data
- *
- * @param[in] enterprise_number Vendor Specific Enterprise Number
- * @param[in] data_length Length of Vendor specific data
- * @param[in] data Vendor specific data
- * @return SL_STATUS_OK if successful, an error code otherwise
- *
- * This function sets the vendor-specific information transmitted during
- * DHCPv6 exchange. This function must be called before starting the
- * Border Router.
- *****************************************************************************/
-sl_status_t sl_wisun_br_set_dhcp_vendor_data(uint32_t enterprise_number, uint16_t data_length, const uint8_t *data);
-
-/**************************************************************************//**
  * Start or stop PAN Defect advertisement.
  *
  * @param[in] defect_advertise True to start PAN Defect procedure,

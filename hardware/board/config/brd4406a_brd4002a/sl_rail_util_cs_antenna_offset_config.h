@@ -49,10 +49,12 @@ extern "C" {
 #define SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE               SL_RAIL_UTIL_CS_ANTENNA_OFFSET_CONFIG_TYPE_WIRELESS
 
 // <a.4 SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRELESS_CM> Antenna wireless offset array in centimeters <-32768..32767>
+// <i> If less than 4 antenna paths are available, 0 must be supplied for the non-existent elements.
 // <d> { 80, 80, 80, 80 }
 #define SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRELESS_CM        { 80, 80, 80, 80 }
 
 // <a.4 SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRED_CM> Antenna wired offset array in centimeters <-32768..32767>
+// <i> If less than 4 antenna paths are available, 0 must be supplied for the non-existent elements.
 // <d> { 24, 24, 24, 24 }
 #define SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRED_CM           { 24, 24, 24, 24 }
 // </h>

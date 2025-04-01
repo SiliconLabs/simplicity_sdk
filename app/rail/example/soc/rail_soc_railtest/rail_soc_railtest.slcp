@@ -162,7 +162,6 @@ configuration:
       - a_radio_config
     unless:
       - device_generic_family_efr32xg21
-      - device_generic_family_efr32xr21
       - device_is_module
     # Provide proprietary support on FGM230 modules
   - name: SL_RAIL_UTIL_INIT_RADIO_CONFIG_SUPPORT_INST0_ENABLE
@@ -191,7 +190,6 @@ configuration:
     unless:
       - device_is_module
       - device_generic_family_efr32xg21
-      - device_generic_family_efr32xr21
     #  Provide proprietary support on FGM230 modules
   - name: SL_RAIL_UTIL_INIT_PROTOCOL_INST0_DEFAULT
     value: "SL_RAIL_UTIL_PROTOCOL_PROPRIETARY"

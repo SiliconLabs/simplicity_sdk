@@ -1375,7 +1375,7 @@ void app_ping(sl_cli_command_arg_t *arguments)
   }
   else {
     app_ping_tick_count = sl_sleeptimer_get_tick_count();
-    printf("PING %s: %ld data bytes\r\n", app_get_ip_address_str(&dest_addr.sin6_addr), socket_retval);
+    printf("PING %s: %u data bytes\r\n", app_get_ip_address_str(&dest_addr.sin6_addr), packet_data_length);
     goto cleanup;
   }
 

@@ -140,3 +140,4 @@ filter:
 
 tag:
   - hardware:component:exp_header:spi
+  - hardware:device:ram:96

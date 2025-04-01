@@ -158,16 +158,7 @@ void I2C1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void I2C2_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void I2C3_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void EMUDG_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void AGC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void BUFC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void FRC_PRI_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void FRC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void MODEM_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void PROTIMER_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void RAC_RSM_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void RAC_SEQ_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void HOSTMAILBOX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void SYNTH_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void ACMP0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void ACMP1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void WDOG0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -176,7 +167,6 @@ void HFXO0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void HFRCO0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void HFRCOEM23_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void CMU_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void AES_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void IADC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void MSC_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void DPLL0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -198,8 +188,6 @@ void SEMBTX_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void SYSRTC_APP_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void SYSRTC_SEQ_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void KEYSCAN_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void RFECA0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
-void RFECA1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void VDAC0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void VDAC1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 void AHB2AHB0_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -299,16 +287,16 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
   { I2C2_IRQHandler },                             /* 43 = I2C2 */
   { I2C3_IRQHandler },                             /* 44 = I2C3 */
   { EMUDG_IRQHandler },                            /* 45 = EMUDG */
-  { AGC_IRQHandler },                              /* 46 = AGC */
-  { BUFC_IRQHandler },                             /* 47 = BUFC */
-  { FRC_PRI_IRQHandler },                          /* 48 = FRC_PRI */
-  { FRC_IRQHandler },                              /* 49 = FRC */
-  { MODEM_IRQHandler },                            /* 50 = MODEM */
-  { PROTIMER_IRQHandler },                         /* 51 = PROTIMER */
-  { RAC_RSM_IRQHandler },                          /* 52 = RAC_RSM */
-  { RAC_SEQ_IRQHandler },                          /* 53 = RAC_SEQ */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
   { HOSTMAILBOX_IRQHandler },                      /* 54 = HOSTMAILBOX */
-  { SYNTH_IRQHandler },                            /* 55 = SYNTH */
+  { Default_Handler },                             /* Reserved */
   { ACMP0_IRQHandler },                            /* 56 = ACMP0 */
   { ACMP1_IRQHandler },                            /* 57 = ACMP1 */
   { WDOG0_IRQHandler },                            /* 58 = WDOG0 */
@@ -317,7 +305,7 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
   { HFRCO0_IRQHandler },                           /* 61 = HFRCO0 */
   { HFRCOEM23_IRQHandler },                        /* 62 = HFRCOEM23 */
   { CMU_IRQHandler },                              /* 63 = CMU */
-  { AES_IRQHandler },                              /* 64 = AES */
+  { Default_Handler },                             /* Reserved */
   { IADC_IRQHandler },                             /* 65 = IADC */
   { MSC_IRQHandler },                              /* 66 = MSC */
   { DPLL0_IRQHandler },                            /* 67 = DPLL0 */
@@ -339,8 +327,8 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
   { SYSRTC_APP_IRQHandler },                       /* 83 = SYSRTC_APP */
   { SYSRTC_SEQ_IRQHandler },                       /* 84 = SYSRTC_SEQ */
   { KEYSCAN_IRQHandler },                          /* 85 = KEYSCAN */
-  { RFECA0_IRQHandler },                           /* 86 = RFECA0 */
-  { RFECA1_IRQHandler },                           /* 87 = RFECA1 */
+  { Default_Handler },                             /* Reserved */
+  { Default_Handler },                             /* Reserved */
   { VDAC0_IRQHandler },                            /* 88 = VDAC0 */
   { VDAC1_IRQHandler },                            /* 89 = VDAC1 */
   { AHB2AHB0_IRQHandler },                         /* 90 = AHB2AHB0 */

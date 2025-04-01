@@ -143,16 +143,7 @@ void I2C1_IRQHandler(void);              /**< I2C1 IRQ Handler */
 void I2C2_IRQHandler(void);              /**< I2C2 IRQ Handler */
 void I2C3_IRQHandler(void);              /**< I2C3 IRQ Handler */
 void EMUDG_IRQHandler(void);             /**< EMUDG IRQ Handler */
-void AGC_IRQHandler(void);               /**< AGC IRQ Handler */
-void BUFC_IRQHandler(void);              /**< BUFC IRQ Handler */
-void FRC_PRI_IRQHandler(void);           /**< FRC_PRI IRQ Handler */
-void FRC_IRQHandler(void);               /**< FRC IRQ Handler */
-void MODEM_IRQHandler(void);             /**< MODEM IRQ Handler */
-void PROTIMER_IRQHandler(void);          /**< PROTIMER IRQ Handler */
-void RAC_RSM_IRQHandler(void);           /**< RAC_RSM IRQ Handler */
-void RAC_SEQ_IRQHandler(void);           /**< RAC_SEQ IRQ Handler */
 void HOSTMAILBOX_IRQHandler(void);       /**< HOSTMAILBOX IRQ Handler */
-void SYNTH_IRQHandler(void);             /**< SYNTH IRQ Handler */
 void ACMP0_IRQHandler(void);             /**< ACMP0 IRQ Handler */
 void ACMP1_IRQHandler(void);             /**< ACMP1 IRQ Handler */
 void WDOG0_IRQHandler(void);             /**< WDOG0 IRQ Handler */
@@ -161,7 +152,6 @@ void HFXO0_IRQHandler(void);             /**< HFXO0 IRQ Handler */
 void HFRCO0_IRQHandler(void);            /**< HFRCO0 IRQ Handler */
 void HFRCOEM23_IRQHandler(void);         /**< HFRCOEM23 IRQ Handler */
 void CMU_IRQHandler(void);               /**< CMU IRQ Handler */
-void AES_IRQHandler(void);               /**< AES IRQ Handler */
 void IADC_IRQHandler(void);              /**< IADC IRQ Handler */
 void MSC_IRQHandler(void);               /**< MSC IRQ Handler */
 void DPLL0_IRQHandler(void);             /**< DPLL0 IRQ Handler */
@@ -183,8 +173,6 @@ void SEMBTX_IRQHandler(void);            /**< SEMBTX IRQ Handler */
 void SYSRTC_APP_IRQHandler(void);        /**< SYSRTC_APP IRQ Handler */
 void SYSRTC_SEQ_IRQHandler(void);        /**< SYSRTC_SEQ IRQ Handler */
 void KEYSCAN_IRQHandler(void);           /**< KEYSCAN IRQ Handler */
-void RFECA0_IRQHandler(void);            /**< RFECA0 IRQ Handler */
-void RFECA1_IRQHandler(void);            /**< RFECA1 IRQ Handler */
 void VDAC0_IRQHandler(void);             /**< VDAC0 IRQ Handler */
 void VDAC1_IRQHandler(void);             /**< VDAC1 IRQ Handler */
 void AHB2AHB0_IRQHandler(void);          /**< AHB2AHB0 IRQ Handler */

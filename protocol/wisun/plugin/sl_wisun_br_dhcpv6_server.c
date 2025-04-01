@@ -1,16 +1,32 @@
-/*
- * SPDX-License-Identifier: LicenseRef-MSLA
- * Copyright (c) 2022 Silicon Laboratories Inc. (www.silabs.com)
+/***************************************************************************//**
+ * @file sl_wisun_br_dhcpv6_server.c
+ * @brief Components that implements a DHCPv6 server for Wi-SUN Border Router
+ *******************************************************************************
+ * # License
+ * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ *******************************************************************************
  *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of the Silicon Labs Master Software License
- * Agreement (MSLA) available at [1].  This software is distributed to you in
- * Object Code format and/or Source Code format and is governed by the sections
- * of the MSLA applicable to Object Code, Source Code and Modified Open Source
- * Code. By using this software, you agree to the terms of the MSLA.
+ * SPDX-License-Identifier: Zlib
  *
- * [1]: https://www.silabs.com/about-us/legal/master-software-license-agreement
- */
+ * The licensor of this software is Silicon Laboratories Inc.
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ *
+ ******************************************************************************/
 
 #include <assert.h>
 #include <cmsis_os2.h>
@@ -20,13 +36,16 @@
 #include "sl_wisun_ip6string.h"
 #include "sl_wisun_types.h"
 #include "socket/socket.h"
-#include "common/iobuf.h"
+#include "common/ns_list.h"
+#include "common/endian.h"
 #include "sl_wisun_common.h"
 #include "sl_wisun_br_dhcpv6_server.h"
+#include "common/pktbuf.h"
 
 static int dhcpv6_server_socket = -1;
 static uint8_t server_prefix[8], server_DUID[8];
 static uint32_t valid_lifetime, preferred_lifetime;
+dhcpv6_vendor_data_list_t vendorDataList;
 
 // Messages types (RFC3315, section 5.3)
 #define DHCPV6_MSG_SOLICIT      1
@@ -60,7 +79,7 @@ static uint32_t valid_lifetime, preferred_lifetime;
 #define DHCPV6_OPT_RAPID_COMMIT               0x000e
 #define DHCPV6_OPT_USER_CLASS                 0x000f /* Unused */
 #define DHCPV6_OPT_VENDOR_CLASS               0x0010 /* Unused */
-#define DHCPV6_OPT_VENDOR_SPECIFIC            0x0011 /* Unused */
+#define DHCPV6_OPT_VENDOR_SPECIFIC            0x0011
 #define DHCPV6_OPT_INTERFACE_ID               0x0012
 #define DHCPV6_OPT_RECONF_MSG                 0x0013 /* Unused */
 #define DHCPV6_OPT_RECONF_ACCEPT              0x0014 /* Unused */
@@ -74,93 +93,108 @@ static uint32_t valid_lifetime, preferred_lifetime;
 #define DHCPV6_DUID_HW_TYPE_IEEE802           0x0006
 #define DHCPV6_DUID_HW_TYPE_EUI64             0x001b
 
-static int dhcp_handle_request(struct iobuf_read *req, struct iobuf_write *reply);
-static int dhcp_handle_request_fwd(struct iobuf_read *req, struct iobuf_write *reply);
+static int dhcp_handle_request(uint8_t *req, int len, struct pktbuf *reply);
+static int dhcp_handle_request_fwd(uint8_t *req, int len, struct pktbuf *reply);
 
-static int dhcp_get_option(const uint8_t *data, size_t len, uint16_t option, struct iobuf_read *option_payload)
+
+dhcpv6_vendor_data_t *libdhcpv6_vendor_data_allocate(uint32_t enterprise_number)
+{
+    dhcpv6_vendor_data_t *entry = NULL;
+    ns_list_foreach(dhcpv6_vendor_data_t, cur, &vendorDataList) {
+        if (cur->enterprise_number == enterprise_number) {
+            sl_free(cur->vendor_data);
+            cur->vendor_data = NULL;
+            cur->vendor_data_length = 0;
+            return entry;
+        }
+    }
+    entry = sl_malloc(sizeof(dhcpv6_vendor_data_t));
+    if (!entry) {
+        return NULL;
+    }
+    ns_list_add_to_end(&vendorDataList, entry);
+    entry->enterprise_number = enterprise_number;
+    entry->vendor_data = NULL;
+    entry->vendor_data_length = 0;
+    return entry;
+}
+
+static int dhcp_get_option(uint8_t *data, int len, uint16_t option, uint8_t **option_payload)
 {
   uint16_t opt_type, opt_len;
-  struct iobuf_read input = {
-    .data_size = len,
-    .data = data,
-  };
-
-  memset(option_payload, 0, sizeof(struct iobuf_read));
-  option_payload->err = true;
-  while (iobuf_remaining_size(&input)) {
-    opt_type = iobuf_pop_be16(&input);
-    opt_len = iobuf_pop_be16(&input);
+  while (len >= 4) {
+    opt_type = read_be16(data);
+    opt_len = read_be16(data + 2);
     if (opt_type == option) {
-      option_payload->data = iobuf_pop_data_ptr(&input, opt_len);
-      if (!option_payload->data) {
-        return -1;
-      }
-      option_payload->err = false;
-      option_payload->data_size = opt_len;
+      *option_payload = data + 4;
       return opt_len;
     }
-    iobuf_pop_data_ptr(&input, opt_len);
+    data += 4 + opt_len;
+    len -= 4 + opt_len;
   }
   return -1;
 }
 
-static int dhcp_get_client_hwaddr(const uint8_t *req, size_t req_len, const uint8_t **hwaddr)
+static int dhcp_get_client_hwaddr(uint8_t *req, size_t req_len, uint8_t *hwaddr)
 {
-  struct iobuf_read opt;
+  uint8_t *opt;
+  int opt_length;
   uint16_t duid_type, ll_type;
 
-  dhcp_get_option(req, req_len, DHCPV6_OPT_CLIENT_ID, &opt);
-  if (opt.err) {
-    sl_wisun_trace_error("dhcp_get_client_hwaddr: missing client ID option");
+  opt_length = dhcp_get_option(req, req_len, DHCPV6_OPT_CLIENT_ID, &opt);
+  if (opt_length != 12) {
+    sl_wisun_trace_error("dhcp_get_client_hwaddr: missing or malformed client ID option");
     return -1;
   }
-  duid_type = iobuf_pop_be16(&opt);
-  ll_type = iobuf_pop_be16(&opt);
+  duid_type = read_be16(opt);
+  ll_type = read_be16(opt + 2);
   if (duid_type != DHCPV6_DUID_TYPE_LINK_LAYER ||
     (ll_type != DHCPV6_DUID_HW_TYPE_EUI64 && ll_type != DHCPV6_DUID_HW_TYPE_IEEE802)) {
     sl_wisun_trace_error("dhcp_get_client_hwaddr: unsupported client ID option %"PRIu16"", ll_type);
     return -1;
   }
-  *hwaddr = iobuf_pop_data_ptr(&opt, 8);
+  memcpy(hwaddr, opt + 4, 8);
   return ll_type;
 }
 
-static uint32_t dhcp_get_identity_association_id(const uint8_t *req, size_t req_len)
+static uint32_t dhcp_get_identity_association_id(uint8_t *req, size_t req_len)
 {
-  struct iobuf_read opt;
+  uint8_t *opt;
+  int opt_length;
   uint32_t ia_id;
 
-  dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt);
-  ia_id = iobuf_pop_be32(&opt);
-  if (opt.err) {
-    sl_wisun_trace_error("dhcp_get_identity_association_id: missing IA_NA option");
-    return UINT32_MAX;
+  opt_length = dhcp_get_option(req, req_len, DHCPV6_OPT_IA_NA, &opt);
+  if (opt_length < 4) {
+    sl_wisun_trace_error("dhcp_get_identity_association_id: missing or malformed IA_NA option");
+    ia_id = UINT32_MAX;
   }
+  ia_id = read_be32(opt);
   return ia_id;
 }
 
-static int dhcp_check_rapid_commit(const uint8_t *req, size_t req_len)
+static int dhcp_check_rapid_commit(uint8_t *req, size_t req_len)
 {
-  struct iobuf_read opt;
+  uint8_t *opt;
+  int opt_length;
 
-  dhcp_get_option(req, req_len, DHCPV6_OPT_RAPID_COMMIT, &opt);
-  if (opt.err) {
+  opt_length = dhcp_get_option(req, req_len, DHCPV6_OPT_RAPID_COMMIT, &opt);
+  if (opt_length < -1) {
     sl_wisun_trace_error("dhcp_check_rapid_commit: missing rapid commit option");
-    return -1;
   }
-  return 0;
+  return opt_length;
 }
 
-static int dhcp_check_status_code(const uint8_t *req, size_t req_len)
+static int dhcp_check_status_code(uint8_t *req, int req_len)
 {
-  struct iobuf_read opt;
+  uint8_t *opt;
+  int opt_length;
   uint16_t status;
 
-  dhcp_get_option(req, req_len, DHCPV6_OPT_STATUS_CODE, &opt);
-  if (opt.err) {
+  opt_length = dhcp_get_option(req, req_len, DHCPV6_OPT_STATUS_CODE, &opt);
+  if (opt_length < 1) {
     return 0;
   }
-  status = iobuf_pop_be16(&opt);
+  status = read_be16(opt);
   if (status) {
     sl_wisun_trace_error("dhcp_check_status_code: status code: %d", status);
     return -1;
@@ -168,67 +202,81 @@ static int dhcp_check_status_code(const uint8_t *req, size_t req_len)
   return 0;
 }
 
-static int dhcp_check_elapsed_time(const uint8_t *req, size_t req_len)
+static int dhcp_check_elapsed_time(uint8_t *req, int req_len)
 {
-  struct iobuf_read opt;
+  uint8_t *opt;
+  int opt_length;
 
-  dhcp_get_option(req, req_len, DHCPV6_OPT_ELAPSED_TIME, &opt);
-  if (opt.err) {
+  opt_length = dhcp_get_option(req, req_len, DHCPV6_OPT_ELAPSED_TIME, &opt);
+  if (opt_length < 0) {
+    // Elapsed Time option is mandatory
     sl_wisun_trace_error("dhcp_check_elapsed_time: missing elapsed time option");
-    return -1; // Elapsed Time option is mandatory
   }
   return 0;
 }
 
-static void dhcp_fill_server_id(struct iobuf_write *reply)
+static void dhcp_fill_server_id(struct pktbuf *reply)
 {
-  iobuf_push_be16(reply, DHCPV6_OPT_SERVER_ID);
-  iobuf_push_be16(reply, 2 + 2 + 8);
-  iobuf_push_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
-  iobuf_push_be16(reply, DHCPV6_DUID_HW_TYPE_IEEE802);
-  iobuf_push_data(reply, server_DUID, 8);
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_SERVER_ID);
+  pktbuf_push_tail_be16(reply, 2 + 2 + 8);
+  pktbuf_push_tail_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
+  pktbuf_push_tail_be16(reply, DHCPV6_DUID_HW_TYPE_IEEE802);
+  pktbuf_push_tail(reply, server_DUID, 8);
 }
 
-static void dhcp_fill_client_id(struct iobuf_write *reply,
+static void dhcp_fill_client_id(struct pktbuf *reply,
                                 uint16_t hwaddr_type, const uint8_t *hwaddr)
 {
-  iobuf_push_be16(reply, DHCPV6_OPT_CLIENT_ID);
-  iobuf_push_be16(reply, 2 + 2 + 8);
-  iobuf_push_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
-  iobuf_push_be16(reply, hwaddr_type);
-  iobuf_push_data(reply, hwaddr, 8);
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_CLIENT_ID);
+  pktbuf_push_tail_be16(reply, 2 + 2 + 8);
+  pktbuf_push_tail_be16(reply, DHCPV6_DUID_TYPE_LINK_LAYER);
+  pktbuf_push_tail_be16(reply, hwaddr_type);
+  pktbuf_push_tail(reply, hwaddr, 8);
   }
 
-static void dhcp_fill_rapid_commit(struct iobuf_write *reply)
+static void dhcp_fill_rapid_commit(struct pktbuf *reply)
 {
-  iobuf_push_be16(reply, DHCPV6_OPT_RAPID_COMMIT);
-  iobuf_push_be16(reply, 0);
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_RAPID_COMMIT);
+  pktbuf_push_tail_be16(reply, 0);
 }
 
-static void dhcp_fill_identity_association(struct iobuf_write *reply,
+static void dhcp_fill_vendor_data(struct pktbuf *reply)
+{
+  ns_list_foreach(dhcpv6_vendor_data_t, cur, &vendorDataList) {
+    if (cur->vendor_data_length == 0) {
+      continue;
+    }
+    pktbuf_push_tail_be16(reply, DHCPV6_OPT_VENDOR_SPECIFIC);
+    pktbuf_push_tail_be16(reply, cur->vendor_data_length + 4);
+    pktbuf_push_tail_be32(reply, cur->enterprise_number);
+    pktbuf_push_tail(reply, cur->vendor_data, cur->vendor_data_length);
+  }
+}
+
+static void dhcp_fill_identity_association(struct pktbuf *reply,
                                            const uint8_t *hwaddr, uint32_t ia_id)
 {
   uint8_t ipv6[16];
   memcpy(ipv6, server_prefix, 8);
   memcpy(ipv6 + 8, hwaddr, 8);
   ipv6[8] ^= 0x02;
-  iobuf_push_be16(reply, DHCPV6_OPT_IA_NA);
-  iobuf_push_be16(reply, 4 + 4 + 4 + 2 + 2 + 16 + 4 + 4);
-  iobuf_push_be32(reply, ia_id);
-  iobuf_push_be32(reply, 0); // T1
-  iobuf_push_be32(reply, 0); // T2
-  iobuf_push_be16(reply, DHCPV6_OPT_IA_ADDRESS);
-  iobuf_push_be16(reply, 16 + 4 + 4);
-  iobuf_push_data(reply, ipv6, 16);
-  iobuf_push_be32(reply, preferred_lifetime);
-  iobuf_push_be32(reply, valid_lifetime);
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_IA_NA);
+  pktbuf_push_tail_be16(reply, 4 + 4 + 4 + 2 + 2 + 16 + 4 + 4);
+  pktbuf_push_tail_be32(reply, ia_id);
+  pktbuf_push_tail_be32(reply, 0); // T1
+  pktbuf_push_tail_be32(reply, 0); // T2
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_IA_ADDRESS);
+  pktbuf_push_tail_be16(reply, 16 + 4 + 4);
+  pktbuf_push_tail(reply, ipv6, 16);
+  pktbuf_push_tail_be32(reply, preferred_lifetime);
+  pktbuf_push_tail_be32(reply, valid_lifetime);
 }
 
 static int dhcp_send_reply(struct sockaddr_in6 *dest,
-                           struct iobuf_write *reply)
+                           struct pktbuf *reply)
 {
   char dst_addr_str[MAX_IPV6_STRING_LEN_WITH_TRAILING_NULL];
-  int32_t retval = sendto(dhcpv6_server_socket, reply->data, reply->len, 0, (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
+  int32_t retval = sendto(dhcpv6_server_socket, pktbuf_head(reply), reply->buf_len, 0, (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
   if (retval <= 0) {
     sl_wisun_trace_error("dhcp_send_reply: sendto failed %d", retval);
     return -1;
@@ -238,84 +286,98 @@ static int dhcp_send_reply(struct sockaddr_in6 *dest,
   return 0;
 }
 
-static int dhcp_handle_request_fwd(struct iobuf_read *req, struct iobuf_write *reply)
+static int dhcp_handle_request_fwd(uint8_t *req, int len, struct pktbuf *reply)
 {
-  uint8_t buf[350];
-  struct iobuf_read opt_interface_id, opt_relay;
-  struct iobuf_write relay_reply = {
-    .data_size = 350,
-    .data = buf,
-  };
-  const uint8_t *linkaddr, *peeraddr;
+  struct pktbuf buf = { 0 };
+  uint8_t *opt_interface_id, *opt_relay;
+  int32_t opt_interface_id_len, opt_relay_len;
+  uint8_t linkaddr[16], peeraddr[16];
   uint8_t hopcount;
 
-  hopcount = iobuf_pop_u8(req);
-  linkaddr = iobuf_pop_data_ptr(req, 16);
-  peeraddr = iobuf_pop_data_ptr(req, 16);
-  iobuf_push_u8(reply, DHCPV6_MSG_RELAY_REPLY);
-  iobuf_push_u8(reply, hopcount);
-  iobuf_push_data(reply, linkaddr, 16);
-  iobuf_push_data(reply, peeraddr, 16);
-  if (dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req),
-                      DHCPV6_OPT_INTERFACE_ID, &opt_interface_id) > 0) {
-    iobuf_push_be16(reply, DHCPV6_OPT_INTERFACE_ID);
-    iobuf_push_be16(reply, opt_interface_id.data_size);
-    iobuf_push_data(reply, opt_interface_id.data, opt_interface_id.data_size);
+if (len < 33) {
+    sl_wisun_trace_error("dhcp_handle_request_fwd: message too short");
+    return -1;
   }
-  if (dhcp_get_option(iobuf_ptr(req), iobuf_remaining_size(req),
-                      DHCPV6_OPT_RELAY, &opt_relay) < 0) {
+  memcpy(&hopcount, req, 1);
+  memcpy(linkaddr, req + 1, 16);
+  memcpy(peeraddr, req + 17, 16);
+  req += 33;
+  len -= 33;
+  pktbuf_push_tail_u8(reply, DHCPV6_MSG_RELAY_REPLY);
+  pktbuf_push_tail_u8(reply, hopcount);
+  pktbuf_push_tail(reply, linkaddr, 16);
+  pktbuf_push_tail(reply, peeraddr, 16);
+  opt_interface_id_len = dhcp_get_option(req, len, DHCPV6_OPT_INTERFACE_ID,
+                                         &opt_interface_id);
+  if (opt_interface_id_len > 0) {
+    pktbuf_push_tail_be16(reply, DHCPV6_OPT_INTERFACE_ID);
+    pktbuf_push_tail_be16(reply, opt_interface_id_len);
+    pktbuf_push_tail(reply, opt_interface_id, opt_interface_id_len);
+  }
+  opt_relay_len = dhcp_get_option(req, len, DHCPV6_OPT_RELAY,
+                                  &opt_relay);
+  if (opt_relay_len < 0) {
     sl_wisun_trace_error("dhcp_handle_request_fwd: missing relay option");
     return -1;
   }
-  if (dhcp_handle_request(&opt_relay, &relay_reply) < 0) {
+  pktbuf_init(&buf, NULL, 0);
+  if (dhcp_handle_request(opt_relay, opt_relay_len, &buf) < 0) {
+    pktbuf_free(&buf);
     return -1;
   }
-  iobuf_push_be16(reply, DHCPV6_OPT_RELAY);
-  iobuf_push_be16(reply, relay_reply.len);
-  iobuf_push_data(reply, relay_reply.data, relay_reply.len);
+  pktbuf_push_tail_be16(reply, DHCPV6_OPT_RELAY);
+  pktbuf_push_tail_be16(reply, pktbuf_len(&buf));
+  pktbuf_push_tail(reply, pktbuf_head(&buf), pktbuf_len(&buf));
+
+  pktbuf_free(&buf);
   return 0;
 }
 
-static int dhcp_handle_request(struct iobuf_read *req, struct iobuf_write *reply)
+static int dhcp_handle_request(uint8_t *req, int len, struct pktbuf *reply)
 {
   uint24_t transaction;
   uint8_t msg_type;
   uint32_t iaid;
-  const uint8_t *hwaddr;
+  uint8_t hwaddr[8];
   int hwaddr_type;
 
-  msg_type = iobuf_pop_u8(req);
+  memcpy (&msg_type, req, 1);
+  req += 1;
+  len -= 1;
   if (msg_type == DHCPV6_MSG_RELAY_FWD) {
-    return dhcp_handle_request_fwd(req, reply);
+    return dhcp_handle_request_fwd(req, len, reply);
   }
   if (msg_type != DHCPV6_MSG_SOLICIT) {
     sl_wisun_trace_error("dhcp_handle_request: unsupported message type %d", msg_type);
     return -1;
   }
 
-  transaction = iobuf_pop_be24(req);
-  if (dhcp_check_status_code(iobuf_ptr(req), iobuf_remaining_size(req))) {
+  transaction = read_be24(req);
+  req +=3;
+  len -= 3;
+  if (dhcp_check_status_code(req, len)) {
     return -1;
   }
-  if (dhcp_check_rapid_commit(iobuf_ptr(req), iobuf_remaining_size(req))) {
+  if (dhcp_check_rapid_commit(req, len)) {
     return -1;
   }
-  if (dhcp_check_elapsed_time(iobuf_ptr(req), iobuf_remaining_size(req))) {
+  if (dhcp_check_elapsed_time(req, len)) {
     return -1;
   }
-  iaid = dhcp_get_identity_association_id(iobuf_ptr(req), iobuf_remaining_size(req));
+  iaid = dhcp_get_identity_association_id(req, len);
   if (iaid == UINT32_MAX) {
     return -1;
   }
-  hwaddr_type = dhcp_get_client_hwaddr(iobuf_ptr(req), iobuf_remaining_size(req), &hwaddr);
+  hwaddr_type = dhcp_get_client_hwaddr(req, len, hwaddr);
   if (hwaddr_type < 0) {
     return -1;
   }
 
-  iobuf_push_u8(reply, DHCPV6_MSG_REPLY);
-  iobuf_push_be24(reply, transaction);
+  pktbuf_push_tail_u8(reply, DHCPV6_MSG_REPLY);
+  pktbuf_push_tail_be24(reply, transaction);
   dhcp_fill_server_id(reply);
   dhcp_fill_client_id(reply, hwaddr_type, hwaddr);
+  dhcp_fill_vendor_data(reply);
   dhcp_fill_identity_association(reply, hwaddr, iaid);
   dhcp_fill_rapid_commit(reply);
   return 0;
@@ -324,8 +386,8 @@ static int dhcp_handle_request(struct iobuf_read *req, struct iobuf_write *reply
 void sl_wisun_br_dhcpv6_server_on_recv(uint8_t *buffer, ssize_t length, in6_addr_t peer_address, in_port_t remote_port)
 {
   char src_addr_str[MAX_IPV6_STRING_LEN_WITH_TRAILING_NULL];
+  struct pktbuf buf = { 0 };
 
-  void iobuf_reset(struct iobuf_write *buf);
   sockaddr_in6_t src_addr = {
     .sin6_family = AF_INET6,
     .sin6_port = remote_port,
@@ -333,28 +395,48 @@ void sl_wisun_br_dhcpv6_server_on_recv(uint8_t *buffer, ssize_t length, in6_addr
     .sin6_addr = IN6ADDR_ANY_INIT,
     .sin6_scope_id = 0,
   };
-  uint8_t buf[350];
+  pktbuf_init(&buf, NULL, 0);
 
   ip6tos(peer_address.address, src_addr_str);
   sl_wisun_trace_info("sl_wisun_br_dhcpv6_server_on_recv: received msg from %s", src_addr_str);
   memcpy (src_addr.sin6_addr.address, peer_address.address, 16);
-  struct iobuf_read req = {
-    .data_size = length,
-    .data = buffer,
-   };
-  struct iobuf_write reply = {
-    .data_size = 350,
-    .data = buf,
-  };
-  if (!dhcp_handle_request(&req, &reply)) {
-    dhcp_send_reply(&src_addr, &reply);
+  if (!dhcp_handle_request(buffer, length, &buf)) {
+    dhcp_send_reply(&src_addr, &buf);
   }
-  req.data = buffer;
+  pktbuf_free(&buf);
 }
 
+sl_status_t sl_wisun_br_dhcpv6_set_vendor_data(uint32_t enterprise_number, uint16_t vendor_data_length, const uint8_t *vendor_data)
+{
+  dhcpv6_vendor_data_t *vendor_data_entry;
+
+  if (vendor_data_length && !vendor_data) {
+    sl_wisun_trace_error("sl_wisun_br_dhcpv6_set_vendor_data: invalid vendor data pointer");
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  vendor_data_entry= libdhcpv6_vendor_data_allocate(enterprise_number);
+
+  if (!vendor_data_entry) {
+    sl_wisun_trace_error("sl_wisun_br_dhcpv6_set_vendor_data: could not allocate vendor data entry");
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  if (vendor_data_length) {
+    vendor_data_entry->vendor_data = sl_malloc(vendor_data_length);
+    if (!vendor_data_entry->vendor_data) {
+      sl_wisun_trace_error("sl_wisun_br_dhcpv6_set_vendor_data: could not allocate vendor data entry");
+      return SL_STATUS_ALLOCATION_FAILED;
+    }
+    vendor_data_entry->vendor_data_length = vendor_data_length;
+    memcpy(vendor_data_entry->vendor_data, vendor_data, vendor_data_entry->vendor_data_length);
+  }
+  return SL_STATUS_OK;
+}
 
 sl_status_t sl_wisun_br_dhcpv6_server_init(void)
 {
+  ns_list_init(&vendorDataList);
   return SL_STATUS_OK;
 }
 

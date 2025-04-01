@@ -1085,8 +1085,10 @@ SL_PACK_END()
 
 /// Enumeration for channel mask types
 typedef enum {
+  /// Regulatory excluded channel mask (not advertised)
+  SL_WISUN_CHANNEL_MASK_TYPE_REGULATORY,
   /// Regional excluded channel mask (not advertised)
-  SL_WISUN_CHANNEL_MASK_TYPE_REGIONAL,
+  SL_WISUN_CHANNEL_MASK_TYPE_REGIONAL = SL_WISUN_CHANNEL_MASK_TYPE_REGULATORY,
   /// Excluded channel mask advertised in us-ie
   SL_WISUN_CHANNEL_MASK_TYPE_ADVERTISED_UNICAST,
   /// Excluded channel mask advertised in bs-ie

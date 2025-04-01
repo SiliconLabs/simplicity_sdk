@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # vim: set sw=2 expandtab:
 
-import dep
-import json
-import base64
-import sys
 import argparse
+import base64
+import json
 import logging
-from ddp.commander import *
-import SigningServer
-import wisun.common
-import wisun.command
-import wisun.response
+import os
+import sys
+
 import ddp.command
 import ddp.response
+import dep
+import wisun.command
+import wisun.common
+import wisun.response
+from ddp.commander import *
 from ddp.rtt import SerialWire
-import os
 
 ################################################## HELPER FUNCTIONS ####################################################################################################
 
@@ -25,7 +25,7 @@ def GetMacAddress(sw):
   logger.info("Device serial number: %s", sn)
   return sn
 
-def OpenSWConnection(soc_,jlink_ser,jlink_host):
+def OpenSWConnection(soc_,jlink_ser,jlink_host, reset = False):
   try:
     soc = wisun.common.socs[soc_]
   except KeyError:
@@ -36,13 +36,16 @@ def OpenSWConnection(soc_,jlink_ser,jlink_host):
   jlink_xml = os.path.join(os.path.dirname(__file__), "jlink/JLinkDevices.xml")
   sw = SerialWire(soc['device'], jlink_ser,jlink_host, jlink_xml)
   sw.connect()
-  sw.reset_and_halt()
+  if reset:
+    sw.reset_and_halt()
+    logger.info("Serial Wire connection has been reset.")
   logger.info("Connection opened")
   return (sw, soc)
 
-def CloseSWConnection(sw):
+def CloseSWConnection(sw, reset = False):
   sw.rtt_stop()
-  sw.reset()
+  if(reset):    
+    sw.reset()
   sw.close()
 
 ######################################################################################################################################################
@@ -51,75 +54,80 @@ def CloseSWConnection(sw):
 
 def _initNVM(args):
   try:
-    sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
+    sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host, True)
     FlashProvApp(sw,soc,args.prov_img)
     InitNVM(sw,soc)
-    CloseSWConnection(sw)
+    sn = GetMacAddress(sw)
+    with open('results/mac.txt', 'w') as file:
+      file.write(sn)
   except Exception as e:
-    return False, str(e)
-  return True, None
+    logging.exception("_initNVM - Error")
+    return exit(1)
+  finally:
+    CloseSWConnection(sw)
+  return exit(0)
 
 def _genKey(args):
   try:
     sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    FlashProvApp(sw,soc,args.prov_img)
-    key = GenerateDeviceKey(sw)
-    CloseSWConnection(sw)
+    sw.rtt_start()
+    GenerateDeviceKey(sw)
   except Exception as e:
-    return False, str(e)
-  return True , key
+    logging.exception("_genKey - Error")
+    return exit(1)
+  finally:
+    CloseSWConnection(sw)
+  return exit(0)
 
 def _genCSR(args):
   try:
-    sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    FlashProvApp(sw,soc,args.prov_img)
-    InitNVM(sw,soc)
+    sw , soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
+    sw.rtt_start()
     csr = GenWisunCSR(sw)
+    with open('results/csr.bin', 'wb') as file:
+      file.write(csr)
+  except Exception as e:
+    logging.exception("_genCSR - Error")
+    return exit(1)
+  finally:
     CloseSWConnection(sw)
-  except Exception as e:
-    return False, str(e)
-  return True, csr
-
-def _genWisunCerts(args):
-  try:
-    sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    sn = GetMacAddress(sw)
-    newcsr = base64.b64decode(args.data)
-    logger.info(newcsr)
-    device, batch, root = GenWisunDeviceCerts(sn, newcsr, args.config)
-  except Exception as e:
-    return False, str(e)
-  return True, [device, batch, root]
+  return exit(0)
 
 def _writeDeviceCerts(args):
   try:
     sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    FlashProvApp(sw,soc,args.prov_img)
-    InitNVM(sw,soc)
+    sw.rtt_start()
     WriteWisunCertsToNVM(sw, base64.b64decode(args.data))
   except Exception as e:
-    return False, str(e)
-  return True, None
+    logging.exception("_writeDeviceCerts - Error")
+    return exit(1)
+  finally:
+    CloseSWConnection(sw)
+  return exit(0)
 
 def _writeBatchCerts(args):
   try:
     sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    FlashProvApp(sw,soc,args.prov_img)
-    InitNVM(sw,soc)
+    sw.rtt_start()
     WriteBarchToNVM(sw, base64.b64decode(args.data))
   except Exception as e:
-    return False, str(e)
-  return True, None
+    logging.exception("_writeBatchCerts - Error")
+    return exit(1)
+  finally:
+    CloseSWConnection(sw)
+  return exit(0)
 
 def _writeRootCerts(args):
   try:
     sw, soc = OpenSWConnection(args.soc,args.jlink_ser,args.jlink_host)
-    FlashProvApp(sw,soc,args.data)
-    InitNVM(sw,soc)
+    sw.rtt_start()
     WriteRootNVM(sw, base64.b64decode(args.data))
   except Exception as e:
-    return False, str(e)
-  return True, None
+    logging.exception("_writeRootCerts - Error")
+    return exit(1)
+  finally:
+    CloseSWConnection(sw)
+  return exit(0)
   
 #########################################################################################################################################
 
@@ -160,6 +168,7 @@ def GenerateDeviceKey(sw:SerialWire):
   else:
     logger.info("Wi-SUN key pair generated")
     logger.warning("Wi-SUN key pair generated")
+  logger.warning(f"Device Key: ({resp.key})")
   return resp.key
 
 def GenWisunCSR(sw):
@@ -171,14 +180,9 @@ def GenWisunCSR(sw):
   resp = wisun.response.GenerateCsr(rx)
   assert resp.status == 0, f"Failure during Wi-SUN CSR generation ({resp.status})"
   logger.info("Wi-SUN CSR generated")
-  return base64.b64encode(resp.csr).decode("utf-8")
-
-def GenWisunDeviceCerts(sn: str, csr: bytes, config: str):
-  # Generate Wi-SUN device certificate
-  logger.info("Generating Wi-SUN device certificate")
-  device, batch, root = SigningServer.GetCerts(csr, sn, config)
-  logger.info("Wi-SUN device certificate generated")
-  return base64.b64encode(device).decode('utf-8'), base64.b64encode(batch).decode('utf-8'), base64.b64encode(root).decode('utf-8')
+  #key = base64.b64encode(resp.csr).decode("utf-8")
+  #logger.warning(f"CSR Key: ({key})")
+  return resp.csr
 
 def WriteWisunCertsToNVM(sw: SerialWire, device:bytes):
     # Write Wi-SUN device certificate into NVM
@@ -213,11 +217,15 @@ def WriteRootNVM(sw: SerialWire, root:bytes):
 ################################################################################################################################################################
 
 if __name__ == '__main__':
+  os.makedirs('results', exist_ok=True)
+  logging.basicConfig(filename='results/py.log',
+                    filemode='w',
+                    format='%(asctime)s,%(msecs)03d %(name)s %(levelname)s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S',
+                    level=logging.INFO)
+
   logger = logging.getLogger('provision')
-  logger.setLevel(logging.DEBUG)
-  ch = logging.StreamHandler()
-  ch.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
-  logger.addHandler(ch)
+  logger.setLevel(logging.INFO)
 
 
   parser = argparse.ArgumentParser(description='Script for performing Wi-SUN provisioning.')
@@ -238,12 +246,7 @@ if __name__ == '__main__':
   genCSRKey.add_argument('--prov_img', action='store', required=True, help='Input file for provisiong application')
   genCSRKey.set_defaults(func=_genCSR)
 
-  genWisunCert = subparsers.add_parser('gen_wisun_certs', help='TODO')
-  genWisunCert.add_argument('--data', action='store', required=True, help='TODO')
-  genWisunCert.add_argument('--config', action='store', default='openssl.conf', help='OpenSSL configuration file (default: openssl.conf)')
-  genWisunCert.set_defaults(func=_genWisunCerts)
-
-  writeDeviceCerts = subparsers.add_parser('write_wisun_certs', help='TODO')
+  writeDeviceCerts = subparsers.add_parser('write_device_certs', help='TODO')
   writeDeviceCerts.add_argument('--data', action='store', required=True, help='TODO')
   writeDeviceCerts.add_argument('--prov_img', action='store', required=True, help='Input file for provisiong application')
   writeDeviceCerts.set_defaults(func=_writeDeviceCerts)
@@ -259,12 +262,4 @@ if __name__ == '__main__':
   writeRoot.set_defaults(func=_writeRootCerts)
 
   args = parser.parse_args()
-  result, data = args.func(args)
-  
-  if data:
-      if type(data) is list:
-        print(json.dumps({"result": result, "data": {"wisun": data[0], "batch": data[1], "root": data[2]}}))
-      else:
-        print(json.dumps({"result":result, "data": data}))
-  else:
-      print(json.dumps({"result":result}))
+  args.func(args)

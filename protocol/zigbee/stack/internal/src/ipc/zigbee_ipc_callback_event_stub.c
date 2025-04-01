@@ -3,7 +3,7 @@
  * @brief stub implementations of callback dispatch
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -94,6 +94,11 @@ SL_WEAK void sli_zigbee_trust_center_process_ipc_event(sl_zigbee_stack_cb_event_
 }
 
 SL_WEAK void sli_zigbee_zll_api_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_event)
+{
+  (void) cb_event;
+}
+
+SL_WEAK void sli_zigbee_sl_zigbee_mac_app_events_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_event)
 {
   (void) cb_event;
 }

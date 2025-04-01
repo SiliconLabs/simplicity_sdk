@@ -78,6 +78,21 @@
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
   </descriptors>
+  <descriptors name="ot-ble-dmp-tz-ns" label="OpenThread BLE DMP - SoC FreeRTOS (TrustZone)" description="This is a variant of the OpenThread BLE DMP application with trustzone awareness enabled.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="protocol.openthread.sample-apps.ot-ble-dmp.trustzone.ot-ble-dmp-tz-ns.slcp"/>
+    <properties key="projectFilePaths" value="sample-apps/ot-ble-dmp/trustzone/ot-ble-dmp-tz-ns.slcp"/>
+    <properties key="readmeFiles" value="sample-apps/ot-ble-dmp/README.md sample-apps/ot-ble-dmp/trustzone/README.md"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*hidden.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="OpenThread Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+  </descriptors>
   <descriptors name="ot-cli-ftd" label="OpenThread - SoC CLI (FTD)" description="This is a very simple CLI application to test the OpenThread stack on a Full Thread Device. This is equivalent to the ot-cli-ftd application in the OpenThread GitHub repo.&#xA;">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
@@ -107,6 +122,36 @@
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Thread"/>
+  </descriptors>
+  <descriptors name="ot-cli-ftd-tz-ns" label="OpenThread - SoC CLI (FTD) (TrustZone)" description="This is a variant of the openthread FTD CLI application with trustzone awareness enabled.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="protocol.openthread.sample-apps.ot-cli.trustzone.ot-cli-ftd-tz-ns.slcp"/>
+    <properties key="projectFilePaths" value="sample-apps/ot-cli/trustzone/ot-cli-ftd-tz-ns.slcp"/>
+    <properties key="readmeFiles" value="sample-apps/ot-cli/README.md sample-apps/ot-cli/trustzone/README.md"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*hidden.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="OpenThread Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
+  </descriptors>
+  <descriptors name="ot-cli-mtd-tz-ns" label="OpenThread - SoC CLI (MTD) (TrustZone)" description="This is a variant of the openthread MTD CLI application with trustzone awareness enabled.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="protocol.openthread.sample-apps.ot-cli.trustzone.ot-cli-mtd-tz-ns.slcp"/>
+    <properties key="projectFilePaths" value="sample-apps/ot-cli/trustzone/ot-cli-mtd-tz-ns.slcp"/>
+    <properties key="readmeFiles" value="sample-apps/ot-cli/README.md sample-apps/ot-cli/trustzone/README.md"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*hidden.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="OpenThread Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
   <descriptors name="ot-rcp" label="OpenThread - RCP" description="This is a simple OpenThread RCP application. This is equivalent to the ot-rcp application in the OpenThread GitHub repo.&#xA;">
     <properties key="namespace" value="template.uc"/>
@@ -182,6 +227,21 @@
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
+  </descriptors>
+  <descriptors name="ot-tz-secure-application" label="Sample project for TrustZone Secure Key Library" description="This is a trustzone enabled application used to manage security operations from trustzone aware OpenThread applications.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="protocol.openthread.sample-apps.ot-tz-secure-app.ot-tz-secure-application.slcp"/>
+    <properties key="projectFilePaths" value="sample-apps/ot-tz-secure-app/ot-tz-secure-application.slcp"/>
+    <properties key="readmeFiles" value="sample-apps/ot-tz-secure-app/README.md"/>
+    <properties key="boardCompatibility" value="com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*hidden.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="OpenThread Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
   <descriptors name="sleepy-demo-ftd" label="OpenThread - SoC Sleepy Demo (FTD)" description="This is a sample application to start and form a Thread network on an FTD for the sleepy-demo.&#xA;">
     <properties key="namespace" value="template.uc"/>

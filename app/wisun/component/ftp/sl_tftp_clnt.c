@@ -113,28 +113,55 @@
   "}\n"
 
 /// TFTP client termination requested message
-#define SL_TFTP_CLNT_TERMINATION_MSG     "Termination requested"
+#define SL_TFTP_CLNT_TERMINATION_MSG              "Termination requested"
 
 /// TFTP Event all mask
-#define SL_TFTP_EVT_ALL_MSK               (0x00FFFFFFUL)
+#define SL_TFTP_EVT_ALL_MSK                       (0x00FFFFFFUL)
 
 /// Error mask
-#define SL_TFTP_EVT_ERROR_MSK             (0x00000001UL << 31UL)
+#define SL_TFTP_EVT_ERROR_MSK                     (0x00000001UL << 31UL)
 
 /// Get request mask
-#define SL_TFTP_EVT_GET_REQUEST_MSK       (0x00000001UL << 0UL)
+#define SL_TFTP_EVT_GET_REQUEST_MSK               (0x00000001UL << 0UL)
 
 /// Put request mask
-#define SL_TFTP_EVT_PUT_REQUEST_MSK       (0x00000001UL << 1UL)
+#define SL_TFTP_EVT_PUT_REQUEST_MSK               (0x00000001UL << 1UL)
 
 /// Operation finished mask
-#define SL_TFTP_EVT_OP_FINISHED_MSK       (0x00000001UL << 2UL)
+#define SL_TFTP_EVT_OP_FINISHED_MSK               (0x00000001UL << 2UL)
 
-/// RRQ/WRQ operation error
-#define SL_TFTP_EVT_RRQ_WRQ_ERROR_MSK     (0x00000001UL << 3UL)
+/// RRQ/WRQ operation error mask due to receive timeout
+#define SL_TFTP_EVT_RRQ_WRQ_ERROR_MSK             (0x00000001UL << 3UL)
+
+/// TFTP error code mask - Not defined, see error message (if any).
+#define SL_TFTP_EVT_NOTDEF_ERROR_MSK              (0x00000001UL << 4UL)
+
+/// TFTP error code mask - File not found.
+#define SL_TFTP_EVT_FILE_NOT_FOUND_ERROR_MSK      (0x00000001UL << 5UL)
+
+/// TFTP error code mask - Access violation.
+#define SL_TFTP_EVT_ACCESS_VIOLATION_ERROR_MSK    (0x00000001UL << 6UL)
+
+/// TFTP error code mask - Disk full or allocation exceeded.
+#define SL_TFTP_EVT_DISK_FULL_ERROR_MSK           (0x00000001UL << 7UL)
+
+/// TFTP error code mask - Illegal TFTP operation.
+#define SL_TFTP_EVT_ILLEGAL_OP_ERROR_MSK          (0x00000001UL << 8UL)
+
+/// TFTP error code mask - Unknown transfer ID.
+#define SL_TFTP_EVT_UNKNOWN_TID_ERROR_MSK         (0x00000001UL << 9UL)
+
+/// TFTP error code mask - File already exists.
+#define SL_TFTP_EVT_FILE_EXISTS_ERROR_MSK         (0x00000001UL << 10UL)
+
+/// TFTP error code mask - No such user.
+#define SL_TFTP_EVT_NO_USER_ERROR_MSK             (0x00000001UL << 11UL)
+
+/// TFTP error code mask - Terminate transfer due to option negotiation.
+#define SL_TFTP_EVT_OPT_NEGOT_FAIL_ERROR_MSK      (0x00000001UL << 12UL)
 
 // Option value string buffer max length (including null terminator)
-#define SL_TFTP_OPT_VAL_MAX_LEN 11U
+#define SL_TFTP_OPT_VAL_MAX_LEN                   (11U)
 
 /// Swap bytes in uint16
 #define __swap_bytes_16bit(__val) \
@@ -314,6 +341,14 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
                      uint8_t *buff,
                      const uint16_t buff_size);
 
+/***************************************************************************//**
+ * @brief Set TFTP error event flag
+ * @details Helper function
+ * @param[in] clnt TFTP client
+ * @param[in] errcode Error code
+ ******************************************************************************/
+static void _set_tftp_err_evt_flag(const sl_tftp_clnt_t * const clnt,
+                                   const uint16_t errcode);
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
@@ -554,6 +589,52 @@ bool sl_tftp_clnt_is_op_rrq_wrq_failed(const sl_tftp_clnt_t * const clnt)
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
+
+static void _set_tftp_err_evt_flag(const sl_tftp_clnt_t * const clnt,
+                                   const uint16_t errcode)
+{
+  switch (errcode) {
+    case SL_TFTP_ERRORCODE_NOTDEF:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_NOTDEF_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_FNOTFOUND:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_FILE_NOT_FOUND_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_ACCVIOL:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_ACCESS_VIOLATION_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_DISKFULL:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_DISK_FULL_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_ILLEGALOP:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_ILLEGAL_OP_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_UNKNTID:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_UNKNOWN_TID_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_FEXIST:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_FILE_EXISTS_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_NOUSR:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_NO_USER_ERROR_MSK);
+      break;
+
+    case SL_TFTP_ERRORCODE_OPTNEGOTFAIL:
+      osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_OPT_NEGOT_FAIL_ERROR_MSK);
+      break;
+
+    default:
+      // Not defined error
+      break;
+  }
+}
 
 static sl_status_t _parse_packet(sl_tftp_clnt_t * const clnt,
                                  const uint8_t *buff,
@@ -936,7 +1017,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
 
     if (_is_flags_set(clnt, SL_TFTP_EVT_OP_FINISHED_MSK)) {
       _prepare_and_send_error_pkt(clnt,
-                                  SL_TFTP_ERROCODE_NOTDEF,
+                                  SL_TFTP_ERRORCODE_NOTDEF,
                                   SL_TFTP_CLNT_TERMINATION_MSG,
                                   sock_id,
                                   buff,
@@ -957,6 +1038,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
     }
 
 #if SL_TFTP_DEBUG
+    // Print received packet
     sl_tftp_clnt_print_pkt(&clnt->packet);
 #endif
 
@@ -988,10 +1070,6 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
       // Prepare ACK
       _prepare_and_send_ack(clnt, block_num, sock_id, buff, blocksize, host_addr);
 
-#if SL_TFTP_DEBUG
-      sl_tftp_clnt_print_pkt(&clnt->packet);
-#endif
-
       // Last packet
       if (clnt->packet.content.data.data_size < blocksize) {
         break;
@@ -1004,9 +1082,10 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
                         clnt->packet.content.error.errcode,
                         clnt->packet.content.error.errmsg);
       }
+      _set_tftp_err_evt_flag(clnt,
+                             clnt->packet.content.error.errcode);
       // Prepare ACK
       _prepare_and_send_ack(clnt, block_num, sock_id, buff, blocksize, host_addr);
-      sl_tftp_clnt_print_pkt(&clnt->packet);
     }
 
     timeout = 0UL;
@@ -1061,7 +1140,7 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
 
     if (_is_flags_set(clnt, SL_TFTP_EVT_OP_FINISHED_MSK)) {
       _prepare_and_send_error_pkt(clnt,
-                                  SL_TFTP_ERROCODE_NOTDEF,
+                                  SL_TFTP_ERRORCODE_NOTDEF,
                                   SL_TFTP_CLNT_TERMINATION_MSG,
                                   sock_id,
                                   buff,
@@ -1130,6 +1209,8 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
                         clnt->packet.content.error.errcode,
                         clnt->packet.content.error.errmsg);
       }
+      _set_tftp_err_evt_flag(clnt,
+                             clnt->packet.content.error.errcode);
       break;
     }
 

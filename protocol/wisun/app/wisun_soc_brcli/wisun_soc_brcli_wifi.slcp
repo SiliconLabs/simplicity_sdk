@@ -425,6 +425,7 @@ template_contribution:
           help: "enterprise_number: Vendor's registered Enterprise Number"
         - type: hex
           help: "data: Suboption data written in hex format"
+    condition: [wisun_br_dhcpv6_server]
   - name: "cli_command"
     value:
       group: "wisun"

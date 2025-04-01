@@ -3,7 +3,7 @@
  * @brief Bluetooth Network Co-Processor (NCP) Interface
  *******************************************************************************
  * # License
- * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -120,7 +120,7 @@ static void handle_user_command(uint32_t hdr, void *data);
 static void cmd_enqueue(uint16_t len, uint8_t *data);
 static void cmd_dequeue(void);
 static void evt_enqueue(uint16_t len, uint8_t *data);
-static void evt_dequeue(void);
+static void evt_dequeue(uint16_t len);
 
 // Command and event helper functions
 static inline bool cmd_is_available(void);
@@ -158,7 +158,7 @@ void sl_ncp_init(void)
 
   // Clear all buffers
   cmd_dequeue();
-  evt_dequeue();
+  CORE_ATOMIC_SECTION(evt_dequeue(evt.len); ) // Ensures (evt.len == len)
 
   busy = false;
   #if defined(SL_CATALOG_WAKE_LOCK_PRESENT)
@@ -210,11 +210,11 @@ SL_WEAK bool sl_ncp_local_evt_process(sl_bt_msg_t *evt)
 
 SL_WEAK void sl_ncp_on_error(sl_ncp_error_t error, sl_status_t status)
 {
-  (void)error;
-  (void)status;
   #ifdef SL_CATALOG_APP_ASSERT_PRESENT
   app_assert_status_f(status, "NCP: Error %u occurred.", error);
-  #endif
+  #endif // SL_CATALOG_APP_ASSERT_PRESENT
+  (void)error;
+  (void)status;
 }
 
 #if defined(SL_CATALOG_BTMESH_PRESENT)
@@ -577,7 +577,7 @@ static void ncp_step(void)
     uint32_t result = 0;
     // store if cmd was encrypted during reception for further processing
     bool cmd_is_encrypted = sl_ncp_sec_is_encrypted(cmd.buf);
-    result = sl_ncp_sec_command_handler(cmd.buf);
+    result = sl_ncp_sec_command_handler(cmd.buf, sizeof(cmd.buf));
     if ((result & SL_NCP_SEC_CMD_PROCESS) == SL_NCP_SEC_CMD_PROCESS)
     #endif // SL_CATALOG_NCP_SEC_PRESENT
     {
@@ -635,24 +635,26 @@ static void ncp_step(void)
     #endif // SL_CATALOG_WAKE_LOCK_PRESENT
 
     uint8_t *data_ptr = evt.buf;
-    uint16_t len = evt.len;
+    uint16_t msg_len = MSG_GET_LEN((sl_bt_msg_t*)data_ptr);
 
-    #if defined(SL_CATALOG_NCP_SEC_PRESENT)
-    // encrypt the outgoing event
-    data_ptr = (uint8_t*)sl_ncp_sec_process_event((sl_bt_msg_t*)evt.buf);
-    if (data_ptr == NULL) {
-      sl_ncp_on_error(SL_NCP_ERROR_ENCRYPT, SL_STATUS_FAIL);
+    if (msg_len != 0) {
+      uint32_t tx_len = msg_len;
+      #if defined(SL_CATALOG_NCP_SEC_PRESENT)
+      // encrypt the outgoing event
+      data_ptr = (uint8_t*)sl_ncp_sec_process_event((sl_bt_msg_t*)evt.buf);
+      if (data_ptr == NULL) {
+        sl_ncp_on_error(SL_NCP_ERROR_ENCRYPT, SL_STATUS_FAIL);
+      }
+      // refresh length as encrypted messages are always longer than original ones
+      tx_len = MSG_GET_LEN((sl_bt_msg_t*)data_ptr);
+      #endif // SL_CATALOG_NCP_SEC_PRESENT
+
+      busy = true;
+      // Transmit events
+      sl_bt_ncp_transport_transmit(tx_len, data_ptr); // makes a copy of the msg!
     }
-    // refresh original len as encrypted msg will be longer than original
-    len = MSG_GET_LEN((sl_bt_msg_t*)data_ptr);
-    #endif // SL_CATALOG_NCP_SEC_PRESENT
-
-    busy = true;
-    evt_clr_available();
-    // Transmit events
-    sl_bt_ncp_transport_transmit((uint32_t)len, data_ptr);
     // Clear event buffer
-    evt_dequeue();
+    evt_dequeue(msg_len);
   }
 
   (void)app_rta_release(ctx);
@@ -766,19 +768,46 @@ static void evt_enqueue(uint16_t len, uint8_t *data)
     memcpy((void *)&evt.buf[evt.len], (void *)data, len);
     evt.len += len;
     evt_set_available();
+    CORE_EXIT_ATOMIC();
+  } else {
+    CORE_EXIT_ATOMIC();
+    // We could not fit an incoming event into the event queue
+    // Increasing SL_NCP_EVT_BUF_SIZE may help if this ever happens
+
+    switch (SL_BT_MSG_ID(((sl_bt_msg_t *)data)->header)) {
+      case sl_bt_evt_scanner_legacy_advertisement_report_id:
+      case sl_bt_evt_scanner_extended_advertisement_report_id:
+        // The missed event is a scan response event.
+        // Since these type of events are not mandatory, and tend to be
+        // generated most densely, it can be ignored.
+        break;
+
+      default:
+        // Handle error otherwise
+        sl_ncp_on_error(SL_NCP_ERROR_EVT_ENQUE, SL_STATUS_WOULD_OVERFLOW);
+        break;
+    }
   }
-  CORE_EXIT_ATOMIC();
 }
 
 /**************************************************************************//**
  * Clear event buffer
  *****************************************************************************/
-static void evt_dequeue(void)
+static void evt_dequeue(uint16_t len)
 {
   CORE_DECLARE_IRQ_STATE;
+
   CORE_ENTER_ATOMIC();
-  evt.len = 0;
-  evt_clr_available();
+  if (evt.len < len) {
+    sl_ncp_on_error(SL_NCP_ERROR_EVT_DEQUE, SL_STATUS_INVALID_COUNT);
+  } else if (evt.len == len) {
+    evt.len = 0;
+    evt_clr_available();
+  } else {
+    uint16_t remaining = evt.len - len;
+    memmove(evt.buf, (void *)&evt.buf[len], remaining);
+    evt.len = remaining;
+  }
   CORE_EXIT_ATOMIC();
 }
 

@@ -149,16 +149,17 @@ For example.
 ```
 
 You can then use the socket to read data echoed back by the UDP Server. Use the `socket_read` command to read the packet.
+> Note: For message-based sockets, such as SOCK_RAW, SOCK_DGRAM, and SOCK_SEQPACKET, the entire message shall be read in a single operation.
 
 ```text
-wisun socket_read [Socket ID] [Number of bytes to read]
+wisun socket_read [Socket ID]
 ```
 
 For example.
 
 ```text
-> wisun socket_read 3 5
-hello
+> wisun socket_read 3
+hello world!
 ```
 
 Finally, you can close the UDP socket using the `socket_close` command.

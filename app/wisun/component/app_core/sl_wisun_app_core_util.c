@@ -66,7 +66,12 @@ static app_project_info_t _app_project_info = { 0 };
 void sl_wisun_app_core_util_project_info_init(const char * app_name)
 {
   const app_project_info_version_t *stack_ver = NULL;
-  app_project_info_get(&_app_project_info);
+
+  if (app_project_info_get(&_app_project_info) != SL_STATUS_OK) {
+    printf("[Project Info is not available]\n");
+    return;
+  }
+  
   _app_project_info.project_name = app_name;
 
   // print app name

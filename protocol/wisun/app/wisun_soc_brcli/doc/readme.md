@@ -126,8 +126,6 @@ Next time you issue the `wisun start_fan11` command in the case of a FAN-1.1 PHY
 | wisun.protocol_id                    | R/W | integer     |  | Radioconf protocol ID [uint16] | join by IDs |
 | wisun.channel_id                     | R/W | integer     |  | Radioconf channel ID [uint16] | join by IDs |
 | wisun.ip_addresses                   | R   | list of IPv6 addresses |  | List of all IP addresses assigned to the device |  |
-| wisun.border_router                  | R   | list of IPv6 addresses |  | List of known IPv6 addresses of the border router | |
-| wisun.parents                        | R   | list of IPv6 addresses |  | List of known IPv6 addresses of the parents |  |
 | wisun.neighbors                      | R   | list of IPv6 addresses |  | List of known IPv6 addresses of the RPL neighbors  |  |
 | wisun.state                          | R   | integer     | - initialized (0)<br> - operational (1) | State of the border router |  |
 | wisun.mac_address                    | R   | MAC address |  | MAC address to use                                       |  |

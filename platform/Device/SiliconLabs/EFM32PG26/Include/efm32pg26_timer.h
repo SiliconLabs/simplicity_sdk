@@ -252,11 +252,6 @@ typedef struct timer_typedef{
 #define TIMER_CFG_DISSYNCOUT_DEFAULT               (_TIMER_CFG_DISSYNCOUT_DEFAULT << 11)     /**< Shifted mode DEFAULT for TIMER_CFG          */
 #define TIMER_CFG_DISSYNCOUT_EN                    (_TIMER_CFG_DISSYNCOUT_EN << 11)          /**< Shifted mode EN for TIMER_CFG               */
 #define TIMER_CFG_DISSYNCOUT_DIS                   (_TIMER_CFG_DISSYNCOUT_DIS << 11)         /**< Shifted mode DIS for TIMER_CFG              */
-#define TIMER_CFG_RETIMESEL                        (0x1UL << 12)                             /**< PWM output retime select                    */
-#define _TIMER_CFG_RETIMESEL_SHIFT                 12                                        /**< Shift value for TIMER_RETIMESEL             */
-#define _TIMER_CFG_RETIMESEL_MASK                  0x1000UL                                  /**< Bit mask for TIMER_RETIMESEL                */
-#define _TIMER_CFG_RETIMESEL_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for TIMER_CFG                  */
-#define TIMER_CFG_RETIMESEL_DEFAULT                (_TIMER_CFG_RETIMESEL_DEFAULT << 12)      /**< Shifted mode DEFAULT for TIMER_CFG          */
 #define TIMER_CFG_ATI                              (0x1UL << 16)                             /**< Always Track Inputs                         */
 #define _TIMER_CFG_ATI_SHIFT                       16                                        /**< Shift value for TIMER_ATI                   */
 #define _TIMER_CFG_ATI_MASK                        0x10000UL                                 /**< Bit mask for TIMER_ATI                      */

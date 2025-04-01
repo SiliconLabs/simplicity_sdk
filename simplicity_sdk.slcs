@@ -2,7 +2,7 @@ id: "simplicity_sdk"
 label: "Simplicity SDK Suite"
 description: |-
   Simplicity SDK Suite for EFM32 and EFR32 microcontrollers and radios.
-sdk_version: "2024.12.1"
+sdk_version: "2024.12.2"
 specification_version: 12
 supplier: "Silicon Laboratories, Inc."
 component_path:
@@ -97,33 +97,35 @@ component_path:
 toolchain_mapping: "platform/common/toolchain/toolchains.slct"
 documentation:
   - docset: gecko-platform
-    version: "5.1.1"
+    version: "5.1.2"
   - docset: mbed-tls
     version: "3.5.0"
   - docset: connect-stack
-    version: "4.0.1"
+    version: "4.0.2"
   - docset: mcu-bootloader
-    version: "3.0.1"
+    version: "3.0.2"
   - docset: openthread
-    version: "2.6.1"
+    version: "2.6.2"
   - docset: rail
-    version: "2.18.1"
+    version: "2.18.2"
   - docset: wifi/wf200/rtos
     version: "3.6.2"
   - docset: wisun
-    version: "2.4.0"
+    version: "2.5.0"
   - docset: zigbee
-    version: "8.1.1"
+    version: "8.1.2"
   - docset: rtl-lib
-    version: "9.0.1"
+    version: "9.1.0"
   - docset: bluetooth
-    version: "9.0.1"
+    version: "9.1.0"
   - docset: protocol-usb
     version: "1.4.1"
   - docset: machine-learning
     version: "2.0.0"
 upgrade_manifest:
   - path: "app/common/upgrade.slcu"
+  - path: "app/wisun/upgrade.slcu"
+  - path: "app/rail/upgrade.slcu"
   - path: "hardware/upgrade.slcu"
   - path: "platform/upgrade.slcu"
   - path: "platform/service/component/upgrade.slcu"

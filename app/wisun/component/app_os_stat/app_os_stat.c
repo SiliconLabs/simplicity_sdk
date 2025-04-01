@@ -58,19 +58,15 @@
 // Check OS config to get info about threads
 #if APP_OS_STAT_THREAD_STACK_ENABLED
 #if defined(SL_CATALOG_MICRIUMOS_KERNEL_PRESENT)
-  #if !OS_CFG_STAT_TASK_EN
-  #warning 'OS_CFG_STAT_TASK_EN' not enabled, no OS statistics can be gathered
-  #endif
 
-  #if !OS_CFG_DBG_EN
-  #warning 'OS_CFG_DBG_EN' not enabled, no OS statistics can be gathered
-  #endif
+_Static_assert(OS_CFG_STAT_TASK_EN, "OS_CFG_STAT_TASK_EN not enabled, no OS statistics can be gathered");
+
+_Static_assert(OS_CFG_DBG_EN, "OS_CFG_DBG_EN not enabled, no OS statistics can be gathered");
+
 #endif
 
 #if defined(SL_CATALOG_FREERTOS_KERNEL_PRESENT)
-  #if !configUSE_TRACE_FACILITY
-  #warning 'configUSE_TRACE_FACILITY' not enabled, no OS statistics can be gathered
-  #endif
+  _Static_assert(configUSE_TRACE_FACILITY, "configUSE_TRACE_FACILITY not enabled, no OS statistics can be gathered");
 #endif
 #endif
 // -----------------------------------------------------------------------------

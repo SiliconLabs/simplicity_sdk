@@ -37,7 +37,10 @@
 #define AES_CCM_KEY_SIZE 16
 #define ECDH_PUBLIC_KEY_SIZE 32
 #define PUBLIC_KEYPAIR_SIZE (2 * ECDH_PUBLIC_KEY_SIZE)
+#define AUTH_TAG_LENGHT 4
+#define NONCE_COUNTER_SIZE 5
 #define NONCE_SIZE 13
+#define CIPHER_MSG_OVERHEAD  (NONCE_COUNTER_SIZE + AUTH_TAG_LENGHT)
 
 #define PSA_ECDH_KEY_ID 1
 #define PSA_CIPHER_KEY_ID 2
@@ -47,7 +50,7 @@ enum user_cmd_codes{
 };
 
 PACKSTRUCT(struct user_msg_ncp_increase_security_t{
-  uint8_t public_keys[64];
+  uint8_t public_keys[PUBLIC_KEYPAIR_SIZE];
   uint8_t host_iv_to_target[4];
   uint8_t host_iv_to_host[4];
 });
@@ -80,7 +83,7 @@ static uint8_t ccm_key[AES_CCM_KEY_SIZE];
 static conn_nonce_t ncp_sec_counter_in;
 static conn_nonce_t ncp_sec_counter_out;
 
-static uint8_t cipher_msg[CMD_BUF_SIZE];
+static uint8_t cipher_msg[CMD_BUF_SIZE + CIPHER_MSG_OVERHEAD];
 static enum ncp_sec_state ncp_sec_state;
 
 // -----------------------------------------------------------------------------
@@ -102,13 +105,17 @@ static enum ncp_sec_state get_state();
 // -----------------------------------------------------------------------------
 // Public function definitions
 
-uint32_t sl_ncp_sec_command_handler(uint8_t *data)
+uint32_t sl_ncp_sec_command_handler(uint8_t *data, size_t len)
 {
   sl_bt_msg_t *response = NULL;
   sl_bt_msg_t *command = NULL;
   sl_status_t result = SL_STATUS_FAIL;
   bool cmd_encrypted;
   bool valid_security;
+
+  if ((len == 0) || (data == NULL)) {
+    return 0;
+  }
 
   command = (sl_bt_msg_t *)data;
 
@@ -157,9 +164,11 @@ uint32_t sl_ncp_sec_command_handler(uint8_t *data)
       sl_bt_send_system_error(SL_STATUS_BT_APPLICATION_ENCRYPTION_DECRYPTION_ERROR,
                               0, NULL);
       return SL_NCP_SEC_EVT_PROCESS;
-    } else {
-      memcpy(data, response, CMD_BUF_SIZE);
+    } else if (len >= SL_BT_MSG_HEADER_LEN + SL_BT_MSG_LEN(response->header)) {
+      memcpy(data, response, SL_BT_MSG_HEADER_LEN + SL_BT_MSG_LEN(response->header));
       return (SL_NCP_SEC_CMD_PROCESS | SL_NCP_SEC_RSP_PROCESS);
+    } else {
+      return 0;
     }
   }
 }
@@ -268,7 +277,7 @@ static int ecdh(const uint8_t *public_key_in)
                                  host_public_key,
                                  sizeof(host_public_key),
                                  sha256_input,
-                                 ECDH_PUBLIC_KEY_SIZE,
+                                 sizeof(sha256_input),
                                  &output_len);
   if (status != PSA_SUCCESS) {
     return (int)status;
@@ -277,15 +286,15 @@ static int ecdh(const uint8_t *public_key_in)
   size_t hash_out_size;
   status = psa_hash_compute(PSA_ALG_SHA_256,
                             sha256_input,
-                            ECDH_PUBLIC_KEY_SIZE,
+                            sizeof(sha256_input),
                             sha256_output,
-                            ECDH_PUBLIC_KEY_SIZE,
+                            sizeof(sha256_output),
                             &hash_out_size);
-  if (PSA_SUCCESS != status || hash_out_size != ECDH_PUBLIC_KEY_SIZE) {
+  if (PSA_SUCCESS != status || hash_out_size < sizeof(ccm_key)) {
     return (int)status;
   }
   psa_close_key(handle);
-  memcpy(ccm_key, sha256_output, AES_CCM_KEY_SIZE);
+  memcpy(ccm_key, sha256_output, sizeof(ccm_key));
 
   return (int)status;
 }
@@ -419,7 +428,7 @@ static sl_bt_msg_t* encrypt_message(sl_bt_msg_t *msg)
   memcpy((void *)cipher_msg, msg, sizeof(msg->header));
 
   sl_bt_msg_t *new_msg = (sl_bt_msg_t *)cipher_msg;
-  update_payload_length(new_msg, len + 9);
+  update_payload_length(new_msg, len + CIPHER_MSG_OVERHEAD);
   new_msg->header |= SL_BT_BIT_ENCRYPTED;
 
   // Assemble authorization data (header + counter)
@@ -434,7 +443,7 @@ static sl_bt_msg_t* encrypt_message(sl_bt_msg_t *msg)
   psa_set_key_bits(&attr, AES_CCM_KEY_SIZE * 8);
   psa_set_key_id(&attr, PSA_CIPHER_KEY_ID);
   psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_ENCRYPT);
-  psa_set_key_algorithm(&attr, PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 4));
+  psa_set_key_algorithm(&attr, PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, AUTH_TAG_LENGHT));
   psa_set_key_lifetime(&attr, PSA_KEY_LIFETIME_VOLATILE);
   psa_status_t status = psa_import_key(&attr,
                                        ccm_key,
@@ -449,11 +458,11 @@ static sl_bt_msg_t* encrypt_message(sl_bt_msg_t *msg)
   size_t out_len;
   size_t plaintext_len = len + 2;  // data len + header's upper 2 bytes
   status = psa_aead_encrypt(private_handle,
-                            PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 4),
+                            PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, AUTH_TAG_LENGHT),
                             (uint8_t *)&ncp_sec_counter_out, NONCE_SIZE,
                             auth_data, sizeof(auth_data),
                             (uint8_t *)msg + 2, plaintext_len,
-                            cipher_msg + 2, CMD_BUF_SIZE - 2,
+                            cipher_msg + 2, sizeof(cipher_msg) - 2,
                             &out_len);
   psa_destroy_key(private_handle);
   if (PSA_SUCCESS != status || out_len == 0) {
@@ -517,7 +526,7 @@ static sl_bt_msg_t* decrypt_command(sl_bt_msg_t *msg)
   psa_set_key_bits(&attr, AES_CCM_KEY_SIZE * 8);
   psa_set_key_id(&attr, PSA_CIPHER_KEY_ID);
   psa_set_key_usage_flags(&attr, PSA_KEY_USAGE_DECRYPT);
-  psa_set_key_algorithm(&attr, PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 4));
+  psa_set_key_algorithm(&attr, PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, AUTH_TAG_LENGHT));
   psa_set_key_lifetime(&attr, PSA_KEY_LIFETIME_VOLATILE);
   psa_status_t status = psa_import_key(&attr,
                                        ccm_key,
@@ -532,11 +541,11 @@ static sl_bt_msg_t* decrypt_command(sl_bt_msg_t *msg)
   size_t out_len;
   size_t cipher_len = len + 2 - 5; // data + header upper 2 bytes - 5 bytes IV
   status = psa_aead_decrypt(private_handle,
-                            PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 4),
+                            PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, AUTH_TAG_LENGHT),
                             (uint8_t *)&nonce, NONCE_SIZE,
                             auth_data, sizeof(auth_data),
                             (uint8_t *)msg + 2, cipher_len,
-                            cipher_msg + 2, CMD_BUF_SIZE,
+                            cipher_msg + 2, sizeof(cipher_msg) - 2,
                             &out_len);
   psa_destroy_key(private_handle);
   if (PSA_SUCCESS != status || out_len == 0) {
@@ -544,7 +553,7 @@ static sl_bt_msg_t* decrypt_command(sl_bt_msg_t *msg)
   }
 
   sl_bt_msg_t *new_msg = (sl_bt_msg_t *)cipher_msg;
-  update_payload_length(new_msg, len - 9);
+  update_payload_length(new_msg, len - CIPHER_MSG_OVERHEAD);
   new_msg->header &= ~SL_BT_BIT_ENCRYPTED;
 
   // Update counter

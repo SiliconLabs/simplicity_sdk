@@ -88,11 +88,11 @@ sl_status_t sl_se_aes_crypt_ecb(sl_se_command_context_t *cmd_ctx,
   // Add key input block to command
   sli_add_key_input(cmd_ctx, key, status);
 
-  sli_se_datatransfer_t in = SLI_SE_DATATRANSFER_DEFAULT(input, length);
-  sli_se_mailbox_command_add_input(se_cmd, &in);
+  volatile sli_se_datatransfer_t in = SLI_SE_DATATRANSFER_DEFAULT(input, length);
+  sli_se_mailbox_command_add_input(se_cmd, (sli_se_datatransfer_t*)&in);
 
-  sli_se_datatransfer_t out = SLI_SE_DATATRANSFER_DEFAULT(output, length);
-  sli_se_mailbox_command_add_output(se_cmd, &out);
+  volatile sli_se_datatransfer_t out = SLI_SE_DATATRANSFER_DEFAULT(output, length);
+  sli_se_mailbox_command_add_output(se_cmd, (sli_se_datatransfer_t*)&out);
 
   return sli_se_execute_and_wait(cmd_ctx);
 }

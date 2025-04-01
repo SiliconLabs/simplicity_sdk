@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="Setting Tx Power in your final Z-Wave product" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/INS14664.pdf">
+  <contentItemData name="" label="Setting Tx Power in your final Z-Wave product" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/INS14664.pdf">
     <description>This MS Excel file describes how to measure the Tx power of a Z-Wave frame and use this to calibrate the Tx Power of your final Z-Wave product.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="58"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="How to use Tiny App" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/INS14895.pdf">
+  <contentItemData name="" label="How to use Tiny App" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/INS14895.pdf">
     <description>Describes how to use the Tiny App for upgrading Secure Element firmware.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="62"/>
@@ -36,7 +36,7 @@
     <property key="core.priority" value="55"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.*"/>
   </contentItemData>
-  <contentItemData name="" label="EFR32ZG14 Zen Gecko Z-Wave 700 USB Stick Bridge Module UZB-7 Data Sheet" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/DSH14483.pdf">
+  <contentItemData name="" label="EFR32ZG14 Zen Gecko Z-Wave 700 USB Stick Bridge Module UZB-7 Data Sheet" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/DSH14483.pdf">
     <description>EFR32ZG14 Zen Gecko Z-Wave 700 USB Stick Bridge Module UZB-7 Data Sheet</description>
     <property key="core.category" value="Datasheet"/>
     <property key="core.priority" value="68"/>
@@ -48,31 +48,31 @@
     <property key="core.priority" value="59"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="Zniffer v4.66 Release Note" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/SRN13233.pdf">
+  <contentItemData name="" label="Zniffer v4.66 Release Note" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/SRN13233.pdf">
     <description>Discusses the latest changes to the PC-based Zniffer tool and lists new features.</description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="41"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="PC based Controller v5.53 Release Note" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/SRN13757.pdf">
+  <contentItemData name="" label="PC based Controller v5.53 Release Note" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/SRN13757.pdf">
     <description>Discusses the latest changes to the PC-based Controller code and lists new features.</description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.*"/>
   </contentItemData>
-  <contentItemData name="" label="Software Release Note: Z-Wave and Z-Wave Long Range 700-800 SDK v7.20.2 GA" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/SRN14930.pdf">
+  <contentItemData name="" label="Software Release Note: Z-Wave and Z-Wave Long Range 700-800 SDK v7.20.2 GA" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/SRN14930.pdf">
     <description>Lists compatibility requirements and sources for all software components  in the development environment. Discusses the latest changes to the Silicon Labs Z-Wave SDK and associated utilities, including added/deleted/deprecated  features/API, and lists fixed and known issues.</description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="22"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="Development Material for UZB-7" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/PHD14501.zip">
+  <contentItemData name="" label="Development Material for UZB-7" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/PHD14501.zip">
     <description>Development Material for UZB-7.</description>
     <property key="core.category" value="Schematic and Layout Files"/>
     <property key="core.priority" value="90"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.*"/>
   </contentItemData>
-  <contentItemData name="" label="PCB documentation for UZB-7 PCB" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/UZB-7P1.rar">
+  <contentItemData name="" label="PCB documentation for UZB-7 PCB" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/UZB-7P1.rar">
     <description>PCB documentation for UZB-7 PCB.</description>
     <property key="core.category" value="Schematic and Layout Files"/>
     <property key="core.priority" value="91"/>
@@ -90,7 +90,7 @@
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="Prepare for Z-Wave Certification Tests" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/INS14284.pdf">
+  <contentItemData name="" label="Prepare for Z-Wave Certification Tests" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/INS14284.pdf">
     <description>Describes the Z-Wave Certification process for the Z-Wave 800 products and serves as a guide on where to find additional information.</description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="52"/>
@@ -174,7 +174,7 @@
     <property key="core.priority" value="60"/>
     <property key="core.partCompatibility" value=".*efr32zg23.* .*zgm230.* .*efr32zg28.*"/>
   </contentItemData>
-  <contentItemData name="" label="Z-Wave zipped doxygen documentation" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.1/protocol/z-wave/docs_public/z-wave-html-docs.zip">
+  <contentItemData name="" label="Z-Wave zipped doxygen documentation" itemURI="asset://com.silabs.sdk.stack.sisdk_2024.12.2/protocol/z-wave/docs_public/z-wave-html-docs.zip">
     <description>Z-Wave HTML documentation</description>
     <property key="core.category" value="Z-Wave doxygen"/>
     <property key="core.priority" value="7"/>

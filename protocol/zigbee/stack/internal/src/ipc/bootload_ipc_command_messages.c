@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'bootload' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -27,7 +27,7 @@ void sli_zigbee_stack_send_bootload_message_process_ipc_command(sli_zigbee_ipc_c
   msg->data.send_bootload_message.response.result = sli_zigbee_stack_send_bootload_message(msg->data.send_bootload_message.request.broadcast,
                                                                                            msg->data.send_bootload_message.request.destEui64,
                                                                                            msg->data.send_bootload_message.request.messageLength,
-                                                                                           &msg->data.send_bootload_message.request.messageContents);
+                                                                                           msg->data.send_bootload_message.request.messageContents);
 }
 
 // public entrypoints
@@ -46,19 +46,21 @@ sl_status_t sl_zigbee_send_bootload_message(bool broadcast,
 
   msg.data.send_bootload_message.request.messageLength = messageLength;
 
-  if (messageContents != NULL) {
-    msg.data.send_bootload_message.request.messageContents = *messageContents;
+  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+    assert(false); // "vector messageContents length exceeds expected maximum
   }
 
+  memmove(msg.data.send_bootload_message.request.messageContents, messageContents, sizeof(uint8_t) * (messageLength));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_bootload_message_process_ipc_command, &msg);
 
   if (destEui64 != NULL) {
     memmove(destEui64, msg.data.send_bootload_message.request.destEui64, sizeof(sl_802154_long_addr_t));
   }
 
-  if (messageContents != NULL) {
-    *messageContents = msg.data.send_bootload_message.request.messageContents;
+  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+    assert(false); // "vector messageContents length exceeds expected maximum
   }
 
+  memmove(messageContents, msg.data.send_bootload_message.request.messageContents, sizeof(uint8_t) * (messageLength));
   return msg.data.send_bootload_message.response.result;
 }

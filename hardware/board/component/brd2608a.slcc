@@ -19,6 +19,7 @@
   - name: hardware_board_from_xg26-dk2608a
   - name: hardware_board_has_si70xx
   - name: hardware_board_has_tempsensor
+  - name: hardware_board_has_rgb
   - name: hardware_board_has_vcom
   - name: hardware_board_has_spiflash
   - name: board_config_clock_manager

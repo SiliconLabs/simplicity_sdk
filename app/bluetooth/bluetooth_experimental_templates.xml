@@ -7,7 +7,7 @@
     <properties key="projectFilePaths" value="example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
     <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
@@ -23,7 +23,7 @@
     <properties key="projectFilePaths" value="example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
     <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
@@ -39,7 +39,7 @@
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
     <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*bgm21.* .*bgm24.* .*bgm27.* .*efr32bg21.* .*efr32bg24.* .*efr32bg27.* .*efr32bg29.* .*efr32mg21.* .*efr32mg24.* .*efr32mg26.* .*efr32mg27.* .*efr32mg29.* .*mgm21.* .*mgm24.* .*mgm26.* .*mgm27.*"/>
+    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
@@ -54,7 +54,7 @@
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
     <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*bgm21.* .*bgm24.* .*bgm27.* .*efr32bg21.* .*efr32bg24.* .*efr32bg27.* .*efr32bg29.* .*efr32mg21.* .*efr32mg24.* .*efr32mg26.* .*efr32mg27.* .*efr32mg29.* .*mgm21.* .*mgm24.* .*mgm26.* .*mgm27.*"/>
+    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>

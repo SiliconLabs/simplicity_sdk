@@ -1535,12 +1535,16 @@ RAIL_Status_t RAIL_BLE_SetNextCsStep(RAIL_Handle_t railHandle,
 /**
  * Configure antennas for CS event.
  *
+ * @note The \ref RAIL_BLE_CsAntennaConfig_t::antennaCount of the
+ *   \ref pAntennaConfig parameter must be a value greater than 0
+ *   and less than or equal to \ref RAIL_BLE_CS_MAX_ANTENNAS.
+ *
  * @param[in] railHandle A RAIL instance handle.
  * @param[in] pAntennaConfig A pointer to the antenna config
  * @return Status code indicating success of the function call.
  */
 RAIL_Status_t RAIL_BLE_ConfigCsAntenna(RAIL_Handle_t railHandle,
-                                       RAIL_BLE_CsAntennaConfig_t *pAntennaConfig);
+                                       const RAIL_BLE_CsAntennaConfig_t *pAntennaConfig);
 
 /**
  * Returns the number of antennas configured for a CS event.

@@ -41,7 +41,7 @@
 // <h> File Transfer protocol general configuration
 
 // <q SL_FTP_ENABLE_FTP_PROTOCOL> Enable FTP TCP based protocol
-// <i> Default value: 1
+// <i> Default value: 0
 #define SL_FTP_ENABLE_FTP_PROTOCOL                    0U ///< Enable FTP TCP based protocol
 
 // <q SL_FTP_ENABLE_TFTP_PROTOCOL> Enable TFTP UDP based protocol
@@ -57,7 +57,7 @@
 #define SL_FTP_DEBUG                                  0U ///< Enable FTP debug prints
 
 // <o SL_FTP_CLNT_STACK_SIZE_WORD> FTP Client service stack size in word
-// <i> Default value 256 bytes
+// <i> Default value: 256 bytes
 #define SL_FTP_CLNT_STACK_SIZE_WORD                   256UL ///< FTP Client service stack size in word
 
 // <q SL_FTP_CLNT_DEFAULT_BUFF_ENABLE> Enable FTP default static buffers for Control and Data channels
@@ -67,11 +67,11 @@
 #if SL_FTP_CLNT_DEFAULT_BUFF_ENABLE
 
 // <o SL_FTP_CLNT_CTRL_BUFF_SIZE> FTP default (static) control buffer size (bytes)
-// <i> Default value 512 bytes
+// <i> Default value: 512 bytes
 #define SL_FTP_CLNT_CTRL_BUFF_SIZE                    512UL ///< FTP default (static) control buffer size
 
 // <o SL_FTP_CLNT_DATA_BUFF_SIZE> FTP default (static) data buffer size (bytes)
-// <i> Default value 512 bytes
+// <i> Default value: 512 bytes
 #define SL_FTP_CLNT_DATA_BUFF_SIZE                    512UL ///< FTP default (static) data buffer size
 #endif
 
@@ -83,11 +83,11 @@
 // <i> Default: "aabb:ccdd::eeff:0011:2233:4455" (dummy)
 #define SL_FTP_CLNT_AUTH_DEFAUL_HOST                  "aabb:ccdd::eeff:0011:2233:4455" ///< FTP Default remote host address string
 
-// <s SL_FTP_CLNT_AUTH_DEFAUL_HOST> FTP Default user name
+// <s SL_FTP_CLNT_AUTH_DEFAULT_USER> FTP Default user name
 // <i> Default: "user" (dummy)
 #define SL_FTP_CLNT_AUTH_DEFAULT_USER                 "user" ///< FTP Default user name
 
-// <s SL_FTP_CLNT_AUTH_DEFAUL_HOST> FTP Default password
+// <s SL_FTP_CLNT_AUTH_DEFAULT_PASSWORD> FTP Default password
 // <i> Default: "password" (dummy)
 #define SL_FTP_CLNT_AUTH_DEFAULT_PASSWORD             "password" ///< FTP Default password
 
@@ -102,7 +102,7 @@
 #define SL_TFTP_DEBUG                                 0U ///< Enable TFTP debug prints
 
 // <o SL_TFTP_CLNT_STACK_SIZE_WORD> TFTP Client service stack size in word
-// <i> Default value 256 bytes
+// <i> Default value: 256 bytes
 #define SL_TFTP_CLNT_STACK_SIZE_WORD                  256UL ///< TFTP Client service stack size in word
 
 // <s SL_TFTP_CLNT_DEFAULT_HOST> TFTP Default remote host address string
@@ -110,7 +110,7 @@
 #define SL_TFTP_CLNT_DEFAULT_HOST                     "aabb:ccdd::eeff:0011:2233:4455" ///< TFTP Default remote host address string
 
 // <o SL_TFTP_CLNT_RECV_TIMEOUT_MS> TFTP default receive timeout (ms)
-// <i> Default value 300000 ms
+// <i> Default value: 300000 ms
 #define SL_TFTP_CLNT_RECV_TIMEOUT_MS                  300000UL ///< TFTP default receive timeout (ms)
 
 #endif

@@ -22,7 +22,6 @@
     #include "app/framework/include/af.h"
     #include "app/framework/util/af-main.h"
 #else
-    #include "sl_zigbee_stack.h"
     #include "sl_zigbee_types.h"
     #include "message.h"
 #endif // SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT

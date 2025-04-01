@@ -34,5 +34,7 @@ documentation:
       condition: [device_sdid_215]
     - page: platform-emlib-efr32xg25/vdac
       condition: [device_sdid_220]
+    - page: platform-emlib-efr32xg26/vdac
+      condition: [device_sdid_225]
     - page: platform-emlib-efr32xg28/vdac
       condition: [device_sdid_235]

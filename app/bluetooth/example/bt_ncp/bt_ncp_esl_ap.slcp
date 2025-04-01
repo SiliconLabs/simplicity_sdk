@@ -146,6 +146,10 @@ configuration:
     value: "1"
     condition:
       - psa_crypto
+  - name: SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
+    value: "1"
+    condition:
+      - ncp_sec
   - name: SL_BT_GATTDB_INCLUDE_STATIC_DATABASE
     value: "0"
   - name: SL_BT_GATTDB_ENABLE_GATT_CACHING

@@ -43,6 +43,11 @@
 #include "common/new.hpp"
 #include "instance/instance.hpp"
 
+#include "sl_component_catalog.h"
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "sl_ot_rtos_adaptation.h"
+#endif // SL_CATALOG_KERNEL_PRESENT
+
 #if OPENTHREAD_CONFIG_NCP_CPC_ENABLE
 
 namespace ot {
@@ -212,7 +217,7 @@ void NcpCPC::SendToCPC(void)
     if (status != SL_STATUS_OK)
     {
         mIsWriting = false;
-        otLogWarnPlat("sl_cpc_write error: 0x%04X", status);
+        otLogWarnPlat("sl_cpc_write error: 0x%04lX", status);
     }
 
 exit:
@@ -240,6 +245,19 @@ void NcpCPC::HandleSendDone(void)
 {
     memset(mCpcTxBuffer, 0, sizeof(mCpcTxBuffer));
     mIsWriting = false;
+
+    if (!mTxFrameBuffer.IsEmpty())
+    {
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+        // This handler runs in the CPC task context; acquire the OT task
+        // mutex to protect tasklet queue from thread-safety issues
+        sl_ot_rtos_acquire_stack_mutex();
+#endif // SL_CATALOG_KERNEL_PRESENT
+        mCpcSendTask.Post();
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+        sl_ot_rtos_release_stack_mutex();
+#endif // SL_CATALOG_KERNEL_PRESENT
+    }
 }
 
 void NcpCPC::HandleCPCReceive(sl_cpc_user_endpoint_id_t endpoint_id, void *arg)

@@ -150,6 +150,7 @@ void UART_IRQHandler(void)
 #ifdef SL_CATALOG_KERNEL_PRESENT
     sl_ot_rtos_set_pending_event(SL_OT_RTOS_EVENT_SERIAL);
 #endif
+    otSysEventSignalPending();
 }
 
 static void receiveDone(UARTDRV_Handle_t aHandle, Ecode_t aStatus, uint8_t *aData, UARTDRV_Count_t aCount)
@@ -169,6 +170,7 @@ static void receiveDone(UARTDRV_Handle_t aHandle, Ecode_t aStatus, uint8_t *aDat
 #ifdef SL_CATALOG_KERNEL_PRESENT
     sl_ot_rtos_set_pending_event(SL_OT_RTOS_EVENT_SERIAL); // Receive Done event
 #endif
+    otSysEventSignalPending();
 }
 
 static void transmitDone(UARTDRV_Handle_t aHandle, Ecode_t aStatus, uint8_t *aData, UARTDRV_Count_t aCount)
@@ -183,6 +185,7 @@ static void transmitDone(UARTDRV_Handle_t aHandle, Ecode_t aStatus, uint8_t *aDa
 #ifdef SL_CATALOG_KERNEL_PRESENT
     sl_ot_rtos_set_pending_event(SL_OT_RTOS_EVENT_SERIAL);
 #endif
+    otSysEventSignalPending();
 }
 
 static void processReceive(void)

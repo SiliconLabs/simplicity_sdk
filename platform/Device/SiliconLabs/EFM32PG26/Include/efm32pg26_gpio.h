@@ -64,14 +64,6 @@ typedef struct gpio_eusartroute_typedef{
   uint32_t       RESERVED0[1U];                      /**< Reserved for future use                            */
 } GPIO_EUSARTROUTE_TypeDef;
 
-typedef struct gpio_frcroute_typedef{
-  __IOM uint32_t ROUTEEN;                            /**< FRC pin enable                                     */
-  __IOM uint32_t DCLKROUTE;                          /**< DCLK port/pin select                               */
-  __IOM uint32_t DFRAMEROUTE;                        /**< DFRAME port/pin select                             */
-  __IOM uint32_t DOUTROUTE;                          /**< DOUT port/pin select                               */
-  uint32_t       RESERVED0[1U];                      /**< Reserved for future use                            */
-} GPIO_FRCROUTE_TypeDef;
-
 typedef struct gpio_i2croute_typedef{
   __IOM uint32_t ROUTEEN;                            /**< I2C0 pin enable                                    */
   __IOM uint32_t SCLROUTE;                           /**< SCL port/pin select                                */
@@ -232,7 +224,7 @@ typedef struct gpio_typedef{
   GPIO_CMUROUTE_TypeDef     CMUROUTE;                /**< cmu DBUS config registers                          */
   uint32_t                  RESERVED12[4U];          /**< Reserved for future use                            */
   GPIO_EUSARTROUTE_TypeDef  EUSARTROUTE[4U];         /**< eusart0 DBUS config registers                      */
-  GPIO_FRCROUTE_TypeDef     FRCROUTE;                /**< frc DBUS config registers                          */
+  uint32_t                  RESERVED13[5U];          /**< Reserved for future use                            */
   GPIO_I2CROUTE_TypeDef     I2CROUTE[4U];            /**< i2c0 DBUS config registers                         */
   GPIO_KEYSCANROUTE_TypeDef KEYSCANROUTE;            /**< keyscan DBUS config registers                      */
   GPIO_LETIMERROUTE_TypeDef LETIMERROUTE;            /**< letimer DBUS config registers                      */
@@ -240,50 +232,50 @@ typedef struct gpio_typedef{
   GPIO_PCNTROUTE_TypeDef    PCNTROUTE[1U];           /**< pcnt0 DBUS config registers                        */
   GPIO_PRSROUTE_TypeDef     PRSROUTE[1U];            /**< prs0 DBUS config registers                         */
   GPIO_RACROUTE_TypeDef     RACROUTE;                /**< rac DBUS config registers                          */
-  uint32_t                  RESERVED13[23U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED14[23U];         /**< Reserved for future use                            */
   GPIO_SYXOROUTE_TypeDef    SYXOROUTE[1U];           /**< syxo0 DBUS config registers                        */
   GPIO_TIMERROUTE_TypeDef   TIMERROUTE[10U];         /**< timer0 DBUS config registers                       */
   GPIO_USARTROUTE_TypeDef   USARTROUTE[3U];          /**< usart0 DBUS config registers                       */
-  uint32_t                  RESERVED14[480U];        /**< Reserved for future use                            */
+  uint32_t                  RESERVED15[480U];        /**< Reserved for future use                            */
   __IM uint32_t             IPVERSION_SET;           /**< main                                               */
-  uint32_t                  RESERVED15[11U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED16[11U];         /**< Reserved for future use                            */
   GPIO_PORT_TypeDef         P_SET[4U];               /**<                                                    */
-  uint32_t                  RESERVED16[68U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED17[68U];         /**< Reserved for future use                            */
   __IOM uint32_t            LCDSEGL_SET;             /**< LCD Segment Enable Low                             */
   __IOM uint32_t            LCDSEGH_SET;             /**< LCD Segment Enable High                            */
-  uint32_t                  RESERVED17[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED18[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            LCDCOM_SET;              /**< LCD Common Enable                                  */
-  uint32_t                  RESERVED18[3U];          /**< Reserved for future use                            */
-  uint32_t                  RESERVED19[56U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED19[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED20[56U];         /**< Reserved for future use                            */
   __IOM uint32_t            LOCK_SET;                /**< Lock Register                                      */
-  uint32_t                  RESERVED20[3U];          /**< Reserved for future use                            */
-  __IM uint32_t             GPIOLOCKSTATUS_SET;      /**< Lock Status                                        */
   uint32_t                  RESERVED21[3U];          /**< Reserved for future use                            */
+  __IM uint32_t             GPIOLOCKSTATUS_SET;      /**< Lock Status                                        */
+  uint32_t                  RESERVED22[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            ABUSALLOC_SET;           /**< A Bus allocation                                   */
   __IOM uint32_t            BBUSALLOC_SET;           /**< B Bus allocation                                   */
   __IOM uint32_t            CDBUSALLOC_SET;          /**< CD Bus allocation                                  */
-  uint32_t                  RESERVED22[53U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED23[53U];         /**< Reserved for future use                            */
   __IOM uint32_t            EXTIPSELL_SET;           /**< External Interrupt Port Select Low                 */
   __IOM uint32_t            EXTIPSELH_SET;           /**< External interrupt Port Select High                */
   __IOM uint32_t            EXTIPINSELL_SET;         /**< External Interrupt Pin Select Low                  */
   __IOM uint32_t            EXTIPINSELH_SET;         /**< External Interrupt Pin Select High                 */
   __IOM uint32_t            EXTIRISE_SET;            /**< External Interrupt Rising Edge Trigger             */
   __IOM uint32_t            EXTIFALL_SET;            /**< External Interrupt Falling Edge Trigger            */
-  uint32_t                  RESERVED23[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED24[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            IF_SET;                  /**< Interrupt Flag                                     */
   __IOM uint32_t            IEN_SET;                 /**< Interrupt Enable                                   */
-  uint32_t                  RESERVED24[1U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED25[1U];          /**< Reserved for future use                            */
   __IOM uint32_t            EM4WUEN_SET;             /**< EM4 wakeup enable                                  */
   __IOM uint32_t            EM4WUPOL_SET;            /**< EM4 wakeup polarity                                */
-  uint32_t                  RESERVED25[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED26[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            DBGROUTEPEN_SET;         /**< Debugger Route Pin enable                          */
   __IOM uint32_t            TRACEROUTEPEN_SET;       /**< Trace Route Pin Enable                             */
-  uint32_t                  RESERVED26[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED27[2U];          /**< Reserved for future use                            */
   GPIO_ACMPROUTE_TypeDef    ACMPROUTE_SET[2U];       /**< acmp0 DBUS config registers                        */
   GPIO_CMUROUTE_TypeDef     CMUROUTE_SET;            /**< cmu DBUS config registers                          */
-  uint32_t                  RESERVED27[4U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED28[4U];          /**< Reserved for future use                            */
   GPIO_EUSARTROUTE_TypeDef  EUSARTROUTE_SET[4U];     /**< eusart0 DBUS config registers                      */
-  GPIO_FRCROUTE_TypeDef     FRCROUTE_SET;            /**< frc DBUS config registers                          */
+  uint32_t                  RESERVED29[5U];          /**< Reserved for future use                            */
   GPIO_I2CROUTE_TypeDef     I2CROUTE_SET[4U];        /**< i2c0 DBUS config registers                         */
   GPIO_KEYSCANROUTE_TypeDef KEYSCANROUTE_SET;        /**< keyscan DBUS config registers                      */
   GPIO_LETIMERROUTE_TypeDef LETIMERROUTE_SET;        /**< letimer DBUS config registers                      */
@@ -291,50 +283,50 @@ typedef struct gpio_typedef{
   GPIO_PCNTROUTE_TypeDef    PCNTROUTE_SET[1U];       /**< pcnt0 DBUS config registers                        */
   GPIO_PRSROUTE_TypeDef     PRSROUTE_SET[1U];        /**< prs0 DBUS config registers                         */
   GPIO_RACROUTE_TypeDef     RACROUTE_SET;            /**< rac DBUS config registers                          */
-  uint32_t                  RESERVED28[23U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED30[23U];         /**< Reserved for future use                            */
   GPIO_SYXOROUTE_TypeDef    SYXOROUTE_SET[1U];       /**< syxo0 DBUS config registers                        */
   GPIO_TIMERROUTE_TypeDef   TIMERROUTE_SET[10U];     /**< timer0 DBUS config registers                       */
   GPIO_USARTROUTE_TypeDef   USARTROUTE_SET[3U];      /**< usart0 DBUS config registers                       */
-  uint32_t                  RESERVED29[480U];        /**< Reserved for future use                            */
+  uint32_t                  RESERVED31[480U];        /**< Reserved for future use                            */
   __IM uint32_t             IPVERSION_CLR;           /**< main                                               */
-  uint32_t                  RESERVED30[11U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED32[11U];         /**< Reserved for future use                            */
   GPIO_PORT_TypeDef         P_CLR[4U];               /**<                                                    */
-  uint32_t                  RESERVED31[68U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED33[68U];         /**< Reserved for future use                            */
   __IOM uint32_t            LCDSEGL_CLR;             /**< LCD Segment Enable Low                             */
   __IOM uint32_t            LCDSEGH_CLR;             /**< LCD Segment Enable High                            */
-  uint32_t                  RESERVED32[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED34[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            LCDCOM_CLR;              /**< LCD Common Enable                                  */
-  uint32_t                  RESERVED33[3U];          /**< Reserved for future use                            */
-  uint32_t                  RESERVED34[56U];         /**< Reserved for future use                            */
-  __IOM uint32_t            LOCK_CLR;                /**< Lock Register                                      */
   uint32_t                  RESERVED35[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED36[56U];         /**< Reserved for future use                            */
+  __IOM uint32_t            LOCK_CLR;                /**< Lock Register                                      */
+  uint32_t                  RESERVED37[3U];          /**< Reserved for future use                            */
   __IM uint32_t             GPIOLOCKSTATUS_CLR;      /**< Lock Status                                        */
-  uint32_t                  RESERVED36[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED38[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            ABUSALLOC_CLR;           /**< A Bus allocation                                   */
   __IOM uint32_t            BBUSALLOC_CLR;           /**< B Bus allocation                                   */
   __IOM uint32_t            CDBUSALLOC_CLR;          /**< CD Bus allocation                                  */
-  uint32_t                  RESERVED37[53U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED39[53U];         /**< Reserved for future use                            */
   __IOM uint32_t            EXTIPSELL_CLR;           /**< External Interrupt Port Select Low                 */
   __IOM uint32_t            EXTIPSELH_CLR;           /**< External interrupt Port Select High                */
   __IOM uint32_t            EXTIPINSELL_CLR;         /**< External Interrupt Pin Select Low                  */
   __IOM uint32_t            EXTIPINSELH_CLR;         /**< External Interrupt Pin Select High                 */
   __IOM uint32_t            EXTIRISE_CLR;            /**< External Interrupt Rising Edge Trigger             */
   __IOM uint32_t            EXTIFALL_CLR;            /**< External Interrupt Falling Edge Trigger            */
-  uint32_t                  RESERVED38[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED40[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            IF_CLR;                  /**< Interrupt Flag                                     */
   __IOM uint32_t            IEN_CLR;                 /**< Interrupt Enable                                   */
-  uint32_t                  RESERVED39[1U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED41[1U];          /**< Reserved for future use                            */
   __IOM uint32_t            EM4WUEN_CLR;             /**< EM4 wakeup enable                                  */
   __IOM uint32_t            EM4WUPOL_CLR;            /**< EM4 wakeup polarity                                */
-  uint32_t                  RESERVED40[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED42[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            DBGROUTEPEN_CLR;         /**< Debugger Route Pin enable                          */
   __IOM uint32_t            TRACEROUTEPEN_CLR;       /**< Trace Route Pin Enable                             */
-  uint32_t                  RESERVED41[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED43[2U];          /**< Reserved for future use                            */
   GPIO_ACMPROUTE_TypeDef    ACMPROUTE_CLR[2U];       /**< acmp0 DBUS config registers                        */
   GPIO_CMUROUTE_TypeDef     CMUROUTE_CLR;            /**< cmu DBUS config registers                          */
-  uint32_t                  RESERVED42[4U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED44[4U];          /**< Reserved for future use                            */
   GPIO_EUSARTROUTE_TypeDef  EUSARTROUTE_CLR[4U];     /**< eusart0 DBUS config registers                      */
-  GPIO_FRCROUTE_TypeDef     FRCROUTE_CLR;            /**< frc DBUS config registers                          */
+  uint32_t                  RESERVED45[5U];          /**< Reserved for future use                            */
   GPIO_I2CROUTE_TypeDef     I2CROUTE_CLR[4U];        /**< i2c0 DBUS config registers                         */
   GPIO_KEYSCANROUTE_TypeDef KEYSCANROUTE_CLR;        /**< keyscan DBUS config registers                      */
   GPIO_LETIMERROUTE_TypeDef LETIMERROUTE_CLR;        /**< letimer DBUS config registers                      */
@@ -342,50 +334,50 @@ typedef struct gpio_typedef{
   GPIO_PCNTROUTE_TypeDef    PCNTROUTE_CLR[1U];       /**< pcnt0 DBUS config registers                        */
   GPIO_PRSROUTE_TypeDef     PRSROUTE_CLR[1U];        /**< prs0 DBUS config registers                         */
   GPIO_RACROUTE_TypeDef     RACROUTE_CLR;            /**< rac DBUS config registers                          */
-  uint32_t                  RESERVED43[23U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED46[23U];         /**< Reserved for future use                            */
   GPIO_SYXOROUTE_TypeDef    SYXOROUTE_CLR[1U];       /**< syxo0 DBUS config registers                        */
   GPIO_TIMERROUTE_TypeDef   TIMERROUTE_CLR[10U];     /**< timer0 DBUS config registers                       */
   GPIO_USARTROUTE_TypeDef   USARTROUTE_CLR[3U];      /**< usart0 DBUS config registers                       */
-  uint32_t                  RESERVED44[480U];        /**< Reserved for future use                            */
+  uint32_t                  RESERVED47[480U];        /**< Reserved for future use                            */
   __IM uint32_t             IPVERSION_TGL;           /**< main                                               */
-  uint32_t                  RESERVED45[11U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED48[11U];         /**< Reserved for future use                            */
   GPIO_PORT_TypeDef         P_TGL[4U];               /**<                                                    */
-  uint32_t                  RESERVED46[68U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED49[68U];         /**< Reserved for future use                            */
   __IOM uint32_t            LCDSEGL_TGL;             /**< LCD Segment Enable Low                             */
   __IOM uint32_t            LCDSEGH_TGL;             /**< LCD Segment Enable High                            */
-  uint32_t                  RESERVED47[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED50[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            LCDCOM_TGL;              /**< LCD Common Enable                                  */
-  uint32_t                  RESERVED48[3U];          /**< Reserved for future use                            */
-  uint32_t                  RESERVED49[56U];         /**< Reserved for future use                            */
-  __IOM uint32_t            LOCK_TGL;                /**< Lock Register                                      */
-  uint32_t                  RESERVED50[3U];          /**< Reserved for future use                            */
-  __IM uint32_t             GPIOLOCKSTATUS_TGL;      /**< Lock Status                                        */
   uint32_t                  RESERVED51[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED52[56U];         /**< Reserved for future use                            */
+  __IOM uint32_t            LOCK_TGL;                /**< Lock Register                                      */
+  uint32_t                  RESERVED53[3U];          /**< Reserved for future use                            */
+  __IM uint32_t             GPIOLOCKSTATUS_TGL;      /**< Lock Status                                        */
+  uint32_t                  RESERVED54[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            ABUSALLOC_TGL;           /**< A Bus allocation                                   */
   __IOM uint32_t            BBUSALLOC_TGL;           /**< B Bus allocation                                   */
   __IOM uint32_t            CDBUSALLOC_TGL;          /**< CD Bus allocation                                  */
-  uint32_t                  RESERVED52[53U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED55[53U];         /**< Reserved for future use                            */
   __IOM uint32_t            EXTIPSELL_TGL;           /**< External Interrupt Port Select Low                 */
   __IOM uint32_t            EXTIPSELH_TGL;           /**< External interrupt Port Select High                */
   __IOM uint32_t            EXTIPINSELL_TGL;         /**< External Interrupt Pin Select Low                  */
   __IOM uint32_t            EXTIPINSELH_TGL;         /**< External Interrupt Pin Select High                 */
   __IOM uint32_t            EXTIRISE_TGL;            /**< External Interrupt Rising Edge Trigger             */
   __IOM uint32_t            EXTIFALL_TGL;            /**< External Interrupt Falling Edge Trigger            */
-  uint32_t                  RESERVED53[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED56[2U];          /**< Reserved for future use                            */
   __IOM uint32_t            IF_TGL;                  /**< Interrupt Flag                                     */
   __IOM uint32_t            IEN_TGL;                 /**< Interrupt Enable                                   */
-  uint32_t                  RESERVED54[1U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED57[1U];          /**< Reserved for future use                            */
   __IOM uint32_t            EM4WUEN_TGL;             /**< EM4 wakeup enable                                  */
   __IOM uint32_t            EM4WUPOL_TGL;            /**< EM4 wakeup polarity                                */
-  uint32_t                  RESERVED55[3U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED58[3U];          /**< Reserved for future use                            */
   __IOM uint32_t            DBGROUTEPEN_TGL;         /**< Debugger Route Pin enable                          */
   __IOM uint32_t            TRACEROUTEPEN_TGL;       /**< Trace Route Pin Enable                             */
-  uint32_t                  RESERVED56[2U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED59[2U];          /**< Reserved for future use                            */
   GPIO_ACMPROUTE_TypeDef    ACMPROUTE_TGL[2U];       /**< acmp0 DBUS config registers                        */
   GPIO_CMUROUTE_TypeDef     CMUROUTE_TGL;            /**< cmu DBUS config registers                          */
-  uint32_t                  RESERVED57[4U];          /**< Reserved for future use                            */
+  uint32_t                  RESERVED60[4U];          /**< Reserved for future use                            */
   GPIO_EUSARTROUTE_TypeDef  EUSARTROUTE_TGL[4U];     /**< eusart0 DBUS config registers                      */
-  GPIO_FRCROUTE_TypeDef     FRCROUTE_TGL;            /**< frc DBUS config registers                          */
+  uint32_t                  RESERVED61[5U];          /**< Reserved for future use                            */
   GPIO_I2CROUTE_TypeDef     I2CROUTE_TGL[4U];        /**< i2c0 DBUS config registers                         */
   GPIO_KEYSCANROUTE_TypeDef KEYSCANROUTE_TGL;        /**< keyscan DBUS config registers                      */
   GPIO_LETIMERROUTE_TypeDef LETIMERROUTE_TGL;        /**< letimer DBUS config registers                      */
@@ -393,7 +385,7 @@ typedef struct gpio_typedef{
   GPIO_PCNTROUTE_TypeDef    PCNTROUTE_TGL[1U];       /**< pcnt0 DBUS config registers                        */
   GPIO_PRSROUTE_TypeDef     PRSROUTE_TGL[1U];        /**< prs0 DBUS config registers                         */
   GPIO_RACROUTE_TypeDef     RACROUTE_TGL;            /**< rac DBUS config registers                          */
-  uint32_t                  RESERVED58[23U];         /**< Reserved for future use                            */
+  uint32_t                  RESERVED62[23U];         /**< Reserved for future use                            */
   GPIO_SYXOROUTE_TypeDef    SYXOROUTE_TGL[1U];       /**< syxo0 DBUS config registers                        */
   GPIO_TIMERROUTE_TypeDef   TIMERROUTE_TGL[10U];     /**< timer0 DBUS config registers                       */
   GPIO_USARTROUTE_TypeDef   USARTROUTE_TGL[3U];      /**< usart0 DBUS config registers                       */
@@ -1574,61 +1566,6 @@ typedef struct gpio_typedef{
 #define _GPIO_EUSART_TXROUTE_PIN_MASK                    0xF0000UL                                /**< Bit mask for GPIO_PIN                       */
 #define _GPIO_EUSART_TXROUTE_PIN_DEFAULT                 0x00000000UL                             /**< Mode DEFAULT for GPIO_EUSART_TXROUTE        */
 #define GPIO_EUSART_TXROUTE_PIN_DEFAULT                  (_GPIO_EUSART_TXROUTE_PIN_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_EUSART_TXROUTE*/
-
-/* Bit fields for GPIO_FRC ROUTEEN */
-#define _GPIO_FRC_ROUTEEN_RESETVALUE                     0x00000000UL                               /**< Default value for GPIO_FRC_ROUTEEN          */
-#define _GPIO_FRC_ROUTEEN_MASK                           0x00000007UL                               /**< Mask for GPIO_FRC_ROUTEEN                   */
-#define GPIO_FRC_ROUTEEN_DCLKPEN                         (0x1UL << 0)                               /**< DCLK pin enable control bit                 */
-#define _GPIO_FRC_ROUTEEN_DCLKPEN_SHIFT                  0                                          /**< Shift value for GPIO_DCLKPEN                */
-#define _GPIO_FRC_ROUTEEN_DCLKPEN_MASK                   0x1UL                                      /**< Bit mask for GPIO_DCLKPEN                   */
-#define _GPIO_FRC_ROUTEEN_DCLKPEN_DEFAULT                0x00000000UL                               /**< Mode DEFAULT for GPIO_FRC_ROUTEEN           */
-#define GPIO_FRC_ROUTEEN_DCLKPEN_DEFAULT                 (_GPIO_FRC_ROUTEEN_DCLKPEN_DEFAULT << 0)   /**< Shifted mode DEFAULT for GPIO_FRC_ROUTEEN   */
-#define GPIO_FRC_ROUTEEN_DFRAMEPEN                       (0x1UL << 1)                               /**< DFRAME pin enable control bit               */
-#define _GPIO_FRC_ROUTEEN_DFRAMEPEN_SHIFT                1                                          /**< Shift value for GPIO_DFRAMEPEN              */
-#define _GPIO_FRC_ROUTEEN_DFRAMEPEN_MASK                 0x2UL                                      /**< Bit mask for GPIO_DFRAMEPEN                 */
-#define _GPIO_FRC_ROUTEEN_DFRAMEPEN_DEFAULT              0x00000000UL                               /**< Mode DEFAULT for GPIO_FRC_ROUTEEN           */
-#define GPIO_FRC_ROUTEEN_DFRAMEPEN_DEFAULT               (_GPIO_FRC_ROUTEEN_DFRAMEPEN_DEFAULT << 1) /**< Shifted mode DEFAULT for GPIO_FRC_ROUTEEN   */
-#define GPIO_FRC_ROUTEEN_DOUTPEN                         (0x1UL << 2)                               /**< DOUT pin enable control bit                 */
-#define _GPIO_FRC_ROUTEEN_DOUTPEN_SHIFT                  2                                          /**< Shift value for GPIO_DOUTPEN                */
-#define _GPIO_FRC_ROUTEEN_DOUTPEN_MASK                   0x4UL                                      /**< Bit mask for GPIO_DOUTPEN                   */
-#define _GPIO_FRC_ROUTEEN_DOUTPEN_DEFAULT                0x00000000UL                               /**< Mode DEFAULT for GPIO_FRC_ROUTEEN           */
-#define GPIO_FRC_ROUTEEN_DOUTPEN_DEFAULT                 (_GPIO_FRC_ROUTEEN_DOUTPEN_DEFAULT << 2)   /**< Shifted mode DEFAULT for GPIO_FRC_ROUTEEN   */
-
-/* Bit fields for GPIO_FRC DCLKROUTE */
-#define _GPIO_FRC_DCLKROUTE_RESETVALUE                   0x00000000UL                            /**< Default value for GPIO_FRC_DCLKROUTE        */
-#define _GPIO_FRC_DCLKROUTE_MASK                         0x000F0003UL                            /**< Mask for GPIO_FRC_DCLKROUTE                 */
-#define _GPIO_FRC_DCLKROUTE_PORT_SHIFT                   0                                       /**< Shift value for GPIO_PORT                   */
-#define _GPIO_FRC_DCLKROUTE_PORT_MASK                    0x3UL                                   /**< Bit mask for GPIO_PORT                      */
-#define _GPIO_FRC_DCLKROUTE_PORT_DEFAULT                 0x00000000UL                            /**< Mode DEFAULT for GPIO_FRC_DCLKROUTE         */
-#define GPIO_FRC_DCLKROUTE_PORT_DEFAULT                  (_GPIO_FRC_DCLKROUTE_PORT_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_FRC_DCLKROUTE */
-#define _GPIO_FRC_DCLKROUTE_PIN_SHIFT                    16                                      /**< Shift value for GPIO_PIN                    */
-#define _GPIO_FRC_DCLKROUTE_PIN_MASK                     0xF0000UL                               /**< Bit mask for GPIO_PIN                       */
-#define _GPIO_FRC_DCLKROUTE_PIN_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_FRC_DCLKROUTE         */
-#define GPIO_FRC_DCLKROUTE_PIN_DEFAULT                   (_GPIO_FRC_DCLKROUTE_PIN_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_FRC_DCLKROUTE */
-
-/* Bit fields for GPIO_FRC DFRAMEROUTE */
-#define _GPIO_FRC_DFRAMEROUTE_RESETVALUE                 0x00000000UL                              /**< Default value for GPIO_FRC_DFRAMEROUTE      */
-#define _GPIO_FRC_DFRAMEROUTE_MASK                       0x000F0003UL                              /**< Mask for GPIO_FRC_DFRAMEROUTE               */
-#define _GPIO_FRC_DFRAMEROUTE_PORT_SHIFT                 0                                         /**< Shift value for GPIO_PORT                   */
-#define _GPIO_FRC_DFRAMEROUTE_PORT_MASK                  0x3UL                                     /**< Bit mask for GPIO_PORT                      */
-#define _GPIO_FRC_DFRAMEROUTE_PORT_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for GPIO_FRC_DFRAMEROUTE       */
-#define GPIO_FRC_DFRAMEROUTE_PORT_DEFAULT                (_GPIO_FRC_DFRAMEROUTE_PORT_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_FRC_DFRAMEROUTE*/
-#define _GPIO_FRC_DFRAMEROUTE_PIN_SHIFT                  16                                        /**< Shift value for GPIO_PIN                    */
-#define _GPIO_FRC_DFRAMEROUTE_PIN_MASK                   0xF0000UL                                 /**< Bit mask for GPIO_PIN                       */
-#define _GPIO_FRC_DFRAMEROUTE_PIN_DEFAULT                0x00000000UL                              /**< Mode DEFAULT for GPIO_FRC_DFRAMEROUTE       */
-#define GPIO_FRC_DFRAMEROUTE_PIN_DEFAULT                 (_GPIO_FRC_DFRAMEROUTE_PIN_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_FRC_DFRAMEROUTE*/
-
-/* Bit fields for GPIO_FRC DOUTROUTE */
-#define _GPIO_FRC_DOUTROUTE_RESETVALUE                   0x00000000UL                            /**< Default value for GPIO_FRC_DOUTROUTE        */
-#define _GPIO_FRC_DOUTROUTE_MASK                         0x000F0003UL                            /**< Mask for GPIO_FRC_DOUTROUTE                 */
-#define _GPIO_FRC_DOUTROUTE_PORT_SHIFT                   0                                       /**< Shift value for GPIO_PORT                   */
-#define _GPIO_FRC_DOUTROUTE_PORT_MASK                    0x3UL                                   /**< Bit mask for GPIO_PORT                      */
-#define _GPIO_FRC_DOUTROUTE_PORT_DEFAULT                 0x00000000UL                            /**< Mode DEFAULT for GPIO_FRC_DOUTROUTE         */
-#define GPIO_FRC_DOUTROUTE_PORT_DEFAULT                  (_GPIO_FRC_DOUTROUTE_PORT_DEFAULT << 0) /**< Shifted mode DEFAULT for GPIO_FRC_DOUTROUTE */
-#define _GPIO_FRC_DOUTROUTE_PIN_SHIFT                    16                                      /**< Shift value for GPIO_PIN                    */
-#define _GPIO_FRC_DOUTROUTE_PIN_MASK                     0xF0000UL                               /**< Bit mask for GPIO_PIN                       */
-#define _GPIO_FRC_DOUTROUTE_PIN_DEFAULT                  0x00000000UL                            /**< Mode DEFAULT for GPIO_FRC_DOUTROUTE         */
-#define GPIO_FRC_DOUTROUTE_PIN_DEFAULT                   (_GPIO_FRC_DOUTROUTE_PIN_DEFAULT << 16) /**< Shifted mode DEFAULT for GPIO_FRC_DOUTROUTE */
 
 /* Bit fields for GPIO_I2C ROUTEEN */
 #define _GPIO_I2C_ROUTEEN_RESETVALUE                     0x00000000UL                            /**< Default value for GPIO_I2C_ROUTEEN          */

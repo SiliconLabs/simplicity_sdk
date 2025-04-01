@@ -23,6 +23,7 @@
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
 #include "sl_atomic.h"
+#include "sl_code_classification.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -212,7 +213,7 @@ static void SI7021_measure(uint32_t *rhData, int32_t *tData)
  * This function is called when the periodic timer goes off. It sets the
  * read_sensor_data flag.
  ******************************************************************************/
-static void timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;

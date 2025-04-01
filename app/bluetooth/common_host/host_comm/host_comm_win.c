@@ -270,7 +270,7 @@ void *msg_recv_func(void *ptr)
         pthread_mutex_unlock(&mutex);
       } else {
         pthread_mutex_unlock(&mutex);
-        app_log_error("Received data lost." APP_LOG_NL);
+        app_log_error("Received data lost, host_comm_input: %d buf_in.len %d." APP_LOG_NL, ret, buf_in.len);
       }
     } else {
       // No data available

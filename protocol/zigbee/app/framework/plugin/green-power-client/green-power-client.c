@@ -1651,6 +1651,8 @@ void sli_zigbee_af_green_power_client_stack_status_callback(sl_status_t status)
       && sl_zigbee_is_performing_rejoin() == FALSE) {
     // Clear proxy table when leaving the network.
     sl_zigbee_af_green_power_client_clear_proxy_table();
+    // Ensure to close any commissioning session in progress.
+    exitCommissioningEventHandler(&exitCommissioningEvent);
   }
 }
 

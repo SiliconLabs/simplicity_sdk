@@ -102,6 +102,7 @@ const sl_zigbee_af_attribute_metadata_t generatedAttributes[] = ZCL_GENERATED_AT
 // Attribute map between zigbee and matter.
 #if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
 const sl_zigbee_matter_af_multi_protocol_attribute_metadata_t multiProtocolAttributeMap[] = GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING;
+const uint8_t mappedMpAttributeCount = (sizeof(multiProtocolAttributeMap) / sizeof(sl_zigbee_matter_af_multi_protocol_attribute_metadata_t));
 #endif // defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
 const sl_zigbee_af_cluster_t generatedClusters[]          = ZCL_GENERATED_CLUSTERS;
 const sl_zigbee_af_endpoint_type_t generatedEmberAfEndpointTypes[]   = ZCL_GENERATED_ENDPOINT_TYPES;
@@ -670,7 +671,7 @@ sl_zigbee_af_status_t sli_zigbee_af_read_or_write_attribute(sl_zigbee_af_attribu
                 }
 #if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
                 if (write) {
-                  for (uint8_t j = 0; j < multiProtocolAttributeMap.length; j++) {
+                  for (uint8_t j = 0; j < mappedMpAttributeCount; j++) {
                     uint16_t attributeMfgId = sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am);
                     if (multiProtocolAttributeMap[j].zigbeeClusterId == attRecord->clusterId
                         && multiProtocolAttributeMap[j].zigbeeMfgClusterId == attributeMfgId

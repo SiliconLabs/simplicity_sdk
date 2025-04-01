@@ -270,6 +270,21 @@ psa_status_t multipart_aead(bool is_encrypt)
   // Use either the plaintext width or the ciphertext width
   const size_t input_len = (is_encrypt ? plain_msg_len : cipher_msg_len);
 
+  // Get the maximum output size  ( givne input length )
+  const size_t out_sz =  PSA_AEAD_UPDATE_OUTPUT_MAX_SIZE(input_len);
+  printf("\n\r INPUT_LENGTH  %d \n\r", input_len);
+  printf("\n\r OUTUT_SIZE    %d \n\r", out_sz);
+  // CHeck outpnut size does not overflow output buffer.
+  if (is_encrypt) {
+    if (out_sz > sizeof(cipher_msg_buf)) {
+      return_on_error(PSA_ERROR_BUFFER_TOO_SMALL);
+    }
+  } else {
+    if (out_sz > sizeof(plain_msg_buf)) {
+      return_on_error(PSA_ERROR_BUFFER_TOO_SMALL);
+    }
+  }
+
   // 2. optionally set length.
   //    Note setting length is mandatory for CCM and optional otherwise.
   if (algo == PSA_ALG_CCM) {
@@ -298,15 +313,13 @@ psa_status_t multipart_aead(bool is_encrypt)
 
   // The width of the output needs to be stored for subsequent steps
   size_t bytes_out = 0;
+  size_t in_total = 0;
   size_t out_total = 0;
 
   // during an encrypt phase input is plaintext and output is ciphertext
   // vice-versa during a decrypt phase
   uint8_t *input =  (is_encrypt ? plain_msg_buf  : cipher_msg_buf);
   uint8_t *output = (is_encrypt ? cipher_msg_buf : plain_msg_buf);
-
-  // The maximum output buffer width
-  const size_t out_sz = (is_encrypt ? sizeof(cipher_msg_buf) : sizeof(plain_msg_buf));
 
   // demonstrating equal NPART_STEPS to process the whole input data using multipart AEAD
   // note that equal parts are not required - and multipart AEAD can be performed on
@@ -316,7 +329,7 @@ psa_status_t multipart_aead(bool is_encrypt)
   printf("  . %scryption...\n", (is_encrypt ? "Plaintext En" : "Ciphertext De"));
   while ( input_len - (frag_size * step) >= frag_size) {
     return_on_error(psa_aead_update(&op,
-                                    input + out_total,
+                                    input + in_total,
                                     frag_size,
                                     output + out_total,
                                     out_sz - out_total,
@@ -324,6 +337,7 @@ psa_status_t multipart_aead(bool is_encrypt)
 
     // when successful, bytes_out holds the number of actual bytes output as a result
     // of the 'update' call ... which may be different from the number of bytes input
+    in_total += frag_size;
     out_total += bytes_out; // accumulate output length...
     step++;
   }
@@ -333,12 +347,12 @@ psa_status_t multipart_aead(bool is_encrypt)
   if (input_len % frag_size) {
     frag_size = input_len % frag_size;
     return_on_error(psa_aead_update(&op,
-                                    input + out_total,
+                                    input + in_total,
                                     frag_size,
                                     output + out_total,
                                     out_sz - out_total,
                                     &bytes_out));
-
+    in_total += frag_size;
     out_total += bytes_out; // accumulate output length...
   }
 
@@ -352,7 +366,7 @@ psa_status_t multipart_aead(bool is_encrypt)
   if (is_encrypt) {
     return_on_error(psa_aead_finish(&op,
                                     cipher_msg_buf + out_total,
-                                    out_sz - out_total,
+                                    PSA_AEAD_FINISH_OUTPUT_MAX_SIZE,
                                     &bytes_out,
                                     tag_buf,
                                     sizeof(tag_buf),
@@ -362,7 +376,7 @@ psa_status_t multipart_aead(bool is_encrypt)
   } else {
     return_on_error(ret = psa_aead_verify(&op,
                                           plain_msg_buf + out_total,
-                                          out_sz - out_total,
+                                          PSA_AEAD_VERIFY_OUTPUT_MAX_SIZE,
                                           &bytes_out,
                                           tag_buf,
                                           tag_len));

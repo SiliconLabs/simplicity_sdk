@@ -238,6 +238,7 @@ static void sli_cos_vcom_write(void)
   COS_ConfigOption_t Cos_Uart_Config;
   uartdrv_handle = sl_uartdrv_get_default();
   uint32_t baudrate = 0;
+  uint8_t flow_control = 0;
 
   Cos_Uart_Config.optionType = COS_CONFIG_OPTION_TYPE_UART;
 
@@ -262,7 +263,22 @@ static void sli_cos_vcom_write(void)
   }
 #endif // SL_CATALOG_UARTDRV_USART_PRESENT
 
-  Cos_Uart_Config.optionValue = sli_cos_vcom_config(baudrate, uartdrv_handle->fcType);
+  switch (uartdrv_handle->fcType) {
+    case uartdrvFlowControlNone:
+      flow_control = COS_CONFIG_FLOWCONTROL_NONE;
+      break;
+    case uartdrvFlowControlSw:
+      flow_control = COS_CONFIG_FLOWCONTROL_NONE;
+      break;
+    case uartdrvFlowControlHw:
+      flow_control = COS_CONFIG_FLOWCONTROL_CTS_RTS;
+      break;
+    case uartdrvFlowControlHwUart:
+      flow_control = COS_CONFIG_FLOWCONTROL_CTS_RTS;
+      break;
+  }
+
+  Cos_Uart_Config.optionValue = sli_cos_vcom_config(baudrate, flow_control);
 
   sli_cos_swo_itm_8_write(&Cos_Uart_Config, sizeof(Cos_Uart_Config));
 }

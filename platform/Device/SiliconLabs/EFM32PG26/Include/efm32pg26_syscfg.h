@@ -643,68 +643,58 @@ typedef struct syscfg_typedef{
 #define SYSCFG_ROOTDATA1_DATA_DEFAULT                         (_SYSCFG_ROOTDATA1_DATA_DEFAULT << 0) /**< Shifted mode DEFAULT for SYSCFG_ROOTDATA1   */
 
 /* Bit fields for SYSCFG ROOTLOCKSTATUS */
-#define _SYSCFG_ROOTLOCKSTATUS_RESETVALUE                     0x007F0107UL                                          /**< Default value for SYSCFG_ROOTLOCKSTATUS     */
-#define _SYSCFG_ROOTLOCKSTATUS_MASK                           0x807F0107UL                                          /**< Mask for SYSCFG_ROOTLOCKSTATUS              */
-#define SYSCFG_ROOTLOCKSTATUS_BUSLOCK                         (0x1UL << 0)                                          /**< Bus Lock                                    */
-#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_SHIFT                  0                                                     /**< Shift value for SYSCFG_BUSLOCK              */
-#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_MASK                   0x1UL                                                 /**< Bit mask for SYSCFG_BUSLOCK                 */
-#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT                0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT << 0)         /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_REGLOCK                         (0x1UL << 1)                                          /**< Register Lock                               */
-#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_SHIFT                  1                                                     /**< Shift value for SYSCFG_REGLOCK              */
-#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_MASK                   0x2UL                                                 /**< Bit mask for SYSCFG_REGLOCK                 */
-#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT                0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT << 1)         /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_MFRLOCK                         (0x1UL << 2)                                          /**< Manufacture Lock                            */
-#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_SHIFT                  2                                                     /**< Shift value for SYSCFG_MFRLOCK              */
-#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_MASK                   0x4UL                                                 /**< Bit mask for SYSCFG_MFRLOCK                 */
-#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT                0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT << 2)         /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK                     (0x1UL << 8)                                          /**< Root Debug Lock                             */
-#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_SHIFT              8                                                     /**< Shift value for SYSCFG_ROOTDBGLOCK          */
-#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_MASK               0x100UL                                               /**< Bit mask for SYSCFG_ROOTDBGLOCK             */
-#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT            0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT << 8)     /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK                   (0x1UL << 16)                                         /**< User Debug Access Port Lock                 */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_SHIFT            16                                                    /**< Shift value for SYSCFG_USERDBGAPLOCK        */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_MASK             0x10000UL                                             /**< Bit mask for SYSCFG_USERDBGAPLOCK           */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT          0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT << 16)  /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK                     (0x1UL << 17)                                         /**< User Invasive Debug Lock                    */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_SHIFT              17                                                    /**< Shift value for SYSCFG_USERDBGLOCK          */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_MASK               0x20000UL                                             /**< Bit mask for SYSCFG_USERDBGLOCK             */
-#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT            0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT << 17)    /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK                     (0x1UL << 18)                                         /**< User Non-invasive Debug Lock                */
-#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_SHIFT              18                                                    /**< Shift value for SYSCFG_USERNIDLOCK          */
-#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_MASK               0x40000UL                                             /**< Bit mask for SYSCFG_USERNIDLOCK             */
-#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT            0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT << 18)    /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK                    (0x1UL << 19)                                         /**< User Secure Invasive Debug Lock             */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_SHIFT             19                                                    /**< Shift value for SYSCFG_USERSPIDLOCK         */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_MASK              0x80000UL                                             /**< Bit mask for SYSCFG_USERSPIDLOCK            */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT           0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT            (_SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT << 19)   /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK                   (0x1UL << 20)                                         /**< User Secure Non-invasive Debug Lock         */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_SHIFT            20                                                    /**< Shift value for SYSCFG_USERSPNIDLOCK        */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_MASK             0x100000UL                                            /**< Bit mask for SYSCFG_USERSPNIDLOCK           */
-#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT          0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT << 20)  /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK                   (0x1UL << 21)                                         /**< Radio Invasive Debug Lock                   */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK_SHIFT            21                                                    /**< Shift value for SYSCFG_RADIOIDBGLOCK        */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK_MASK             0x200000UL                                            /**< Bit mask for SYSCFG_RADIOIDBGLOCK           */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK_DEFAULT          0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_RADIOIDBGLOCK_DEFAULT << 21)  /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK                  (0x1UL << 22)                                         /**< Radio Non-invasive Debug Lock               */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK_SHIFT           22                                                    /**< Shift value for SYSCFG_RADIONIDBGLOCK       */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK_MASK            0x400000UL                                            /**< Bit mask for SYSCFG_RADIONIDBGLOCK          */
-#define _SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK_DEFAULT         0x00000001UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK_DEFAULT          (_SYSCFG_ROOTLOCKSTATUS_RADIONIDBGLOCK_DEFAULT << 22) /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
-#define SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED                   (0x1UL << 31)                                         /**< E-Fuse Unlocked                             */
-#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_SHIFT            31                                                    /**< Shift value for SYSCFG_EFUSEUNLOCKED        */
-#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_MASK             0x80000000UL                                          /**< Bit mask for SYSCFG_EFUSEUNLOCKED           */
-#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT          0x00000000UL                                          /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
-#define SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT << 31)  /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define _SYSCFG_ROOTLOCKSTATUS_RESETVALUE                     0x007F0107UL                                         /**< Default value for SYSCFG_ROOTLOCKSTATUS     */
+#define _SYSCFG_ROOTLOCKSTATUS_MASK                           0x807F0107UL                                         /**< Mask for SYSCFG_ROOTLOCKSTATUS              */
+#define SYSCFG_ROOTLOCKSTATUS_BUSLOCK                         (0x1UL << 0)                                         /**< Bus Lock                                    */
+#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_SHIFT                  0                                                    /**< Shift value for SYSCFG_BUSLOCK              */
+#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_MASK                   0x1UL                                                /**< Bit mask for SYSCFG_BUSLOCK                 */
+#define _SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT                0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_BUSLOCK_DEFAULT << 0)        /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_REGLOCK                         (0x1UL << 1)                                         /**< Register Lock                               */
+#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_SHIFT                  1                                                    /**< Shift value for SYSCFG_REGLOCK              */
+#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_MASK                   0x2UL                                                /**< Bit mask for SYSCFG_REGLOCK                 */
+#define _SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT                0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_REGLOCK_DEFAULT << 1)        /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_MFRLOCK                         (0x1UL << 2)                                         /**< Manufacture Lock                            */
+#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_SHIFT                  2                                                    /**< Shift value for SYSCFG_MFRLOCK              */
+#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_MASK                   0x4UL                                                /**< Bit mask for SYSCFG_MFRLOCK                 */
+#define _SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT                0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT                 (_SYSCFG_ROOTLOCKSTATUS_MFRLOCK_DEFAULT << 2)        /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK                     (0x1UL << 8)                                         /**< Root Debug Lock                             */
+#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_SHIFT              8                                                    /**< Shift value for SYSCFG_ROOTDBGLOCK          */
+#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_MASK               0x100UL                                              /**< Bit mask for SYSCFG_ROOTDBGLOCK             */
+#define _SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT            0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_ROOTDBGLOCK_DEFAULT << 8)    /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK                   (0x1UL << 16)                                        /**< User Debug Access Port Lock                 */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_SHIFT            16                                                   /**< Shift value for SYSCFG_USERDBGAPLOCK        */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_MASK             0x10000UL                                            /**< Bit mask for SYSCFG_USERDBGAPLOCK           */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT          0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_USERDBGAPLOCK_DEFAULT << 16) /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK                     (0x1UL << 17)                                        /**< User Invasive Debug Lock                    */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_SHIFT              17                                                   /**< Shift value for SYSCFG_USERDBGLOCK          */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_MASK               0x20000UL                                            /**< Bit mask for SYSCFG_USERDBGLOCK             */
+#define _SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT            0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_USERDBGLOCK_DEFAULT << 17)   /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK                     (0x1UL << 18)                                        /**< User Non-invasive Debug Lock                */
+#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_SHIFT              18                                                   /**< Shift value for SYSCFG_USERNIDLOCK          */
+#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_MASK               0x40000UL                                            /**< Bit mask for SYSCFG_USERNIDLOCK             */
+#define _SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT            0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT             (_SYSCFG_ROOTLOCKSTATUS_USERNIDLOCK_DEFAULT << 18)   /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK                    (0x1UL << 19)                                        /**< User Secure Invasive Debug Lock             */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_SHIFT             19                                                   /**< Shift value for SYSCFG_USERSPIDLOCK         */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_MASK              0x80000UL                                            /**< Bit mask for SYSCFG_USERSPIDLOCK            */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT           0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT            (_SYSCFG_ROOTLOCKSTATUS_USERSPIDLOCK_DEFAULT << 19)  /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK                   (0x1UL << 20)                                        /**< User Secure Non-invasive Debug Lock         */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_SHIFT            20                                                   /**< Shift value for SYSCFG_USERSPNIDLOCK        */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_MASK             0x100000UL                                           /**< Bit mask for SYSCFG_USERSPNIDLOCK           */
+#define _SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT          0x00000001UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_USERSPNIDLOCK_DEFAULT << 20) /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
+#define SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED                   (0x1UL << 31)                                        /**< E-Fuse Unlocked                             */
+#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_SHIFT            31                                                   /**< Shift value for SYSCFG_EFUSEUNLOCKED        */
+#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_MASK             0x80000000UL                                         /**< Bit mask for SYSCFG_EFUSEUNLOCKED           */
+#define _SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT          0x00000000UL                                         /**< Mode DEFAULT for SYSCFG_ROOTLOCKSTATUS      */
+#define SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT           (_SYSCFG_ROOTLOCKSTATUS_EFUSEUNLOCKED_DEFAULT << 31) /**< Shifted mode DEFAULT for SYSCFG_ROOTLOCKSTATUS*/
 
 /* Bit fields for SYSCFG ROOTSESWVERSION */
 #define _SYSCFG_ROOTSESWVERSION_RESETVALUE                    0x00000000UL                                     /**< Default value for SYSCFG_ROOTSESWVERSION    */

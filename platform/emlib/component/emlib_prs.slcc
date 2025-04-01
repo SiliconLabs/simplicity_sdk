@@ -40,6 +40,8 @@ documentation:
       condition: [device_sdid_215]
     - page: platform-emlib-efr32xg25/prs
       condition: [device_sdid_220]
+    - page: platform-emlib-efr32xg26/prs
+      condition: [device_sdid_225]
     - page: platform-emlib-efr32xg27/prs
       condition: [device_sdid_230]
     - page: platform-emlib-efr32xg28/prs

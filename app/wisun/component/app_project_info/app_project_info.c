@@ -379,12 +379,17 @@ static app_project_info_version_t _versions[] = {
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 
-void app_project_info_get(app_project_info_t * const dest)
+sl_status_t app_project_info_get(app_project_info_t * const dest)
 {
   static bool initialized = false;
+
+  if (dest == NULL) {
+    return SL_STATUS_FAIL;
+  }
+  
   dest->version_count = sizeof(_versions) / sizeof(app_project_info_version_t);
   if (dest->version_count <= 1U) {
-    return;
+    return SL_STATUS_FAIL;
   }
 
   // init if it is required
@@ -403,13 +408,23 @@ void app_project_info_get(app_project_info_t * const dest)
   }
 
   dest->versions = (const app_project_info_version_t *)_versions;
+
+  return SL_STATUS_OK;
 }
+
 
 void app_project_info_print_pretty(const app_project_info_t * const info, app_project_info_printer_t printer)
 {
   const app_project_info_version_t *ver = NULL;
 
-  if (info == NULL || printer == NULL) {
+  if (info == NULL 
+      || printer == NULL) {
+    return;
+  }
+
+  if (info->project_name == NULL || info->versions == NULL) {
+    printer("App Project info is not initialised properly.\n");
+    printer("Use 'app_project_info_get()' and set the project name before try to access to the info instance.\n");
     return;
   }
 

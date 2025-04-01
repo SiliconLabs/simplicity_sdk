@@ -31,7 +31,9 @@
 #ifndef SL_FEM_UTIL_CONFIG_H
 #define SL_FEM_UTIL_CONFIG_H
 
-#include "sl_gpio.h"
+#define SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE          0U
+#define SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_OR_PAEN_COMBINE     1U
+#define SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_XOR_LNAEN_COMBINE   2U
 
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h> FEM Configuration
@@ -66,6 +68,12 @@
 // <1-65535:1>
 // <i> Default: 4000
 #define SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_TIMEOUT_US          4000
+// <o SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE> Automatic PRS LNA Bypass combine demo
+// <SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE=> None
+// <SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_OR_PAEN_COMBINE=> Ored with PA enable
+// <SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_XOR_LNAEN_COMBINE=> Xored with LNA enable
+// <i> Default: none
+#define SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_COMBINE           SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_NO_COMBINE
 // </e>
 // </e>
 // </h>
@@ -95,6 +103,11 @@
 // <prs optional=true> SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS
 // $[PRS_SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS]
 // [PRS_SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS]$
+
+// <prs optional=true> SL_FEM_UTIL_BYPASS_PRS_COMBINE
+// $[PRS_SL_FEM_UTIL_BYPASS_PRS_COMBINE]
+// [PRS_SL_FEM_UTIL_BYPASS_PRS_COMBINE]$
+// <<< sl:end pin_tool >>>
 // <<< sl:end pin_tool >>>
 
 #define SL_FEM_UTIL_OPTIMIZED_PHY_ENABLE   0

@@ -33,6 +33,7 @@
 #include "sl_udelay.h"
 #include "sl_clock_manager.h"
 #include "sl_gpio.h"
+#include "sl_code_classification.h"
 
 #if defined(_SILICON_LABS_32B_SERIES_3)
 #define eusartClockMode0    SL_HAL_EUSART_CLOCK_MODE_0
@@ -65,6 +66,7 @@
 /** Timer used for periodic maintenance of the display. */
 static sl_sleeptimer_timer_handle_t extcomin_timer;
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_MEMLCD, SL_CODE_CLASS_TIME_CRITICAL)
 static void extcomin_toggle(sl_sleeptimer_timer_handle_t *handle, void *data);
 #endif
 

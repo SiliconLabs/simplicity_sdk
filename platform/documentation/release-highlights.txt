@@ -1,12 +1,8 @@
-Platform 5.1.1
+Platform 5.1.2
 - CMSIS Device
-  - Added support for xGM260 modules
+  - Added support for EFR32BG22L and EFR32BG24L families.
 - CPC
-  - Fixed a potential security vulnerability.
-- Security
-  - Targeted quality improvements and bug fixes. 
-- Boards and External Devices
-  - Added support for BRD2505A, BRD2713A, BRD4120A, BRD4121A, BRD4402C, BRD4403C
-- RAIL 5.1.1
-  - Added support for the xGM260P modules
+  - Targeted quality improvements and bug fixes.
+- RAIL 5.1.2
+  - Targeted quality improvements and bug fixes.
 

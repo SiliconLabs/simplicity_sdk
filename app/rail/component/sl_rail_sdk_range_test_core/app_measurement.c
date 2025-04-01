@@ -1123,7 +1123,6 @@ uint8_t safe_strlen(char *src)
  ******************************************************************************/
 void send_service_packet(void)
 {
-  uint8_t packet_length;
   RAIL_Status_t rail_status;
   service_data_t *tx_data;
   RAIL_Handle_t rail_handle;
@@ -1131,7 +1130,6 @@ void send_service_packet(void)
   uint16_t temp_channel = 0;
 
   __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t send_buffer[SL_RAIL_SDK_TX_FIFO_SIZE] = { 0 };
-  packet_length = sizeof(range_test_packet_t) + sizeof(service_data_t);
 
   range_test_settings_current_phy_tmp = current_phy_standard_value();
   range_test_settings.current_phy = range_test_settings.service_phy;
@@ -1144,7 +1142,7 @@ void send_service_packet(void)
                       channelConfigs[range_test_settings.current_phy], NULL);
 #endif
   range_test_settings_payload_length_tmp = range_test_settings.payload_length;
-  range_test_settings.payload_length = packet_length;
+  range_test_settings.payload_length = sizeof(range_test_packet_t) + sizeof(service_data_t);
   set_fixed_length(rail_handle, range_test_settings.payload_length);
 
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
@@ -1335,7 +1333,7 @@ static void set_fixed_length(RAIL_Handle_t rail_handle, uint16_t length)
       if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == 0x00 && channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] == 0x00) {
         RAIL_SetFixedLength(rail_handle, length);
       } else if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == CONNECT && channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] != 0x50) {
-        RAIL_SetFixedLength(rail_handle, length);
+        RAIL_SetFixedLength(rail_handle, length + 2);  // Add header as well
       } else {
         RAIL_SetFixedLength(rail_handle, RAIL_SETFIXEDLENGTH_INVALID);
       }

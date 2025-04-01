@@ -65,18 +65,15 @@ extern "C" {
 /// TFTP Default server retransmit timeout interval in seconds
 #define SL_TFTP_DEFAULT_SRV_RET_TIMEOUT_SEC             1U
 
-/// TFTP receive timeout
-#define SL_TFTP_RECV_TIMEOUT_MS                         8000UL
-
 /// TFTP string max length (filename, mode)
 #define SL_TFTP_STR_MAX_LEN                             256UL
 
 /// Netascii mode string
 #define SL_TFTP_MODE_NETASCII_STR                       "netascii"
-/// Octet mode string
-#define SL_TFTP_MODE_OCTET_STR                          "octet"
 /// Netascii mode string length
 #define SL_TFTP_MODE_NETASCII_STR_LEN                   8U
+/// Octet mode string
+#define SL_TFTP_MODE_OCTET_STR                          "octet"
 /// Octet mode string length
 #define SL_TFTP_MODE_OCTET_STR_LEN                      5U
 
@@ -115,23 +112,23 @@ extern "C" {
 #define SL_TFTP_OPCODE_OACK                             6U
 
 /// Not defined, see error message (if any).
-#define SL_TFTP_ERROCODE_NOTDEF                         0U
+#define SL_TFTP_ERRORCODE_NOTDEF                         0U
 /// File not found.
-#define SL_TFTP_ERROCODE_FNOTFOUND                      1U
+#define SL_TFTP_ERRORCODE_FNOTFOUND                      1U
 /// Access violation.
-#define SL_TFTP_ERROCODE_ACCVIOL                        2U
+#define SL_TFTP_ERRORCODE_ACCVIOL                        2U
 /// Disk full or allocation exceeded.
-#define SL_TFTP_ERROCODE_DISKFULL                       3U
+#define SL_TFTP_ERRORCODE_DISKFULL                       3U
 /// Illegal TFTP operation.
-#define SL_TFTP_ERROCODE_ILLEGALOP                      4U
+#define SL_TFTP_ERRORCODE_ILLEGALOP                      4U
 /// Unknown transfer ID.
-#define SL_TFTP_ERROCODE_UNKNTID                        5U
+#define SL_TFTP_ERRORCODE_UNKNTID                        5U
 /// File already exists.
-#define SL_TFTP_ERROCODE_FEXIST                         6U
+#define SL_TFTP_ERRORCODE_FEXIST                         6U
 /// No such user.
-#define SL_TFTP_ERROCODE_NOUSR                          7U
+#define SL_TFTP_ERRORCODE_NOUSR                          7U
 /// Terminate transfer due to option negotiation.
-#define SL_TFTP_ERROCODE_OPTNEGOTFAIL                   8U
+#define SL_TFTP_ERRORCODE_OPTNEGOTFAIL                   8U
 
 /// TFTP Service loop definition
 #ifndef SL_TFTP_SERVICE_LOOP

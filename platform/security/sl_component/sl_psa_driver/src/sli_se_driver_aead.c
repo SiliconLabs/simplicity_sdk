@@ -1412,6 +1412,13 @@ psa_status_t sli_se_driver_aead_finish(sli_se_driver_aead_operation_t *operation
     return PSA_ERROR_BUFFER_TOO_SMALL;
   }
 
+  // The ciphertext size should not exceed 255 bytes which is the maximum size
+  // allowed by the sl_se_ccm_multipart_finish and sl_se_gcm_multipart_finish
+  // functions, since the output_size argument is of type uint8_t.
+  if (ciphertext_size > 255) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
+
   if (ciphertext_length == NULL
       || tag == NULL
       || tag_length == NULL) {
@@ -1455,12 +1462,7 @@ psa_status_t sli_se_driver_aead_finish(sli_se_driver_aead_operation_t *operation
                                           ciphertext,
                                           ciphertext_size,
                                           (uint8_t *)ciphertext_length);
-      if (status != SL_STATUS_OK) {
-        psa_status = PSA_ERROR_HARDWARE_FAILURE;
-        goto exit;
-      }
       *tag_length = tag_len;
-      psa_status = PSA_SUCCESS;
       break;
     #endif   // SLI_PSA_DRIVER_FEATURE_GCM
 
@@ -1478,13 +1480,7 @@ psa_status_t sli_se_driver_aead_finish(sli_se_driver_aead_operation_t *operation
                                           ciphertext,
                                           ciphertext_size,
                                           (uint8_t *)ciphertext_length);
-
-      if (status != SL_STATUS_OK) {
-        psa_status = PSA_ERROR_HARDWARE_FAILURE;
-        goto exit;
-      }
       *tag_length = operation->ctx.ccm.tag_len;
-      psa_status = PSA_SUCCESS;
       break;
     #endif   // SLI_PSA_DRIVER_FEATURE_CCM
 
@@ -1492,6 +1488,17 @@ psa_status_t sli_se_driver_aead_finish(sli_se_driver_aead_operation_t *operation
       (void)tag_size;
       psa_status = PSA_ERROR_NOT_SUPPORTED;
       goto exit;
+  }
+
+  if (status != SL_STATUS_OK) {
+    *tag_length = 0;
+    if (status == SL_STATUS_INVALID_PARAMETER) {
+      psa_status = PSA_ERROR_INVALID_ARGUMENT;
+    } else {
+      psa_status = PSA_ERROR_HARDWARE_FAILURE;
+    }
+  } else {
+    psa_status = PSA_SUCCESS;
   }
 
   exit:
@@ -1546,6 +1553,13 @@ psa_status_t sli_se_driver_aead_verify(sli_se_driver_aead_operation_t *operation
     return PSA_ERROR_INVALID_SIGNATURE;
   }
 
+  // The plaintext size should not exceed 255 bytes which is the maximum size
+  // allowed by the sl_se_ccm_multipart_finish and sl_se_gcm_multipart_finish
+  // functions, since the output_size argument is of type uint8_t.
+  if (plaintext_size > 255) {
+    return PSA_ERROR_INVALID_ARGUMENT;
+  }
+
   psa_algorithm_t alg = PSA_ALG_AEAD_WITH_DEFAULT_LENGTH_TAG(operation->alg);
 
   if (operation->alg == 0) {
@@ -1581,14 +1595,6 @@ psa_status_t sli_se_driver_aead_verify(sli_se_driver_aead_operation_t *operation
                                           plaintext,
                                           plaintext_size,
                                           (uint8_t *)plaintext_length);
-      if (status == SL_STATUS_INVALID_SIGNATURE) {
-        psa_status = PSA_ERROR_INVALID_SIGNATURE;
-        goto exit;
-      } else if (status != SL_STATUS_OK) {
-        psa_status = PSA_ERROR_HARDWARE_FAILURE;
-        goto exit;
-      }
-      psa_status = PSA_SUCCESS;
       break;
     #endif   // SLI_PSA_DRIVER_FEATURE_GCM
 
@@ -1612,15 +1618,6 @@ psa_status_t sli_se_driver_aead_verify(sli_se_driver_aead_operation_t *operation
                                           plaintext,
                                           plaintext_size,
                                           (uint8_t *)plaintext_length);
-
-      if (status == SL_STATUS_INVALID_SIGNATURE) {
-        psa_status = PSA_ERROR_INVALID_SIGNATURE;
-        goto exit;
-      } else if (status != SL_STATUS_OK) {
-        psa_status = PSA_ERROR_HARDWARE_FAILURE;
-        goto exit;
-      }
-      psa_status = PSA_SUCCESS;
       break;
     }
     #endif   // SLI_PSA_DRIVER_FEATURE_CCM
@@ -1628,6 +1625,18 @@ psa_status_t sli_se_driver_aead_verify(sli_se_driver_aead_operation_t *operation
     default:
       psa_status = PSA_ERROR_NOT_SUPPORTED;
       goto exit;
+  }
+
+  if (status != SL_STATUS_OK) {
+    if (status == SL_STATUS_INVALID_SIGNATURE) {
+      psa_status = PSA_ERROR_INVALID_SIGNATURE;
+    } else if (status == SL_STATUS_INVALID_PARAMETER) {
+      psa_status = PSA_ERROR_INVALID_ARGUMENT;
+    } else {
+      psa_status = PSA_ERROR_HARDWARE_FAILURE;
+    }
+  } else {
+    psa_status = PSA_SUCCESS;
   }
 
   exit:

@@ -11,11 +11,14 @@ metadata:
 config_file:
   - path: util/third_party/freertos/config/series2/FreeRTOSConfig.h
     file_id: freertos_config
-  - override:
-      component: freertos
-      file_id: freertos_config
-    path: util/third_party/freertos/config/series3/FreeRTOSConfig.h
+    condition: [device_series_2, device_cortexm]
+  - path: util/third_party/freertos/config/series3/FreeRTOSConfig.h
+    file_id: freertos_config
     condition: [device_series_3, device_cortexm]
+  - path: util/third_party/freertos/config/series2/FreeRTOSConfig.h
+    file_id: freertos_config
+    condition: [device_cortexm]
+    unless : [device_series_2, device_series_3]
 source:
   - path: util/third_party/freertos/kernel/croutine.c
   - path: util/third_party/freertos/kernel/event_groups.c

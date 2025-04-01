@@ -52,13 +52,15 @@ typedef enum {
 
 /// Range Test status variables that contain settings for the remote
 /// configuration.
+#pragma pack(1)
 typedef struct service_data_t{
-  uint8_t        current_phy;         ///> Selected phy
-  int16_t        tx_power;            ///> Radio transmit power in 0.1 dBm steps
-  uint16_t       channel;             ///> Selected channel for TX and RX.
-  uint8_t        payload_length;      ///> Payload length of the packets.
   uint16_t       packets_repeat_number;         ///> Number of requested packets to send.
+  uint16_t       channel;             ///> Selected channel for TX and RX.
+  int16_t        tx_power;            ///> Radio transmit power in 0.1 dBm steps
+  uint8_t        current_phy;         ///> Selected phy
+  uint8_t        payload_length;      ///> Payload length of the packets.
 } service_data_t;
+#pragma pack()
 
 /// Range Test status variables that contain settings and data that is
 /// used during the Range Test execution.

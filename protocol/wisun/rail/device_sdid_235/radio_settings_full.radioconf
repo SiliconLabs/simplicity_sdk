@@ -1349,7 +1349,7 @@
         </channel_config_entry>
       </channel_config_entries>
       <metadata>{"selectedPhy":"PHY_WISUN_FAN_1v1_866MHz_Plan41_2FSK_1a_SG"}</metadata>
-      <phy name="PHY_WISUN_FAN_1v1_866MHz_Plan32_2FSK_1a_SG"/>
+      <phy name="PHY_WISUN_FAN_1v1_866MHz_Plan41_2FSK_1a_SG"/>
     </base_channel_configuration>
   </base_channel_configurations>
 </multi_phy_configuration>

@@ -80,9 +80,8 @@ void sl_wisun_udp_client_write(const int32_t sockid, const char *remote_ip_addre
  * @brief Read from Server.
  * @details print the available buffer according to the size
  * @param sockid socket id
- * @param size size of data to read
  *****************************************************************************/
-void sl_wisun_udp_client_read(const int32_t sockid, const uint16_t size);
+void sl_wisun_udp_client_read(const int32_t sockid);
 
 #ifdef __cplusplus
 }

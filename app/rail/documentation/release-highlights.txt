@@ -1,5 +1,5 @@
-RAIL SDK 2.18.1.0
+RAIL SDK 2.18.2.0
 - RAIL Apps and Library
-  - Targeted quality improvements and bug fixes. 
+  -  Underlying platform changes only.
 
 

@@ -1,7 +1,6 @@
-Wi-SUN SDK 2.4.0
+Wi-SUN SDK 2.5.0
 - Wi-SUN Stack
-  - Introducted a new API to select a preferred PAN
-  - Targeted quality improvements and bug fixes. 
+  -  Targeted quality improvements and bug fixes.
 - Wi-SUN Applications
   - Targeted quality improvements and bug fixes.
 

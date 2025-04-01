@@ -33,23 +33,23 @@
 #include "sl_rail_util_cs_antenna_offset.h"
 #include "sl_rail_util_cs_antenna_offset_config.h"
 
-const int16_t sl_rail_util_antenna_offset_cm[SL_RAIL_UTIL_CS_ANTENNA_COUNT] =
-#if SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE == SL_RAIL_UTIL_CS_ANTENNA_OFFSET_CONFIG_TYPE_WIRED
-  SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRED_CM;
-#elif SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE == SL_RAIL_UTIL_CS_ANTENNA_OFFSET_CONFIG_TYPE_WIRELESS
-  SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRELESS_CM;
-#else
-#error "A wireless or wired antenna configuration must be selected!"
-#endif
-
 void sl_rail_util_cs_antenna_offset_init(void)
 {
-#if ((SL_RAIL_UTIL_CS_ANTENNA_COUNT >= 1) \
-  && (SL_RAIL_UTIL_CS_ANTENNA_COUNT <= RAIL_BLE_CS_MAX_ANTENNAS))
+  _Static_assert(((SL_RAIL_UTIL_CS_ANTENNA_COUNT >= 1) && (SL_RAIL_UTIL_CS_ANTENNA_COUNT <= RAIL_BLE_CS_MAX_ANTENNAS)),
+                 "SL_RAIL_UTIL_CS_ANTENNA_COUNT is set to an invalid value.");
+
+  const int16_t sl_rail_util_antenna_offset_cm[RAIL_BLE_CS_MAX_ANTENNAS] =
+#if SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE == SL_RAIL_UTIL_CS_ANTENNA_OFFSET_CONFIG_TYPE_WIRED
+    SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRED_CM;
+#elif SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE == SL_RAIL_UTIL_CS_ANTENNA_OFFSET_CONFIG_TYPE_WIRELESS
+    SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRELESS_CM;
+#else
+  #error "A wireless or wired antenna configuration must be selected!"
+#endif
+
   RAIL_BLE_CsAntennaConfig_t csAntennaConfig = {
     .antennaCount = SL_RAIL_UTIL_CS_ANTENNA_COUNT,
     .pAntennaOffsetCm = sl_rail_util_antenna_offset_cm,
   };
   RAIL_BLE_ConfigCsAntenna(RAIL_EFR32_HANDLE, &csAntennaConfig);
-#endif
 }

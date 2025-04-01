@@ -775,10 +775,8 @@ template_contribution:
       shortcuts:
         - name: "sr"
       argument:
-        - type: uint32
-          help: "Socket Id"
-        - type: uint16
-          help: "Amount of bytes to read"
+        - type: wildcard
+          help: "TCP: wisun socket_read <Socket Id> <Number of bytes to read>\\n                                    UDP: wisun socket_read <Socket Id>"
     condition:
       - "sl_wisun_tcp_client"
 
@@ -791,10 +789,8 @@ template_contribution:
       shortcuts:
         - name: "sr"
       argument:
-        - type: uint32
-          help: "Socket Id"
-        - type: uint16
-          help: "Amount of bytes to read"
+        - type: wildcard
+          help: "TCP: wisun socket_read <Socket Id> <Number of bytes to read>\\n                                    UDP: wisun socket_read <Socket Id>"
     condition:
       - "sl_wisun_udp_client"
 

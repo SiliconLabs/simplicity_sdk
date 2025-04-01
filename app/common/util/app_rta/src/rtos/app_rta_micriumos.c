@@ -29,6 +29,7 @@
  ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "sl_status.h"
 #include "app_rta_internal.h"
 #include "app_rta_list.h"

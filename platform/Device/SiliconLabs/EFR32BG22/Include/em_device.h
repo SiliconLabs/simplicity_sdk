@@ -77,6 +77,9 @@
 #elif defined(EFR32BG22E224F512IM40)
 #include "efr32bg22e224f512im40.h"
 
+#elif defined(EFR32BG22L122F352GM32)
+#include "efr32bg22l122f352gm32.h"
+
 #else
 #error "em_device.h: PART NUMBER undefined"
 #endif

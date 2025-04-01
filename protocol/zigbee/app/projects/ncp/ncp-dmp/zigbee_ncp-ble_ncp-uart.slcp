@@ -143,3 +143,6 @@ filter:
     value: [Multiprotocol]
   - name: Project Difficulty
     value: [Advanced]
+
+tag:
+  - hardware:device:ram:96

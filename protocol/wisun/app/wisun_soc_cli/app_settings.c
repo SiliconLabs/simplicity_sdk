@@ -2828,18 +2828,17 @@ static sl_status_t app_settings_get_channel_mask_str(sl_wisun_channel_mask_type_
 {
   sl_status_t status;
   sl_wisun_channel_mask_t channel_mask;
-  uint8_t channel_count;
-  uint8_t index;
+  uint32_t channel_mask_len;
 
-  status = sl_wisun_get_excluded_channel_mask(type, &channel_mask, &channel_count);
+  status = sl_wisun_get_excluded_channel_mask(type, &channel_mask, &channel_mask_len);
 
   strcpy(value_str, "--");
 
-  if (status == SL_STATUS_OK && channel_count > 0) {
+  if (status == SL_STATUS_OK && channel_mask_len > 0) {
     sprintf(value_str, "%02x", channel_mask.mask[0]);
     value_str += 2;
-    for (index = 1; index < (channel_count + 7) / 8; index++) {
-      sprintf(value_str, ":%02x", channel_mask.mask[index]);
+    for (uint32_t i = 1; i < (channel_mask_len + 7) / 8; i++) {
+      sprintf(value_str, ":%02x", channel_mask.mask[i]);
       value_str += 3;
     }
   }

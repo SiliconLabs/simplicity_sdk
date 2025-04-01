@@ -1,6 +1,6 @@
 id: rail_util_rf_path
-label: RAIL Utility, RF Path
-description: Utility to aid with RAIL RF Path Support (e.g., device-internal RF path, device-external antenna diversity)
+label: RAIL Utility, Default Internal RF Path Configuration
+description: Utility to aid with setting the default internal RAIL RF path configuration.
 package: platform
 category: Platform|Radio
 quality: production

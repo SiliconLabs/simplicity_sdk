@@ -35,12 +35,18 @@ requires:
   - name: clock_manager_runtime
   - name: gpio
   - name: memlcd_screen
+  - name: code_classification
 provides:
   - name: memlcd_usart
   - name: memlcd_driver
 template_contribution:
   - name: component_catalog
     value: memlcd_usart
+  - name: code_classification_components
+    value: memlcd
+define:
+  - name: SL_CODE_COMPONENT_MEMLCD
+    value: memlcd
 documentation:
     docset: gecko-platform
     document: platform-hardware-driver/memlcd

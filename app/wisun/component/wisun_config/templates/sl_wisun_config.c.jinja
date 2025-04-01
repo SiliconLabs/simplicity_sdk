@@ -115,7 +115,7 @@ const uint8_t wisun_config_ms_phys[WISUN_CONFIG_MODE_SWITCH_PHYS_NUMBER] = {
 };
 {%- endif -%}
 {%- endif -%}
-{% if config.devicePrivateKey is not none %}
+{% if config.devicePrivateKey is not none and config.isDDP is false%}
 
 //! Wi-SUN Device private key
 const uint8_t wisun_config_device_private_key[] = {
@@ -128,7 +128,7 @@ const uint8_t wisun_config_device_private_key[] = {
 {%- endif %}
 };
 {%- endif -%}
-{% if config.deviceCertificate is not none %}
+{% if config.deviceCertificate is not none and config.isDDP is false %}
 
 //! Wi-SUN Device certificate
 const uint8_t wisun_config_device_certificate[] = {
@@ -141,7 +141,7 @@ const uint8_t wisun_config_device_certificate[] = {
 {%- endif %}
 };
 {%- endif -%}
-{% if config.caCertificate is not none %}
+{% if config.caCertificate is not none and config.isDDP is false %}
 
 //! Wi-SUN CA certificate
 const uint8_t wisun_config_ca_certificate[] = {

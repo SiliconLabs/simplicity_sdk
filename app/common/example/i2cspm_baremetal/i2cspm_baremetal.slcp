@@ -32,6 +32,7 @@ component:
   - id: iostream_stdlib_config
   - id: iostream_retarget_stdio
   - id: iostream_recommended_stream
+  - id: code_classification
 define:
   - name: DEBUG_EFM
 readme:

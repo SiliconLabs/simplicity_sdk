@@ -44,6 +44,8 @@ documentation:
       condition: [device_sdid_215]
     - page: platform-emlib-efr32xg25/msc
       condition: [device_sdid_220]
+    - page: platform-emlib-efr32xg26/msc
+      condition: [device_sdid_225]
     - page: platform-emlib-efr32xg27/msc
       condition: [device_sdid_230]
     - page: platform-emlib-efr32xg28/msc

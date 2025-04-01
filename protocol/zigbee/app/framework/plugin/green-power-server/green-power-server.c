@@ -2427,6 +2427,8 @@ WEAK(void sl_zigbee_af_green_power_server_stack_status_cb(sl_status_t status))
       && sl_zigbee_is_performing_rejoin() == FALSE) {
     sl_zigbee_gp_sink_table_clear_all();
     greenPowerServerInitialised = false;
+    // Ensure to close any commissioning session in progress.
+    sl_zigbee_af_green_power_server_commissioning_window_timeout_event_handler(commissioningWindowTimeout);
   }
   if (!sl_zigbee_af_green_power_server_update_involve_t_c_cb(status)) {
     updateInvolveTC(status);

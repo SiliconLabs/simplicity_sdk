@@ -2227,6 +2227,8 @@ osThreadId_t  osThreadNew(osThreadFunc_t          func,
   CPU_CHAR     *p_name;
   OS_PRIO       prio;
   RTOS_ERR      err;
+  uint8_t       dyn_object = DEF_FALSE;
+  uint8_t       dyn_stack = DEF_FALSE;
 
   if (CORE_InIrqContext() == true) {
     return (osThreadId_t)0;          // Can't create a thread from an ISR
@@ -2236,65 +2238,63 @@ osThreadId_t  osThreadNew(osThreadFunc_t          func,
   }
   p_name = (CPU_CHAR *)"TaskName?";
   if (attr == 0) {
+    dyn_object = DEF_TRUE;
     p_thread = (osThread_t *)malloc(sizeof(osThread_t));
     if (p_thread == (osThread_t *)0) {
       return (osThreadId_t)0;
     } else {
-      p_thread->obj_dyn_alloc = DEF_TRUE;
+      dyn_stack = DEF_TRUE;
       p_stk_base = (CPU_STK *)malloc(CMSIS_DEFAULT_STACK_SIZE);
       if (p_stk_base == (CPU_STK *)0) {
         free(p_thread);
         return (osThreadId_t)0;
       }
-      p_thread->stack_dyn_alloc = DEF_TRUE;
       stk_size_in_bytes = CMSIS_DEFAULT_STACK_SIZE;
       prio = (OS_PRIO)(osPriorityRealtime7 - osPriorityNormal);
     }
   } else {
     if (attr->cb_mem == (void *)0) {
+      dyn_object = DEF_TRUE;
       p_thread = (osThread_t *)malloc(sizeof(osThread_t));
       if (p_thread == (osThread_t *)0) {
         return (osThreadId_t)0;
       }
-      p_thread->obj_dyn_alloc = DEF_TRUE;
     } else {
       if (attr->cb_size < sizeof(osThread_t) || (uint32_t)attr->cb_mem % sizeof(CPU_ALIGN)) {
         return (osThreadId_t)0;
       }
       p_thread = attr->cb_mem;
-      p_thread->obj_dyn_alloc = DEF_FALSE;
     }
     if (attr->stack_size == 0u) {
+      dyn_stack = DEF_TRUE;
       p_stk_base = (CPU_STK *)malloc(CMSIS_DEFAULT_STACK_SIZE);
       if (p_stk_base == (CPU_STK *)0) {
-        if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+        if (dyn_object == DEF_TRUE) {
           free(p_thread);
         }
         return (osThreadId_t)0;
       }
       stk_size_in_bytes = CMSIS_DEFAULT_STACK_SIZE;
-      p_thread->stack_dyn_alloc = DEF_TRUE;
     } else if ((attr->stack_size != 0u)
                && (attr->stack_mem == NULL)) {
       stk_size_in_bytes = attr->stack_size;
+      dyn_stack = DEF_TRUE;
       p_stk_base = (CPU_STK *)malloc(stk_size_in_bytes);
       if (p_stk_base == (CPU_STK *)0) {
-        if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+        if (dyn_object == DEF_TRUE) {
           free(p_thread);
         }
         return (osThreadId_t)0;
       }
-      p_thread->stack_dyn_alloc = DEF_TRUE;
     } else {
       if (attr->stack_mem == NULL || ((uint32_t)attr->stack_mem % CPU_CFG_STK_ALIGN_BYTES)) {
-        if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+        if (dyn_object == DEF_TRUE) {
           free(p_thread);
         }
         return (osThreadId_t)0;
       }
       p_stk_base = (CPU_STK *)attr->stack_mem;
       stk_size_in_bytes = attr->stack_size;
-      p_thread->stack_dyn_alloc = DEF_FALSE;
     }
     if (attr->name != (const char *)0) {
       p_name = (CPU_CHAR *)attr->name;
@@ -2306,10 +2306,10 @@ osThreadId_t  osThreadNew(osThreadFunc_t          func,
         prio = (OS_PRIO)(OS_CFG_PRIO_MAX);                          // Set to an invalid priority level for MicriumOS
       } else {
         if (attr->priority > osPriorityRealtime7) {
-          if (p_thread->stack_dyn_alloc == DEF_TRUE) {
+          if (dyn_stack == DEF_TRUE) {
             free(p_stk_base);
           }
-          if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+          if (dyn_object == DEF_TRUE) {
             free(p_thread);
           }
           return (osThreadId_t)0;
@@ -2324,10 +2324,10 @@ osThreadId_t  osThreadNew(osThreadFunc_t          func,
   OSFlagCreate(&p_thread->flag_grp, "ThreadFlags", 0, &err);
 
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-    if (p_thread->stack_dyn_alloc == DEF_TRUE) {
+    if (dyn_stack == DEF_TRUE) {
       free(p_stk_base);
     }
-    if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+    if (dyn_object == DEF_TRUE) {
       free(p_thread);
     }
     return (osThreadId_t)0;
@@ -2343,15 +2343,17 @@ osThreadId_t  osThreadNew(osThreadFunc_t          func,
                &err);
 
   if (RTOS_ERR_CODE_GET(err) != RTOS_ERR_NONE) {
-    if (p_thread->stack_dyn_alloc == DEF_TRUE) {
+    if (dyn_stack == DEF_TRUE) {
       free(p_stk_base);
     }
-    if (p_thread->obj_dyn_alloc == DEF_TRUE) {
+    if (dyn_object == DEF_TRUE) {
       free(p_thread);
     }
     return (osThreadId_t)0;
   }
 
+  p_thread->stack_dyn_alloc = dyn_stack;
+  p_thread->obj_dyn_alloc = dyn_object;
   return (osThreadId_t)p_thread;
 }
 

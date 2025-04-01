@@ -265,10 +265,9 @@ static bool messageSentHandler(sl_status_t status,
     uint32_t packetSendTimeMs = 0xFFFFFFFF;
     uint8_t i;
 
-    testParams.currentInFlight--;
-
     for (i = 0; i < ZIGBEE_TX_TEST_MAX_INFLIGHT; i++) {
       if (testParams.inflightInfoTable[i].seqn == apsFrame->sequence) {
+        testParams.currentInFlight--;
         testParams.inflightInfoTable[i].inUse = false;
         packetSendTimeMs = elapsedTimeInt32u(testParams.inflightInfoTable[i].startTime, halCommonGetInt32uMillisecondTick());
         break;

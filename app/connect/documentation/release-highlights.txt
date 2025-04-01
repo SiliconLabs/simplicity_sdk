@@ -1,4 +1,4 @@
-Connect SDK 4.0.1.0
+Connect SDK 4.0.2.0
 - Connect Apps and Stack
   - Underlying platform changes only.
  

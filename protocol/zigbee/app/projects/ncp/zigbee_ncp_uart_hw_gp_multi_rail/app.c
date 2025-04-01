@@ -541,4 +541,20 @@ static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
     }
   }
 }
+
+void sl_zigbee_multirail_gp_tx_queue_init(void)
+{
+#if !defined SL_ZIGBEE_TEST
+  sl_zigbee_gp_clear_tx_queue();
+  sl_zigbee_af_multirail_demo_init(NULL,
+                                   NULL,
+                                   true,
+                                   RAIL_GetTxPowerDbm(sl_zigbee_get_rail_handle()),
+                                   NULL,
+                                   0,
+                                   0xFFFF,
+                                   NULL);
+#endif // SL_ZIGBEE_TEST
+}
+
 #endif // SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT

@@ -107,7 +107,7 @@ configuration:
   - name: SL_NCP_CMD_BUF_SIZE
     value: "288"
   - name: SL_NCP_EVT_BUF_SIZE
-    value: "264"
+    value: "528"
   - name: SL_BT_NCP_TRANSPORT_CONFIG_TX_BUF_SIZE
     value: "528"
   - name: SL_BT_NCP_TRANSPORT_CONFIG_RX_BUF_SIZE
@@ -165,6 +165,10 @@ configuration:
     value: "1"
     condition:
       - psa_crypto
+  - name: SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS
+    value: "1"
+    condition:
+      - ncp_sec
   - name: SL_BT_GATTDB_INCLUDE_STATIC_DATABASE
     value: "0"
   - name: SL_BT_GATTDB_ENABLE_GATT_CACHING

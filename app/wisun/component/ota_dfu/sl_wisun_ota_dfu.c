@@ -54,10 +54,10 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-/// Error mask
+/// OTA DFU Event all mask
 #define SL_WISUN_OTA_DFU_EVT_FLAG_ALL_MSK                    0x00FFFFFFUL
 
-/// OTA DFU Event all mask
+/// OTA DFU error mask
 #define SL_WISUN_OTA_DFU_EVT_FLAG_ERROR_MSK                  (1UL << 31UL)
 
 /// OTA DFU start firmware update mask
@@ -1342,10 +1342,12 @@ static void _tftp_error_hnd(sl_tftp_clnt_t * const clnt,
                             const char *error_msg)
 {
   (void)clnt;
+#if !SL_WISUN_OTA_DFU_VERBOSE_MODE_ENABLED
   (void)error_code;
   (void)error_msg;
+#endif
 
-  _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
+  sl_wisun_ota_dfu_log("TFTP error code: %u, %s\n", error_code, error_msg);
 }
 
 static void _ota_dfu_thr_fnc(void * args)
@@ -1371,7 +1373,8 @@ static void _ota_dfu_thr_fnc(void * args)
                              osWaitForever);
 
     if (flags & SL_WISUN_OTA_DFU_EVT_FLAG_ERROR_MSK) {
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_ERROR_MSK);
+      sl_wisun_ota_dfu_log("OTA DFU evt flags (0x%08lX) failure\n", flags);
       continue;
     }
 
@@ -1391,27 +1394,29 @@ static void _ota_dfu_thr_fnc(void * args)
 
     sl_wisun_ota_dfu_log("Firmware upgrade started\n");
 
-    // check stop request
+    // Check stop request
     if (sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_UPDATE_STOPPED)) {
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
       _notify_host();
 #endif
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_STOP_FW_UPDATE_MSK);
+      sl_wisun_ota_dfu_log("Firmware update stopped\n");
       continue;
     }
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
     _notify_host();
 #endif
+
+    // Initialize TFTP client
     if (sl_tftp_clnt_init(&tftp_clnt,
                           _settings.host_addr_str,
                           _settings.host_port,
                           _tftp_data_hnd,
                           _tftp_error_hnd) != SL_STATUS_OK) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      sl_wisun_ota_dfu_log("TFTP init failed\n");
       continue;
     }
-
     sl_wisun_ota_dfu_log("TFTP init done\n");
 
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
@@ -1423,25 +1428,31 @@ static void _ota_dfu_thr_fnc(void * args)
                          _settings.host_port,
                          _settings.gbl_path_str);
 
+    // Set TFTP options block size
     if (sl_tftp_clnt_set_option(&tftp_clnt,
                                 SL_TFTP_OPT_EXT_BLOCKSIZE,
                                 SL_WISUN_OTA_DFU_TFTP_DATA_BLOCK_SIZE) != SL_STATUS_OK) {
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
       sl_wisun_ota_dfu_log("TFTP set 'blksize' option failed\n");
       continue;
     }
 
+    // Set TFTP options timeout
     if (sl_tftp_clnt_set_option(&tftp_clnt,
                                 SL_TFTP_OPT_EXT_TIMEOUT_INTERVAL,
                                 SL_WISUN_OTA_DFU_TFTP_TIMEOUT_SEC) != SL_STATUS_OK) {
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
       sl_wisun_ota_dfu_log("TFTP set 'timeout' option failed\n");
       continue;;
     }
 
+    // Send RRQ request
     if (sl_tftp_clnt_request(&tftp_clnt,
                              SL_TFTP_OPCODE_RRQ,
                              _settings.gbl_path_str,
                              SL_TFTP_MODE_OCTET_STR) != SL_STATUS_OK) {
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
+      sl_wisun_ota_dfu_log("TFTP RRQ request failed\n");
       continue;
     }
 
@@ -1453,7 +1464,7 @@ static void _ota_dfu_thr_fnc(void * args)
       osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
     }
 
-    // check download error
+    // Check download error
     if (sl_tftp_clnt_is_op_rrq_wrq_failed(&tftp_clnt)
         || sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_DOWNLOAD_ERROR)) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
@@ -1462,20 +1473,20 @@ static void _ota_dfu_thr_fnc(void * args)
       continue;
     }
 
-    // check stop request
+    // Check stop request
     if (sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_UPDATE_STOPPED)) {
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
       _notify_host();
 #endif
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_STOP_FW_UPDATE_MSK);
+      sl_wisun_ota_dfu_log("Firmware update stopped\n");
       continue;
     }
-
     _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOADED_MSK);
     sl_wisun_ota_dfu_log("TFTP download finished\n");
     osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
 
-    // Verify Image
+    // Verify image
     error_ctx.verify.ret_val = bootloader_verifyImage(SL_WISUN_OTA_DFU_STORAGE_SLOT_ID, NULL);
     if (error_ctx.verify.ret_val != BOOTLOADER_OK) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_VERIFY_ERROR_MSK);
@@ -1500,15 +1511,17 @@ static void _ota_dfu_thr_fnc(void * args)
 
     osDelay(SL_WISUN_OTA_DFU_SHUTDOWN_DELAY_MS);
 
-    // check stop request
+    // Check stop request
     if (sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_UPDATE_STOPPED)) {
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
       _notify_host();
 #endif
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_STOP_FW_UPDATE_MSK);
+      sl_wisun_ota_dfu_log("Firmware update stopped\n");
       continue;
     }
 
+    // Reboot and install firmware
 #if SL_WISUN_OTA_DFU_AUTO_INSTALL_ENABLED
     sl_wisun_ota_dfu_log("Starting reboot and install...\n");
     osDelay(SL_WISUN_OTA_DFU_DELAY_MS);

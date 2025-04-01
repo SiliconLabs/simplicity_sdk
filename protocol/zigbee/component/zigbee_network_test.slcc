@@ -14,6 +14,7 @@ config_file:
   - path: protocol/zigbee/app/framework/plugin/network_test/config/network_test_config.h
 requires:
   - name: zigbee_system_common
+  - name: zigbee_fragmentation
 
 source:
   - path: protocol/zigbee/app/test/zigbee_network_test.c
@@ -48,7 +49,7 @@ template_contribution:
       handler: zigbee_tx_test_start_command
       help: Start the Zigbee throughput test
       argument:
-        - type: uint8
+        - type: uint16
           help: Message length
         - type: uint16
           help: Number of messages
@@ -88,7 +89,7 @@ template_contribution:
       handler: zigbee_tx_test_start_random
       help: Sends messages (fragmented messages are permitted) to destination, keeping a limit on those in-fight and fills payload for the sender
       argument:
-        - type: uint8
+        - type: uint16
           help: 0:length
         - type: uint16
           help: 1:Num messages
@@ -98,6 +99,18 @@ template_contribution:
           help: 3:Dest
         - type: uint16
           help: 4:start seq ctr
+
+  - name: cli_command
+    value:
+      group: network_test
+      name: raw
+      handler: zigbee_frag_raw_tx_command
+      help: zigbee_frag_raw_tx_command
+      argument:
+        - type: uint16
+          help: Destination short ID
+        - type: uint16
+          help: Message Length
 
 documentation:
   docset: zigbee

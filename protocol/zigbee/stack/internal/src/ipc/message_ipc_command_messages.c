@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'message' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -100,7 +100,7 @@ void sli_zigbee_stack_send_reply_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
   msg->data.send_reply.response.result = sli_zigbee_stack_send_reply(msg->data.send_reply.request.destination,
                                                                      &msg->data.send_reply.request.apsFrame,
                                                                      msg->data.send_reply.request.messageLength,
-                                                                     &msg->data.send_reply.request.messageContents);
+                                                                     msg->data.send_reply.request.messageContents);
 }
 
 void sli_zigbee_stack_send_unicast_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
@@ -380,20 +380,22 @@ sl_status_t sl_zigbee_send_reply(sl_802154_short_addr_t destination,
 
   msg.data.send_reply.request.messageLength = messageLength;
 
-  if (messageContents != NULL) {
-    msg.data.send_reply.request.messageContents = *messageContents;
+  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+    assert(false); // "vector messageContents length exceeds expected maximum
   }
 
+  memmove(msg.data.send_reply.request.messageContents, messageContents, sizeof(uint8_t) * (messageLength));
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_reply_process_ipc_command, &msg);
 
   if (apsFrame != NULL) {
     *apsFrame = msg.data.send_reply.request.apsFrame;
   }
 
-  if (messageContents != NULL) {
-    *messageContents = msg.data.send_reply.request.messageContents;
+  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+    assert(false); // "vector messageContents length exceeds expected maximum
   }
 
+  memmove(messageContents, msg.data.send_reply.request.messageContents, sizeof(uint8_t) * (messageLength));
   return msg.data.send_reply.response.result;
 }
 

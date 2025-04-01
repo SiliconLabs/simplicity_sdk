@@ -579,6 +579,8 @@ void security_decrypt_packet(char *src, char *dst, unsigned *len)
                                     (uint8_t *)dst, (uint8_t *)src + *len);
   if (err) {
     app_log_warning("Packet decryption failed 0x%x, len: %u/%u" APP_LOG_NL, err, *len, new_length);
+    app_log_hexdump_info(src, new_length);
+    app_log_append(APP_LOG_NL);
     *len = 0;
     return;
   }

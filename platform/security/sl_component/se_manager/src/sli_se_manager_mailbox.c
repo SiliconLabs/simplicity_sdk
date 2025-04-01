@@ -39,6 +39,7 @@
 #endif
 
 #include "sl_assert.h"
+#include "sl_code_classification.h"
 
 #endif
 
@@ -141,6 +142,7 @@ typedef struct {
  *   Value to write to FIFO
  ******************************************************************************/
 #if defined(_SEMAILBOX_FIFO_RESETVALUE)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 __STATIC_INLINE void write_to_fifo(uint32_t value)
 {
   SEMAILBOX_HOST->FIFO = value;

@@ -12,6 +12,11 @@ requires:
 provides:
   - name: "wisun_br_implementation"
 
+source:
+  - path: "src/sl_wisun_regdb.c"
+    project:
+      transfer_ownership: true
+
 library:
   - path: "libwisun_border_router_efr32xg2x_gcc_debug.a"
     condition:

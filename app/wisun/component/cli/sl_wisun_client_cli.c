@@ -204,13 +204,24 @@ void app_socket_write(const sl_cli_command_arg_t *arguments)
 /* CLI app tcp/udp client read handler */
 void app_socket_read(const sl_cli_command_arg_t *arguments)
 {
-  int32_t sockid = 0;
+#if defined(SL_CATALOG_WISUN_TCP_CLIENT_PRESENT)
   uint16_t size = 0;
+#endif
+  int32_t sockid = 0;
   sl_mempool_block_hnd_t *block = NULL;
   sl_wisun_client_cli_socket_t *client_cli_socket = NULL;
 
-  sockid = sl_cli_get_argument_int32(arguments, 0);
-  size = sl_cli_get_argument_uint16(arguments, 1);
+#if defined(SL_CATALOG_WISUN_TCP_CLIENT_PRESENT)
+  if (sl_cli_get_argument_count(arguments) == 2) {
+    sockid = atoi(sl_cli_get_argument_string(arguments, 0));
+    size = (uint16_t)atoi(sl_cli_get_argument_string(arguments, 1));
+  }
+#endif
+#if defined(SL_CATALOG_WISUN_UDP_CLIENT_PRESENT)
+  if (sl_cli_get_argument_count(arguments) == 1) {
+    sockid = atoi(sl_cli_get_argument_string(arguments, 0));
+  }
+#endif
 
   block = _cli_sockets.blocks;
   while (block != NULL) {
@@ -222,7 +233,7 @@ void app_socket_read(const sl_cli_command_arg_t *arguments)
         #endif
       } else {
         #if defined(SL_CATALOG_WISUN_UDP_CLIENT_PRESENT)
-        sl_wisun_udp_client_read(sockid, size);
+        sl_wisun_udp_client_read(sockid);
         #endif
       }
     }

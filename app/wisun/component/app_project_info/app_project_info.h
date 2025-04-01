@@ -43,6 +43,7 @@ extern "C" {
 #include <stdbool.h>
 
 #include "sl_common.h"
+#include "sl_status.h"
 #include "app_project_info_config.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -146,8 +147,9 @@ typedef int (* app_project_info_printer_t) (const char *format, ...);
  * @brief Get project info
  * @details Get project info instance with constant list of versions
  * @param[out] dest Destination
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  *****************************************************************************/
-void app_project_info_get(app_project_info_t * const dest);
+sl_status_t app_project_info_get(app_project_info_t * const dest);
 
 /**************************************************************************//**
  * @brief Print project info version

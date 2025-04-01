@@ -18,6 +18,7 @@
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
 #include "sl_sleeptimer.h"
+#include "sl_code_classification.h"
 
 /*******************************************************************************
  *******************************   DEFINES   ***********************************
@@ -42,8 +43,8 @@ volatile bool toggle_timeout = false;
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 
-static void on_timeout(sl_sleeptimer_timer_handle_t *handle,
-                       void *data);
+SL_CODE_RAM static void on_timeout(sl_sleeptimer_timer_handle_t *handle,
+                                   void *data);
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************

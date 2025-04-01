@@ -91,173 +91,165 @@ typedef struct cmu_typedef{
   __IOM uint32_t VDAC0CLKCTRL;                  /**< VDAC0 Clock Control                                */
   uint32_t       RESERVED19[3U];                /**< Reserved for future use                            */
   __IOM uint32_t PCNT0CLKCTRL;                  /**< Pulse counter 0 Clock Control                      */
-  uint32_t       RESERVED20[3U];                /**< Reserved for future use                            */
-  __IOM uint32_t RADIOCLKCTRL;                  /**< Radio Clock Control                                */
-  uint32_t       RESERVED21[4U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED20[8U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC1CLKCTRL;                  /**< VDAC1 Clock Control                                */
-  uint32_t       RESERVED22[1U];                /**< Reserved for future use                            */
-  uint32_t       RESERVED23[857U];              /**< Reserved for future use                            */
+  uint32_t       RESERVED21[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED22[857U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_SET;                 /**< IP version ID                                      */
-  uint32_t       RESERVED24[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED23[1U];                /**< Reserved for future use                            */
   __IM uint32_t  STATUS_SET;                    /**< Status Register                                    */
-  uint32_t       RESERVED25[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED24[1U];                /**< Reserved for future use                            */
   __IOM uint32_t LOCK_SET;                      /**< Configuration Lock Register                        */
   __IOM uint32_t WDOGLOCK_SET;                  /**< WDOG Configuration Lock Register                   */
-  uint32_t       RESERVED26[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED25[2U];                /**< Reserved for future use                            */
   __IOM uint32_t IF_SET;                        /**< Interrupt Flag Register                            */
   __IOM uint32_t IEN_SET;                       /**< Interrupt Enable Register                          */
-  uint32_t       RESERVED27[10U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED26[10U];               /**< Reserved for future use                            */
   __IOM uint32_t CALCMD_SET;                    /**< Calibration Command Register                       */
   __IOM uint32_t CALCTRL_SET;                   /**< Calibration Control Register                       */
   __IM uint32_t  CALCNT_SET;                    /**< Calibration Result Counter Register                */
-  uint32_t       RESERVED28[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED27[2U];                /**< Reserved for future use                            */
   __IOM uint32_t CLKEN0_SET;                    /**< Clock Enable Register 0                            */
   __IOM uint32_t CLKEN1_SET;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t CLKEN2_SET;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t SYSCLKCTRL_SET;                /**< System Clock Control                               */
-  uint32_t       RESERVED29[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED28[3U];                /**< Reserved for future use                            */
   __IOM uint32_t TRACECLKCTRL_SET;              /**< Debug Trace Clock Control                          */
-  uint32_t       RESERVED30[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED29[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXPORTCLKCTRL_SET;             /**< Export Clock Control                               */
-  uint32_t       RESERVED31[27U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED30[27U];               /**< Reserved for future use                            */
   __IOM uint32_t DPLLREFCLKCTRL_SET;            /**< Digital PLL Reference Clock Control                */
-  uint32_t       RESERVED32[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED31[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPACLKCTRL_SET;           /**< EM01 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED33[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED32[1U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPCCLKCTRL_SET;           /**< EM01 Peripheral Group C Clock Control              */
-  uint32_t       RESERVED34[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED33[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EM23GRPACLKCTRL_SET;           /**< EM23 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED35[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED34[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM4GRPACLKCTRL_SET;            /**< EM4 Peripheral Group A Clock Control               */
-  uint32_t       RESERVED36[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED35[7U];                /**< Reserved for future use                            */
   __IOM uint32_t IADCCLKCTRL_SET;               /**< IADC Clock Control                                 */
-  uint32_t       RESERVED37[31U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED36[31U];               /**< Reserved for future use                            */
   __IOM uint32_t WDOG0CLKCTRL_SET;              /**< Watchdog0 Clock Control                            */
-  uint32_t       RESERVED38[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED37[1U];                /**< Reserved for future use                            */
   __IOM uint32_t WDOG1CLKCTRL_SET;              /**< Watchdog1 Clock Control                            */
-  uint32_t       RESERVED39[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED38[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EUSART0CLKCTRL_SET;            /**< EUSART0 Clock Control                              */
-  uint32_t       RESERVED40[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED39[7U];                /**< Reserved for future use                            */
   __IOM uint32_t SYSRTC0CLKCTRL_SET;            /**< System RTC0 Clock Control                          */
-  uint32_t       RESERVED41[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED40[3U];                /**< Reserved for future use                            */
   __IOM uint32_t LCDCLKCTRL_SET;                /**< LCD Clock Control                                  */
-  uint32_t       RESERVED42[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED41[3U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC0CLKCTRL_SET;              /**< VDAC0 Clock Control                                */
-  uint32_t       RESERVED43[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED42[3U];                /**< Reserved for future use                            */
   __IOM uint32_t PCNT0CLKCTRL_SET;              /**< Pulse counter 0 Clock Control                      */
-  uint32_t       RESERVED44[3U];                /**< Reserved for future use                            */
-  __IOM uint32_t RADIOCLKCTRL_SET;              /**< Radio Clock Control                                */
-  uint32_t       RESERVED45[4U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED43[8U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC1CLKCTRL_SET;              /**< VDAC1 Clock Control                                */
-  uint32_t       RESERVED46[1U];                /**< Reserved for future use                            */
-  uint32_t       RESERVED47[857U];              /**< Reserved for future use                            */
+  uint32_t       RESERVED44[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED45[857U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_CLR;                 /**< IP version ID                                      */
-  uint32_t       RESERVED48[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED46[1U];                /**< Reserved for future use                            */
   __IM uint32_t  STATUS_CLR;                    /**< Status Register                                    */
-  uint32_t       RESERVED49[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED47[1U];                /**< Reserved for future use                            */
   __IOM uint32_t LOCK_CLR;                      /**< Configuration Lock Register                        */
   __IOM uint32_t WDOGLOCK_CLR;                  /**< WDOG Configuration Lock Register                   */
-  uint32_t       RESERVED50[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED48[2U];                /**< Reserved for future use                            */
   __IOM uint32_t IF_CLR;                        /**< Interrupt Flag Register                            */
   __IOM uint32_t IEN_CLR;                       /**< Interrupt Enable Register                          */
-  uint32_t       RESERVED51[10U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED49[10U];               /**< Reserved for future use                            */
   __IOM uint32_t CALCMD_CLR;                    /**< Calibration Command Register                       */
   __IOM uint32_t CALCTRL_CLR;                   /**< Calibration Control Register                       */
   __IM uint32_t  CALCNT_CLR;                    /**< Calibration Result Counter Register                */
-  uint32_t       RESERVED52[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED50[2U];                /**< Reserved for future use                            */
   __IOM uint32_t CLKEN0_CLR;                    /**< Clock Enable Register 0                            */
   __IOM uint32_t CLKEN1_CLR;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t CLKEN2_CLR;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t SYSCLKCTRL_CLR;                /**< System Clock Control                               */
-  uint32_t       RESERVED53[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED51[3U];                /**< Reserved for future use                            */
   __IOM uint32_t TRACECLKCTRL_CLR;              /**< Debug Trace Clock Control                          */
-  uint32_t       RESERVED54[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED52[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXPORTCLKCTRL_CLR;             /**< Export Clock Control                               */
-  uint32_t       RESERVED55[27U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED53[27U];               /**< Reserved for future use                            */
   __IOM uint32_t DPLLREFCLKCTRL_CLR;            /**< Digital PLL Reference Clock Control                */
-  uint32_t       RESERVED56[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED54[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPACLKCTRL_CLR;           /**< EM01 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED57[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED55[1U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPCCLKCTRL_CLR;           /**< EM01 Peripheral Group C Clock Control              */
-  uint32_t       RESERVED58[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED56[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EM23GRPACLKCTRL_CLR;           /**< EM23 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED59[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED57[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM4GRPACLKCTRL_CLR;            /**< EM4 Peripheral Group A Clock Control               */
-  uint32_t       RESERVED60[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED58[7U];                /**< Reserved for future use                            */
   __IOM uint32_t IADCCLKCTRL_CLR;               /**< IADC Clock Control                                 */
-  uint32_t       RESERVED61[31U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED59[31U];               /**< Reserved for future use                            */
   __IOM uint32_t WDOG0CLKCTRL_CLR;              /**< Watchdog0 Clock Control                            */
-  uint32_t       RESERVED62[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED60[1U];                /**< Reserved for future use                            */
   __IOM uint32_t WDOG1CLKCTRL_CLR;              /**< Watchdog1 Clock Control                            */
-  uint32_t       RESERVED63[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED61[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EUSART0CLKCTRL_CLR;            /**< EUSART0 Clock Control                              */
-  uint32_t       RESERVED64[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED62[7U];                /**< Reserved for future use                            */
   __IOM uint32_t SYSRTC0CLKCTRL_CLR;            /**< System RTC0 Clock Control                          */
-  uint32_t       RESERVED65[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED63[3U];                /**< Reserved for future use                            */
   __IOM uint32_t LCDCLKCTRL_CLR;                /**< LCD Clock Control                                  */
-  uint32_t       RESERVED66[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED64[3U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC0CLKCTRL_CLR;              /**< VDAC0 Clock Control                                */
-  uint32_t       RESERVED67[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED65[3U];                /**< Reserved for future use                            */
   __IOM uint32_t PCNT0CLKCTRL_CLR;              /**< Pulse counter 0 Clock Control                      */
-  uint32_t       RESERVED68[3U];                /**< Reserved for future use                            */
-  __IOM uint32_t RADIOCLKCTRL_CLR;              /**< Radio Clock Control                                */
-  uint32_t       RESERVED69[4U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED66[8U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC1CLKCTRL_CLR;              /**< VDAC1 Clock Control                                */
-  uint32_t       RESERVED70[1U];                /**< Reserved for future use                            */
-  uint32_t       RESERVED71[857U];              /**< Reserved for future use                            */
+  uint32_t       RESERVED67[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED68[857U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_TGL;                 /**< IP version ID                                      */
-  uint32_t       RESERVED72[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED69[1U];                /**< Reserved for future use                            */
   __IM uint32_t  STATUS_TGL;                    /**< Status Register                                    */
-  uint32_t       RESERVED73[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED70[1U];                /**< Reserved for future use                            */
   __IOM uint32_t LOCK_TGL;                      /**< Configuration Lock Register                        */
   __IOM uint32_t WDOGLOCK_TGL;                  /**< WDOG Configuration Lock Register                   */
-  uint32_t       RESERVED74[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED71[2U];                /**< Reserved for future use                            */
   __IOM uint32_t IF_TGL;                        /**< Interrupt Flag Register                            */
   __IOM uint32_t IEN_TGL;                       /**< Interrupt Enable Register                          */
-  uint32_t       RESERVED75[10U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED72[10U];               /**< Reserved for future use                            */
   __IOM uint32_t CALCMD_TGL;                    /**< Calibration Command Register                       */
   __IOM uint32_t CALCTRL_TGL;                   /**< Calibration Control Register                       */
   __IM uint32_t  CALCNT_TGL;                    /**< Calibration Result Counter Register                */
-  uint32_t       RESERVED76[2U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED73[2U];                /**< Reserved for future use                            */
   __IOM uint32_t CLKEN0_TGL;                    /**< Clock Enable Register 0                            */
   __IOM uint32_t CLKEN1_TGL;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t CLKEN2_TGL;                    /**<  Clock Enable Register 1                           */
   __IOM uint32_t SYSCLKCTRL_TGL;                /**< System Clock Control                               */
-  uint32_t       RESERVED77[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED74[3U];                /**< Reserved for future use                            */
   __IOM uint32_t TRACECLKCTRL_TGL;              /**< Debug Trace Clock Control                          */
-  uint32_t       RESERVED78[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED75[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXPORTCLKCTRL_TGL;             /**< Export Clock Control                               */
-  uint32_t       RESERVED79[27U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED76[27U];               /**< Reserved for future use                            */
   __IOM uint32_t DPLLREFCLKCTRL_TGL;            /**< Digital PLL Reference Clock Control                */
-  uint32_t       RESERVED80[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED77[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPACLKCTRL_TGL;           /**< EM01 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED81[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED78[1U];                /**< Reserved for future use                            */
   __IOM uint32_t EM01GRPCCLKCTRL_TGL;           /**< EM01 Peripheral Group C Clock Control              */
-  uint32_t       RESERVED82[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED79[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EM23GRPACLKCTRL_TGL;           /**< EM23 Peripheral Group A Clock Control              */
-  uint32_t       RESERVED83[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED80[7U];                /**< Reserved for future use                            */
   __IOM uint32_t EM4GRPACLKCTRL_TGL;            /**< EM4 Peripheral Group A Clock Control               */
-  uint32_t       RESERVED84[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED81[7U];                /**< Reserved for future use                            */
   __IOM uint32_t IADCCLKCTRL_TGL;               /**< IADC Clock Control                                 */
-  uint32_t       RESERVED85[31U];               /**< Reserved for future use                            */
+  uint32_t       RESERVED82[31U];               /**< Reserved for future use                            */
   __IOM uint32_t WDOG0CLKCTRL_TGL;              /**< Watchdog0 Clock Control                            */
-  uint32_t       RESERVED86[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED83[1U];                /**< Reserved for future use                            */
   __IOM uint32_t WDOG1CLKCTRL_TGL;              /**< Watchdog1 Clock Control                            */
-  uint32_t       RESERVED87[5U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED84[5U];                /**< Reserved for future use                            */
   __IOM uint32_t EUSART0CLKCTRL_TGL;            /**< EUSART0 Clock Control                              */
-  uint32_t       RESERVED88[7U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED85[7U];                /**< Reserved for future use                            */
   __IOM uint32_t SYSRTC0CLKCTRL_TGL;            /**< System RTC0 Clock Control                          */
-  uint32_t       RESERVED89[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED86[3U];                /**< Reserved for future use                            */
   __IOM uint32_t LCDCLKCTRL_TGL;                /**< LCD Clock Control                                  */
-  uint32_t       RESERVED90[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED87[3U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC0CLKCTRL_TGL;              /**< VDAC0 Clock Control                                */
-  uint32_t       RESERVED91[3U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED88[3U];                /**< Reserved for future use                            */
   __IOM uint32_t PCNT0CLKCTRL_TGL;              /**< Pulse counter 0 Clock Control                      */
-  uint32_t       RESERVED92[3U];                /**< Reserved for future use                            */
-  __IOM uint32_t RADIOCLKCTRL_TGL;              /**< Radio Clock Control                                */
-  uint32_t       RESERVED93[4U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED89[8U];                /**< Reserved for future use                            */
   __IOM uint32_t VDAC1CLKCTRL_TGL;              /**< VDAC1 Clock Control                                */
-  uint32_t       RESERVED94[1U];                /**< Reserved for future use                            */
+  uint32_t       RESERVED90[1U];                /**< Reserved for future use                            */
 } CMU_TypeDef;
 /** @} End of group EFM32PG26_CMU */
 
@@ -445,11 +437,6 @@ typedef struct cmu_typedef{
 #define _CMU_CLKEN0_LDMAXBAR_MASK                  0x2UL                                 /**< Bit mask for CMU_LDMAXBAR                   */
 #define _CMU_CLKEN0_LDMAXBAR_DEFAULT               0x00000000UL                          /**< Mode DEFAULT for CMU_CLKEN0                 */
 #define CMU_CLKEN0_LDMAXBAR_DEFAULT                (_CMU_CLKEN0_LDMAXBAR_DEFAULT << 1)   /**< Shifted mode DEFAULT for CMU_CLKEN0         */
-#define CMU_CLKEN0_RADIOAES                        (0x1UL << 2)                          /**< Enable Bus Clock                            */
-#define _CMU_CLKEN0_RADIOAES_SHIFT                 2                                     /**< Shift value for CMU_RADIOAES                */
-#define _CMU_CLKEN0_RADIOAES_MASK                  0x4UL                                 /**< Bit mask for CMU_RADIOAES                   */
-#define _CMU_CLKEN0_RADIOAES_DEFAULT               0x00000000UL                          /**< Mode DEFAULT for CMU_CLKEN0                 */
-#define CMU_CLKEN0_RADIOAES_DEFAULT                (_CMU_CLKEN0_RADIOAES_DEFAULT << 2)   /**< Shifted mode DEFAULT for CMU_CLKEN0         */
 #define CMU_CLKEN0_GPCRC                           (0x1UL << 3)                          /**< Enable Bus Clock                            */
 #define _CMU_CLKEN0_GPCRC_SHIFT                    3                                     /**< Shift value for CMU_GPCRC                   */
 #define _CMU_CLKEN0_GPCRC_MASK                     0x8UL                                 /**< Bit mask for CMU_GPCRC                      */
@@ -594,66 +581,16 @@ typedef struct cmu_typedef{
 /* Bit fields for CMU CLKEN1 */
 #define _CMU_CLKEN1_RESETVALUE                     0x00000000UL                              /**< Default value for CMU_CLKEN1                */
 #define _CMU_CLKEN1_MASK                           0x7EFFFFFFUL                              /**< Mask for CMU_CLKEN1                         */
-#define CMU_CLKEN1_AGC                             (0x1UL << 0)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_AGC_SHIFT                      0                                         /**< Shift value for CMU_AGC                     */
-#define _CMU_CLKEN1_AGC_MASK                       0x1UL                                     /**< Bit mask for CMU_AGC                        */
-#define _CMU_CLKEN1_AGC_DEFAULT                    0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_AGC_DEFAULT                     (_CMU_CLKEN1_AGC_DEFAULT << 0)            /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_MODEM                           (0x1UL << 1)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_MODEM_SHIFT                    1                                         /**< Shift value for CMU_MODEM                   */
-#define _CMU_CLKEN1_MODEM_MASK                     0x2UL                                     /**< Bit mask for CMU_MODEM                      */
-#define _CMU_CLKEN1_MODEM_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_MODEM_DEFAULT                   (_CMU_CLKEN1_MODEM_DEFAULT << 1)          /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RFCRC                           (0x1UL << 2)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RFCRC_SHIFT                    2                                         /**< Shift value for CMU_RFCRC                   */
-#define _CMU_CLKEN1_RFCRC_MASK                     0x4UL                                     /**< Bit mask for CMU_RFCRC                      */
-#define _CMU_CLKEN1_RFCRC_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RFCRC_DEFAULT                   (_CMU_CLKEN1_RFCRC_DEFAULT << 2)          /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_FRC                             (0x1UL << 3)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_FRC_SHIFT                      3                                         /**< Shift value for CMU_FRC                     */
-#define _CMU_CLKEN1_FRC_MASK                       0x8UL                                     /**< Bit mask for CMU_FRC                        */
-#define _CMU_CLKEN1_FRC_DEFAULT                    0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_FRC_DEFAULT                     (_CMU_CLKEN1_FRC_DEFAULT << 3)            /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_PROTIMER                        (0x1UL << 4)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_PROTIMER_SHIFT                 4                                         /**< Shift value for CMU_PROTIMER                */
-#define _CMU_CLKEN1_PROTIMER_MASK                  0x10UL                                    /**< Bit mask for CMU_PROTIMER                   */
-#define _CMU_CLKEN1_PROTIMER_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_PROTIMER_DEFAULT                (_CMU_CLKEN1_PROTIMER_DEFAULT << 4)       /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RAC                             (0x1UL << 5)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RAC_SHIFT                      5                                         /**< Shift value for CMU_RAC                     */
-#define _CMU_CLKEN1_RAC_MASK                       0x20UL                                    /**< Bit mask for CMU_RAC                        */
-#define _CMU_CLKEN1_RAC_DEFAULT                    0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RAC_DEFAULT                     (_CMU_CLKEN1_RAC_DEFAULT << 5)            /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_SYNTH                           (0x1UL << 6)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_SYNTH_SHIFT                    6                                         /**< Shift value for CMU_SYNTH                   */
-#define _CMU_CLKEN1_SYNTH_MASK                     0x40UL                                    /**< Bit mask for CMU_SYNTH                      */
-#define _CMU_CLKEN1_SYNTH_DEFAULT                  0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_SYNTH_DEFAULT                   (_CMU_CLKEN1_SYNTH_DEFAULT << 6)          /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RFSCRATCHPAD                    (0x1UL << 7)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RFSCRATCHPAD_SHIFT             7                                         /**< Shift value for CMU_RFSCRATCHPAD            */
-#define _CMU_CLKEN1_RFSCRATCHPAD_MASK              0x80UL                                    /**< Bit mask for CMU_RFSCRATCHPAD               */
-#define _CMU_CLKEN1_RFSCRATCHPAD_DEFAULT           0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RFSCRATCHPAD_DEFAULT            (_CMU_CLKEN1_RFSCRATCHPAD_DEFAULT << 7)   /**< Shifted mode DEFAULT for CMU_CLKEN1         */
 #define CMU_CLKEN1_HOSTMAILBOX                     (0x1UL << 8)                              /**< Enable Bus Clock                            */
 #define _CMU_CLKEN1_HOSTMAILBOX_SHIFT              8                                         /**< Shift value for CMU_HOSTMAILBOX             */
 #define _CMU_CLKEN1_HOSTMAILBOX_MASK               0x100UL                                   /**< Bit mask for CMU_HOSTMAILBOX                */
 #define _CMU_CLKEN1_HOSTMAILBOX_DEFAULT            0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
 #define CMU_CLKEN1_HOSTMAILBOX_DEFAULT             (_CMU_CLKEN1_HOSTMAILBOX_DEFAULT << 8)    /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RFMAILBOX                       (0x1UL << 9)                              /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RFMAILBOX_SHIFT                9                                         /**< Shift value for CMU_RFMAILBOX               */
-#define _CMU_CLKEN1_RFMAILBOX_MASK                 0x200UL                                   /**< Bit mask for CMU_RFMAILBOX                  */
-#define _CMU_CLKEN1_RFMAILBOX_DEFAULT              0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RFMAILBOX_DEFAULT               (_CMU_CLKEN1_RFMAILBOX_DEFAULT << 9)      /**< Shifted mode DEFAULT for CMU_CLKEN1         */
 #define CMU_CLKEN1_SEMAILBOXHOST                   (0x1UL << 10)                             /**< Enable Bus Clock                            */
 #define _CMU_CLKEN1_SEMAILBOXHOST_SHIFT            10                                        /**< Shift value for CMU_SEMAILBOXHOST           */
 #define _CMU_CLKEN1_SEMAILBOXHOST_MASK             0x400UL                                   /**< Bit mask for CMU_SEMAILBOXHOST              */
 #define _CMU_CLKEN1_SEMAILBOXHOST_DEFAULT          0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
 #define CMU_CLKEN1_SEMAILBOXHOST_DEFAULT           (_CMU_CLKEN1_SEMAILBOXHOST_DEFAULT << 10) /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_BUFC                            (0x1UL << 11)                             /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_BUFC_SHIFT                     11                                        /**< Shift value for CMU_BUFC                    */
-#define _CMU_CLKEN1_BUFC_MASK                      0x800UL                                   /**< Bit mask for CMU_BUFC                       */
-#define _CMU_CLKEN1_BUFC_DEFAULT                   0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_BUFC_DEFAULT                    (_CMU_CLKEN1_BUFC_DEFAULT << 11)          /**< Shifted mode DEFAULT for CMU_CLKEN1         */
 #define CMU_CLKEN1_LCD                             (0x1UL << 12)                             /**< Enable Bus Clock                            */
 #define _CMU_CLKEN1_LCD_SHIFT                      12                                        /**< Shift value for CMU_LCD                     */
 #define _CMU_CLKEN1_LCD_MASK                       0x1000UL                                  /**< Bit mask for CMU_LCD                        */
@@ -714,26 +651,11 @@ typedef struct cmu_typedef{
 #define _CMU_CLKEN1_EUSART1_MASK                   0x800000UL                                /**< Bit mask for CMU_EUSART1                    */
 #define _CMU_CLKEN1_EUSART1_DEFAULT                0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
 #define CMU_CLKEN1_EUSART1_DEFAULT                 (_CMU_CLKEN1_EUSART1_DEFAULT << 23)       /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RFECA0                          (0x1UL << 25)                             /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RFECA0_SHIFT                   25                                        /**< Shift value for CMU_RFECA0                  */
-#define _CMU_CLKEN1_RFECA0_MASK                    0x2000000UL                               /**< Bit mask for CMU_RFECA0                     */
-#define _CMU_CLKEN1_RFECA0_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RFECA0_DEFAULT                  (_CMU_CLKEN1_RFECA0_DEFAULT << 25)        /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_RFECA1                          (0x1UL << 26)                             /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_RFECA1_SHIFT                   26                                        /**< Shift value for CMU_RFECA1                  */
-#define _CMU_CLKEN1_RFECA1_MASK                    0x4000000UL                               /**< Bit mask for CMU_RFECA1                     */
-#define _CMU_CLKEN1_RFECA1_DEFAULT                 0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_RFECA1_DEFAULT                  (_CMU_CLKEN1_RFECA1_DEFAULT << 26)        /**< Shifted mode DEFAULT for CMU_CLKEN1         */
 #define CMU_CLKEN1_DMEM                            (0x1UL << 27)                             /**< Enable Bus Clock                            */
 #define _CMU_CLKEN1_DMEM_SHIFT                     27                                        /**< Shift value for CMU_DMEM                    */
 #define _CMU_CLKEN1_DMEM_MASK                      0x8000000UL                               /**< Bit mask for CMU_DMEM                       */
 #define _CMU_CLKEN1_DMEM_DEFAULT                   0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
 #define CMU_CLKEN1_DMEM_DEFAULT                    (_CMU_CLKEN1_DMEM_DEFAULT << 27)          /**< Shifted mode DEFAULT for CMU_CLKEN1         */
-#define CMU_CLKEN1_ECAIFADC                        (0x1UL << 28)                             /**< Enable Bus Clock                            */
-#define _CMU_CLKEN1_ECAIFADC_SHIFT                 28                                        /**< Shift value for CMU_ECAIFADC                */
-#define _CMU_CLKEN1_ECAIFADC_MASK                  0x10000000UL                              /**< Bit mask for CMU_ECAIFADC                   */
-#define _CMU_CLKEN1_ECAIFADC_DEFAULT               0x00000000UL                              /**< Mode DEFAULT for CMU_CLKEN1                 */
-#define CMU_CLKEN1_ECAIFADC_DEFAULT                (_CMU_CLKEN1_ECAIFADC_DEFAULT << 28)      /**< Shifted mode DEFAULT for CMU_CLKEN1         */
 #define CMU_CLKEN1_VDAC1                           (0x1UL << 29)                             /**< Enable Bus Clock                            */
 #define _CMU_CLKEN1_VDAC1_SHIFT                    29                                        /**< Shift value for CMU_VDAC1                   */
 #define _CMU_CLKEN1_VDAC1_MASK                     0x20000000UL                              /**< Bit mask for CMU_VDAC1                      */
@@ -1167,20 +1089,6 @@ typedef struct cmu_typedef{
 #define CMU_PCNT0CLKCTRL_CLKSEL_DISABLED           (_CMU_PCNT0CLKCTRL_CLKSEL_DISABLED << 0)    /**< Shifted mode DISABLED for CMU_PCNT0CLKCTRL  */
 #define CMU_PCNT0CLKCTRL_CLKSEL_EM23GRPACLK        (_CMU_PCNT0CLKCTRL_CLKSEL_EM23GRPACLK << 0) /**< Shifted mode EM23GRPACLK for CMU_PCNT0CLKCTRL*/
 #define CMU_PCNT0CLKCTRL_CLKSEL_PCNTS0             (_CMU_PCNT0CLKCTRL_CLKSEL_PCNTS0 << 0)      /**< Shifted mode PCNTS0 for CMU_PCNT0CLKCTRL    */
-
-/* Bit fields for CMU RADIOCLKCTRL */
-#define _CMU_RADIOCLKCTRL_RESETVALUE               0x00000000UL                             /**< Default value for CMU_RADIOCLKCTRL          */
-#define _CMU_RADIOCLKCTRL_MASK                     0x80000003UL                             /**< Mask for CMU_RADIOCLKCTRL                   */
-#define CMU_RADIOCLKCTRL_EN                        (0x1UL << 0)                             /**< Enable                                      */
-#define _CMU_RADIOCLKCTRL_EN_SHIFT                 0                                        /**< Shift value for CMU_EN                      */
-#define _CMU_RADIOCLKCTRL_EN_MASK                  0x1UL                                    /**< Bit mask for CMU_EN                         */
-#define _CMU_RADIOCLKCTRL_EN_DEFAULT               0x00000000UL                             /**< Mode DEFAULT for CMU_RADIOCLKCTRL           */
-#define CMU_RADIOCLKCTRL_EN_DEFAULT                (_CMU_RADIOCLKCTRL_EN_DEFAULT << 0)      /**< Shifted mode DEFAULT for CMU_RADIOCLKCTRL   */
-#define CMU_RADIOCLKCTRL_DBGCLK                    (0x1UL << 31)                            /**< Enable Clock for Debugger                   */
-#define _CMU_RADIOCLKCTRL_DBGCLK_SHIFT             31                                       /**< Shift value for CMU_DBGCLK                  */
-#define _CMU_RADIOCLKCTRL_DBGCLK_MASK              0x80000000UL                             /**< Bit mask for CMU_DBGCLK                     */
-#define _CMU_RADIOCLKCTRL_DBGCLK_DEFAULT           0x00000000UL                             /**< Mode DEFAULT for CMU_RADIOCLKCTRL           */
-#define CMU_RADIOCLKCTRL_DBGCLK_DEFAULT            (_CMU_RADIOCLKCTRL_DBGCLK_DEFAULT << 31) /**< Shifted mode DEFAULT for CMU_RADIOCLKCTRL   */
 
 /* Bit fields for CMU VDAC1CLKCTRL */
 #define _CMU_VDAC1CLKCTRL_RESETVALUE               0x00000001UL                                /**< Default value for CMU_VDAC1CLKCTRL          */

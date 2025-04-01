@@ -111,7 +111,9 @@ static uint8_t plain_msg_size_select;
 static const uint32_t plain_msg_size[] = {
   PLAIN_MSG_SIZE / 16,
   PLAIN_MSG_SIZE / 4,
-  PLAIN_MSG_SIZE
+  PLAIN_MSG_SIZE,
+  // plaintext sizes that are NOT multiples of the AES block size (16 bytes) :
+  15, 27, 540
 };
 
 // -----------------------------------------------------------------------------
@@ -168,7 +170,7 @@ void app_process_action(void)
       if (space_press) {
         space_press = false;
         symmetric_key_size_select++;
-        if (symmetric_key_size_select > KEY_SIZE_MAX) {
+        if (symmetric_key_size_select > MAX_KEY_SIZE_SELECTION) {
           symmetric_key_size_select = 0;
         }
         printf("  + Current symmetric key length is %d-bit.\n",
@@ -177,7 +179,7 @@ void app_process_action(void)
       if (enter_press) {
         enter_press = false;
 #if defined(CRYPTO_COUNT) && (CRYPTO_COUNT > 0)
-        if (symmetric_key_size_select == (KEY_SIZE_MAX - 1)) {
+        if (symmetric_key_size_select == (MAX_KEY_SIZE_SELECTION - 1)) {
           printf("  + Series 1 devices do not support 192-bit key, press SPACE "
                  "to select other key length.\n");
           break;
@@ -196,7 +198,7 @@ void app_process_action(void)
       if (space_press) {
         space_press = false;
         plain_msg_size_select++;
-        if (plain_msg_size_select > MSG_SIZE_MAX) {
+        if (plain_msg_size_select > MAX_MSG_SIZE_SELECTION) {
           plain_msg_size_select = 0;
         }
         printf("  + Current data length is %lu bytes.\n",
@@ -272,7 +274,7 @@ void app_process_action(void)
         break;
       }
 #endif
-      if (symmetric_key_size_select != KEY_SIZE_MAX) {
+      if (symmetric_key_size_select != MAX_KEY_SIZE_SELECTION) {
         printf("\n  . ChaCha20-Poly1305 algorithm can only use 256-bit key.\n");
       } else {
         printf("\n  . ChaCha20-Poly1305 encryption -");

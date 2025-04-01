@@ -25,6 +25,7 @@ requires:
   - name: clock_manager_runtime
   - name: device_gpio
   - name: component_catalog
+  - name: code_classification
 template_contribution:
   - name: event_handler
     value:
@@ -32,4 +33,9 @@ template_contribution:
       include: "sl_gpio.h"
       handler: sl_gpio_init
   - name: component_catalog
+    value: gpio
+  - name: code_classification_components
+    value: gpio
+define:
+  - name: SL_CODE_COMPONENT_GPIO
     value: gpio

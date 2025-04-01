@@ -3,7 +3,7 @@
  * @brief global dispatch for 'module' specific callback event handlers
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -44,6 +44,9 @@
 #ifdef SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT
 #include "stack/internal/src/ipc/zll-api-ipc-callback-events.h"
 #endif
+#ifdef SL_CATALOG_ZIGBEE_MAC_TEST_COMMANDS_SUPPORT_PRESENT
+#include "stack/internal/src/ipc/sl_zigbee_mac_app_events_ipc_callback_events.h"
+#endif
 
 typedef void (*callback_dispatcher)(sl_zigbee_stack_cb_event_t *cb_event);
 
@@ -64,6 +67,7 @@ static const callback_dispatcher stack_callbacks[] = {
   sli_zigbee_stack_info_process_ipc_event,
   sli_zigbee_trust_center_process_ipc_event,
   sli_zigbee_zll_api_process_ipc_event,
+  sli_zigbee_sl_zigbee_mac_app_events_process_ipc_event,
   NULL
 };
 

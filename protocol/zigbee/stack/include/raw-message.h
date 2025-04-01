@@ -130,8 +130,10 @@ sl_status_t sl_zigbee_send_raw_message(const uint8_t *message, uint8_t message_l
  * @param messageContents  The raw message that was sent.
  * @param status           ::SL_STATUS_OK if the transmission was successful,
  *                         or ::SL_STATUS_ZIGBEE_DELIVERY_FAILED if not.
+ * @internal SL_ZIGBEE_IPC_ARGS
+ * {# messageContents | length: messageLength | max: MAX_IPC_VEC_ARG_CAPACITY #}
  */
-void sl_zigbee_raw_transmit_complete_handler(uint8_t message,
+void sl_zigbee_raw_transmit_complete_handler(uint8_t messageLength,
                                              uint8_t* messageContents,
                                              sl_status_t status);
 
@@ -157,6 +159,8 @@ void sl_zigbee_raw_transmit_complete_handler(uint8_t message,
  * @param packetInfo        Information about the received packet.
  * @param messageLength     Length of the MAC passthrough message that was received.
  * @param messageContents   The MAC passthrough message that was received.
+ * @internal SL_ZIGBEE_IPC_ARGS
+ * {# messageContents | length: messageLength | max: MAX_IPC_VEC_ARG_CAPACITY #}
  */
 void sl_802154_passthrough_message_handler(sl_zigbee_mac_passthrough_type_t messageType,
                                            sl_zigbee_rx_packet_info_t *packetInfo,

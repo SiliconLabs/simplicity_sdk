@@ -47,8 +47,8 @@ typedef enum {
 #else
 #define KEY_STORAGE_MAX         PERSISTENT_PLAIN_KEY
 #endif
-#define KEY_SIZE_MAX            (2)
-#define MSG_SIZE_MAX            (2)
+#define MAX_KEY_SIZE_SELECTION  (2)  // selection can be <0..2> , see symmetric_key_size[]
+#define MAX_MSG_SIZE_SELECTION  (5)  // selection can be <0..5> , see plain_msg_size[]
 
 #define KEY_STORAGE_PLAIN_MAX   PERSISTENT_PLAIN_KEY
 /// Default key usage is none

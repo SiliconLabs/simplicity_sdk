@@ -42,7 +42,7 @@ typedef enum {
   SL_WISUN_BR_MSG_SET_CONNECTION_PARAMS_REQ_ID          = 0x76,
   SL_WISUN_BR_MSG_SET_LFN_PARAMS_REQ_ID                 = 0x75,
   SL_WISUN_BR_MSG_SET_LFN_SUPPORT_REQ_ID                = 0x74,
-  SL_WISUN_BR_MSG_SET_DHCP_VENDOR_DATA_REQ_ID           = 0x73,
+  UNUSED_0x73_REQ_ID                                    = 0x73,
   SL_WISUN_BR_MSG_PAN_DEFECT_ADVERTISE_REQ_ID           = 0x72,
   SL_WISUN_BR_MSG_SET_IPV6_PREFIX_REQ_ID                = 0x71,
 } sl_wisun_br_msg_req_id_t;
@@ -61,7 +61,7 @@ typedef enum {
   SL_WISUN_BR_MSG_SET_CONNECTION_PARAMS_CNF_ID          = 0x76,
   SL_WISUN_BR_MSG_SET_LFN_PARAMS_CNF_ID                 = 0x75,
   SL_WISUN_BR_MSG_SET_LFN_SUPPORT_CNF_ID                = 0x74,
-  SL_WISUN_BR_MSG_SET_DHCP_VENDOR_DATA_CNF_ID           = 0x73,
+  UNUSED_0x73_CNF_ID                                    = 0x73,
   SL_WISUN_BR_MSG_PAN_DEFECT_ADVERTISE_CNF_ID           = 0x72,
   SL_WISUN_BR_MSG_SET_IPV6_PREFIX_CNF_ID                = 0x71,
 } sl_wisun_br_msg_cnf_id_t;
