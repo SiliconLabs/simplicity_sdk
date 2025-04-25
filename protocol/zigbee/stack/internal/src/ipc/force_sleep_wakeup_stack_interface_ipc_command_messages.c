@@ -46,28 +46,28 @@ void sli_mac_stack_lower_mac_force_sleep_process_ipc_command(sli_zigbee_ipc_cmd_
 
 void sl_802154_cancel_polls(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_802154_stack_cancel_polls_process_ipc_command, &msg);
 }
 
 void sl_802154_purge_incoming_queue(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_802154_stack_purge_incoming_queue_process_ipc_command, &msg);
 }
 
 void sl_802154_purge_transmit_queue(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_802154_stack_purge_transmit_queue_process_ipc_command, &msg);
 }
 
 void sl_mac_lower_mac_force_sleep(bool sleep)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.lower_mac_force_sleep.request.sleep = sleep;
   sli_zigbee_send_ipc_cmd(sli_mac_stack_lower_mac_force_sleep_process_ipc_command, &msg);
 }

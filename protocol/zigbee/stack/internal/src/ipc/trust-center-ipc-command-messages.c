@@ -93,7 +93,7 @@ void sli_zigbee_stack_unicast_current_network_key_process_ipc_command(sli_zigbee
 
 sl_status_t sl_zigbee_broadcast_network_key_switch(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_broadcast_network_key_switch_process_ipc_command, &msg);
 
@@ -102,7 +102,7 @@ sl_status_t sl_zigbee_broadcast_network_key_switch(void)
 
 sl_status_t sl_zigbee_broadcast_next_network_key(sl_zigbee_key_data_t *key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (key != NULL) {
     msg.data.broadcast_next_network_key.request.key = *key;
@@ -119,7 +119,7 @@ sl_status_t sl_zigbee_broadcast_next_network_key(sl_zigbee_key_data_t *key)
 
 sl_zigbee_app_link_key_request_policy_t sl_zigbee_get_app_link_key_request_policy(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_app_link_key_request_policy_process_ipc_command, &msg);
 
@@ -128,7 +128,7 @@ sl_zigbee_app_link_key_request_policy_t sl_zigbee_get_app_link_key_request_polic
 
 uint16_t sl_zigbee_get_transient_device_table_timeout_ms(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_transient_device_table_timeout_ms_process_ipc_command, &msg);
 
@@ -137,7 +137,7 @@ uint16_t sl_zigbee_get_transient_device_table_timeout_ms(void)
 
 sl_zigbee_tc_link_key_request_policy_t sl_zigbee_get_trust_center_link_key_request_policy(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_trust_center_link_key_request_policy_process_ipc_command, &msg);
 
@@ -148,7 +148,7 @@ sl_status_t sl_zigbee_send_remove_device(sl_802154_short_addr_t destShort,
                                          sl_802154_long_addr_t destLong,
                                          sl_802154_long_addr_t deviceToRemoveLong)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_remove_device.request.destShort = destShort;
 
   if (destLong != NULL) {
@@ -175,7 +175,7 @@ sl_status_t sl_zigbee_send_remove_device(sl_802154_short_addr_t destShort,
 sl_status_t sl_zigbee_send_trust_center_link_key(sl_802154_short_addr_t destinationNodeId,
                                                  sl_802154_long_addr_t destinationEui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_trust_center_link_key.request.destinationNodeId = destinationNodeId;
 
   if (destinationEui64 != NULL) {
@@ -195,7 +195,7 @@ sl_status_t sl_zigbee_send_unicast_network_key_update(sl_802154_short_addr_t tar
                                                       sl_802154_long_addr_t targetLong,
                                                       const sl_zigbee_key_data_t *newKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_unicast_network_key_update.request.targetShort = targetShort;
 
   if (targetLong != NULL) {
@@ -217,14 +217,14 @@ sl_status_t sl_zigbee_send_unicast_network_key_update(sl_802154_short_addr_t tar
 
 void sl_zigbee_set_app_link_key_request_policy(sl_zigbee_app_link_key_request_policy_t policy)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_app_link_key_request_policy.request.policy = policy;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_app_link_key_request_policy_process_ipc_command, &msg);
 }
 
 sl_status_t sl_zigbee_set_transient_device_table_timeout_ms(uint16_t timeout)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_transient_device_table_timeout_ms.request.timeout = timeout;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_transient_device_table_timeout_ms_process_ipc_command, &msg);
 
@@ -233,7 +233,7 @@ sl_status_t sl_zigbee_set_transient_device_table_timeout_ms(uint16_t timeout)
 
 void sl_zigbee_set_trust_center_link_key_request_policy(sl_zigbee_tc_link_key_request_policy_t policy)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_trust_center_link_key_request_policy.request.policy = policy;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_trust_center_link_key_request_policy_process_ipc_command, &msg);
 }
@@ -242,7 +242,7 @@ sl_status_t sl_zigbee_unicast_current_network_key(sl_802154_short_addr_t targetS
                                                   sl_802154_long_addr_t targetLong,
                                                   sl_802154_short_addr_t parentShortId)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.unicast_current_network_key.request.targetShort = targetShort;
 
   if (targetLong != NULL) {

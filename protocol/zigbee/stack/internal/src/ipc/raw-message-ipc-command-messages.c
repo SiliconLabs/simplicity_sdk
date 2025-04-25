@@ -60,7 +60,7 @@ void sli_zigbee_stack_set_mac_passthrough_flags_process_ipc_command(sli_zigbee_i
 
 sl_802154_short_addr_t sl_zigbee_get_embernet_passthrough_source_address(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_embernet_passthrough_source_address_process_ipc_command, &msg);
 
@@ -69,7 +69,7 @@ sl_802154_short_addr_t sl_zigbee_get_embernet_passthrough_source_address(void)
 
 sl_zigbee_mac_passthrough_type_t sl_zigbee_get_mac_passthrough_flags(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_mac_passthrough_flags_process_ipc_command, &msg);
 
@@ -81,7 +81,7 @@ sl_status_t sl_zigbee_send_raw_message(const uint8_t *message,
                                        sl_zigbee_transmit_priority_t priority,
                                        bool useCca)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if ((message_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
     assert(false); // "vector message length exceeds expected maximum
@@ -98,7 +98,7 @@ sl_status_t sl_zigbee_send_raw_message(const uint8_t *message,
 
 void sl_zigbee_set_embernet_passthrough_source_address(sl_802154_short_addr_t address)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_embernet_passthrough_source_address.request.address = address;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_embernet_passthrough_source_address_process_ipc_command, &msg);
 }
@@ -106,7 +106,7 @@ void sl_zigbee_set_embernet_passthrough_source_address(sl_802154_short_addr_t ad
 sl_status_t sl_zigbee_set_mac_filter_match_list(const sl_zigbee_mac_filter_match_data_t *macFilterMatchList,
                                                 uint8_t listLength)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if ((listLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
     assert(false); // "vector macFilterMatchList length exceeds expected maximum
@@ -121,7 +121,7 @@ sl_status_t sl_zigbee_set_mac_filter_match_list(const sl_zigbee_mac_filter_match
 
 void sl_zigbee_set_mac_passthrough_flags(sl_zigbee_mac_passthrough_type_t type)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_mac_passthrough_flags.request.type = type;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_mac_passthrough_flags_process_ipc_command, &msg);
 }

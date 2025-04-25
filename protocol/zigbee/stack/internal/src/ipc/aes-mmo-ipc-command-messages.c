@@ -54,7 +54,7 @@ sl_status_t sl_zigbee_aes_hash_simple(uint8_t totalLength,
                                       const uint8_t *data,
                                       uint8_t *result)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.aes_hash_simple.request.totalLength = totalLength;
 
   if ((totalLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
@@ -82,7 +82,7 @@ sl_status_t sl_zigbee_aes_mmo_hash_final(sl_zigbee_aes_mmo_hash_context_t *conte
                                          uint32_t length,
                                          const uint8_t *finalData)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.aes_mmo_hash_final.request.context = *context;
@@ -106,7 +106,7 @@ sl_status_t sl_zigbee_aes_mmo_hash_final(sl_zigbee_aes_mmo_hash_context_t *conte
 
 void sl_zigbee_aes_mmo_hash_init(sl_zigbee_aes_mmo_hash_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.aes_mmo_hash_init.request.context = *context;
@@ -123,7 +123,7 @@ sl_status_t sl_zigbee_aes_mmo_hash_update(sl_zigbee_aes_mmo_hash_context_t *cont
                                           uint32_t length,
                                           const uint8_t *data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.aes_mmo_hash_update.request.context = *context;

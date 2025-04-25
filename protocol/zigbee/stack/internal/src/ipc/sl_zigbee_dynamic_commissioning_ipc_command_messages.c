@@ -43,7 +43,7 @@ void sli_zigbee_stack_dynamic_commissioning_set_open_for_interview_process_ipc_c
 void sl_zigbee_device_interview_status_update(sl_zigbee_address_info *ids,
                                               sl_zigbee_dynamic_commissioning_event_t event)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (ids != NULL) {
     msg.data.device_interview_status_update.request.ids = *ids;
@@ -59,7 +59,7 @@ void sl_zigbee_device_interview_status_update(sl_zigbee_address_info *ids,
 
 bool sl_zigbee_dynamic_commissioning_is_open_for_interview(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_dynamic_commissioning_is_open_for_interview_process_ipc_command, &msg);
 
@@ -68,7 +68,7 @@ bool sl_zigbee_dynamic_commissioning_is_open_for_interview(void)
 
 void sl_zigbee_dynamic_commissioning_set_open_for_interview(bool open_interview)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.dynamic_commissioning_set_open_for_interview.request.open_interview = open_interview;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_dynamic_commissioning_set_open_for_interview_process_ipc_command, &msg);
 }

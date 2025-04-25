@@ -419,3 +419,17 @@ void sli_zigbee_af_mfglib_set_options(SL_CLI_COMMAND_ARG)
   sl_status_t status = sl_zigbee_ezsp_set_value(SL_ZIGBEE_EZSP_VALUE_MFGLIB_OPTIONS, 1, &options);
   sl_zigbee_af_core_println("%s set options, status 0x%08X", PLUGIN_NAME, status);
 }
+
+void sli_zigbee_af_mfglib_set_ctune_command(SL_CLI_COMMAND_ARG)
+{
+  uint16_t ctune = sl_cli_get_argument_uint16(arguments, 0);
+  sl_status_t status = sl_zigbee_ezsp_set_configuration_value(SL_ZIGBEE_EZSP_CONFIG_CTUNE_VALUE, ctune);
+  sl_zigbee_af_core_println("%s set ctune, status 0x%02X", PLUGIN_NAME, status);
+}
+
+void sli_zigbee_af_mfglib_get_ctune_command(SL_CLI_COMMAND_ARG)
+{
+  uint16_t ctune = 0;
+  sl_status_t status = sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_CTUNE_VALUE, &ctune);
+  sl_zigbee_af_core_println("%s get ctune value: %d, status 0x%02X", PLUGIN_NAME, ctune, status);
+}

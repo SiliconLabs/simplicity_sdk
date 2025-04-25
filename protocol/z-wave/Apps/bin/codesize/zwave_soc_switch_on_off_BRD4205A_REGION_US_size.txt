@@ -10,34 +10,34 @@ section                    size         addr
 .bss                     0x96c0   0x20001000
 text_application_ram      0x1c0   0x2000a6c0
 .rodata                   0x2b8    0x8006330
-.text                   0x3a764    0x80065f0
-.ARM.exidx                  0x8    0x8040d54
-.copy.table                 0xc    0x8040d5c
-.zero.table                 0x0    0x8040d68
+.text                   0x3a8a4    0x80065f0
+.ARM.exidx                  0x8    0x8040e94
+.copy.table                 0xc    0x8040e9c
+.zero.table                 0x0    0x8040ea8
 .data                     0x4e0   0x2000a880
 .memory_manager_heap        0x0   0x2000ad60
-.internal_storage       0x30000    0x8041248
-.zwave_nvm                  0x0    0x8071248
-.nvm                     0x8000    0x8071248
+.internal_storage       0x30000    0x8041388
+.zwave_nvm                  0x0    0x8071388
+.nvm                     0x8000    0x8071388
 .ARM.attributes            0x36          0x0
 .comment                   0x45          0x0
 .debug_line_str           0x2b9          0x0
-.debug_frame            0x132f4          0x0
-.debug_info            0xd1ddb7          0x0
-.debug_abbrev           0x2b09e          0x0
-.debug_loclists         0x306c8          0x0
-.debug_aranges           0x6e20          0x0
-.debug_rnglists          0x5671          0x0
-.debug_line             0x85311          0x0
-.debug_str              0x99f49          0x0
-.debug_loc              0x28e64          0x0
-.debug_ranges            0x4738          0x0
-Total                  0xf630cc
+.debug_frame            0x132fc          0x0
+.debug_info            0xd1d338          0x0
+.debug_abbrev           0x2b18b          0x0
+.debug_loclists         0x306fd          0x0
+.debug_aranges           0x6e18          0x0
+.debug_rnglists          0x5681          0x0
+.debug_line             0x85055          0x0
+.debug_str              0x99ec5          0x0
+.debug_loc              0x28c6e          0x0
+.debug_ranges            0x46b8          0x0
+Total                  0xf62309
 
 The calculated FLASH and SRAM usage summary:
 ============================================
 FLASH used as program memory:  (Including only the sections: .text, .ARM.exidx, .data, _cc_handlers_v3)
-   241792
+   242112
 FLASH used for storage: (Including only the sections: .zwavenvm, .simee, .nvm, .zwave_nvm)
    32768
 SRAM usage:             (Including only the sections: .data, .bss, .heap (limited to 2048 per sl_memory_config.h), .stack_dummy, .reset_info)

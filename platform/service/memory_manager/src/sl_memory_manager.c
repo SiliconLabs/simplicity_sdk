@@ -81,7 +81,7 @@ extern char __HeapLimit[];
 extern sli_block_metadata_t *sli_free_lt_list_head;
 extern sli_block_metadata_t *sli_free_st_list_head;
 extern uint32_t sli_free_blocks_number;
-static size_t heap_size;
+static size_t heap_used_size;
 static size_t heap_high_watermark;
 #if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
 bool reserve_no_retention_first = true;
@@ -110,7 +110,7 @@ sl_status_t sl_memory_init(void)
 {
   sl_memory_region_t heap_region = sl_memory_get_heap_region();
   sli_free_blocks_number = 0u;
-  heap_size = 0u;
+  heap_used_size = 0u;
   heap_high_watermark = 0u;
 
   // At first, all general purpose heap available to long-term/short-term blocks.
@@ -239,9 +239,9 @@ sl_status_t sl_memory_reserve_no_retention(size_t size,
     status = SL_STATUS_ALLOCATION_FAILED;
   }
 
-  heap_size += size_real;
-  if (heap_size > heap_high_watermark) {
-    heap_high_watermark = heap_size;
+  heap_used_size += size_real;
+  if (heap_used_size > heap_high_watermark) {
+    heap_high_watermark = heap_used_size;
   }
 
   CORE_EXIT_ATOMIC();
@@ -447,9 +447,9 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
     sli_update_free_list_heads(allocated_blk, old_block_metadata, true);
   }
 
-  heap_size += size_adjusted;
-  if (heap_size > heap_high_watermark) {
-    heap_high_watermark = heap_size;
+  heap_used_size += size_adjusted;
+  if (heap_used_size > heap_high_watermark) {
+    heap_high_watermark = heap_used_size;
   }
 
   CORE_EXIT_ATOMIC();
@@ -526,6 +526,8 @@ sl_status_t sl_memory_free(void *block)
   uint16_t total_size_free_block = current_metadata->length + SLI_BLOCK_METADATA_SIZE_DWORD;
   sli_block_metadata_t *free_block = current_metadata;
   sli_block_metadata_t *next_block = NULL;
+
+  heap_used_size -= SLI_BLOCK_LEN_DWORD_TO_BYTE(current_metadata->length);
 
   // Update counter with block being freed.
   sli_free_blocks_number++;
@@ -604,8 +606,6 @@ sl_status_t sl_memory_free(void *block)
       || sli_free_st_list_head->length == 0) {
     sli_free_st_list_head = free_block;
   }
-
-  heap_size -= total_size_free_block;
 
   CORE_EXIT_ATOMIC();
 
@@ -841,9 +841,11 @@ sl_status_t sl_memory_realloc(void *ptr,
       }
     }
 
-    heap_size += size_real - current_block_len;
-    if (heap_size > heap_high_watermark) {
-      heap_high_watermark = heap_size;
+    if (find_new_block == false) {
+      heap_used_size += size_real - current_block_len;
+      if (heap_used_size > heap_high_watermark) {
+        heap_high_watermark = heap_used_size;
+      }
     }
 
     // BLOCK REDUCTION.
@@ -898,20 +900,18 @@ sl_status_t sl_memory_realloc(void *ptr,
         current_block->length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(size_real);
         current_block->offset_neighbour_next = current_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
         sli_memory_metadata_init(adjusted_next_block);
-        adjusted_next_block->length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(current_block_remaining_len);
+        adjusted_next_block->length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(current_block_remaining_len - SLI_BLOCK_METADATA_SIZE_BYTE);
         adjusted_next_block->offset_neighbour_prev = current_block->offset_neighbour_next;
-        if ((next_block != NULL) && (next_block->offset_neighbour_next != 0)) {
-          sli_block_metadata_t *next_next_block = (sli_block_metadata_t *)((uint64_t *)next_block + next_block->offset_neighbour_next);
-
+        if (next_block != NULL) {
           adjusted_next_block->offset_neighbour_next = adjusted_next_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
-          next_next_block->offset_neighbour_prev = adjusted_next_block->offset_neighbour_next;
+          next_block->offset_neighbour_prev = adjusted_next_block->offset_neighbour_next;
         } else {
           adjusted_next_block->offset_neighbour_next = 0; // End of heap
         }
 
         sli_free_blocks_number++;
         // Update head pointers accordingly.
-        sli_update_free_list_heads(adjusted_next_block, NULL, true);
+        sli_update_free_list_heads(adjusted_next_block, NULL, false);
       } else {
         // Not enough space in current block remaining area to create a new free block.
         // consider the current block unallocated portion as lost for now until the current block is freed.
@@ -928,7 +928,7 @@ sl_status_t sl_memory_realloc(void *ptr,
                                       size_real + SLI_BLOCK_METADATA_SIZE_BYTE);
 #endif
 
-    heap_size -= current_block_len - size_real;
+    heap_used_size -= current_block_len - size_real;
   } else {
     // If the size requested does not provoke a block extension or reduction, consider no error.
     // And return the same given address. We still track it to show that resize was requested.

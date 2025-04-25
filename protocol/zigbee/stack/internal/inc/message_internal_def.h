@@ -99,6 +99,22 @@ sl_status_t slxi_zigbee_stack_add_to_incoming_network_queue(int8_t rssi,
 
 // Callback Indirection
 
+void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_status_t status,
+                                                    uint8_t gpdLink,
+                                                    uint8_t sequenceNumber,
+                                                    sl_zigbee_gp_address_t *addr,
+                                                    sl_zigbee_gp_security_level_t gpdfSecurityLevel,
+                                                    sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
+                                                    bool autoCommissioning,
+                                                    uint8_t bidirectionalInfo,
+                                                    uint32_t gpdSecurityFrameCounter,
+                                                    uint8_t gpdCommandId,
+                                                    uint32_t mic,
+                                                    uint8_t proxyTableIndex,
+                                                    uint8_t gpdCommandPayloadLength,
+                                                    uint8_t *gpdCommandPayload,
+                                                    sl_zigbee_rx_packet_info_t *packetInfo);
+
 void sli_zigbee_stack_id_conflict_handler(sl_802154_short_addr_t conflictingId);
 
 void sli_zigbee_stack_incoming_many_to_one_route_request_handler(sl_802154_short_addr_t source,

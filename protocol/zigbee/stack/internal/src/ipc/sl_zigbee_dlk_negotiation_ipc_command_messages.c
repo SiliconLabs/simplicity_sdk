@@ -56,7 +56,7 @@ void sli_zigbee_stack_dlk_start_key_exchange_process_ipc_command(sli_zigbee_ipc_
 
 void sl_zigbee_dlk_close_key_exchange(sl_zigbee_dlk_negotiation_context_t *dlk_negotiation_ctx)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_negotiation_ctx != NULL) {
     msg.data.dlk_close_key_exchange.request.dlk_negotiation_ctx = *dlk_negotiation_ctx;
@@ -74,7 +74,7 @@ sl_status_t sl_zigbee_dlk_finish_key_exchange(sl_zigbee_dlk_negotiation_context_
                                               const uint8_t *partner_key,
                                               size_t partner_key_length)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_negotiation_ctx != NULL) {
     msg.data.dlk_finish_key_exchange.request.dlk_negotiation_ctx = *dlk_negotiation_ctx;
@@ -107,7 +107,7 @@ sl_status_t sl_zigbee_dlk_open_key_exchange(sl_zigbee_dlk_negotiation_context_t 
                                             sl_zigbee_dlk_start_complete_callback dlk_start_complete_callback,
                                             sl_zigbee_dlk_finish_complete_callback dlk_finish_complete_callback)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_negotiation_ctx != NULL) {
     msg.data.dlk_open_key_exchange.request.dlk_negotiation_ctx = *dlk_negotiation_ctx;
@@ -138,7 +138,7 @@ sl_status_t sl_zigbee_dlk_open_key_exchange(sl_zigbee_dlk_negotiation_context_t 
 sl_status_t sl_zigbee_dlk_start_key_exchange(sl_zigbee_dlk_negotiation_context_t *dlk_negotiation_ctx,
                                              const sl_zigbee_address_info *partner)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_negotiation_ctx != NULL) {
     msg.data.dlk_start_key_exchange.request.dlk_negotiation_ctx = *dlk_negotiation_ctx;

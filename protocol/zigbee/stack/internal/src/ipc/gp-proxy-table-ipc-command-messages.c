@@ -41,7 +41,7 @@ void sli_zigbee_stack_gp_proxy_table_process_gp_pairing_process_ipc_command(sli_
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.sinkNwkAddress,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.sinkGroupId,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.assignedAlias,
-                                                                                                                   &msg->data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress,
+                                                                                                                   msg->data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress,
                                                                                                                    &msg->data.gp_proxy_table_process_gp_pairing.request.gpdKey,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.gpdSecurityFrameCounter,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.forwardingRadius);
@@ -52,7 +52,7 @@ void sli_zigbee_stack_gp_proxy_table_process_gp_pairing_process_ipc_command(sli_
 sl_status_t sl_zigbee_gp_proxy_table_get_entry(uint8_t proxyIndex,
                                                sl_zigbee_gp_proxy_table_entry_t *entry)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_proxy_table_get_entry.request.proxyIndex = proxyIndex;
 
   if (entry != NULL) {
@@ -70,7 +70,7 @@ sl_status_t sl_zigbee_gp_proxy_table_get_entry(uint8_t proxyIndex,
 
 uint8_t sl_zigbee_gp_proxy_table_lookup(sl_zigbee_gp_address_t *addr)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (addr != NULL) {
     msg.data.gp_proxy_table_lookup.request.addr = *addr;
@@ -96,7 +96,7 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
                                                  uint32_t gpdSecurityFrameCounter,
                                                  uint8_t forwardingRadius)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_proxy_table_process_gp_pairing.request.options = options;
 
   if (addr != NULL) {
@@ -109,7 +109,7 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
   msg.data.gp_proxy_table_process_gp_pairing.request.assignedAlias = assignedAlias;
 
   if (sinkIeeeAddress != NULL) {
-    msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress = *sinkIeeeAddress;
+    memmove(msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress, sinkIeeeAddress, sizeof(uint8_t) * EUI64_SIZE);
   }
 
   if (gpdKey != NULL) {
@@ -125,7 +125,7 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
   }
 
   if (sinkIeeeAddress != NULL) {
-    *sinkIeeeAddress = msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress;
+    memmove(sinkIeeeAddress, msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress, sizeof(uint8_t) * EUI64_SIZE);
   }
 
   if (gpdKey != NULL) {

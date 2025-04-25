@@ -1147,7 +1147,9 @@ void sli_zigbee_af_gpep_incoming_message(
       // The length of the GPD command payload.
       uint8_t gpdCommandPayloadLength,
       // The GPD command payload.
-      uint8_t *gpdCommandPayload)
+      uint8_t *gpdCommandPayload,
+      // Rx packet information
+      sl_zigbee_rx_packet_info_t *packetInfo)
 {
 (void)status;
 (void)gpdLink;
@@ -1163,10 +1165,11 @@ void sli_zigbee_af_gpep_incoming_message(
 (void)proxyTableIndex;
 (void)gpdCommandPayloadLength;
 (void)gpdCommandPayload;
+(void)packetInfo;
 
 {% for cb in zigbee_stack_callback -%}
 {% if cb['callback_type'] == "gpep_incoming_message" -%}
-{{ cb['function_name'] }}(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload);
+{{ cb['function_name'] }}(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, packetInfo);
 {% endif -%}
 {% endfor -%}
 }

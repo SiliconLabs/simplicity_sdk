@@ -67,8 +67,14 @@
 #ifndef SL_CLOCK_MANAGER_HFXO_PRECISION
 #define SL_CLOCK_MANAGER_HFXO_PRECISION    50
 #endif
-// </e>
 
+// <q SL_CLOCK_MANAGER_CTUNE_MFG_HFXO_EN> CTUNE HXFO manufacturing
+// <i> Enable to use CTUNE HFXO manufacturing value for calibration
+// <d> 1
+#ifndef SL_CLOCK_MANAGER_CTUNE_MFG_HFXO_EN
+#define SL_CLOCK_MANAGER_CTUNE_MFG_HFXO_EN    1
+#endif
+// </e>
 // <e> LFXO Settings (if Low Frequency crystal is used)
 // <i> Enable to configure LFXO
 #ifndef SL_CLOCK_MANAGER_LFXO_EN
@@ -110,6 +116,13 @@
 // <d> LFXO_CFG_TIMEOUT_CYCLES4K
 #ifndef SL_CLOCK_MANAGER_LFXO_TIMEOUT
 #define SL_CLOCK_MANAGER_LFXO_TIMEOUT    LFXO_CFG_TIMEOUT_CYCLES4K
+#endif
+
+// <q SL_CLOCK_MANAGER_CTUNE_MFG_LFXO_EN> CTUNE LXFO manufacturing
+// <i> Enable to use CTUNE LFXO manufacturing value for calibration
+// <d> 1
+#ifndef SL_CLOCK_MANAGER_CTUNE_MFG_LFXO_EN
+#define SL_CLOCK_MANAGER_CTUNE_MFG_LFXO_EN    1
 #endif
 // </e>
 

@@ -1,6 +1,6 @@
-Wi-SUN SDK 2.1.0
+Wi-SUN SDK 2.2.1
 - Wi-SUN Stack
   - Targeted quality improvements and bug fixes.
 - Wi-SUN Applications
-  - Targeted quality improvements and bug fixes.
+  - Same as previous release.
 

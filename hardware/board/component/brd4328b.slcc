@@ -20,6 +20,7 @@
   - name: hardware_board_from_fgm230-rb4328b
   - name: hardware_board_has_si70xx
   - name: hardware_board_has_tempsensor
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_rgb
   - name: hardware_board_has_vcom
   - name: hardware_board_has_spiflash

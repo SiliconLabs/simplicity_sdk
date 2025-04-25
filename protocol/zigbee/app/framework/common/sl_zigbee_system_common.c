@@ -112,11 +112,14 @@ void sli_zigbee_app_framework_init_callback(void)
                               halGetExtendedResetString());
 
   if (halResetWasCrash()) {
+#if defined(SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT)
+    // The crash printing is implemented for IOSTREAM UART in diagnostic module.
     // We pass port 0 here though this parameter is unused in the legacy HAL
     // version of the diagnostic code.
     halPrintCrashSummary(0);
     halPrintCrashDetails(0);
     halPrintCrashData(0);
+#endif
   }
 #endif // EXTENDED_RESET_INFO
 }

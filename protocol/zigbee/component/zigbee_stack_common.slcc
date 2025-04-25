@@ -605,7 +605,9 @@ source:
   - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_address_info_ipc_command_messages.c
     condition:
       - zigbee_use_ipc
-
+  - path: platform/service/legacy_hal_wdog/src/sl_legacy_hal_wdog_stub.c
+    unless:
+      - legacy_hal_wdog
 validation_helper:
   # NCP doesn't have DEVICE_TYPE before it connects to Host
   # so we don't run the validation script for NCP

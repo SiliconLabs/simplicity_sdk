@@ -1219,7 +1219,9 @@ void sli_zigbee_af_gpep_incoming_message(
       // The length of the GPD command payload.
       uint8_t gpdCommandPayloadLength,
       // The GPD command payload.
-      uint8_t *gpdCommandPayload)
+      uint8_t *gpdCommandPayload,
+      // Rx packet information
+      sl_zigbee_rx_packet_info_t *packetInfo)
 ;
 {% for cb in zigbee_stack_callback -%}
 {% if cb['callback_type'] == "gpep_incoming_message" -%}
@@ -1254,7 +1256,9 @@ void {{ cb['function_name'] }}(
       // The length of the GPD command payload.
       uint8_t gpdCommandPayloadLength,
       // The GPD command payload.
-      uint8_t *gpdCommandPayload)
+      uint8_t *gpdCommandPayload,
+      // Rx packet information
+      sl_zigbee_rx_packet_info_t *packetInfo)
 ;
 {% endif -%}
 {% endfor -%}

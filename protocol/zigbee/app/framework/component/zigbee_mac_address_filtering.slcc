@@ -55,7 +55,7 @@ template_contribution:
     value:
       name: clear-stats
       group: mac-address-filtering
-      handler: sl_zigbee_af_mac_address_filtering_clear_stats
+      handler: sl_zigbee_af_mac_address_filtering_clear_stats_command
       help: Clears all packet counts for all modes.
   - name: cli_command
     value:

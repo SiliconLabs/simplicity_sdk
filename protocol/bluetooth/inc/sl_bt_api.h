@@ -10149,16 +10149,8 @@ sl_status_t sl_bt_sm_set_debug_mode();
  * one of the existing bonds or application data) so that a new bond can be
  * saved. The default value is 13.
  *
- * When using external bonding database with accept list filtering, this command
- * must be called before adding devices to the accept list to define the list
- * size. Calling this function empties the existing accept list.
- *
- * @param[in] max_bonding_count @parblock
- *   Maximum allowed bonding count.
+ * @param[in] max_bonding_count Maximum allowed bonding count.
  *     - <b>Range:</b> 1 to 32
- *
- *   Sets the accept list size with external bonding database.
- *   @endparblock
  * @param[in] policy_flags @parblock
  *   Bonding policy. Values:
  *     - <b>0:</b> If database is full, new bonding attempts will fail
@@ -10282,12 +10274,16 @@ sl_status_t sl_bt_sm_bonding_confirm(uint8_t connection, uint8_t confirm);
 
 /***************************************************************************//**
  *
- * Delete the specified bonding or accept list filtering. The connection will be
- * closed if the remote device is connected currently.
+ * Delete the specified bonding. The connection will be closed if the remote
+ * device is connected currently.
  *
  * This commands deletes the information from the persistent bonding database
  * when the built-in bonding database
  * (bluetooth_feature_builtin_bonding_database) is used.
+ *
+ * When used with Filter Accept List (bluetooth_feature_accept_list) or
+ * Resolving List (bluetooth_feature_resolving_list), this command removes the
+ * deleted device from the lists.
  *
  * This command is unavailable if the external bonding database
  * (bluetooth_feature_external_bonding_database) is used.
@@ -10301,11 +10297,15 @@ sl_status_t sl_bt_sm_delete_bonding(uint8_t bonding);
 
 /***************************************************************************//**
  *
- * Delete all bondings, accept list filtering and device local identity
- * resolving key (IRK). All connections to affected devices are closed as well.
+ * Delete all bondings and device local identity resolving key (IRK). All
+ * connections to affected devices are closed as well.
  *
  * This command empties the persistent bonding database when the built-in
  * bonding database (bluetooth_feature_builtin_bonding_database) is used.
+ *
+ * When used with Filter Accept List (bluetooth_feature_accept_list) or
+ * Resolving List (bluetooth_feature_resolving_list), this command removes the
+ * deleted devices from the lists.
  *
  *
  * @return SL_STATUS_OK if successful. Error code otherwise.
@@ -10316,22 +10316,20 @@ sl_status_t sl_bt_sm_delete_bondings();
 /***************************************************************************//**
  *
  * Get number of entries and bitmask of their handles saved in the bonding
- * database. The entry in the bonding database can be either bonding or accept
- * list filtering device.
+ * database.
  *
- * To get the bonding type and peer device address of a bonding, use the @ref
- * sl_bt_sm_get_bonding_details command. The bonding handle can be calculated
- * from the handle bitmask returned by this command, or alternatively, repeat
- * calling the @ref sl_bt_sm_get_bonding_details command to get the detailed
- * information of all bondings.
+ * To get the bonding information and peer device address of a bonding, use the
+ * @ref sl_bt_sm_get_bonding_details command. The bonding handle can be
+ * calculated from the handle bitmask returned by this command, or
+ * alternatively, repeat calling the @ref sl_bt_sm_get_bonding_details command
+ * to get the detailed information of all bondings.
  *
  * This command is unavailable if the external bonding database
  * (bluetooth_feature_external_bonding_database) is used.
  *
  * @param[in] reserved Use the value 0 on this reserved field. Do not use
  *   none-zero values because they are reserved for future use.
- * @param[out] num_bondings Total number of bondings and accept list filtering
- *   devices stored in bonding database.
+ * @param[out] num_bondings Total number of bondings stored in bonding database.
  * @param[in] max_bondings_size Size of output buffer passed in @p bondings
  * @param[out] bondings_len On return, set to the length of output data written
  *   to @p bondings
@@ -10370,8 +10368,7 @@ sl_status_t sl_bt_sm_get_bonding_handles(uint32_t reserved,
  *     - <b>sl_bt_gap_public_address (0x0):</b> Public device address
  *     - <b>sl_bt_gap_static_address (0x1):</b> Static device address
  * @param[out] security_mode Enum @ref sl_bt_connection_security_t. Connection
- *   security mode. Accept list filtering entry has security mode as no
- *   security. Values:
+ *   security mode. Values:
  *     - <b>sl_bt_connection_mode1_level1 (0x0):</b> No security
  *     - <b>sl_bt_connection_mode1_level2 (0x1):</b> Unauthenticated pairing
  *       with encryption
@@ -10380,7 +10377,7 @@ sl_status_t sl_bt_sm_get_bonding_handles(uint32_t reserved,
  *     - <b>sl_bt_connection_mode1_level4 (0x3):</b> Authenticated Secure
  *       Connections pairing with encryption using a 128-bit strength encryption
  *       key
- * @param[out] key_size Key length in bytes, 0 for accept list filtering entry
+ * @param[out] key_size Key length in bytes
  *
  * @return SL_STATUS_OK if successful. Error code otherwise.
  *
@@ -10393,8 +10390,7 @@ sl_status_t sl_bt_sm_get_bonding_details(uint32_t bonding,
 
 /***************************************************************************//**
  *
- * Find the bonding or accept list filtering entry by using a Bluetooth device
- * address.
+ * Find the bonding entry by using a Bluetooth device address.
  *
  * This command is unavailable if the external bonding database
  * (bluetooth_feature_external_bonding_database) is used.
@@ -10402,8 +10398,7 @@ sl_status_t sl_bt_sm_get_bonding_details(uint32_t bonding,
  * @param[in] address The Bluetooth device address
  * @param[out] bonding The bonding handle
  * @param[out] security_mode Enum @ref sl_bt_connection_security_t. Connection
- *   security mode. Accept list filtering entry has security mode as no
- *   security. Values:
+ *   security mode. Values:
  *     - <b>sl_bt_connection_mode1_level1 (0x0):</b> No security
  *     - <b>sl_bt_connection_mode1_level2 (0x1):</b> Unauthenticated pairing
  *       with encryption
@@ -10412,7 +10407,7 @@ sl_status_t sl_bt_sm_get_bonding_details(uint32_t bonding,
  *     - <b>sl_bt_connection_mode1_level4 (0x3):</b> Authenticated Secure
  *       Connections pairing with encryption using a 128-bit strength encryption
  *       key
- * @param[out] key_size Key length in bytes, 0 for accept list filtering entry
+ * @param[out] key_size Key length in bytes
  *
  * @return SL_STATUS_OK if successful. Error code otherwise.
  *

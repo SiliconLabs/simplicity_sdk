@@ -1141,16 +1141,23 @@ void enableCacheSynthCal(sl_cli_command_arg_t *args)
 
 void enableAutoLnaBypass(sl_cli_command_arg_t *args)
 {
+#if !RAIL_SUPPORTS_PRS_LNA_BYPASS
+  responsePrintError(sl_cli_get_command_string(args, 0), 0x15, "Automatic LNA Bypass Unsupported");
+  return;
+#else
   bool enable = !!sl_cli_get_argument_uint8(args, 0);
-  RAIL_AutoLnaBypassConfig_t autoLnaBypassConfig = {
+  sl_gpio_set_pin_mode(&(sl_gpio_t){sl_cli_get_argument_uint8(args, 4), sl_cli_get_argument_uint8(args, 5) }, SL_GPIO_MODE_PUSH_PULL, enable);
+  uint8_t prsLnaBypassChannel = PRS_GetFreeChannel(prsTypeAsync);
+  PRS_PinOutput(prsLnaBypassChannel, prsTypeAsync, sl_cli_get_argument_uint8(args, 4), sl_cli_get_argument_uint8(args, 5));
+  RAIL_PrsLnaBypassConfig_t prsLnaBypassConfig = {
     .timeoutUs = (RAIL_Time_t)sl_cli_get_argument_uint32(args, 1),
     .threshold = sl_cli_get_argument_uint8(args, 2),
     .deltaRssiDbm = sl_cli_get_argument_uint8(args, 3),
-    .port = sl_cli_get_argument_uint8(args, 4),
-    .pin = sl_cli_get_argument_uint8(args, 5),
+    .prsChannel = prsLnaBypassChannel,
     .polarity = (bool)sl_cli_get_argument_uint8(args, 6)
   };
-  RAIL_Status_t status = RAIL_EnableAutoLnaBypass(railHandle, enable, &autoLnaBypassConfig);
+  RAIL_Status_t status = RAIL_EnablePrsLnaBypass(railHandle, enable, &prsLnaBypassConfig);
   responsePrint(sl_cli_get_command_string(args, 0), "Result:%s",
                 ((status == RAIL_STATUS_NO_ERROR) ? "Success" : "Failure"));
+#endif
 }

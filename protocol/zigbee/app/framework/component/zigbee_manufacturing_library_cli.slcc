@@ -186,6 +186,26 @@ template_contribution:
       argument:
         - type: uint8
           help: The options bitmask (0 = normal transmit, 1 = CSMA transmit).
+  - name: cli_group
+    value:
+      group: mfglib
+      name: ctune
+      help: ctune related commands
+  - name: cli_command
+    value:
+      group: ctune
+      name: set
+      handler: sli_zigbee_af_mfglib_set_ctune_command
+      help: Sets ctune via the manufacturing library.
+      argument:
+        - type: uint16
+          help: The ctune value is between 0x0000 - 0x00FF.
+  - name: cli_command
+    value:
+      group: ctune
+      name: get
+      handler: sli_zigbee_af_mfglib_get_ctune_command
+      help: Gets ctune via the manufacturing library.
   - name: token_header
     value: app/framework/plugin/manufacturing-library-cli/manufacturing-library-cli-tokens.h
 

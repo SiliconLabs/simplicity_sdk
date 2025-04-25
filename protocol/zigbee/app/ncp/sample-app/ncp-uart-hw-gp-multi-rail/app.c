@@ -438,40 +438,47 @@ static sl_zigbee_gp_tx_queue_entry_t* get_gp_stub_tx_queue(sl_zigbee_gp_address_
                                                     128) != SL_ZIGBEE_NULL_MESSAGE_BUFFER) {
     // Allocate a buffer and prepare a outgoing MAC header using gpd address in the sli_zigbee_gp_tx_queue
     sli_buffer_manager_buffer_t header = sli_zigbee_gpdf_make_header(true, NULL, &(sli_zigbee_gp_tx_queue.addr));
+    if (header != SL_ZIGBEE_NULL_MESSAGE_BUFFER) {
+      return NULL;
+    }
+
     // Add the command Id from the queue to the buffer
     uint8_t len = sl_legacy_buffer_manager_message_buffer_length(header) + 1;
-    sl_legacy_buffer_manager_append_to_linked_buffers(header, &(sli_zigbee_gp_tx_queue.gpdCommandId), 1);
-    // Copy Command Payload from the queue to the buffer and update the length
-    sl_legacy_buffer_manager_set_linked_buffers_length(header,
-                                                       sl_legacy_buffer_manager_message_buffer_length(header)
-                                                       + dataLength);
-    // Add the payload
-    sl_legacy_buffer_manager_copy_to_linked_buffers(data,
-                                                    header,
-                                                    len,
-                                                    dataLength);
-    // Clear the Stub queue because everything is serialised in header
-    sl_zigbee_gp_remove_from_tx_queue(&sli_zigbee_gp_tx_queue);
+    if ((sl_legacy_buffer_manager_append_to_linked_buffers(header,
+                                                           &(sli_zigbee_gp_tx_queue.gpdCommandId),
+                                                           1) == SL_STATUS_OK)
+        // Copy Command Payload from the queue to the buffer and update the length
+        && (sl_legacy_buffer_manager_set_linked_buffers_length(header,
+                                                               sl_legacy_buffer_manager_message_buffer_length(header)
+                                                               + dataLength) == SL_STATUS_OK)
+        // Add the payload
+        && (sl_legacy_buffer_manager_copy_to_linked_buffers(data,
+                                                            header,
+                                                            len,
+                                                            dataLength) == SL_STATUS_OK)) {
+      // Clear the Stub queue because everything is serialised in header
+      sl_zigbee_gp_remove_from_tx_queue(&sli_zigbee_gp_tx_queue);
 
-    // Prepare a RAIL frame to be transported using the additional handle
-    uint8_t outPktLength = sl_legacy_buffer_manager_message_buffer_length(header);
-    uint8_t outPkt[128]; //128 = MAX size
-    // RAIL Frame : [Total Length (excludes itself) | <-----MAC FRAME ---->| 2 byte CRC]
-    outPkt[0] = outPktLength + 2;
-    // Copy the data from the buffer
-    sl_legacy_buffer_manager_copy_from_linked_buffers(header,
-                                                      0,
-                                                      &outPkt[1],
-                                                      outPktLength);
-    // Free the header as the rail frame will be submitted with a new buffer asdu
-    sl_legacy_buffer_manager_release_message_buffer(header);
+      // Prepare a RAIL frame to be transported using the additional handle
+      uint8_t outPktLength = sl_legacy_buffer_manager_message_buffer_length(header);
+      uint8_t outPkt[128]; //128 = MAX size
+      // RAIL Frame : [Total Length (excludes itself) | <-----MAC FRAME ---->| 2 byte CRC]
+      outPkt[0] = outPktLength + 2;
+      // Copy the data from the buffer
+      sl_legacy_buffer_manager_copy_from_linked_buffers(header,
+                                                        0,
+                                                        &outPkt[1],
+                                                        outPktLength);
+      // Free the header as the rail frame will be submitted with a new buffer asdu
+      sl_legacy_buffer_manager_release_message_buffer(header);
 
-    static sl_zigbee_gp_tx_queue_entry_t copyOfGpStubTxQueue;
-    copyOfGpStubTxQueue.inUse = true;
-    *asduLength = outPkt[0] + 1;
-    memmove(asdu, &outPkt, *asduLength);
-    memcpy(&(copyOfGpStubTxQueue.addr), addr, sizeof(sl_zigbee_gp_address_t));
-    return &copyOfGpStubTxQueue;
+      static sl_zigbee_gp_tx_queue_entry_t copyOfGpStubTxQueue;
+      copyOfGpStubTxQueue.inUse = true;
+      *asduLength = outPkt[0] + 1;
+      memmove(asdu, &outPkt, *asduLength);
+      memcpy(&(copyOfGpStubTxQueue.addr), addr, sizeof(sl_zigbee_gp_address_t));
+      return &copyOfGpStubTxQueue;
+    }
   }
   return NULL;
 }

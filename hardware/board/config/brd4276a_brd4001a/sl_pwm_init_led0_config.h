@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_PWM_INIT_PWM_CONFIG_H
-#define SL_PWM_INIT_PWM_CONFIG_H
+#ifndef SL_PWM_INIT_LED0_CONFIG_H
+#define SL_PWM_INIT_LED0_CONFIG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,4 +72,4 @@ extern "C" {
 }
 #endif
 
-#endif // SL_PWM_INIT_PWM_CONFIG_H
+#endif // SL_PWM_INIT_LED0_CONFIG_H

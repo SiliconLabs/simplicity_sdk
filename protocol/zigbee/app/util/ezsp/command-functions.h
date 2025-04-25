@@ -4872,6 +4872,7 @@ static void callbackDispatch(void)
       uint8_t proxyTableIndex;
       uint8_t gpdCommandPayloadLength;
       uint8_t *gpdCommandPayload;
+      sl_zigbee_rx_packet_info_t packetInfo;
       gp_status = fetchInt8u();
       gpdLink = fetchInt8u();
       sequenceNumber = fetchInt8u();
@@ -4886,7 +4887,8 @@ static void callbackDispatch(void)
       proxyTableIndex = fetchInt8u();
       gpdCommandPayloadLength = fetchInt8u();
       gpdCommandPayload = (uint8_t *)fetchInt8uPointer(gpdCommandPayloadLength);
-      sl_zigbee_ezsp_gpep_incoming_message_handler(gp_status, gpdLink, sequenceNumber, &addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload);
+      fetch_sl_zigbee_rx_packet_info_t(&packetInfo);
+      sl_zigbee_ezsp_gpep_incoming_message_handler(gp_status, gpdLink, sequenceNumber, &addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, &packetInfo);
       break;
     }
 

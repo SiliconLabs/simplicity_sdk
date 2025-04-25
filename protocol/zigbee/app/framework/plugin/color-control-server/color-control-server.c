@@ -1537,17 +1537,33 @@ void sl_zigbee_af_level_control_coupled_color_temp_change_cb(uint8_t endpoint)
 
 #endif // SUPPORT_COLOR_TEMPERATURE
 
-bool sl_zigbee_af_color_control_cluster_stop_move_step_cb(uint8_t optionsMask,
-                                                          uint8_t optionsOverride)
+bool sl_zigbee_af_color_control_cluster_stop_move_step_cb(sl_zigbee_af_cluster_command_t *cmd)
 {
-  // Received a stop command.  This is all we need to do.
   uint8_t endpoint = sl_zigbee_af_current_endpoint();
+  sl_zcl_color_control_cluster_stop_move_step_command_t cmd_data;
+  uint8_t optionsMask;
+  uint8_t optionsOverride;
 
+  // Decode the command
+  if (zcl_decode_color_control_cluster_stop_move_step_command(cmd, &cmd_data)
+      != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
+    return SL_ZIGBEE_ZCL_STATUS_MALFORMED_COMMAND;
+  }
+
+  optionsMask = cmd_data.optionsMask;
+  optionsOverride = cmd_data.optionsOverride;
+
+  // Check if the command should execute when the device is off
   if (shouldExecuteIfOff(endpoint, optionsMask, optionsOverride)) {
     stopAllColorTransitions();
   }
 
+  // RemainingTime attribute SHALL be set to zero
+  writeRemainingTime(endpoint, 0);
+
+  // Send a default response
   sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
+
   return true;
 }
 
@@ -2069,6 +2085,13 @@ uint32_t sl_zigbee_af_color_control_cluster_server_command_parse(sl_service_opco
         break;
       }
   #endif // SUPPORT_COLOR_TEMPERATURE
+  #if defined(SUPPORT_CIE_1931) || defined(SUPPORT_HUE_SATURATION)
+      case ZCL_STOP_MOVE_STEP_COMMAND_ID:
+      {
+        wasHandled = sl_zigbee_af_color_control_cluster_stop_move_step_cb(cmd);
+        break;
+      }
+  #endif // support for STOP_MOVE_STEP command
     }
   }
 

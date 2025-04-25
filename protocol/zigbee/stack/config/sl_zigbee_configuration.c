@@ -235,13 +235,13 @@ uint8_t sli_zigbee_store_and_forward_queue_size = SL_ZIGBEE_STORE_AND_FORWARD_QU
 //------------------------------------------------------------------------------
 // Green Power stack tables
 uint8_t sli_zigbee_gp_incoming_fc_token_table_size = SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TABLE_SIZE;
-uint8_t sli_zigbee_gp_incoming_fc_token_timeout = SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT;
+uint32_t sli_zigbee_gp_incoming_fc_token_timeout = SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT;
 
 sl_zigbee_gp_proxy_table_entry_t sli_zigbee_gp_proxy_table[SL_ZIGBEE_GP_PROXY_TABLE_SIZE];
 uint8_t sli_zigbee_gp_proxy_table_size = SL_ZIGBEE_GP_PROXY_TABLE_SIZE;
 
 uint8_t sli_zigbee_gp_incoming_fc_in_sink_token_table_size = SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TABLE_SIZE;
-uint8_t sli_zigbee_gp_incoming_fc_in_sink_token_timeout = SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TIMEOUT;
+uint32_t sli_zigbee_gp_incoming_fc_in_sink_token_timeout = SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TIMEOUT;
 
 #if (SL_ZIGBEE_GP_SINK_TABLE_SIZE > 0)
 sl_zigbee_gp_sink_table_entry_t sli_zigbee_gp_sink_table[SL_ZIGBEE_GP_SINK_TABLE_SIZE];

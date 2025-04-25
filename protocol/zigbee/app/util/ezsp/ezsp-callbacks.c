@@ -301,7 +301,9 @@ WEAK(void sl_zigbee_ezsp_gpep_incoming_message_handler(
        uint8_t gpdCommandPayloadLength,
        // The application information of the peer device. This parameter is
        // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint8_t *gpdCommandPayload))
+       uint8_t *gpdCommandPayload,
+       // Rx packet information
+       sl_zigbee_rx_packet_info_t *packetInfo))
 {
 }
 

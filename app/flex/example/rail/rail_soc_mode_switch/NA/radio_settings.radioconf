@@ -6,15 +6,15 @@
         <channel_config_entry name="ieee802154_wisun_915_fsk">
           <channel_number_start>512</channel_number_start>
           <channel_number_end>640</channel_number_end>
-          <physical_channel_offset>512</physical_channel_offset>
+          <physical_channel_offset>SAME_AS_FIRST_CHANNEL</physical_channel_offset>
           <max_power>RAIL_TX_POWER_MAX</max_power>
           <metadata>{"selectedPhy":"PHY_WISUN_FAN_1v1_915MHz_Plan1_2FSK_1b_NA"}</metadata>
           <phy_name_override>PHY_WISUN_FAN_1v1_915MHz_Plan1_2FSK_1b_NA</phy_name_override>
         </channel_config_entry>
         <channel_config_entry name="ieee802154_wisun_915_ofdm">
-          <channel_number_start>8192</channel_number_start>
-          <channel_number_end>8212</channel_number_end>
-          <physical_channel_offset>8192</physical_channel_offset>
+          <channel_number_start>8704</channel_number_start>
+          <channel_number_end>8724</channel_number_end>
+          <physical_channel_offset>SAME_AS_FIRST_CHANNEL</physical_channel_offset>
           <max_power>RAIL_TX_POWER_MAX</max_power>
           <metadata>{"selectedPhy":"PHY_WISUN_FAN_1v1_915MHz_Plan5_OFDM_OPT1_NA"}</metadata>
           <phy_name_override>PHY_WISUN_FAN_1v1_915MHz_Plan5_OFDM_OPT1_NA</phy_name_override>

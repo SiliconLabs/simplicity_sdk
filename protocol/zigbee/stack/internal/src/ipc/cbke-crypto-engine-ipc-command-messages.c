@@ -110,7 +110,7 @@ sl_status_t sl_zigbee_calculate_smacs(bool amInitiator,
                                       sl_zigbee_certificate_data_t *partnerCert,
                                       sl_zigbee_public_key_data_t *partnerEphemeralPublicKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.calculate_smacs.request.amInitiator = amInitiator;
 
   if (partnerCert != NULL) {
@@ -138,7 +138,7 @@ sl_status_t sl_zigbee_calculate_smacs_283k1(bool amInitiator,
                                             sl_zigbee_certificate_283k1_data_t *partnerCert,
                                             sl_zigbee_public_key_283k1_data_t *partnerEphemeralPublicKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.calculate_smacs_283k1.request.amInitiator = amInitiator;
 
   if (partnerCert != NULL) {
@@ -164,7 +164,7 @@ sl_status_t sl_zigbee_calculate_smacs_283k1(bool amInitiator,
 
 sl_status_t sl_zigbee_clear_temporary_data_maybe_store_link_key(bool storeLinkKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.clear_temporary_data_maybe_store_link_key.request.storeLinkKey = storeLinkKey;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_clear_temporary_data_maybe_store_link_key_process_ipc_command, &msg);
 
@@ -173,7 +173,7 @@ sl_status_t sl_zigbee_clear_temporary_data_maybe_store_link_key(bool storeLinkKe
 
 sl_status_t sl_zigbee_clear_temporary_data_maybe_store_link_key_283k1(bool storeLinkKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.clear_temporary_data_maybe_store_link_key_283k1.request.storeLinkKey = storeLinkKey;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_clear_temporary_data_maybe_store_link_key_283k1_process_ipc_command, &msg);
 
@@ -182,7 +182,7 @@ sl_status_t sl_zigbee_clear_temporary_data_maybe_store_link_key_283k1(bool store
 
 sl_status_t sl_zigbee_dsa_sign(sli_buffer_manager_buffer_t messageToSign)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.dsa_sign.request.messageToSign = messageToSign;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_dsa_sign_process_ipc_command, &msg);
 
@@ -193,7 +193,7 @@ sl_status_t sl_zigbee_dsa_verify(sl_zigbee_message_digest_t *digest,
                                  sl_zigbee_certificate_data_t *signerCertificate,
                                  sl_zigbee_signature_data_t *receivedSig)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (digest != NULL) {
     msg.data.dsa_verify.request.digest = *digest;
@@ -228,7 +228,7 @@ sl_status_t sl_zigbee_dsa_verify_283k1(const sl_zigbee_message_digest_t *digest,
                                        const sl_zigbee_certificate_283k1_data_t *signerCertificate,
                                        const sl_zigbee_signature_283k1_data_t *receivedSig)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (digest != NULL) {
     msg.data.dsa_verify_283k1.request.digest = *digest;
@@ -249,7 +249,7 @@ sl_status_t sl_zigbee_dsa_verify_283k1(const sl_zigbee_message_digest_t *digest,
 
 sl_status_t sl_zigbee_generate_cbke_keys(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_generate_cbke_keys_process_ipc_command, &msg);
 
@@ -258,7 +258,7 @@ sl_status_t sl_zigbee_generate_cbke_keys(void)
 
 sl_status_t sl_zigbee_generate_cbke_keys_283k1(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_generate_cbke_keys_283k1_process_ipc_command, &msg);
 
@@ -267,7 +267,7 @@ sl_status_t sl_zigbee_generate_cbke_keys_283k1(void)
 
 sl_status_t sl_zigbee_get_certificate(sl_zigbee_certificate_data_t *result)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (result != NULL) {
     msg.data.get_certificate.request.result = *result;
@@ -284,7 +284,7 @@ sl_status_t sl_zigbee_get_certificate(sl_zigbee_certificate_data_t *result)
 
 sl_status_t sl_zigbee_get_certificate_283k1(sl_zigbee_certificate_283k1_data_t *result)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (result != NULL) {
     msg.data.get_certificate_283k1.request.result = *result;
@@ -301,7 +301,7 @@ sl_status_t sl_zigbee_get_certificate_283k1(sl_zigbee_certificate_283k1_data_t *
 
 bool sl_zigbee_get_stack_certificate_eui64(sl_802154_long_addr_t certEui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (certEui64 != NULL) {
     memmove(msg.data.get_stack_certificate_eui64.request.certEui64, certEui64, sizeof(sl_802154_long_addr_t));
@@ -320,7 +320,7 @@ sl_status_t sl_zigbee_set_preinstalled_cbke_data(sl_zigbee_public_key_data_t *ca
                                                  sl_zigbee_certificate_data_t *myCert,
                                                  sl_zigbee_private_key_data_t *myKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (caPublic != NULL) {
     msg.data.set_preinstalled_cbke_data.request.caPublic = *caPublic;
@@ -355,7 +355,7 @@ sl_status_t sl_zigbee_set_preinstalled_cbke_data_283k1(const sl_zigbee_public_ke
                                                        const sl_zigbee_certificate_283k1_data_t *myCert,
                                                        const sl_zigbee_private_key_283k1_data_t *myKey)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (caPublic != NULL) {
     msg.data.set_preinstalled_cbke_data_283k1.request.caPublic = *caPublic;

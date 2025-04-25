@@ -273,57 +273,62 @@ float sl_icm40627_set_sample_rate(float sample_rate)
   uint8_t accel_sample_rate_setting;
   uint8_t gyro_sample_rate_setting;
 
-  /* Map sample_rate to corresponding register values*/
-  switch ((int)sample_rate) {
-    case 8000:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_8000;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_8000;
-      break;
-    case 4000:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_4000;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_4000;
-      break;
-    case 2000:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_2000;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_2000;
-      break;
-    case 1000:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_1000;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_1000;
-      break;
-    case 500:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_500;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_500;
-      break;
-    case 200:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_200;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_200;
-      break;
-    case 100:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_100;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_100;
-      break;
-    case 50:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_50;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_50;
-      break;
-    case 25:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_25;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_25;
-      break;
-    case 12:
-      accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_12_5;
-      gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_12_5;
-      break;
-    default:
-      return -1.0f;
+  /* Map sample_rate to corresponding register values */
+  if (sample_rate > 6000.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_8000;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_8000;
+    sample_rate = 8000.0f;
+  } else if (sample_rate > 3000.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_4000;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_4000;
+    sample_rate = 4000.0f;
+  } else if (sample_rate > 1500.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_2000;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_2000;
+    sample_rate = 2000.0f;
+  } else if (sample_rate > 750.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_1000;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_1000;
+    sample_rate = 1000.0f;
+  } else if (sample_rate > 375.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_500;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_500;
+    sample_rate = 500.0f;
+  } else if (sample_rate > 100.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_200;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_200;
+    sample_rate = 200.0f;
+  } else if (sample_rate > 75.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_100;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_100;
+    sample_rate = 100.0f;
+  } else if (sample_rate > 37.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_50;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_50;
+    sample_rate = 50.0f;
+  } else if (sample_rate > 18.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_25;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_25;
+    sample_rate = 25.0f;
+  } else if (sample_rate > 9.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_12_5;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate = 12.5f;
+  } else if (sample_rate > 6.0f) {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_6_25;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate = 6.25f;
+  } else {
+    accel_sample_rate_setting = ICM40627_ACCEL_ODR_VALUE_3_125;
+    gyro_sample_rate_setting = ICM40627_GYRO_ODR_VALUE_12_5;
+    sample_rate = 3.125f;
   }
 
-  /* Set the sample rate for gyroscope and accelerometer*/
+  /* Set the sample rate for gyroscope and accelerometer */
   sl_icm40627_gyro_set_sample_rate((sl_gyro_ODR_t)gyro_sample_rate_setting);
   sl_icm40627_accel_set_sample_rate((sl_accel_ODR_t)accel_sample_rate_setting);
 
-  /* Return the actual sample rate set*/
+  /* Return the actual sample rate set */
   return sample_rate;
 }
 

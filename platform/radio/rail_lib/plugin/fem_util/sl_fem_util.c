@@ -37,7 +37,7 @@
                                    || SL_FEM_UTIL_TX_ENABLE            \
                                    || SL_FEM_UTIL_BYPASS_ENABLE        \
                                    || SL_FEM_UTIL_TX_HIGH_POWER_ENABLE \
-                                   || SL_FEM_UTIL_AUTO_LNA_BYPASS_ENABLE)
+                                   || SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE)
 
 #if SL_FEM_UTIL_GLOBAL_ENABLE == 1
   #include "em_device.h"
@@ -48,20 +48,11 @@
   #include "em_prs.h"
 
 #if SL_FEM_UTIL_RX_ENABLE == 1
-  #ifdef _SILICON_LABS_32B_SERIES_1
-    #if (!defined(SL_FEM_UTIL_RX_CHANNEL) \
-  || !defined(SL_FEM_UTIL_RX_PORT)        \
-  || !defined(SL_FEM_UTIL_RX_PIN)         \
-  || !defined(SL_FEM_UTIL_RX_LOC))
-      #error "SL_FEM_UTIL_RX_CHANNEL/PORT/PIN/LOC must be defined."
-    #endif
-  #else //!_SILICON_LABS_32B_SERIES_1
-    #if (!defined(SL_FEM_UTIL_RX_CHANNEL) \
-  || !defined(SL_FEM_UTIL_RX_PORT)        \
+  #if (!defined(SL_FEM_UTIL_RX_CHANNEL) \
+  || !defined(SL_FEM_UTIL_RX_PORT)      \
   || !defined(SL_FEM_UTIL_RX_PIN))
       #error "SL_FEM_UTIL_RX_CHANNEL/PORT/PIN must be defined."
-    #endif
-  #endif //!_SILICON_LABS_32B_SERIES_1
+  #endif
 #endif // SL_FEM_UTIL_RX_ENABLE == 1
 
 #if SL_FEM_UTIL_TX_ENABLE == 1
@@ -70,9 +61,6 @@
     #define SL_FEM_UTIL_TX_PORT SL_FEM_UTIL_RX_PORT
     #define SL_FEM_UTIL_TX_PIN SL_FEM_UTIL_RX_PIN
     #define SL_FEM_UTIL_TX_CHANNEL SL_FEM_UTIL_RX_CHANNEL
-    #if _SILICON_LABS_32B_SERIES_1
-      #define SL_FEM_UTIL_TX_LOC SL_FEM_UTIL_RX_LOC
-    #endif
   #elif !defined(SL_FEM_UTIL_TX_CHANNEL)
     #error "SL_FEM_UTIL_TX_CHANNEL must be defined."
   #endif
@@ -111,35 +99,11 @@ void sl_fem_util_init(void)
   // Turn on the GPIO clock so that we can turn on GPIOs
   CMU_ClockEnable(cmuClock_GPIO, true);
   CMU_ClockEnable(cmuClock_PRS, true);
-
-#ifdef _SILICON_LABS_32B_SERIES_1
-  volatile uint32_t * routeRegister;
-#endif //_SILICON_LABS_32B_SERIES_1
 #if SL_FEM_UTIL_TX_ENABLE == 1
   //Enable the output of TX based on a specific port and pin
   //Configure the tx gpio to be an output (FEM pin CTX)
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_TX_PORT, SL_FEM_UTIL_TX_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
   //Setup the PRS to output TX on the channel and location chosen.
-#ifdef _SILICON_LABS_32B_SERIES_1
-  PRS->CH[SL_FEM_UTIL_TX_CHANNEL].CTRL = PRS_RAC_PAEN;
-
-  // Configure TX/RX PRS output to selected channel and location
-  if (SL_FEM_UTIL_TX_CHANNEL < 4) {
-    routeRegister = &PRS->ROUTELOC0;
-  } else if (SL_FEM_UTIL_TX_CHANNEL < 8) {
-    routeRegister = &PRS->ROUTELOC1;
-  } else if (SL_FEM_UTIL_TX_CHANNEL < 12) {
-    routeRegister = &PRS->ROUTELOC2;
-  } else {
-    EFM_ASSERT(0);
-    return; // error
-  }
-
-  BUS_RegMaskedClear(routeRegister, 0xFF << ((SL_FEM_UTIL_TX_CHANNEL % 4) * 8));
-  BUS_RegMaskedSet(routeRegister, SL_FEM_UTIL_TX_LOC << ((SL_FEM_UTIL_TX_CHANNEL % 4) * 8));
-
-  BUS_RegMaskedSet(&PRS->ROUTEPEN, (1 << SL_FEM_UTIL_TX_CHANNEL));
-#else //!_SILICON_LABS_32B_SERIES_1
   PRS_SourceAsyncSignalSet(SL_FEM_UTIL_TX_CHANNEL,
                            0U,
 #ifdef PRS_RACL_PAEN
@@ -150,34 +114,12 @@ void sl_fem_util_init(void)
 #error "No PRS setting defined for Source=RAC, Signal=PAEN"
 #endif //PRS_RACL_PAEN
   PRS_PinOutput(SL_FEM_UTIL_TX_CHANNEL, prsTypeAsync, SL_FEM_UTIL_TX_PORT, SL_FEM_UTIL_TX_PIN);
-#endif //_SILICON_LABS_32B_SERIES_1
 #endif //SL_FEM_UTIL_TX_ENABLE == 1
 
 #if SL_FEM_UTIL_RX_ENABLE == 1
   //Enable the output of RX based on a specific port and pin
   //Configure the rx gpio to be an output (FEM pin CRX)
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_RX_PORT, SL_FEM_UTIL_RX_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
-#ifdef _SILICON_LABS_32B_SERIES_1
-  //Setup the PRS to output RX on the channel and location chosen.
-  PRS->CH[SL_FEM_UTIL_RX_CHANNEL].CTRL = PRS_RAC_LNAEN;
-
-  // Configure TX/RX PRS output to selected channel and location
-  if (SL_FEM_UTIL_RX_CHANNEL < 4) {
-    routeRegister = &PRS->ROUTELOC0;
-  } else if (SL_FEM_UTIL_RX_CHANNEL < 8) {
-    routeRegister = &PRS->ROUTELOC1;
-  } else if (SL_FEM_UTIL_RX_CHANNEL < 12) {
-    routeRegister = &PRS->ROUTELOC2;
-  } else {
-    EFM_ASSERT(0);
-    return; // error
-  }
-
-  BUS_RegMaskedClear(routeRegister, 0xFF << ((SL_FEM_UTIL_RX_CHANNEL % 4) * 8));
-  BUS_RegMaskedSet(routeRegister, SL_FEM_UTIL_RX_LOC << ((SL_FEM_UTIL_RX_CHANNEL % 4) * 8));
-
-  BUS_RegMaskedSet(&PRS->ROUTEPEN, (1 << SL_FEM_UTIL_RX_CHANNEL));
-#else //!_SILICON_LABS_32B_SERIES_1
   PRS_SourceAsyncSignalSet(SL_FEM_UTIL_RX_CHANNEL,
                            0U,
 #ifdef PRS_RACL_LNAEN
@@ -188,39 +130,11 @@ void sl_fem_util_init(void)
 #error "No PRS setting defined for Source=RAC, Signal=LNAEN"
 #endif //PRS_RACL_LNAEN
   PRS_PinOutput(SL_FEM_UTIL_RX_CHANNEL, prsTypeAsync, SL_FEM_UTIL_RX_PORT, SL_FEM_UTIL_RX_PIN);
-#endif //_SILICON_LABS_32B_SERIES_1
 #endif //SL_FEM_UTIL_RX_ENABLE == 1
 
 #if defined(SL_FEM_UTIL_SLEEP_CHANNEL)
 // initialize sleep as output (FEM pin CSD)
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_SLEEP_PORT, SL_FEM_UTIL_SLEEP_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
-#ifdef _SILICON_LABS_32B_SERIES_1
-// set up the CSD to be active whenever the PA or LNA are enabled
-// its signal is PA enable ORed with the RX channel's signal (LNA enable)
-#if SL_FEM_UTIL_RX_ENABLE == 1
-  PRS->CH[SL_FEM_UTIL_SLEEP_CHANNEL].CTRL = PRS_RAC_PAEN | PRS_CH_CTRL_ORPREV;
-#else
-  PRS->CH[SL_FEM_UTIL_SLEEP_CHANNEL].CTRL = PRS_RAC_PAEN;
-#endif
-
-// Configure CSD PRS output to selected channel and location
-  if (SL_FEM_UTIL_SLEEP_CHANNEL < 4) {
-    routeRegister = &PRS->ROUTELOC0;
-  } else if (SL_FEM_UTIL_SLEEP_CHANNEL < 8) {
-    routeRegister = &PRS->ROUTELOC1;
-  } else if (SL_FEM_UTIL_SLEEP_CHANNEL < 12) {
-    routeRegister = &PRS->ROUTELOC2;
-  } else {
-    EFM_ASSERT(0);
-    return; // error
-  }
-
-  BUS_RegMaskedClear(routeRegister, 0xFF << ((SL_FEM_UTIL_SLEEP_CHANNEL % 4) * 8));
-  BUS_RegMaskedSet(routeRegister, SL_FEM_UTIL_SLEEP_LOC << ((SL_FEM_UTIL_SLEEP_CHANNEL % 4) * 8));
-
-// Enable CSD PRS output on both output and input
-  BUS_RegMaskedSet(&PRS->ROUTEPEN, (1 << SL_FEM_UTIL_SLEEP_CHANNEL));
-#else //!_SILICON_LABS_32B_SERIES_1
 // set up the CSD to be active whenever the PA or LNA are enabled
 // its signal is PA enable ORed with the RX channel's signal (LNA enable)
   PRS_SourceAsyncSignalSet(SL_FEM_UTIL_SLEEP_CHANNEL,
@@ -239,8 +153,6 @@ void sl_fem_util_init(void)
 #endif
 // Configure CSD PRS output to selected channel
   PRS_PinOutput(SL_FEM_UTIL_SLEEP_CHANNEL, prsTypeAsync, SL_FEM_UTIL_SLEEP_PORT, SL_FEM_UTIL_SLEEP_PIN);
-
-#endif //_SILICON_LABS_32B_SERIES_1
 #endif // SL_FEM_UTIL_SLEEP_CHANNEL
 
 // if fem has a bypass pin (FEM pin CPS)
@@ -248,24 +160,33 @@ void sl_fem_util_init(void)
   // set up bypass pin
   #if SL_FEM_UTIL_BYPASS_ENABLE
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN }, SL_GPIO_MODE_PUSH_PULL, true);
-  #else
+  #else //!SL_FEM_UTIL_BYPASS_ENABLE
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
-  #endif
-#endif
+  #endif //SL_FEM_UTIL_BYPASS_ENABLE
 
-#ifdef SL_FEM_UTIL_BYPASS_PORT
-  RAIL_AutoLnaBypassConfig_t autoLnaBypassConfig = {
-    .timeoutUs = SL_FEM_UTIL_AUTO_LNA_BYPASS_TIMEOUT_US,
-    .threshold = SL_FEM_UTIL_AUTO_LNA_BYPASS_THRESHOLD,
-    .deltaRssiDbm = SL_FEM_UTIL_AUTO_LNA_BYPASS_DELTA_RSSI_DBM,
-    .port = SL_FEM_UTIL_BYPASS_PORT,
-    .pin = SL_FEM_UTIL_BYPASS_PIN,
-    .polarity = SL_FEM_UTIL_AUTO_LNA_BYPASS_POLARITY
+  #if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
+    #if RAIL_SUPPORTS_PRS_LNA_BYPASS
+  PRS_PinOutput(SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL, prsTypeAsync, SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN);
+    #endif //RAIL_SUPPORTS_PRS_LNA_BYPASS
+  #endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
+#endif //SL_FEM_UTIL_BYPASS_PORT
+
+#if SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
+  #if RAIL_SUPPORTS_PRS_LNA_BYPASS
+  RAIL_PrsLnaBypassConfig_t PrsLnaBypassConfig = {
+    .timeoutUs = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_TIMEOUT_US,
+    .threshold = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_THRESHOLD,
+    .deltaRssiDbm = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_DELTA_RSSI_DBM,
+    .prsChannel = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL,
+    .polarity = SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_POLARITY
   };
-  (void) RAIL_EnableAutoLnaBypass(RAIL_EFR32_HANDLE,
-                                  (bool) SL_FEM_UTIL_AUTO_LNA_BYPASS_ENABLE,
-                                  &autoLnaBypassConfig);
-#endif
+  (void) RAIL_EnablePrsLnaBypass(RAIL_EFR32_HANDLE,
+                                 true,
+                                 &PrsLnaBypassConfig);
+  // To perform logical operation on SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_CHANNEL,
+  // any call to PRS_Combine() must be done after RAIL_EnablePrsLnaBypass().
+  #endif //RAIL_SUPPORTS_PRS_LNA_BYPASS
+#endif //SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE
 
 // if fem has a tx power pin (FEM pin CHL)
 #ifdef SL_FEM_UTIL_TX_HIGH_POWER_PORT
@@ -282,10 +203,12 @@ void sl_fem_util_init(void)
 void sl_fem_util_wakeup(void)
 {
 #if SL_FEM_UTIL_GLOBAL_ENABLE == 1
-// if fem has a bypass pin (FEM pin CPS)
-#ifdef SL_FEM_UTIL_BYPASS_PORT
+// if fem has a bypass pin (FEM pin CPS) and automatic bypass through PRS is not used
+#if defined (SL_FEM_UTIL_BYPASS_PORT)
   #if SL_FEM_UTIL_BYPASS_ENABLE
+    #if (!SL_FEM_UTIL_AUTO_PRS_LNA_BYPASS_ENABLE)
   sl_gpio_set_pin(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN });
+    #endif
   #else
   sl_gpio_clear_pin(&(sl_gpio_t){SL_FEM_UTIL_BYPASS_PORT, SL_FEM_UTIL_BYPASS_PIN });
   #endif

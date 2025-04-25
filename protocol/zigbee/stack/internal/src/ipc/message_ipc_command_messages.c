@@ -164,7 +164,7 @@ void slxi_zigbee_stack_add_to_incoming_network_queue_process_ipc_command(sli_zig
 
 bool sl_zigbee_address_table_entry_is_active(uint8_t addressTableIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.address_table_entry_is_active.request.addressTableIndex = addressTableIndex;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_address_table_entry_is_active_process_ipc_command, &msg);
 
@@ -175,7 +175,7 @@ sl_status_t sl_zigbee_get_address_table_info(uint8_t addressTableIndex,
                                              sl_802154_short_addr_t *nodeId,
                                              sl_802154_long_addr_t eui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_address_table_info.request.addressTableIndex = addressTableIndex;
 
   if (nodeId != NULL) {
@@ -201,7 +201,7 @@ sl_status_t sl_zigbee_get_address_table_info(uint8_t addressTableIndex,
 
 uint16_t sl_zigbee_get_aps_ack_timeout_ms(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_aps_ack_timeout_ms_process_ipc_command, &msg);
 
@@ -210,7 +210,7 @@ uint16_t sl_zigbee_get_aps_ack_timeout_ms(void)
 
 sl_status_t sl_zigbee_get_extended_timeout(sl_802154_long_addr_t remoteEui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (remoteEui64 != NULL) {
     memmove(msg.data.get_extended_timeout.request.remoteEui64, remoteEui64, sizeof(sl_802154_long_addr_t));
@@ -227,7 +227,7 @@ sl_status_t sl_zigbee_get_extended_timeout(sl_802154_long_addr_t remoteEui64)
 
 sl_zigbee_multicast_table_entry_t * sl_zigbee_get_multicast_table(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_multicast_table_process_ipc_command, &msg);
 
@@ -236,7 +236,7 @@ sl_zigbee_multicast_table_entry_t * sl_zigbee_get_multicast_table(void)
 
 uint8_t sl_zigbee_get_multicast_table_size(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_multicast_table_size_process_ipc_command, &msg);
 
@@ -245,7 +245,7 @@ uint8_t sl_zigbee_get_multicast_table_size(void)
 
 uint8_t sl_zigbee_maximum_aps_payload_length(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_maximum_aps_payload_length_process_ipc_command, &msg);
 
@@ -254,7 +254,7 @@ uint8_t sl_zigbee_maximum_aps_payload_length(void)
 
 bool sl_zigbee_pending_acked_messages(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_pending_acked_messages_process_ipc_command, &msg);
 
@@ -263,7 +263,7 @@ bool sl_zigbee_pending_acked_messages(void)
 
 sl_status_t sl_zigbee_proxy_next_broadcast_from_long(const uint8_t *euiSource)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (euiSource != NULL) {
     memmove(msg.data.proxy_next_broadcast_from_long.request.euiSource, euiSource, sizeof(uint8_t) * (EUI64_SIZE));
@@ -284,7 +284,7 @@ sl_status_t sl_zigbee_send_broadcast(sl_802154_short_addr_t alias,
                                      const uint8_t *message,
                                      uint8_t *apsSequence)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_broadcast.request.alias = alias;
   msg.data.send_broadcast.request.destination = destination;
   msg.data.send_broadcast.request.nwkSequence = nwkSequence;
@@ -330,7 +330,7 @@ sl_status_t sl_zigbee_send_multicast(sl_zigbee_aps_frame_t *apsFrame,
                                      const uint8_t *message,
                                      uint8_t *apsSequence)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (apsFrame != NULL) {
     msg.data.send_multicast.request.apsFrame = *apsFrame;
@@ -371,7 +371,7 @@ sl_status_t sl_zigbee_send_reply(sl_802154_short_addr_t destination,
                                  uint8_t messageLength,
                                  uint8_t *messageContents)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_reply.request.destination = destination;
 
   if (apsFrame != NULL) {
@@ -405,7 +405,7 @@ sl_status_t sl_zigbee_send_unicast(sl_zigbee_outgoing_message_type_t type,
                                    const uint8_t *message,
                                    uint8_t *apsSequence)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_unicast.request.type = type;
   msg.data.send_unicast.request.indexOrDestination = indexOrDestination;
 
@@ -443,7 +443,7 @@ sl_status_t sl_zigbee_set_address_table_info(uint8_t addressTableIndex,
                                              sl_802154_long_addr_t eui64,
                                              sl_802154_short_addr_t id)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_address_table_info.request.addressTableIndex = addressTableIndex;
 
   if (eui64 != NULL) {
@@ -462,7 +462,7 @@ sl_status_t sl_zigbee_set_address_table_info(uint8_t addressTableIndex,
 
 void sl_zigbee_set_aps_ack_timeout_ms(uint16_t timeout)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_aps_ack_timeout_ms.request.timeout = timeout;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_aps_ack_timeout_ms_process_ipc_command, &msg);
 }
@@ -470,7 +470,7 @@ void sl_zigbee_set_aps_ack_timeout_ms(uint16_t timeout)
 sl_status_t sl_zigbee_set_extended_timeout(sl_802154_long_addr_t remoteEui64,
                                            bool extendedTimeout)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (remoteEui64 != NULL) {
     memmove(msg.data.set_extended_timeout.request.remoteEui64, remoteEui64, sizeof(sl_802154_long_addr_t));
@@ -488,7 +488,7 @@ sl_status_t sl_zigbee_set_extended_timeout(sl_802154_long_addr_t remoteEui64,
 
 sl_status_t sl_zigbee_set_multicast_table(const sl_zigbee_multicast_table_entry_t *entry)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (entry != NULL) {
     msg.data.set_multicast_table.request.entry = *entry;
@@ -501,7 +501,7 @@ sl_status_t sl_zigbee_set_multicast_table(const sl_zigbee_multicast_table_entry_
 
 sl_status_t sl_zigbee_set_multicast_table_size(uint8_t size)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_multicast_table_size.request.size = size;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_multicast_table_size_process_ipc_command, &msg);
 
@@ -511,7 +511,7 @@ sl_status_t sl_zigbee_set_multicast_table_size(uint8_t size)
 sl_status_t sl_zigbee_set_passive_ack_config(sl_passive_ack_config_enum_t config,
                                              uint8_t minAcksNeeded)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_passive_ack_config.request.config = config;
   msg.data.set_passive_ack_config.request.minAcksNeeded = minAcksNeeded;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_passive_ack_config_process_ipc_command, &msg);
@@ -521,7 +521,7 @@ sl_status_t sl_zigbee_set_passive_ack_config(sl_passive_ack_config_enum_t config
 
 void sl_zigbee_set_reply_fragment_data(uint16_t fragmentData)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_reply_fragment_data.request.fragmentData = fragmentData;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_reply_fragment_data_process_ipc_command, &msg);
 }
@@ -530,7 +530,7 @@ sl_status_t slx_zigbee_add_to_incoming_network_queue(int8_t rssi,
                                                      uint8_t lqi,
                                                      const sl_nwk_packet_exchange_t *nwk_packet)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.add_to_incoming_network_queue.request.rssi = rssi;
   msg.data.add_to_incoming_network_queue.request.lqi = lqi;
 

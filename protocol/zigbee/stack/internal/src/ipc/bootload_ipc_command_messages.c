@@ -37,7 +37,7 @@ sl_status_t sl_zigbee_send_bootload_message(bool broadcast,
                                             uint8_t messageLength,
                                             uint8_t *messageContents)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_bootload_message.request.broadcast = broadcast;
 
   if (destEui64 != NULL) {

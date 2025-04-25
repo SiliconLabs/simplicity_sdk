@@ -39,6 +39,9 @@ extern const char *version_fw_str;
     ((patch << VERSION_PATCH_SHIFT) & VERSION_PATCH_MASK)   \
 )
 
+#define __VERSION_STR(major, minor, patch) #major "." #minor "." #patch
+#define VERSION_STR(major, minor, patch) __VERSION_STR(major, minor, patch)
+
 static inline bool version_older_than(uint32_t version,
                                       uint8_t major, uint16_t minor, uint8_t patch)
 {

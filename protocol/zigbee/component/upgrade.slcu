@@ -102,3 +102,6 @@ upgrade:
       - script: protocol/zigbee/component/scripts/upgrade_gp_table_token_size.lua
       - script: protocol/zigbee/component/scripts/upgrade_remove_packet_buffer_count.lua
       - script: protocol/zigbee/component/scripts/zigbee_gsdk_to_sisdk_compatibility.lua
+      - name: NVM3_DEFAULT_CACHE_SIZE
+        replacement: NVM3_DEFAULT_CACHE_SIZE
+      - script: protocol/zigbee/component/scripts/upgrade_nvm3_default_cache_size.lua

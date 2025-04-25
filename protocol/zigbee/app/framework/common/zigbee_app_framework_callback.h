@@ -705,7 +705,9 @@ void sl_zigbee_af_gpep_incoming_message_cb(
   // The length of the GPD command payload.
   uint8_t gpdCommandPayloadLength,
   // The GPD command payload.
-  uint8_t *gpdCommandPayload);
+  uint8_t *gpdCommandPayload,
+  // Rx packet information
+  sl_zigbee_rx_packet_info_t *packetInfo);
 
 /** @brief
  * Rtos Stack Wakeup Isr Handler

@@ -17,6 +17,7 @@
   - name: brd4308b_a02
   - name: hardware_board
   - name: hardware_board_rb
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_vcom
   - name: hardware_board_has_lfxo
   - name: hardware_board_supports_rf_band_2400

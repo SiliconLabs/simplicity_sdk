@@ -17,9 +17,9 @@
   - name: SL_KIT_NAME
     value: '"BG22-RB4191A"'
   - name: SL_KIT_REV
-    value: '"A00"'
+    value: '"A01"'
 - tag:
   - kit:opn:BG22-RB4191A
   - kit:pn:RB4191
   - kit:variant:A
-  - kit:revision:A00
+  - kit:revision:A01

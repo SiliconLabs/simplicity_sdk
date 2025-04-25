@@ -26,6 +26,8 @@ sl_status_t mfglibInternalEnd(void);
 
 uint8_t mfglibInternalGetChannel(void);
 
+uint16_t mfglibInternalGetCtune(void);
+
 uint8_t mfglibInternalGetOptions(void);
 
 int8_t mfglibInternalGetPower(void);
@@ -36,6 +38,8 @@ sl_status_t mfglibInternalSendPacket(uint8_t *packet,
                                      uint16_t repeat);
 
 sl_status_t mfglibInternalSetChannel(uint8_t chan);
+
+sl_status_t mfglibInternalSetCtune(uint16_t ctune);
 
 sl_status_t mfglibInternalSetOptions(uint8_t options);
 

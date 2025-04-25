@@ -45,6 +45,7 @@
 #define __BUFFER_MANAGEMENT_H__
 
 #include <stdbool.h>
+#include "sl_status.h"
 
 typedef uint16_t sli_buffer_manager_buffer_t;
 #define NULL_BUFFER 0x0000u
@@ -303,11 +304,11 @@ void sli_legacy_buffer_manager_merge_buffers(sli_buffer_manager_buffer_t first, 
 sli_buffer_manager_buffer_t sli_legacy_buffer_manager_split_buffer(sli_buffer_manager_buffer_t buffer, uint16_t newLength);
 
 // Prototypes for the MessageBuffer interface
-void sli_legacy_packet_buffer_really_copy_to_linked_buffers(const uint8_t *contents,
-                                                            sli_buffer_manager_buffer_t buffer,
-                                                            uint8_t startIndex,
-                                                            uint8_t length,
-                                                            uint8_t direction);
+sl_status_t sli_legacy_packet_buffer_really_copy_to_linked_buffers(const uint8_t *contents,
+                                                                   sli_buffer_manager_buffer_t buffer,
+                                                                   uint16_t startIndex,
+                                                                   uint16_t length,
+                                                                   uint8_t direction);
 
 #define bufferUse(tag)    do { sli_legacy_buffer_manager_buffer_usage(tag); } while (0)
 #define endBufferUse(tag) do { sli_legacy_buffer_manager_end_buffer_usage(); } while (0)

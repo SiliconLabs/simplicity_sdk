@@ -18,8 +18,11 @@
   - name: hardware_board_rb
   - name: hardware_board_from_stk
   - name: hardware_board_from_bg24-rb4198a
+  - name: hardware_board_from_xg24-pk6036a
+  - name: hardware_board_from_xg24-rb4198a
   - name: hardware_board_has_si70xx
   - name: hardware_board_has_tempsensor
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_vcom
   - name: hardware_board_has_spiflash
   - name: hardware_board_has_hfxo_freq_40mhz
@@ -59,7 +62,7 @@
   - name: SL_BOARD_NAME
     value: '"BRD4198A"'
   - name: SL_BOARD_REV
-    value: '"A01"'
+    value: '"A02"'
   - name: HFXO_FREQ
     value: 40000000
   - name: HARDWARE_BOARD_SUPPORTS_RF_BAND_2400
@@ -68,7 +71,7 @@
 - tag:
   - board:pn:BRD4198
   - board:variant:A
-  - board:revision:A01
+  - board:revision:A02
   - board:device:efr32mg24b210f1536im48
   - hardware:has:vcom
   - hardware:has:pti

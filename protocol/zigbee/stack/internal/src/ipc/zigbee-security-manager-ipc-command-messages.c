@@ -201,7 +201,7 @@ sl_status_t sl_zigbee_sec_man_aes_128_crypt_block(bool encrypt,
                                                   const uint8_t *input,
                                                   uint8_t *output)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.sec_man_aes_128_crypt_block.request.encrypt = encrypt;
 
   if (input != NULL) {
@@ -229,7 +229,7 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
                                                uint8_t mic_length,
                                                uint8_t *output)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (nonce != NULL) {
     memmove(msg.data.sec_man_aes_ccm_extended.request.nonce, nonce, sizeof(uint8_t) * (NONCE_LENGTH));
@@ -267,7 +267,7 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
 
 sl_status_t sl_zigbee_sec_man_check_key_context(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_check_key_context.request.context = *context;
@@ -285,7 +285,7 @@ sl_status_t sl_zigbee_sec_man_check_key_context(sl_zigbee_sec_man_context_t *con
 bool sl_zigbee_sec_man_compare_key_to_value(sl_zigbee_sec_man_context_t *context,
                                             const sl_zigbee_sec_man_key_t *test_key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_compare_key_to_value.request.context = *context;
@@ -306,7 +306,7 @@ bool sl_zigbee_sec_man_compare_key_to_value(sl_zigbee_sec_man_context_t *context
 
 sl_status_t sl_zigbee_sec_man_delete_key(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_delete_key.request.context = *context;
@@ -323,7 +323,7 @@ sl_status_t sl_zigbee_sec_man_delete_key(sl_zigbee_sec_man_context_t *context)
 
 sl_status_t sl_zigbee_sec_man_delete_key_table_key(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_delete_key_table_key.request.context = *context;
@@ -340,7 +340,7 @@ sl_status_t sl_zigbee_sec_man_delete_key_table_key(sl_zigbee_sec_man_context_t *
 
 sl_status_t sl_zigbee_sec_man_delete_transient_key(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_delete_transient_key.request.context = *context;
@@ -358,7 +358,7 @@ sl_status_t sl_zigbee_sec_man_delete_transient_key(sl_zigbee_sec_man_context_t *
 sl_status_t sl_zigbee_sec_man_export_key(sl_zigbee_sec_man_context_t *context,
                                          sl_zigbee_sec_man_key_t *plaintext_key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_export_key.request.context = *context;
@@ -386,7 +386,7 @@ sl_status_t sl_zigbee_sec_man_export_link_key_by_eui(sl_802154_long_addr_t eui,
                                                      sl_zigbee_sec_man_key_t *plaintext_key,
                                                      sl_zigbee_sec_man_aps_key_metadata_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui != NULL) {
     memmove(msg.data.sec_man_export_link_key_by_eui.request.eui, eui, sizeof(sl_802154_long_addr_t));
@@ -430,7 +430,7 @@ sl_status_t sl_zigbee_sec_man_export_link_key_by_index(uint8_t index,
                                                        sl_zigbee_sec_man_key_t *plaintext_key,
                                                        sl_zigbee_sec_man_aps_key_metadata_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.sec_man_export_link_key_by_index.request.index = index;
 
   if (context != NULL) {
@@ -465,7 +465,7 @@ sl_status_t sl_zigbee_sec_man_export_link_key_by_index(uint8_t index,
 sl_status_t sl_zigbee_sec_man_export_symmetric_passphrase(sl_802154_long_addr_t address,
                                                           sl_zigbee_key_data_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (address != NULL) {
     memmove(msg.data.sec_man_export_symmetric_passphrase.request.address, address, sizeof(sl_802154_long_addr_t));
@@ -493,7 +493,7 @@ sl_status_t sl_zigbee_sec_man_export_transient_key_by_eui(sl_802154_long_addr_t 
                                                           sl_zigbee_sec_man_key_t *plaintext_key,
                                                           sl_zigbee_sec_man_aps_key_metadata_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui64 != NULL) {
     memmove(msg.data.sec_man_export_transient_key_by_eui.request.eui64, eui64, sizeof(sl_802154_long_addr_t));
@@ -537,7 +537,7 @@ sl_status_t sl_zigbee_sec_man_export_transient_key_by_index(uint8_t index,
                                                             sl_zigbee_sec_man_key_t *plaintext_key,
                                                             sl_zigbee_sec_man_aps_key_metadata_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.sec_man_export_transient_key_by_index.request.index = index;
 
   if (context != NULL) {
@@ -571,7 +571,7 @@ sl_status_t sl_zigbee_sec_man_export_transient_key_by_index(uint8_t index,
 
 uint8_t sl_zigbee_sec_man_find_symmetric_passphrase_key_table_index(sl_802154_long_addr_t address)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (address != NULL) {
     memmove(msg.data.sec_man_find_symmetric_passphrase_key_table_index.request.address, address, sizeof(sl_802154_long_addr_t));
@@ -589,7 +589,7 @@ uint8_t sl_zigbee_sec_man_find_symmetric_passphrase_key_table_index(sl_802154_lo
 sl_status_t sl_zigbee_sec_man_get_aps_key_info(sl_zigbee_sec_man_context_t *context,
                                                sl_zigbee_sec_man_aps_key_metadata_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_get_aps_key_info.request.context = *context;
@@ -614,7 +614,7 @@ sl_status_t sl_zigbee_sec_man_get_aps_key_info(sl_zigbee_sec_man_context_t *cont
 
 sl_status_t sl_zigbee_sec_man_get_network_key_info(sl_zigbee_sec_man_network_key_info_t *network_key_info)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (network_key_info != NULL) {
     msg.data.sec_man_get_network_key_info.request.network_key_info = *network_key_info;
@@ -631,7 +631,7 @@ sl_status_t sl_zigbee_sec_man_get_network_key_info(sl_zigbee_sec_man_network_key
 
 bool sl_zigbee_sec_man_have_link_key(sl_802154_long_addr_t eui)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui != NULL) {
     memmove(msg.data.sec_man_have_link_key.request.eui, eui, sizeof(sl_802154_long_addr_t));
@@ -650,7 +650,7 @@ void sl_zigbee_sec_man_hmac_aes_mmo(const uint8_t *input,
                                     const uint8_t data_length,
                                     uint8_t *output)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if ((data_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
     assert(false); // "vector input length exceeds expected maximum
@@ -676,7 +676,7 @@ void sl_zigbee_sec_man_hmac_aes_mmo(const uint8_t *input,
 sl_status_t sl_zigbee_sec_man_import_key(sl_zigbee_sec_man_context_t *context,
                                          const sl_zigbee_sec_man_key_t *plaintext_key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_import_key.request.context = *context;
@@ -699,7 +699,7 @@ sl_status_t sl_zigbee_sec_man_import_link_key(uint8_t index,
                                               sl_802154_long_addr_t address,
                                               sl_zigbee_sec_man_key_t *plaintext_key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.sec_man_import_link_key.request.index = index;
 
   if (address != NULL) {
@@ -727,7 +727,7 @@ sl_status_t sl_zigbee_sec_man_import_symmetric_passphrase(uint8_t index,
                                                           sl_802154_long_addr_t address,
                                                           const sl_zigbee_key_data_t *key_data)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.sec_man_import_symmetric_passphrase.request.index = index;
 
   if (address != NULL) {
@@ -750,7 +750,7 @@ sl_status_t sl_zigbee_sec_man_import_symmetric_passphrase(uint8_t index,
 sl_status_t sl_zigbee_sec_man_import_transient_key(sl_802154_long_addr_t eui64,
                                                    sl_zigbee_sec_man_key_t *plaintext_key)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui64 != NULL) {
     memmove(msg.data.sec_man_import_transient_key.request.eui64, eui64, sizeof(sl_802154_long_addr_t));
@@ -775,7 +775,7 @@ sl_status_t sl_zigbee_sec_man_import_transient_key(sl_802154_long_addr_t eui64,
 
 void sl_zigbee_sec_man_init_context(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_init_context.request.context = *context;
@@ -790,7 +790,7 @@ void sl_zigbee_sec_man_init_context(sl_zigbee_sec_man_context_t *context)
 
 bool sl_zigbee_sec_man_link_key_slot_available(sl_802154_long_addr_t eui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui64 != NULL) {
     memmove(msg.data.sec_man_link_key_slot_available.request.eui64, eui64, sizeof(sl_802154_long_addr_t));
@@ -807,7 +807,7 @@ bool sl_zigbee_sec_man_link_key_slot_available(sl_802154_long_addr_t eui64)
 
 sl_status_t sl_zigbee_sec_man_load_key_context(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_load_key_context.request.context = *context;
@@ -824,7 +824,7 @@ sl_status_t sl_zigbee_sec_man_load_key_context(sl_zigbee_sec_man_context_t *cont
 
 void sl_zigbee_sec_man_set_context_aes_ecb_alg(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_set_context_aes_ecb_alg.request.context = *context;
@@ -839,7 +839,7 @@ void sl_zigbee_sec_man_set_context_aes_ecb_alg(sl_zigbee_sec_man_context_t *cont
 
 void sl_zigbee_sec_man_set_context_extended_ccm_alg(sl_zigbee_sec_man_context_t *context)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (context != NULL) {
     msg.data.sec_man_set_context_extended_ccm_alg.request.context = *context;
@@ -855,7 +855,7 @@ void sl_zigbee_sec_man_set_context_extended_ccm_alg(sl_zigbee_sec_man_context_t 
 sl_status_t sl_zigbee_sec_man_update_symmetric_passphrase_eui(sl_802154_long_addr_t old_eui64,
                                                               sl_802154_long_addr_t new_eui64)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (old_eui64 != NULL) {
     memmove(msg.data.sec_man_update_symmetric_passphrase_eui.request.old_eui64, old_eui64, sizeof(sl_802154_long_addr_t));

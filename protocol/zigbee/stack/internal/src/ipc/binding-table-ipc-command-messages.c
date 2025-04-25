@@ -87,7 +87,7 @@ void sli_zigbee_stack_set_reply_binding_process_ipc_command(sli_zigbee_ipc_cmd_t
 
 bool sl_zigbee_binding_is_active(uint8_t index)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.binding_is_active.request.index = index;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_binding_is_active_process_ipc_command, &msg);
 
@@ -96,7 +96,7 @@ bool sl_zigbee_binding_is_active(uint8_t index)
 
 sl_status_t sl_zigbee_clear_binding_table(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_clear_binding_table_process_ipc_command, &msg);
 
@@ -105,7 +105,7 @@ sl_status_t sl_zigbee_clear_binding_table(void)
 
 sl_status_t sl_zigbee_delete_binding(uint8_t index)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.delete_binding.request.index = index;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_delete_binding_process_ipc_command, &msg);
 
@@ -115,7 +115,7 @@ sl_status_t sl_zigbee_delete_binding(uint8_t index)
 sl_status_t sl_zigbee_get_binding(uint8_t index,
                                   sl_zigbee_binding_table_entry_t *result)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_binding.request.index = index;
 
   if (result != NULL) {
@@ -133,7 +133,7 @@ sl_status_t sl_zigbee_get_binding(uint8_t index,
 
 sl_802154_short_addr_t sl_zigbee_get_binding_remote_node_id(uint8_t index)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_binding_remote_node_id.request.index = index;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_binding_remote_node_id_process_ipc_command, &msg);
 
@@ -142,7 +142,7 @@ sl_802154_short_addr_t sl_zigbee_get_binding_remote_node_id(uint8_t index)
 
 uint8_t sl_zigbee_get_binding_table_size(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_binding_table_size_process_ipc_command, &msg);
 
@@ -152,7 +152,7 @@ uint8_t sl_zigbee_get_binding_table_size(void)
 sl_status_t sl_zigbee_note_senders_binding(uint8_t index,
                                            sl_802154_short_addr_t source)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.note_senders_binding.request.index = index;
   msg.data.note_senders_binding.request.source = source;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_note_senders_binding_process_ipc_command, &msg);
@@ -163,7 +163,7 @@ sl_status_t sl_zigbee_note_senders_binding(uint8_t index,
 sl_status_t sl_zigbee_set_binding(uint8_t index,
                                   sl_zigbee_binding_table_entry_t *value)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_binding.request.index = index;
 
   if (value != NULL) {
@@ -182,7 +182,7 @@ sl_status_t sl_zigbee_set_binding(uint8_t index,
 void sl_zigbee_set_binding_remote_node_id(uint8_t index,
                                           sl_802154_short_addr_t id)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_binding_remote_node_id.request.index = index;
   msg.data.set_binding_remote_node_id.request.id = id;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_binding_remote_node_id_process_ipc_command, &msg);
@@ -190,7 +190,7 @@ void sl_zigbee_set_binding_remote_node_id(uint8_t index,
 
 sl_status_t sl_zigbee_set_binding_table_size(uint8_t size)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_binding_table_size.request.size = size;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_binding_table_size_process_ipc_command, &msg);
 
@@ -201,7 +201,7 @@ sl_status_t sl_zigbee_set_reply_binding(uint8_t index,
                                         sl_zigbee_binding_table_entry_t *entry,
                                         sl_802154_short_addr_t source)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_reply_binding.request.index = index;
 
   if (entry != NULL) {

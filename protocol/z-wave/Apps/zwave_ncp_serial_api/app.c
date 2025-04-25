@@ -36,6 +36,7 @@
 #include "SerialAPI_hw.h"
 #include "zaf_event_distributor_ncp.h"
 #include "zpal_misc.h"
+#include "zpal_watchdog.h"
 #include "zaf_protocol_config.h"
 #ifdef DEBUGPRINT
 #include "ZAF_PrintAppInfo.h"
@@ -866,6 +867,10 @@ ZW_APPLICATION_STATUS
 ApplicationInit(
   zpal_reset_reason_t eResetReason)
 {
+  // enable the watchdog at init of application
+  zpal_watchdog_init();
+  zpal_enable_watchdog(true);
+  
   // Serial API can control hardware with information
   // set in the file system therefore it should be the first
   // step in the Initialization

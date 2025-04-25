@@ -17,11 +17,13 @@
   - name: hardware_board_stk
   - name: hardware_board_from_stk
   - name: hardware_board_from_pg28-pk2506a
+  - name: hardware_board_has_si70xx
+  - name: hardware_board_has_tempsensor
   - name: hardware_board_has_vcom
-  - name: hardware_board_has_segment_lcd
   - name: hardware_board_has_hfxo_freq_39mhz
   - name: hardware_board_has_hfxo
   - name: hardware_board_has_lfxo
+  - name: hardware_board_has_segment_lcd
 - recommends:
   - id: iostream_eusart
     instance:

@@ -22,6 +22,10 @@ define:
   - name: EZSP_SPI
   - name: EM_AF_LINK_PTHREAD
     value: 1
+
+config_file:
+  - path: platform/service/legacy_hal/config/spi-protocol-linux-config.h
+
 source:
   - path: protocol/zigbee/app/util/ezsp/serial-interface-spi.c
   - path: protocol/zigbee/app/ezsp-host/spi/spi-host-ui.c

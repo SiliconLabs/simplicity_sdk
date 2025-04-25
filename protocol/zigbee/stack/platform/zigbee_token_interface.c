@@ -74,8 +74,9 @@ void sli_zigbee_stack_token_factory_reset(bool exclude_outgoing_fc, bool exclude
           sli_zigbee_stack_set_token_data(token_info.nvm3Key,
                                           arrayIndex,
                                           &token_data);
+          // NVM3 write may take a long time to run, thus manually reset the watchdog.
+          halResetWatchdog();
         }
-        halResetWatchdog();
       }
     }
   }

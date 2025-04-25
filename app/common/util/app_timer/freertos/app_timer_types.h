@@ -44,15 +44,9 @@
 #include "timers.h"
 #include "FreeRTOSConfig.h"
 
-#if defined(configSUPPORT_STATIC_ALLOCATION) && configSUPPORT_STATIC_ALLOCATION == 1
-#define STATIC_ALLOCATION 1
-#else // defined(configSUPPORT_STATIC_ALLOCATION) && configSUPPORT_STATIC_ALLOCATION == 1
-#if defined(configSUPPORT_DYNAMIC_ALLOCATION) && configSUPPORT_DYNAMIC_ALLOCATION == 1
-#define STATIC_ALLOCATION 0
-#else // defined(configSUPPORT_DYNAMIC_ALLOCATION) && configSUPPORT_DYNAMIC_ALLOCATION == 1
-#error "Please enable static or dynamic memory allocation in FreeRTOSConfig.h"
+#if !(defined(configSUPPORT_DYNAMIC_ALLOCATION) && configSUPPORT_DYNAMIC_ALLOCATION == 1)
+#error "Please enable dynamic memory allocation in FreeRTOSConfig.h"
 #endif // defined(configSUPPORT_DYNAMIC_ALLOCATION) && configSUPPORT_DYNAMIC_ALLOCATION == 1
-#endif // defined(configSUPPORT_STATIC_ALLOCATION) && configSUPPORT_STATIC_ALLOCATION == 1
 
 // Forward declaration
 typedef struct app_timer app_timer_t;
@@ -68,9 +62,6 @@ typedef void (*app_timer_callback_t)(app_timer_t *timer, void *data);
 
 /// Timer structure
 struct app_timer {
-  #if STATIC_ALLOCATION == 1
-  StaticTimer_t static_timer;
-  #endif // STATIC_ALLOCATION
   TimerHandle_t handle;
   app_timer_callback_t callback;
   void *callback_data;

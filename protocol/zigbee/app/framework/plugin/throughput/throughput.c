@@ -63,6 +63,7 @@ static void packetSendEventHandler(sl_zigbee_af_event_t * event);
 
 //Other declarations
 static uint8_t isRunning = 0;
+static bool test_in_progress = false;
 extern uint16_t sl_zigbee_counters[SL_ZIGBEE_COUNTER_TYPE_COUNT];
 extern const char * titleStrings[];
 static void getHeaderLen(void);
@@ -176,7 +177,7 @@ static void printResult(void)
     var = testParams.varSendTimeMs * 10 / testParams.messageSuccessCount;
     if (var > (mean * mean) ) {
       var -= (mean * mean);
-      std = sqrt(fabs(var));
+      std = (uint32_t)sqrt((double)var);
     } else {
       std = 0;
     }
@@ -225,6 +226,7 @@ static void startTest(void)
     testParams.inflightInfoTable[i].inUse = false;
   }
   clearCounters();
+  test_in_progress = true;
   sl_zigbee_af_core_println("Starting Test");
   packetSendEventHandler(&packetSendEvent);
 }
@@ -234,6 +236,7 @@ static void stopTest(void)
   sl_zigbee_af_event_set_inactive(&packetSendEvent);
   testParams.messageTotalCount = 0;
   isRunning = 0;
+  test_in_progress = false;
   sl_zigbee_af_core_println("Test Aborted");
 }
 
@@ -256,14 +259,15 @@ static bool messageSentHandler(sl_status_t status,
   (void)message;
 
   // Is this is a message sent out as part of the throughput test?
-  if (apsFrame->profileId == 0x7F01 && apsFrame->clusterId == 0x0001) {
+  if (apsFrame->profileId == 0x7F01
+      && apsFrame->clusterId == 0x0001
+      && (sl_zigbee_af_event_is_scheduled(&packetSendEvent) || test_in_progress)) {
     uint32_t packetSendTimeMs = 0xFFFFFFFF;
     uint8_t i;
 
-    testParams.currentInFlight--;
-
     for (i = 0; i < ZIGBEE_TX_TEST_MAX_INFLIGHT; i++) {
       if (testParams.inflightInfoTable[i].seqn == apsFrame->sequence) {
+        testParams.currentInFlight--;
         testParams.inflightInfoTable[i].inUse = false;
         packetSendTimeMs = elapsedTimeInt32u(testParams.inflightInfoTable[i].startTime, halCommonGetInt32uMillisecondTick());
         break;
@@ -293,6 +297,7 @@ static bool messageSentHandler(sl_status_t status,
         && testParams.messageRunningCount
         == testParams.messageTotalCount) {
       sl_zigbee_af_core_println("Test Complete");
+      test_in_progress = false;
       testParams.runTime = elapsedTimeInt32u(testParams.startTime, halCommonGetInt32uMillisecondTick());
       printResult();
     }

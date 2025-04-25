@@ -147,18 +147,24 @@ if [[ -e "${SDK}/protocol/z-wave/DevTools/internal/make-v255-file.py" ]]; then
     rm "${APPLICATION}_v255.out"
 fi
 
-# Merge is only done for series 2 devices
-if [[ "$SERIES" == "2" ]]; then
-    echo "Combining bootloader and application into one file"
-    commander convert $BOOTLOADER $APPLICATION.hex --outfile $APPLICATION.hex
-    check_return $? "Failed to merge bootloader and application"
+# check if bootloader is already combined (in the case of SLC incremental build for example)
+if grep -A 1 ":020000040800F2" $APPLICATION.hex | grep -q ":10000000"
+then
+  echo "Bootloader and application have already been merged (maybe in a previous build ?)"
+else
+  # Merge is only done for series 2 devices
+  if [[ "$SERIES" == "2" ]]; then
+      echo "Combining bootloader and application into one file"
+      commander convert $BOOTLOADER $APPLICATION.hex --outfile $APPLICATION.hex
+      check_return $? "Failed to merge bootloader and application"
 
-    # Also merge the _v255 binary if it exists
-    if [[ -e "${APPLICATION}_v255.hex" ]]; then
-        echo "Combining bootloader and application v255 into one file"
-        commander convert $BOOTLOADER ${APPLICATION}_v255.hex --outfile ${APPLICATION}_v255.hex
-        check_return $? "Failed to merge bootloader and application v255"
-    fi
+      # Also merge the _v255 binary if it exists
+      if [[ -e "${APPLICATION}_v255.hex" ]]; then
+          echo "Combining bootloader and application v255 into one file"
+          commander convert $BOOTLOADER ${APPLICATION}_v255.hex --outfile ${APPLICATION}_v255.hex
+          check_return $? "Failed to merge bootloader and application v255"
+      fi
+  fi
 fi
 
 # Generate size report

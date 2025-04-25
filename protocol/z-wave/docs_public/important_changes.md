@@ -3,6 +3,25 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.22.3 {#section-7-22-3}
+
+## Improve Clear Channel Assessment
+Change the clear channel assessment configuration to improve performance.
+
+## Update controller's data after OTW
+The merge of NVM sections was made after the init of the application. So the application was not able to update its data on the first startup after the OTW.
+To fix that, The application try to tun the merge script is the ZAF version is not found in NVM at strartup.
+
+## Region change and Custom LBT Threshold value
+Old behavior for LBT custom values is restored due to a side effect when switching from LR to Legacy and conversely.
+
+## Exclusion from foreign network
+After an exclusion from a foreign network, the controller sent nops. However, nops were sent on the controller's network instead of the foreign network.
+So according to the network specification (NWK:01C8.1 & LR-NWK:0078.1), the controller no longer sends nops in case of foreign exclusion.
+
+## New serial API commands
+Add new serial API commands: Z-Wave API Setup Get Supported Regions Sub Command (0x15) & Z-Wave API Setup Regions Info (0x16).
+
 # 7.22.0 {#section-7-22-0}
 
 ## RF Configuration in Apps

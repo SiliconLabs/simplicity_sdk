@@ -403,3 +403,16 @@ void sli_zigbee_af_mfglib_set_options(sl_cli_command_arg_t *arguments)
   sl_status_t status = mfglibSetOptions(options);
   sl_zigbee_af_core_println("%p set options, status 0x%X", PLUGIN_NAME, status);
 }
+
+void sli_zigbee_af_mfglib_set_ctune_command(sl_cli_command_arg_t *arguments)
+{
+  uint16_t ctune = sl_cli_get_argument_uint16(arguments, 0);
+  sl_status_t status = mfglibSetCtune(ctune);
+  sl_zigbee_af_core_println("%s set ctune, status 0x%02X", PLUGIN_NAME, status);
+}
+
+void sli_zigbee_af_mfglib_get_ctune_command(sl_cli_command_arg_t *arguments)
+{
+  uint16_t ctune = mfglibGetCtune();
+  sl_zigbee_af_core_println("%s get ctune value: %d", PLUGIN_NAME, ctune);
+}

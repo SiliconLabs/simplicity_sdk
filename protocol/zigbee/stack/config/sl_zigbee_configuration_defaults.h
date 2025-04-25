@@ -669,7 +669,7 @@
 #ifndef SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT
 /** @brief The timeout (seconds) to restore the GPD incoming security frame counter in the Flash (0 being never).
  */
-#define SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT 7 // between 0 seconds (never) to 60 seconds
+#define SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT 7 // between 0 seconds (never) to 4294967 seconds
 #endif
 
 #ifndef SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TABLE_SIZE

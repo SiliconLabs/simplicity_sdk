@@ -799,6 +799,11 @@ RAIL_Status_t RAIL_GetSyncWords(RAIL_Handle_t railHandle,
  * This function will return \ref RAIL_STATUS_INVALID_STATE if called when BLE
  * has been enabled for this railHandle. When changing sync words in BLE mode,
  * use \ref RAIL_BLE_ConfigChannelRadioParams instead.
+ *
+ * @note If multiple protocols share the same radio configuration, the user
+ *   should not set custom sync words in any of those protocols as these
+ *   sync words could leak into the other protocol sharing the same radio
+ *   configuration.
  **/
 RAIL_Status_t RAIL_ConfigSyncWords(RAIL_Handle_t railHandle,
                                    const RAIL_SyncWordConfig_t *syncWordConfig);
@@ -3702,27 +3707,22 @@ RAIL_Status_t RAIL_ScheduleRx(RAIL_Handle_t railHandle,
                               const RAIL_SchedulerInfo_t *schedulerInfo);
 
 /**
- * Enable automatic LNA bypass for external FEM.
+ * Enable automatic PRS LNA bypass for external FEM.
  *
  * @param[in] railHandle A radio-generic or real RAIL instance handle.
- * @param[in] enable Enable/Disable automatic LNA bypass.
- * @param[in] pAutoLnaBypassConfig A pointer to an automatic LNA bypass
+ * @param[in] enable Enable/Disable automatic PRS LNA bypass.
+ * @param[in] pPrsLnaBypassConfig A pointer to an automatic PRS LNA bypass
  *   configuration structure. It must be non-NULL to enable the feature.
  * @return Status code indicating success of the function call.
  *
- * If automatic LNA bypass is enabled on chip that supports the feature
- * (\ref RAIL_SUPPORTS_AUTO_LNA_BYPASS), GPIO is used to bypass external
- * FEM LNA when the received power exceed a threshold. The bypass is turned off
- * after frame reception or after timeout if no frame has been detected.
- *
- * @note As this automatic LNA bypass relies on GPIO and RAIL is meant to run
- *   in TrustZone non-secure world, the feature is not supported if GPIO is
- *   configured as secure peripheral.
- *
+ * If automatic PRS LNA bypass is enabled on chip that supports the feature
+ * (\ref RAIL_SUPPORTS_PRS_LNA_BYPASS), a level is generated on a PRS channel
+ * when the received power exceed a threshold. It is turned off after frame
+ * reception or after timeout if no frame has been detected.
  */
-RAIL_Status_t RAIL_EnableAutoLnaBypass(RAIL_Handle_t railHandle,
-                                       bool enable,
-                                       const RAIL_AutoLnaBypassConfig_t *pAutoLnaBypassConfig);
+RAIL_Status_t RAIL_EnablePrsLnaBypass(RAIL_Handle_t railHandle,
+                                      bool enable,
+                                      const RAIL_PrsLnaBypassConfig_t *pPrsLnaBypassConfig);
 
 /******************************************************************************
  * Packet Information (RX)
@@ -7433,14 +7433,15 @@ bool RAIL_SupportsCollisionDetection(RAIL_Handle_t railHandle);
 bool RAIL_SupportsProtocolSidewalk(RAIL_Handle_t railHandle);
 
 /**
- * Indicate whether this chip supports automatic LNA bypass for external FEM.
+ * Indicate whether this chip supports automatic PRS LNA bypass for external
+ * FEM.
  *
  * @param[in] railHandle A radio-generic or real RAIL instance handle.
- * @return true if automatic LNA bypass is supported; false otherwise.
+ * @return true if automatic PRS LNA bypass is supported; false otherwise.
  *
- * Runtime refinement of compile-time \ref RAIL_SUPPORTS_AUTO_LNA_BYPASS.
+ * Runtime refinement of compile-time \ref RAIL_SUPPORTS_PRS_LNA_BYPASS.
  */
-bool RAIL_SupportsAutoLnaBypass(RAIL_Handle_t railHandle);
+bool RAIL_SupportsPrsLnaBypass(RAIL_Handle_t railHandle);
 
 /** @} */ // end of group Features
 

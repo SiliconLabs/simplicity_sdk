@@ -691,7 +691,7 @@ static sl_status_t _app_wisun_application_setting(const app_setting_wisun_t * co
 #endif
 
   // sets the TX power
-  ret = sl_wisun_set_tx_power_ddbm(setting->tx_power);
+  ret = sl_wisun_set_tx_power_ddbm(setting->tx_power * 10);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set TX power: %lu]\n", ret);
     _app_wisun_core_set_state(SL_WISUN_APP_CORE_STATE_SET_TX_POWER_ERROR);

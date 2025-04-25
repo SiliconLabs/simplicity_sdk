@@ -98,7 +98,7 @@ sl_status_t sl_zigbee_d_gp_send(bool action,
                                 uint8_t gpepHandle,
                                 uint16_t gpTxQueueEntryLifetimeMs)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.d_gp_send.request.action = action;
   msg.data.d_gp_send.request.useCca = useCca;
 
@@ -127,7 +127,7 @@ sl_status_t sl_zigbee_d_gp_send(bool action,
 
 uint16_t sl_zigbee_get_gp_max_tx_q_list_count(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_gp_max_tx_q_list_count_process_ipc_command, &msg);
 
@@ -136,7 +136,7 @@ uint16_t sl_zigbee_get_gp_max_tx_q_list_count(void)
 
 uint16_t sl_zigbee_get_gp_tx_q_list_count(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_gp_tx_q_list_count_process_ipc_command, &msg);
 
@@ -147,7 +147,7 @@ sli_buffer_manager_buffer_t sl_zigbee_gp_add_gp_tx_queue_entry_with_payload(sl_z
                                                                             uint8_t *data,
                                                                             uint16_t dataLength)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (txQueue != NULL) {
     msg.data.gp_add_gp_tx_queue_entry_with_payload.request.txQueue = *txQueue;
@@ -175,7 +175,7 @@ sli_buffer_manager_buffer_t sl_zigbee_gp_add_gp_tx_queue_entry_with_payload(sl_z
 
 void sl_zigbee_gp_clear_tx_queue(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_clear_tx_queue_process_ipc_command, &msg);
 }
@@ -185,7 +185,7 @@ sli_buffer_manager_buffer_t sl_zigbee_gp_get_tx_queue_entry_from_queue(sl_zigbee
                                                                        uint16_t *dataLength,
                                                                        uint16_t allocatedDataLength)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (txQueue != NULL) {
     msg.data.gp_get_tx_queue_entry_from_queue.request.txQueue = *txQueue;
@@ -226,7 +226,7 @@ sl_status_t sl_zigbee_gp_get_tx_queue_entry_from_queue_index(uint8_t index,
                                                              uint8_t *payload,
                                                              uint16_t *payload_len)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_get_tx_queue_entry_from_queue_index.request.index = index;
 
   if (txQueue != NULL) {
@@ -264,7 +264,7 @@ sl_status_t sl_zigbee_gp_get_tx_queue_entry_from_queue_index(uint8_t index,
 
 sli_zigbee_message_buffer_queue_t * sl_zigbee_gp_get_tx_queue_head(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_get_tx_queue_head_process_ipc_command, &msg);
 
@@ -273,7 +273,7 @@ sli_zigbee_message_buffer_queue_t * sl_zigbee_gp_get_tx_queue_head(void)
 
 bool sl_zigbee_gp_remove_from_tx_queue(sl_zigbee_gp_tx_queue_entry_t *txQueue)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (txQueue != NULL) {
     msg.data.gp_remove_from_tx_queue.request.txQueue = *txQueue;
@@ -290,7 +290,7 @@ bool sl_zigbee_gp_remove_from_tx_queue(sl_zigbee_gp_tx_queue_entry_t *txQueue)
 
 void sl_zigbee_gp_set_max_tx_queue_entry(uint16_t maxEntries)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_set_max_tx_queue_entry.request.maxEntries = maxEntries;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_set_max_tx_queue_entry_process_ipc_command, &msg);
 }

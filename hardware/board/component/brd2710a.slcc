@@ -3,7 +3,7 @@
 - label: BRD2710A
 - package: platform
 - description: Board support for BRD2710A.
-- category: Platform|Board|Starter Kit
+- category: Platform|Board|Thunderboard
 - quality: production
 - metadata:
     sbom:
@@ -14,8 +14,9 @@
 - provides:
   - name: brd2710a
   - name: hardware_board
-  - name: hardware_board_stk
-  - name: hardware_board_from_stk
+  - name: hardware_board_tb
+  - name: hardware_board_from_tb
+  - name: hardware_board_from_xg22-ek2710a
   - name: hardware_board_has_vcom
   - name: hardware_board_has_hfxo_freq_38.4mhz
   - name: hardware_board_has_hfxo

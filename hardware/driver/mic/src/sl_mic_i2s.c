@@ -37,6 +37,10 @@
 #include "sl_mic.h"
 #include "sl_mic_i2s_config.h"
 
+#if (defined(SL_CATALOG_POWER_MANAGER_PRESENT))
+#include "sl_power_manager.h"
+#endif
+
 /** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 
 /* Concatenate preprocessor tokens A, B and C. */
@@ -158,6 +162,11 @@ sl_status_t sl_mic_init(uint32_t sample_rate, uint8_t n_channels)
     dma_descriptor_right[1].xfer.dstInc = ldmaCtrlDstIncNone;
   }
 
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+  //Add EM1 request to use LDMA
+  sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
+
   /* Driver parameters */
   num_channels = n_channels;
   reading_samples_to_buffer = false;
@@ -187,6 +196,11 @@ sl_status_t sl_mic_deinit(void)
   /* Free resources */
   DMADRV_FreeChannel(dma_channel_left);
   DMADRV_FreeChannel(dma_channel_right);
+
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+  //Remove EM1 request
+  sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+#endif
 
   initialized = false;
 

@@ -82,3 +82,6 @@ filter:
     value: [NCP]
   - name: Project Difficulty
     value: [Advanced]
+
+tag:
+  - hardware:component:exp_header:spi

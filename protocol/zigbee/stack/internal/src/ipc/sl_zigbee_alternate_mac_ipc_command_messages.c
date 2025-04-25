@@ -31,7 +31,7 @@ void sli_zigbee_stack_alt_mac_init_process_ipc_command(sli_zigbee_ipc_cmd_t *msg
 
 sl_zigbee_mac_interface_id_t sl_zigbee_alt_mac_init(const sl_zigbee_alt_mac_config_t *config)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (config != NULL) {
     msg.data.alt_mac_init.request.config = *config;

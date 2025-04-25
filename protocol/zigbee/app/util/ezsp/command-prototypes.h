@@ -3074,7 +3074,9 @@ void sl_zigbee_ezsp_gpep_incoming_message_handler(
   // The length of the GPD command payload.
   uint8_t gpdCommandPayloadLength,
   // The GPD command payload.
-  uint8_t *gpdCommandPayload);
+  uint8_t *gpdCommandPayload,
+  // Rx packet information.
+  sl_zigbee_rx_packet_info_t *packetInfo);
 
 // Retrieves the proxy table entry stored at the passed index.
 // Return: An sl_status_t value indicating success or the reason for failure.

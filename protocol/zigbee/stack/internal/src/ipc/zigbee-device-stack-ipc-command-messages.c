@@ -91,7 +91,7 @@ sl_status_t sl_zigbee_energy_scan_request(sl_802154_short_addr_t target,
                                           uint8_t scanDuration,
                                           uint16_t scanCount)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.energy_scan_request.request.target = target;
   msg.data.energy_scan_request.request.scanChannels = scanChannels;
   msg.data.energy_scan_request.request.scanDuration = scanDuration;
@@ -103,7 +103,7 @@ sl_status_t sl_zigbee_energy_scan_request(sl_802154_short_addr_t target,
 
 uint8_t sl_zigbee_get_last_stack_zig_dev_request_sequence(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_last_stack_zig_dev_request_sequence_process_ipc_command, &msg);
 
@@ -115,7 +115,7 @@ sl_status_t sl_zigbee_ieee_address_request(sl_802154_short_addr_t target,
                                            uint8_t childStartIndex,
                                            sl_zigbee_aps_option_t options)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.ieee_address_request.request.target = target;
   msg.data.ieee_address_request.request.reportKids = reportKids;
   msg.data.ieee_address_request.request.childStartIndex = childStartIndex;
@@ -131,7 +131,7 @@ sl_status_t sl_zigbee_ieee_address_request_to_target(sl_802154_short_addr_t disc
                                                      sl_zigbee_aps_option_t options,
                                                      sl_802154_short_addr_t targetNodeIdOfRequest)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.ieee_address_request_to_target.request.discoveryNodeId = discoveryNodeId;
   msg.data.ieee_address_request_to_target.request.reportKids = reportKids;
   msg.data.ieee_address_request_to_target.request.childStartIndex = childStartIndex;
@@ -146,7 +146,7 @@ sl_status_t sl_zigbee_network_address_request(sl_802154_long_addr_t target,
                                               bool reportKids,
                                               uint8_t childStartIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (target != NULL) {
     memmove(msg.data.network_address_request.request.target, target, sizeof(sl_802154_long_addr_t));
@@ -165,7 +165,7 @@ sl_status_t sl_zigbee_network_address_request(sl_802154_long_addr_t target,
 
 sl_status_t sl_zigbee_send_device_announcement(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_device_announcement_process_ipc_command, &msg);
 
@@ -174,7 +174,7 @@ sl_status_t sl_zigbee_send_device_announcement(void)
 
 sl_status_t sl_zigbee_send_parent_announcement(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_parent_announcement_process_ipc_command, &msg);
 
@@ -183,7 +183,7 @@ sl_status_t sl_zigbee_send_parent_announcement(void)
 
 sl_status_t sl_zigbee_set_manufacturer_code(uint16_t code)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_manufacturer_code.request.code = code;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_manufacturer_code_process_ipc_command, &msg);
 
@@ -192,14 +192,14 @@ sl_status_t sl_zigbee_set_manufacturer_code(uint16_t code)
 
 void sl_zigbee_set_pending_network_update_channel(uint8_t channel)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_pending_network_update_channel.request.channel = channel;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_pending_network_update_channel_process_ipc_command, &msg);
 }
 
 void sl_zigbee_set_zdo_configuration_mode(bool enabled)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_zdo_configuration_mode.request.enabled = enabled;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_zdo_configuration_mode_process_ipc_command, &msg);
 }

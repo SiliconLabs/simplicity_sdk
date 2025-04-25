@@ -186,7 +186,11 @@ void sli_zigbee_send_ipc_cmd(sli_zigbee_ipc_cmd_handler_t handler,
   if (zigbee_stack_task_id == osThreadGetId()) {
     handler(cmd);
   } else {
-    osStatus_t ret = osMutexAcquire(zigbee_ipc_mutex_id, 0);
+    osStatus_t ret = osMutexAcquire(zigbee_ipc_mutex_id, osWaitForever);
+    if (ret != osOK) {
+      EFM_ASSERT(false);
+      return;
+    }
 
     sli_zigbee_ipc_pending_command_handler = handler;
     sli_zigbee_ipc_pending_command = cmd;
@@ -202,12 +206,12 @@ void sli_zigbee_send_ipc_cmd(sli_zigbee_ipc_cmd_handler_t handler,
     osEventFlagsWait(zigbee_ipc_flags_id,
                      ZIGBEE_IPC_COMMAND_PROCESSED_FLAG,
                      osFlagsWaitAny,
-                     0);
+                     osWaitForever);
 
     osEventFlagsClear(zigbee_ipc_flags_id, ZIGBEE_IPC_COMMAND_PROCESSED_FLAG);
 
     ret = osMutexRelease(zigbee_ipc_mutex_id);
-    (void)ret;
+    EFM_ASSERT(ret == osOK);
   }
 }
 #endif// SL_CATALOG_ZIGBEE_REAL_IPC_PRESENT

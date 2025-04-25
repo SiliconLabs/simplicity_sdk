@@ -6,11 +6,11 @@
     <property key="demos.blurb" value="Bluetooth - NCP CS"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4198a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/bluetooth/demos/bt_cs_ncp/bt_cs_ncp-brd4198a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/bluetooth/demos/bt_cs_ncp/bt_cs_ncp-brd4198a.s37"/>
     <property key="core.readmeFiles" value="example/bt_cs_ncp/readme.md"/>
     <property key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EVALUATION"/>
-    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/platform/bootloader/demos/bootloader-uart-bgapi/bootloader-uart-bgapi-brd4198a.s37"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/platform/bootloader/demos/bootloader-uart-bgapi/bootloader-uart-bgapi-brd4198a.s37"/>
   </demo>
   <demo name="brd4198a.demo.bt_cs_soc_initiator" label="Bluetooth - SoC CS Initiator">
     <model:description>Channel Sounding (CS) Initiator for Bluetooth LE. This example connects to a CS Reflector device and starts the distance measurement. Results are printed on the display of the WSTK and can be read via the serial port VCOM. It can measure in two CS measurement modes PBR (default) and RTT. RTT mode can be selected by pressing down the BTN0 while resetting the device. It can measure in two object tracking modes as well: in moving object tracking mode (default) or in stationary object tracking mode. In moving object tracking mode measurement results will be calculated for every procedure. In stationary object tracking mode multiple CS procedure data is required for the estimation process. The progress of the estimation will be shown on the LCD and in the logs in percentages. Once the estimation process is done the measurement results will be shown similarly like in the moving object tracking mode. Stationary object tracking mode can be selected by pressing down the BTN1 while resetting the device. In case the default CS mode or object tracking mode is changed in initiator_app_config.h the other CS mode or object tracking mode can be selected with its dedicated push button (BTN0 or BTN1). The actual mode can be checked on the serial output and in the captured logs. To capture JSONL and text logs a log_filter.py Python3 script is provided with this example. This utility will listen to the same serial port VCOM and will extract the necessary logs. Check out the help of log_filter.py for more on capturing logs while measuring distance with CS.
@@ -18,11 +18,11 @@
     <property key="demos.blurb" value="Bluetooth - SoC CS Initiator"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4198a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/bluetooth/demos/bt_cs_soc_initiator/bt_cs_soc_initiator-brd4198a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/bluetooth/demos/bt_cs_soc_initiator/bt_cs_soc_initiator-brd4198a.s37"/>
     <property key="core.readmeFiles" value="example/bt_cs_soc_initiator/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EVALUATION"/>
-    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198a.s37"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198a.s37"/>
   </demo>
   <demo name="brd4198a.demo.bt_cs_soc_reflector" label="Bluetooth - SoC CS Reflector">
     <model:description>Channel Sounding (CS) Reflector for Bluetooth LE. This example sends measurement results back to the CS Initiator device via GATT notifications. It is scheduled by the CS Ranging Service. CS Reflector should have to connect to at least one CS Initiator device to send measurement data to and it is also capable to connect to multiple CS Initiators. Check the CS Reflector component for more on the available connections. The application starts advertising after boot and keeps advertising until not every connection slots are occupied. It will stop advertising when it is full. Once at least one slot becomes free again the device start to advertise.
@@ -30,10 +30,10 @@
     <property key="demos.blurb" value="Bluetooth - SoC CS Reflector"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4198a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/bluetooth/demos/bt_cs_soc_reflector/bt_cs_soc_reflector-brd4198a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/bluetooth/demos/bt_cs_soc_reflector/bt_cs_soc_reflector-brd4198a.s37"/>
     <property key="core.readmeFiles" value="example/bt_cs_soc_reflector/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EVALUATION"/>
-    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198a.s37"/>
+    <property key="demos.bootloaderFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/platform/bootloader/demos/bootloader-apploader/bootloader-apploader-brd4198a.s37"/>
   </demo>
 </demos>

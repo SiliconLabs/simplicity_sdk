@@ -269,6 +269,17 @@ uint8_t SerialApiFileInit(void)
   uint32_t appVersion = 0;
   bool status = SerialAPI_GetZWVersion(&appVersion);
 
+  if (false == status) {
+    // ZAF version not found in NVM, try to  migrate data from legacy zwave_nvm section.
+    // This migration was handle by the stack. However the application is initialiazed before the
+    // stack. So we need to try the migration here to be able to update application's data
+    // (done by SerialAPI_FileSystemMigrationManagement)
+    zpal_nvm_migrate_legacy_app_file_system();
+    // If status is still false after migrate legacy app file system, that mean that app data
+    // does not exists in NVM (probably the first startup).
+    status = SerialAPI_GetZWVersion(&appVersion);
+  }
+
   if (status)
   {
     if (zpal_get_app_version() != appVersion)
@@ -756,6 +767,7 @@ WriteDefaultApplicationConfiguration(void)
 {
   //Write default Application Configuration file
   SApplicationConfiguration tApplicationConfiguration = { 0 };
+  tApplicationConfiguration.nodeIdBaseType = SERIAL_API_SETUP_NODEID_BASE_TYPE_DEFAULT;
   ZAF_nvm_app_write(FILE_ID_APPLICATIONCONFIGURATION, &tApplicationConfiguration, sizeof(SApplicationConfiguration));
 }
 

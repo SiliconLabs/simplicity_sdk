@@ -221,6 +221,12 @@
   - condition:
     - brd4001a
     override:
+      component: rail_util_rssi
+      file_id: rail_util_rssi_config
+    path: brd4276a_brd4001a/sl_rail_util_rssi_config.h
+  - condition:
+    - brd4001a
+    override:
       component: simple_button
       file_id: simple_button_config
       instance: btn0
@@ -466,6 +472,12 @@
   - condition:
     - brd4002a
     override:
+      component: rail_util_rssi
+      file_id: rail_util_rssi_config
+    path: brd4276a_brd4002a/sl_rail_util_rssi_config.h
+  - condition:
+    - brd4002a
+    override:
       component: simple_button
       file_id: simple_button_config
       instance: btn0
@@ -518,15 +530,3 @@
       component: usb_device_driver_dwc_otg_fs
       file_id: usbd_driver_config
     path: brd4276a_brd4002a/sl_usbd_driver_config.h
-  - condition:
-    - brd4001a
-    override:
-      component: rail_util_rssi
-      file_id: rail_util_rssi_config
-    path: brd4276a_brd4001a/sl_rail_util_rssi_config.h
-  - condition:
-    - brd4002a
-    override:
-      component: rail_util_rssi
-      file_id: rail_util_rssi_config
-    path: brd4276a_brd4002a/sl_rail_util_rssi_config.h

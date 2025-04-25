@@ -68,6 +68,7 @@ define:
 
 tag:
   - prebuilt_demo
+  - hardware:component:exp_header:spi
 
 readme:
   - path: ./readme.html

@@ -37,7 +37,6 @@
 #ifndef SILABS_MAC_ADDRESS_FILTERING_H
 #define SILABS_MAC_ADDRESS_FILTERING_H
 
-#include "sl_cli_types.h"
 /**
  * @addtogroup mac-address-filtering
  * @{
@@ -217,12 +216,11 @@ extern const sl_802154_long_addr_t zeroEui64;
  * @{
  */
 
-/** @brief Clear all lists for MAC address filtering.
- *
- * @param sl_cli_command_arg_t * arguments Ver.: always
- *
- */
+/** @brief Clear all lists for MAC address filtering */
 void sl_zigbee_af_mac_address_filtering_clear_all(void);
+
+/** @brief Clears all packet counts for all modes */
+void sl_zigbee_af_mac_address_filtering_clear_stats(void);
 
 /** @brief Get stats for a short address.
  *

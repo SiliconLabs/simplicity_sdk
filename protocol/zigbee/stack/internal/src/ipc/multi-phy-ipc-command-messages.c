@@ -55,7 +55,7 @@ sl_status_t sl_zigbee_multi_phy_set_radio_channel(uint8_t phyIndex,
                                                   uint8_t page,
                                                   uint8_t channel)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.multi_phy_set_radio_channel.request.phyIndex = phyIndex;
   msg.data.multi_phy_set_radio_channel.request.page = page;
   msg.data.multi_phy_set_radio_channel.request.channel = channel;
@@ -67,7 +67,7 @@ sl_status_t sl_zigbee_multi_phy_set_radio_channel(uint8_t phyIndex,
 sl_status_t sl_zigbee_multi_phy_set_radio_power(uint8_t phyIndex,
                                                 int8_t power)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.multi_phy_set_radio_power.request.phyIndex = phyIndex;
   msg.data.multi_phy_set_radio_power.request.power = power;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_multi_phy_set_radio_power_process_ipc_command, &msg);
@@ -81,7 +81,7 @@ sl_status_t sl_zigbee_multi_phy_start(uint8_t phyIndex,
                                       int8_t power,
                                       sl_zigbee_multi_phy_nwk_config_t bitmask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.multi_phy_start.request.phyIndex = phyIndex;
   msg.data.multi_phy_start.request.page = page;
   msg.data.multi_phy_start.request.channel = channel;
@@ -94,7 +94,7 @@ sl_status_t sl_zigbee_multi_phy_start(uint8_t phyIndex,
 
 sl_status_t sl_zigbee_multi_phy_stop(uint8_t phyIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.multi_phy_stop.request.phyIndex = phyIndex;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_multi_phy_stop_process_ipc_command, &msg);
 

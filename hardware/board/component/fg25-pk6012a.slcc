@@ -2,7 +2,7 @@
 - id: fg25_pk6012a
 - label: FG25-PK6012A
 - package: platform
-- description: Kit BSP support for the FG25 RoW Pro Kit.
+- description: Kit BSP support for the EFR32FG25 863-876 MHz +16 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production
 - metadata:

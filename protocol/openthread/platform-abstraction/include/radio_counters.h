@@ -30,6 +30,9 @@
 
 #ifndef RADIO_COUNTERS_H_
 #define RADIO_COUNTERS_H_
+
+#include <stdint.h>
+
 typedef struct efr32RadioCounters
 {
     uint32_t mRailPlatTxTriggered;

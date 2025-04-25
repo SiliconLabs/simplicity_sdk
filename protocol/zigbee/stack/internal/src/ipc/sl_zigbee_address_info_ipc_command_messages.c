@@ -39,7 +39,7 @@ void sli_zigbee_stack_make_device_id_pair_process_ipc_command(sli_zigbee_ipc_cmd
 bool sl_zigbee_device_id_matches(const sl_zigbee_address_info *set_a,
                                  const sl_zigbee_address_info *set_b)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (set_a != NULL) {
     msg.data.device_id_matches.request.set_a = *set_a;
@@ -57,7 +57,7 @@ bool sl_zigbee_device_id_matches(const sl_zigbee_address_info *set_a,
 sl_zigbee_address_info sl_zigbee_make_device_id_pair(const sl_802154_short_addr_t short_id,
                                                      const sl_802154_long_addr_t long_id)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.make_device_id_pair.request.short_id = short_id;
 
   if (long_id != NULL) {

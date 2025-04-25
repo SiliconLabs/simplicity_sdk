@@ -42,7 +42,7 @@ void sli_zigbee_stack_get_strong_random_number_array_process_ipc_command(sli_zig
 
 uint16_t sl_zigbee_get_pseudo_random_number(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_pseudo_random_number_process_ipc_command, &msg);
 
@@ -51,7 +51,7 @@ uint16_t sl_zigbee_get_pseudo_random_number(void)
 
 sl_zigbee_entropy_source_t sl_zigbee_get_strong_random_entropy_source(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_strong_random_entropy_source_process_ipc_command, &msg);
 
@@ -61,7 +61,7 @@ sl_zigbee_entropy_source_t sl_zigbee_get_strong_random_entropy_source(void)
 sl_status_t sl_zigbee_get_strong_random_number_array(uint16_t *randomNumber,
                                                      uint8_t count)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if ((count) > (MAX_IPC_VEC_ARG_CAPACITY / sizeof(uint16_t))) {
     assert(false); // "vector randomNumber length exceeds expected maximum

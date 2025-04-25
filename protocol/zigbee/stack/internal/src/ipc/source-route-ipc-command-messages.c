@@ -103,7 +103,7 @@ void sli_zigbee_stack_set_source_route_discovery_mode_process_ipc_command(sli_zi
 void sl_zigbee_concentrator_note_delivery_failure(sl_zigbee_outgoing_message_type_t type,
                                                   sl_status_t status)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.concentrator_note_delivery_failure.request.type = type;
   msg.data.concentrator_note_delivery_failure.request.status = status;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_concentrator_note_delivery_failure_process_ipc_command, &msg);
@@ -112,7 +112,7 @@ void sl_zigbee_concentrator_note_delivery_failure(sl_zigbee_outgoing_message_typ
 void sl_zigbee_concentrator_note_route_error(sl_status_t status,
                                              sl_802154_short_addr_t nodeId)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.concentrator_note_route_error.request.status = status;
   msg.data.concentrator_note_route_error.request.nodeId = nodeId;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_concentrator_note_route_error_process_ipc_command, &msg);
@@ -120,21 +120,21 @@ void sl_zigbee_concentrator_note_route_error(sl_status_t status,
 
 void sl_zigbee_concentrator_start_discovery(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_concentrator_start_discovery_process_ipc_command, &msg);
 }
 
 void sl_zigbee_concentrator_stop_discovery(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_concentrator_stop_discovery_process_ipc_command, &msg);
 }
 
 sl_zigbee_assume_trust_center_concentrator_type_t sl_zigbee_get_assumed_trust_center_concentrator_type(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_assumed_trust_center_concentrator_type_process_ipc_command, &msg);
 
@@ -143,7 +143,7 @@ sl_zigbee_assume_trust_center_concentrator_type_t sl_zigbee_get_assumed_trust_ce
 
 uint8_t sl_zigbee_get_source_route_overhead(sl_802154_short_addr_t destination)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_source_route_overhead.request.destination = destination;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_source_route_overhead_process_ipc_command, &msg);
 
@@ -154,7 +154,7 @@ sl_status_t sl_zigbee_get_source_route_table_entry(uint8_t index,
                                                    sl_802154_short_addr_t *destination,
                                                    uint8_t *closerIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_source_route_table_entry.request.index = index;
 
   if (destination != NULL) {
@@ -180,7 +180,7 @@ sl_status_t sl_zigbee_get_source_route_table_entry(uint8_t index,
 
 uint8_t sl_zigbee_get_source_route_table_filled_size(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_source_route_table_filled_size_process_ipc_command, &msg);
 
@@ -189,7 +189,7 @@ uint8_t sl_zigbee_get_source_route_table_filled_size(void)
 
 uint8_t sl_zigbee_get_source_route_table_total_size(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_source_route_table_total_size_process_ipc_command, &msg);
 
@@ -199,7 +199,7 @@ uint8_t sl_zigbee_get_source_route_table_total_size(void)
 sl_status_t sl_zigbee_send_many_to_one_route_request(uint16_t concentratorType,
                                                      uint8_t radius)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_many_to_one_route_request.request.concentratorType = concentratorType;
   msg.data.send_many_to_one_route_request.request.radius = radius;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_many_to_one_route_request_process_ipc_command, &msg);
@@ -209,7 +209,7 @@ sl_status_t sl_zigbee_send_many_to_one_route_request(uint16_t concentratorType,
 
 void sl_zigbee_set_assumed_trust_center_concentrator_type(sl_zigbee_assume_trust_center_concentrator_type_t type)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_assumed_trust_center_concentrator_type.request.type = type;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_assumed_trust_center_concentrator_type_process_ipc_command, &msg);
 }
@@ -222,7 +222,7 @@ sl_status_t sl_zigbee_set_concentrator(bool on,
                                        uint8_t deliveryFailureThresholdParam,
                                        uint8_t maxHopsParam)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_concentrator.request.on = on;
   msg.data.set_concentrator.request.concentratorTypeParam = concentratorTypeParam;
   msg.data.set_concentrator.request.minTime = minTime;
@@ -237,7 +237,7 @@ sl_status_t sl_zigbee_set_concentrator(bool on,
 
 uint32_t sl_zigbee_set_source_route_discovery_mode(sl_zigbee_source_route_discovery_mode_t mode)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_source_route_discovery_mode.request.mode = mode;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_source_route_discovery_mode_process_ipc_command, &msg);
 

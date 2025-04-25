@@ -1,5 +1,5 @@
-Flex SDK 3.8.2.0
+Flex SDK 3.8.3.0
 - RAIL Apps and Library
   - Targeted quality improvements and bug fixes.
 - Connect Apps and Stack
-  - Targeted quality improvements and bug fixes.
+  - Underlying platform changes only.

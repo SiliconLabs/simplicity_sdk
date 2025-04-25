@@ -126,6 +126,11 @@
   - override:
       component: iot_pwm
       file_id: iot_pwm_cfg
+      instance: led0
+    path: brd2710a/iot_pwm_cfg_led0.h
+  - override:
+      component: iot_pwm
+      file_id: iot_pwm_cfg
       instance: mikroe
     path: brd2710a/iot_pwm_cfg_mikroe.h
   - override:
@@ -148,6 +153,11 @@
       file_id: iot_uart_cfg
       instance: loopback
     path: brd2710a/iot_uart_cfg_loopback.h
+  - override:
+      component: pwm
+      file_id: pwm_config
+      instance: led0
+    path: brd2710a/sl_pwm_init_led0_config.h
   - override:
       component: pwm
       file_id: pwm_config
@@ -201,13 +211,3 @@
       file_id: uartdrv_usart_config
       instance: mikroe
     path: brd2710a/sl_uartdrv_usart_mikroe_config.h
-  - override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd2710a/iot_pwm_cfg_led0.h
-  - override:
-      component: pwm
-      file_id: pwm_config
-      instance: led0
-    path: brd2710a/sl_pwm_init_led0_config.h

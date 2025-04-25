@@ -68,7 +68,8 @@
   uint32_t mic,                                    \
   uint8_t proxyTableIndex,                         \
   uint8_t gpdCommandPayloadLength,                 \
-  uint8_t * gpdCommandPayload
+  uint8_t * gpdCommandPayload,                     \
+  sl_zigbee_rx_packet_info_t * packetInfo
 
 /**
  * @brief GP arguments list represented as a macro while calling GP endpoint incoming message handler and callbacks.
@@ -87,7 +88,8 @@
   mic,                     \
   proxyTableIndex,         \
   gpdCommandPayloadLength, \
-  gpdCommandPayload
+  gpdCommandPayload,       \
+  packetInfo
 
 /**
  * @brief GP arguments list with void type cast represented as a macro to be used in callback stubs.

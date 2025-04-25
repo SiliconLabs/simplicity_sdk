@@ -16,8 +16,14 @@ documentation:
   docset: rail
   document: rail-api/fem-util
 config_file:
+  - path: platform/radio/rail_lib/plugin/fem_util/config/efr32xg25/sl_fem_util_config.h
+    file_id: fem_util_config
+    condition:
+      - device_sdid_220
   - path: platform/radio/rail_lib/plugin/fem_util/config/sl_fem_util_config.h
     file_id: fem_util_config
+    unless:
+      - device_sdid_220
 include:
   - path: platform/radio/rail_lib/plugin/fem_util
     file_list:
@@ -30,7 +36,7 @@ template_contribution:
       event: stack_init
       include: sl_fem_util.h
       handler: sl_fem_util_init
-    priority: -9010
+    priority: -7005
   - name: rail_util_ieee802154_phy_select_callbacks
     value:
       include: sl_fem_util.h

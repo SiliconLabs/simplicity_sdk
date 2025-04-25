@@ -243,15 +243,14 @@ sl_status_t sl_icm40627_accel_set_bandwidth(sl_accel_BW_t accel_Bw);
 
 /***************************************************************************//**
  * @brief
- *    Set the sample rate(Output Data Rate) for both the accelerometer
- *    and the gyroscope.
+ *    Sets the sample rate for both the accelerometer and the gyroscope.
  *
  * @param[in] sample_rate
- *    The desired sample rate in Hz. The value of the sample_rate can be
- *    8000Hz, 4000Hz, 2000Hz, 1000Hz, 500Hz, 200Hz, 100Hz, 50Hz, 25Hz, 12Hz.
+ *    The desired sample rate in Hz.
  *
  * @return
- *    Returns the actual sample rate.
+ *    The actual sample rate, which may be different than the desired value because
+ *    of the finite and discrete number of divider settings.
  *
  ******************************************************************************/
 float sl_icm40627_set_sample_rate(float sample_rate);

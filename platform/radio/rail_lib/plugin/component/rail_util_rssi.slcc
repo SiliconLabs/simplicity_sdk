@@ -4,6 +4,11 @@ description: Utility to aid with Received Signal Strength Indicator (RSSI) Suppo
 package: platform
 category: Platform|Radio
 quality: production
+metadata:
+  sbom:
+    id: rail_util_rssi
+    name: RAIL Utility, RSSI
+    license: Zlib
 documentation:
   docset: rail
   document: rail-api/rail-util-rssi
@@ -16,38 +21,47 @@ config_file:
     condition:
       - device_series_2
       - device_sdid_200
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg22/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_205
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg23/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_210
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg24/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_215
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg25/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_220
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg26/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_225
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg27/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_230
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/efr32xg28/sl_rail_util_rssi_config.h
     condition:
       - device_series_2
       - device_sdid_235
+    file_id: rail_util_rssi_config
   - path: platform/radio/rail_lib/plugin/rail_util_rssi/config/sixg301/sl_rail_util_rssi_config.h
     condition:
       - device_series_3
       - device_generic_family_sixx301
+    file_id: rail_util_rssi_config
 
 include:
   - path: platform/radio/rail_lib/plugin/rail_util_rssi

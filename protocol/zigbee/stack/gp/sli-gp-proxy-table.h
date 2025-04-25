@@ -26,7 +26,7 @@ extern uint8_t sli_zigbee_gp_proxy_table_size;
 extern sl_zigbee_gp_proxy_table_entry_t sli_zigbee_gp_proxy_table[];
 
 extern uint8_t sli_zigbee_gp_incoming_fc_token_table_size;
-extern uint8_t sli_zigbee_gp_incoming_fc_token_timeout;
+extern uint32_t sli_zigbee_gp_incoming_fc_token_timeout;
 
 //#define SL_ZIGBEE_GP_PROXY_TABLE_ENTRY_STATUS_MASK 0x01
 

@@ -87,21 +87,11 @@ sl_status_t app_timer_start(app_timer_t *timer,
   }
 
   // Create OS timer.
-  #if STATIC_ALLOCATION == 1
-  handle = xTimerCreateStatic("App Timer",
-                              period,
-                              opt,
-                              (void *)timer,
-                              (TimerCallbackFunction_t)app_timer_callback,
-                              &timer->static_timer
-                              );
-  #else // STATIC_ALLOCATION
   handle = xTimerCreate("App Timer",
                         period,
                         opt,
                         (void *)timer,
                         (TimerCallbackFunction_t)app_timer_callback);
-  #endif // STATIC_ALLOCATION
   if ( handle == NULL ) {
     return SL_STATUS_ALLOCATION_FAILED;
   }

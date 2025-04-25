@@ -1,10 +1,10 @@
 id: "lower_mac_spinel"
-label: "Implements lower mac using a SPINEL RCP"
+label: "802.15.4 UMAC - Lower MAC - Spinel"
 package: platform
 category: Radio|Mac
 quality: "production"
 description: "Implements the lower mac portion of the silabs 802.15.4 unified 
-mac using SPINEL talking to an OpenThread 15.4 RCP. Used for running 15.4
+mac using Spinel talking to an OpenThread 15.4 RCP. Used for running 15.4
 stacks such as Zigbee on a posix host connected to an RCP."
 provides:
   - name: "lower_mac_spinel"

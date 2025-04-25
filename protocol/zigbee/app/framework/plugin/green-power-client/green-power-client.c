@@ -324,6 +324,7 @@ bool sli_zigbee_af_green_power_client_gp_proxy_commissioning_mode_command_handle
     // check if current message sender is same as sender that put us in
     // commissioning mode.
     // if not, drop message silently.
+    return false;
   } else if (enterCommissioningMode) {
     commissioningState.commissioningSink = (localCommandLoopback ? sl_zigbee_get_node_id() : sli_zigbee_af_get_sender());
     commissioningState.inCommissioningMode = true;
@@ -365,10 +366,14 @@ bool sl_zigbee_af_green_power_cluster_gp_proxy_commissioning_mode_cb(sl_zigbee_a
     return false;
   }
 
-  return sli_zigbee_af_green_power_client_gp_proxy_commissioning_mode_command_handler(cmd_data.options,
-                                                                                      cmd_data.commissioningWindow,
-                                                                                      cmd_data.channel,
-                                                                                      false);
+  bool ret = sli_zigbee_af_green_power_client_gp_proxy_commissioning_mode_command_handler(cmd_data.options,
+                                                                                          cmd_data.commissioningWindow,
+                                                                                          cmd_data.channel,
+                                                                                          false);
+  if (ret == true) {
+    (void)sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
+  }
+  return true;
 }
 
 /*
@@ -438,6 +443,7 @@ bool sl_zigbee_af_green_power_cluster_gp_pairing_cb(sl_zigbee_af_cluster_command
       //send default response for unicast pairing
       sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_INVALID_FIELD);
     }
+    return true;
   } else {
     // Step b:
 
@@ -467,6 +473,7 @@ bool sl_zigbee_af_green_power_cluster_gp_pairing_cb(sl_zigbee_af_cluster_command
         if (broadcast != true) {
           // CCB # 2279 - only send default response if not broadcast - broadcasts are dropped
           sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_INSUFFICIENT_SPACE);
+          return true;
         }
       }
     }
@@ -486,10 +493,12 @@ bool sl_zigbee_af_green_power_cluster_gp_pairing_cb(sl_zigbee_af_cluster_command
         }
         sl_zigbee_af_green_power_cluster_println("ERR PROXY TABLE FULL");
         sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_INSUFFICIENT_SPACE);
+        return true;
       }
     }
 #endif
   }
+  (void)sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
   return true;
 }
 
@@ -548,6 +557,7 @@ bool sl_zigbee_af_green_power_cluster_gp_response_cb(sl_zigbee_af_cluster_comman
 
           sl_zigbee_af_event_set_delay_ms(&channelEvent,
                                           GP_CHANNEL_EVENT_TIMEOUT_IN_MSEC);
+          (void)sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
           return true;
         } else {
           return false;
@@ -748,7 +758,7 @@ bool sl_zigbee_af_green_power_cluster_gp_proxy_table_request_cb(sl_zigbee_af_clu
       goto kickout;
     }
   }
-
+  (void)sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
   kickout:  return true;
 }
 
@@ -1511,7 +1521,7 @@ bool sli_zigbee_af_gp_message_checking(sl_zigbee_gp_address_t *gpAddr, uint8_t s
 //GP-DATA.indication
 void sli_zigbee_af_green_power_client_gpep_incoming_message_callback(GP_PARAMS)
 {
-  //sl_zigbee_af_green_power_cluster_println("Gpep cmd %x status %x SFC %4x", gpdCommandId, status, gpdSecurityFrameCounter);
+  // sl_zigbee_af_green_power_cluster_println("Gpep cmd %x status %x SFC %4x, timestampe: %u", gpdCommandId, status, gpdSecurityFrameCounter, packetInfo->last_hop_timestamp);
   if ((commissioningState.channelStatus & GP_CLIENT_ON_TRANSMIT_CHANNEL_MASK)
       && gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_CHANNEL_REQUEST) {
     //drop everything but a channel request when we're off on a different channel

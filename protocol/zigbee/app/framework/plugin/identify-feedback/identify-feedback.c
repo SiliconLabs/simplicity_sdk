@@ -32,7 +32,18 @@ void sl_zigbee_af_identify_feedback_provide_feedback_event_handler(sl_zigbee_af_
 #define LED_FEEDBACK
 #endif
 
-static bool identifyTable[SL_ZIGBEE_ZCL_IDENTIFY_CLUSTER_SERVER_ENDPOINT_COUNT];
+static bool identifyTable[SL_ZIGBEE_ZCL_IDENTIFY_CLUSTER_SERVER_ENDPOINT_COUNT] = { false };
+
+// Verify if there is at least one ongoing endpoint verification
+static bool haveIdentifyingEndpoint(void)
+{
+  for (int i = 0; i < SL_ZIGBEE_ZCL_IDENTIFY_CLUSTER_SERVER_ENDPOINT_COUNT; i++) {
+    if (identifyTable[i]) {
+      return true;
+    }
+  }
+  return false;
+}
 
 void sli_zigbee_af_identify_init_callback(uint8_t init_level)
 {
@@ -41,6 +52,7 @@ void sli_zigbee_af_identify_init_callback(uint8_t init_level)
   sl_zigbee_af_event_init(provideFeedbackEventControl,
                           sl_zigbee_af_identify_feedback_provide_feedback_event_handler);
 }
+
 void sl_zigbee_af_identify_feedback_provide_feedback_event_handler(sl_zigbee_af_event_t * event)
 {
 #if !defined(EZSP_HOST)
@@ -70,20 +82,16 @@ void sl_zigbee_af_identify_start_feedback_cb(uint8_t endpoint,
                                         endpoint,
                                         identifyTime);
 
+  if (!haveIdentifyingEndpoint()) {
+    sl_zigbee_af_event_set_delay_ms(provideFeedbackEventControl,
+                                    MILLISECOND_TICKS_PER_SECOND);
+  }
   identifyTable[ep] = true;
-
-  // This initialization is needed because this callback is invoked in the
-  // component init callback, so it may occur before this component init callback.
-  sl_zigbee_af_event_init(provideFeedbackEventControl,
-                          sl_zigbee_af_identify_feedback_provide_feedback_event_handler);
-  sl_zigbee_af_event_set_delay_ms(provideFeedbackEventControl,
-                                  MILLISECOND_TICKS_PER_SECOND);
 }
 
 void sl_zigbee_af_identify_stop_feedback_cb(uint8_t endpoint)
 {
   uint8_t ep = sl_zigbee_af_find_cluster_server_endpoint_index(endpoint, ZCL_IDENTIFY_CLUSTER_ID);
-  uint8_t i;
 
   if (ep == SL_ZIGBEE_AF_INVALID_ENDPOINT_INDEX) {
     sl_zigbee_af_identify_cluster_println("ERR: invalid endpoint supplied for identification.");
@@ -94,10 +102,9 @@ void sl_zigbee_af_identify_stop_feedback_cb(uint8_t endpoint)
 
   identifyTable[ep] = false;
 
-  for (i = 0; i < SL_ZIGBEE_ZCL_IDENTIFY_CLUSTER_SERVER_ENDPOINT_COUNT; i++) {
-    if (identifyTable[i]) {
-      return;
-    }
+  // Do not set provideFeedback event to inactive if there is at least one ongoing endpoint identification
+  if (haveIdentifyingEndpoint()) {
+    return;
   }
 
   sl_zigbee_af_identify_cluster_println("No endpoints identifying; stopping identification feedback.");

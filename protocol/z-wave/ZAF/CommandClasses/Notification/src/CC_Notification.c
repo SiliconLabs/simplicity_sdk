@@ -579,6 +579,15 @@ JOB_STATUS CmdClassNotificationReport(
     uint8_t evParLen,
     void(*pCallback)(TRANSMISSION_RESULT * pTransmissionResult))
 {
+  /**
+   * Variable to hold the current AGI profile while the frame awaits transmission
+   * in the ZAF transport queue.
+   */
+  static agi_profile_t profile = {
+    .profile_MS = 0x00,
+    .profile_LS = 0x00
+  };
+
   // Make sure evParLen cannot be higher than the mask value: CC:0071.03.05.11.00B
   if (NOTIFICATION_REPORT_PROPERTIES1_EVENT_PARAMETERS_LENGTH_MASK_V8 < evParLen) {
     assert(false);
@@ -607,7 +616,7 @@ JOB_STATUS CmdClassNotificationReport(
     dataLength -= (uint8_t)sizeof(uint8_t);
   }
   
-  const agi_profile_t profile = cc_notification_get_agi_profile(notification_index);
+  profile = cc_notification_get_agi_profile(notification_index);
 
   return cc_engine_multicast_request(&profile,
       cc_notification_get_endpoint(notification_index),

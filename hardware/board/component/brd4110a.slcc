@@ -37,7 +37,7 @@
     instance:
     - led0
     - led1
-  - id: skrhaae010
+  - id: joystick
   - id: simple_button
     instance:
     - btn0

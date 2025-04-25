@@ -9,6 +9,7 @@
 #include "zpal_radio_utils.h"
 //#define DEBUGPRINT
 #include "DebugPrint.h"
+#include "zpal_radio.h"
 
 static SApplicationHandles * m_pAppHandles;
 static zpal_pm_handle_t m_PowerLock;
@@ -133,24 +134,7 @@ EInclusionMode_t ZAF_GetInclusionMode(void)
 
 bool isRfRegionValid(zpal_radio_region_t region)
 {
-  /* (REGION_2CH_FIRST <= region) is commented because REGION_2CH_FIRST==0. So the test is always
-  true, which create a warning.*/
-  if ( (/*(REGION_2CH_FIRST <= region) &&*/(region < REGION_2CH_END) ) ||
-       (  (REGION_3CH_FIRST <= region) &&  (region < REGION_3CH_END) ) )
-  {
-    if ( (REGION_DEPRECATED_4 == region) || (REGION_DEPRECATED_10 == region) )
-    {
-      return false; //deprecated value are not valid region
-    }
-    else
-    {
-      return true;
-    }
-  }
-  else
-  {
-    return false;
-  }
+  return zpal_radio_is_region_supported(region);
 }
 
 bool ZAF_isLongRangeRegion(zpal_radio_region_t eRegion)

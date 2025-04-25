@@ -134,7 +134,7 @@ SL_ENUM(sl_cpc_endpoint_option_t){
 
 #define SL_CPC_MAJOR_VERSION     4
 #define SL_CPC_MINOR_VERSION     5
-#define SL_CPC_PATCH_VERSION     0
+#define SL_CPC_PATCH_VERSION     3
 
 /***************************************************************************//**
  * Typedef for the user - supplied callback function which is called when

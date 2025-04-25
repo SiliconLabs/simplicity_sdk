@@ -425,8 +425,16 @@ uint16_t sl_zigbee_af_fill_command_green_power_cluster_gp_pairing_configuration_
   }
 
   sl_zigbee_af_green_power_check_return_of_put_data_in_response(sl_zigbee_af_put_int8u_in_resp(deviceId));
-  sl_zigbee_af_green_power_check_return_of_put_data_in_response(sl_zigbee_af_put_block_in_resp(groupList, groupListCount));
-  charCount += sizeof(uint8_t) + groupListCount;
+  charCount += sizeof(uint8_t);
+
+  uint8_t gpPairingConfigCommunicationMode = (options
+                                              & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_OPTION_COMMUNICATION_MODE)
+                                             >> SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_OPTION_COMMUNICATION_MODE_OFFSET;
+  if (gpPairingConfigCommunicationMode == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST) {
+    sl_zigbee_af_green_power_check_return_of_put_data_in_response(sl_zigbee_af_put_int8u_in_resp(groupListCount));
+    sl_zigbee_af_green_power_check_return_of_put_data_in_response(sl_zigbee_af_put_block_in_resp(groupList, groupListCount * sizeof(sl_zigbee_gp_sink_group_t)));
+    charCount += sizeof(uint8_t) + groupListCount * sizeof(sl_zigbee_gp_sink_group_t);
+  }
 
   if (options & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_OPTION_ASSIGNED_ALIAS) {
     sl_zigbee_af_green_power_check_return_of_put_data_in_response(sl_zigbee_af_put_int16u_in_resp(gpdAssignedAlias));

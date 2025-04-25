@@ -1865,6 +1865,7 @@ bool sl_zigbee_af_green_power_cluster_gp_translation_table_update_cb(sl_zigbee_a
         } else if ( retval == GP_TRANSLATION_TABLE_STATUS_PARAM_DOES_NOT_MATCH) {
           sl_zigbee_af_green_power_cluster_println("Parameter does not match @Index [%d]", index);
           sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_FAILURE); //send failure notification immediately
+          return true;
         }
       }
     } else if (action == 0x01) {
@@ -1887,6 +1888,7 @@ bool sl_zigbee_af_green_power_cluster_gp_translation_table_update_cb(sl_zigbee_a
         } else if (retval == GP_TRANSLATION_TABLE_STATUS_PARAM_DOES_NOT_MATCH) {
           sl_zigbee_af_green_power_cluster_println("Parameter does not match @Index [%d]", index);
           sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_FAILURE);
+          return true;
         }
       }
     } else if (action == 0x02) {
@@ -1909,15 +1911,17 @@ bool sl_zigbee_af_green_power_cluster_gp_translation_table_update_cb(sl_zigbee_a
         } else if (retval == GP_TRANSLATION_TABLE_STATUS_PARAM_DOES_NOT_MATCH) {
           sl_zigbee_af_green_power_cluster_println("Parameter does not match @Index [%d]", index);
           sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_FAILURE);
+          return true;
         }
       }
     } else {
-      goto kickout;
+      return true;
     }
     translationsEntryPtr += payloadOffset; //If successful move the pointer to the next translation
     payloadOffset = 0;
   }
-  kickout: return true;
+  (void)sl_zigbee_af_send_immediate_default_response(SL_ZIGBEE_ZCL_STATUS_SUCCESS);
+  return true;
 }
 
 bool sl_zigbee_af_green_power_cluster_gp_translation_table_request_cb(sl_zigbee_af_cluster_command_t *cmd)

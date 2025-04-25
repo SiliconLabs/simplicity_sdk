@@ -230,11 +230,13 @@ typedef struct {
     slxi_zigbee_stack_add_to_incoming_network_queue_ipc_msg_t add_to_incoming_network_queue;
     mfglibInternalEnd_ipc_msg_t mfgEnd;
     mfglibInternalGetChannel_ipc_msg_t mfgGetChannel;
+    mfglibInternalGetCtune_ipc_msg_t mfgGetCtune;
     mfglibInternalGetOptions_ipc_msg_t mfgGetOptions;
     mfglibInternalGetPower_ipc_msg_t mfgGetPower;
     mfglibInternalGetSynOffset_ipc_msg_t mfgGetSynOffset;
     mfglibInternalSendPacket_ipc_msg_t mfgSendPacket;
     mfglibInternalSetChannel_ipc_msg_t mfgSetChannel;
+    mfglibInternalSetCtune_ipc_msg_t mfgSetCtune;
     mfglibInternalSetOptions_ipc_msg_t mfgSetOptions;
     mfglibInternalSetPower_ipc_msg_t mfgSetPower;
     mfglibInternalSetSynOffset_ipc_msg_t mfgSetSynOffset;

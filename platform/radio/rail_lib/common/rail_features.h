@@ -885,13 +885,13 @@ extern "C" {
   #define RAIL_SUPPORTS_PROTOCOL_SIDEWALK (0U)
 #endif
 
-/// Boolean to indicate whether the selected chip supports automatic LNA bypass
-/// for external FEM.
-/// See also runtime refinement \ref RAIL_SupportsAutoLnaBypass().
+/// Boolean to indicate whether the selected chip supports automatic PRS LNA
+/// bypass for external FEM.
+/// See also runtime refinement \ref RAIL_SupportsPrsLnaBypass().
 #if (_SILICON_LABS_32B_SERIES_2_CONFIG == 5)
-  #define RAIL_SUPPORTS_AUTO_LNA_BYPASS (1U)
+  #define RAIL_SUPPORTS_PRS_LNA_BYPASS (1U)
 #else
-  #define RAIL_SUPPORTS_AUTO_LNA_BYPASS (0U)
+  #define RAIL_SUPPORTS_PRS_LNA_BYPASS (0U)
 #endif
 
 /** @} */ // end of group Features

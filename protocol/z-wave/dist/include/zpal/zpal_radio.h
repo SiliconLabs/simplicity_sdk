@@ -900,6 +900,15 @@ void zpal_radio_set_long_range_lock(bool lock);
 bool zpal_radio_is_long_range_locked(void);
 
 /**
+ * @brief Function to check if the stack implementation supports a given region
+ *
+ * @param[in] region  Region to check
+ *
+ * @return  True if the region is supported, False if it is not
+ */
+bool zpal_radio_is_region_supported(zpal_radio_region_t region);
+
+/**
  * @brief Read the saved tx power of the last received long-range beam.
  *
  * @return The tx power of the last received long-range beam.

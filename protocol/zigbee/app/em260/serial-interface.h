@@ -46,6 +46,10 @@ bool serialCallbackResponse(void);
 void serialMfglibFillPacket(uint8_t *packet);
 void serialDelayTest(uint16_t delay);
 
+#ifdef EZSP_CPC
+void sli_zigbee_cpc_serial_buffer_init(void);
+#endif // EZSP_CPC
+
 #ifdef SLEEPY_EZSP_ASH
   #include "hal/micro/generic/ash-ncp.h"
 #else

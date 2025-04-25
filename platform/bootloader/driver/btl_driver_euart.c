@@ -199,7 +199,7 @@ void uart_init(void)
 
   // Advansed init to configure CTS and RTS
   EUSART_AdvancedInit_TypeDef advancedInit = EUSART_ADVANCED_INIT_DEFAULT;
-  advancedInit.hwFlowControl = 1;
+  advancedInit.hwFlowControl = 3;
   init.advancedSettings = &advancedInit;
 
 #if defined(EUART_PRESENT)
@@ -242,7 +242,7 @@ void uart_init(void)
                                << _GPIO_EUART_RXROUTE_PORT_SHIFT)
                               | (SL_SERIAL_EUART_RX_PIN << _GPIO_EUART_RXROUTE_PIN_SHIFT);
 #elif defined(EUSART_COUNT) && (EUSART_COUNT > 0)
-  GPIO->EUSARTROUTE[sl_uart_init_inst.uartNum].ROUTEEN = GPIO_EUSART_ROUTEEN_TXPEN;
+  GPIO->EUSARTROUTE[sl_uart_init_inst.uartNum].ROUTEEN |= GPIO_EUSART_ROUTEEN_TXPEN;
   GPIO->EUSARTROUTE[sl_uart_init_inst.uartNum].TXROUTE = (SL_SERIAL_EUART_TX_PORT
                                                           << _GPIO_EUSART_TXROUTE_PORT_SHIFT)
                                                          | (SL_SERIAL_EUART_TX_PIN << _GPIO_EUSART_TXROUTE_PIN_SHIFT);

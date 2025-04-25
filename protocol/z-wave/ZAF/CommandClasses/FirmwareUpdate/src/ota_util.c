@@ -24,7 +24,6 @@
 #include <ZAF_transport.h>
 #include "zaf_transport_tx.h"
 
-#include <zpal_watchdog.h>
 #include <zpal_misc.h>
 #include <zpal_bootloader.h>
 #include <zpal_power_manager.h>
@@ -629,9 +628,6 @@ handleCmdClassFirmwareUpdateMdReport( uint16_t crc16Result,
   __attribute__((unused)) zpal_status_t zpal_status;
   DPRINT("handleCmdClassFirmwareUpdateMdReport()\n");
 
-  /* Frame burst during OTA can cause watch dog to reset */
-  zpal_feed_watchdog();
-
   // Ignore FW Update MD Report if OTA is not in progress
   // handleEvent() would handle any unexpected events anyway.
   // Purpose of this check is just to speed up the process.
@@ -1030,8 +1026,6 @@ void ZCB_CmdClassFwUpdateMdReqReport(transmission_result_t * pTxResult)
 static void
 ZCB_CmdClassFwUpdateMdGet(__attribute__((unused)) TRANSMISSION_RESULT * pTransmissionResult)
 {
-  zpal_feed_watchdog();
-
   if (useMultiFrames()) {
     zaf_transport_pause();
   }
@@ -1168,7 +1162,6 @@ static void ZCB_TimerOutFwUpdateFrameGet(SSwTimer* pTimer)
   {
     DPRINTF("Send MD GET (same or next report number), reportNo = %d\n", myOta.firmwareUpdateReportNumberPrevious + 1);
 
-    zpal_feed_watchdog();
     if (JOB_STATUS_SUCCESS == CmdClassFirmwareUpdateMdGet( &myOta.rxOpt,
                                                            myOta.firmwareUpdateReportNumberPrevious + 1,
                                                            ZCB_CmdClassFwUpdateMdGet))
@@ -1337,7 +1330,6 @@ static void fw_action_send_get(void)
   resetReceivedReportsData();
   myOta.fw_numOfRetries = 0;
 
-  zpal_feed_watchdog();
   if (JOB_STATUS_SUCCESS != CmdClassFirmwareUpdateMdGet(&myOta.rxOpt,
                                                         myOta.firmwareUpdateReportNumberPrevious + 1,  // The next report number.
                                                         ZCB_CmdClassFwUpdateMdGet))

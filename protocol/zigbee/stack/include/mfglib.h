@@ -278,6 +278,31 @@ void mfglibSetSynOffset(int8_t synOffset);
  */
 int8_t mfglibGetSynOffset(void);
 
+/** @brief Change the CTUNE value.
+ *
+ * This function will idle the radio if mfglib has been started,
+ * then set the CTUNE value as desired. mfglib is then restarted
+ * to take effect of this new change.
+ *
+ * @appusage Use this function to change CTUNE value.
+ *
+ * @param ctune Valid range of a CTUNE values is between 0x0000 - 0x00FF.
+ *
+ * @return One of the following:
+ * - ::SL_STATUS_OK                     if CTUNE value has been set.
+ * - ::SL_STATUS_INVALID_PARAMETER      if CTUNE value is invalid.
+ * - ::SL_STATUS_NOT_READY              if the radio could not be idled.
+ * - ::SL_STATUS_FAIL                   if mfglib could not be re-started.*/
+sl_status_t mfglibSetCtune(uint16_t ctune);
+
+/** @brief Return the current CTUNE value, as previously
+ * set via mfglibSetCtune().
+ *
+ * @appusage Use this function to get current CTUNE value.
+ *
+ * @return Current CTUNE value. If value is 0xFFFF, CTUNE is not available due to missing mfglib support.*/
+uint16_t mfglibGetCtune(void);
+
 /** @} */ // end of name API
 
 /** @} */ // end of mfglib

@@ -28,8 +28,8 @@
 // <i> The maximum number of Green Power sink table entries supported by the stack.
 #define SL_ZIGBEE_GP_SINK_TABLE_SIZE   0
 
-// <o SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT> Green Power incoming FC (as part of proxy table) Token timeout <0-60>
-// <i> Default: 0
+// <o SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT> Green Power incoming FC (as part of proxy table) Token timeout <0-4294967>
+// <i> Default: 7
 // <i> The timeout (seconds) to restore the GPD incoming security frame counter in the Flash (0 being never).
 #define SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TIMEOUT   7
 
@@ -38,8 +38,8 @@
 // <i> The maximum table size to restore the GPD incoming security frame counter in the Flash (being either 0 or SL_ZIGBEE_GP_PROXY_TABLE_SIZE).
 #define SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TABLE_SIZE   0
 
-// <o SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TIMEOUT> Green Power incoming FC (as part of sink table) token table token timeout <0-60>
-// <i> Default: 0
+// <o SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TIMEOUT> Green Power incoming FC (as part of sink table) token table token timeout <0-4294967>
+// <i> Default: 7
 // <i> The timeout (seconds) to restore the GPD incoming security frame counter in the Flash (0 being never).
 #define SL_ZIGBEE_GP_INCOMING_FC_IN_SINK_TOKEN_TIMEOUT   7
 

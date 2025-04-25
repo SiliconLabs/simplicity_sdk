@@ -55,7 +55,7 @@ void sl_zigbee_direct_send_commissioning_response(uint8_t status,
                                                   sl_802154_short_addr_t dst,
                                                   sl_802154_long_addr_t longDest)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.direct_send_commissioning_response.request.status = status;
   msg.data.direct_send_commissioning_response.request.dst = dst;
 
@@ -77,7 +77,7 @@ bool sl_zigbee_direct_send_ephemeral_key(sl_802154_short_addr_t destinationShort
                                          const sl_zigbee_key_data_t *keyData,
                                          uint8_t options)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.direct_send_ephemeral_key.request.destinationShortId = destinationShortId;
 
   if (destinationLongId != NULL) {
@@ -110,7 +110,7 @@ bool sl_zigbee_direct_send_ephemeral_key(sl_802154_short_addr_t destinationShort
 
 uint8_t sl_zigbee_get_nwk_update_id(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_nwk_update_id_process_ipc_command, &msg);
 
@@ -119,7 +119,7 @@ uint8_t sl_zigbee_get_nwk_update_id(void)
 
 sl_status_t sl_zigbee_transient_device_mgmt_finish(const sl_zigbee_address_info *device_ids)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (device_ids != NULL) {
     msg.data.transient_device_mgmt_finish.request.device_ids = *device_ids;

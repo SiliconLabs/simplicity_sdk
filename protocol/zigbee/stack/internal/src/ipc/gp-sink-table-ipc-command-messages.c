@@ -100,7 +100,7 @@ void sl_zigbee_gp_sink_table_add_group(uint8_t index,
                                        uint16_t sinkGroupId,
                                        uint16_t assignedAlias)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_add_group.request.index = index;
   msg.data.gp_sink_table_add_group.request.sinkGroupId = sinkGroupId;
   msg.data.gp_sink_table_add_group.request.assignedAlias = assignedAlias;
@@ -109,14 +109,14 @@ void sl_zigbee_gp_sink_table_add_group(uint8_t index,
 
 void sl_zigbee_gp_sink_table_clear_all(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_clear_all_process_ipc_command, &msg);
 }
 
 uint8_t sl_zigbee_gp_sink_table_entry_in_use(uint8_t sinkTableIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_entry_in_use.request.sinkTableIndex = sinkTableIndex;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_entry_in_use_process_ipc_command, &msg);
 
@@ -125,7 +125,7 @@ uint8_t sl_zigbee_gp_sink_table_entry_in_use(uint8_t sinkTableIndex)
 
 uint8_t sl_zigbee_gp_sink_table_find_or_allocate_entry(sl_zigbee_gp_address_t *addr)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (addr != NULL) {
     msg.data.gp_sink_table_find_or_allocate_entry.request.addr = *addr;
@@ -143,7 +143,7 @@ uint8_t sl_zigbee_gp_sink_table_find_or_allocate_entry(sl_zigbee_gp_address_t *a
 sl_status_t sl_zigbee_gp_sink_table_get_entry(uint8_t sinkTableIndex,
                                               sl_zigbee_gp_sink_table_entry_t *entry)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_get_entry.request.sinkTableIndex = sinkTableIndex;
 
   if (entry != NULL) {
@@ -161,7 +161,7 @@ sl_status_t sl_zigbee_gp_sink_table_get_entry(uint8_t sinkTableIndex,
 
 uint8_t sl_zigbee_gp_sink_table_get_free_entry_index(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_get_free_entry_index_process_ipc_command, &msg);
 
@@ -170,7 +170,7 @@ uint8_t sl_zigbee_gp_sink_table_get_free_entry_index(void)
 
 uint8_t sl_zigbee_gp_sink_table_get_number_of_active_entries(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_get_number_of_active_entries_process_ipc_command, &msg);
 
@@ -179,14 +179,14 @@ uint8_t sl_zigbee_gp_sink_table_get_number_of_active_entries(void)
 
 void sl_zigbee_gp_sink_table_init(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_init_process_ipc_command, &msg);
 }
 
 uint8_t sl_zigbee_gp_sink_table_lookup(sl_zigbee_gp_address_t *addr)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (addr != NULL) {
     msg.data.gp_sink_table_lookup.request.addr = *addr;
@@ -203,7 +203,7 @@ uint8_t sl_zigbee_gp_sink_table_lookup(sl_zigbee_gp_address_t *addr)
 
 void sl_zigbee_gp_sink_table_remove_entry(uint8_t index)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_remove_entry.request.index = index;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_remove_entry_process_ipc_command, &msg);
 }
@@ -212,7 +212,7 @@ bool sl_zigbee_gp_sink_table_remove_group(uint8_t index,
                                           uint16_t sinkGroupId,
                                           uint16_t assignedAlias)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_remove_group.request.index = index;
   msg.data.gp_sink_table_remove_group.request.sinkGroupId = sinkGroupId;
   msg.data.gp_sink_table_remove_group.request.assignedAlias = assignedAlias;
@@ -224,7 +224,7 @@ bool sl_zigbee_gp_sink_table_remove_group(uint8_t index,
 sl_status_t sl_zigbee_gp_sink_table_set_entry(uint8_t sinkTableIndex,
                                               sl_zigbee_gp_sink_table_entry_t *entry)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_set_entry.request.sinkTableIndex = sinkTableIndex;
 
   if (entry != NULL) {
@@ -243,7 +243,7 @@ sl_status_t sl_zigbee_gp_sink_table_set_entry(uint8_t sinkTableIndex,
 void sl_zigbee_gp_sink_table_set_security_frame_counter(uint8_t index,
                                                         uint32_t sfc)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.gp_sink_table_set_security_frame_counter.request.index = index;
   msg.data.gp_sink_table_set_security_frame_counter.request.sfc = sfc;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_gp_sink_table_set_security_frame_counter_process_ipc_command, &msg);

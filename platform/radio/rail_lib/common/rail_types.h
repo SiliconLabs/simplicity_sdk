@@ -4370,14 +4370,14 @@ typedef uint8_t (*RAIL_ConvertLqiCallback_t)(uint8_t lqi,
                                              int8_t rssi);
 
 /**
- * @struct RAIL_AutoLnaBypassConfig_t
- * @brief Configures the automatic LNA bypass.
+ * @struct RAIL_PrsLnaBypassConfig_t
+ * @brief Configures the automatic PRS LNA bypass.
  */
-typedef struct RAIL_AutoLnaBypassConfig {
+typedef struct RAIL_PrsLnaBypassConfig {
   /**
    * Maximum time in microseconds to wait for frame detection after the LNA has
-   * been bypassed. It must be greater than 0 to enable automatic LNA bypass
-   * with \ref RAIL_EnableAutoLnaBypass().
+   * been bypassed. It must be greater than 0 to enable automatic PRS LNA
+   * bypass with \ref RAIL_EnablePrsLnaBypass().
    */
   uint32_t timeoutUs;
   /**
@@ -4406,21 +4406,23 @@ typedef struct RAIL_AutoLnaBypassConfig {
    */
   uint8_t deltaRssiDbm;
   /**
-   * GPIO port used for the bypass.
+   * PRS Channel used for the bypass.
+   * PRS_GetFreeChannel() can be use to find a free channel. Then the signal
+   * can be routed to GPIO pin and port using PRS_PinOutput(). This allows
+   * logical operations with other PRS channels and so to adapt to the FEM
+   * control logic table. Any call to PRS_Combine() with
+   * \ref RAIL_PrsLnaBypassConfig_t::prsChannel as chA must be done after
+   * the \ref RAIL_EnablePrsLnaBypass() call.
    */
-  uint8_t port;
+  uint8_t prsChannel;
   /**
-   * GPIO pin used for the bypass.
-   */
-  uint8_t pin;
-  /**
-   * GPIO DOUT configuration for bypass.
+   * PRS signal polarity for bypass.
    *
-   * With a polarity of 1, GPIO DOUT is set to 1 for bypass and 0 for un-bypass.
-   * with a polarity of 0, GPIO DOUT is set to 0 for bypass and 1 for un-bypass.
+   * With a polarity of 1, PRS signal is set to 1 for bypass and 0 for un-bypass.
+   * with a polarity of 0, PRS signal is set to 0 for bypass and 1 for un-bypass.
    */
   bool polarity;
-} RAIL_AutoLnaBypassConfig_t;
+} RAIL_PrsLnaBypassConfig_t;
 
 /** @} */ // end of group Receive
 

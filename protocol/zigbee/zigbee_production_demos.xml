@@ -5,7 +5,7 @@
     <property key="demos.blurb" value="Zigbee - NCP ncp-spi"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/ncp-spi/ncp-spi-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/ncp-spi/ncp-spi-brd4180a.s37"/>
     <property key="core.readmeFiles" value="app/ncp/sample-app/ncp-spi/readme.html"/>
     <property key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -15,7 +15,7 @@
     <property key="demos.blurb" value="Zigbee - NCP ncp-uart-hw"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/ncp-uart-hw/ncp-uart-hw-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/ncp-uart-hw/ncp-uart-hw-brd4180a.s37"/>
     <property key="core.readmeFiles" value="app/ncp/sample-app/ncp-uart-hw/readme.html"/>
     <property key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -25,7 +25,7 @@
     <property key="demos.blurb" value="Zigbee - SoC DynamicMultiprotocolLightSed"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/DynamicMultiprotocolLightSed/DynamicMultiprotocolLightSed-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/DynamicMultiprotocolLightSed/DynamicMultiprotocolLightSed-brd4186c.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/multiprotocol/DynamicMultiprotocolLightSed/readme.html"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -35,7 +35,7 @@
     <property key="demos.blurb" value="Zigbee - SoC DynamicMultiprotocolLight"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/DynamicMultiprotocolLight/DynamicMultiprotocolLight-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/DynamicMultiprotocolLight/DynamicMultiprotocolLight-brd4186c.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/multiprotocol/DynamicMultiprotocolLight/readme.html"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -45,7 +45,7 @@
     <property key="demos.blurb" value="Zigbee - SoC Light"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/Z3Light/Z3Light-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/Z3Light/Z3Light-brd4180a.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/z3/Z3Light/readme.html"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -55,7 +55,7 @@
     <property key="demos.blurb" value="Zigbee - SoC SwitchWithVoice"/>
     <property key="core.partCompatibility" value=".*efr32mg24b310f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd2601b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/Z3SwitchWithVoice/Z3SwitchWithVoice-brd2601b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/Z3SwitchWithVoice/Z3SwitchWithVoice-brd2601b.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/z3/Z3SwitchWithVoice/readme.html"/>
     <property key="filters" value="Capability|Machine\ Learning Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -66,7 +66,7 @@
     <property key="demos.blurb" value="Zigbee - SoC Switch"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/Z3Switch/Z3Switch-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/Z3Switch/Z3Switch-brd4180a.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/z3/Z3Switch/readme.html"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -76,7 +76,7 @@
     <property key="demos.blurb" value="Zigbee - SoC ZigbeeDirectDeviceLight"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/ZigbeeDirectDeviceLight/ZigbeeDirectDeviceLight-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/ZigbeeDirectDeviceLight/ZigbeeDirectDeviceLight-brd4180a.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/multiprotocol/ZigbeeDirectDeviceLight/readme.html"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -86,7 +86,7 @@
     <property key="demos.blurb" value="ZigbeeUnifiedTestHarness - SoC"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd2703a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/ZigbeeUnifiedTestHarness/ZigbeeUnifiedTestHarness-brd2703a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/ZigbeeUnifiedTestHarness/ZigbeeUnifiedTestHarness-brd2703a.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/z3/ZigbeeUnifiedTestHarness/readme.html"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -96,7 +96,7 @@
     <property key="demos.blurb" value="ZigbeeUnifiedTestHarness - SoC"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/protocol/zigbee/demos/ZigbeeUnifiedTestHarness/ZigbeeUnifiedTestHarness-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/protocol/zigbee/demos/ZigbeeUnifiedTestHarness/ZigbeeUnifiedTestHarness-brd4186c.s37"/>
     <property key="core.readmeFiles" value="app/framework/scenarios/z3/ZigbeeUnifiedTestHarness/readme.html"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>

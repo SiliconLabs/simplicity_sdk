@@ -20,17 +20,17 @@
 
 #include "sl_status.h"
 
-uint8_t *sl_legacy_buffer_manager_get_linked_buffers_pointer(sli_buffer_manager_buffer_t buffer, uint8_t index);
+uint8_t *sl_legacy_buffer_manager_get_linked_buffers_pointer(sli_buffer_manager_buffer_t buffer, uint16_t index);
 
 sl_status_t sl_legacy_buffer_manager_really_append_to_linked_buffers(sli_buffer_manager_buffer_t *buffer,
                                                                      uint8_t *contents,
-                                                                     uint8_t length,
+                                                                     uint16_t length,
                                                                      bool reallyAppend);
 sl_status_t sl_legacy_buffer_manager_really_set_linked_buffers_length(sli_buffer_manager_buffer_t *buffer,
-                                                                      uint8_t newLength);
+                                                                      uint16_t newLength);
 
-uint8_t sl_legacy_buffer_manager_get_linked_buffers_byte(sli_buffer_manager_buffer_t buffer, uint8_t index);
-void sl_legacy_buffer_manager_set_linked_buffers_byte(sli_buffer_manager_buffer_t buffer, uint8_t index, uint8_t byte);
+uint8_t sl_legacy_buffer_manager_get_linked_buffers_byte(sli_buffer_manager_buffer_t buffer, uint16_t index);
+void sl_legacy_buffer_manager_set_linked_buffers_byte(sli_buffer_manager_buffer_t buffer, uint16_t index, uint8_t byte);
 
 sli_buffer_manager_buffer_t sl_legacy_buffer_manager_copy_linked_buffers(sli_buffer_manager_buffer_t buffer);
 void sl_legacy_buffer_manager_copy_buffer_bytes(sli_buffer_manager_buffer_t to,
@@ -40,15 +40,15 @@ void sl_legacy_buffer_manager_copy_buffer_bytes(sli_buffer_manager_buffer_t to,
                                                 uint16_t count);
 
 uint16_t sl_legacy_buffer_manager_get_linked_buffers_low_high_int16u(sli_buffer_manager_buffer_t buffer,
-                                                                     uint8_t index);
-void sl_legacy_buffer_manager_set_linked_buffers_low_high_int16u(sli_buffer_manager_buffer_t buffer,
-                                                                 uint8_t index,
-                                                                 uint16_t value);
+                                                                     uint16_t index);
+sl_status_t sl_legacy_buffer_manager_set_linked_buffers_low_high_int16u(sli_buffer_manager_buffer_t buffer,
+                                                                        uint16_t index,
+                                                                        uint16_t value);
 uint32_t sl_legacy_buffer_manager_get_linked_buffers_low_high_int32u(sli_buffer_manager_buffer_t buffer,
-                                                                     uint8_t index);
-void sl_legacy_buffer_manager_set_linked_buffers_low_high_int32u(sli_buffer_manager_buffer_t buffer,
-                                                                 uint8_t index,
-                                                                 uint32_t value);
+                                                                     uint16_t index);
+sl_status_t sl_legacy_buffer_manager_set_linked_buffers_low_high_int32u(sli_buffer_manager_buffer_t buffer,
+                                                                        uint16_t index,
+                                                                        uint32_t value);
 
 sli_buffer_manager_buffer_t
 sl_legacy_buffer_manager_fill_stack_buffer(unsigned int count, ...);

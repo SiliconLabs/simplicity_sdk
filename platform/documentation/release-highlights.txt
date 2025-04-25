@@ -1,2 +1,2 @@
-Platform 5.0.2
+Platform 5.0.3
 - Targeted quality improvements and bug fixes.

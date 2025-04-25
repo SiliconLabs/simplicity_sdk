@@ -37,7 +37,7 @@ sl_status_t sl_zigbee_request_beacon_survey(sl_802154_short_addr_t dest,
                                             uint32_t *channel_masks,
                                             uint8_t scan_config_mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.request_beacon_survey.request.dest = dest;
   msg.data.request_beacon_survey.request.channel_page_count = channel_page_count;
 

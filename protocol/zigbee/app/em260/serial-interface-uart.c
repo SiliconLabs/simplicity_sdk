@@ -143,7 +143,7 @@ uint8_t serialGetCommandLength(void)
 
 void serialSetResponseLength(uint8_t data)
 {
-  sl_legacy_buffer_manager_set_message_buffer_length(ezspBuffer, data);
+  assert(sl_legacy_buffer_manager_set_message_buffer_length(ezspBuffer, data) == SL_STATUS_OK);
 
   // sl_legacy_buffer_manager_set_message_buffer_length has the potential effect of setting ezspBuffer
   // to a brand new buffer. This can happen if ezspBuffer is being extended.

@@ -19,6 +19,7 @@
   - name: hardware_board_rb
   - name: hardware_board_has_si70xx
   - name: hardware_board_has_tempsensor
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_vcom
   - name: hardware_board_has_si446x_radio
   - name: hardware_board_has_hfxo_freq_39mhz
@@ -45,7 +46,7 @@
     instance:
     - led0
     - led1
-  - id: skrhaae010
+  - id: joystick
   - id: simple_button
     instance:
     - btn0

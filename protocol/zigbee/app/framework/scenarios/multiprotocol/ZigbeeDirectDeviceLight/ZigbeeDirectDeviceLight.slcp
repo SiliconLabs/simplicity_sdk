@@ -107,6 +107,10 @@ configuration:
     value: 512
     condition:
       - micriumos_kernel
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 3000
+  - name: SL_BT_RTOS_EVENT_HANDLER_STACK_SIZE
+    value: 2000
   # Timer RTOS task priority needs to be one more than SL_BT_RTOS_LINK_LAYER_TASK_PRIORITY
   # BT uses event flags that require the timer task to be higher priority than all other RTOS tasks
   - name: configTIMER_TASK_PRIORITY

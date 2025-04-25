@@ -158,11 +158,12 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
       // Proceed only if the index is with in the length of the packet.
       // This check is important to calculate the length before a buffer copy function.
       // is called.
-      if (sl_legacy_buffer_manager_message_buffer_length(packetBuffer) < index) {
-        // Return deafault action
-        return SL_ZIGBEE_ACCEPT_PACKET;
+      uint16_t bufferLength = sl_legacy_buffer_manager_message_buffer_length(packetBuffer);
+      if (bufferLength < index) {
+        // Something is malformed in the constructed packet; don't receive it
+        return SL_ZIGBEE_DROP_PACKET;
       }
-      uint8_t packetLength = sl_legacy_buffer_manager_message_buffer_length(packetBuffer) - index;
+      uint8_t packetLength = bufferLength - index;
       sl_zigbee_packet_action_t act;
       sl_legacy_buffer_manager_copy_from_linked_buffers(packetBuffer,
                                                         index,
@@ -258,7 +259,15 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_
     #endif // !ALLOW_ALL_PACKETS
     default:
     {
-      uint8_t packetLength = sl_legacy_buffer_manager_message_buffer_length(packetBuffer) - index;
+      // Proceed only if the index is with in the length of the packet.
+      // This check is important to calculate the length before a buffer copy function.
+      // is called.
+      uint16_t bufferLength = sl_legacy_buffer_manager_message_buffer_length(packetBuffer);
+      if (bufferLength < index) {
+        // Something is malformed in the constructed packet; don't send it
+        return SL_ZIGBEE_DROP_PACKET;
+      }
+      uint8_t packetLength = bufferLength - index;
       sl_zigbee_packet_action_t act;
       sl_legacy_buffer_manager_copy_from_linked_buffers(packetBuffer,
                                                         index,

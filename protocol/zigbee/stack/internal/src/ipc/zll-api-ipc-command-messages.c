@@ -161,7 +161,7 @@ void sli_zigbee_stack_zll_start_scan_process_ipc_command(sli_zigbee_ipc_cmd_t *m
 
 uint32_t sl_zigbee_get_zll_primary_channel_mask(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_zll_primary_channel_mask_process_ipc_command, &msg);
 
@@ -170,7 +170,7 @@ uint32_t sl_zigbee_get_zll_primary_channel_mask(void)
 
 uint32_t sl_zigbee_get_zll_secondary_channel_mask(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_zll_secondary_channel_mask_process_ipc_command, &msg);
 
@@ -179,7 +179,7 @@ uint32_t sl_zigbee_get_zll_secondary_channel_mask(void)
 
 bool sl_zigbee_is_zll_network(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_is_zll_network_process_ipc_command, &msg);
 
@@ -188,35 +188,35 @@ bool sl_zigbee_is_zll_network(void)
 
 void sl_zigbee_set_zll_additional_state(uint16_t mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_zll_additional_state.request.mask = mask;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_zll_additional_state_process_ipc_command, &msg);
 }
 
 void sl_zigbee_set_zll_node_type(sl_zigbee_node_type_t nodeType)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_zll_node_type.request.nodeType = nodeType;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_zll_node_type_process_ipc_command, &msg);
 }
 
 void sl_zigbee_set_zll_primary_channel_mask(uint32_t mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_zll_primary_channel_mask.request.mask = mask;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_zll_primary_channel_mask_process_ipc_command, &msg);
 }
 
 void sl_zigbee_set_zll_secondary_channel_mask(uint32_t mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_zll_secondary_channel_mask.request.mask = mask;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_zll_secondary_channel_mask_process_ipc_command, &msg);
 }
 
 void sl_zigbee_zll_clear_tokens(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_clear_tokens_process_ipc_command, &msg);
 }
@@ -224,7 +224,7 @@ void sl_zigbee_zll_clear_tokens(void)
 sl_status_t sl_zigbee_zll_form_network(sl_zigbee_zll_network_t *networkInfo,
                                        int8_t radioTxPower)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (networkInfo != NULL) {
     msg.data.zll_form_network.request.networkInfo = *networkInfo;
@@ -242,7 +242,7 @@ sl_status_t sl_zigbee_zll_form_network(sl_zigbee_zll_network_t *networkInfo,
 
 sl_zigbee_zll_policy_t sl_zigbee_zll_get_policy(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_get_policy_process_ipc_command, &msg);
 
@@ -251,7 +251,7 @@ sl_zigbee_zll_policy_t sl_zigbee_zll_get_policy(void)
 
 uint8_t sl_zigbee_zll_get_radio_idle_mode(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_get_radio_idle_mode_process_ipc_command, &msg);
 
@@ -260,7 +260,7 @@ uint8_t sl_zigbee_zll_get_radio_idle_mode(void)
 
 void sl_zigbee_zll_get_token_stack_zll_data(sl_zigbee_tok_type_stack_zll_data_t *token)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (token != NULL) {
     msg.data.zll_get_token_stack_zll_data.request.token = *token;
@@ -275,7 +275,7 @@ void sl_zigbee_zll_get_token_stack_zll_data(sl_zigbee_tok_type_stack_zll_data_t 
 
 void sl_zigbee_zll_get_token_stack_zll_security(sl_zigbee_tok_type_stack_zll_security_t *token)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (token != NULL) {
     msg.data.zll_get_token_stack_zll_security.request.token = *token;
@@ -291,7 +291,7 @@ void sl_zigbee_zll_get_token_stack_zll_security(sl_zigbee_tok_type_stack_zll_sec
 void sl_zigbee_zll_get_tokens_stack_zll(sl_zigbee_tok_type_stack_zll_data_t *data,
                                         sl_zigbee_tok_type_stack_zll_security_t *security)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (data != NULL) {
     msg.data.zll_get_tokens_stack_zll.request.data = *data;
@@ -314,7 +314,7 @@ void sl_zigbee_zll_get_tokens_stack_zll(sl_zigbee_tok_type_stack_zll_data_t *dat
 
 sl_status_t sl_zigbee_zll_join_target(const sl_zigbee_zll_network_t *targetNetworkInfo)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (targetNetworkInfo != NULL) {
     msg.data.zll_join_target.request.targetNetworkInfo = *targetNetworkInfo;
@@ -327,7 +327,7 @@ sl_status_t sl_zigbee_zll_join_target(const sl_zigbee_zll_network_t *targetNetwo
 
 bool sl_zigbee_zll_operation_in_progress(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_operation_in_progress_process_ipc_command, &msg);
 
@@ -336,7 +336,7 @@ bool sl_zigbee_zll_operation_in_progress(void)
 
 bool sl_zigbee_zll_rx_on_when_idle_get_active(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_rx_on_when_idle_get_active_process_ipc_command, &msg);
 
@@ -345,7 +345,7 @@ bool sl_zigbee_zll_rx_on_when_idle_get_active(void)
 
 void sl_zigbee_zll_scanning_complete(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_scanning_complete_process_ipc_command, &msg);
 }
@@ -353,7 +353,7 @@ void sl_zigbee_zll_scanning_complete(void)
 sl_status_t sl_zigbee_zll_set_initial_security_state(const sl_zigbee_key_data_t *networkKey,
                                                      const sl_zigbee_zll_initial_security_state_t *securityState)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (networkKey != NULL) {
     msg.data.zll_set_initial_security_state.request.networkKey = *networkKey;
@@ -370,14 +370,14 @@ sl_status_t sl_zigbee_zll_set_initial_security_state(const sl_zigbee_key_data_t 
 
 void sl_zigbee_zll_set_non_zll_network(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_set_non_zll_network_process_ipc_command, &msg);
 }
 
 sl_status_t sl_zigbee_zll_set_policy(sl_zigbee_zll_policy_t policy)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zll_set_policy.request.policy = policy;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_set_policy_process_ipc_command, &msg);
 
@@ -386,14 +386,14 @@ sl_status_t sl_zigbee_zll_set_policy(sl_zigbee_zll_policy_t policy)
 
 void sl_zigbee_zll_set_radio_idle_mode(sl_zigbee_radio_power_mode_t mode)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zll_set_radio_idle_mode.request.mode = mode;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_set_radio_idle_mode_process_ipc_command, &msg);
 }
 
 sl_status_t sl_zigbee_zll_set_rx_on_when_idle(uint32_t durationMs)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zll_set_rx_on_when_idle.request.durationMs = durationMs;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zll_set_rx_on_when_idle_process_ipc_command, &msg);
 
@@ -402,7 +402,7 @@ sl_status_t sl_zigbee_zll_set_rx_on_when_idle(uint32_t durationMs)
 
 sl_status_t sl_zigbee_zll_set_security_state_without_key(const sl_zigbee_zll_initial_security_state_t *securityState)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (securityState != NULL) {
     msg.data.zll_set_security_state_without_key.request.securityState = *securityState;
@@ -415,7 +415,7 @@ sl_status_t sl_zigbee_zll_set_security_state_without_key(const sl_zigbee_zll_ini
 
 void sl_zigbee_zll_set_token_stack_zll_data(sl_zigbee_tok_type_stack_zll_data_t *token)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (token != NULL) {
     msg.data.zll_set_token_stack_zll_data.request.token = *token;
@@ -432,7 +432,7 @@ sl_status_t sl_zigbee_zll_start_scan(uint32_t channelMask,
                                      int8_t radioPowerForScan,
                                      sl_zigbee_node_type_t nodeType)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zll_start_scan.request.channelMask = channelMask;
   msg.data.zll_start_scan.request.radioPowerForScan = radioPowerForScan;
   msg.data.zll_start_scan.request.nodeType = nodeType;

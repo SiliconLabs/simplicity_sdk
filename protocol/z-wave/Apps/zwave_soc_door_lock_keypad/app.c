@@ -61,6 +61,7 @@ ZW_APPLICATION_STATUS ApplicationInit(__attribute__((unused)) zpal_reset_reason_
   SRadioConfig_t* RadioConfig;
 
   DPRINT("Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
 #ifdef DEBUGPRINT

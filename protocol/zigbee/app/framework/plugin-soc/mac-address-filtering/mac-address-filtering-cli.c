@@ -91,6 +91,14 @@ void sl_zigbee_af_mac_address_filtering_print_config_command(sl_cli_command_arg_
   #endif
 }
 
+// Command: plugin mac-address-filtering clear-stats
+// Description: Clears all packet counts for all modes.
+void sl_zigbee_af_mac_address_filtering_clear_stats_command(sl_cli_command_arg_t * arguments)
+{
+  UNUSED_VAR(arguments);
+  sl_zigbee_af_mac_address_filtering_clear_stats();
+}
+
 // Plugin CLI Description: Commands to manipulate the MAC address filtering tables.
 // Command: plugin mac-address-filtering set-config no-address-filter <enable>
 // Description: Enable/disable filtering of no-address messages.

@@ -14,6 +14,8 @@ requires:
     
 include:
   - path: "platform/radio/mac"
+    file_list:
+      - path: mfglib_modes.h
   - path: "platform/radio/mac/rail_mux"
     file_list:
       - path: sl_rail_mux.h

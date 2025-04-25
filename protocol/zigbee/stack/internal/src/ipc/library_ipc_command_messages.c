@@ -31,7 +31,7 @@ void sli_zigbee_stack_get_library_status_process_ipc_command(sli_zigbee_ipc_cmd_
 
 sl_zigbee_library_status_t sl_zigbee_get_library_status(sl_zigbee_library_id_t libraryId)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_library_status.request.libraryId = libraryId;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_library_status_process_ipc_command, &msg);
 

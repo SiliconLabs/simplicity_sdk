@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 // Protocol Definitions
 
-#define EZSP_PROTOCOL_VERSION     0x0E
+#define EZSP_PROTOCOL_VERSION     0x10
 
 // EZSP max length + Frame Control extra byte + Frame ID extra byte
 #define EZSP_MAX_FRAME_LENGTH     (200 + 1 + 1)

@@ -17,6 +17,7 @@
   - name: hardware_board
   - name: hardware_board_rb
   - name: hardware_board_from_stk
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_vcom
   - name: hardware_board_has_hfxo_freq_38.4mhz
   - name: hardware_board_has_hfxo
@@ -37,7 +38,7 @@
     instance:
     - led0
     - led1
-  - id: skrhaae010
+  - id: joystick
   - id: simple_button
     instance:
     - btn0

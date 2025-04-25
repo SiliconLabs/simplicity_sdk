@@ -63,7 +63,10 @@ config_file:
 
 source:
   - path: protocol/zigbee/app/framework/plugin-host/ncp-configuration/ncp-configuration.c
-
+  - path: platform/service/legacy_hal_wdog/src/sl_legacy_hal_wdog_stub.c
+    unless:
+      - legacy_hal_wdog
+      - zigbee_stack_common
 template_contribution:
   - name: component_catalog
     value: zigbee_ncp_configuration

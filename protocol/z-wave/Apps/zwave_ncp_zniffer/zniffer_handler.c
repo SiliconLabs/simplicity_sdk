@@ -85,9 +85,6 @@ static bool stopSniffer = true;
 void Respond(uint8_t cmd, uint8_t const *pData, uint8_t len)
 {
   comm_interface_transmit_frame(cmd, CMD_FRAME, pData, len, NULL);
-
-  //reset the watchdog
-  zpal_feed_watchdog();
 }
 
 void DoRespond(void)

@@ -93,8 +93,10 @@ typedef struct {
  **************************   LOCAL VARIABLES   ********************************
  ******************************************************************************/
 
-#if defined(RFFPLL_PRESENT) \
-  && defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1)
+#if defined(RFFPLL_PRESENT)                                               \
+  && defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1) \
+  && (SL_CLOCK_MANAGER_RFFPLL_CUSTOM_BAND == 0)                           \
+  && !((SL_CLOCK_MANAGER_RFFPLL_BAND == 7) && defined(RADIO_CONFIG_RFFPLL_CONFIG_PRESENT))
 // Table of possible radio frequency bands and their associated settings.
 static clock_manager_rffpll_config_t rffpll_band_config_39MHz[] = {
   { 97500000, 23, 7, 115 }, // Band 450 MHz
@@ -135,7 +137,11 @@ static sl_status_t init_hfxo(void)
 #endif
 
   // Use HFXO tuning value from MFG token in UD page if not already set
-  if ((ctune == -1) && (MFG_CTUNE_HFXO_VAL != 0xFFFF)) {
+  if ((ctune == -1)
+#if defined(SL_CLOCK_MANAGER_CTUNE_MFG_HFXO_EN)
+      && (SL_CLOCK_MANAGER_CTUNE_MFG_HFXO_EN == 1)
+#endif
+      && (MFG_CTUNE_HFXO_VAL != 0xFFFF)) {
     ctune = MFG_CTUNE_HFXO_VAL;
   }
 
@@ -254,7 +260,11 @@ static sl_status_t init_lfxo(void)
   clock_manager_lfxo_init.mode = SL_CLOCK_MANAGER_LFXO_MODE >> _LFXO_CFG_MODE_SHIFT;
   clock_manager_lfxo_init.timeout = SL_CLOCK_MANAGER_LFXO_TIMEOUT >> _LFXO_CFG_TIMEOUT_SHIFT;
 
-  if (MFG_CTUNE_LFXO_VAL != 0xFF) {
+  if ((MFG_CTUNE_LFXO_VAL != 0xFF)
+#if defined(SL_CLOCK_MANAGER_CTUNE_MFG_LFXO_EN)
+      && (SL_CLOCK_MANAGER_CTUNE_MFG_LFXO_EN == 1)
+#endif
+      ) {
     clock_manager_lfxo_init.capTune = MFG_CTUNE_LFXO_VAL;
   } else {
     clock_manager_lfxo_init.capTune = SL_CLOCK_MANAGER_LFXO_CTUNE;

@@ -86,7 +86,7 @@ bool ncpSleepEnabled;                    // ncp is enabled to sleep
     800,                /* adaptive rec'd ACK timeout initial value          */   \
     400,                /*  "     "     "     "     "  minimum value         */   \
     2400,               /*  "     "     "     "     "  maximum value         */   \
-    2500,               /* time allowed to receive RSTACK after ncp is reset */   \
+    5000,               /* time allowed to receive RSTACK after ncp is reset */   \
     RX_FREE_LWM,        /* if free buffers < limit, host receiver isn't ready */  \
     RX_FREE_HWM,        /* if free buffers > limit, host receiver is ready   */   \
     480,                /* time until a set nFlag must be resent (max 2032)  */   \
@@ -117,7 +117,7 @@ static sli_ash_host_config_t ashHostConfigArray[] =
     800,                  // adaptive rec'd ACK timeout initial value
     400,                  //  "     "     "     "     "  minimum value
     2400,                 //  "     "     "     "     "  maximum value
-    2500,                 // time allowed to receive RSTACK after ncp is reset
+    5000,                 // time allowed to receive RSTACK after ncp is reset
     RX_FREE_LWM,          // if free buffers < limit, host receiver isn't ready
     RX_FREE_HWM,          // if free buffers > limit, host receiver is ready
     480,                  // time until a set nFlag must be resent (max 2032)

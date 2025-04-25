@@ -131,9 +131,7 @@ __WEAK void sli_hfxo_notify_ready_for_power_manager_from_prs(void);
  ******************************************************************************/
 void sli_hfxo_manager_init_hardware(void)
 {
-  // Increase HFXO Interrupt priority so that it won't be masked by BASEPRI
-  // and will preempt other interrupts.
-  NVIC_SetPriority(HFXO_IRQ_NUMBER, CORE_ATOMIC_BASE_PRIORITY_LEVEL - 1);
+  NVIC_SetPriority(HFXO_IRQ_NUMBER, CORE_ATOMIC_BASE_PRIORITY_LEVEL);
 
   // Enable HFXO Interrupt if HFXO is used
 #if _SILICON_LABS_32B_SERIES_2_CONFIG >= 2

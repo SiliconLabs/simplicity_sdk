@@ -38,6 +38,14 @@ typedef struct {
 } mfglibInternalGetChannel_ipc_msg_t;
 
 typedef struct {
+  uint16_t result;
+} mfglibInternalGetCtune_ipc_rsp_t;
+
+typedef struct {
+  mfglibInternalGetCtune_ipc_rsp_t response;
+} mfglibInternalGetCtune_ipc_msg_t;
+
+typedef struct {
   uint8_t result;
 } mfglibInternalGetOptions_ipc_rsp_t;
 
@@ -87,6 +95,19 @@ typedef struct {
   mfglibInternalSetChannel_ipc_req_t request;
   mfglibInternalSetChannel_ipc_rsp_t response;
 } mfglibInternalSetChannel_ipc_msg_t;
+
+typedef struct {
+  uint16_t ctune;
+} mfglibInternalSetCtune_ipc_req_t;
+
+typedef struct {
+  sl_status_t result;
+} mfglibInternalSetCtune_ipc_rsp_t;
+
+typedef struct {
+  mfglibInternalSetCtune_ipc_req_t request;
+  mfglibInternalSetCtune_ipc_rsp_t response;
+} mfglibInternalSetCtune_ipc_msg_t;
 
 typedef struct {
   uint8_t options;

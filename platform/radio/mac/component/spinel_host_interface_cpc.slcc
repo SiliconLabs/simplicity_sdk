@@ -1,5 +1,5 @@
 id: "spinel_host_interface_cpc"
-label: "Implements host CPC interface to CPC daemon"
+label: "Spinel Host Interface - CPC"
 package: platform
 category: Radio|Mac
 quality: "production"

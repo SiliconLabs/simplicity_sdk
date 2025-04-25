@@ -443,7 +443,7 @@ void sl_zigbee_af_mac_address_filtering_get_stats(bool shortMode,
   *totalPacketCountPtr   = macAddressFilterData.totalPackets;
 }
 
-void sl_zigbee_af_mac_address_filtering_clear_stats(sl_cli_command_arg_t * arguments)
+void sl_zigbee_af_mac_address_filtering_clear_stats(void)
 {
   clearStatsForFilterType(MAC_FILTER_TYPE_NO_ADDRESS);
   clearStatsForFilterType(MAC_FILTER_TYPE_SHORT_ADDRESS);

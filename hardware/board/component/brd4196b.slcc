@@ -19,6 +19,7 @@
   - name: hardware_board_from_stk
   - name: hardware_board_from_xg21-pk6027a
   - name: hardware_board_from_xg21-rb4196b
+  - name: hardware_board_supports_wstk_lcd
   - name: hardware_board_has_vcom
   - name: hardware_board_has_hfxo_freq_38.4mhz
   - name: hardware_board_has_hfxo
@@ -39,7 +40,7 @@
     instance:
     - led0
     - led1
-  - id: skrhaae010
+  - id: joystick
   - id: simple_button
     instance:
     - btn0

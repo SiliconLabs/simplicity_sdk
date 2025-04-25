@@ -55,6 +55,8 @@ typedef struct {
   uint8_t divider_n;   // Feedback divider N.
 } sl_device_init_rffpll_config_t;
 
+#if (SL_DEVICE_INIT_RFFPLL_CUSTOM_BAND == 0) \
+  && !((SL_DEVICE_INIT_RFFPLL_BAND == 7) && defined(RADIO_CONFIG_RFFPLL_CONFIG_PRESENT))
 // Table of possible radio frequency bands and their associated settings.
 sl_device_init_rffpll_config_t rffpll_band_config_39MHz[] = {
   { 97500000, 23, 7, 115 }, // Band 450 MHz
@@ -65,6 +67,7 @@ sl_device_init_rffpll_config_t rffpll_band_config_39MHz[] = {
   { 97500000, 23, 7, 115 },  // Band 928 MHz
   { 97500000, 20, 6, 100 }  // Band 9xx MHz (covers from 901 to 928 MHz)
 };
+#endif
 
 sl_status_t sl_device_init_rffpll(void)
 {

@@ -1,9 +1,9 @@
 id: zigbee_pro_stack
-label: Pro Stack
+label: Pro Stack (Common)
 package: Zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
-description: The main Zigbee PRO Stack component for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.
+description: The main Zigbee PRO Stack component for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.  Common component for all variants of this library.
 
 provides:
   - name: zigbee_pro_stack
@@ -11,18 +11,17 @@ provides:
   - name: 802_15_4_stack
 
 requires:
-  - name: zigbee_pro_stack_implementation
-  - name: zigbee_pro_stack_library
+  - name: zigbee_pro_stack_basic
+  - name: zigbee_pro_stack_with_high_datarate_phy
     condition:
-      - zigbee_use_release_libraries
-  - name: zigbee_stack_common
-  - name: lower_mac_spinel
+      - zigbee_high_datarate_phy
+  - name: zigbee_pro_stack_rail_mux
     condition:
-      - zigbee_stack_unix
-
-  - name: si446x_radio_driver
+      - rail_mux
+  - name: zigbee_pro_stack_with_high_datarate_phy_rail_mux
     condition:
-      - zigbee_phy_2_4_subghz_switch_coordinator
+      - zigbee_high_datarate_phy
+      - rail_mux
 
 recommends:
   - id: zigbee_pro_stack_library_internal

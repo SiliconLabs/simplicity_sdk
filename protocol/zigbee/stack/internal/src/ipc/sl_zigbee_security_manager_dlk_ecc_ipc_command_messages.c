@@ -71,7 +71,7 @@ void sli_zigbee_stack_sec_man_speke_expand_shared_secret_process_ipc_command(sli
 
 sl_status_t sl_zigbee_sec_man_ecc_derive_link_key(sl_zigbee_sec_man_dlk_ecc_context_t *dlk_ecc_ctx)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_derive_link_key.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -90,7 +90,7 @@ sl_status_t sl_zigbee_sec_man_ecc_expand_shared_secret(sl_zigbee_sec_man_dlk_ecc
                                                        const uint8_t *our_eui,
                                                        const uint8_t *their_eui)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_expand_shared_secret.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -117,7 +117,7 @@ sl_status_t sl_zigbee_sec_man_ecc_extract_shared_secret(sl_zigbee_sec_man_dlk_ec
                                                         const uint8_t *peer_public_key,
                                                         size_t peer_key_len)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_extract_shared_secret.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -140,7 +140,7 @@ sl_status_t sl_zigbee_sec_man_ecc_extract_shared_secret(sl_zigbee_sec_man_dlk_ec
 
 void sl_zigbee_sec_man_ecc_free(sl_zigbee_sec_man_dlk_ecc_context_t *dlk_ecc_ctx)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_free.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -157,7 +157,7 @@ sl_status_t sl_zigbee_sec_man_ecc_generate_keypair(sl_zigbee_sec_man_dlk_ecc_con
                                                    uint8_t *public_key_buff,
                                                    size_t *key_len_out)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_generate_keypair.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -192,7 +192,7 @@ sl_status_t sl_zigbee_sec_man_ecc_init(sl_zigbee_sec_man_dlk_ecc_context_t *dlk_
                                        sl_zb_dlk_ecc_config_t *config,
                                        const uint8_t *psk)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_ecc_init.request.dlk_ecc_ctx = *dlk_ecc_ctx;
@@ -223,7 +223,7 @@ sl_status_t sl_zigbee_sec_man_speke_expand_shared_secret(sl_zigbee_sec_man_dlk_e
                                                          const uint8_t *our_eui,
                                                          const uint8_t *their_eui)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (dlk_ecc_ctx != NULL) {
     msg.data.sec_man_speke_expand_shared_secret.request.dlk_ecc_ctx = *dlk_ecc_ctx;

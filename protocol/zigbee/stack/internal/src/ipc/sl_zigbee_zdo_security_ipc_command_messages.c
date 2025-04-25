@@ -53,7 +53,7 @@ void sli_zigbee_stack_retrieve_authentication_token_process_ipc_command(sli_zigb
 sl_status_t sl_zigbee_get_authentication_level(sl_802154_short_addr_t dest,
                                                sl_802154_long_addr_t target)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_authentication_level.request.dest = dest;
 
   if (target != NULL) {
@@ -73,7 +73,7 @@ sl_status_t sl_zigbee_get_symmetric_passphrase(sl_802154_long_addr_t eui64,
                                                sl_802154_short_addr_t short_id,
                                                uint8_t *passphrase)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (eui64 != NULL) {
     memmove(msg.data.get_symmetric_passphrase.request.eui64, eui64, sizeof(sl_802154_long_addr_t));
@@ -102,7 +102,7 @@ sl_status_t sl_zigbee_initiate_security_challenge(sl_802154_short_addr_t partner
                                                   sl_802154_long_addr_t partnerLong,
                                                   uint8_t keyIndex)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.initiate_security_challenge.request.partnerNodeId = partnerNodeId;
 
   if (partnerLong != NULL) {
@@ -122,7 +122,7 @@ sl_status_t sl_zigbee_initiate_security_challenge(sl_802154_short_addr_t partner
 void sl_zigbee_retrieve_authentication_token(sl_802154_short_addr_t destination,
                                              sl_zigbee_aps_option_t options)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.retrieve_authentication_token.request.destination = destination;
   msg.data.retrieve_authentication_token.request.options = options;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_retrieve_authentication_token_process_ipc_command, &msg);

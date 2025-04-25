@@ -36,6 +36,7 @@
 #include PLATFORM_HEADER
 #include "hal/hal.h"
 #include "spi-protocol-common.h"
+#include "spi-protocol-linux-config.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -108,32 +109,12 @@ struct spi_ioc_transfer {
 // The application can customize SPI and GPIO by definiging the below macros.
 // Otherwise, common defaults are used.
 
-#ifndef NCP_SPI_DEVICE
-  #define NCP_SPI_DEVICE              "/dev/spidev0.0"
-#endif
-
 #ifndef NCP_SPI_MODE
   #define NCP_SPI_MODE                0
 #endif
 
 #ifndef NCP_SPI_SPEED_HZ
   #define NCP_SPI_SPEED_HZ            (1024 * 1024) // 1 MHz
-#endif
-
-#ifndef NCP_CHIP_SELECT_GPIO
-  #define NCP_CHIP_SELECT_GPIO          "8"
-#endif
-
-#ifndef NCP_HOST_INT_GPIO
-  #define NCP_HOST_INT_GPIO             "22"
-#endif
-
-#ifndef NCP_RESET_GPIO
-  #define NCP_RESET_GPIO                "23"
-#endif
-
-#ifndef NCP_WAKE_GPIO
-  #define NCP_WAKE_GPIO                 "24"
 #endif
 
 #ifndef NCP_RESET_DELAY_US

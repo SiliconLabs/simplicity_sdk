@@ -39,9 +39,11 @@
 #include "mac-flat-header.h"
 #include "buffer_manager/buffer-management.h"
 #include "buffer_manager/buffer-queue.h"
+#include "mfglib_modes.h"
 
 //------------------------------------------------------------------------------
 // Forward declarations
+extern uint8_t sli_legacy_mfglib_mode;
 
 static void fn_update_current_tx_power(void);
 static void fn_set_global_flag(uint16_t flag, bool val);
@@ -1727,6 +1729,7 @@ HIDDEN void fn_mux_rail_events_callback(RAIL_Handle_t railHandle, RAIL_Events_t 
         case RAIL_SCHEDULER_STATUS_SCHEDULED_RX_FAIL:
         case RAIL_SCHEDULER_STATUS_INTERNAL_ERROR:
         case RAIL_SCHEDULER_STATUS_TASK_FAIL:
+        case RAIL_SCHEDULER_STATUS_EVENT_INTERRUPTED:
           // If we were waiting for an ACK: we will never get the ACK we were waiting for
           // Clear flags to match lower mac statemachine and allow things to go back to idle
           // and retry upon resuming 15.4
@@ -1807,7 +1810,8 @@ HIDDEN void fn_mux_rail_events_callback(RAIL_Handle_t railHandle, RAIL_Events_t 
       }
     }
 
-    if (enabled_events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+    if ((enabled_events & RAIL_EVENT_RX_PACKET_RECEIVED) && (sli_legacy_mfglib_mode == MFGLIB_OFF)) {
+      // If we are not in mfglib mode and
       // The protocol is currently on a different channel or idling or the
       // packet did not satisfy any of the protocol filtering: we mask out the
       // RAIL_EVENT_RX_PACKET_RECEIVED event.

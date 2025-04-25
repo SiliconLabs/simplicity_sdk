@@ -199,7 +199,6 @@ typedef struct {
 } sl_mac_upper_mac_tx_queue_entry_t;
 
 typedef struct {
-  uint8_t outgoing_flat_packet[MAX_FLAT_PACKET_SIZE];
   uint8_t pending_tasks_bitmask;
 
   sl_mac_upper_mac_tx_queue_entry_t tx_queue[MAC_TX_QUEUE_SIZE];

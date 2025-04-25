@@ -50,7 +50,7 @@ sl_status_t sl_zigbee_zdo_get_configuration_req(sl_802154_short_addr_t device_sh
                                                 uint8_t *tag_ids,
                                                 uint8_t count)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zdo_get_configuration_req.request.device_short = device_short;
   msg.data.zdo_get_configuration_req.request.encrypt = encrypt;
 
@@ -74,7 +74,7 @@ sl_status_t sl_zigbee_zdo_set_add_configuration(uint8_t tag_id,
                                                 size_t zdo_config_arg_len,
                                                 const uint8_t *zdo_config_arg)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zdo_set_add_configuration.request.tag_id = tag_id;
   msg.data.zdo_set_add_configuration.request.zdo_config_arg_len = zdo_config_arg_len;
 
@@ -91,7 +91,7 @@ sl_status_t sl_zigbee_zdo_set_add_configuration(uint8_t tag_id,
 sl_status_t sl_zigbee_zdo_set_send_configuration_req(sl_802154_short_addr_t device_short,
                                                      bool encrypt)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.zdo_set_send_configuration_req.request.device_short = device_short;
   msg.data.zdo_set_send_configuration_req.request.encrypt = encrypt;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zdo_set_send_configuration_req_process_ipc_command, &msg);

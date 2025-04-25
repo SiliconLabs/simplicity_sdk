@@ -41,7 +41,7 @@ void sli_zigbee_stack_set_current_network_process_ipc_command(sli_zigbee_ipc_cmd
 
 uint8_t sl_zigbee_get_callback_network(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_callback_network_process_ipc_command, &msg);
 
@@ -50,7 +50,7 @@ uint8_t sl_zigbee_get_callback_network(void)
 
 uint8_t sl_zigbee_get_current_network(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_current_network_process_ipc_command, &msg);
 
@@ -59,7 +59,7 @@ uint8_t sl_zigbee_get_current_network(void)
 
 sl_status_t sl_zigbee_set_current_network(uint8_t index)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_current_network.request.index = index;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_current_network_process_ipc_command, &msg);
 

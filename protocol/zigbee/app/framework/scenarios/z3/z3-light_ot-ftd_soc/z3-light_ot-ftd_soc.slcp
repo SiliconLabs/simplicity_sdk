@@ -11,7 +11,7 @@ component:
       - example
   - id: iostream_recommended_stream
   - id: zigbee_debug_print
-  - id: zigbee_pro_stack_rail_mux
+  - id: zigbee_pro_stack
   - id: rail_mux
   - id: zigbee_source_route
   - id: zigbee_stack_diagnostics

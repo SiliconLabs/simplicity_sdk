@@ -48,7 +48,7 @@ void sli_zigbee_stack_set_duty_cycle_limits_in_stack_process_ipc_command(sli_zig
 sl_status_t sl_zigbee_get_current_duty_cycle(uint8_t maxDevices,
                                              sl_zigbee_per_device_duty_cycle_t *arrayOfDeviceDutyCycles)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_current_duty_cycle.request.maxDevices = maxDevices;
 
   if ((maxDevices) > (SL_ZIGBEE_MAX_CHILDREN_FOR_PER_DEVICE_DUTY_CYCLE_MONITOR)) {
@@ -68,7 +68,7 @@ sl_status_t sl_zigbee_get_current_duty_cycle(uint8_t maxDevices,
 
 sl_status_t sl_zigbee_get_duty_cycle_limits(sl_zigbee_duty_cycle_limits_t *returnedLimits)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (returnedLimits != NULL) {
     msg.data.get_duty_cycle_limits.request.returnedLimits = *returnedLimits;
@@ -85,7 +85,7 @@ sl_status_t sl_zigbee_get_duty_cycle_limits(sl_zigbee_duty_cycle_limits_t *retur
 
 sl_status_t sl_zigbee_get_duty_cycle_state(sl_zigbee_duty_cycle_state_t *returnedState)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (returnedState != NULL) {
     msg.data.get_duty_cycle_state.request.returnedState = *returnedState;
@@ -102,7 +102,7 @@ sl_status_t sl_zigbee_get_duty_cycle_state(sl_zigbee_duty_cycle_state_t *returne
 
 sl_status_t sl_zigbee_set_duty_cycle_limits_in_stack(const sl_zigbee_duty_cycle_limits_t *limits)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (limits != NULL) {
     msg.data.set_duty_cycle_limits_in_stack.request.limits = *limits;

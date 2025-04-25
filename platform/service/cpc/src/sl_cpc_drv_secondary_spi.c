@@ -256,9 +256,16 @@ static LDMA_Descriptor_t rx_desc_recv_payload;
 static LDMA_Descriptor_t rx_desc_recv_payload_large_buf;
 #endif
 static LDMA_Descriptor_t rx_desc_rxblocken;
-static LDMA_Descriptor_t rx_desc_throw_away_single_byte;
 static LDMA_Descriptor_t rx_desc_wait_cs_high_after_payload; // Generates the end-of-payload interrupt
-static LDMA_Descriptor_t rx_desc_set_availability_sync_bit; // When HWCRC enabled, also sets the GPCRC launch bit
+
+// rx_desc_throw_away_extra_bytes is a loop descriptor. This kind of descriptor
+// jumps to the next descriptor in memory when loopcnt == 0. In order to
+// guarantee that the order between these two is correct, put them in a struct.
+static struct {
+  LDMA_Descriptor_t rx_desc_throw_away_extra_bytes;
+  LDMA_Descriptor_t rx_desc_set_availability_sync_bit; // When HWCRC enabled, also sets the GPCRC launch bit
+} rx_desc_group;
+
 static LDMA_Descriptor_t rx_desc_rxblockdis;
 #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5)
 static LDMA_Descriptor_t rx_desc_inv_cs_before_header;
@@ -623,6 +630,13 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
     #if defined(SL_CATALOG_CPC_DRIVER_HW_CRC_PRESENT)
     gpcrc_dma_config.ldmaDbgHalt = true;
     #endif
+
+    // This loop count is used by the rx_desc_throw_away_extra_bytes to loop
+    // over itself. Setting the loop count to 1 means it's going to do two
+    // iterations. As this structure is passed as argument when starting
+    // transfers, that means the loop count will be reinitialized to one every
+    // time a new transfer is started, which is the expect behavior.
+    rx_dma_config.ldmaLoopCnt = 1;
   }
 
   // Configure the LDMA SYNCTRIG mechanism
@@ -794,23 +808,7 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
         &SL_CPC_DRV_SPI_PERIPHERAL->CMD);
 
       // Fixed branching
-      rx_desc_rxblocken.wri.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_throw_away_single_byte);
-    }
-
-    // Transfer descriptor to throw away a single byte of data away
-    // This is needed when operating at high speed because the RXBLOCKEN command might not apply immediately
-    // and a single byte might have slipped through in the RX FIFO
-    {
-      // Dummy byte to throw away the bytes from the FIFO
-      static uint8_t dummy_byte;
-
-      rx_desc_throw_away_single_byte = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_LINKABS_M2M_BYTE(
-        &(SL_CPC_DRV_SPI_PERIPHERAL->RXDATA),
-        &dummy_byte,
-        1);
-
-      // Fixed branching
-      rx_desc_throw_away_single_byte.xfer.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_high_after_payload);
+      rx_desc_rxblocken.wri.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_high_after_payload);
     }
 
     // Sync descriptor to wait for the rising edge of the UART CS following the payload.
@@ -827,7 +825,25 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
       rx_desc_wait_cs_high_after_payload.sync.doneIfs = 1;
 
       // Fixed branching to the descriptor following
-      rx_desc_wait_cs_high_after_payload.sync.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_set_availability_sync_bit);
+      rx_desc_wait_cs_high_after_payload.sync.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_group.rx_desc_throw_away_extra_bytes);
+    }
+
+    // Transfer descriptor to throw away two bytes of data away. This is needed
+    // when operating at high speed because the RXBLOCKEN command is not applied
+    // immediately and up to two bytes might slip through in the RX FIFO.
+    {
+      // Dummy byte to throw away the bytes from the RX FIFO
+      static uint8_t dummy_byte;
+
+      rx_desc_group.rx_desc_throw_away_extra_bytes = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_LINKABS_M2M_BYTE(
+        &(SL_CPC_DRV_SPI_PERIPHERAL->RXDATA),
+        &dummy_byte,
+        1);
+
+      // Fixed branching
+      rx_desc_group.rx_desc_throw_away_extra_bytes.xfer.decLoopCnt = 1;
+      rx_desc_group.rx_desc_throw_away_extra_bytes.xfer.linkAddr =
+        LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_group.rx_desc_throw_away_extra_bytes);
     }
 
     // Sync descriptor to set the TX availability bit
@@ -840,14 +856,14 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
       const uint8_t sync_trig_bits_to_set = TX_READY_WINDOW_TRIG_BIT_MASK;
       #endif
 
-      rx_desc_set_availability_sync_bit = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_LINKABS_SYNC(
+      rx_desc_group.rx_desc_set_availability_sync_bit = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_LINKABS_SYNC(
         sync_trig_bits_to_set,
         0,
         0,
         0);
 
       // Fixed branching
-      rx_desc_set_availability_sync_bit.sync.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_rxblockdis);
+      rx_desc_group.rx_desc_set_availability_sync_bit.sync.linkAddr = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_rxblockdis);
     }
 
     // Write descriptor to disable the RXBLOCK of the E/USART to accept incoming bytes

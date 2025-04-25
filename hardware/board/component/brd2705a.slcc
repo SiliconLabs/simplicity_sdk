@@ -19,10 +19,10 @@
   - name: hardware_board_from_xg28-ek2705a
   - name: hardware_board_has_vcom
   - name: hardware_board_has_rfswitch
-  - name: hardware_board_has_rfswitch_to_ground
   - name: hardware_board_has_hfxo_freq_39mhz
   - name: hardware_board_has_hfxo
   - name: hardware_board_has_lfxo
+  - name: hardware_board_has_rfswitch_to_ground
   - name: hardware_board_supports_rf_band_2400
   - name: hardware_board_supports_rf_band_868
   - name: hardware_board_supports_rf_band_914

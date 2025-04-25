@@ -360,7 +360,9 @@ void *sli_memory_get_shortterm_head_ptr(void)
 /***************************************************************************//**
  * Update free lists heads (short and long terms).
  ******************************************************************************/
-void sli_update_free_list_heads(sli_block_metadata_t *free_head, const sli_block_metadata_t *condition_block, bool search)
+void sli_update_free_list_heads(sli_block_metadata_t *free_head,
+                                const sli_block_metadata_t *condition_block,
+                                bool search)
 {
   if (search) {
     if ((sli_free_lt_list_head == condition_block) || (condition_block == NULL)) {
@@ -372,8 +374,12 @@ void sli_update_free_list_heads(sli_block_metadata_t *free_head, const sli_block
   } else {
     if (sli_free_lt_list_head == condition_block) {
       sli_free_lt_list_head = free_head;
+    } else if (free_head < sli_free_lt_list_head) {
+      sli_free_lt_list_head = free_head;
     }
     if (sli_free_st_list_head == condition_block) {
+      sli_free_st_list_head = free_head;
+    } else if (free_head > sli_free_st_list_head) {
       sli_free_st_list_head = free_head;
     }
   }

@@ -1,5 +1,5 @@
 id: zigbee_pro_router_stack
-label: Pro Router Stack
+label: Pro Router Stack (Common)
 package: Zigbee
 category: Zigbee|Stack|Pro Core
 quality: evaluation
@@ -11,17 +11,18 @@ provides:
   - name: 802_15_4_stack
 
 requires:
-  - name: zigbee_pro_router_stack_implementation
-  - name: zigbee_pro_router_stack_library
+  - name: zigbee_pro_router_stack_basic
+  - name: zigbee_pro_router_stack_with_high_datarate_phy
     condition:
-      - zigbee_use_release_libraries
+      - zigbee_high_datarate_phy
+  - name: zigbee_pro_router_stack_with_high_datarate_phy_rail_mux
+    condition:
+      - zigbee_high_datarate_phy
+      - rail_mux
   - name: zigbee_stack_common
   - name: lower_mac_spinel
     condition:
       - zigbee_stack_unix
-
-recommends:
-  - id: zigbee_pro_router_stack_library_internal
 
 config_file:
   - path: protocol/zigbee/stack/config/component_config/sl_zigbee_pro_stack_config.h

@@ -40,7 +40,7 @@
 #define SL_FEM_UTIL_RX_ENABLE              1
 // <q SL_FEM_UTIL_TX_ENABLE> Enable TX Mode
 // <i> Default: 0
-#define SL_FEM_UTIL_TX_ENABLE              0
+#define SL_FEM_UTIL_TX_ENABLE              1
 // <q SL_FEM_UTIL_BYPASS_ENABLE> Enable Bypass Mode
 // <i> Default: 0
 #define SL_FEM_UTIL_BYPASS_ENABLE          0
@@ -76,20 +76,20 @@
 // <<< sl:start pin_tool >>>
 // <prs gpio=true readonly=true> SL_FEM_UTIL_RX
 // $[PRS_SL_FEM_UTIL_RX]
-#define SL_FEM_UTIL_RX_CHANNEL                   6
+#define SL_FEM_UTIL_RX_CHANNEL                   8
 
-// PRS ASYNCH6 on PC08
+// PRS ASYNCH8 on PC07
 #define SL_FEM_UTIL_RX_PORT                      gpioPortC
-#define SL_FEM_UTIL_RX_PIN                       8
+#define SL_FEM_UTIL_RX_PIN                       7
 
 // [PRS_SL_FEM_UTIL_RX]$
 
 // <prs gpio=true optional=true readonly=true> SL_FEM_UTIL_TX
 // $[PRS_SL_FEM_UTIL_TX]
 
-#define SL_FEM_UTIL_TX_CHANNEL                   8
+#define SL_FEM_UTIL_TX_CHANNEL                   10
 
-// PRS ASYNCH8 on PC05
+// PRS ASYNCH10 on PC05
 #define SL_FEM_UTIL_TX_PORT                      gpioPortC
 #define SL_FEM_UTIL_TX_PIN                       5
 
@@ -97,9 +97,9 @@
 
 // <prs gpio=true readonly=true> SL_FEM_UTIL_SLEEP
 // $[PRS_SL_FEM_UTIL_SLEEP]
-#define SL_FEM_UTIL_SLEEP_CHANNEL                7
+#define SL_FEM_UTIL_SLEEP_CHANNEL                9
 
-// PRS ASYNCH7 on PC04
+// PRS ASYNCH9 on PC04
 #define SL_FEM_UTIL_SLEEP_PORT                   gpioPortC
 #define SL_FEM_UTIL_SLEEP_PIN                    4
 

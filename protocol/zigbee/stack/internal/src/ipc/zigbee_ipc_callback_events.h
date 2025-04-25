@@ -70,6 +70,7 @@ SL_ENUM_GENERIC(sl_zigbee_stack_cb_event_tag_t, uint16_t) {
   SLI_ZIGBEE_STACK_POLL_HANDLER_IPC_EVENT_TYPE,
   SLI_MAC_STACK_HIGH_DATARATE_PHY_RX_CALLBACK_IPC_EVENT_TYPE,
   SLI_MAC_STACK_HIGH_DATARATE_PHY_TX_CALLBACK_IPC_EVENT_TYPE,
+  SLI_ZIGBEE_STACK_GPEP_INCOMING_MESSAGE_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_ID_CONFLICT_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_INCOMING_MANY_TO_ONE_ROUTE_REQUEST_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_INCOMING_MESSAGE_HANDLER_IPC_EVENT_TYPE,
@@ -127,6 +128,7 @@ typedef struct {
     sli_mac_stack_high_datarate_phy_rx_callback_ipc_event_t high_datarate_phy_rx_callback;
     sli_mac_stack_high_datarate_phy_tx_callback_ipc_event_t high_datarate_phy_tx_callback;
     #endif
+    sli_zigbee_stack_gpep_incoming_message_handler_ipc_event_t gpep_incoming_message_handler;
     sli_zigbee_stack_id_conflict_handler_ipc_event_t id_conflict_handler;
     sli_zigbee_stack_incoming_many_to_one_route_request_handler_ipc_event_t incoming_many_to_one_route_request_handler;
     sli_zigbee_stack_incoming_message_handler_ipc_event_t incoming_message_handler;

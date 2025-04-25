@@ -67,7 +67,7 @@ void slxi_zigbee_stack_gu_zdo_dlk_override_supported_params_process_ipc_command(
 
 bool sl_zigbee_zdo_dlk_enabled(void)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zdo_dlk_enabled_process_ipc_command, &msg);
 
@@ -77,7 +77,7 @@ bool sl_zigbee_zdo_dlk_enabled(void)
 void sl_zigbee_zdo_dlk_get_supported_negotiation_parameters(sl_zigbee_dlk_supported_negotiation_method *method_mask,
                                                             sl_zigbee_dlk_negotiation_supported_shared_secret_source *secret_mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (method_mask != NULL) {
     msg.data.zdo_dlk_get_supported_negotiation_parameters.request.method_mask = *method_mask;
@@ -102,7 +102,7 @@ sl_status_t sl_zigbee_zdo_dlk_start_key_negotiation(sl_zigbee_address_info *part
                                                     sl_zigbee_dlk_negotiation_method selected_method,
                                                     sl_zigbee_dlk_negotiation_shared_secret_source selected_secret)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (partner != NULL) {
     msg.data.zdo_dlk_start_key_negotiation.request.partner = *partner;
@@ -123,7 +123,7 @@ sl_status_t sl_zigbee_zdo_dlk_start_key_update(sl_zigbee_address_info *target,
                                                sl_zigbee_dlk_negotiation_method selected_method,
                                                sl_zigbee_dlk_negotiation_shared_secret_source selected_secret)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (target != NULL) {
     msg.data.zdo_dlk_start_key_update.request.target = *target;
@@ -142,7 +142,7 @@ sl_status_t sl_zigbee_zdo_dlk_start_key_update(sl_zigbee_address_info *target,
 
 bool slx_zigbee_gu_zdo_dlk_mangle_packet(sli_buffer_manager_buffer_t *buffer)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (buffer != NULL) {
     msg.data.gu_zdo_dlk_mangle_packet.request.buffer = *buffer;
@@ -159,7 +159,7 @@ bool slx_zigbee_gu_zdo_dlk_mangle_packet(sli_buffer_manager_buffer_t *buffer)
 
 bool slx_zigbee_gu_zdo_dlk_override_psk(uint8_t *key_buffer)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (key_buffer != NULL) {
     msg.data.gu_zdo_dlk_override_psk.request.key_buffer = *key_buffer;
@@ -177,7 +177,7 @@ bool slx_zigbee_gu_zdo_dlk_override_psk(uint8_t *key_buffer)
 void slx_zigbee_gu_zdo_dlk_override_supported_params(sl_zigbee_dlk_supported_negotiation_method *method_mask,
                                                      sl_zigbee_dlk_negotiation_supported_shared_secret_source *secret_mask)
 {
-  sli_zigbee_ipc_cmd_t msg;
+  sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (method_mask != NULL) {
     msg.data.gu_zdo_dlk_override_supported_params.request.method_mask = *method_mask;

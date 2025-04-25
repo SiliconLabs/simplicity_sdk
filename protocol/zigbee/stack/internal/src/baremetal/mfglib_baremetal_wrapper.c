@@ -28,6 +28,11 @@ uint8_t mfglibGetChannel(void)
   return mfglibInternalGetChannel();
 }
 
+uint16_t mfglibGetCtune(void)
+{
+  return mfglibInternalGetCtune();
+}
+
 uint8_t mfglibGetOptions(void)
 {
   return mfglibInternalGetOptions();
@@ -53,6 +58,11 @@ sl_status_t mfglibSendPacket(uint8_t *packet,
 sl_status_t mfglibSetChannel(uint8_t chan)
 {
   return mfglibInternalSetChannel(chan);
+}
+
+sl_status_t mfglibSetCtune(uint16_t ctune)
+{
+  return mfglibInternalSetCtune(ctune);
 }
 
 sl_status_t mfglibSetOptions(uint8_t options)

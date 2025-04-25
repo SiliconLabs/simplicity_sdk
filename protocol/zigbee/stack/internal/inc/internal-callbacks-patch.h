@@ -199,4 +199,20 @@ void sli_zigbee_stack_remote_delete_binding_handler(uint8_t index,
 void sli_zigbee_stack_remote_set_binding_handler(sl_zigbee_binding_table_entry_t * entry,
                                                  sl_zigbee_zdo_status_t status);
 
+void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_status_t status,
+                                                    uint8_t gpdLink,
+                                                    uint8_t sequenceNumber,
+                                                    sl_zigbee_gp_address_t *addr,
+                                                    sl_zigbee_gp_security_level_t gpdfSecurityLevel,
+                                                    sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
+                                                    bool autoCommissioning,
+                                                    uint8_t bidirectionalInfo,
+                                                    uint32_t gpdSecurityFrameCounter,
+                                                    uint8_t gpdCommandId,
+                                                    uint32_t mic,
+                                                    uint8_t proxyTableIndex,
+                                                    uint8_t gpdCommandPayloadLength,
+                                                    uint8_t *gpdCommandPayload,
+                                                    sl_zigbee_rx_packet_info_t *packetInfo);
+
 #endif //INTERNAL_CALLBACKS_PATCH_H

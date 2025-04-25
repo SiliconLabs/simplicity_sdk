@@ -6,7 +6,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32bg27c230f768im40.*"/>
     <property key="core.boardCompatibility" value="brd4109a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4109a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4109a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -17,7 +17,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg26b410f3200im48.*"/>
     <property key="core.boardCompatibility" value="brd4116a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4116a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4116a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -28,7 +28,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg26b420f3200im48.*"/>
     <property key="core.boardCompatibility" value="brd4117a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4117a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4117a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -39,7 +39,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg26b510f3200il136.*"/>
     <property key="core.boardCompatibility" value="brd4118a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4118a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4118a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -50,7 +50,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*rm21z000f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4171a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4171a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4171a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -61,7 +61,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21a010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4176a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4176a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4176a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -72,7 +72,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4180a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -83,7 +83,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4180b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4180b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -94,7 +94,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21a010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4181a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -105,7 +105,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21a010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4181b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -116,7 +116,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21b010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4181c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4181c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -127,7 +127,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg22c224f512im40.*"/>
     <property key="core.boardCompatibility" value="brd4182a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4182a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4182a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -138,7 +138,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32bg22c224f512im40.*"/>
     <property key="core.boardCompatibility" value="brd4185a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4185a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4185a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -149,7 +149,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24a010f1536gm48.*"/>
     <property key="core.boardCompatibility" value="brd4186a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -160,7 +160,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b010f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -171,7 +171,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4186c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -182,7 +182,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24a020f1536gm48.*"/>
     <property key="core.boardCompatibility" value="brd4187a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -193,7 +193,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b020f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4187b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -204,7 +204,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b220f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4187c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4187c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -215,7 +215,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b020f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4188a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4188a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4188a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -226,7 +226,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b220f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4188b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4188b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4188b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -237,7 +237,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg27c140f768im40.*"/>
     <property key="core.boardCompatibility" value="brd4194a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4194a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4194a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -248,7 +248,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21b010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4195a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4195a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4195a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -259,7 +259,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21b010f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4195b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4195b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4195b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -270,7 +270,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21b020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4196a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4196a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4196a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -281,7 +281,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg21b020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4196b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4196b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4196b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -292,7 +292,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b220f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4197a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4197a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4197a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -303,7 +303,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4198a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4198a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4198a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -314,7 +314,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4198b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4198b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4198b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -325,7 +325,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -336,7 +336,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4204b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -347,7 +347,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -358,7 +358,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4204d"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204d.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4204d.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -369,7 +369,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*zgm230sa27hnn.*"/>
     <property key="core.boardCompatibility" value="brd4205a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4205a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4205a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -380,7 +380,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*zgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd4205b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4205b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4205b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -391,7 +391,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg23b020f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4210a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4210a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4210a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -402,7 +402,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4263a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -413,7 +413,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4263b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -424,7 +424,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4263c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4263c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -435,7 +435,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23a020f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4264a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -446,7 +446,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23a020f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4264b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -457,7 +457,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23b020f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4264c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4264c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -468,7 +468,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23a010f512gm48.*"/>
     <property key="core.boardCompatibility" value="brd4265a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4265a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4265a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -479,7 +479,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg23b010f512im48.*"/>
     <property key="core.boardCompatibility" value="brd4265b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4265b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4265b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -490,7 +490,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4270a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4270a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4270a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -501,7 +501,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4270b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4270b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4270b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -512,7 +512,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4271a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4271a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4271a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -523,7 +523,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4272a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4272a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4272a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -534,7 +534,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm210pa32jia.*"/>
     <property key="core.boardCompatibility" value="brd4308a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -545,7 +545,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm210pa22jia.*"/>
     <property key="core.boardCompatibility" value="brd4308b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -556,7 +556,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm210pb32jia.*"/>
     <property key="core.boardCompatibility" value="brd4308c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -567,7 +567,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm210pb22jia.*"/>
     <property key="core.boardCompatibility" value="brd4308d"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308d.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4308d.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -578,7 +578,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*bgm220sc12wga.*"/>
     <property key="core.boardCompatibility" value="brd4310a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4310a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4310a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -589,7 +589,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*bgm220pc22hna.*"/>
     <property key="core.boardCompatibility" value="brd4311a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4311a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4311a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -600,7 +600,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm220pc22hna.*"/>
     <property key="core.boardCompatibility" value="brd4311b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4311b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4311b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -611,7 +611,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*bgm220sc22hna.*"/>
     <property key="core.boardCompatibility" value="brd4312a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4312a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4312a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -622,7 +622,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm240pb22vna.*"/>
     <property key="core.boardCompatibility" value="brd4316a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4316a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4316a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -633,7 +633,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm240pb32vna.*"/>
     <property key="core.boardCompatibility" value="brd4317a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4317a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4317a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -644,7 +644,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*mgm240sd22vna.*"/>
     <property key="core.boardCompatibility" value="brd4318a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4318a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4318a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -655,7 +655,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*fgm230sb27hgn.*"/>
     <property key="core.boardCompatibility" value="brd4328a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4328a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4328a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -666,7 +666,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*fgm230sa27hgn.*"/>
     <property key="core.boardCompatibility" value="brd4328b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4328b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4328b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -677,7 +677,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*bgm241sd22vna.*"/>
     <property key="core.boardCompatibility" value="brd4335a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4335a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4335a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -688,7 +688,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -699,7 +699,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -710,7 +710,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4400c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -721,7 +721,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32fg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -732,7 +732,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -743,7 +743,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4401c.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -754,7 +754,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32bg22c224f512im40.*"/>
     <property key="core.boardCompatibility" value="brd4402a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4402a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4402a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -765,7 +765,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32bg22c224f512im40.*"/>
     <property key="core.boardCompatibility" value="brd4402b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4402b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4402b.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -776,7 +776,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg24b220f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4411a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4411a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4411a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -787,7 +787,7 @@
     <property key="demos.blurb" value="Platform - MEMLCD Bare-metal"/>
     <property key="core.partCompatibility" value=".*efr32mg22e224f512im40.*"/>
     <property key="core.boardCompatibility" value="brd4415a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.2/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4415a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.6.3/app/common/demos/memlcd_baremetal/memlcd_baremetal-brd4415a.s37"/>
     <property key="core.readmeFiles" value="example/memlcd_baremetal/readme.md"/>
     <property key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner"/>
     <property key="core.quality" value="PRODUCTION"/>
