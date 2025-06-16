@@ -28,16 +28,18 @@
  *
  ******************************************************************************/
 
-#include "sl_rail_util_vdet_config.h"
+#include "sl_rail.h"
+#include "rail_types.h" // Support RAIL 2.x VDET enums in configs
 #include "sl_rail_util_vdet.h"
+#include "sl_rail_util_vdet_config.h"
 
-RAIL_Status_t sl_rail_util_vdet_init(void)
+sl_rail_status_t sl_rail_util_vdet_init(void)
 {
-  RAIL_VdetConfig_t vdetConfig = {
+  sl_rail_vdet_config_t vdet_config = {
     .mode = SL_RAIL_UTIL_VDET_MODE,
     .resolution = SL_RAIL_UTIL_VDET_RESOLUTION,
-    .delayUs = SL_RAIL_UTIL_VDET_DELAY_US,
+    .delay_us = SL_RAIL_UTIL_VDET_DELAY_US,
   };
 
-  return RAIL_ConfigVdet(RAIL_EFR32_HANDLE, &vdetConfig);
+  return sl_rail_config_vdet(SL_RAIL_EFR32_HANDLE, &vdet_config);
 }

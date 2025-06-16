@@ -1,6 +1,6 @@
 id: zigbee_host_framework_common
 label: Host Framework Common
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This component declares all the required application framework globals, initializes the Zigbee stack and dispatches stack callbacks calls as needed to the application components.

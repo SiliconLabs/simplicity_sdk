@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_coap_collector_cli.h
- * @brief Wi-SUN CoAP Colletor CLI handler
+ * @brief Wi-SUN CoAP Collector CLI handler
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>

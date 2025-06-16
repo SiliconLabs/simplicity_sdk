@@ -22,8 +22,8 @@
  ***********************************************************************/
 
 // The maximum priority that can be set! (Not the number of priority levels in existence)
-#define TASK_PRIORITY_MAX                       ( 55 )
-#define TASK_STACK_SIZE_MINIMUM                 ( ( unsigned short ) 160 )  // The minimum allowed stack size. Do not reduce!
+#define TASK_PRIORITY_MAX                       (55)
+#define TASK_STACK_SIZE_MINIMUM                 ( ( unsigned short ) 160)   // The minimum allowed stack size. Do not reduce!
 
 /******************************************
  * PLATFORM SPECIFIC TASKS
@@ -33,8 +33,8 @@
 #define TASK_NAME_Z_WAVE_STACK                  "Z-Wave "  ///< The name of the stack-task!
 
 // TASK PRIORITIES
-#define TASK_PRIORITY_FREERTOS_TIMER            ( TASK_PRIORITY_MAX - 0 )  ///< Highest to enable in-time callback invocation.
-#define TASK_PRIORITY_Z_WAVE_STACK              ( TASK_PRIORITY_MAX - 10 )  ///< High, due to time critical protocol activity.
+#define TASK_PRIORITY_FREERTOS_TIMER            (TASK_PRIORITY_MAX - 0)    ///< Highest to enable in-time callback invocation.
+#define TASK_PRIORITY_Z_WAVE_STACK              (TASK_PRIORITY_MAX - 10)    ///< High, due to time critical protocol activity.
 
 // TASK STACK SIZES
 /*
@@ -48,11 +48,11 @@
  * The security code increases the stack usage.
  * SerialAPI is based on the controller_static library which doesn't have built-in security code.
  * We don't need to increase the stack size for the controller_static library
-*/
+ */
 #ifdef ZW_CONTROLLER
-#define TASK_STACK_SIZE_Z_WAVE_STACK            ( 4608 / sizeof(StackType_t) )  // 4608 bytes (security library requires this)
+#define TASK_STACK_SIZE_Z_WAVE_STACK            (4608 / sizeof(StackType_t) )   // 4608 bytes (security library requires this)
 #else
-#define TASK_STACK_SIZE_Z_WAVE_STACK            ( 5632 / sizeof(StackType_t) )  // 5632 bytes (security library requires this)
+#define TASK_STACK_SIZE_Z_WAVE_STACK            (5632 / sizeof(StackType_t) )   // 5632 bytes (security library requires this)
 #endif
 #define TASK_STACK_SIZE_FREERTOS_TIMER          TASK_STACK_SIZE_MINIMUM
 
@@ -64,9 +64,9 @@
 #define TASK_NAME_MAIN_USER_APP                 "APP"  // Suggest changing to "MainApp " if it doesn't break anything?!
 
 // USER-TASK PRIORITIES (These priorities are reserved for ZW_UserTask.h created tasks!)
-#define TASK_PRIORITY_HIGHEST                   ( TASK_PRIORITY_MAX - 20 )  ///< High priority UserTask (Good for interrupt handling)
-#define TASK_PRIORITY_NORMAL                    ( TASK_PRIORITY_MAX - 30 )  ///< Good for applications. (Used by the main User-Task!)
-#define TASK_PRIORITY_BACKGROUND                ( TASK_PRIORITY_MAX - 40 )  ///< Must be 1 priority higher than idle task!
+#define TASK_PRIORITY_HIGHEST                   (TASK_PRIORITY_MAX - 20)    ///< High priority UserTask (Good for interrupt handling)
+#define TASK_PRIORITY_NORMAL                    (TASK_PRIORITY_MAX - 30)    ///< Good for applications. (Used by the main User-Task!)
+#define TASK_PRIORITY_BACKGROUND                (TASK_PRIORITY_MAX - 40)    ///< Must be 1 priority higher than idle task!
 /* FreeRTOS IDLE task has priority 0 (It gets complicated if the IDLE tasks shares its priority with another task.) */
 
 // USER-TASK STACK SIZES

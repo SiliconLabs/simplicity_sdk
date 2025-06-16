@@ -117,7 +117,7 @@ sl_memory_region_t sl_memory_get_heap_region(void)
  *           MM sl_malloc(), may have not worked. You may want to double-check
  *           your project settings.
  ******************************************************************************/
-__USED void * _sbrk(int incr)
+__USED __WEAK void * _sbrk(int incr)
 {
 #if defined(SL_CATALOG_MEMORY_MANAGER_PRESENT)
   (void)incr;

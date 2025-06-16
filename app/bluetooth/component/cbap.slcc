@@ -1,6 +1,6 @@
 id: cbap
 label: Certificate Based Authentication and Pairing
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Handles the certificate and OOB data authentication.
 category: Bluetooth|Application|Miscellaneous

@@ -35,27 +35,26 @@
 extern "C" {
 #endif
 
-#if RAIL_BLE_SUPPORTS_CS
+#include "sl_rail_types.h"
+#include "sl_rail_ble.h"
 
-extern const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_0dbm_tables;
-extern const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_10dbm_tables;
-extern const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_20dbm_tables;
+#if SL_RAIL_BLE_SUPPORTS_CS
 
 #if SL_RAIL_UTIL_CS_GDCOMP_LP_PA_DBM == 0
-#define sl_rail_util_cs_gdcomp_tables_lp_pa sl_rail_util_cs_gdcomp_0dbm_tables
+#define sl_rail_util_cs_gdcomp_tables_lp_pa sl_rail_ble_cs_gd_comp_0_dbm_tables
 #else
 #define sl_rail_util_cs_gdcomp_tables_lp_pa NULL
 #endif // SL_RAIL_UTIL_CS_GDCOMP_LP_PA == 0
 
 #if SL_RAIL_UTIL_CS_GDCOMP_HP_PA_DBM == 10
-#define sl_rail_util_cs_gdcomp_tables_hp_pa sl_rail_util_cs_gdcomp_10dbm_tables
+#define sl_rail_util_cs_gdcomp_tables_hp_pa sl_rail_ble_cs_gd_comp_10_dbm_tables
 #elif SL_RAIL_UTIL_CS_GDCOMP_HP_PA_DBM == 20
-#define sl_rail_util_cs_gdcomp_tables_hp_pa sl_rail_util_cs_gdcomp_20dbm_tables
+#define sl_rail_util_cs_gdcomp_tables_hp_pa sl_rail_ble_cs_gd_comp_20_dbm_tables
 #else
 #define sl_rail_util_cs_gdcomp_tables_hp_pa NULL
 #endif // SL_RAIL_UTIL_CS_GDCOMP_HP_PA == 10
 
-#endif // RAIL_BLE_SUPPORTS_CS
+#endif // SL_RAIL_BLE_SUPPORTS_CS
 
 #ifdef __cplusplus
 }

@@ -73,14 +73,14 @@
  * @{
  */
 
-/** Send an request to the specified destination to send back a report
+/** @brief Send an request to the specified destination to send back a report
  * of the non-zero counters.
  *
- * @param destination the address of the node to send the request to.
- * @param clearCounters whether or not the destination should reset its
+ * @param[in] destination the address of the node to send the request to.
+ * @param[in] clearCounters whether or not the destination should reset its
  * counters to zero after successfully reporting them back to the requester.
  * Because of technical constraints, counters are always cleared
- * on a network coprocessor, such as the EM260.
+ * on a network coprocessor.
  * @return SL_STATUS_OK if the request was successfully submitted for
  * sending.  See ::sl_zigbee_send_unicast() or ::sl_zigbee_ezsp_send_unicast for possible
  * failure statuses.
@@ -88,36 +88,36 @@
 sl_status_t sl_zigbee_af_counters_send_request(sl_802154_short_addr_t destination,
                                                bool clearCounters);
 
-/** Call this function at the beginning of
+/** @brief Call this function at the beginning of
  * the incoming message handler.  It returns true if the incoming
  * message was a counter's request and should be ignored by
  * the rest of the incoming message handler.
  *
- * @param apsFrame the APS frame passed to the incoming message handler.
- * @param sender the node ID of the sender of the request.
+ * @param[in] apsFrame the APS frame passed to the incoming message handler.
+ * @param[in] sender the node ID of the sender of the request.
  * @return true if the message was a counters request and should be
  * ignored by the rest of the incoming message handler.
  */
 bool sl_zigbee_af_counters_is_incoming_request(sl_zigbee_aps_frame_t *apsFrame,
                                                sl_802154_short_addr_t sender);
 
-/** Call this function within the incoming
+/** @brief Call this function within the incoming
  * message handler to determine if the message is a counter's
  * response.  If so, it is up to the application to decode
  * the payload whose format is described above.
  *
- * @param apsFrame the APS frame passed to the incoming message handler.
+ * @param[in] apsFrame the APS frame passed to the incoming message handler.
  * @return true if the message is a counters response.
  */
 bool sl_zigbee_af_counters_is_incoming_response(sl_zigbee_aps_frame_t *apsFrame);
 
-/** Call this function at the beginning of the
+/** @brief Call this function at the beginning of the
  * message sent handler.  It returns true if the message was a
  * counters response and should be ignored by the rest of the handler.
  *
- * @param apsFrame the APS frame passed to the message sent handler.
- * @param status the status passed to the message sent handler.
- * @param return true if the message was a counters response and should
+ * @param[in] apsFrame the APS frame passed to the message sent handler.
+ * @param[in] status the status passed to the message sent handler.
+ * @return true if the message was a counters response and should
  * be ignored by the rest of the message sent handler.
  */
 bool sl_zigbee_af_counters_is_outgoing_response(sl_zigbee_aps_frame_t *apsFrame,

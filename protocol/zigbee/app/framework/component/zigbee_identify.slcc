@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Identify cluster.  It requires extending in order to integrate the code with the hardware, for example to make a light blink during identify.
 id: zigbee_identify
 label: Identify Cluster

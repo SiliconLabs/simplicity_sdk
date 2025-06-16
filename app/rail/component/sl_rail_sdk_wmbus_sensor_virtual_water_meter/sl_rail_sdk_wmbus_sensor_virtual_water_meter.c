@@ -38,6 +38,7 @@
 #include "sl_sleeptimer.h"
 #include "app_assert.h"
 #include "sl_rail_sdk_wmbus_packet_assembler.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_SEGMENT_LCD_DRIVER_PRESENT)
 #include "sl_segmentlcd.h"
@@ -88,7 +89,7 @@ static sl_sleeptimer_timer_handle_t timer_handle;
  * @param[in] handle Not used
  * @param[in] data Not used
  *****************************************************************************/
-static void sl_rail_sdk_wmbus_sensor_virtual_water_meter_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void sl_rail_sdk_wmbus_sensor_virtual_water_meter_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;

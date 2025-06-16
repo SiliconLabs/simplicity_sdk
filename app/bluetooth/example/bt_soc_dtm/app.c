@@ -3,7 +3,7 @@
  * @brief Core application logic.
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,42 +27,33 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <stdint.h>
 #include <stdbool.h>
-#include "sl_common.h"
-#include "app_log.h"
-#include "app_assert.h"
-#include "sl_bluetooth.h"
-#include "app.h"
-#include "dtm.h"
-#include "sl_iostream_init_usart_instances.h"
+#include "sl_status.h"
+#include "sl_sleeptimer.h"
 #include "sl_board_control.h"
+#include "sl_bluetooth.h"
+#include "app_assert.h"
+#include "dtm.h"
+#include "app.h"
+#include "sl_main_init.h"
 
 enum signal{
   signal_testmode_command_ready = 1,
 };
 
-// IOStream instance used for communication with the DTM tester equipment
-sl_iostream_t *dtm_iostream_handle;
-
-void app_write_response(uint8_t data)
-{
-  sl_iostream_putchar(dtm_iostream_handle, data);
-}
-
-static const testmode_config_t testmode_config = {
-  .write_response_byte = app_write_response,
+static config_t config = {
+  .tx = sl_iostream_putchar,
   .get_ticks = sl_sleeptimer_get_tick_count,
-  .ticks_per_second = 32768,
+  .ms_to_tick = sl_sleeptimer_ms_to_tick,
   .command_ready_signal = signal_testmode_command_ready,
 };
 
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
-  app_log_info("soc_dtm initialised\n");
-
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
   // This is called once during start-up.                                    //
@@ -70,39 +61,44 @@ SL_WEAK void app_init(void)
 
   // Default IOStream instance is used for communication with the DTM tester
   // equipment.
-  dtm_iostream_handle = sl_iostream_get_default();
+  config.stream = sl_iostream_get_default();
 
   // Enable VCOM
   sl_board_enable_vcom();
 
-  testmode_init(&testmode_config);
+  testmode_init(&config);
 }
 
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Put your additional application code here!                              //
-  // This is called infinitely.                                              //
-  // Do not call blocking functions from here!                               //
-  /////////////////////////////////////////////////////////////////////////////
-
-  uint8_t data = 0;
-
-  if (SL_STATUS_OK == sl_iostream_read(dtm_iostream_handle, &data, 1, NULL)) {
-    testmode_process_command_byte(data);
+  sl_status_t sc;
+  size_t bytes_read;
+  // This is a blocking call. If you wish to add more application code,
+  // - Make sure to use an RTOS
+  // - And create a separate task
+  sc = sl_iostream_read(config.stream, config.rx_buf, sizeof(config.rx_buf), &bytes_read);
+  if (sc == SL_STATUS_OK) {
+    app_assert_s(bytes_read <= sizeof(config.rx_buf));
+    for (size_t i = 0; i < bytes_read; i++) {
+      testmode_process_command_byte(config.rx_buf[i]);
+    }
+  } else if (sc == SL_STATUS_EMPTY) {
+    // No reception.
+  } else {
+    app_assert_status(sc);
   }
 }
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
-  testmode_handle_gecko_event(evt);
+  testmode_on_event(evt);
 }

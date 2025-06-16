@@ -70,8 +70,17 @@ sl_status_t sl_zigbee_af_update_tc_link_key_start(void);
  */
 bool sl_zigbee_af_update_tc_link_key_stop(void);
 
-/** @brief Change the time between two subsequent update TC link key calls*/
-void sl_zigbee_af_set_t_c_link_key_update_timer_milli_seconds(uint32_t timeInMilliseconds);
+/** @brief Specify the amount of time to wait after one TCLK update operation
+ *    completes before beginning a new TCLK update operation.
+ *  @param timeInMilliseconds The time to wait after one TCLK update operation completes before issuing a new TCLK update operation
+ *  @return None
+ */
+void sl_zigbee_af_set_tc_link_key_update_timer_ms(uint32_t timeInMilliseconds);
+
+/** @brief Update the TCLK now.
+ *  @return SL_STATUS_IN_PROGRESS if TCLK update is already in progress, else SL_STATUS_OK
+ */
+sl_status_t sl_zigbee_af_tc_link_key_update_now(void);
 
 /* @brief Set the delay until the next request is made to update the trust
  * center link key.

@@ -46,6 +46,7 @@
 #endif // SL_CATALOG_LED0_PRESENT
 
 #define LED_BLINK_PERIOD_MS      2000
+#define ZIGBEE_STARTUP_DELAY_MS 40
 
 static sl_zigbee_af_event_t commissioning_led_event;
 static sl_zigbee_af_event_t finding_and_binding_event;
@@ -138,7 +139,8 @@ void sl_zigbee_af_main_init_cb(void)
 #if defined(SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT)
   sl_zigbee_af_isr_event_init(&gp_transmit_complete_event, gp_transmit_complete_event_handler);
 #endif // SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT
-  sl_zigbee_af_event_set_active(&commissioning_led_event);
+  // Start the commissioning LED event after network is up, and communicated to app framework task in the main loop
+  sl_zigbee_af_event_set_delay_ms(&commissioning_led_event, ZIGBEE_STARTUP_DELAY_MS);
 }
 
 /** @brief Stack Status
@@ -369,30 +371,14 @@ static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
                                       int8u* packetData,
                                       int8u size_p);
 
-/** @brief Incoming Packet Filter
- *
- * NOTE: REQUIRES INCLUDING THE PACKET-HANDOFF PLUGIN. This is called by the
- * Packet Handoff plugin when the stack receives a packet from one of the
- * protocol layers specified in ::sl_zigbee_zigbee_packet_type_t. The packetType argument
- * is one of the values of the ::sl_zigbee_zigbee_packet_type_t enum. If the stack
- * receives an 802.15.4 MAC beacon, it will call this function with the
- * packetType argument set to ::SL_ZIGBEE_ZIGBEE_PACKET_TYPE_BEACON. The
- * implementation of this callback may alter the data contained in packetData,
- * modify options and flags in the auxillary data, or consume the packet itself,
- * either sending the message, or discarding it as it sees fit.
- *
- * @param packetType the type of packet and associated protocol layer  Ver.:
- * always
- * @param packetData flat buffer containing the packet data associated with the
- * packet type  Ver.: always
- * @param size_p a pointer containing the size value of the packet  Ver.: always
- * @param data auxillary data included with the packet  Ver.: always
- */
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 int8u* packetData,
-                                                                 int8u* size_p,
-                                                                 void* data)
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  int8u* packetData,
+                                                                  int8u* size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d)
 {
+  UNUSED_VAR(data);
+  UNUSED_VAR(size_d);
   appGpScheduleOutgoingGpdf(packetType, packetData, *size_p);
 
   return SL_ZIGBEE_ACCEPT_PACKET;
@@ -403,10 +389,10 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
  * @param[in] handle A handle for a RAIL instance.
  * @param[in] events A bit mask of RAIL events (full list in rail_types.h)
  */
-void sl_zigbee_af_multirail_demo_rail_event_cb(RAIL_Handle_t handle,
-                                               RAIL_Events_t events)
+void sl_zigbee_af_multirail_demo_rail_event_cb(sl_rail_handle_t handle,
+                                               sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
     sl_zigbee_af_event_set_active(&gp_transmit_complete_event);
   }
 }
@@ -453,14 +439,14 @@ void gpAppGpTxQueueInit(sl_cli_command_arg_t *arguments)
   (void)arguments;
 
   sl_zigbee_gp_clear_tx_queue();
-  RAIL_Handle_t h = sl_zigbee_af_multirail_demo_init(NULL,
-                                                     NULL,
-                                                     true,
-                                                     RAIL_GetTxPowerDbm(sl_zigbee_get_rail_handle()),
-                                                     NULL,
-                                                     0,
-                                                     0xFFFF,
-                                                     NULL);
+  sl_rail_handle_t h = sl_zigbee_af_multirail_demo_init(NULL,
+                                                        NULL,
+                                                        true,
+                                                        sl_rail_get_tx_power_dbm(sl_zigbee_get_rail_handle()),
+                                                        NULL,
+                                                        0,
+                                                        0xFFFF,
+                                                        NULL);
   sl_zigbee_app_debug_println("Additional RAIL handle %sinitialized", h ? "" : "not ");
 }
 
@@ -593,7 +579,7 @@ void gpAppGpPrintTxQueue(sl_cli_command_arg_t *arguments)
 #ifndef GP_RX_OFFSET_USEC
   #define GP_RX_OFFSET_USEC 20500
 #endif
-#define macToAppDelay(macTimeStamp) ((RAIL_GetTime() & 0x00FFFFFF) - (macTimeStamp))
+#define macToAppDelay(macTimeStamp) ((sl_rail_get_time(SL_RAIL_EFR32_HANDLE) & 0x00FFFFFF) - (macTimeStamp))
 
 extern uint8_t sli_mac_lower_mac_get_radio_channel(uint8_t mac_index);
 
@@ -718,23 +704,23 @@ static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
       sl_zigbee_gp_tx_queue_entry_t* entry = get_gp_stub_tx_queue(&gpdAddr, &outPktLength, (uint8_t*)&outPkt);
       if (entry) {
         // Schedule sending the response.
-        RAIL_SchedulerInfo_t schedulerInfo = {
+        sl_rail_scheduler_info_t schedulerInfo = {
           .priority = 50,
-          .slipTime = 2000,
-          .transactionTime = 5000
+          .slip_time = 2000,
+          .transaction_time = 5000
         };
-        RAIL_ScheduleTxConfig_t scheduledTxConfig = {
-          .mode = RAIL_TIME_DELAY,
+        sl_rail_scheduled_tx_config_t scheduledTxConfig = {
+          .mode = SL_RAIL_TIME_DELAY,
           // We could reuse macToAppDelay here, but recalculating the delay
           // will give us the most up-to-date timings:
           .when = GP_RX_OFFSET_USEC - macToAppDelay(macTimeStamp)
         };
 
-        RAIL_Status_t UNUSED status = sl_zigbee_af_multirail_demo_send(outPkt,
-                                                                       outPktLength,
-                                                                       sli_mac_lower_mac_get_radio_channel(0),
-                                                                       &scheduledTxConfig,
-                                                                       &schedulerInfo);
+        sl_rail_status_t UNUSED status = sl_zigbee_af_multirail_demo_send(outPkt,
+                                                                          outPktLength,
+                                                                          sli_mac_lower_mac_get_radio_channel(0),
+                                                                          &scheduledTxConfig,
+                                                                          &schedulerInfo);
         free_gp_tx_queue_entry(entry);
       }
     }
@@ -748,7 +734,7 @@ void sl_zigbee_multirail_gp_tx_queue_init(void)
   sl_zigbee_af_multirail_demo_init(NULL,
                                    NULL,
                                    true,
-                                   RAIL_GetTxPowerDbm(sl_zigbee_get_rail_handle()),
+                                   sl_rail_get_tx_power_dbm(sl_zigbee_get_rail_handle()),
                                    NULL,
                                    0,
                                    0xFFFF,

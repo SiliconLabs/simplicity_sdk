@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'gp-sink-table' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -31,6 +31,7 @@ void sli_zigbee_stack_gp_sink_table_add_group_process_ipc_command(sli_zigbee_ipc
 
 void sli_zigbee_stack_gp_sink_table_clear_all_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_gp_sink_table_clear_all();
 }
 
@@ -62,6 +63,7 @@ void sli_zigbee_stack_gp_sink_table_get_number_of_active_entries_process_ipc_com
 
 void sli_zigbee_stack_gp_sink_table_init_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_gp_sink_table_init();
 }
 

@@ -32,8 +32,8 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <string.h>
-#include "rail.h"
-#include "rail_ble.h"
+#include "sl_rail.h"
+#include "sl_rail_ble.h"
 #include "sl_rail_sdk_util_ble_protocol.h"
 
 // -----------------------------------------------------------------------------
@@ -43,7 +43,7 @@
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-#if RAIL_FEAT_2G4_RADIO
+#if SL_RAIL_SUPPORTS_2P4_GHZ_BAND
 /**************************************************************************//**
  * This function configures the BLE based on the BLE protocols.
  *
@@ -51,8 +51,8 @@
  * @param[in] protocol The radio configuration type to initialize and configure.(BLE)
  * @return A status code indicating success of the function call.
  *****************************************************************************/
-static RAIL_Status_t sl_rail_sdk_util_protocol_config_ble(RAIL_Handle_t handle,
-                                                          sl_rail_sdk_util_ble_protocol_type_t protocol);
+static sl_rail_status_t sl_rail_sdk_util_protocol_config_ble(sl_rail_handle_t handle,
+                                                             sl_rail_sdk_util_ble_protocol_type_t protocol);
 #endif
 
 // -----------------------------------------------------------------------------
@@ -66,11 +66,11 @@ static RAIL_Status_t sl_rail_sdk_util_protocol_config_ble(RAIL_Handle_t handle,
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-RAIL_Status_t sl_rail_sdk_util_ble_protocol_config(RAIL_Handle_t handle,
-                                                   sl_rail_sdk_util_ble_protocol_type_t protocol)
+sl_rail_status_t sl_rail_sdk_util_ble_protocol_config(sl_rail_handle_t handle,
+                                                      sl_rail_sdk_util_ble_protocol_type_t protocol)
 {
   switch (protocol) {
-#if RAIL_FEAT_2G4_RADIO
+#if SL_RAIL_SUPPORTS_2P4_GHZ_BAND
     case SL_RAIL_UTIL_PROTOCOL_BLE_1MBPS:
     case SL_RAIL_UTIL_PROTOCOL_BLE_2MBPS:
     case SL_RAIL_UTIL_PROTOCOL_BLE_CODED_125KBPS:
@@ -79,59 +79,59 @@ RAIL_Status_t sl_rail_sdk_util_ble_protocol_config(RAIL_Handle_t handle,
       return sl_rail_sdk_util_protocol_config_ble(handle, protocol);
 #endif
     default:
-      return RAIL_STATUS_INVALID_PARAMETER;
+      return SL_RAIL_STATUS_INVALID_PARAMETER;
   }
 }
 
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
-#if RAIL_FEAT_2G4_RADIO
-static RAIL_Status_t sl_rail_sdk_util_protocol_config_ble(RAIL_Handle_t handle,
-                                                          sl_rail_sdk_util_ble_protocol_type_t protocol)
+#if SL_RAIL_SUPPORTS_2P4_GHZ_BAND
+static sl_rail_status_t sl_rail_sdk_util_protocol_config_ble(sl_rail_handle_t handle,
+                                                             sl_rail_sdk_util_ble_protocol_type_t protocol)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
   // Override BLE's default timings to get rid of the default rx search timeout
-  RAIL_StateTiming_t timings = {
-    .idleToRx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_IDLE_TO_RX_US,
-    .txToRx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_TX_TO_RX_US,
-    .idleToTx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_IDLE_TO_TX_US,
-    .rxToTx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_TO_TX_US,
-    .rxSearchTimeout = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_IDLE_ENABLE
-                       ? SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_IDLE_US
-                       : 0U,
-    .txToRxSearchTimeout = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_TX_ENABLE
-                           ? SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_TX_US
-                           : 0U,
+  sl_rail_state_timing_t timings = {
+    .idle_to_rx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_IDLE_TO_RX_US,
+    .tx_to_rx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_TX_TO_RX_US,
+    .idle_to_tx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_IDLE_TO_TX_US,
+    .rx_to_tx = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_TO_TX_US,
+    .rxsearch_timeout = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_IDLE_ENABLE
+                        ? SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_IDLE_US
+                        : 0U,
+    .tx_to_rxsearch_timeout = SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_TX_ENABLE
+                              ? SL_RAIL_UTIL_PROTOCOL_BLE_TIMING_RX_SEARCH_TIMEOUT_AFTER_TX_US
+                              : 0U,
   };
 
-  RAIL_BLE_Init(handle);
+  sl_rail_ble_init(handle);
   switch (protocol) {
     case SL_RAIL_UTIL_PROTOCOL_BLE_1MBPS:
-      status = RAIL_BLE_ConfigPhy1MbpsViterbi(handle);
+      status = sl_rail_ble_config_phy_1_mbps(handle);
       break;
     case SL_RAIL_UTIL_PROTOCOL_BLE_2MBPS:
-      status = RAIL_BLE_ConfigPhy2MbpsViterbi(handle);
+      status = sl_rail_ble_config_phy_2_mbps(handle);
       break;
     case SL_RAIL_UTIL_PROTOCOL_BLE_CODED_125KBPS:
-      status = RAIL_BLE_ConfigPhyCoded(handle, RAIL_BLE_Coding_125kbps);
+      status = sl_rail_ble_config_phy_coded(handle, SL_RAIL_BLE_CODING_125_KBPS);
       break;
     case SL_RAIL_UTIL_PROTOCOL_BLE_CODED_500KBPS:
-      status = RAIL_BLE_ConfigPhyCoded(handle, RAIL_BLE_Coding_500kbps);
+      status = sl_rail_ble_config_phy_coded(handle, SL_RAIL_BLE_CODING_500_KBPS);
       break;
     case SL_RAIL_UTIL_PROTOCOL_BLE_QUUPPA_1MBPS:
-      status = RAIL_BLE_ConfigPhyQuuppa(handle);
+      status = sl_rail_ble_config_phy_quuppa(handle);
       break;
     default:
-      status = RAIL_STATUS_INVALID_PARAMETER;
+      status = SL_RAIL_STATUS_INVALID_PARAMETER;
       break;
   }
-  if (RAIL_STATUS_NO_ERROR == status) {
-    status = RAIL_SetStateTiming(handle, &timings);
+  if (SL_RAIL_STATUS_NO_ERROR == status) {
+    status = sl_rail_set_state_timing(handle, &timings);
   }
-  if (RAIL_STATUS_NO_ERROR != status) {
-    RAIL_BLE_Deinit(handle);
+  if (SL_RAIL_STATUS_NO_ERROR != status) {
+    sl_rail_ble_deinit(handle);
   }
   return status;
 }
-#endif // RAIL_FEAT_2G4_RADIO
+#endif // SL_RAIL_SUPPORTS_2P4_GHZ_BAND

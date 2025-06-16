@@ -1,6 +1,6 @@
 id: "bluetooth_feature_resolving_list"
 label: "Address resolving with Bluetooth controller's Resolving List"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Provides support for the Resolving List in controller-based privacy. Adding a
   peer device to the Resolving List allows the Bluetooth controller to resolve

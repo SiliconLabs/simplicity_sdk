@@ -119,14 +119,14 @@ void* esl_core_decrypt_message(void *msg, uint8_t *len)
 }
 
 #else // ENCRYPTION_ENABLED
-// ESL Tag dummy encrypt function
+// ESL Tag weak encrypt function
 SL_WEAK void* esl_core_encrypt_message(void *msg, uint8_t* len)
 {
   (void)len;
 
   return msg;
 }
-// ESL Tag dummy decrypt function
+// ESL Tag weak decrypt function
 SL_WEAK void* esl_core_decrypt_message(void *msg, uint8_t* len)
 {
   (void)len;

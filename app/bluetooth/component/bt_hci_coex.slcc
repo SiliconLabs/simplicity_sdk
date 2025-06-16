@@ -1,6 +1,6 @@
 id: bt_hci_coex
 label: HCI Coex Vendor Specific Commands
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides vendor specific commands to HCI to control coexistence RAIL plugin
 category: Bluetooth|Host Controller Interface (HCI)

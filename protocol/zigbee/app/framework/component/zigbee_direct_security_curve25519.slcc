@@ -1,6 +1,6 @@
 id: zigbee_direct_security_curve25519
 label: Zigbee Direct Security Curve25519
-package: Zigbee
+package: multiprotocol
 category: Zigbee|Zigbee Direct ZDD
 quality: production
 description: Zigbee Direct Security using Curve25519

@@ -1,5 +1,5 @@
 id: esl_tag_ram_image
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag RAM Image
 description: >
   Extends the Bluetooth Electronic Shelf Label design with image handling

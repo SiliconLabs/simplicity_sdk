@@ -1,10 +1,10 @@
 /// SPDX-License-Identifier: BSD-3-Clause
 /// SPDX-FileCopyrightText: Silicon Laboratories Inc. https://www.silabs.com
 // This file is auto generated. Do not edit it manually!
-// Generated on: 11/20/2024 2:21:42PM
+// Generated on: 2025-05-14 14:46:37
  /**
  * @file
- * @version 2.15.2
+ * @version 2.16.1
  * Device and command class types and definitions.
  * 
  * @copyright 2022 Silicon Laboratories Inc.
@@ -708,6 +708,10 @@
   ZW_GEOGRAPHIC_LOCATION_GET_FRAME                             ZW_GeographicLocationGetFrame;\
   ZW_GEOGRAPHIC_LOCATION_REPORT_FRAME                          ZW_GeographicLocationReportFrame;\
   ZW_GEOGRAPHIC_LOCATION_SET_FRAME                             ZW_GeographicLocationSetFrame;\
+/* Command class Geographic Location V2 */\
+  ZW_GEOGRAPHIC_LOCATION_GET_V2_FRAME                          ZW_GeographicLocationGetV2Frame;\
+  ZW_GEOGRAPHIC_LOCATION_REPORT_V2_FRAME                       ZW_GeographicLocationReportV2Frame;\
+  ZW_GEOGRAPHIC_LOCATION_SET_V2_FRAME                          ZW_GeographicLocationSetV2Frame;\
 /* Command class Grouping Name */\
   ZW_GROUPING_NAME_GET_FRAME                                   ZW_GroupingNameGetFrame;\
   ZW_GROUPING_NAME_REPORT_FRAME                                ZW_GroupingNameReportFrame;\
@@ -822,12 +826,12 @@
   ZW_DEVICE_SPECIFIC_REPORT_3BYTE_V2_FRAME                     ZW_DeviceSpecificReport3byteV2Frame;\
   ZW_DEVICE_SPECIFIC_REPORT_4BYTE_V2_FRAME                     ZW_DeviceSpecificReport4byteV2Frame;\
 /* Command class Meter Pulse */\
+
+#define ZW_FRAME_COLLECTION_MACRO2\
   ZW_METER_PULSE_GET_FRAME                                     ZW_MeterPulseGetFrame;\
   ZW_METER_PULSE_REPORT_FRAME                                  ZW_MeterPulseReportFrame;\
 /* Command class Meter Tbl Config */\
   ZW_METER_TBL_TABLE_POINT_ADM_NO_SET_1BYTE_FRAME              ZW_MeterTblTablePointAdmNoSet1byteFrame;\
-
-#define ZW_FRAME_COLLECTION_MACRO2\
   ZW_METER_TBL_TABLE_POINT_ADM_NO_SET_2BYTE_FRAME              ZW_MeterTblTablePointAdmNoSet2byteFrame;\
   ZW_METER_TBL_TABLE_POINT_ADM_NO_SET_3BYTE_FRAME              ZW_MeterTblTablePointAdmNoSet3byteFrame;\
   ZW_METER_TBL_TABLE_POINT_ADM_NO_SET_4BYTE_FRAME              ZW_MeterTblTablePointAdmNoSet4byteFrame;\
@@ -1224,12 +1228,12 @@
   ZW_NM_MULTI_CHANNEL_AGGREGATED_MEMBERS_REPORT_1BYTE_V4_FRAME ZW_NmMultiChannelAggregatedMembersReport1byteV4Frame;\
   ZW_NM_MULTI_CHANNEL_AGGREGATED_MEMBERS_REPORT_2BYTE_V4_FRAME ZW_NmMultiChannelAggregatedMembersReport2byteV4Frame;\
   ZW_NM_MULTI_CHANNEL_AGGREGATED_MEMBERS_REPORT_3BYTE_V4_FRAME ZW_NmMultiChannelAggregatedMembersReport3byteV4Frame;\
+
+#define ZW_FRAME_COLLECTION_MACRO3\
   ZW_NM_MULTI_CHANNEL_AGGREGATED_MEMBERS_REPORT_4BYTE_V4_FRAME ZW_NmMultiChannelAggregatedMembersReport4byteV4Frame;\
   ZW_FAILED_NODE_LIST_GET_V4_FRAME                             ZW_FailedNodeListGetV4Frame;\
   ZW_FAILED_NODE_LIST_REPORT_1BYTE_V4_FRAME                    ZW_FailedNodeListReport1byteV4Frame;\
   ZW_FAILED_NODE_LIST_REPORT_2BYTE_V4_FRAME                    ZW_FailedNodeListReport2byteV4Frame;\
-
-#define ZW_FRAME_COLLECTION_MACRO3\
   ZW_FAILED_NODE_LIST_REPORT_3BYTE_V4_FRAME                    ZW_FailedNodeListReport3byteV4Frame;\
   ZW_FAILED_NODE_LIST_REPORT_4BYTE_V4_FRAME                    ZW_FailedNodeListReport4byteV4Frame;\
 /* Command class Network Management Basic */\
@@ -1626,12 +1630,12 @@
   ZW_SENSOR_BINARY_GET_V2_FRAME                                ZW_SensorBinaryGetV2Frame;\
   ZW_SENSOR_BINARY_REPORT_V2_FRAME                             ZW_SensorBinaryReportV2Frame;\
   ZW_SENSOR_BINARY_SUPPORTED_GET_SENSOR_V2_FRAME               ZW_SensorBinarySupportedGetSensorV2Frame;\
+
+#define ZW_FRAME_COLLECTION_MACRO4\
   ZW_SENSOR_BINARY_SUPPORTED_SENSOR_REPORT_1BYTE_V2_FRAME      ZW_SensorBinarySupportedSensorReport1byteV2Frame;\
   ZW_SENSOR_BINARY_SUPPORTED_SENSOR_REPORT_2BYTE_V2_FRAME      ZW_SensorBinarySupportedSensorReport2byteV2Frame;\
   ZW_SENSOR_BINARY_SUPPORTED_SENSOR_REPORT_3BYTE_V2_FRAME      ZW_SensorBinarySupportedSensorReport3byteV2Frame;\
   ZW_SENSOR_BINARY_SUPPORTED_SENSOR_REPORT_4BYTE_V2_FRAME      ZW_SensorBinarySupportedSensorReport4byteV2Frame;\
-
-#define ZW_FRAME_COLLECTION_MACRO4\
 /* Command class Sensor Configuration */\
   ZW_SENSOR_TRIGGER_LEVEL_GET_FRAME                            ZW_SensorTriggerLevelGetFrame;\
   ZW_SENSOR_TRIGGER_LEVEL_REPORT_1BYTE_FRAME                   ZW_SensorTriggerLevelReport1byteFrame;\
@@ -2028,12 +2032,12 @@
   ZW_THERMOSTAT_SETPOINT_SUPPORTED_REPORT_2BYTE_FRAME          ZW_ThermostatSetpointSupportedReport2byteFrame;\
   ZW_THERMOSTAT_SETPOINT_SUPPORTED_REPORT_3BYTE_FRAME          ZW_ThermostatSetpointSupportedReport3byteFrame;\
   ZW_THERMOSTAT_SETPOINT_SUPPORTED_REPORT_4BYTE_FRAME          ZW_ThermostatSetpointSupportedReport4byteFrame;\
+
+#define ZW_FRAME_COLLECTION_MACRO5\
 /* Command class Thermostat Setpoint V2 */\
   ZW_THERMOSTAT_SETPOINT_GET_V2_FRAME                          ZW_ThermostatSetpointGetV2Frame;\
   ZW_THERMOSTAT_SETPOINT_REPORT_1BYTE_V2_FRAME                 ZW_ThermostatSetpointReport1byteV2Frame;\
   ZW_THERMOSTAT_SETPOINT_REPORT_2BYTE_V2_FRAME                 ZW_ThermostatSetpointReport2byteV2Frame;\
-
-#define ZW_FRAME_COLLECTION_MACRO5\
   ZW_THERMOSTAT_SETPOINT_REPORT_3BYTE_V2_FRAME                 ZW_ThermostatSetpointReport3byteV2Frame;\
   ZW_THERMOSTAT_SETPOINT_REPORT_4BYTE_V2_FRAME                 ZW_ThermostatSetpointReport4byteV2Frame;\
   ZW_THERMOSTAT_SETPOINT_SET_1BYTE_V2_FRAME                    ZW_ThermostatSetpointSet1byteV2Frame;\
@@ -2430,12 +2434,12 @@
 /* Command class Zip Nd V2 */\
   ZW_ZIP_NODE_SOLICITATION_V2_FRAME                            ZW_ZipNodeSolicitationV2Frame;\
   ZW_ZIP_INV_NODE_SOLICITATION_V2_FRAME                        ZW_ZipInvNodeSolicitationV2Frame;\
+
+#define ZW_FRAME_COLLECTION_MACRO6\
   ZW_ZIP_NODE_ADVERTISEMENT_V2_FRAME                           ZW_ZipNodeAdvertisementV2Frame;\
 /* Command class Association Grp Info */\
   ZW_ASSOCIATION_GROUP_NAME_GET_FRAME                          ZW_AssociationGroupNameGetFrame;\
   ZW_ASSOCIATION_GROUP_NAME_REPORT_1BYTE_FRAME                 ZW_AssociationGroupNameReport1byteFrame;\
-
-#define ZW_FRAME_COLLECTION_MACRO6\
   ZW_ASSOCIATION_GROUP_NAME_REPORT_2BYTE_FRAME                 ZW_AssociationGroupNameReport2byteFrame;\
   ZW_ASSOCIATION_GROUP_NAME_REPORT_3BYTE_FRAME                 ZW_AssociationGroupNameReport3byteFrame;\
   ZW_ASSOCIATION_GROUP_NAME_REPORT_4BYTE_FRAME                 ZW_AssociationGroupNameReport4byteFrame;\
@@ -2832,12 +2836,12 @@
   ZW_IRRIGATION_VALVE_CONFIG_SET_1BYTE_FRAME                   ZW_IrrigationValveConfigSet1byteFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_SET_2BYTE_FRAME                   ZW_IrrigationValveConfigSet2byteFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_SET_3BYTE_FRAME                   ZW_IrrigationValveConfigSet3byteFrame;\
+
+#define ZW_FRAME_COLLECTION_MACRO7\
   ZW_IRRIGATION_VALVE_CONFIG_SET_4BYTE_FRAME                   ZW_IrrigationValveConfigSet4byteFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_GET_FRAME                         ZW_IrrigationValveConfigGetFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_REPORT_1BYTE_FRAME                ZW_IrrigationValveConfigReport1byteFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_REPORT_2BYTE_FRAME                ZW_IrrigationValveConfigReport2byteFrame;\
-
-#define ZW_FRAME_COLLECTION_MACRO7\
   ZW_IRRIGATION_VALVE_CONFIG_REPORT_3BYTE_FRAME                ZW_IrrigationValveConfigReport3byteFrame;\
   ZW_IRRIGATION_VALVE_CONFIG_REPORT_4BYTE_FRAME                ZW_IrrigationValveConfigReport4byteFrame;\
   ZW_IRRIGATION_VALVE_RUN_FRAME                                ZW_IrrigationValveRunFrame;\
@@ -3110,7 +3114,6 @@
   ZW_ANTITHEFT_UNLOCK_SET_4BYTE_FRAME                          ZW_AntitheftUnlockSet4byteFrame;\
 /* Command class User Credential */\
   ZW_USER_CAPABILITIES_GET_FRAME                               ZW_UserCapabilitiesGetFrame;\
-  VG_USER_CAPABILITIES_REPORT_VG                               VG_UserCapabilitiesReportVGroup;\
   ZW_USER_CAPABILITIES_REPORT_1BYTE_FRAME                      ZW_UserCapabilitiesReport1byteFrame;\
   ZW_USER_CAPABILITIES_REPORT_2BYTE_FRAME                      ZW_UserCapabilitiesReport2byteFrame;\
   ZW_USER_CAPABILITIES_REPORT_3BYTE_FRAME                      ZW_UserCapabilitiesReport3byteFrame;\
@@ -4164,7 +4167,8 @@
 #define COMMAND_CLASS_FIRMWARE_UPDATE_MD_V6                                              0x7A
 #define COMMAND_CLASS_FIRMWARE_UPDATE_MD_V7                                              0x7A
 #define COMMAND_CLASS_FIRMWARE_UPDATE_MD_V8                                              0x7A
-#define COMMAND_CLASS_GEOGRAPHIC_LOCATION                                                0x8C
+#define COMMAND_CLASS_GEOGRAPHIC_LOCATION                                                0x8C /*[OBSOLETED]*/
+#define COMMAND_CLASS_GEOGRAPHIC_LOCATION_V2                                             0x8C
 #define COMMAND_CLASS_GROUPING_NAME                                                      0x7B /*[DEPRECATED]*/
 #define COMMAND_CLASS_HAIL                                                               0x82 /*[OBSOLETED]*/
 #define COMMAND_CLASS_HRV_CONTROL                                                        0x39
@@ -6565,6 +6569,34 @@
 #define GEOGRAPHIC_LOCATION_SET_LEVEL_LONG_SIGN_BIT_MASK                                 0x80
 #define GEOGRAPHIC_LOCATION_SET_LEVEL2_LATITUDE_MINUTES_MASK                             0x7F
 #define GEOGRAPHIC_LOCATION_SET_LEVEL2_LAT_SIGN_BIT_MASK                                 0x80
+
+/* Geographic Location command class commands */
+#define GEOGRAPHIC_LOCATION_VERSION_V2                                                   0x02
+#define GEOGRAPHIC_LOCATION_GET_V2                                                       0x02
+#define GEOGRAPHIC_LOCATION_REPORT_V2                                                    0x03
+#define GEOGRAPHIC_LOCATION_SET_V2                                                       0x01
+/* Values used for Geographic Location Report command */
+#define GEOGRAPHIC_LOCATION_REPORT_LONGITUDE_INTEGER_LONGITUDE_INTEGER_7_1_MASK_V2       0x7F
+#define GEOGRAPHIC_LOCATION_REPORT_LONGITUDE_INTEGER_LONGITUDE_SIGN_BIT_MASK_V2          0x80
+#define GEOGRAPHIC_LOCATION_REPORT_LONGITUDE_FRACTION_1_LONGITUDE_FRACTION_22_16_MASK_V2 0x7F
+#define GEOGRAPHIC_LOCATION_REPORT_LONGITUDE_FRACTION_1_LONGITUDE_INTEGER_0_BIT_MASK_V2  0x80
+#define GEOGRAPHIC_LOCATION_REPORT_LATITUDE_INTEGER_LATITUDE_INTEGER_7_1_MASK_V2         0x7F
+#define GEOGRAPHIC_LOCATION_REPORT_LATITUDE_INTEGER_LATITUDE_SIGN_BIT_MASK_V2            0x80
+#define GEOGRAPHIC_LOCATION_REPORT_LATITUDE_FRACTION_1_LATITUDE_FRACTION_22_16_MASK_V2   0x7F
+#define GEOGRAPHIC_LOCATION_REPORT_LATITUDE_FRACTION_1_LATITUDE_INTEGER_0_BIT_MASK_V2    0x80
+#define GEOGRAPHIC_LOCATION_REPORT_STATUS_RESERVED_MASK_V2                               0x07
+#define GEOGRAPHIC_LOCATION_REPORT_STATUS_READ_ONLY_BIT_MASK_V2                          0x08
+#define GEOGRAPHIC_LOCATION_REPORT_STATUS_QUALITY_MASK_V2                                0xF0
+#define GEOGRAPHIC_LOCATION_REPORT_STATUS_QUALITY_SHIFT_V2                               0x04
+/* Values used for Geographic Location Set command */
+#define GEOGRAPHIC_LOCATION_SET_LONGITUDE_INTEGER_LONGITUDE_INTEGER_7_1_MASK_V2          0x7F
+#define GEOGRAPHIC_LOCATION_SET_LONGITUDE_INTEGER_LONGITUDE_SIGN_BIT_MASK_V2             0x80
+#define GEOGRAPHIC_LOCATION_SET_LONGITUDE_FRACTION_1_LONGITUDE_FRACTION_22_16_MASK_V2    0x7F
+#define GEOGRAPHIC_LOCATION_SET_LONGITUDE_FRACTION_1_LONGITUDE_INTEGER_0_BIT_MASK_V2     0x80
+#define GEOGRAPHIC_LOCATION_SET_LATITUDE_INTEGER_LATITUDE_INTEGER_7_1_MASK_V2            0x7F
+#define GEOGRAPHIC_LOCATION_SET_LATITUDE_INTEGER_LATITUDE_SIGN_BIT_MASK_V2               0x80
+#define GEOGRAPHIC_LOCATION_SET_LATITUDE_FRACTION_1_LATITUDE_FRACTION_22_16_MASK_V2      0x7F
+#define GEOGRAPHIC_LOCATION_SET_LATITUDE_FRACTION_1_LATITUDE_INTEGER_0_BIT_MASK_V2       0x80
 
 /* Grouping Name command class commands */
 #define GROUPING_NAME_VERSION                                                            0x01
@@ -14451,7 +14483,10 @@
 #define ADMIN_PIN_CODE_GET                                                               0x1B
 #define ADMIN_PIN_CODE_REPORT                                                            0x1C
 /* Values used for User Capabilities Report command */
-#define USER_CAPABILITIES_REPORT_PROPERTIES1_RESERVED_MASK                               0x1F
+#define USER_CAPABILITIES_REPORT_PROPERTIES1_RESERVED_MASK                               0x03
+#define USER_CAPABILITIES_REPORT_PROPERTIES1_ASCII_ENCODING_SUPPORT_BIT_MASK             0x04
+#define USER_CAPABILITIES_REPORT_PROPERTIES1_EXTENDED_ASCII_ENCODING_SUPPORT_BIT_MASK    0x08
+#define USER_CAPABILITIES_REPORT_PROPERTIES1_UTF_16_ENCODING_SUPPORT_BIT_MASK            0x10
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_USER_CHECKSUM_SUPPORT_BIT_MASK              0x20
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_ALL_USERS_CHECKSUM_SUPPORT_BIT_MASK         0x40
 #define USER_CAPABILITIES_REPORT_PROPERTIES1_USER_SCHEDULE_SUPPORT_BIT_MASK              0x80
@@ -14648,12 +14683,10 @@
 #define USER_CREDENTIAL_ASSOCIATION_REPORT_UNSPECIFIED_BIOMETRIC                         0x0B
 #define USER_CREDENTIAL_ASSOCIATION_REPORT_SUCCESS                                       0x00
 #define USER_CREDENTIAL_ASSOCIATION_REPORT_CREDENTIAL_TYPE_INVALID                       0x01
-#define USER_CREDENTIAL_ASSOCIATION_REPORT_SOURCE_CREDENTIAL_SLOT_INVALID                0x02
-#define USER_CREDENTIAL_ASSOCIATION_REPORT_SOURCE_CREDENTIAL_SLOT_EMPTY                  0x03
+#define USER_CREDENTIAL_ASSOCIATION_REPORT_CREDENTIAL_SLOT_INVALID                       0x02
+#define USER_CREDENTIAL_ASSOCIATION_REPORT_CREDENTIAL_SLOT_EMPTY                         0x03
 #define USER_CREDENTIAL_ASSOCIATION_REPORT_DESTINATION_USER_UNIQUE_IDENTIFIER_INVALID    0x04
 #define USER_CREDENTIAL_ASSOCIATION_REPORT_DESTINATION_USER_UNIQUE_IDENTIFIER_NONEXISTENT 0x05
-#define USER_CREDENTIAL_ASSOCIATION_REPORT_DESTINATION_CREDENTIAL_SLOT_INVALID           0x06
-#define USER_CREDENTIAL_ASSOCIATION_REPORT_DESTINATION_CREDENTIAL_SLOT_OCCUPIED          0x07
 /* Values used for Credential Checksum Get command */
 #define CREDENTIAL_CHECKSUM_GET_PIN_CODE                                                 0x01
 #define CREDENTIAL_CHECKSUM_GET_PASSWORD                                                 0x02
@@ -23540,6 +23573,56 @@ typedef struct _ZW_GEOGRAPHIC_LOCATION_SET_FRAME_
     uint8_t   latitudeDegrees;              /**/
     uint8_t   level2;                       /* masked byte */
 } ZW_GEOGRAPHIC_LOCATION_SET_FRAME;
+
+/************************************************************/
+/* Geographic Location Get V2 command class structs */      
+/************************************************************/
+typedef struct _ZW_GEOGRAPHIC_LOCATION_GET_V2_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+} ZW_GEOGRAPHIC_LOCATION_GET_V2_FRAME;
+
+/************************************************************/
+/* Geographic Location Report V2 command class structs */   
+/************************************************************/
+typedef struct _ZW_GEOGRAPHIC_LOCATION_REPORT_V2_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   longitudeInteger;             /* masked byte */
+    uint8_t   longitudeFraction1;           /* masked byte */
+    uint8_t   longitudeFraction158;         /**/
+    uint8_t   longitudeFraction70;          /**/
+    uint8_t   latitudeInteger;              /* masked byte */
+    uint8_t   latitudeFraction1;            /* masked byte */
+    uint8_t   latitudeFraction158;          /**/
+    uint8_t   latitudeFraction70;           /**/
+    uint8_t   altitude2316;                 /**/
+    uint8_t   altitude158;                  /**/
+    uint8_t   altitude70;                   /**/
+    uint8_t   status;                       /* masked byte */
+} ZW_GEOGRAPHIC_LOCATION_REPORT_V2_FRAME;
+
+/************************************************************/
+/* Geographic Location Set V2 command class structs */      
+/************************************************************/
+typedef struct _ZW_GEOGRAPHIC_LOCATION_SET_V2_FRAME_
+{
+    uint8_t   cmdClass;                     /* The command class */
+    uint8_t   cmd;                          /* The command */
+    uint8_t   longitudeInteger;             /* masked byte */
+    uint8_t   longitudeFraction1;           /* masked byte */
+    uint8_t   longitudeFraction158;         /**/
+    uint8_t   longitudeFraction70;          /**/
+    uint8_t   latitudeInteger;              /* masked byte */
+    uint8_t   latitudeFraction1;            /* masked byte */
+    uint8_t   latitudeFraction158;          /**/
+    uint8_t   latitudeFraction70;           /**/
+    uint8_t   altitude2316;                 /**/
+    uint8_t   altitude158;                  /**/
+    uint8_t   altitude70;                   /**/
+} ZW_GEOGRAPHIC_LOCATION_SET_V2_FRAME;
 
 /************************************************************/
 /* Grouping Name Get command class structs */               
@@ -54315,14 +54398,6 @@ typedef struct _ZW_USER_CAPABILITIES_GET_FRAME_
 } ZW_USER_CAPABILITIES_GET_FRAME;
 
 /************************************************************/
-/* User Capabilities Report variant group structs */        
-/************************************************************/
-typedef struct _VG_USER_CAPABILITIES_REPORT_VG_
-{
-    uint8_t   supportedUserTypesBitMask;    /**/
-} VG_USER_CAPABILITIES_REPORT_VG;
-
-/************************************************************/
 /* User Capabilities Report 1byte command class structs */  
 /************************************************************/
 typedef struct _ZW_USER_CAPABILITIES_REPORT_1BYTE_FRAME_
@@ -54335,7 +54410,7 @@ typedef struct _ZW_USER_CAPABILITIES_REPORT_1BYTE_FRAME_
     uint8_t   maxLengthOfUserName;          /**/
     uint8_t   properties1;                  /* masked byte */
     uint8_t   supportedUserTypesBitMaskLength;/**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup1;                /**/
+    uint8_t   supportedUserTypesBitMask1;   
 } ZW_USER_CAPABILITIES_REPORT_1BYTE_FRAME;
 
 /************************************************************/
@@ -54351,8 +54426,8 @@ typedef struct _ZW_USER_CAPABILITIES_REPORT_2BYTE_FRAME_
     uint8_t   maxLengthOfUserName;          /**/
     uint8_t   properties1;                  /* masked byte */
     uint8_t   supportedUserTypesBitMaskLength;/**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup1;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup2;                /**/
+    uint8_t   supportedUserTypesBitMask1;   /* MSB */
+    uint8_t   supportedUserTypesBitMask2;   /* LSB */
 } ZW_USER_CAPABILITIES_REPORT_2BYTE_FRAME;
 
 /************************************************************/
@@ -54368,9 +54443,9 @@ typedef struct _ZW_USER_CAPABILITIES_REPORT_3BYTE_FRAME_
     uint8_t   maxLengthOfUserName;          /**/
     uint8_t   properties1;                  /* masked byte */
     uint8_t   supportedUserTypesBitMaskLength;/**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup1;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup2;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup3;                /**/
+    uint8_t   supportedUserTypesBitMask1;   /* MSB */
+    uint8_t   supportedUserTypesBitMask2;   
+    uint8_t   supportedUserTypesBitMask3;   /* LSB */
 } ZW_USER_CAPABILITIES_REPORT_3BYTE_FRAME;
 
 /************************************************************/
@@ -54386,10 +54461,10 @@ typedef struct _ZW_USER_CAPABILITIES_REPORT_4BYTE_FRAME_
     uint8_t   maxLengthOfUserName;          /**/
     uint8_t   properties1;                  /* masked byte */
     uint8_t   supportedUserTypesBitMaskLength;/**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup1;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup2;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup3;                /**/
-    VG_USER_CAPABILITIES_REPORT_VG variantgroup4;                /**/
+    uint8_t   supportedUserTypesBitMask1;   /* MSB */
+    uint8_t   supportedUserTypesBitMask2;   
+    uint8_t   supportedUserTypesBitMask3;   
+    uint8_t   supportedUserTypesBitMask4;   /* LSB */
 } ZW_USER_CAPABILITIES_REPORT_4BYTE_FRAME;
 
 /************************************************************/
@@ -55032,12 +55107,10 @@ typedef struct _ZW_USER_CREDENTIAL_ASSOCIATION_SET_FRAME_
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
     uint8_t   credentialType;               /**/
-    uint8_t   sourceCredentialSlot1;        /* MSB */
-    uint8_t   sourceCredentialSlot2;        /* LSB */
+    uint8_t   credentialSlot1;              /* MSB */
+    uint8_t   credentialSlot2;              /* LSB */
     uint8_t   destinationUserUniqueIdentifier1;/* MSB */
     uint8_t   destinationUserUniqueIdentifier2;/* LSB */
-    uint8_t   destinationCredentialSlot1;   /* MSB */
-    uint8_t   destinationCredentialSlot2;   /* LSB */
 } ZW_USER_CREDENTIAL_ASSOCIATION_SET_FRAME;
 
 /************************************************************/
@@ -55048,12 +55121,10 @@ typedef struct _ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME_
     uint8_t   cmdClass;                     /* The command class */
     uint8_t   cmd;                          /* The command */
     uint8_t   credentialType;               /**/
-    uint8_t   sourceCredentialSlot1;        /* MSB */
-    uint8_t   sourceCredentialSlot2;        /* LSB */
+    uint8_t   credentialSlot1;              /* MSB */
+    uint8_t   credentialSlot2;              /* LSB */
     uint8_t   destinationUserUniqueIdentifier1;/* MSB */
     uint8_t   destinationUserUniqueIdentifier2;/* LSB */
-    uint8_t   destinationCredentialSlot1;   /* MSB */
-    uint8_t   destinationCredentialSlot2;   /* LSB */
     uint8_t   userCredentialAssociationStatus;/**/
 } ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME;
 

@@ -524,6 +524,16 @@ bool sl_zigbee_delayed_join_is_activated(void);
  */
 void sl_zigbee_delayed_join_activate(bool activated);
 
+/**
+ * @brief Enables/Disables TC to allow joining of a device through install code only.
+ */
+void sl_zigbee_set_join_uses_install_code(bool enable);
+
+/**
+ * @brief Return true if the TC only allows joining of a device through install code.
+ */
+bool sl_zigbee_get_join_uses_install_code(void);
+
 /*
  * @brief Return the value of network key timeout in seconds.
  *

@@ -34,7 +34,7 @@
 #define SL_WISUN_INTERNAL_API_H
 
 #include "sl_status.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +50,7 @@ extern "C" {
  * @param[out] handle rail handle
  * @return SL_STATUS_OK if successful, an error code otherwise
  *****************************************************************************/
-sl_status_t sli_wisun_get_rail_handle(RAIL_Handle_t *handle);
+sl_status_t sli_wisun_get_rail_handle(sl_rail_handle_t *handle);
 
 /**************************************************************************//**
  * @brief Set the MAC mode switch configuration

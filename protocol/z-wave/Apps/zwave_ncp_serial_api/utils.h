@@ -10,6 +10,11 @@
 #include <ZW_application_transport_interface.h>
 #include <app.h>
 
+static inline uint32_t ceiling_division(uint32_t x, uint32_t y)
+{
+  return ((x) + (y) - 1) / (y);
+}
+
 uint8_t QueueProtocolCommand(uint8_t *pCommand);
 
 uint8_t GetCommandResponse(SZwaveCommandStatusPackage *pCmdStatus, EZwaveCommandStatusType cmdType);
@@ -22,6 +27,7 @@ void GetNodeInfo(uint16_t NodeId, t_ExtNodeInfo* pNodeInfo);
 
 void Get_included_nodes(uint8_t* node_id_list);
 void Get_included_lr_nodes(uint8_t* node_id_list);
+void Get_included_NLS_nodes(uint8_t * const node_id_list, uint8_t bitmask_offset, bool * const more_nodes, uint8_t * const output_length);
 
 void TriggerNotification(EApplicationEvent event);
 

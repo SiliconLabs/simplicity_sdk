@@ -31,6 +31,7 @@
 
 #ifndef __PA_AUTO_MODE_H
 #define __PA_AUTO_MODE_H
+
 #include "rail.h"
 
 #ifdef __cplusplus

@@ -31,9 +31,9 @@
 #ifndef APP_PROPRIETARY_H
 #define APP_PROPRIETARY_H
 
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
-#define RAIL_FIFO_SIZE      (256u)
+#define APP_RAIL_FIFO_SIZE      (256u)
 
 // Proprietary task event flags
 typedef enum {
@@ -54,12 +54,5 @@ extern void init_prop_app(void);
  * @param[in] msg Message to put into the queue
  *****************************************************************************/
 extern void proprietary_queue_post(prop_msg_t msg);
-
-/**************************************************************************//**
- * RAIL transmit FIFO init for standard protocols
- * @param[in] rail_handle RAIL handle which the tx fifo is to set for
- * @return int16_t size of the allocated tx fifo in bytes
- *****************************************************************************/
-extern int16_t app_set_rail_tx_fifo(RAIL_Handle_t rail_handle);
 
 #endif // APP_PROPRIETARY_H

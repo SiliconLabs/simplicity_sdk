@@ -22,6 +22,9 @@ provides:
   - name: "sl_wisun_ping_cli"
     condition:
       - "sl_wisun_ping"
+  - name: "sl_wisun_rtt_logger_cli"
+    condition:
+      - "sl_wisun_rtt_logger"
   - name: sl_wisun_ota_dfu_cli
     condition:
       - "sl_wisun_ota_dfu"
@@ -62,6 +65,9 @@ include:
       - path: "sl_wisun_ping_cli.h"
         condition:
           - "sl_wisun_ping"
+      - path: "sl_wisun_rtt_logger_cli.h"
+        condition:
+          - "sl_wisun_rtt_logger"
       - path: "sl_iperf_cli.h"
         condition:
           - "sl_iperf"
@@ -101,6 +107,11 @@ source:
       - "cli"
       - "sl_wisun_cli_util"
       - "sl_wisun_ping"
+  - path: "sl_wisun_rtt_logger_cli.c"
+    condition:
+      - "cli"
+      - "sl_wisun_cli_util"
+      - "sl_wisun_rtt_logger"
   - path: "sl_wisun_ota_dfu_cli.c"
     condition:
       - "cli"
@@ -895,6 +906,42 @@ template_contribution:
         - name: "r"
     condition:
       - "sl_wisun_cli_util"
+
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "start_rtt_report"
+      handler: "app_cli_handler"
+      help: "Send RTT logs periodically to the client"
+      shortcuts:
+        - name: "strr"
+    condition:
+      - "sl_wisun_rtt_logger"
+
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "stop_rtt_report"
+      handler: "app_cli_handler"
+      help: "Stop sending RTT logs to the client"
+      shortcuts:
+        - name: "sprr"
+    condition:
+      - "sl_wisun_rtt_logger"
+
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "set_trace_level"
+      handler: "app_cli_handler"
+      help: "Set the trace level: w tl"
+      shortcuts:
+        - name: "tl"
+      argument:
+        - type: string
+          help: "Note: this command is disabled by default, to enable it check Wi-SUN CLI component configuration. List of ID,level; such as 1,none;4,info to configure group ID 1 with no log and group ID 4 with INFO level. Can also use all,info to set all groups to INFO level."
+    condition:
+      - "wisun_stack_debug"
 
 #---------------- Component Catalog ------------------
   - name: component_catalog

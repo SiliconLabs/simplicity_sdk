@@ -1,7 +1,7 @@
 !!omap
 - id: brd4181c
 - label: BRD4181C
-- package: platform
+- package: boards
 - description: Board support for BRD4181C.
 - category: Platform|Board|Radio Board
 - quality: production

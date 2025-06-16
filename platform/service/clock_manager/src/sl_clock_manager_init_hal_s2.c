@@ -126,8 +126,14 @@ static clock_manager_rffpll_config_t rffpll_band_config_39MHz[] = {
 
 #if defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
 uint32_t SLI_CLOCK_MANAGER_HFXO_MODE = SL_CLOCK_MANAGER_HFXO_MODE;
+uint32_t SLI_CLOCK_MANAGER_HFXO_FREQ = SL_CLOCK_MANAGER_HFXO_FREQ;
 uint32_t SLI_CLOCK_MANAGER_HFXO_CTUNE_FIXED_STEADY = SLI_CLOCK_MANAGER_HFXO_CTUNE_FIXED_STEADY_DEFAULT;
-uint32_t SLI_CLOCK_MANAGER_HFRCO_BAND = SL_CLOCK_MANAGER_HFRCO_BAND;
+
+uint32_t SLI_CLOCK_MANAGER_HFRCO_BAND     = SL_CLOCK_MANAGER_HFRCO_BAND;
+bool     SLI_CLOCK_MANAGER_HFRCO_DPLL_EN  = SL_CLOCK_MANAGER_HFRCO_DPLL_EN;
+uint32_t SLI_CLOCK_MANAGER_DPLL_FREQ      = SL_CLOCK_MANAGER_DPLL_FREQ;
+uint32_t SLI_CLOCK_MANAGER_DPLL_N         = SL_CLOCK_MANAGER_DPLL_N;
+uint32_t SLI_CLOCK_MANAGER_DPLL_M         = SL_CLOCK_MANAGER_DPLL_M;
 #endif
 
 /*******************************************************************************
@@ -139,7 +145,7 @@ uint32_t SLI_CLOCK_MANAGER_HFRCO_BAND = SL_CLOCK_MANAGER_HFRCO_BAND;
 /***************************************************************************//**
  * Initializes HFXO Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_hfxo(void)
+FUNCTION_SCOPE void init_hfxo(void)
 {
   CMU_HFXOInit_TypeDef clock_manager_hfxo_init = CMU_HFXOINIT_DEFAULT;
   clock_manager_hfxo_init.mode = SLI_CLOCK_MANAGER_HFXO_MODE >> _HFXO_CFG_MODE_SHIFT;
@@ -198,15 +204,19 @@ FUNCTION_SCOPE sl_status_t init_hfxo(void)
 
 #if defined(SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_EN) && (SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_EN == 1)
   // Set port and pin.
+  sl_status_t status;
   GPIO_Port_TypeDef port = SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_GPIO_PORT;
   unsigned int pin = SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_GPIO_PIN;
 
   // Enable HFXO and GPIO bus clocks.
-  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_HFXO0);
-  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+  status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_HFXO0);
+  EFM_ASSERT(status == SL_STATUS_OK);
+  status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+  EFM_ASSERT(status == SL_STATUS_OK);
 #if defined(SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_FOLLOWER_EN) && (SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_FOLLOWER_EN == 1)
   // Initialize Crystal sharing follower.
-  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
+  status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
+  EFM_ASSERT(status == SL_STATUS_OK);
 
   EFM_ASSERT(GPIO_PORT_PIN_VALID(port, pin));
 
@@ -271,7 +281,7 @@ FUNCTION_SCOPE sl_status_t init_hfxo(void)
 #endif
 #endif
 
-  SystemHFXOClockSet(SL_CLOCK_MANAGER_HFXO_FREQ);
+  SystemHFXOClockSet(SLI_CLOCK_MANAGER_HFXO_FREQ);
   CMU_HFXOInit(&clock_manager_hfxo_init);
   CMU_HFXOPrecisionSet(SL_CLOCK_MANAGER_HFXO_PRECISION);
 
@@ -280,8 +290,6 @@ FUNCTION_SCOPE sl_status_t init_hfxo(void)
     SLI_CLOCK_MANAGER_HFXO_CTUNE_FIXED_STEADY = (HFXO0->XTALCTRL & _HFXO_XTALCTRL_CTUNEFIXANA_MASK) >> _HFXO_XTALCTRL_CTUNEFIXANA_SHIFT;
   }
 #endif
-
-  return SL_STATUS_OK;
 }
 #endif
 
@@ -290,7 +298,7 @@ FUNCTION_SCOPE sl_status_t init_hfxo(void)
 /***************************************************************************//**
  * Initializes LFXO Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_lfxo(void)
+FUNCTION_SCOPE void init_lfxo(void)
 {
   CMU_LFXOInit_TypeDef clock_manager_lfxo_init = CMU_LFXOINIT_DEFAULT;
 
@@ -321,18 +329,14 @@ FUNCTION_SCOPE sl_status_t init_lfxo(void)
 
   CMU_LFXOInit(&clock_manager_lfxo_init);
   CMU_LFXOPrecisionSet(SL_CLOCK_MANAGER_LFXO_PRECISION);
-
-  return SL_STATUS_OK;
 }
 #endif
 
 /***************************************************************************//**
  * Initializes Clock Input CLKIN0.
  ******************************************************************************/
-static sl_status_t init_clkin0(void)
+static void init_clkin0(void)
 {
-  sl_status_t status = SL_STATUS_OK;
-
 #if (defined(SL_CLOCK_MANAGER_SYSCLK_SOURCE) && (SL_CLOCK_MANAGER_SYSCLK_SOURCE == CMU_SYSCLKCTRL_CLKSEL_CLKIN0))  \
   || (defined(SL_CLOCK_MANAGER_DPLL_REFCLK) && (SL_CLOCK_MANAGER_DPLL_REFCLK == CMU_DPLLREFCLKCTRL_CLKSEL_CLKIN0)) \
   || (defined(SL_CLOCK_MANAGER_EM01GRPBCLK_SOURCE) && (SL_CLOCK_MANAGER_EM01GRPBCLK_SOURCE == CMU_EM01GRPBCLKCTRL_CLKSEL_CLKIN0))
@@ -341,86 +345,95 @@ static sl_status_t init_clkin0(void)
 #error "Invalid configuration: CLKIN0 reference can't be use without configuring SL_CLOCK_MANAGER_CLKIN0 with a valid port and pin."
 #endif
 
+  sl_status_t status;
   sl_gpio_t clkin0_gpio = { SL_CLOCK_MANAGER_CLKIN0_PORT, SL_CLOCK_MANAGER_CLKIN0_PIN };
 
   status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  EFM_ASSERT(status == SL_STATUS_OK);
 
   status = sl_gpio_set_pin_mode(&clkin0_gpio, SL_GPIO_MODE_INPUT, false);
-  if (status == SL_STATUS_OK) {
-    GPIO->CMUROUTE.CLKIN0ROUTE = (clkin0_gpio.port << _GPIO_CMU_CLKIN0ROUTE_PORT_SHIFT)
-                                 | (clkin0_gpio.pin << _GPIO_CMU_CLKIN0ROUTE_PIN_SHIFT);
-  }
+  EFM_ASSERT(status == SL_STATUS_OK);
+  GPIO->CMUROUTE.CLKIN0ROUTE = (clkin0_gpio.port << _GPIO_CMU_CLKIN0ROUTE_PORT_SHIFT)
+                               | (clkin0_gpio.pin << _GPIO_CMU_CLKIN0ROUTE_PIN_SHIFT);
 #endif
-  return status;
 }
 
 #if defined(HFRCO_PRESENT)
 /***************************************************************************//**
  * Initializes HFRCODPLL Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_hfrcodpll(void)
+FUNCTION_SCOPE void init_hfrcodpll(void)
 {
-#if defined(SL_CLOCK_MANAGER_HFRCO_DPLL_EN) && (SL_CLOCK_MANAGER_HFRCO_DPLL_EN == 1)
-  CMU_DPLLInit_TypeDef clock_manager_dpll_init = {
-    .frequency = SL_CLOCK_MANAGER_DPLL_FREQ,
-    .n = SL_CLOCK_MANAGER_DPLL_N,
-    .m = SL_CLOCK_MANAGER_DPLL_M,
-    .edgeSel = SL_CLOCK_MANAGER_DPLL_EDGE,
-    .lockMode = SL_CLOCK_MANAGER_DPLL_LOCKMODE,
-    .autoRecover = SL_CLOCK_MANAGER_DPLL_AUTORECOVER,
-    .ditherEn = SL_CLOCK_MANAGER_DPLL_DITHER
-  };
+#if defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION) \
+  || (defined(SL_CLOCK_MANAGER_HFRCO_DPLL_EN) && (SL_CLOCK_MANAGER_HFRCO_DPLL_EN == 1))
 
-  // Convert the DPLL Reference clock configuration to emlib CMU_Select_TypeDef type.
-  switch (SL_CLOCK_MANAGER_DPLL_REFCLK) {
-    case CMU_DPLLREFCLKCTRL_CLKSEL_HFXO:
-      clock_manager_dpll_init.refClk = cmuSelect_HFXO;
-      break;
-    case CMU_DPLLREFCLKCTRL_CLKSEL_LFXO:
-      clock_manager_dpll_init.refClk = cmuSelect_LFXO;
-      break;
-    case CMU_DPLLREFCLKCTRL_CLKSEL_CLKIN0:
-      clock_manager_dpll_init.refClk = cmuSelect_CLKIN0;
-      break;
-    default:
-      return SL_STATUS_INVALID_CONFIGURATION;
-  }
-
-  CMU_Select_TypeDef selected_sysclk = CMU_ClockSelectGet(cmuClock_SYSCLK);
-
-  if (selected_sysclk == cmuSelect_HFRCODPLL) {
-    // The CMU should not be running from the HFRCO. If necessary, the CMU
-    // should switch to the FSRCO until after the DPLL has locked to avoid
-    // over-clocking due to overshoot.
-    CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_FSRCO;
-  }
-
-#if (_SILICON_LABS_32B_SERIES_2_CONFIG > 1)
-  CMU_ClockEnable(cmuClock_DPLL0, true);
+#if defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
+  if (SLI_CLOCK_MANAGER_HFRCO_DPLL_EN)
 #endif
+  {
+    sl_status_t status;
 
-  bool success = CMU_DPLLLock(&clock_manager_dpll_init);
+    CMU_DPLLInit_TypeDef clock_manager_dpll_init = {
+      .frequency = SLI_CLOCK_MANAGER_DPLL_FREQ,
+      .n = SLI_CLOCK_MANAGER_DPLL_N,
+      .m = SLI_CLOCK_MANAGER_DPLL_M,
+      .edgeSel = SL_CLOCK_MANAGER_DPLL_EDGE,
+      .lockMode = SL_CLOCK_MANAGER_DPLL_LOCKMODE,
+      .autoRecover = SL_CLOCK_MANAGER_DPLL_AUTORECOVER,
+      .ditherEn = SL_CLOCK_MANAGER_DPLL_DITHER
+    };
 
-  // If CMU was initially running from HFRCO switch back from FSRCO.
-  if (selected_sysclk == cmuSelect_HFRCODPLL) {
-    CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_HFRCODPLL;
+    // Convert the DPLL Reference clock configuration to emlib CMU_Select_TypeDef type.
+    switch (SL_CLOCK_MANAGER_DPLL_REFCLK) {
+      case CMU_DPLLREFCLKCTRL_CLKSEL_HFXO:
+        clock_manager_dpll_init.refClk = cmuSelect_HFXO;
+        break;
+      case CMU_DPLLREFCLKCTRL_CLKSEL_LFXO:
+        clock_manager_dpll_init.refClk = cmuSelect_LFXO;
+        break;
+      case CMU_DPLLREFCLKCTRL_CLKSEL_CLKIN0:
+        clock_manager_dpll_init.refClk = cmuSelect_CLKIN0;
+        break;
+      default:
+        EFM_ASSERT(false);
+        break;
+    }
+
+    CMU_Select_TypeDef selected_sysclk = CMU_ClockSelectGet(cmuClock_SYSCLK);
+
+    if (selected_sysclk == cmuSelect_HFRCODPLL) {
+      // The CMU should not be running from the HFRCO. If necessary, the CMU
+      // should switch to the FSRCO until after the DPLL has locked to avoid
+      // over-clocking due to overshoot.
+      CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_FSRCO;
+    }
+
+    status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_DPLL0);
+    EFM_ASSERT(status == SL_STATUS_OK);
+
+    bool success = CMU_DPLLLock(&clock_manager_dpll_init);
+
+    // If CMU was initially running from HFRCO switch back from FSRCO.
+    if (selected_sysclk == cmuSelect_HFRCODPLL) {
+      CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_HFRCODPLL;
+    }
+
+    // Assert if DPLL lock was unsuccessful.
+    EFM_ASSERT(success == true);
   }
-
-  // If DPLL lock was unsuccessful, return status fail.
-  if (!success) {
-    // Disable DPLL0 if lock failed.
-#if (_SILICON_LABS_32B_SERIES_2_CONFIG > 1)
-    CMU_ClockEnable(cmuClock_DPLL0, false);
 #endif
-    return SL_STATUS_FAIL;
-  }
+#if defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION) \
+  || (defined(SL_CLOCK_MANAGER_HFRCO_DPLL_EN) && (SL_CLOCK_MANAGER_HFRCO_DPLL_EN == 0))
+
+#if defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
+  else
 #else
-  CMU_HFRCODPLLBandSet(SLI_CLOCK_MANAGER_HFRCO_BAND);
+  if (true)
 #endif
-  return SL_STATUS_OK;
+  {
+    CMU_HFRCODPLLBandSet(SLI_CLOCK_MANAGER_HFRCO_BAND);
+  }
+#endif
 }
 #endif
 
@@ -428,11 +441,9 @@ FUNCTION_SCOPE sl_status_t init_hfrcodpll(void)
 /***************************************************************************//**
  * Initializes HFRCOEM23 Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_hfrcoem23(void)
+FUNCTION_SCOPE void init_hfrcoem23(void)
 {
   CMU_HFRCOEM23BandSet(SL_CLOCK_MANAGER_HFRCOEM23_BAND);
-
-  return SL_STATUS_OK;
 }
 #endif
 
@@ -440,11 +451,12 @@ FUNCTION_SCOPE sl_status_t init_hfrcoem23(void)
 /***************************************************************************//**
  * Initializes LFRCO Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_lfrco(void)
+FUNCTION_SCOPE void init_lfrco(void)
 {
-#if (_SILICON_LABS_32B_SERIES_2_CONFIG > 1)
-  CMU_ClockEnable(cmuClock_LFRCO, true);
-#endif
+  sl_status_t status;
+
+  status = sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_LFRCO);
+  EFM_ASSERT(status == SL_STATUS_OK);
 
 #if defined(PLFRCO_PRESENT)
 #if !(defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1))
@@ -452,8 +464,6 @@ FUNCTION_SCOPE sl_status_t init_lfrco(void)
 #endif
   CMU_LFRCOSetPrecision(SL_CLOCK_MANAGER_LFRCO_PRECISION);
 #endif
-
-  return SL_STATUS_OK;
 }
 #endif
 
@@ -462,7 +472,7 @@ FUNCTION_SCOPE sl_status_t init_lfrco(void)
 /***************************************************************************//**
  * Initializes RFFPLL Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_rffpll(void)
+FUNCTION_SCOPE void init_rffpll(void)
 {
   CMU_RFFPLL_Init_TypeDef rffpll_init = CMU_RFFPLL_DEFAULT;
 
@@ -496,8 +506,6 @@ FUNCTION_SCOPE sl_status_t init_rffpll(void)
   // At this point, RFFPLL has been initialized. The clock source for SYSCLK can be
   // RFFPLLSYS input clock. If you want RFFPLLSYS, configure SL_CLOCK_MANAGER_SYSCLK_SOURCE
   // to CMU_SYSCLKCTRL_CLKSEL_RFFPLL0SYS.
-
-  return SL_STATUS_OK;
 }
 #endif
 
@@ -506,7 +514,7 @@ FUNCTION_SCOPE sl_status_t init_rffpll(void)
 /***************************************************************************//**
  * Initializes USBPLL Oscillator.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_usbpll(void)
+FUNCTION_SCOPE void init_usbpll(void)
 {
   CMU_USBPLL_Init_TypeDef usbpll_config;
   uint32_t hfxo_freq = SystemHFXOClockGet();
@@ -530,7 +538,8 @@ FUNCTION_SCOPE sl_status_t init_usbpll(void)
       break;
 
     default:
-      return SL_STATUS_FAIL;
+      EFM_ASSERT(false);
+      break;
   }
 
   // Set additional configurations.
@@ -549,15 +558,13 @@ FUNCTION_SCOPE sl_status_t init_usbpll(void)
 
   // Re-initialized without the Force Enable feature.
   CMU_USBPLLInit(&usbpll_config);
-
-  return SL_STATUS_OK;
 }
 #endif
 
 /***************************************************************************//**
  * Initializes Clock branches.
  ******************************************************************************/
-FUNCTION_SCOPE sl_status_t init_clock_branches(void)
+FUNCTION_SCOPE void init_clock_branches(void)
 {
   // Initialize SYSCLK clock branch.
 #if defined(SL_CLOCK_MANAGER_SYSCLK_SOURCE)
@@ -587,7 +594,7 @@ FUNCTION_SCOPE sl_status_t init_clock_branches(void)
   CLOCK_MANAGER_CLOCK_SELECT_SET(TRACECLK, SL_CLOCK_MANAGER_TRACECLK_SOURCE);
 #endif
 #if defined(SL_CLOCK_MANAGER_TRACECLK_DIVIDER)
-  CMU->TRACECLKCTRL |= SL_CLOCK_MANAGER_TRACECLK_DIVIDER;
+  CMU->TRACECLKCTRL_SET = SL_CLOCK_MANAGER_TRACECLK_DIVIDER;
 #endif
 #if defined(CoreDebug_DEMCR_TRCENA_Msk)
   // Enable back the Core Debug module if it was already enabled
@@ -797,8 +804,6 @@ FUNCTION_SCOPE sl_status_t init_clock_branches(void)
 #endif
 #endif
 #endif
-
-  return SL_STATUS_OK;
 }
 
 /*******************************************************************************
@@ -810,79 +815,50 @@ FUNCTION_SCOPE sl_status_t init_clock_branches(void)
  ******************************************************************************/
 sl_status_t sli_clock_manager_hal_init(void)
 {
+#if defined(SYSRTC_PRESENT)
   sl_status_t status;
 
-#if defined(SYSRTC_PRESENT)
   status =  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_SYSRTC0);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  EFM_ASSERT(status == SL_STATUS_OK);
 #endif
 
   // Initialize Oscillators
 #if defined(LFXO_PRESENT) \
   && defined(SL_CLOCK_MANAGER_LFXO_EN) && (SL_CLOCK_MANAGER_LFXO_EN == 1)
-  status = init_lfxo();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_lfxo();
 #endif
 
 #if defined(HFXO_PRESENT) \
   && defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1)
-  status = init_hfxo();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_hfxo();
 #endif
 
-  status = init_clkin0();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_clkin0();
 
 #if defined(HFRCO_PRESENT)
-  status = init_hfrcodpll();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_hfrcodpll();
 #endif
 
 #if defined(HFRCOEM23_PRESENT)
-  status = init_hfrcoem23();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_hfrcoem23();
 #endif
 
 #if defined(LFRCO_PRESENT)
-  status = init_lfrco();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_lfrco();
 #endif
 
 #if defined(RFFPLL_PRESENT) \
   && defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1)
-  status = init_rffpll();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_rffpll();
 #endif
 
 #if defined(USBPLL_PRESENT) \
   && defined(SL_CLOCK_MANAGER_HFXO_EN) && (SL_CLOCK_MANAGER_HFXO_EN == 1)
-  status = init_usbpll();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_usbpll();
 #endif
 
   // Initialize Clock branches
-  status = init_clock_branches();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
+  init_clock_branches();
 
   return SL_STATUS_OK;
 }

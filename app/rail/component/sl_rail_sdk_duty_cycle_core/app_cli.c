@@ -110,22 +110,22 @@ void cli_send_packet(sl_cli_command_arg_t *arguments)
 void cli_receive_packet(sl_cli_command_arg_t *arguments)
 {
   uint8_t rxForward = sl_cli_get_argument_uint8(arguments, 0);
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
 
   const char* str_rx_fw;
   if (rxForward == 0) {
     rx_requested = false;
     str_rx_fw = OFF;
-    rail_status = RAIL_Idle(rail_handle, RAIL_IDLE, true);
+    rail_status = sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
   } else {
     rx_requested = true;
     str_rx_fw = ON;
-    rail_status = RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
+    rail_status = sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
   }
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_StartRx() or RAIL_Idle() result: %lu",
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_start_rx() or sl_rail_idle result: %lu",
                     rail_status);
   }
   app_log_info("Received packets: %s\n", str_rx_fw);

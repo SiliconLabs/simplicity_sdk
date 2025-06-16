@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides the functionality to find devices that are performing the find and bind process for a target, and then optionally attempts to create a binding to those devices.
 label: Find and Bind Initiator
 quality: production

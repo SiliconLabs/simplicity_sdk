@@ -24,7 +24,7 @@
 #include "app/util/serial/sl_zigbee_command_interpreter.h"
 #include "library.h"
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
 #endif
 #ifdef SL_ZIGBEE_AF_HAS_SECURITY_PROFILE_SE
   #include "stack/include/cbke-crypto-engine.h"  // sl_zigbee_get_certificate()
@@ -48,7 +48,7 @@ extern void sli_get_ztt_version_number_string(char *versionString);
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT
 void  sli_get_pti_radio_config(sl_cli_command_arg_t *arguments)
 {
-  sl_zigbee_core_debug_println("Current Config: %0x", RAIL_IEEE802154_GetPtiRadioConfig(sl_zigbee_get_rail_handle()));
+  sl_zigbee_core_debug_println("Current Config: %0x", sl_rail_ieee802154_get_phy_id(sl_zigbee_get_rail_handle()));
 }
 
 #endif
@@ -92,12 +92,12 @@ void sli_cli_post_cmd_hook(sl_cli_command_arg_t* arguments)
 #if !defined SL_CATALOG_ZIGBEE_TEST_HARNESS_Z3_PRESENT || defined SL_ZIGBEE_TEST
 static void printMfgString(void)
 {
-  uint8_t mfgString[MFG_STRING_MAX_LENGTH + 1];
+  uint8_t mfgString[MFG_STRING_MAX_LENGTH + 1] = { 0 };
   sl_zigbee_af_format_mfg_string(mfgString);
 
   // Note: We use '%s' here because this is a RAM string. Normally,
   // most strings are literals or constants in flash and use '%s'.
-  sl_zigbee_core_debug_print("MFG String: %s", mfgString);
+  sl_zigbee_core_debug_println("MFG String: %s", mfgString);
 }
 #endif
 
@@ -309,7 +309,7 @@ void sli_zigbee_af_cli_info_command(sl_cli_command_arg_t *arguments)
   printSmartEnergySecurityInfo();
   printSmartEnergySecurityInfo283k1();
 
-  sl_zigbee_core_debug_print("network state [%02X] ", sl_zigbee_network_state());
+  sl_zigbee_core_debug_print("network state [%02X] ", sl_zigbee_af_network_state());
   printPacketBufferStats();
 
   // EMZIGBEE-5125: apps with lots of endpoints will wdog while printing

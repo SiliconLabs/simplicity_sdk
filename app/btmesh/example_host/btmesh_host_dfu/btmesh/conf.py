@@ -30,8 +30,13 @@ from bgapix.bglibx import BGLibExtRetryParams
 from bgapix.slstatus import SlStatus
 
 from . import util
-from .core import (BtmeshAddressList, BtmeshBaseStatus, BtmeshComponent,
-                   BtmeshCore, BtmeshStatusErrorClass)
+from .core import (
+    BtmeshAddressList,
+    BtmeshBaseStatus,
+    BtmeshComponent,
+    BtmeshCore,
+    BtmeshStatusErrorClass,
+)
 from .db import DCD, BtmeshDatabase, DCDElement, ModelID, Node
 from .errors import BtmeshError, BtmeshErrorCode
 from .util import BtmeshMulticastRetryParams, BtmeshRetryParams
@@ -93,12 +98,25 @@ class ConfigStatus:
 
 
 @dataclasses.dataclass
+class ConfigModelStatus:
+    node: Node
+    elem_index: int
+    model: ModelID
+
+    @classmethod
+    def create_from_events(
+        cls, node: Node, elem_index: int, model: ModelID, events: Iterable[BGEvent]
+    ):
+        raise NotImplementedError(f"The {cls.__name__} can't be instantiated.")
+
+
+@dataclasses.dataclass
 class DefaultTTLStatus(ConfigStatus):
     ttl: int
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return DefaultTTLStatus(node=node, ttl=evt.value)
 
 
@@ -110,7 +128,7 @@ class RelayStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return RelayStatus(
             node=node,
             state=RelayState.from_int(evt.relay),
@@ -125,7 +143,7 @@ class GattProxyStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return GattProxyStatus(node=node, state=GattProxyState.from_int(evt.value))
 
 
@@ -135,7 +153,7 @@ class FriendStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return FriendStatus(node=node, state=FriendState.from_int(evt.value))
 
 
@@ -145,7 +163,7 @@ class NodeIdentityStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return NodeIdentityStatus(
             node=node, state=NodeIdentityState.from_int(evt.value)
         )
@@ -158,7 +176,7 @@ class NetworkTransmitStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return NetworkTransmitStatus(
             node=node,
             transmit_count=evt.transmit_count,
@@ -178,7 +196,7 @@ class SARTransmitterStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return SARTransmitterStatus(
             node=node,
             segment_interval_step=evt.segment_interval_step,
@@ -201,7 +219,7 @@ class SARReceiverStatus(ConfigStatus):
 
     @classmethod
     def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
-        evt = events[0]
+        evt = next(iter(events))
         return SARReceiverStatus(
             node=node,
             segments_threshold=evt.segments_threshold,
@@ -209,6 +227,93 @@ class SARReceiverStatus(ConfigStatus):
             discard_timeout=evt.discard_timeout,
             segment_interval_step=evt.segment_interval_step,
             ack_retrans_count=evt.ack_retrans_count,
+        )
+
+
+@dataclasses.dataclass
+class ModelAppkeyList(ConfigStatus):
+    appkey_indices: List[int]
+
+    @classmethod
+    def create_from_events(cls, node: Node, events: Iterable[BGEvent]):
+        appkey_indices_bytes = util.concat_bytes_from_objects_by_attr(
+            events, "appkey_indices"
+        )
+        appkey_indices = util.bytes_to_ints(
+            appkey_indices_bytes, int_size=2, byteorder="little"
+        )
+        return ModelAppkeyList(
+            node=node,
+            appkey_indices=appkey_indices,
+        )
+
+
+@dataclasses.dataclass
+class ModelBindList(ConfigModelStatus):
+    appkey_indices: List[int]
+
+    @classmethod
+    def create_from_events(
+        cls, node: Node, elem_index: int, model: ModelID, events: Iterable[BGEvent]
+    ):
+        appkey_indices_bytes = util.concat_bytes_from_objects_by_attr(
+            events, "appkey_indices"
+        )
+        appkey_indices = util.bytes_to_ints(
+            appkey_indices_bytes, int_size=2, byteorder="little"
+        )
+        return ModelBindList(
+            node=node,
+            elem_index=elem_index,
+            model=model,
+            appkey_indices=appkey_indices,
+        )
+
+
+@dataclasses.dataclass
+class ModelSubList(ConfigModelStatus):
+    addresses: List[int]
+
+    @classmethod
+    def create_from_events(
+        cls, node: Node, elem_index: int, model: ModelID, events: Iterable[BGEvent]
+    ):
+        addresses_bytes = util.concat_bytes_from_objects_by_attr(events, "addresses")
+        addresses = util.bytes_to_ints(addresses_bytes, int_size=2, byteorder="little")
+        return ModelSubList(
+            node=node,
+            elem_index=elem_index,
+            model=model,
+            addresses=addresses,
+        )
+
+
+@dataclasses.dataclass
+class ModelPubStatus(ConfigModelStatus):
+    pub_address: int
+    appkey_index: int
+    credentials: int
+    ttl: int
+    period_ms: int
+    retransmit_count: int
+    retransmit_interval_ms: int
+
+    @classmethod
+    def create_from_events(
+        cls, node: Node, elem_index: int, model: ModelID, events: Iterable[BGEvent]
+    ):
+        evt = next(iter(events))
+        return ModelPubStatus(
+            node=node,
+            elem_index=elem_index,
+            model=model,
+            pub_address=evt.address,
+            appkey_index=evt.appkey_index,
+            credentials=evt.credentials,
+            ttl=evt.ttl,
+            period_ms=evt.period_ms,
+            retransmit_count=evt.retransmit_count,
+            retransmit_interval_ms=evt.retransmit_interval_ms,
         )
 
 
@@ -341,7 +446,6 @@ class SilabsConfNetworkPduStatus(SilabsConfBaseStatus):
 
 class Configurator(BtmeshComponent):
     NETKEY_IDX = 0
-    DCD_PAGE_0 = 0
     DCD_HEADER_LEN = 10
     DCD_ELEM_HEADER_LEN = 4
     DCD_SIG_MODEL_LEN = 2
@@ -891,22 +995,22 @@ class Configurator(BtmeshComponent):
             sar_rx_status = SARReceiverStatus.create_from_events(node, events)
         return sar_rx_status
 
-    def concat_config_event_bytes(self, attr, events, event_filter=lambda e: True):
-        barr = bytearray()
-        for evt in filter(event_filter, events):
-            barr.extend(getattr(evt, attr))
-        return bytes(barr)
-
     def get_dcd(
         self,
         node: Node,
+        page: int = util.DCD_PAGE_0,
         update_db: bool = True,
         retry_params: BtmeshRetryParams = None,
-    ) -> DCD:
+    ) -> Optional[DCD]:
+        if page not in (util.DCD_PAGE_0, util.DCD_PAGE_128):
+            raise ValueError(
+                f"Page number {page} is not supported. "
+                f"(valid pages: {util.DCD_PAGE_0} and {util.DCD_PAGE_128})"
+            )
         if node.uuid == self.db.prov_uuid:
             # The DCD of the Provisioner can be queried by node command only.
             # No retry is necessary because it is a local command (no msg sent)
-            self.lib.btmesh.node.get_local_dcd(self.DCD_PAGE_0)
+            self.lib.btmesh.node.get_local_dcd(page)
             events = self.lib.wait_events(
                 event_selector={
                     "btmesh_evt_node_local_dcd_data": {"#final": False},
@@ -934,17 +1038,26 @@ class Configurator(BtmeshComponent):
                 "DCD Get",
                 self.lib.btmesh.config_client.get_dcd,
                 node,
-                self.DCD_PAGE_0,
+                page,
                 final_event_name="btmesh_evt_config_client_dcd_data_end",
                 output_event_names="btmesh_evt_config_client_dcd_data",
                 retry_params=retry_params,
             )
-        dcd_data = self.concat_config_event_bytes(
-            attr="data", events=events, event_filter=lambda e: e.page == 0
+        dcd_data = util.concat_bytes_from_objects_by_attr(
+            events, attr="data", object_filter=lambda e: e.page == page
         )
-        dcd = self.parse_dcd(dcd_data)
+        if dcd_data is None and page == util.DCD_PAGE_128:
+            # Composition Data Page 128 shall be present if the node supports
+            # the Remote Provisioning Server model so it might not exist.
+            dcd = None
+        else:
+            dcd = self.parse_dcd(dcd_data)
+
         if update_db:
-            node.dcd = dcd
+            if page == util.DCD_PAGE_0:
+                node.dcd = dcd
+            elif page == util.DCD_PAGE_128:
+                node.dcd_page_128 = dcd
         return dcd
 
     def parse_dcd(self, dcd_data):
@@ -1040,11 +1153,17 @@ class Configurator(BtmeshComponent):
     def get_dcd_cached(
         self,
         node: Node,
+        page: int = util.DCD_PAGE_0,
+        update_db: bool = True,
         retry_params: BtmeshRetryParams = None,
     ) -> DCD:
-        if node.dcd is None:
-            self.get_dcd(node, update_db=True, retry_params=retry_params)
-        return node.dcd
+        if node.dcd and page == util.DCD_PAGE_0:
+            return node.dcd
+        elif node.dcd_page_128 and page == util.DCD_PAGE_128:
+            return node.dcd_page_128
+        return self.get_dcd(
+            node, page=page, update_db=update_db, retry_params=retry_params
+        )
 
     def add_appkey(
         self,
@@ -1090,6 +1209,24 @@ class Configurator(BtmeshComponent):
             # remote node.
             node.remove_appkey_index(appkey_index)
 
+    def list_appkeys(
+        self,
+        node: Node,
+        netkey_index: int,
+        retry_params: BtmeshRetryParams = None,
+    ) -> ModelAppkeyList:
+        events = self.config_procedure(
+            "List Application Keys",
+            self.lib.btmesh.config_client.list_appkeys,
+            node,
+            netkey_index,
+            final_event_name="btmesh_evt_config_client_appkey_list_end",
+            output_event_names="btmesh_evt_config_client_appkey_list",
+            retry_params=retry_params,
+        )
+        appkey_list = ModelAppkeyList.create_from_events(node, events)
+        return appkey_list
+
     def bind_model(
         self,
         node: Node,
@@ -1129,6 +1266,29 @@ class Configurator(BtmeshComponent):
             final_event_name="btmesh_evt_config_client_binding_status",
             retry_params=retry_params,
         )
+
+    def list_model_bindings(
+        self,
+        node: Node,
+        elem_index: int,
+        model: ModelID,
+        retry_params: BtmeshRetryParams = None,
+    ) -> ModelBindList:
+        events = self.config_procedure(
+            "List Model Bindings",
+            self.lib.btmesh.config_client.list_bindings,
+            node,
+            elem_index,
+            model.vendor_id,
+            model.model_id,
+            final_event_name="btmesh_evt_config_client_bindings_list_end",
+            output_event_names="btmesh_evt_config_client_bindings_list",
+            retry_params=retry_params,
+        )
+        model_bind_list = ModelBindList.create_from_events(
+            node, elem_index, model, events
+        )
+        return model_bind_list
 
     def add_model_sub(
         self,
@@ -1170,6 +1330,67 @@ class Configurator(BtmeshComponent):
             retry_params=retry_params,
         )
 
+    def set_model_sub(
+        self,
+        node: Node,
+        elem_index: int,
+        model: ModelID,
+        sub_address: int,
+        retry_params: BtmeshRetryParams = None,
+    ):
+        self.config_procedure(
+            "Set Model Subscription",
+            self.lib.btmesh.config_client.set_model_sub,
+            node,
+            elem_index,
+            model.vendor_id,
+            model.model_id,
+            sub_address,
+            final_event_name="btmesh_evt_config_client_model_sub_status",
+            retry_params=retry_params,
+        )
+
+    def clear_model_sub(
+        self,
+        node: Node,
+        elem_index: int,
+        model: ModelID,
+        retry_params: BtmeshRetryParams = None,
+    ):
+        self.config_procedure(
+            "Clear Model Subscription",
+            self.lib.btmesh.config_client.clear_model_sub,
+            node,
+            elem_index,
+            model.vendor_id,
+            model.model_id,
+            final_event_name="btmesh_evt_config_client_model_sub_status",
+            retry_params=retry_params,
+        )
+
+    def list_model_subs(
+        self,
+        node: Node,
+        elem_index: int,
+        model: ModelID,
+        retry_params: BtmeshRetryParams = None,
+    ) -> ModelSubList:
+        events = self.config_procedure(
+            "List Model Subscriptions",
+            self.lib.btmesh.config_client.list_subs,
+            node,
+            elem_index,
+            model.vendor_id,
+            model.model_id,
+            final_event_name="btmesh_evt_config_client_subs_list_end",
+            output_event_names="btmesh_evt_config_client_subs_list",
+            retry_params=retry_params,
+        )
+        model_sub_list = ModelSubList.create_from_events(
+            node, elem_index, model, events
+        )
+        return model_sub_list
+
     def set_model_pub(
         self,
         node: Node,
@@ -1185,7 +1406,7 @@ class Configurator(BtmeshComponent):
         retry_params: BtmeshRetryParams = None,
     ):
         self.config_procedure(
-            "Add Model Publication",
+            "Set Model Publication",
             self.lib.btmesh.config_client.set_model_pub,
             node,
             elem_index,
@@ -1201,6 +1422,28 @@ class Configurator(BtmeshComponent):
             final_event_name="btmesh_evt_config_client_model_pub_status",
             retry_params=retry_params,
         )
+
+    def get_model_pub(
+        self,
+        node: Node,
+        elem_index: int,
+        model: ModelID,
+        retry_params: BtmeshRetryParams = None,
+    ) -> ModelPubStatus:
+        events = self.config_procedure(
+            "Get Model Publication",
+            self.lib.btmesh.config_client.get_model_pub,
+            node,
+            elem_index,
+            model.vendor_id,
+            model.model_id,
+            final_event_name="btmesh_evt_config_client_model_pub_status",
+            retry_params=retry_params,
+        )
+        model_pub_status = ModelPubStatus.create_from_events(
+            node, elem_index, model, events
+        )
+        return model_pub_status
 
     def reset_node(
         self,

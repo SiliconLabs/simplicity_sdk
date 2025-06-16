@@ -1,7 +1,7 @@
 !!omap
 - id: fg25_rb4272a
 - label: FG25-RB4272A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32FG25 433-490 MHz +14 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

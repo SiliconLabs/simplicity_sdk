@@ -2152,7 +2152,11 @@ void OS_SchedRoundRobinRestartTimer(OS_TCB* p_tcb)
                             OS_SchedRoundRobin,
                             (void *)p_tcb,
                             0u,
+#if defined(MICRIUMOS_SLEEP_ON_EXIT_SUPPORT)
+                            SL_SLEEPTIMER_NO_HIGH_PRECISION_HF_CLOCKS_REQUIRED_FLAG);
+#else
                             0u);
+#endif                            
 
   OSRoundRobinCurTCB = p_tcb;
 }
@@ -2210,7 +2214,11 @@ void OS_TaskBlock(OS_TCB  *p_tcb,
                                        OS_TimerCallback,
                                        (void *)p_tcb,
                                        0u,
+#if defined(MICRIUMOS_SLEEP_ON_EXIT_SUPPORT)
+                                       SL_SLEEPTIMER_NO_HIGH_PRECISION_HF_CLOCKS_REQUIRED_FLAG);
+#else
                                        0u);
+#endif
     RTOS_ASSERT_CRITICAL(status == SL_STATUS_OK, RTOS_ERR_FAIL,; );
 
     p_tcb->TaskState = OS_TASK_STATE_PEND_TIMEOUT;

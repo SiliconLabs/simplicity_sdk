@@ -1,12 +1,12 @@
 id: bit
-label: "Bit Operations Library"
-package: platform
+label: Bit Operations Library
+package: platform_common
 description: Library of different bit operations
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 include:
   - path: inc
@@ -15,5 +15,5 @@ include:
 provides:
   - name: bit
 documentation:
-  docset: gecko-platform
-  document: platform-common/bit
+    docset: gecko-platform
+    document: platform-common/bit

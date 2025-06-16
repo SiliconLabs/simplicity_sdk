@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_init.h"
 #include "sl_simple_led_instances.h"
@@ -45,10 +45,12 @@
 #include "sl_rail_sdk_packet_asm.h"
 #include "sl_sleeptimer.h"
 #include "sl_rail_sdk_mode_switch.h"
-#include "pa_conversions_efr32.h"
+#include "sl_rail_util_pa_curve_types_efr32.h"
+#include "sl_rail_util_pa_conversions_efr32.h"
 #include "sl_status.h"
 #include "sl_rail_sdk_fifo_size_config.h"
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
@@ -114,9 +116,9 @@ static volatile uint32_t ms_duration = 0U;
 /// Timer for the mode switch process
 static sl_sleeptimer_timer_handle_t mode_switch_timer;
 /// Radio power configuration pointer
-static RAIL_TxPowerConfig_t *txPowerConfigPtr = NULL;
+static sl_rail_tx_power_config_t *txPowerConfigPtr = NULL;
 /// Radio power
-static RAIL_TxPower_t power = 140U;
+static sl_rail_tx_power_t power = 140U;
 /// WiSUN FSK packet FCS is on/off
 static uint8_t fsk_fcs_type = 0U;
 /// WiSUN FSK packet whitening is on/off
@@ -139,34 +141,34 @@ static uint8_t ofdm_scrambler = 0x00;
 static bool print_packet_details = true;
 
 /// A configuration structure for IEEE 802.15.4 in RAIL.
-static const RAIL_IEEE802154_Config_t config = {
-  .addresses = NULL,
-  .ackConfig = {
+static const sl_rail_ieee802154_config_t config = {
+  .p_addresses = NULL,
+  .ack_config = {
     .enable = true,
-    .ackTimeout = 672,
-    .rxTransitions = {
-      .success = RAIL_RF_STATE_RX,
-      .error = RAIL_RF_STATE_RX
+    .ack_timeout_us = 672,
+    .rx_transitions = {
+      .success = SL_RAIL_RF_STATE_RX,
+      .error = SL_RAIL_RF_STATE_RX
     },
-    .txTransitions = {
-      .success = RAIL_RF_STATE_RX,
-      .error = RAIL_RF_STATE_RX
+    .tx_transitions = {
+      .success = SL_RAIL_RF_STATE_RX,
+      .error = SL_RAIL_RF_STATE_RX
     }
   },
   .timings = {
-    .idleToTx = 110,
-    .idleToRx = 110,
-    .rxToTx = 192,
-    // Make txToRx slightly lower than desired to make sure we get to RX in time
-    .txToRx = 182,
-    .rxSearchTimeout = 0,
-    .txToRxSearchTimeout = 0,
-    .txToTx = 0
+    .idle_to_tx = 110,
+    .idle_to_rx = 110,
+    .rx_to_tx = 192,
+    // Make tx_to_rx slightly lower than desired to make sure we get to RX in time
+    .tx_to_rx = 182,
+    .rxsearch_timeout = 0,
+    .tx_to_rxsearch_timeout = 0,
+    .tx_to_tx = 0
   },
-  .framesMask = RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
-  .promiscuousMode = false,
-  .isPanCoordinator = false,
-  .defaultFramePendingInOutgoingAcks = false
+  .frames_mask = SL_RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
+  .promiscuous_mode = false,
+  .is_pan_coordinator = false,
+  .default_frame_pending_in_outgoing_acks = false
 };
 
 // -----------------------------------------------------------------------------
@@ -178,7 +180,7 @@ static const RAIL_IEEE802154_Config_t config = {
 * @param[in] handle Pointer to the sleeptimer handle
 * @param[in] data Pointer to delay flag
 ******************************************************************************/
-static void ms_timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data);
+SL_CODE_RAM static void ms_timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data);
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -282,14 +284,14 @@ void set_print_packet_details(bool new_print_packet_details)
 /******************************************************************************
  * This function calibrates the radio.
  *****************************************************************************/
-void calibrate_radio(RAIL_Handle_t rail_handle)
+void calibrate_radio(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "calibrate_radio error: NULL handle\n");
 
   // Calibration on OFDM is sufficient for FSK as well
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-  RAIL_AntennaSel_t rf_path = RAIL_ANTENNA_AUTO;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_antenna_sel_t rf_path = SL_RAIL_ANTENNA_AUTO;
 
   // Finding the first channel with OFDM modulation
   for (uint8_t i = 0; i < radio_info.mode_switch_capable_channels; i++) {
@@ -299,13 +301,13 @@ void calibrate_radio(RAIL_Handle_t rail_handle)
     }
   }
 
-  RAIL_StartRx(rail_handle, current_channel, NULL);
-  status = RAIL_GetRfPath(rail_handle, &rf_path);
+  sl_rail_start_rx(rail_handle, current_channel, NULL);
+  status = sl_rail_get_rf_path(rail_handle, &rf_path);
 
-  if (status == RAIL_STATUS_NO_ERROR) {
-    RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
-    status = RAIL_CalibrateIrAlt(rail_handle, NULL, rf_path);
-    if (status == RAIL_STATUS_NO_ERROR) {
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
+    sl_rail_idle(rail_handle, SL_RAIL_IDLE_ABORT, false);
+    status = sl_rail_calibrate_ir(rail_handle, NULL, rf_path);
+    if (status == SL_RAIL_STATUS_NO_ERROR) {
       app_log_info("IR calibration OK\n");
     } else {
       app_log_warning("IR calibration ERROR: %lu\n", status);
@@ -316,92 +318,92 @@ void calibrate_radio(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * API to init and set the IEEE802154 hardware acceleration.
  *****************************************************************************/
-void init_ieee802154_for_mode_switch(RAIL_Handle_t rail_handle)
+void init_ieee802154_for_mode_switch(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "init_ieee802154_for_mode_switch error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
-  status = RAIL_IEEE802154_Init(rail_handle, &config);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_IEEE802154_Init error: %lu\n",
+  status = sl_rail_ieee802154_init(rail_handle, &config);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_ieee802154_init error: %lu\n",
              status);
 }
 
 /******************************************************************************
  * API to enable DUALSYNC in Tx and Rx in case of FSK FEC usage.
  *****************************************************************************/
-void init_rx_option_for_mode_switch(RAIL_Handle_t rail_handle)
+void init_rx_option_for_mode_switch(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "init_rx_option_for_mode_switch error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-  RAIL_RxOptions_t enable_dualsync = RAIL_RX_OPTION_ENABLE_DUALSYNC;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_rx_options_t enable_dualsync = SL_RAIL_RX_OPTION_ENABLE_DUAL_SYNC;
 
-  status = RAIL_ConfigRxOptions(rail_handle,
-                                RAIL_RX_OPTIONS_ALL,
-                                enable_dualsync);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_ConfigRxOptions error: %lu\n",
+  status = sl_rail_config_rx_options(rail_handle,
+                                     SL_RAIL_RX_OPTIONS_ALL,
+                                     enable_dualsync);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_config_rx_options error: %lu\n",
              status);
 }
 
 /******************************************************************************
  * API to enable Mode Switch and dynamic FEC.
  *****************************************************************************/
-void init_ieee802154g_option_for_mode_switch(RAIL_Handle_t rail_handle)
+void init_ieee802154g_option_for_mode_switch(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "init_ieee802154g_option_for_mode_switch error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-  RAIL_IEEE802154_GOptions_t ieee802154g_option =
-    (1 << RAIL_IEEE802154_G_OPTION_GB868_SHIFT)
-    | (1 << RAIL_IEEE802154_G_OPTION_DYNFEC_SHIFT)
-    | (1 << RAIL_IEEE802154_G_OPTION_WISUN_MODESWITCH_SHIFT);
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_ieee802154_g_options_t ieee802154g_option =
+    (1 << SL_RAIL_IEEE802154_G_OPTION_GB868_SHIFT)
+    | (1 << SL_RAIL_IEEE802154_G_OPTION_DYN_FEC_SHIFT)
+    | (1 << SL_RAIL_IEEE802154_G_OPTION_WI_SUN_MODE_SWITCH_SHIFT);
 
-  status = RAIL_IEEE802154_ConfigGOptions(rail_handle,
-                                          RAIL_IEEE802154_G_OPTIONS_ALL,
-                                          ieee802154g_option);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_IEEE802154_ConfigGOptions error: %lu\n",
+  status = sl_rail_ieee802154_config_g_options(rail_handle,
+                                               SL_RAIL_IEEE802154_G_OPTIONS_ALL,
+                                               ieee802154g_option);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_ieee802154_config_g_options error: %lu\n",
              status);
 }
 
 /******************************************************************************
  * API to disable MAC filtering on packet received.
  *****************************************************************************/
-void enable_promiscuous_mode_for_mode_switch(RAIL_Handle_t rail_handle)
+void enable_promiscuous_mode_for_mode_switch(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "enable_promiscuous_mode_for_mode_switch error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
-  status = RAIL_IEEE802154_SetPromiscuousMode(rail_handle, true);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_IEEE802154_SetPromiscuousMode error: %lu\n",
+  status = sl_rail_ieee802154_set_promiscuous_mode(rail_handle, true);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_ieee802154_set_promiscuous_mode error: %lu\n",
              status);
 }
 
 /******************************************************************************
  * API to enable Start and End event for Mode Switch.
  *****************************************************************************/
-void enable_mode_switch_events(RAIL_Handle_t rail_handle)
+void enable_mode_switch_events(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "enable_mode_switch_events error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-  RAIL_Events_t enable_modeswitch = SL_RAIL_UTIL_INIT_EVENT_INST0_MASK
-                                    | RAIL_EVENT_IEEE802154_MODESWITCH_START
-                                    | RAIL_EVENT_IEEE802154_MODESWITCH_END;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_events_t enable_modeswitch = SL_RAIL_UTIL_INIT_EVENT_INST0_MASK
+                                       | SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_START
+                                       | SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_END;
 
-  status = RAIL_ConfigEvents(rail_handle, RAIL_EVENTS_ALL, enable_modeswitch);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_ConfigEvents error: %lu\n",
+  status = sl_rail_config_events(rail_handle, SL_RAIL_EVENTS_ALL, enable_modeswitch);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_config_events error: %lu\n",
              status);
 }
 
@@ -416,29 +418,29 @@ void init_rail_pa_settings(void)
 /******************************************************************************
  * API to update the power amplifier settings.
  *****************************************************************************/
-void update_rail_pa_settings(RAIL_Handle_t rail_handle, uint16_t channel)
+void update_rail_pa_settings(sl_rail_handle_t rail_handle, uint16_t channel)
 {
   app_assert(rail_handle != NULL,
              "update_rail_pa_settings error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   phy_modulation_e modulation = get_phy_modulation_from_channel(channel);
 
   if (modulation == M_OFDM) {
-    if (txPowerConfigPtr->mode != RAIL_TX_POWER_MODE_OFDM_PA_POWERSETTING_TABLE) {
-      txPowerConfigPtr->mode = RAIL_TX_POWER_MODE_OFDM_PA_POWERSETTING_TABLE;
-      status = RAIL_ConfigTxPower(rail_handle, txPowerConfigPtr);
-      app_assert(status == RAIL_STATUS_NO_ERROR, "PA setting failed");
-      status = RAIL_SetTxPowerDbm(rail_handle, power);
-      app_assert(status == RAIL_STATUS_NO_ERROR, "PA setting failed");
+    if (txPowerConfigPtr->mode != SL_RAIL_TX_POWER_MODE_OFDM_PA_POWERSETTING_TABLE) {
+      txPowerConfigPtr->mode = SL_RAIL_TX_POWER_MODE_OFDM_PA_POWERSETTING_TABLE;
+      status = sl_rail_config_tx_power(rail_handle, txPowerConfigPtr);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR, "PA setting failed");
+      status = sl_rail_set_tx_power_dbm(rail_handle, power);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR, "PA setting failed");
     }
   } else if (modulation == M_2FSK) {
-    if (txPowerConfigPtr->mode != RAIL_TX_POWER_MODE_SUBGIG_POWERSETTING_TABLE) {
-      txPowerConfigPtr->mode = RAIL_TX_POWER_MODE_SUBGIG_POWERSETTING_TABLE;
-      status = RAIL_ConfigTxPower(rail_handle, txPowerConfigPtr);
-      app_assert(status == RAIL_STATUS_NO_ERROR, "PA setting failed");
-      status = RAIL_SetTxPowerDbm(rail_handle, power);
-      app_assert(status == RAIL_STATUS_NO_ERROR, "PA setting failed");
+    if (txPowerConfigPtr->mode != SL_RAIL_TX_POWER_MODE_SUB_GHZ_POWERSETTING_TABLE) {
+      txPowerConfigPtr->mode = SL_RAIL_TX_POWER_MODE_SUB_GHZ_POWERSETTING_TABLE;
+      status = sl_rail_config_tx_power(rail_handle, txPowerConfigPtr);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR, "PA setting failed");
+      status = sl_rail_set_tx_power_dbm(rail_handle, power);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR, "PA setting failed");
     }
   } else {
     app_log_warning("Unknown modulation %d\n", modulation);
@@ -448,12 +450,12 @@ void update_rail_pa_settings(RAIL_Handle_t rail_handle, uint16_t channel)
 /******************************************************************************
  * This function configures the basic parameters for the mode switch process.
  *****************************************************************************/
-void init_mode_switch(RAIL_Handle_t rail_handle)
+void init_mode_switch(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "init_mode_switch error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
   // Radio calibration
   calibrate_radio(rail_handle);
@@ -462,10 +464,10 @@ void init_mode_switch(RAIL_Handle_t rail_handle)
   current_channel = base_channel;
   set_new_phy_mode_id(radio_info.channel_list[0].phy_mode_id);
 
-  RAIL_StartRx(rail_handle, current_channel, NULL);
+  sl_rail_start_rx(rail_handle, current_channel, NULL);
 
   // Set Radio to Idle to be able to set the following settings
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
 
   // Init and set the IEEE802154 hardware acceleration
   init_ieee802154_for_mode_switch(rail_handle);
@@ -477,9 +479,9 @@ void init_mode_switch(RAIL_Handle_t rail_handle)
   // Enable Mode Switch and dynamic FEC
   init_ieee802154g_option_for_mode_switch(rail_handle);
 
-  status = RAIL_StartRx(rail_handle, current_channel, NULL);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_StartRx error: %lu\n",
+  status = sl_rail_start_rx(rail_handle, current_channel, NULL);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_start_rx error: %lu\n",
              status);
 
   // Avoid MAC filtering on packet received
@@ -514,12 +516,12 @@ phy_modulation_e calculate_modulation_from_phy_mode_id(const uint8_t phy_mode_id
 /******************************************************************************
  * API to update channel configurations locally.
  *****************************************************************************/
-void update_channel_list(RAIL_Handle_t rail_handle)
+void update_channel_list(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "update_channel_list error: NULL handle\n");
 
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   uint8_t next = 0U;
   uint16_t channel = CHANNEL_DOES_NOT_EXIST;
   phy_modulation_e modulation = M_UNDEFINED;
@@ -527,12 +529,12 @@ void update_channel_list(RAIL_Handle_t rail_handle)
   memset(&radio_info, 0, sizeof(radio_info_t));
   for (uint8_t i = 0; i < WISUN_MODESWITCHPHRS_ARRAY_SIZE; i++) {
     channel = CHANNEL_DOES_NOT_EXIST;
-    status = RAIL_IEEE802154_ComputeChannelFromPhyModeId(rail_handle,
-                                                         wisun_modeSwitchPhrs[i].phyModeId,
-                                                         &channel);
-    if (status != RAIL_STATUS_NO_ERROR) {
+    status = sl_rail_ieee802154_compute_channel_from_phy_mode_id(rail_handle,
+                                                                 wisun_modeSwitchPhrs[i].phyModeId,
+                                                                 &channel);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       // it fails because it is the selected channel
-      (void) RAIL_GetChannel(rail_handle, &channel);
+      (void) sl_rail_get_channel(rail_handle, &channel);
     }
     if (channel != CHANNEL_DOES_NOT_EXIST) {
       if (next >= MAX_SELECTABLE_CHANNEL) {
@@ -582,12 +584,12 @@ void print_channel_list(void)
 /******************************************************************************
  * API to trigger mode switch transmission.
  *****************************************************************************/
-sl_status_t trig_mode_switch_tx(RAIL_Handle_t rail_handle)
+sl_status_t trig_mode_switch_tx(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "trig_mode_switch_tx error: NULL handle\n");
 
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
   sl_status_t status = SL_STATUS_OK;
   uint32_t phr = 0U;
   uint32_t duration_in_sec = ms_duration * 1000U;
@@ -600,10 +602,10 @@ sl_status_t trig_mode_switch_tx(RAIL_Handle_t rail_handle)
   }
 
   if (status == SL_STATUS_OK) {
-    rail_status = RAIL_IEEE802154_ComputeChannelFromPhyModeId(rail_handle,
-                                                              phy_mode_id,
-                                                              &channel);
-    if (rail_status == RAIL_STATUS_NO_ERROR) {
+    rail_status = sl_rail_ieee802154_compute_channel_from_phy_mode_id(rail_handle,
+                                                                      phy_mode_id,
+                                                                      &channel);
+    if (rail_status == SL_RAIL_STATUS_NO_ERROR) {
       ms_new_channel = channel;
       status = SL_STATUS_OK;
     } else {
@@ -645,8 +647,9 @@ sl_status_t trig_mode_switch_tx(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * The API to get the payload from the radio frame.
  *****************************************************************************/
-uint16_t unpack_packet(uint8_t *rx_destination,
-                       const RAIL_RxPacketInfo_t *packet_information,
+uint16_t unpack_packet(sl_rail_handle_t rail_handle,
+                       uint8_t *rx_destination,
+                       const sl_rail_rx_packet_info_t *packet_information,
                        uint8_t **start_of_payload,
                        phy_modulation_e modulation)
 {
@@ -658,7 +661,12 @@ uint16_t unpack_packet(uint8_t *rx_destination,
 
   uint16_t payload_size = 0U;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   if (modulation == M_2FSK) {
     *start_of_payload
       = sl_rail_sdk_802154_packet_unpack_sunfsk_2byte_data_frame(packet_information,
@@ -688,7 +696,7 @@ uint16_t unpack_packet(uint8_t *rx_destination,
 /******************************************************************************
  * API to prepare the packet for sending and load it into the RAIL TX FIFO.
  *****************************************************************************/
-void prepare_packet(RAIL_Handle_t rail_handle,
+void prepare_packet(sl_rail_handle_t rail_handle,
                     uint8_t *out_data,
                     uint16_t length,
                     phy_modulation_e modulation)
@@ -725,12 +733,12 @@ void prepare_packet(RAIL_Handle_t rail_handle,
       app_log_warning("Unkown modulation\n");
     }
   }
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle,
-                                           tx_frame_buffer,
-                                           packet_size,
-                                           true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle,
+                                                tx_frame_buffer,
+                                                packet_size,
+                                                true);
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo"
+             "sl_rail_write_tx_fifo() failed to write in fifo"
              "(%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
@@ -866,13 +874,13 @@ sl_status_t set_mode_switch_duration(const uint32_t duration)
 /******************************************************************************
  * API to set the currently used channel.
  *****************************************************************************/
-RAIL_Status_t set_channel(const uint16_t new_channel)
+sl_rail_status_t set_channel(const uint16_t new_channel)
 {
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
-  status = RAIL_StartRx(rail_handle, new_channel, NULL);
-  if (status == RAIL_STATUS_NO_ERROR) {
+  status = sl_rail_start_rx(rail_handle, new_channel, NULL);
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
     current_channel = new_channel;
     app_log_info("Channel is set to %d\n", current_channel);
   }
@@ -912,15 +920,15 @@ uint16_t get_base_channel(void)
 /******************************************************************************
  * API to switch the radio channel during the mode switch process.
  *****************************************************************************/
-RAIL_Status_t switch_to_ms_channel(RAIL_Handle_t rail_handle)
+sl_rail_status_t switch_to_ms_channel(sl_rail_handle_t rail_handle)
 {
   app_assert(rail_handle != NULL,
              "switch_to_ms_channel error: NULL handle\n");
 
   uint16_t ms_channel = 0U;
-  RAIL_Status_t status = RAIL_GetChannel(rail_handle, &ms_channel);
+  sl_rail_status_t status = sl_rail_get_channel(rail_handle, &ms_channel);
 
-  if (status == RAIL_STATUS_NO_ERROR) {
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
     base_channel = current_channel;
     status = set_channel(ms_channel);
     update_rail_pa_settings(rail_handle, ms_channel);
@@ -932,11 +940,11 @@ RAIL_Status_t switch_to_ms_channel(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * API to set the radio back to the base channel from the mode switch channel.
  *****************************************************************************/
-RAIL_Status_t return_to_base_channel(void)
+sl_rail_status_t return_to_base_channel(void)
 {
-  RAIL_Status_t status = set_channel(base_channel);
+  sl_rail_status_t status = set_channel(base_channel);
 
-  if (status == RAIL_STATUS_NO_ERROR) {
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
     ms_state = MS_IDLE;
   }
   ms_new_phy_mode_id = get_phy_mode_id_from_channel(current_channel);
@@ -984,8 +992,8 @@ phy_modulation_e get_phy_modulation_from_channel(const uint16_t channel)
 /******************************************************************************
  * Callback function for the mode switch timer.
  *****************************************************************************/
-static void ms_timer_callback(sl_sleeptimer_timer_handle_t *handle,
-                              void *data)
+SL_CODE_RAM static void ms_timer_callback(sl_sleeptimer_timer_handle_t *handle,
+                                          void *data)
 {
   (void) data;
   (void) handle;

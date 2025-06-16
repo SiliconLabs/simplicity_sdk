@@ -17,7 +17,6 @@ provides:
 requires:
   - name: ddp_common
   - name: iostream_rtt
-  - name: sl_system
 include:
   - path: inc
     file_list:

@@ -1,6 +1,6 @@
 id: zigbee_pro_leaf_stack
 label: Pro Leaf Stack
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The Zigbee PRO Stack support for end devices. It includes stubs for parent and routing code, since end devices do not need this functionality.

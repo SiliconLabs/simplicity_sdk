@@ -17,7 +17,7 @@ void exitPowerDown(uint32_t millis);
 
 #define configTICK_RATE_HZ                1000
 #define configUSE_PREEMPTION              1
-#define configMAX_PRIORITIES              ( TASK_PRIORITY_MAX + 1 )  // Set the number of priority levels. (Not the MAX priority!)
+#define configMAX_PRIORITIES              (TASK_PRIORITY_MAX + 1)    // Set the number of priority levels. (Not the MAX priority!)
 #define configUSE_MUTEXES                 1
 #define configSUPPORT_STATIC_ALLOCATION   1
 #define configSUPPORT_DYNAMIC_ALLOCATION  1
@@ -42,7 +42,7 @@ void exitPowerDown(uint32_t millis);
  * This macro overrides a macro of the same name defined in projdefs.h that gets
  * uint32_t overflow in case xTimeInMs > 4.2950e6  ~1.2 hours.
  */
-#define pdMS_TO_TICKS( xTimeInMs ) \
-      ( ( TickType_t ) ( ( ( uint64_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000 ) )
+#define pdMS_TO_TICKS(xTimeInMs) \
+  ( ( TickType_t ) ( ( ( uint64_t ) (xTimeInMs) * ( TickType_t ) configTICK_RATE_HZ) / ( TickType_t ) 1000) )
 
 #endif /* FREERTOS_CONFIG_H */

@@ -35,12 +35,7 @@
 #define MAX_MAC_INDEX 1
 #endif
 //#define MAX_MAC_INDEX 2
-#ifdef HIGH_DATARATE_PHY
-//+9 is sizeof (RAIL_SchedulerInfo_t)
-#define MAX_FLAT_PACKET_SIZE (255 + 9) // CHANGE THIS FOR 2049+9 size packet when supported
-#else
-#define MAX_FLAT_PACKET_SIZE 127
-#endif //HIGH_DATARATE_PHY
+
 // When this callback is called, the higher layer shall perform any final adjustments to the packet necessary just before TX (such as NWK encryption)
 // It shall place the packet to send in the flat buffer, with the payload at mac_payload_offset.
 // This callback is able to drop a packet by setting the length byte to 0 (flat_packet_buffer[0]) to zero
@@ -53,7 +48,7 @@ typedef void (*sl_mac_symbol_timer_callback_t)(void);
 typedef bool (*sl_mac_is_passthrough_callback_t) (uint8_t* mac_header, uint8_t macPayloadLength);
 typedef void (*sl_mac_poll_handler_t) (sl_802154_short_addr_t node, bool transmitExpected);
 typedef bool (*sl_mac_make_jit_callback_t)(void);
-typedef bool (*sl_mac_packet_handoff_incoming_callback_t) (sli_buffer_manager_buffer_t rawPacket, uint8_t index, void *data);
+typedef bool (*sl_mac_packet_handoff_incoming_callback_t) (sli_buffer_manager_buffer_t rawPacket, uint8_t index, void *data, uint8_t data_len);
 typedef bool (*sl_mac_process_network_header_callback_t) (sli_buffer_manager_buffer_t macHeader, const uint8_t *networkHeader);
 typedef void (*sl_mac_poll_received_callback_t) (uint8_t childIndex, uint8_t nwkIndex);
 
@@ -159,9 +154,9 @@ sl_status_t sli_mac_submit(uint8_t mac_index,
                            sl_mac_transmit_complete_callback_t callback,
                            uint8_t tag);
 #ifdef HIGH_DATARATE_PHY
-#include "rail_types.h"
-#include "rail.h"
-RAIL_Status_t sli_mac_lower_mac_set_mode_switch_sync_detect(bool enable_f);
+#include "sl_rail_types.h"
+#include "sl_rail.h"
+sl_rail_status_t sli_mac_lower_mac_set_mode_switch_sync_detect(bool enable_f);
 #endif  //HIGH_DATARATE_PHY
 // Triggers the Mac to send a data request when available
 // The prior Connect API simply sent the poll immediately.

@@ -1,7 +1,7 @@
 !!omap
 - id: bg24_rb4198a
 - label: BG24-RB4198A
-- package: platform
+- package: boards
 - description: Kit BSP support for the BG24 Ranging Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

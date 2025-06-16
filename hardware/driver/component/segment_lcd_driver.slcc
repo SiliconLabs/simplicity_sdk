@@ -1,13 +1,13 @@
 id: segment_lcd_driver
-package: platform
+package: board_drivers
 label: Segment LCD
 description: >
-  Driver for the segment LCD
+    Driver for the segment LCD
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/segment_lcd
 provides:
   - name: segment_lcd_driver
@@ -17,7 +17,7 @@ requires:
   - name: emlib_lcd
   - name: status
   - name: device_has_lcd
-  - name: hardware_board_has_segment_lcd
+  ##- name: hardware_board_has_segment_lcd
 include:
   - path: inc
     file_list:
@@ -33,7 +33,7 @@ include:
   - path: inc/brd2505a/
     file_list:
       - path: sl_segmentlcd_pin_config.h
-    condition: [brd2505a]    
+    condition: [brd2505a]
   - path: inc/brd2506a/
     file_list:
       - path: sl_segmentlcd_pin_config.h
@@ -49,7 +49,7 @@ config_file:
     condition: [brd2504a]
   - path: config/cl010_1087/sl_segmentlcd_config.h
     file_id: sl_segmentlcd_config
-    condition: [brd2505a]    
+    condition: [brd2505a]
   - path: config/cl010_1087/sl_segmentlcd_config.h
     file_id: sl_segmentlcd_config
     condition: [brd2506a]

@@ -37,8 +37,7 @@
 /**
  * System events
  */
-typedef enum _EVENT_SYSTEM_
-{
+typedef enum _EVENT_SYSTEM_{
   EVENT_SYSTEM_RESET = DEFINE_EVENT_SYSTEM_NBR,
   EVENT_SYSTEM_LEARNMODE_START,      //Enqueue to manually start learn mode.
   EVENT_SYSTEM_LEARNMODE_FINISHED,   //Enqueued after learn process finished. Both on success and timeout.
@@ -47,7 +46,7 @@ typedef enum _EVENT_SYSTEM_
   EVENT_SYSTEM_WATCHDOG_RESET,
   EVENT_SYSTEM_OTA_START,
   EVENT_SYSTEM_LEARNMODE_DSK_START,
-  EVENT_SYSTEM_FLUSHMEM_READY,  
+  EVENT_SYSTEM_FLUSHMEM_READY,
   EVENT_SYSTEM_SMARTSTART_IN_PROGRESS,
   EVENT_SYSTEM_EMPTY
 } EVENT_SYSTEM;
@@ -58,7 +57,6 @@ typedef enum _EVENT_SYSTEM_
  */
 void ZAF_eventSchedulerInit(VOID_CALLBACKFUNC(pApplicationStateMachine)(uint8_t));
 
-
 #define ZCB_EventSchedulerEventAdd ZCB_eventSchedulerEventAdd
 /**
  * @brief Adds a given event to the event queue.
@@ -67,13 +65,11 @@ void ZAF_eventSchedulerInit(VOID_CALLBACKFUNC(pApplicationStateMachine)(uint8_t)
  */
 bool ZCB_eventSchedulerEventAdd(uint8_t event);
 
-
 #define ZCB_EventScheduler ZCB_eventScheduler
 /**
  * @brief Processes events.
  */
 bool ZCB_eventScheduler(void);
-
 
 #define ZCB_EventEnqueue ZAF_jobEnqueue
 /**
@@ -83,7 +79,6 @@ bool ZCB_eventScheduler(void);
  */
 bool ZAF_jobEnqueue(uint8_t event);
 
-
 #define ZCB_EventDequeue ZAF_jobDequeue
 /**
  * @brief Deque job queue
@@ -91,7 +86,6 @@ bool ZAF_jobEnqueue(uint8_t event);
  * @return false if queue is empty else true.
  */
 bool ZAF_jobDequeue(uint8_t* pEvent);
-
 
 /**
  * @brief Get number of events on queue

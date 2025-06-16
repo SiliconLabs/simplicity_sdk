@@ -656,6 +656,7 @@ class BtmeshConfCmd(BtmeshCmd):
             self.conf_ae_parser,
             add_elem_arg=False,
             add_elem_addrs_arg=False,
+            add_group_addr_arg=True,
             elem_default=None,
             group_addr_help=(
                 f"Subscription group address of Silicon Labs Configuration "

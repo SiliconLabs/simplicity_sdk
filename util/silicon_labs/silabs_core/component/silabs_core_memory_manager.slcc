@@ -1,6 +1,6 @@
 id: silabs_core_memory_manager
 label: Memory Manager
-package: platform
+package: platform_core
 description: Silabs core is a collection of basic application utilities.
 category: Platform|Utilities
 quality: production

@@ -122,18 +122,19 @@ class Calc_AGC_Sol(CALC_AGC_ocelot):
         self._reg_write(model.vars.FEFILT1_RSSIFILT_RSSIFILTDEC, rssifiltdec, do_not_care=do_not_care)
 
     def calc_agc_colldetctrl_regs(self, model):
-
-        # Read in model vars
+        # Jira: https://jira.silabs.com/browse/MCUW_RADIO_CFG-2456
         softmodem_modulation_type = model.vars.softmodem_modulation_type.value
+        legacy_modulation_type = model.vars.modulation_type.value
 
+        # SOFT_DEMOD is used, also applied in concurrent mode
         if softmodem_modulation_type == model.vars.softmodem_modulation_type.var_enum.SUN_OFDM:
             ofdm_option = model.vars.ofdm_option.value
 
-            do_not_care = False
             macompensel = 0  # PRE_DET
             ovrthdsel = 1
             rssiinsel = 0  # MAFILTER
             inputsel = 2  # SOFTM
+
             if ofdm_option == model.vars.ofdm_option.var_enum.OPT1_OFDM_BW_1p2MHz:
                 matap = 3  # 16 taps
             elif ofdm_option == model.vars.ofdm_option.var_enum.OPT2_OFDM_BW_0p8MHz:
@@ -143,20 +144,33 @@ class Calc_AGC_Sol(CALC_AGC_ocelot):
             else:
                 matap = 0  # 2 taps
 
-        else:
-            do_not_care = True
+        elif (legacy_modulation_type == model.vars.modulation_type.var_enum.FSK2
+                and softmodem_modulation_type == model.vars.softmodem_modulation_type.var_enum.NONE):
             matap = 0
-            macompensel = 0
-            ovrthdsel = 0
-            rssiinsel = 0
-            inputsel = 0
+            macompensel = 0  # PRE_DET
+            ovrthdsel = 1
+            rssiinsel = 0  # MAFILTER
+            inputsel = 1  # LEGACY
 
-        # Write the regs
-        self._reg_write(model.vars.AGC_COLLDETCTRL_MATAP, matap, do_not_care=do_not_care)
-        self._reg_write(model.vars.AGC_COLLDETCTRL_MACOMPENSEL, macompensel, do_not_care=do_not_care)
-        self._reg_write(model.vars.AGC_COLLDETCTRL_OVRTHDSEL, ovrthdsel, do_not_care=do_not_care)
-        self._reg_write(model.vars.AGC_COLLDETCTRL_RSSIINSEL, rssiinsel, do_not_care=do_not_care)
-        self._reg_write(model.vars.AGC_COLLDETCTRL_INPUTSEL, inputsel, do_not_care=do_not_care)
+        else:  # Do not care
+            self._reg_do_not_care(model.vars.AGC_COLLDETCTRL_MATAP)
+            self._reg_do_not_care(model.vars.AGC_COLLDETCTRL_MACOMPENSEL)
+            self._reg_do_not_care(model.vars.AGC_COLLDETCTRL_OVRTHDSEL)
+            self._reg_do_not_care(model.vars.AGC_COLLDETCTRL_RSSIINSEL)
+            self._reg_do_not_care(model.vars.AGC_COLLDETCTRL_INPUTSEL)
+            return
+
+        self._reg_write(model.vars.AGC_COLLDETCTRL_MATAP, matap)
+        self._reg_write(model.vars.AGC_COLLDETCTRL_MACOMPENSEL, macompensel)
+        self._reg_write(model.vars.AGC_COLLDETCTRL_OVRTHDSEL, ovrthdsel)
+        self._reg_write(model.vars.AGC_COLLDETCTRL_RSSIINSEL, rssiinsel)
+        self._reg_write(model.vars.AGC_COLLDETCTRL_INPUTSEL, inputsel)
+
+    def calc_agc_colldetthd_regs(self, model):
+        # Jira: https://jira.silabs.com/browse/MCUW_RADIO_CFG-2456
+        self._reg_write(model.vars.AGC_COLLDETTHD_MATHRESHOLD, 6)  # Control RSSI detection threshold
+        self._reg_write(model.vars.AGC_COLLDETTHD_OVRTHRESHOLD, 255)
+
 
     def calc_cfloopdel_reg(self, model):
 

@@ -1,13 +1,13 @@
 id: si70xx_driver
-package: platform
+package: board_drivers
 label: Si70xx - Temperature/Humidity Sensor
 description: |-
-  Driver for the Si7006, Si7013, Si7020 and Si7021 Temperature / Humidity sensors
+    Driver for the Si7006, Si7013, Si7020 and Si7021 Temperature / Humidity sensors
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/si70xx
 provides:
   - name: si70xx_driver
@@ -24,3 +24,6 @@ source:
 documentation:
     docset: gecko-platform
     document: platform-hardware-driver/si70xx
+template_contribution:
+  - name: component_catalog
+    value: si70xx_driver

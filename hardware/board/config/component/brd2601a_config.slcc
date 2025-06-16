@@ -2,7 +2,7 @@
 - id: brd2601a_config
 - label: brd2601a config
 - description: Configuration files for BRD2601A
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: production
 - metadata:
@@ -179,6 +179,11 @@
       instance: exp_16
     path: brd2601a/sl_emlib_gpio_init_exp_16_config.h
   - override:
+      component: i2c
+      file_id: i2c_config
+      instance: sensor
+    path: brd2601a/sl_i2c_sensor_config.h
+  - override:
       component: i2cspm
       file_id: i2cspm_config
       instance: sensor
@@ -217,66 +222,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd2601a/sl_iostream_usart_vcom_config.h
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd2601a/iot_flash_cfg_msc.h
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: exp
-    path: brd2601a/iot_flash_cfg_exp.h
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd2601a/iot_flash_cfg_spiflash.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: sensor
-    path: brd2601a/iot_i2c_cfg_sensor.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: exp
-    path: brd2601a/iot_i2c_cfg_exp.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: test
-    path: brd2601a/iot_i2c_cfg_test.h
-  - override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd2601a/iot_pwm_cfg_led0.h
-  - override:
-      component: iot_spi
-      file_id: iot_spi_cfg
-      instance: exp
-    path: brd2601a/iot_spi_cfg_exp.h
-  - override:
-      component: iot_spi
-      file_id: iot_spi_cfg
-      instance: loopback
-    path: brd2601a/iot_spi_cfg_loopback.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd2601a/iot_uart_cfg_vcom.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: exp
-    path: brd2601a/iot_uart_cfg_exp.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd2601a/iot_uart_cfg_loopback.h
   - override:
       component: mic_i2s_driver
       file_id: mic_i2s_config

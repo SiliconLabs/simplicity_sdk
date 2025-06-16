@@ -21,6 +21,8 @@
 
 #include "network-creator-security.h"
 #include "stack/include/zigbee-security-manager.h"
+#include "stack/include/network-formation.h"
+#include "stack/include/trust-center.h"
 
 #include "app/framework/security/af-security.h"
 #include "app/util/zigbee-framework/zigbee-device-common.h" // sl_zigbee_leave_request
@@ -32,36 +34,15 @@
 #if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_HA_DEVICES_TO_STAY == 1)
 #define ALLOW_HA_DEVICES_TO_STAY
 #endif
-#if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY == 1)
-#define BDB_JOIN_USES_INSTALL_CODE_KEY
-#endif
-#if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_REJOIN_WITH_WELL_KNOWN_KEY == 1)
-#define ALLOW_TC_REJOIN_WITH_WELL_KNOWN_KEY
-#endif
+
+bool allowTCRejoinWithWellknownKey = SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_REJOIN_WITH_WELL_KNOWN_KEY;
+uint16_t allowTCRejoinWithWellknownKeyTimeOut = SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_REJOINS_USING_WELL_KNOWN_KEY_TIMEOUT_SEC;
 
 #ifdef EZSP_HOST
-// NCP
-  #define allowTrustCenterLinkKeyRequests() \
-  sl_zigbee_ezsp_set_policy(SL_ZIGBEE_EZSP_TC_KEY_REQUEST_POLICY, SL_ZIGBEE_EZSP_ALLOW_TC_KEY_REQUESTS_AND_SEND_CURRENT_KEY)
-  #define allowTrustCenterLinkKeyRequestsAndGenerateNewKeys() \
-  sl_zigbee_ezsp_set_policy(SL_ZIGBEE_EZSP_TC_KEY_REQUEST_POLICY, SL_ZIGBEE_EZSP_ALLOW_TC_KEY_REQUEST_AND_GENERATE_NEW_KEY)
   #define setTransientKeyTimeout(timeS) \
   sl_zigbee_ezsp_set_value(SL_ZIGBEE_EZSP_VALUE_TRANSIENT_KEY_TIMEOUT_S, 2, (uint8_t *)(&timeS));
-  #define setTcRejoinsUsingWellKnownKeyAllowed(allow) \
-  (void)sl_zigbee_ezsp_set_policy(SL_ZIGBEE_EZSP_TC_REJOINS_USING_WELL_KNOWN_KEY_POLICY, (allow))
-  #define setTcRejoinsUsingWellKnownKeyTimeout(timeout) \
-  (void)sl_zigbee_ezsp_set_configuration_value(SL_ZIGBEE_EZSP_CONFIG_TC_REJOINS_USING_WELL_KNOWN_KEY_TIMEOUT_S, (timeout))
 #else
-// SoC
-  #define allowTrustCenterLinkKeyRequests() \
-  sl_zigbee_set_trust_center_link_key_request_policy(SL_ZIGBEE_ALLOW_TC_LINK_KEY_REQUEST_AND_SEND_CURRENT_KEY)
-  #define allowTrustCenterLinkKeyRequestsAndGenerateNewKeys() \
-  sl_zigbee_set_trust_center_link_key_request_policy(SL_ZIGBEE_ALLOW_TC_LINK_KEY_REQUEST_AND_GENERATE_NEW_KEY)
   #define setTransientKeyTimeout sl_zigbee_set_transient_key_timeout_s
-  #define setTcRejoinsUsingWellKnownKeyAllowed(allow) \
-  sl_zigbee_set_tc_rejoins_using_well_known_key_allowed((allow))
-  #define setTcRejoinsUsingWellKnownKeyTimeout(timeout) \
-  sl_zigbee_set_tc_rejoins_using_well_known_key_timeout_sec(timeout)
 #endif
 
 #ifndef SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_NETWORK_OPEN_TIME_S
@@ -82,7 +63,7 @@
 bool allowHaDevices = ALLOW_HA_DEVICES;
 sl_zigbee_key_data_t distributedKey = ZIGBEE_3_DISTRIBUTED_SECURITY_LINK_KEY;
 #ifdef SL_CATALOG_ZIGBEE_DIRECT_ZDD_PRESENT
-extern void sli_zigbee_zdd_update_keys(sl_zigbee_initial_security_state_t *state);
+extern void sli_zigbee_direct_zdd_update_keys(sl_zigbee_initial_security_state_t *state);
 #endif // SL_CATALOG_ZIGBEE_DIRECT_ZDD_PRESENT
 
 // -----------------------------------------------------------------------------
@@ -100,19 +81,26 @@ void sl_zigbee_af_network_creator_security_init_cb(uint8_t init_level)
 {
   (void)init_level;
 
-#if defined(EZSP_HOST) && defined(BDB_JOIN_USES_INSTALL_CODE_KEY)
-  sl_status_t status = sl_zigbee_af_set_ezsp_policy(SL_ZIGBEE_EZSP_TRUST_CENTER_POLICY,
-                                                    (SL_ZIGBEE_EZSP_DECISION_ALLOW_JOINS | SL_ZIGBEE_EZSP_DECISION_JOINS_USE_INSTALL_CODE_KEY),
-                                                    "Trust Center Policy",
-                                                    "Joins using install code only");
+#if defined(EZSP_HOST)
+  if (sl_zigbee_get_join_uses_install_code()) {
+    sl_status_t status = sl_zigbee_af_set_ezsp_policy(SL_ZIGBEE_EZSP_TRUST_CENTER_POLICY,
+                                                      (SL_ZIGBEE_EZSP_DECISION_ALLOW_JOINS | SL_ZIGBEE_EZSP_DECISION_JOINS_USE_INSTALL_CODE_KEY),
+                                                      "Trust Center Policy",
+                                                      "Joins using install code only");
 
-  if (SL_STATUS_OK != status) {
-    sl_zigbee_af_core_println("%s: %s: 0x%02X",
-                              SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_PLUGIN_NAME,
-                              "failed to configure joining using install code only",
-                              status);
+    if (SL_STATUS_OK != status) {
+      sl_zigbee_af_core_println("%s: %s: 0x%02X",
+                                SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_PLUGIN_NAME,
+                                "failed to configure joining using install code only",
+                                status);
+    }
   }
-#endif // EZSP_HOST && BDB_JOIN_USES_INSTALL_CODE_KEY
+
+#endif // EZSP_HOST
+
+#if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY == 1)
+  sl_zigbee_set_join_uses_install_code(true);
+#endif // (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY == 1)
 
   sl_zigbee_af_network_event_init(openNetworkNetworkEvents,
                                   openNetworkNetworkEventHandler);
@@ -130,9 +118,9 @@ void sli_zigbee_af_network_creator_security_stack_status_callback(sl_status_t st
     // BDB 3.1 should be making it the default behavior
     // unless the TC is intentionally configured to use hashed link key
     if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_USING_HASHED_LINK_KEY == 1) {
-      allowTrustCenterLinkKeyRequests();
+      sl_zigbee_set_trust_center_link_key_request_policy(SL_ZIGBEE_ALLOW_TC_LINK_KEY_REQUEST_AND_SEND_CURRENT_KEY);
     } else {
-      allowTrustCenterLinkKeyRequestsAndGenerateNewKeys();
+      sl_zigbee_set_trust_center_link_key_request_policy(SL_ZIGBEE_ALLOW_TC_LINK_KEY_REQUEST_AND_GENERATE_NEW_KEY);
     }
 
     // This bit is not saved to a token, so make sure that our security bitmask
@@ -269,7 +257,7 @@ sl_status_t sl_zigbee_af_network_creator_security_start(bool centralizedNetwork)
 #endif
 
 #ifdef SL_CATALOG_ZIGBEE_DIRECT_ZDD_PRESENT
-  sli_zigbee_zdd_update_keys(&state);
+  sli_zigbee_direct_zdd_update_keys(&state);
 #endif // SL_CATALOG_ZIGBEE_DIRECT_ZDD_PRESENT
   // Set the initial security data.
   status = sl_zigbee_set_initial_security_state(&state);
@@ -288,10 +276,10 @@ sl_status_t sl_zigbee_af_network_creator_security_start(bool centralizedNetwork)
 
 sl_status_t sl_zigbee_af_network_creator_security_open_network(void)
 {
-#if defined(BDB_JOIN_USES_INSTALL_CODE_KEY)
-  sl_zigbee_af_core_println("open-network not permitted when install code joins are required");
-  return SL_STATUS_INVALID_STATE;
-#endif //BDB_JOIN_USES_INSTALL_CODE_KEY
+  if (sl_zigbee_get_join_uses_install_code()) {
+    sl_zigbee_af_core_println("open-network not permitted when install code joins are required");
+    return SL_STATUS_INVALID_STATE;
+  }
   sl_status_t status = SL_STATUS_OK;
   sl_zigbee_current_security_state_t securityState;
 
@@ -303,13 +291,10 @@ sl_status_t sl_zigbee_af_network_creator_security_open_network(void)
   // For a distributed network, don't store the ZIGBEE_3_CENTRALIZED_SECURITY_LINK_KEY
   // in the transient link key table.
   if (!(securityState.bitmask & SL_ZIGBEE_DISTRIBUTED_TRUST_CENTER_MODE)) {
-    #if defined(ALLOW_TC_REJOIN_WITH_WELL_KNOWN_KEY)
-    #if defined(SL_ZIGBEE_TEST)
-    #define SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_REJOINS_USING_WELL_KNOWN_KEY_TIMEOUT_SEC 0
-    #endif
-    setTcRejoinsUsingWellKnownKeyTimeout(SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_TC_REJOINS_USING_WELL_KNOWN_KEY_TIMEOUT_SEC);
-    setTcRejoinsUsingWellKnownKeyAllowed(true);
-    #endif
+    if (allowTCRejoinWithWellknownKey == true) {
+      sl_zigbee_set_tc_rejoins_using_well_known_key_timeout_sec(allowTCRejoinWithWellknownKeyTimeOut);
+      sl_zigbee_set_tc_rejoins_using_well_known_key_allowed(true);
+    }
 
     #if (defined(SL_ZIGBEE_AF_HAS_COORDINATOR_NETWORK) || defined(SL_CATALOG_ZIGBEE_TEST_HARNESS_Z3_PRESENT))
     if (sl_zigbee_af_get_node_id() == SL_ZIGBEE_TRUST_CENTER_NODE_ID) {
@@ -406,9 +391,9 @@ static void openNetworkNetworkEventHandler(sl_zigbee_af_event_t * event)
                                                      &decision);
   if (eszpStatus == SL_ZIGBEE_EZSP_SUCCESS && !(decision & SL_ZIGBEE_EZSP_DECISION_DEFER_JOINS)) {
     sl_zigbee_ezsp_decision_bitmask_t policy = (SL_ZIGBEE_EZSP_DECISION_ALLOW_JOINS | SL_ZIGBEE_EZSP_DECISION_ALLOW_UNSECURED_REJOINS);
-#if defined(BDB_JOIN_USES_INSTALL_CODE_KEY)
-    policy |= SL_ZIGBEE_EZSP_DECISION_JOINS_USE_INSTALL_CODE_KEY;
-#endif // BDB_JOIN_USES_INSTALL_CODE_KEY
+    if (sl_zigbee_get_join_uses_install_code()) {
+      policy |= SL_ZIGBEE_EZSP_DECISION_JOINS_USE_INSTALL_CODE_KEY;
+    }
     sl_zigbee_af_set_ezsp_policy(SL_ZIGBEE_EZSP_TRUST_CENTER_POLICY,
                                  policy,
                                  "Trust Center Policy",

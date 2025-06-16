@@ -299,7 +299,7 @@ void setScanChannel(sl_cli_command_arg_t *arguments)
     sl_zigbee_set_zll_primary_channel_mask(1 << channel);
 
 #ifdef SL_ZIGBEE_AF_PLUGIN_ZLL_COMMISSIONING_SERVER
-    if (sl_zigbee_network_state() == SL_ZIGBEE_NO_NETWORK) {
+    if (sl_zigbee_af_network_state() == SL_ZIGBEE_NO_NETWORK) {
       // If we are not joined, then we also change the default channel.
       sl_zigbee_set_logical_and_radio_channel(channel);
       sl_zigbee_af_app_println("Setting default channel to %d", channel);

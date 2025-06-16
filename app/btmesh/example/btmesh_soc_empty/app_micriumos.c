@@ -31,8 +31,10 @@
 #include <stdbool.h>
 #include "os.h"
 #include "sl_memory_manager.h"
+#include "sl_main_kernel.h"
 #include "app_assert.h"
 #include "app.h"
+#include "sl_main_init.h"
 
 #define APP_TASK_STACK_SIZE    1024u
 #define APP_TASK_PRIO          31u
@@ -46,10 +48,20 @@ static OS_TCB  app_task_handle;
 // Semaphore handle
 static OS_SEM  app_semaphore_handle;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for RTOS before the kernel is started
+void app_permanent_memory_alloc(void)
 {
   RTOS_ERR err;
+  // Create the semaphore
+  OSSemCreate(&app_semaphore_handle, "Application semaphore", 0, &err);
+  app_assert(err.Code == RTOS_ERR_NONE,
+             "Application semaphore creation failed.");
+
+  //If the start task is reused, there is no need to start another application task
+  if (sl_main_start_task_should_continue()) {
+    return;
+  }
+
   // Allocate stack for the task
   size_t stack_size = APP_TASK_STACK_SIZE;
   stack_size -= (stack_size % CPU_CFG_STK_ALIGN_BYTES);
@@ -72,10 +84,6 @@ void app_init_runtime(void)
                &err);
   app_assert(err.Code == RTOS_ERR_NONE,
              "Application task creation failed.");
-  // Create the semaphore
-  OSSemCreate(&app_semaphore_handle, "Application semaphore", 0, &err);
-  app_assert(err.Code == RTOS_ERR_NONE,
-             "Application semaphore creation failed.");
 }
 
 /******************************************************************************

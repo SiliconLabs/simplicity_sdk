@@ -29,7 +29,7 @@
  ******************************************************************************/
 
 #include "sl_hal_sysrtc.h"
-#include "app.h"
+#include "sl_main_init.h"
 
 void app_init(void)
 {

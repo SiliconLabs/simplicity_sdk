@@ -55,11 +55,10 @@
 
 /* Macro for setting HIGH uint8_t and LOW uint8_t in wVar uint16_t variable */
 #define WORD_SET_HIGH_LOW_BYTES(wVar, bHIGHByte, bLOWByte) BYTE_GET_HIGH_BYTE_IN_WORD(wVar) = bHIGHByte; \
-                                                           BYTE_GET_LOW_BYTE_IN_WORD(wVar)  = bLOWByte
+  BYTE_GET_LOW_BYTE_IN_WORD(wVar)  = bLOWByte
 
 /* States for ApplicationPoll function */
-enum
-{
+enum {
   stateStartup,
   stateIdle,
   stateTxSerial,
@@ -70,8 +69,7 @@ enum
 };
 
 /* States for FUNC_ID_NVM_BACKUP_RESTORE operation */
-typedef enum
-{
+typedef enum {
   NVMBackupRestoreOperationOpen,
   NVMBackupRestoreOperationRead,
   NVMBackupRestoreOperationWrite,
@@ -79,8 +77,7 @@ typedef enum
 } eNVMBackupRestoreOperation;
 
 /* Return values for FUNC_ID_NVM_BACKUP_RESTORE operation */
-typedef enum
-{
+typedef enum {
   NVMBackupRestoreReturnValueOK = false,                /* Everything is OK, so far */
   NVMBackupRestoreReturnValueError = true,              /* Non specific error */
   NVMBackupRestoreReturnValueOperationMismatch,         /* Error mixing read and write */
@@ -94,9 +91,7 @@ typedef enum
 #endif
 #define APPL_SLAVENODEPARM_MAX  APPL_NODEPARM_MAX
 
-
-typedef enum _E_SERIALAPI_SET_LEARN_MODE_
-{
+typedef enum _E_SERIALAPI_SET_LEARN_MODE_{
   SERIALPI_SET_LEARN_MODE_ZW_SET_LEARN_MODE_DISABLE           = ZW_SET_LEARN_MODE_DISABLE,
   SERIALPI_SET_LEARN_MODE_ZW_SET_LEARN_MODE_CLASSIC           = ZW_SET_LEARN_MODE_CLASSIC,
   SERIALPI_SET_LEARN_MODE_ZW_SET_LEARN_MODE_NWI               = ZW_SET_LEARN_MODE_NWI,
@@ -105,7 +100,6 @@ typedef enum _E_SERIALAPI_SET_LEARN_MODE_
 
   /* slave_learn_plus/ctrl_learn extensions */
   SERIALPI_SET_LEARN_MODE_LEARN_PLUS_OFFSET                   = 0x80,
-
 } E_SERIALAPI_SET_LEARN_MODE;
 
 #ifdef ZW_SLAVE
@@ -117,8 +111,7 @@ typedef enum _E_SERIALAPI_SET_LEARN_MODE_
 /* SerialAPI functionality support definitions */
 #define SUPPORT_SEND_DATA_TIMING                        1
 /* Definitions for SerialAPI startup */
-typedef enum
-{
+typedef enum {
   SERIALAPI_CONFIG_STARTUP_NOTIFICATION_ENABLED = 1,
   SERIALAPI_CONFIG_UNDEFINED = 0xFE
 } SERIALAPI_CONFIG_T;
@@ -136,15 +129,15 @@ typedef enum
 #ifdef ZW_SECURITY_PROTOCOL
 #define SUPPORT_APPLICATION_SECURITY_EVENT              0
 #define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  1
-#if (SUPPORT_ZW_GET_SECURITY_KEYS | \
-     SUPPORT_ZW_SET_SECURITY_S0_NETWORK_KEY | \
-     SUPPORT_ZW_GET_SECURITY_S2_PUBLIC_DSK | \
-     SUPPORT_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID)
+#if (SUPPORT_ZW_GET_SECURITY_KEYS             \
+     | SUPPORT_ZW_SET_SECURITY_S0_NETWORK_KEY \
+     | SUPPORT_ZW_GET_SECURITY_S2_PUBLIC_DSK  \
+     | SUPPORT_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID)
 #define SUPPORT_ZW_SECURITY_SETUP                       1
 #else
 #define SUPPORT_ZW_SECURITY_SETUP                       0
 #endif
-#else  /*#ifdef ZW_SECURITY_PROTOCOL*/
+#else /*#ifdef ZW_SECURITY_PROTOCOL*/
 #define SUPPORT_SERIAL_API_APPL_NODE_INFORMATION_CMD_CLASSES  0
 #define SUPPORT_ZW_SECURITY_SETUP                       0
 #define SUPPORT_APPLICATION_SECURITY_EVENT              0
@@ -210,29 +203,29 @@ extern void DoRespond_workbuf(
 
 extern void set_state_and_notify(
   uint8_t st
-);
+  );
 
 extern void set_state(
   uint8_t st
-);
+  );
 
 extern bool Request(
   uint8_t cmd,             /*IN   Command                  */
   uint8_t *pData,         /*IN   pointer to data          */
   uint8_t len              /*IN   Length of data           */
-);
+  );
 
 extern bool RequestUnsolicited(
   uint8_t cmd,             /*IN   Command                  */
   uint8_t *pData,         /*IN   pointer to data          */
   uint8_t len              /*IN   Length of data           */
-);
+  );
 
 extern void Respond(
   uint8_t cmd,             /*IN   Command                  */
   uint8_t const * pData,         /*IN   pointer to data          */
   uint8_t len              /*IN   Length of data           */
-);
+  );
 extern void DoRespond(uint8_t retVal);
 
 extern void PopCallBackQueue(void);
@@ -244,21 +237,19 @@ extern uint8_t GetCallbackCnt(void);
 extern void ZW_GetMfgTokenDataCountryFreq(void *data);
 
 // Prioritized events that can wakeup protocol thread.
-typedef enum EApplicationEvent
-{
+typedef enum EApplicationEvent{
   EAPPLICATIONEVENT_ZWRX = 0,
   EAPPLICATIONEVENT_ZWCOMMANDSTATUS,
   EAPPLICATIONEVENT_STATECHANGE,
   EAPPLICATIONEVENT_SERIALDATARX,
-  EAPPLICATIONEVENT_SERIALTIMEOUT,  
+  EAPPLICATIONEVENT_SERIALTIMEOUT,
   EAPPLICATIONEVENT_TIMER
 } EApplicationEvent;
 
 /* FUNC_ID_SERIAL_API_STARTED Capabilities bit field definitions */
-typedef enum
-{
-  SERIAL_API_STARTED_CAPABILITIES_L0NG_RANGE = 1<<0 // Controller is Z-Wave Long Range capable
-  /* Can be extended with future capability bits here */
+typedef enum {
+  SERIAL_API_STARTED_CAPABILITIES_L0NG_RANGE = 1 << 0 // Controller is Z-Wave Long Range capable
+                                               /* Can be extended with future capability bits here */
 } eSerialAPIStartedCapabilities;
 
 extern void ApplicationNodeUpdate(uint8_t bStatus, uint16_t nodeID, uint8_t *pCmd, uint8_t bLen);

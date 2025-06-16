@@ -27,8 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
-#include "sl_common.h"
+#include "sl_main_init.h"
 #include "sl_bluetooth.h"
 #include "app_assert.h"
 #include "app.h"
@@ -53,7 +52,7 @@ static void bcn_setup_adv_beaconing(void);
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -64,7 +63,7 @@ SL_WEAK void app_init(void)
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //
@@ -75,7 +74,7 @@ SL_WEAK void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -164,7 +163,7 @@ static void bcn_setup_adv_beaconing(void)
     // Set as 1025 and converted to correct format.
     { UINT16_TO_BYTE1(1025), UINT16_TO_BYTE0(1025) },
 
-    // A dummy value which will be eventually overwritten
+    // A placeholder value which will be eventually overwritten
     0
     };
 

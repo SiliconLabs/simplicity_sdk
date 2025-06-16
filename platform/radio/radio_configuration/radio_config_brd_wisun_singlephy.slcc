@@ -1,6 +1,6 @@
 id: radio_config_brd_wisun_singlephy
 label: Custom Radio Configuration for wisun singlephy application based on boards
-package: platform
+package: platform_default_radio_confs
 description: Triggers Radio Configurator UI for setting a proper based on radio boards
 category: Platform|Radio Configuration
 quality: production

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<multi_phy_configuration part_family="efr32xg22" part_revision="A0" rail_adapter_version="rail_api_3.x" status_code="0" xsd_version="0.0.17">
+  <base_channel_configurations>
+    <base_channel_configuration name="ble_viterbi1M" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_viterbi1M">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi1M</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_viterbi1M" name="ble_viterbi2M" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_2M_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_viterbi2M_0_34">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>34</channel_number_end>
+          <max_power>300</max_power>
+        </channel_config_entry>
+        <channel_config_entry name="ble_viterbi2M_35">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>35</channel_number_start>
+          <channel_number_end>35</channel_number_end>
+          <max_power>182</max_power>
+        </channel_config_entry>
+        <channel_config_entry name="ble_viterbi2M_36">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>36</channel_number_start>
+          <channel_number_end>36</channel_number_end>
+          <max_power>157</max_power>
+        </channel_config_entry>
+        <channel_config_entry name="ble_viterbi2M_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>37</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>125</max_power>
+        </channel_config_entry>
+        <channel_config_entry name="ble_viterbi2M_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>58</max_power>
+        </channel_config_entry>
+        <channel_config_entry name="ble_viterbi2M_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>300</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi2M</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_viterbi1M" name="ble_LR_DSA_125kb" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LongRange_dsa_125kbps"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_LR_DSA_125kb">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_125kb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_viterbi1M" name="ble_LR_DSA_500kb" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LongRange_dsa_500kbps"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_LR_DSA_500kb">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_500kb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_viterbi1M" name="ble_LR_DSA_1Mb" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_Concurrent"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_LR_DSA_1Mb">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>MODEM_VTBLETIMING_VTBLETIMINGSEL</key>
+              <value>0</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_1Mb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <!-- <base_channel_configuration name="quuppa_viterbi1M" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Quuppa_1M_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="quuppa_viterbi1M_0">
+          <base_frequency>2401000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>0</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_WHITEINIT_WHITEINIT</key>
+              <value>86</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="quuppa_viterbi1M_1">
+          <base_frequency>2401000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>1</channel_number_start>
+          <channel_number_end>1</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_WHITEINIT_WHITEINIT</key>
+              <value>101</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="quuppa_viterbi1M_2">
+          <base_frequency>2401000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>2</channel_number_start>
+          <channel_number_end>2</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_WHITEINIT_WHITEINIT</key>
+              <value>88</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="quuppa_viterbi1M_3">
+          <base_frequency>2480000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>2</physical_channel_offset>
+          <channel_number_start>3</channel_number_start>
+          <channel_number_end>3</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_WHITEINIT_WHITEINIT</key>
+              <value>102</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>quuppa_viterbi1M</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration> -->
+    <base_channel_configuration name="ieee802154_2p4_antdiv" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_2p4_antdiv">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ieee802154_2p4_antdiv</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration name="ieee802154_2p4_coherent" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_2p4_coherent">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ieee802154_2p4_coherent</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <!-- <base_channel_configuration name="rfsense_ook_1kbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_RFSENSE_2450M_OOK_1kbps"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="rfsense_ook_1kbps_0">
+          <base_frequency>2450000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>0</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>MODEM_TXBR_TXBRNUM</key>
+              <value>28800</value>
+            </override>
+            <override>
+              <key>MODEM_TXBR_TXBRDEN</key>
+              <value>6</value>
+            </override>
+            <override>
+              <key>MODEM_PRE_TXBASES</key>
+              <value>0</value>
+            </override>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>38400000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>rfsense_ook_1kbps</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration> -->
+  </base_channel_configurations>
+</multi_phy_configuration>

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Demand Response Load Control (DRLC) cluster server. For more information about the component code, see the comments in app/framework/plugin/drlc-server/drlc-server.h.  This component requires extending in order to manage the event table (adding/removing events).  It simply serves up the events that are entered into the table.
 label: Demand Response Load Control Cluster Server
 quality: evaluation

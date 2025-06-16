@@ -54,6 +54,13 @@ void sl_zigbee_af_green_power_cluster_gp_sink_cli_commissioning_window_extend(SL
   sl_zigbee_af_green_power_cluster_gp_sink_commissioning_window_extend(commissioningWindow);
 }
 
+// Sink Commissioning Window Extend
+void sl_zigbee_af_green_power_cluster_gp_sink_cli_commissioning_window_close(SL_CLI_COMMAND_ARG)
+{
+  (void)arguments;
+  sl_zigbee_af_green_power_cluster_gp_sink_close_commissioning_window();
+}
+
 void sl_zigbee_af_green_power_server_cli_clear_sink_table(SL_CLI_COMMAND_ARG)
 {
   sl_zigbee_gp_sink_table_clear_all();

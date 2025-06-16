@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component contains the functionality necessary for creating a Zigbee 3.0 test harness application.
 label: Zigbee 3.0 Test Harness
 quality: production

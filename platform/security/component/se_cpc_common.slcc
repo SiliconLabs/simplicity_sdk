@@ -1,5 +1,5 @@
 id: se_cpc_common
-package: platform
+package: security_se_cpc
 label: Secure Engine Co-Processor Communcation Common
 description: >-
   This component provides common files for Secure Engine mailbox support over CPC

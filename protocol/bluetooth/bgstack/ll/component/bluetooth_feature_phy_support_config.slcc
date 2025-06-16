@@ -1,6 +1,6 @@
 id: bluetooth_feature_phy_support_config
 label: Restrict PHYs supported by the chip
-package: Bluetooth
+package: bluetooth_le_controller
 description: >
   Select which PHYs the chip software supports.
   Selecting fewer PHYs than the radio supports implies a smaller flash footprint.

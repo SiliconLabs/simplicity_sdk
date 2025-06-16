@@ -34,6 +34,10 @@
 #ifndef PA_CURVE_TYPES_EFR32_H
 #define PA_CURVE_TYPES_EFR32_H
 
+#if     SL_RAIL_3_API
+#include "sl_rail_util_pa_curve_types_efr32.h"
+#endif//SL_RAIL_3_API
+
 #include "rail_types.h"
 
 #ifdef __cplusplus
@@ -146,12 +150,14 @@ typedef struct RAIL_TxPowerCurvesConfig {
  * @brief PA conversion algorithms types for converting between dBm and power levels
  */
 RAIL_ENUM(RAIL_PaConversionAlgorithm_t) {
-  /** Piecewise linear fit */
+  /** Piecewise linear fit. */
   RAIL_PA_ALGORITHM_PIECEWISE_LINEAR,
-  /** Mapping table between quantities */
+  /** Mapping table between quantities. */
   RAIL_PA_ALGORITHM_MAPPING_TABLE,
-  /** Mapping table between pa power settings and dBm values */
+  /** Mapping table between pa power settings and dBm values. */
   RAIL_PA_ALGORITHM_DBM_POWERSETTING_MAPPING_TABLE,
+  /** Algorithm count.  Must be last. */
+  RAIL_PA_ALGORITHM_COUNT
 };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -159,6 +165,7 @@ RAIL_ENUM(RAIL_PaConversionAlgorithm_t) {
 #define RAIL_PA_ALGORITHM_PIECEWISE_LINEAR               ((RAIL_PaConversionAlgorithm_t) RAIL_PA_ALGORITHM_PIECEWISE_LINEAR)
 #define RAIL_PA_ALGORITHM_MAPPING_TABLE                  ((RAIL_PaConversionAlgorithm_t) RAIL_PA_ALGORITHM_MAPPING_TABLE)
 #define RAIL_PA_ALGORITHM_DBM_POWERSETTING_MAPPING_TABLE ((RAIL_PaConversionAlgorithm_t) RAIL_PA_ALGORITHM_DBM_POWERSETTING_MAPPING_TABLE)
+#define RAIL_PA_ALGORITHM_COUNT                          ((RAIL_PaConversionAlgorithm_t) RAIL_PA_ALGORITHM_COUNT)
 #endif//DOXYGEN_SHOULD_SKIP_THIS
 
 /**

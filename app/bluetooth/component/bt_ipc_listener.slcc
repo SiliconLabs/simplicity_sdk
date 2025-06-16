@@ -1,7 +1,7 @@
 ---
 id: bt_ipc_listener
 label: Bluetooth IPC Listener
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Listens to Bluetooth events published by the Bluetooth Event System IPC
   (inter-process communication) component.

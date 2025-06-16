@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 id: zigbee_af_support
 label: Application Framework Support Component
 category: Zigbee|Green Power
@@ -52,6 +52,16 @@ include:
   - path: protocol/zigbee/app/framework/plugin/groups-server
     file_list:
       - path: groups-server-common.h
+  - path: protocol/zigbee/app/framework/util
+    file_list:
+      - path: print.h
+        condition:
+          - zigbee_ncp
+          - zigbee_simulation
+      - path: zcl-debug-print.h
+        condition:
+          - zigbee_ncp
+          - zigbee_simulation
 template_file:
   - path: protocol/zigbee/app/framework/util/template/zigbee_zcl_callback_dispatcher.h.jinja
   - path: protocol/zigbee/app/framework/util/template/zigbee_zcl_callback_dispatcher.c.jinja

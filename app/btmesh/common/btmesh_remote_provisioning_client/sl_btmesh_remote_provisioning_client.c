@@ -41,13 +41,7 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup remote_provisioning_client BT Mesh Remote Provisioning Client
- * @brief BT Mesh Remote provisioning client component implementation
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Initialize Remote Provisioning Client component
  ******************************************************************************/
 static void mesh_remote_provisioning_client_init(void);
@@ -76,9 +70,15 @@ static void mesh_remote_provisioning_client_init(void)
 {
   sl_status_t sc = sl_btmesh_remote_provisioning_client_init();
 
-  app_assert_status_f(sc, "Failed to initialize remote provisioning client");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Failed to initialize remote provisioning client");
+  }
 
-  log_info("Remote provisioning client initialized" NL);
+  if (sc == SL_STATUS_OK) {
+    log_info("Remote provisioning client initialized" NL);
+  } else {
+    log_error("Remote provisioning client does not exist in DCD" NL);
+  }
 }
-
-/** @} (end addtogroup remote_provisioning_client) */

@@ -1,6 +1,6 @@
 id: zigbee_direct_cli
 label: Zigbee Direct Command Line Interface
-package: Zigbee
+package: multiprotocol
 category: Zigbee|Zigbee Direct ZDD
 quality: production
 description: Zigbee Direct Command Line Interface

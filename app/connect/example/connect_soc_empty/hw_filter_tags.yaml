@@ -4,12 +4,12 @@ tag:
   - hardware:
       device:
         memory:
-          flash: 188
-          ram: 30
+          flash: 190
+          ram: 31
       board:
         rf_bands:
           - any
         communication:
           - vcom
           - pti
-  
+

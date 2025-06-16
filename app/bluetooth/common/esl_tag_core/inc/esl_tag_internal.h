@@ -105,8 +105,14 @@ extern sl_status_t esl_core_start_advertising(void);
 /******************************************************************************
  * Purge any pending responses that aren't sent yet.
  * @note: Defined in esl_tag_response.c but not exposed to the public ESL API
+ * @param[in] payload_limit response payload size limit, set 0 to use the max.
+ *                          ESL response payload size defined by the standard
+ *                          (see @ref ESL_PAYLOAD_MAX_LENGTH) or pass a value in
+ *                          range ESL_PAYLOAD_MIN_LENGTH:ESL_PAYLOAD_MAX_LENGTH.
+ *                          Values out of this range will be ignored and
+ *                          ESL_PAYLOAD_MAX_LENGTH will be used for init.
  *****************************************************************************/
-extern void esl_core_purge_responses(void);
+extern void esl_core_purge_responses(uint8_t payload_limit);
 
 /******************************************************************************
  * Re-schedule pending commands if there're any.
@@ -125,6 +131,16 @@ extern void esl_reschedule_delayed_commands(uint32_t current_absolute_time);
  *        The function is defined in esl_tag_core.c
  *****************************************************************************/
 extern uint16_t esl_core_get_sync_handle(void);
+
+/******************************************************************************
+ * Get the ESL response payload size limit based on the current response slot
+ * spacing and the PHY used for PAwR advertising.
+ * @return ESL response payload size limit in bytes.
+ * @note: The current value is calculated on the PAwR sync transfer received
+ *        event.
+ *        The function is defined in esl_tag_core.c
+ *****************************************************************************/
+extern uint16_t esl_core_get_response_payload_limit(void);
 
 /******************************************************************************
  * Get request event value for PAwR response.

@@ -36,6 +36,7 @@
 #define ZAF_FILE_ID_BASIC_SET                   (10)
 #define ZAF_FILE_ID_CENTRAL_SCENE_CONFIG        (11)
 #define ZAF_FILE_ID_APP_NAME                    (12)
+#define ZAF_FILE_ID_CC_USER_CODE_HEADER         (13)
 //Add file IDs for single files here.
 
 //Base file ID number for CC_Configuration. 100 file ID numbers are allocated for future use.

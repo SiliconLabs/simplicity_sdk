@@ -59,7 +59,7 @@ typedef struct {
  */
 typedef enum {
   Code_Success = 0,           ///< Success.
-  Code_Fail_Unknown,          ///< Default failed code with no helping indication. 
+  Code_Fail_Unknown,          ///< Default failed code with no helping indication.
   Code_Fail_NoMemory,         ///< Failed due to lack of memory.
   Code_Fail_LimitReached,     ///< A set limit is reached for this operation.
   Code_Fail_NotFound,         ///< A specific entity could not be found.
@@ -112,10 +112,10 @@ ReturnCode_t ZW_UserTask_CreateTask(ZW_UserTask_t* task, TaskHandle_t* xHandle);
  * @param pProtocolConfig Pointer to a statically allocated Protocol Config structure. @see SProtocolConfig_t
  * @return true if the main APP task was created successfully, false if not.
  */
-bool ZW_UserTask_ApplicationRegisterTask(  VOID_CALLBACKFUNC(appTaskFunc)(SApplicationHandles*),
-                                           uint8_t iZwRxQueueTaskNotificationBitNumber,
-                                           uint8_t iZwCommandStatusQueueTaskNotificationBitNumber,
-                                           const SProtocolConfig_t * pProtocolConfig);
+bool ZW_UserTask_ApplicationRegisterTask(VOID_CALLBACKFUNC(appTaskFunc)(SApplicationHandles*),
+                                         uint8_t iZwRxQueueTaskNotificationBitNumber,
+                                         uint8_t iZwCommandStatusQueueTaskNotificationBitNumber,
+                                         const SProtocolConfig_t * pProtocolConfig);
 
 /**
  * @}

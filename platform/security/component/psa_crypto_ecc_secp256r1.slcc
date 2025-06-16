@@ -1,5 +1,5 @@
 id: psa_crypto_ecc_secp256r1
-package: platform
+package: security_mbedtls
 label: secp256r1
 description: >-
   This component adds support for the secp256r1 elliptic curve,

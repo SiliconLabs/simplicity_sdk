@@ -3,7 +3,7 @@
  * @brief Core logic for throughput test peripheral role API.
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -46,6 +46,7 @@
 #endif // SL_CATALOG_CLI_PRESENT
 #include "throughput_ui_types.h"
 #include "throughput_common.h"
+#include "throughput_peripheral_rta.h"
 
 /*******************************************************************************
  *******************************  DEFINITIONS   ********************************
@@ -253,6 +254,8 @@ static uint8_t send_counter = 0;
  *****************************************************************************/
 static void throughput_peripheral_calculate_data_size(void)
 {
+  throughput_peripheral_rta_acquire();
+
   throughput_peripheral_calculate_indication_size();
   throughput_peripheral_calculate_notification_size();
   if (peripheral_state.test_type & sl_bt_gatt_indication) {
@@ -260,6 +263,8 @@ static void throughput_peripheral_calculate_data_size(void)
   } else {
     peripheral_state.data_size = notification_data_size;
   }
+
+  throughput_peripheral_rta_release();
 }
 
 /**************************************************************************//**
@@ -269,6 +274,8 @@ static void throughput_peripheral_advertising_start(void)
 {
   sl_status_t sc;
   int16_t tx_power_min, tx_power_max;
+
+  throughput_peripheral_rta_acquire();
 
   // Stop running advertising.
   sl_bt_advertiser_stop(advertising_set_handle);
@@ -363,6 +370,8 @@ static void throughput_peripheral_advertising_start(void)
     app_assert_status(sc);
   }
   #endif // SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_ADVERTISER_PRESENT
+
+  throughput_peripheral_rta_release();
 }
 
 /**************************************************************************//**
@@ -513,6 +522,9 @@ static void throughput_peripheral_on_refresh_timer_rise(app_timer_t *timer,
   (void) data;
   (void) timer;
   sl_status_t sc;
+
+  throughput_peripheral_rta_acquire();
+
   int8_t rssi = SL_BT_CONNECTION_RSSI_UNAVAILABLE;
   if (connection_handle_peripheral && peripheral_state.state != THROUGHPUT_STATE_TEST) {
     sc = sl_bt_connection_get_median_rssi(connection_handle_peripheral, &rssi);
@@ -523,6 +535,8 @@ static void throughput_peripheral_on_refresh_timer_rise(app_timer_t *timer,
       app_log_warning("Failed to get RSSI. sc = 0x%04lx" APP_LOG_NL, sc);
     }
   }
+
+  throughput_peripheral_rta_release();
 }
 
 /**************************************************************************//**
@@ -553,6 +567,8 @@ static void throughput_peripheral_on_indication_timer_rise(app_timer_t *timer,
 static void handle_throughput_peripheral_stop(bool send_transmission_on)
 {
   sl_status_t sc;
+
+  throughput_peripheral_rta_acquire();
 
   // If first called finish
   if (peripheral_state.state != THROUGHPUT_STATE_TEST_FINISH) {
@@ -651,6 +667,9 @@ static void handle_throughput_peripheral_stop(bool send_transmission_on)
       }
     }
   }
+
+  throughput_peripheral_rta_release();
+  throughput_peripheral_rta_proceed();
 }
 
 /**************************************************************************//**
@@ -719,6 +738,8 @@ static void handle_throughput_peripheral_start(bool send_transmission_on)
 
   // Start timer
   time_start = sl_sleeptimer_get_tick_count64();
+
+  throughput_peripheral_rta_proceed();
 }
 
 /**************************************************************************//**
@@ -909,6 +930,8 @@ static void throughput_peripheral_reset(void)
   peripheral_state.indications = sl_bt_gatt_disable;
   result_indicated = sl_bt_gatt_disable;
   transmission_indicated = sl_bt_gatt_disable;
+
+  throughput_peripheral_rta_proceed();
 }
 
 /*******************************************************************************
@@ -952,6 +975,8 @@ void throughput_peripheral_enable(void)
 
   throughput_ui_set_all(peripheral_state);
   central_test = false;
+
+  throughput_peripheral_rta_proceed();
 }
 
 /**************************************************************************//**
@@ -989,6 +1014,7 @@ sl_status_t throughput_peripheral_disable(void)
   }
 
   throughput_peripheral_on_state_change(peripheral_state.state);
+  throughput_peripheral_rta_proceed();
   return sc;
 }
 
@@ -1004,9 +1030,11 @@ void throughput_peripheral_step(void)
   if (peripheral_state.state == THROUGHPUT_STATE_TEST) {
     if (peripheral_state.test_type & sl_bt_gatt_indication) {
       throughput_peripheral_send_indication();
+      throughput_peripheral_rta_proceed();
     }
     if (peripheral_state.test_type & sl_bt_gatt_notification) {
       throughput_peripheral_send_notification();
+      throughput_peripheral_rta_proceed();
     }
   } else if (peripheral_state.state == THROUGHPUT_STATE_TEST_FINISH) {
     handle_throughput_peripheral_stop(send_transmission_state);
@@ -1025,6 +1053,8 @@ void throughput_peripheral_on_bt_event(sl_bt_msg_t *evt)
   if (!enabled) {
     return;
   }
+
+  throughput_peripheral_rta_acquire();
 
   // Handle stack events
   switch (SL_BT_MSG_ID(evt->header)) {
@@ -1316,6 +1346,8 @@ void throughput_peripheral_on_bt_event(sl_bt_msg_t *evt)
     default:
       break;
   }
+
+  throughput_peripheral_rta_release();
 }
 
 // Helper function to make the discovery and subscribing flow correct.
@@ -1328,6 +1360,8 @@ sl_status_t throughput_peripheral_set_tx_power(throughput_tx_power_t tx_power,
                                                bool power_control,
                                                bool deep_sleep)
 {
+  throughput_peripheral_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && peripheral_state.state != THROUGHPUT_STATE_TEST) {
     peripheral_state.tx_power_requested = tx_power;
@@ -1350,6 +1384,7 @@ sl_status_t throughput_peripheral_set_tx_power(throughput_tx_power_t tx_power,
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_peripheral_rta_release();
   return res;
 }
 
@@ -1360,6 +1395,8 @@ sl_status_t throughput_peripheral_set_data_size(uint8_t mtu,
                                                 uint8_t ind_data,
                                                 uint8_t not_data)
 {
+  throughput_peripheral_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && peripheral_state.state != THROUGHPUT_STATE_TEST) {
     peripheral_state.mtu_size = mtu;
@@ -1380,6 +1417,7 @@ sl_status_t throughput_peripheral_set_data_size(uint8_t mtu,
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_peripheral_rta_release();
   return res;
 }
 
@@ -1389,6 +1427,8 @@ sl_status_t throughput_peripheral_set_data_size(uint8_t mtu,
 sl_status_t throughput_peripheral_set_mode(throughput_mode_t mode,
                                            uint32_t amount)
 {
+  throughput_peripheral_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && peripheral_state.state != THROUGHPUT_STATE_TEST) {
     if (mode == THROUGHPUT_MODE_FIXED_LENGTH) {
@@ -1400,6 +1440,7 @@ sl_status_t throughput_peripheral_set_mode(throughput_mode_t mode,
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_peripheral_rta_release();
   return res;
 }
 
@@ -1408,6 +1449,8 @@ sl_status_t throughput_peripheral_set_mode(throughput_mode_t mode,
  *****************************************************************************/
 sl_status_t throughput_peripheral_start(throughput_notification_t type)
 {
+  throughput_peripheral_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && peripheral_state.state == THROUGHPUT_STATE_SUBSCRIBED) {
     if ((peripheral_state.indications & sl_bt_gatt_indication)
@@ -1440,6 +1483,8 @@ sl_status_t throughput_peripheral_start(throughput_notification_t type)
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_peripheral_rta_release();
+  throughput_peripheral_rta_proceed();
   return res;
 }
 
@@ -1448,12 +1493,15 @@ sl_status_t throughput_peripheral_start(throughput_notification_t type)
  *****************************************************************************/
 sl_status_t throughput_peripheral_stop(void)
 {
+  throughput_peripheral_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && peripheral_state.state == THROUGHPUT_STATE_TEST) {
     finish_test = true;
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_peripheral_rta_release();
   return res;
 }
 

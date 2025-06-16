@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_cbc_pkcs7
-package: platform
+package: security_mbedtls
 label: CBC Mode with PKCS#7 Padding
 description: >-
   This component provides support for the CBC block cipher chaining mode

@@ -24,7 +24,7 @@ void initialize_user_credential_database(void)
   if (!CC_UserCredential_get_next_user(0)) {
     uint16_t uuid = 1;
     unsigned char name[] = "Admin";
-    u3c_user user = {
+    u3c_user_t user = {
       .active = true,
       .unique_identifier = uuid,
       .modifier_node_id = 0,
@@ -38,7 +38,7 @@ void initialize_user_credential_database(void)
     CC_UserCredential_add_user(&user, name);
 
     unsigned char pin_code[] = { 0x33, 0x34, 0x39, 0x34 };
-    u3c_credential credential = {
+    u3c_credential_t credential = {
       .metadata = {
         .uuid = uuid,
         .type = CREDENTIAL_TYPE_PIN_CODE,
@@ -69,7 +69,7 @@ void user_credential_app_event_handler(const uint8_t event, const void *data)
       break;
     case CC_USER_CREDENTIAL_EVENT_LEARN_START: {
       const u3c_credential_type target_type =
-        ((const u3c_credential_learn_event_data *)data)->target.type;
+        ((const u3c_event_data_learn_start_t *)data)->target.type;
       if ((target_type == CREDENTIAL_TYPE_PIN_CODE) || (target_type == CREDENTIAL_TYPE_PASSWORD)) {
         // Request app to read credential
         zaf_event_distributor_enqueue_app_event(EVENT_APP_CREDENTIAL_LEARN_START);

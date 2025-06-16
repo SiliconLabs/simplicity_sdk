@@ -136,96 +136,20 @@ void sl_zigbee_ezsp_zigbee_key_establishment_handler(
 // -----------------------------------------------------------------------------
 // Weak implementation of public Callback sl_zigbee_af_gpep_incoming_message_cb
 WEAK(void sl_zigbee_af_gpep_incoming_message_cb(
-       // The status of the GPDF receive.
-       sl_zigbee_gp_status_t status,
-       // The gpdLink value of the received GPDF.
-       uint8_t gpdLink,
-       // The GPDF sequence number.
-       uint8_t sequenceNumber,
-       // The address of the source GPD.
-       sl_zigbee_gp_address_t *addr,
-       // The security level of the received GPDF.
-       sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-       // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-       sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-       // Whether the incoming GPDF had the auto-commissioning bit set.
-       bool autoCommissioning,
-       // Bidirectional information represented in bitfields, where bit0 holds
-       // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-       // for outgoing gpdf.
-       uint8_t bidirectionalInfo,
-       // The security frame counter of the incoming GDPF.
-       uint32_t gpdSecurityFrameCounter,
-       // The gpdCommandId of the incoming GPDF.
-       uint8_t gpdCommandId,
-       // The received MIC of the GPDF.
-       uint32_t mic,
-       // The proxy table index of the corresponding proxy table entry to the
-       // incoming GPDF.
-       uint8_t proxyTableIndex,
-       // The length of the GPD command payload.
-       uint8_t gpdCommandPayloadLength,
-       // The GPD command payload.
-       uint8_t *gpdCommandPayload,
-       // Rx packet information
-       sl_zigbee_rx_packet_info_t *packetInfo))
+       // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+       sl_zigbee_gp_params_t *params))
 {
-  (void)status;
-  (void)gpdLink;
-  (void)sequenceNumber;
-  (void)addr;
-  (void)gpdfSecurityLevel;
-  (void)gpdfSecurityKeyType;
-  (void)autoCommissioning;
-  (void)bidirectionalInfo;
-  (void)gpdSecurityFrameCounter;
-  (void)gpdCommandId;
-  (void)mic;
-  (void)proxyTableIndex;
-  (void)gpdCommandPayloadLength;
-  (void)gpdCommandPayload;
-  (void)packetInfo;
+  (void)params;
 }
 
 // A callback invoked by the ZigBee GP stack when a GPDF is received.
 void sl_zigbee_ezsp_gpep_incoming_message_handler(
-  // The status of the GPDF receive.
-  sl_zigbee_gp_status_t status,
-  // The gpdLink value of the received GPDF.
-  uint8_t gpdLink,
-  // The GPDF sequence number.
-  uint8_t sequenceNumber,
-  // The address of the source GPD.
-  sl_zigbee_gp_address_t *addr,
-  // The security level of the received GPDF.
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-  // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-  // Whether the incoming GPDF had the auto-commissioning bit set.
-  bool autoCommissioning,
-  // Bidirectional information represented in bitfields, where bit0 holds
-  // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-  // for outgoing gpdf.
-  uint8_t bidirectionalInfo,
-  // The security frame counter of the incoming GDPF.
-  uint32_t gpdSecurityFrameCounter,
-  // The gpdCommandId of the incoming GPDF.
-  uint8_t gpdCommandId,
-  // The received MIC of the GPDF.
-  uint32_t mic,
-  // The proxy table index of the corresponding proxy table entry to the
-  // incoming GPDF.
-  uint8_t proxyTableIndex,
-  // The length of the GPD command payload.
-  uint8_t gpdCommandPayloadLength,
-  // The GPD command payload.
-  uint8_t *gpdCommandPayload,
-  // Rx packet information
-  sl_zigbee_rx_packet_info_t *packetInfo)
+  // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+  sl_zigbee_gp_params_t *params)
 {
   sl_zigbee_af_push_callback_network_index();
-  sli_zigbee_af_gpep_incoming_message(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, packetInfo);
-  sl_zigbee_af_gpep_incoming_message_cb(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, packetInfo);
+  sli_zigbee_af_gpep_incoming_message(params);
+  sl_zigbee_af_gpep_incoming_message_cb(params);
   sl_zigbee_af_pop_network_index();
 }
 
@@ -781,9 +705,11 @@ void sl_zigbee_ezsp_counter_rollover_handler(sl_zigbee_counter_type_t type)
 //sli_zigbee_af_mux_invalid_rx_callback
 
 // -----------------------------------------------------------------------------
-// Weak implementation of public Callback sl_zigbee_af_mux_invalid_rx_cb
+/* Weak implementation of public Callback sl_zigbee_af_mux_invalid_rx_cb */
 WEAK(void sl_zigbee_af_mux_invalid_rx_cb(uint8_t new_rx_channel, uint8_t old_rx_channel))
 {
+  (void)new_rx_channel;
+  (void)old_rx_channel;
 }
 
 void sl_zigbee_ezsp_mux_invalid_rx_handler(uint8_t new_rx_channel, uint8_t old_rx_channel)

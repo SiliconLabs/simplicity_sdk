@@ -29,15 +29,13 @@
 
 #define RECEIVE_BUFFER_SIZE     180
 
-typedef enum
-{
+typedef enum {
   TRANSPORT_TYPE_UART,
   TRANSPORT_TYPE_SPI,
   TRANSPORT_TYPE_ETHERNET,
 } transport_type_t;
 
-typedef enum
-{
+typedef enum {
   PARSE_IDLE,             // returned if nothing special has happened
   PARSE_FRAME_RECEIVED,   // returned when a valid frame has been received
   PARSE_FRAME_SENT,       // returned if frame was ACKed by the other end
@@ -50,32 +48,28 @@ typedef void * transport_handle_t;
 
 typedef void (*transmit_done_cb_t)(transport_handle_t transport);
 
-typedef struct _transport_t
-{
+typedef struct _transport_t{
   transport_type_t type;
   transport_handle_t handle;
 } transport_t;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t cmd;
   uint8_t len;
   uint8_t payload[RECEIVE_BUFFER_SIZE]; //size defined to fix SonarQube errors
-} * comm_interface_frame_ptr;
+} *comm_interface_frame_ptr;
 
 extern comm_interface_frame_ptr const serial_frame;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t cmd;
   uint8_t len;
   uint8_t payload[UINT8_MAX];
 } tx_cmd_frame_t;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t type;
   uint8_t timestamp1;
@@ -89,8 +83,7 @@ typedef struct
   uint8_t payload[UINT8_MAX];
 } tx_data_frame_t;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t type;
   uint8_t timestamp1;
@@ -101,8 +94,7 @@ typedef struct
   uint8_t payload[4];
 } tx_beam_start_frame_t;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t type;
   uint8_t timestamp1;

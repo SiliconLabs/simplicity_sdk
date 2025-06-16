@@ -172,12 +172,6 @@ void sli_power_manager_notify_em_transition(sl_power_manager_em_t from,
       transition = SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2;
       break;
 
-#if !defined(SL_CATALOG_POWER_MANAGER_ARM_SLEEP_ON_EXIT)
-    case SL_POWER_MANAGER_EM3:
-      transition = SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3;
-      break;
-#endif
-
     default:
       EFM_ASSERT(0);
   }
@@ -194,12 +188,6 @@ void sli_power_manager_notify_em_transition(sl_power_manager_em_t from,
     case SL_POWER_MANAGER_EM2:
       transition |= SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2;
       break;
-
-#if !defined(SL_CATALOG_POWER_MANAGER_ARM_SLEEP_ON_EXIT)
-    case SL_POWER_MANAGER_EM3:
-      transition |= SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3;
-      break;
-#endif
 
     default:
       EFM_ASSERT(0);

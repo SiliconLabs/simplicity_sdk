@@ -27,7 +27,7 @@
 // component's configuration file. The top-level Bluetooth stack configuration
 // calculates a sum of all connection needs, and that value is used to configure
 // the connection feature.
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, connection, sli_bt_connection_config_t) = {
+const sli_bt_connection_config_t sli_bt_connection_config = {
   .max_connections = SL_BT_CONFIG_MAX_CONNECTIONS_SUM,
   .data_len = SL_BT_CONFIG_CONNECTION_DATA_LENGTH
 };

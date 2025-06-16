@@ -34,7 +34,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rail.h"
+#include "sl_rail.h"
 #include "rail_config.h"
 #include "sl_status.h"
 
@@ -156,42 +156,42 @@ void set_print_packet_details(bool new_print_packet_details);
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void calibrate_radio(RAIL_Handle_t rail_handle);
+void calibrate_radio(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to init and set the IEEE802154 hardware acceleration.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void init_ieee802154_for_mode_switch(RAIL_Handle_t rail_handle);
+void init_ieee802154_for_mode_switch(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to enable DUALSYNC in Tx and Rx in case of FSK FEC usage.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void init_rx_option_for_mode_switch(RAIL_Handle_t rail_handle);
+void init_rx_option_for_mode_switch(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to enable Mode Switch and dynamic FEC.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void init_ieee802154g_option_for_mode_switch(RAIL_Handle_t rail_handle);
+void init_ieee802154g_option_for_mode_switch(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to disable MAC filtering on packet received.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void enable_promiscuous_mode_for_mode_switch(RAIL_Handle_t rail_handle);
+void enable_promiscuous_mode_for_mode_switch(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to enable Start and End event for Mode Switch.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void enable_mode_switch_events(RAIL_Handle_t rail_handle);
+void enable_mode_switch_events(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to initialize the power amplifier.
@@ -204,7 +204,7 @@ void init_rail_pa_settings(void);
  * @param[in] rail_handle A RAIL instance handle
  * @param[in] channel Radio channel to update the PA settings for
  *****************************************************************************/
-void update_rail_pa_settings(RAIL_Handle_t rail_handle, uint16_t channel);
+void update_rail_pa_settings(sl_rail_handle_t rail_handle, uint16_t channel);
 
 /**************************************************************************//**
  * API to configure the basic parameters for the mode switch process.
@@ -213,19 +213,21 @@ void update_rail_pa_settings(RAIL_Handle_t rail_handle, uint16_t channel);
  *
  * Radio should useFSK modulation settings.
  *****************************************************************************/
-void init_mode_switch(RAIL_Handle_t rail_handle);
+void init_mode_switch(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
- * The API to get the payload from the radio frame.
+ * API to get the payload from the radio frame.
  *
- * @param[out] rx_destination Where should the full packet be unpacked
- * @param[out] packet_information A place to store all the information of the packet
- * @param[out] start_of_payload Pointer where the payload starts
+ * @param[in] rail_handle A RAIL instance handle
+ * @param[out] rx_destination Where the full packet should be unpacked
+ * @param[in] packet_information A place to store all the information of the packet
+ * @param[out] start_of_payload Pointer to where the payload starts
  * @param[in] modulation Modulation of the sending channel
  * @return The length of the received payload
  *****************************************************************************/
-uint16_t unpack_packet(uint8_t *rx_destination,
-                       const RAIL_RxPacketInfo_t *packet_information,
+uint16_t unpack_packet(sl_rail_handle_t rail_handle,
+                       uint8_t *rx_destination,
+                       const sl_rail_rx_packet_info_t *packet_information,
                        uint8_t **start_of_payload,
                        phy_modulation_e modulation);
 
@@ -237,7 +239,7 @@ uint16_t unpack_packet(uint8_t *rx_destination,
  * @param[in] length The length of the payload
  * @param[in] modulation Modulation of the sending channel
  *****************************************************************************/
-void prepare_packet(RAIL_Handle_t rail_handle,
+void prepare_packet(sl_rail_handle_t rail_handle,
                     uint8_t *out_data,
                     uint16_t length,
                     phy_modulation_e modulation);
@@ -255,7 +257,7 @@ phy_modulation_e calculate_modulation_from_phy_mode_id(const uint8_t phy_mode_id
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-void update_channel_list(RAIL_Handle_t rail_handle);
+void update_channel_list(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to print channel configurations.
@@ -268,7 +270,7 @@ void print_channel_list(void);
  * @param[in] rail_handle A RAIL instance handle
  * @return SL_STATUS_OK on success, errorcode on error
  *****************************************************************************/
-sl_status_t trig_mode_switch_tx(RAIL_Handle_t rail_handle);
+sl_status_t trig_mode_switch_tx(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to get the current state of the mode switch process.
@@ -349,9 +351,9 @@ sl_status_t set_mode_switch_duration(const uint32_t duration);
  * API to set the currently used channel.
  *
  * @param[in] new_channel New channel to set
- * @return RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
+ * @return SL_RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
  *****************************************************************************/
-RAIL_Status_t set_channel(const uint16_t new_channel);
+sl_rail_status_t set_channel(const uint16_t new_channel);
 
 /**************************************************************************//**
  * API to set the currently used channel.
@@ -375,15 +377,15 @@ uint16_t get_base_channel(void);
  * API to switch the radio channel during the mode switch process.
  *
  * @param[in] rail_handle A RAIL instance handle
- * @return RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
+ * @return SL_RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
  *****************************************************************************/
-RAIL_Status_t switch_to_ms_channel(RAIL_Handle_t rail_handle);
+sl_rail_status_t switch_to_ms_channel(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * API to set the radio back to the base channel from the mode switch channel.
- * @return RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
+ * @return SL_RAIL_STATUS_NO_ERROR on success, RAIL errorcode on error
  *****************************************************************************/
-RAIL_Status_t return_to_base_channel(void);
+sl_rail_status_t return_to_base_channel(void);
 
 /**************************************************************************//**
  * API to get the PHY mode id of the given channel.

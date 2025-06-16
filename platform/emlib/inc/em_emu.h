@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup emu
+ * @addtogroup emu EMU - Energy Management Unit
  * @{
  ******************************************************************************/
 
@@ -1188,13 +1188,11 @@ void EMU_EnterEM4Wait(void);
 void EMU_EnterEM4H(void);
 void EMU_EnterEM4S(void);
 #endif
-void EMU_MemPwrDown(uint32_t blocks) SL_DEPRECATED_API_SDK_4_1;
 void EMU_RamPowerDown(uint32_t start, uint32_t end);
 void EMU_RamPowerUp(void);
 #if defined(_EMU_EM23PERNORETAINCTRL_MASK)
 void EMU_PeripheralRetention(EMU_PeripheralRetention_TypeDef periMask, bool enable);
 #endif
-void EMU_UpdateOscConfig(void) SL_DEPRECATED_API_SDK_4_1;
 #if defined(EMU_VSCALE_EM01_PRESENT)
 #if defined(_SILICON_LABS_32B_SERIES_2)
 void EMU_EFPEM01VScale(EMU_VScaleEM01_TypeDef voltage);

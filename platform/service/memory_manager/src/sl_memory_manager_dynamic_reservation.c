@@ -36,9 +36,11 @@
 #include "sl_memory_manager_config.h"
 #include "sl_memory_manager.h"
 #include "sli_memory_manager.h"
+
 #include "sl_assert.h"
 #include "sl_bit.h"
 #include "sl_common.h"
+#include "sl_core.h"
 
 #if defined(SL_COMPONENT_CATALOG_PRESENT)
 #include "sl_component_catalog.h"
@@ -64,126 +66,7 @@ sl_status_t sl_memory_reserve_block(size_t size,
                                     sl_memory_reservation_t *handle,
                                     void **block)
 {
-#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
-  void * volatile return_address = sli_memory_profiler_get_return_address();
-#endif
-
-  // Check proper alignment characteristics.
-  EFM_ASSERT((align == SL_MEMORY_BLOCK_ALIGN_DEFAULT)
-             || (SL_MATH_IS_PWR2(align)
-                 && (align <= SL_MEMORY_BLOCK_ALIGN_512_BYTES)));
-
-  (void) align;
-  sli_block_metadata_t *free_block_metadata = NULL;
-  void *reserved_blk = NULL;
-  size_t current_block_len;
-  size_t size_real;
-  size_t size_adjusted;
-  size_t block_size_remaining;
-  sl_memory_region_t heap_region = sl_memory_get_heap_region();
-#if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
-  reserve_no_retention_first = false;
-#endif
-
-  // Verify that the handle pointer isn't NULL. See Note #1.
-  if ((handle == NULL) || (block == NULL)) {
-    return SL_STATUS_NULL_POINTER;
-  }
-
-  // Check that the block does not exist yet.
-  if ((handle->block_size != 0) || (handle->block_address != NULL)) {
-    return SL_STATUS_FAIL;
-  }
-
-  *block = NULL; // No block reserved yet.
-
-  if ((size == 0) || (size >= heap_region.size)) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  size_real = SLI_ALIGN_ROUND_UP(size, SLI_BLOCK_ALLOC_MIN_ALIGN);
-
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_ATOMIC();
-
-  // For block reservations, the size_adjusted contains the metadata.
-  size_adjusted = sli_memory_find_free_block(size_real, align, BLOCK_TYPE_SHORT_TERM, true, &free_block_metadata);
-
-  if ((free_block_metadata == NULL) || (size_adjusted == 0)) {
-    CORE_EXIT_ATOMIC();
-#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
-    sli_memory_profiler_track_alloc_with_ownership(sli_mm_heap_name, NULL, size, return_address);
-#endif
-    return SL_STATUS_ALLOCATION_FAILED;
-  }
-
-  current_block_len = SLI_BLOCK_LEN_DWORD_TO_BYTE(free_block_metadata->length);
-  // SLI_BLOCK_METADATA_SIZE_BYTE is added to the free block length to get the real remaining size as size_adjusted contains the metadata size.
-  block_size_remaining = (current_block_len + SLI_BLOCK_METADATA_SIZE_BYTE) - size_adjusted;
-
-  // Create a new block = reserved block returned to requester. This new block is the nearest to the heap end.
-  reserved_blk = (sli_block_metadata_t *)((uint8_t *)free_block_metadata + block_size_remaining);
-
-  sli_free_blocks_number--;
-
-  // Split free and reserved blocks if possible.
-  if (block_size_remaining >= SLI_BLOCK_RESERVATION_MIN_SIZE_BYTE) {
-    // Changes size of free block.
-    free_block_metadata->length -= SLI_BLOCK_LEN_BYTE_TO_DWORD(size_real);
-
-    // Account for the split block that is free.
-    sli_free_blocks_number++;
-  } else {
-    sli_block_metadata_t *neighbour_block = NULL;
-
-    // Update next neighbour.
-    if (free_block_metadata->offset_neighbour_next != 0) {
-      neighbour_block = (sli_block_metadata_t *)((uint64_t *)free_block_metadata + free_block_metadata->offset_neighbour_next);
-
-      if (free_block_metadata->offset_neighbour_prev != 0) {
-        neighbour_block->offset_neighbour_prev += free_block_metadata->offset_neighbour_prev;
-      } else {
-        // Heap start.
-        neighbour_block->offset_neighbour_next = 0;
-      }
-    }
-
-    // Update previous neighbour.
-    if (free_block_metadata->offset_neighbour_prev != 0) {
-      neighbour_block = (sli_block_metadata_t *)((uint64_t *)free_block_metadata - free_block_metadata->offset_neighbour_prev);
-
-      if (free_block_metadata->offset_neighbour_next != 0) {
-        neighbour_block->offset_neighbour_next += free_block_metadata->offset_neighbour_next;
-      } else {
-        // Heap end.
-        neighbour_block->offset_neighbour_next = 0;
-      }
-    }
-
-    // Update head pointers accordingly.
-    sli_update_free_list_heads(neighbour_block, free_block_metadata, true);
-  }
-
-  CORE_EXIT_ATOMIC();
-
-  handle->block_size = size;
-  handle->block_address = reserved_blk;
-  *block = reserved_blk;
-
-#ifdef SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES
-  // Save the reservation for heap integrity check purposes.
-  sli_memory_save_reservation_handle(handle, align);
-#endif
-
-#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
-  sli_memory_profiler_track_alloc(sli_mm_heap_name, handle->block_address, size_real);
-  sli_memory_profiler_track_alloc_with_ownership(sli_mm_heap_reservation_name,
-                                                 handle->block_address,
-                                                 handle->block_size,
-                                                 return_address);
-#endif
-
-  return SL_STATUS_OK;
+  return sl_memory_heap_reserve_block(&sli_general_purpose_heap, size, align, handle, block);
 }
 
 /***************************************************************************//**
@@ -201,20 +84,27 @@ sl_status_t sl_memory_reserve_block(size_t size,
  ******************************************************************************/
 sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
 {
-  sl_memory_region_t heap_region = sl_memory_get_heap_region();
-
-  uint16_t new_free_block_length;
+  sl_memory_heap_t *heap;
+  size_t new_free_block_length;
   sli_block_metadata_t *new_free_block = NULL;
   sli_block_metadata_t *prev_block = NULL;
   sli_block_metadata_t *next_block = NULL;
+  sli_block_metadata_t *free_lt_list_head;
+  sli_block_metadata_t *free_st_list_head;
+  sli_block_metadata_t *current_metadata;
   uint16_t reserved_block_offset;
-
-  sli_block_metadata_t *current_metadata = (sli_block_metadata_t *)heap_region.addr;
 
   // Verify that the handle isn't NULL.
   if (handle == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
+
+  // Retrieve the heap where the block was allocated.
+  heap = sli_memory_get_heap_handle(handle->block_address);
+
+  free_lt_list_head = (sli_block_metadata_t *)heap->free_lt_list_head;
+  free_st_list_head = (sli_block_metadata_t *)heap->free_st_list_head;
+  current_metadata = (sli_block_metadata_t *)heap->base_addr;
 
 #if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
   sli_memory_profiler_track_free(sli_mm_heap_name, handle->block_address);
@@ -227,11 +117,11 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
   while ((uintptr_t)current_metadata < (uintptr_t)handle->block_address) {
     prev_block = current_metadata;
 
-    if (current_metadata->offset_neighbour_next == 0) {
+    if (sli_block_offset_next_dword_decode(current_metadata) == 0) {
       break;
     }
 
-    current_metadata = (sli_block_metadata_t *)((uint64_t *)current_metadata + current_metadata->offset_neighbour_next);
+    current_metadata = (sli_block_metadata_t *)((uint64_t *)current_metadata + sli_block_offset_next_dword_decode(current_metadata));
   }
   next_block = ((uintptr_t)current_metadata >= (uintptr_t)handle->block_address) ? current_metadata : NULL;
 
@@ -243,7 +133,7 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
     // Calculate offset between the reserved block and the previous block's payload address.
     reserved_block_offset = (uint16_t)((uint64_t *)handle->block_address - (uint64_t *)prev_block - SLI_BLOCK_METADATA_SIZE_DWORD);
     // Then calculate the difference between the above offset and the length of the previous block.
-    reserved_block_offset -= prev_block->length;
+    reserved_block_offset -= sli_block_len_dword_decode(prev_block);
 
     // Make sure there's no reserved block between the freed block and the previous block.
     // Layout around the reserved block to free (aka R1) will be:
@@ -251,13 +141,16 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
     if ((prev_block->block_in_use == 0) && (reserved_block_offset < SLI_BLOCK_RESERVATION_MIN_SIZE_DWORD)) {
       // New freed block's previous block is free, so merge both free blocks.
       new_free_block = prev_block;
-      prev_block = (sli_block_metadata_t *)((uint64_t *)prev_block - prev_block->offset_neighbour_prev);
-      new_free_block_length += new_free_block->length + SLI_BLOCK_METADATA_SIZE_DWORD;
+      prev_block = (sli_block_metadata_t *)((uint64_t *)prev_block - sli_block_offset_prev_dword_decode(prev_block));
+      new_free_block_length += sli_block_len_dword_decode(new_free_block) + SLI_BLOCK_METADATA_SIZE_DWORD;
     } else {
       // Create a new free block, because previous block is a dynamic allocation, a reserved block or the start of the heap.
       // Layout around the reserved block to free (aka R1) will be:
       // |...|Metadata Free block|Data Free block|R2|R1|| or |...|Metadata ST1|Data ST1|R1|| or |...|Metadata LT|Data LT|R1||
-      sli_free_blocks_number++;
+      heap->free_blocks_number++;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      heap->used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     }
   }
 
@@ -270,15 +163,19 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
     // Make sure there's no reserved block between the freed block and the next block.
     if ((next_block->block_in_use == 0) && (reserved_block_offset < SLI_BLOCK_RESERVATION_MIN_SIZE_DWORD)) {
       // New freed block's following block is free, so merge both free blocks.
-      new_free_block_length += next_block->length + reserved_block_offset + SLI_BLOCK_METADATA_SIZE_DWORD;
+      new_free_block_length += sli_block_len_dword_decode(next_block) + reserved_block_offset + SLI_BLOCK_METADATA_SIZE_DWORD;
       // Invalidate the next block metadata.
-      next_block->length = 0;
+      sli_block_len_dword_encode(next_block, 0);
       // 2 free blocks have been merged, account for 1 free block only.
-      sli_free_blocks_number--;
+      heap->free_blocks_number--;
 
-      if (next_block->offset_neighbour_next != 0) {
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      heap->used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
+
+      if (sli_block_offset_next_dword_decode(next_block) != 0) {
         // Get next block following current next block.
-        next_block = (sli_block_metadata_t *)((uint64_t *)next_block + next_block->offset_neighbour_next);
+        next_block = (sli_block_metadata_t *)((uint64_t *)next_block + sli_block_offset_next_dword_decode(next_block));
       } else {
         next_block = NULL;
       }
@@ -287,45 +184,53 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
 
   // Update the new free metadata block accordingly.
   sli_memory_metadata_init(new_free_block);
-  new_free_block->length = new_free_block_length;
+  sli_block_len_dword_encode(new_free_block, new_free_block_length);
 
   if (next_block != NULL) {
-    new_free_block->offset_neighbour_next = (uint16_t)((uint64_t *)next_block - (uint64_t *)new_free_block);
-    next_block->offset_neighbour_prev = new_free_block->offset_neighbour_next;
+    sli_block_offset_next_dword_encode(new_free_block, ((uint64_t *)next_block - (uint64_t *)new_free_block));
+    sli_block_offset_prev_dword_encode(next_block, sli_block_offset_next_dword_decode(new_free_block));
   } else {
     // Heap end.
-    new_free_block->offset_neighbour_next = 0;
+    sli_block_offset_next_dword_encode(new_free_block, 0);
   }
 
   if (prev_block != NULL) {
-    new_free_block->offset_neighbour_prev = (uint16_t)((uint64_t *)new_free_block - (uint64_t *)prev_block);
-    prev_block->offset_neighbour_next = new_free_block->offset_neighbour_prev;
+    sli_block_offset_prev_dword_encode(new_free_block, ((uint64_t *)new_free_block - (uint64_t *)prev_block));
+    sli_block_offset_next_dword_encode(prev_block, sli_block_offset_prev_dword_decode(new_free_block));
   } else {
     // Heap start.
-    new_free_block->offset_neighbour_prev = 0;
+    sli_block_offset_prev_dword_encode(new_free_block, 0);
   }
 
-  if (sli_free_lt_list_head == NULL             // LT list is empty. Freed block becomes the new 1st element.
-      || sli_free_lt_list_head > new_free_block // LT list not empty. Verify if freed block becomes the head.
-      || sli_free_lt_list_head->length == 0) {
-    sli_free_lt_list_head = new_free_block;
+  if (free_lt_list_head == NULL             // LT list is empty. Freed block becomes the new 1st element.
+      || free_lt_list_head > new_free_block // LT list not empty. Verify if freed block becomes the head.
+      || sli_block_len_dword_decode(free_lt_list_head) == 0) {
+    free_lt_list_head = new_free_block;
   }
 
-  if (sli_free_st_list_head == NULL             // ST list is empty. Freed block becomes the new 1st element.
-      || sli_free_st_list_head < new_free_block // ST list not empty. Verify if freed block becomes the head.
-      || sli_free_st_list_head->length == 0) {
-    sli_free_st_list_head = new_free_block;
+  if (free_st_list_head == NULL             // ST list is empty. Freed block becomes the new 1st element.
+      || free_st_list_head < new_free_block // ST list not empty. Verify if freed block becomes the head.
+      || sli_block_len_dword_decode(free_st_list_head) == 0) {
+    free_st_list_head = new_free_block;
   }
+  // Update the heap's head pointers.
+  heap->free_lt_list_head = (void *)free_lt_list_head;
+  heap->free_st_list_head = (void *)free_st_list_head;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  // Decrease heap usage statistic.
+  heap->used_size -= SLI_ALIGN_ROUND_UP(handle->block_size, SLI_BLOCK_ALLOC_MIN_ALIGN);
+#endif
 
   // Invalidate handle.
   handle->block_address = NULL;
   handle->block_size = 0;
 
-  CORE_EXIT_ATOMIC();
-
-#ifdef SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES
+#if defined(SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES)
   sli_memory_remove_reservation_handle(handle);
 #endif
+
+  CORE_EXIT_ATOMIC();
 
   return SL_STATUS_OK;
 }
@@ -374,4 +279,174 @@ sl_status_t sl_memory_reservation_handle_free(sl_memory_reservation_t *handle)
 uint32_t sl_memory_reservation_handle_get_size(void)
 {
   return sizeof(sl_memory_reservation_t);
+}
+
+/***************************************************************************//**
+ * Dynamically reserves a block of memory from a specific heap instance.
+ *
+ * @note (1) This function assumes the 'handle' is provided by the caller:
+ *           - either statically (e.g. as a global variable)
+ *           - or dynamically by calling sl_memory_reservation_handle_alloc().
+ ******************************************************************************/
+sl_status_t sl_memory_heap_reserve_block(sl_memory_heap_t *heap,
+                                         size_t size,
+                                         size_t align,
+                                         sl_memory_reservation_t *handle,
+                                         void **block)
+{
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+  void * volatile return_address = sli_memory_profiler_get_return_address();
+#endif
+
+  // Check proper alignment characteristics.
+  EFM_ASSERT((align == SL_MEMORY_BLOCK_ALIGN_DEFAULT)
+             || (SL_MATH_IS_PWR2(align)
+                 && (align <= SL_MEMORY_BLOCK_ALIGN_512_BYTES)));
+
+  // Make sure the heap handle isn't NULL.
+  EFM_ASSERT(heap != NULL);
+
+  sli_block_metadata_t *free_block_metadata = NULL;
+  void *reserved_blk = NULL;
+  size_t current_block_len;
+  size_t size_real;
+  size_t size_adjusted;
+  size_t block_size_remaining;
+  size_t block_align = (align == SL_MEMORY_BLOCK_ALIGN_DEFAULT) ? SLI_BLOCK_ALLOC_MIN_ALIGN : align;
+#if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
+  reserve_no_retention_first = false;
+#endif
+
+  // Verify that the handle pointer isn't NULL. See Note #1.
+  if ((handle == NULL) || (block == NULL)) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Check that the block does not exist yet.
+  if ((handle->block_size != 0) || (handle->block_address != NULL)) {
+    return SL_STATUS_FAIL;
+  }
+
+  *block = NULL; // No block reserved yet.
+
+  if ((size == 0) || (size >= heap->size)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+#if defined(SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES)
+  // Check if the reservation counter has reached its maximum limit.
+  if ((int)sli_get_available_reservation_handle_ix() == -1) {
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+#endif
+
+  size_real = SLI_ALIGN_ROUND_UP(size, block_align);
+  // Round size to minimum reservation size if requested size is too small.
+  size_real = size_real < SLI_BLOCK_RESERVATION_MIN_SIZE_BYTE ? SLI_BLOCK_RESERVATION_MIN_SIZE_BYTE : size_real;
+
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_ATOMIC();
+
+// For block reservations, the size_adjusted contains the metadata.
+  size_adjusted = sli_memory_find_free_block(heap, size_real, block_align, BLOCK_TYPE_SHORT_TERM, true, &free_block_metadata);
+
+  if ((free_block_metadata == NULL) || (size_adjusted == 0)) {
+    CORE_EXIT_ATOMIC();
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+    sli_memory_profiler_track_alloc_with_ownership(sli_mm_heap_name, NULL, size, return_address);
+#endif
+    return SL_STATUS_ALLOCATION_FAILED;
+  }
+
+  current_block_len = SLI_BLOCK_LEN_DWORD_TO_BYTE(sli_block_len_dword_decode(free_block_metadata));
+  // SLI_BLOCK_METADATA_SIZE_BYTE is added to the free block length to get the real remaining size as size_adjusted contains the metadata size.
+  block_size_remaining = (current_block_len + SLI_BLOCK_METADATA_SIZE_BYTE) - size_adjusted;
+
+  heap->free_blocks_number--;
+
+  // Split free and reserved blocks if possible.
+  if (block_size_remaining >= SLI_BLOCK_RESERVATION_MIN_SIZE_BYTE) {
+    size_t block_len_dw = sli_block_len_dword_decode(free_block_metadata);
+
+    // Changes size of free block.
+    sli_block_len_dword_encode(free_block_metadata, (block_len_dw - SLI_BLOCK_LEN_BYTE_TO_DWORD(size_real)));
+
+    // Create a new block = reserved block returned to requester. This new block is the nearest to the heap end.
+    reserved_blk = (sli_block_metadata_t *)((uint8_t *)free_block_metadata + block_size_remaining);
+
+    // Update block size.
+    handle->block_size = size_real;
+
+    // Account for the split block that is free.
+    heap->free_blocks_number++;
+  } else {
+    sli_block_metadata_t *neighbour_block = NULL;
+
+    // Create a new block with size of the free block.
+    reserved_blk = (sli_block_metadata_t *)((uint8_t *)free_block_metadata);
+    // Update block size with the remaining size of the free block.
+    handle->block_size = size_real + block_size_remaining;
+
+    // Update next neighbour.
+    if (sli_block_offset_next_dword_decode(free_block_metadata) != 0) {
+      neighbour_block = (sli_block_metadata_t *)((uint64_t *)free_block_metadata + sli_block_offset_next_dword_decode(free_block_metadata));
+
+      if (sli_block_offset_prev_dword_decode(free_block_metadata) != 0) {
+        size_t block_offset_prev_dw = sli_block_offset_prev_dword_decode(neighbour_block) + sli_block_offset_prev_dword_decode(free_block_metadata);
+
+        sli_block_offset_prev_dword_encode(neighbour_block, block_offset_prev_dw);
+      } else {
+        // Heap start.
+        sli_block_offset_next_dword_encode(neighbour_block, 0);
+      }
+    }
+
+    // Update previous neighbour.
+    if (sli_block_offset_prev_dword_decode(free_block_metadata) != 0) {
+      neighbour_block = (sli_block_metadata_t *)((uint64_t *)free_block_metadata - sli_block_offset_prev_dword_decode(free_block_metadata));
+
+      if (sli_block_offset_next_dword_decode(free_block_metadata) != 0) {
+        size_t block_offset_next_dw = sli_block_offset_next_dword_decode(neighbour_block) + sli_block_offset_next_dword_decode(free_block_metadata);
+        sli_block_offset_next_dword_encode(neighbour_block, block_offset_next_dw);
+      } else {
+        // Heap end.
+        sli_block_offset_next_dword_encode(neighbour_block, 0);
+      }
+    }
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+    heap->used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
+
+    // Update head pointers accordingly.
+    sli_update_free_list_heads(heap, neighbour_block, free_block_metadata, true);
+  }
+
+  handle->block_address = reserved_blk;
+  *block = reserved_blk;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  // Heap usage size statistic.
+  heap->used_size += size_real;
+  if (heap->used_size > heap->high_watermark) {
+    heap->high_watermark = heap->used_size;
+  }
+#endif
+
+#if defined(SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES)
+  // Save the reservation for heap integrity check purposes.
+  sli_memory_save_reservation_handle(handle, block_align);
+#endif
+
+  CORE_EXIT_ATOMIC();
+
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+  sli_memory_profiler_track_alloc(sli_mm_heap_name, handle->block_address, size_real);
+  sli_memory_profiler_track_alloc_with_ownership(sli_mm_heap_reservation_name,
+                                                 handle->block_address,
+                                                 handle->block_size,
+                                                 return_address);
+#endif
+
+  return SL_STATUS_OK;
 }

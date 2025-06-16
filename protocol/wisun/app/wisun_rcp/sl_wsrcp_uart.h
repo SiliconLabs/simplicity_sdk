@@ -44,7 +44,7 @@ struct sl_wsrcp_uart {
 
     osMutexId_t tx_lock;
     osSemaphoreId_t tx_dma_lock;
-    int irq_overflow_cnt;
+    uint8_t irq_overflow_cnt;
 
     // Note it may be possible to drop rx_ring and save 4kB of data. The user
     // would get the data directly from buf_rx. However, navigating in buf_rx is

@@ -45,7 +45,7 @@ sl_status_t sl_high_datarate_phy_transmit(uint8_t *payload);
  * @param[in] absolute timestamp that packet is expected to be transmitted
  *
  */
-sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, RAIL_Time_t timestamp);
+sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, sl_rail_time_t timestamp);
 
 /**
  * Configures transmit complete callback function
@@ -63,7 +63,7 @@ void sl_high_datarate_phy_config_tx_complete_callback(void (*tx_complete_callbac
  *  @param[in] enable_f : Enable or Disable high datarate phy packet reception
  *
  */
-RAIL_Status_t sl_high_datarate_phy_set_reception_enable (bool enable_f);
+sl_rail_status_t sl_high_datarate_phy_set_reception_enable (bool enable_f);
 
 /**
  * Configures Rx complete callback function
@@ -87,7 +87,7 @@ void sl_high_datarate_phy_config_rx_callback(void (*rx_callback)(uint8_t *packet
  * @param[in]  Pointer to csma params used on high datarate phy packets
  *
  */
-void sl_high_datarate_phy_config_csma_params(RAIL_CsmaConfig_t *csma_params);
+void sl_high_datarate_phy_config_csma_params(sl_rail_csma_config_t *csma_params);
 
 /**
  * Configures priority for high datarate phy packet

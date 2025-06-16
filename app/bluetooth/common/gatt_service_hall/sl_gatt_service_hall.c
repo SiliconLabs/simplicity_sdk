@@ -309,15 +309,15 @@ void sl_gatt_service_hall_on_event(sl_bt_msg_t * evt)
 SL_WEAK sl_status_t sl_gatt_service_hall_get(float *field_strength, bool * alert, bool * tamper)
 {
   static uint32_t cnt = 0;
-  static float dummy_field_strength = 0;
-  static bool dummy_alert = false;
+  static float simulated_field_strength = 0;
+  static bool simulated_alert = false;
   cnt++;
-  dummy_field_strength += 1.0;
+  simulated_field_strength += 1.0f;
   if ((cnt % 10) == 0) {
-    dummy_alert = dummy_alert ? false : true;
+    simulated_alert = simulated_alert ? false : true;
   }
-  *field_strength = dummy_field_strength;
-  *alert = dummy_alert;
+  *field_strength = simulated_field_strength;
+  *alert = simulated_alert;
   *tamper = false;
   return SL_STATUS_OK;
 }

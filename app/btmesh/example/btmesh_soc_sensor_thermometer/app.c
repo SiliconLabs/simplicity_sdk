@@ -29,13 +29,13 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <stdio.h>
-#include "sl_common.h"
 #include "sl_status.h"
 #include "sl_udelay.h"
 
 #include "sl_btmesh.h"
 #include "sl_bluetooth.h"
 #include "app.h"
+#include "sl_main_init.h"
 
 #include "sl_bt_api.h"
 
@@ -140,29 +140,34 @@ void app_change_leds_to_buttons(void)
   app_button_press_enable();
 }
 
+/*******************************************************************************
+ * Application Early Init
+ ******************************************************************************/
+void app_init_early(void)
+{
+  /////////////////////////////////////////////////////////////////////////////
+  // Put your additional application init code here!                         //
+  // This is called once before the OS is initialized if RTOS is used.       //
+  // This function precedes permanent memory allocations.                    //
+  /////////////////////////////////////////////////////////////////////////////
+}
+
 /***************************************************************************//**
  * Application Init.
  ******************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
+  app_init_runtime();
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
   // This is called once during start-up.                                    //
   /////////////////////////////////////////////////////////////////////////////
-  #if !defined(SL_CATALOG_KERNEL_PRESENT)
-  app_log("BT mesh Sensor Server initialized" APP_LOG_NL);
-  // Ensure right init order in case of shared pin for enabling buttons
-  app_change_buttons_to_leds();
-  // Change LEDs to buttons in case of shared pin
-  app_change_leds_to_buttons();
-  app_handle_reset_conditions();
-  #endif // SL_CATALOG_KERNEL_PRESENT
 }
 
 /***************************************************************************//**
  * Application Process Action.
  ******************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   if (app_is_process_required()) {
     /////////////////////////////////////////////////////////////////////////////
@@ -253,7 +258,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     case sl_bt_evt_connection_closed_id:
       if (num_connections > 0) {
-        if (--num_connections == 0) {
+        num_connections--;
+        if (num_connections == 0) {
           lcd_print("", SL_BTMESH_WSTK_LCD_ROW_CONNECTION_CFG_VAL);
           app_log("Disconnected" APP_LOG_NL);
         }

@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <assert.h>
 
-#include "app_init.h"
+#include "sl_main_init.h"
 #include "sl_cmsis_os2_common.h"
 #include "sl_wisun_event_mgr.h"
 #include "sl_wisun_app_core_util.h"
@@ -89,7 +89,6 @@ void app_init(void)
                                         &app_task_attr);
   assert(app_thr_id != NULL);
 }
-
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------

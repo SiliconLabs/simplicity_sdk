@@ -85,14 +85,17 @@ otError CpcInterfaceImpl::Init(ReceiveFrameCallback aCallback, void *aCallbackCo
 {
     otError     error = OT_ERROR_NONE;
     const char *value;
+    int         cpc_err;
 
     VerifyOrExit(mSockFd == -1, error = OT_ERROR_ALREADY);
 
     if (!sIsCpcInitialized)
     {
-        if (cpc_init(&mHandle, mRadioUrl.GetPath(), false, HandleSecondaryReset) != 0)
+        if ((cpc_err = cpc_init(&mHandle, mRadioUrl.GetPath(), false, HandleSecondaryReset)) != 0)
         {
-            otLogCritPlat("CPC init failed. Ensure radio-url argument has the form 'spinel+cpc://cpcd_0?iid=<1..3>'");
+            otLogCritPlat(
+                "CPC init failed Error: %d. Ensure radio-url argument has the form 'spinel+cpc://cpcd_0?iid=<1..3>'",
+                cpc_err);
             DieNow(OT_EXIT_FAILURE);
         }
 

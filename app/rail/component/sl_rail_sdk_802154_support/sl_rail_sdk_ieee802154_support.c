@@ -33,6 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include <string.h>
+#include "app_assert.h"
 #include "em_device.h"
 #if defined _SILICON_LABS_32B_SERIES_2
 #include "em_system.h"
@@ -41,6 +42,7 @@
 #endif
 #include "app_log.h"
 #include "sl_component_catalog.h"
+#include "sl_rail_types.h"
 #include "sl_rail_sdk_util_802154_protocol.h"
 #include "sl_rail_sdk_ieee802154_support.h"
 
@@ -52,7 +54,7 @@
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-static void sl_rail_sdk_ieee802154_change_std(RAIL_Handle_t rail_handle,
+static void sl_rail_sdk_ieee802154_change_std(sl_rail_handle_t rail_handle,
                                               sl_rail_sdk_ieee802154_std_t std,
                                               sl_rail_sdk_ieee802154_frame_t *tx_frame,
                                               sl_rail_sdk_ieee802154_std_t* current_std,
@@ -68,7 +70,7 @@ static void sl_rail_sdk_ieee802154_change_std(RAIL_Handle_t rail_handle,
  * @retval APP_IEEE802154_ERROR   the initialization failed
  * @retval APP_IEEE802154_OK      the initialization run successfully
  *****************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_reinit(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_reinit(sl_rail_handle_t r_handle,
                                              sl_rail_sdk_ieee802154_std_t std);
 
 /**************************************************************************//**
@@ -89,7 +91,7 @@ bool sl_rail_sdk_ieee802154_get_ack_status(void);
  * @retval APP_IEEE802154_ERROR   it failed
  * @retval APP_IEEE802154_OK      it run successfully
  *****************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(sl_rail_handle_t r_handle,
                                                         uint16_t address);
 
 /**************************************************************************//**
@@ -101,7 +103,7 @@ static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(RAIL_Handle_t r_handle,
  * @retval APP_IEEE802154_ERROR   it failed
  * @retval APP_IEEE802154_OK      it run successfully
  *****************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(sl_rail_handle_t r_handle,
                                                             uint16_t address);
 
 /**************************************************************************//**
@@ -113,7 +115,7 @@ static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(RAIL_Handle_t r_hand
  * @retval APP_IEEE802154_ERROR   it failed
  * @retval APP_IEEE802154_OK      it run successfully
  *****************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_long_addr_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_long_addr_filter(sl_rail_handle_t r_handle,
                                                            uint64_t *address);
 
 // -----------------------------------------------------------------------------
@@ -133,23 +135,23 @@ static uint16_t channel = 0U;
 /// system number, all devices have unique number.
 static uint64_t system_number = 0U;
 /// CSMA/CA configuration structure for IEEE 502.15.4 2003 2p4 GHz
-static RAIL_CsmaConfig_t csma_config_2p4 =
-  RAIL_CSMA_CONFIG_802_15_4_2003_2p4_GHz_OQPSK_CSMA;
+static sl_rail_csma_config_t csma_config_2p4 =
+  SL_RAIL_CSMA_CONFIG_802_15_4_2003_2P4_GHZ_OQPSK_CSMA;
 /// CSMA/CA configuration structure for IEEE 502.15.4g
-static RAIL_CsmaConfig_t csma_config_sub = {
-  .csmaMinBoExp = 3,      // 2^3-1 for 0..7 backoffs on 1st try
-  .csmaMaxBoExp = 5,      // 2^5-1 for 0..31 backoffs on 3rd+ tries
-  .csmaTries = 5,         // 5 tries overall (4 re-tries)
-  .ccaThreshold = -81,    // 10 dB above sensitivity
-  .ccaBackoff = 1160,     // 1ms+ ccaDuration
-  .ccaDuration = 160,     // 8 symbols at 20 us/symbol
-  .csmaTimeout = 0,       // no timeout
+static sl_rail_csma_config_t csma_config_sub = {
+  .csma_min_bo_exp = 3,      // 2^3-1 for 0..7 backoffs on 1st try
+  .csma_max_bo_exp = 5,      // 2^5-1 for 0..31 backoffs on 3rd+ tries
+  .csma_tries = 5,         // 5 tries overall (4 re-tries)
+  .cca_threshold_dbm = -81,    // 10 dB above sensitivity
+  .cca_backoff_us = 1160,     // 1ms+ cca_duration_us
+  .cca_duration_us = 160,     // 8 symbols at 20 us/symbol
+  .csma_timeout_us = 0,       // no timeout
 };
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-int16_t sl_rail_sdk_ieee802154_protocol_init(RAIL_Handle_t r_handle,
+int16_t sl_rail_sdk_ieee802154_protocol_init(sl_rail_handle_t r_handle,
                                              sl_rail_sdk_util_802154_protocol_type_t protocol)
 {
   // based on the protocol (used via UC) setups the communication considering
@@ -268,7 +270,7 @@ void sl_rail_sdk_ieee802154_print_ack(sl_rail_sdk_ieee802154_std_t std,
   app_log_info("\n");
 }
 
-void sl_rail_sdk_ieee802154_request_manager(RAIL_Handle_t r_handle,
+void sl_rail_sdk_ieee802154_request_manager(sl_rail_handle_t r_handle,
                                             sl_rail_sdk_ieee802154_frame_t *tx_frame,
                                             volatile sl_rail_sdk_ieee802154_cli_requests *cli_req,
                                             volatile sl_rail_sdk_ieee802154_cli_data *cli_desired)
@@ -407,57 +409,56 @@ bool sl_rail_sdk_ieee802154_is_change_requested(
          || cli_requests->cfgcrc_requested;
 }
 
-RAIL_Status_t sl_rail_sdk_ieee802154_transmission(RAIL_Handle_t rail_handle,
-                                                  const uint8_t *packet,
-                                                  uint16_t packet_size)
+sl_rail_status_t sl_rail_sdk_ieee802154_transmission(sl_rail_handle_t rail_handle,
+                                                     const uint8_t *packet,
+                                                     uint16_t packet_size)
 {
-  RAIL_Status_t status;
-  RAIL_TxOptions_t txOptions = RAIL_TX_OPTIONS_NONE;
-  RAIL_SchedulerInfo_t* scheduler_ptr = NULL;
+  sl_rail_status_t status;
+  sl_rail_tx_options_t txOptions = SL_RAIL_TX_OPTIONS_NONE;
+  sl_rail_scheduler_info_t* scheduler_ptr = NULL;
 #ifdef SL_CATALOG_BLUETOOTH_PRESENT
-  RAIL_SchedulerInfo_t scheduler_info = (RAIL_SchedulerInfo_t){ .priority = 100,
-                                                                .slipTime = 100000,
-                                                                .transactionTime = 2500 };
+  sl_rail_scheduler_info_t scheduler_info = (sl_rail_scheduler_info_t){ .priority = 100,
+                                                                        .slip_time = 100000,
+                                                                        .transaction_time = 2500 };
   scheduler_ptr = &scheduler_info;
 #endif
 
   if (packet == NULL || packet_size == 0) {
     app_log_error("sl_rail_sdk_ieee802154_transmission ERR: parameter\n");
-    return RAIL_STATUS_INVALID_PARAMETER;
+    return SL_RAIL_STATUS_INVALID_PARAMETER;
   }
-
   // sets the tx options based on the current ACK settings (auto-ACK enabled?)
   if (sl_rail_sdk_ieee802154_get_ack_status()) {
-    txOptions = RAIL_TX_OPTION_WAIT_FOR_ACK;
+    txOptions = SL_RAIL_TX_OPTION_WAIT_FOR_ACK;
   } else {
-    txOptions = RAIL_TX_OPTIONS_NONE;
+    txOptions = SL_RAIL_TX_OPTIONS_NONE;
   }
 
   // writes the TX FIFO
-  RAIL_WriteTxFifo(rail_handle, packet, packet_size, true);
+  sl_rail_write_tx_fifo(rail_handle, packet, packet_size, true);
 
   if (sl_rail_sdk_ieee802154_get_std() == SL_RAIL_SDK_IEEE802154_STD_IEEE802154_2P4GHZ) {
     // starts the TX on the desired channel with the tx option and CSMA
     // functionality
-    status = RAIL_StartCcaCsmaTx(rail_handle,
-                                 sl_rail_sdk_ieee802154_get_channel(),
-                                 txOptions,
-                                 &csma_config_2p4,
-                                 scheduler_ptr);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartCcaCsmaTx status: %lu failed", status);
+    status = sl_rail_start_cca_csma_tx(rail_handle,
+                                       sl_rail_sdk_ieee802154_get_channel(),
+                                       txOptions,
+                                       &csma_config_2p4,
+                                       scheduler_ptr);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_cca_csma_tx status: %lu failed", status);
     }
   } else {
     // starts the TX on the desired channel with the tx option and CSMA
     // functionality
-    status = RAIL_StartCcaCsmaTx(rail_handle,
-                                 sl_rail_sdk_ieee802154_get_channel(),
-                                 txOptions,
-                                 &csma_config_sub,
-                                 scheduler_ptr);
+    status = sl_rail_start_cca_csma_tx(rail_handle,
+                                       sl_rail_sdk_ieee802154_get_channel(),
+                                       txOptions,
+                                       &csma_config_sub,
+                                       scheduler_ptr);
 
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartCcaCsmaTx status: %lu failed", status);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_cca_csma_tx status: %lu failed", status);
     }
   }
 
@@ -588,7 +589,7 @@ int16_t sl_rail_sdk_ieee802154_unpack_data_frame(sl_rail_sdk_ieee802154_std_t st
 /*******************************************************************************
  * This helper function handles the standard change.
  ******************************************************************************/
-static void sl_rail_sdk_ieee802154_change_std(RAIL_Handle_t rail_handle,
+static void sl_rail_sdk_ieee802154_change_std(sl_rail_handle_t rail_handle,
                                               sl_rail_sdk_ieee802154_std_t std,
                                               sl_rail_sdk_ieee802154_frame_t *tx_frame,
                                               sl_rail_sdk_ieee802154_std_t* current_std,
@@ -616,8 +617,8 @@ static void sl_rail_sdk_ieee802154_change_std(RAIL_Handle_t rail_handle,
     // 2-bytes CRC
     tx_frame->phr_config |= SL_RAIL_SDK_IEEE802154G_PHR_CRC_2_BYTE;
     // Data whitening default settings
-    if ((RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX == 0)
-        && (RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX == 0)) {
+    if ((SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX == 0)
+        && (SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX == 0)) {
       tx_frame->phr_config |= SL_RAIL_SDK_IEEE802154G_PHR_DATA_WHITENING_ON;
     } else {
       tx_frame->phr_config &= ~SL_RAIL_SDK_IEEE802154G_PHR_DATA_WHITENING_ON;
@@ -654,17 +655,17 @@ static void sl_rail_sdk_ieee802154_change_std(RAIL_Handle_t rail_handle,
 /*******************************************************************************
  * This helper function reinit the IEEE 802.15.4
  ******************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_reinit(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_reinit(sl_rail_handle_t r_handle,
                                              sl_rail_sdk_ieee802154_std_t std)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
   switch (std) {
     case SL_RAIL_SDK_IEEE802154_STD_IEEE802154_2P4GHZ:
       // configures the IEEE 802.15.4 on 2.4GHz
       status = sl_rail_sdk_util_802154_protocol_config(r_handle,
                                                        SL_RAIL_SDK_UTIL_PROTOCOL_IEEE802154_2P4GHZ);
-      if (status != RAIL_STATUS_NO_ERROR) {
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
         app_log_error("sl_rail_util_protocol_config status: %lu failed", status);
         return SL_RAIL_SDK_IEEE802154_ERROR;
       }
@@ -672,7 +673,7 @@ static int16_t sl_rail_sdk_ieee802154_reinit(RAIL_Handle_t r_handle,
     case SL_RAIL_SDK_IEEE802154_STD_IEEE802154G_863MHZ:
       status = sl_rail_sdk_util_802154_protocol_config(r_handle,
                                                        SL_RAIL_SDK_UTIL_PROTOCOL_IEEE802154_GB868_863MHZ);
-      if (status != RAIL_STATUS_NO_ERROR) {
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
         app_log_error("sl_rail_util_protocol_config status: %lu failed", status);
         return SL_RAIL_SDK_IEEE802154_ERROR;
       }
@@ -680,17 +681,17 @@ static int16_t sl_rail_sdk_ieee802154_reinit(RAIL_Handle_t r_handle,
     case SL_RAIL_SDK_IEEE802154_STD_IEEE802154G_915MHZ:
       status = sl_rail_sdk_util_802154_protocol_config(r_handle,
                                                        SL_RAIL_SDK_UTIL_PROTOCOL_IEEE802154_GB868_915MHZ);
-      if (status != RAIL_STATUS_NO_ERROR) {
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
         app_log_error("sl_rail_util_protocol_config status: %lu failed", status);
         return SL_RAIL_SDK_IEEE802154_ERROR;
       }
       break;
     default:
-      status = RAIL_STATUS_INVALID_PARAMETER;
+      status = SL_RAIL_STATUS_INVALID_PARAMETER;
       break;
   }
 
-  if (status != RAIL_STATUS_NO_ERROR) {
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
     return SL_RAIL_SDK_IEEE802154_ERROR;
   }
 
@@ -698,11 +699,11 @@ static int16_t sl_rail_sdk_ieee802154_reinit(RAIL_Handle_t r_handle,
   if ((std == SL_RAIL_SDK_IEEE802154_STD_IEEE802154G_863MHZ)
       || (std == SL_RAIL_SDK_IEEE802154_STD_IEEE802154G_915MHZ)) {
     // sets the IEEE802154g
-    status = RAIL_IEEE802154_ConfigGOptions(r_handle,
-                                            RAIL_IEEE802154_G_OPTION_GB868,
-                                            RAIL_IEEE802154_G_OPTION_GB868);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_IEEE802154_ConfigGOptions status: %lu failed", status);
+    status = sl_rail_ieee802154_config_g_options(r_handle,
+                                                 SL_RAIL_IEEE802154_G_OPTION_GB868,
+                                                 SL_RAIL_IEEE802154_G_OPTION_GB868);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_ieee802154_config_g_options status: %lu failed", status);
       return SL_RAIL_SDK_IEEE802154_ERROR;
     }
   }
@@ -722,13 +723,13 @@ bool sl_rail_sdk_ieee802154_get_ack_status(void)
 /*******************************************************************************
  * This helper function sets the PAN ID into the filter.
  ******************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(sl_rail_handle_t r_handle,
                                                         uint16_t address)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   // sets the addresses for filtering
-  status = RAIL_IEEE802154_SetPanId(r_handle, address, ADDRESS_FILTER_INDEX);
-  if (status != RAIL_STATUS_NO_ERROR) {
+  status = sl_rail_ieee802154_set_pan_id(r_handle, address, ADDRESS_FILTER_INDEX);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_error("app_ieee802154_set_pan_id_filter() status: %lu failed", status);
     return SL_RAIL_SDK_IEEE802154_ERROR;
   }
@@ -739,15 +740,15 @@ static int16_t sl_rail_sdk_ieee802154_set_pan_id_filter(RAIL_Handle_t r_handle,
 /*******************************************************************************
  * This helper function sets the short address into filter.
  ******************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(sl_rail_handle_t r_handle,
                                                             uint16_t address)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   // sets the addresses for filtering
-  status = RAIL_IEEE802154_SetShortAddress(r_handle, address,
-                                           ADDRESS_FILTER_INDEX);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_IEEE802154_SetShortAddress() status: %lu failed", status);
+  status = sl_rail_ieee802154_set_short_address(r_handle, address,
+                                                ADDRESS_FILTER_INDEX);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_ieee802154_set_short_address() status: %lu failed", status);
     return SL_RAIL_SDK_IEEE802154_ERROR;
   }
 
@@ -757,15 +758,15 @@ static int16_t sl_rail_sdk_ieee802154_set_short_addr_filter(RAIL_Handle_t r_hand
 /*******************************************************************************
  * This helper function sets the long address into filter.
  ******************************************************************************/
-static int16_t sl_rail_sdk_ieee802154_set_long_addr_filter(RAIL_Handle_t r_handle,
+static int16_t sl_rail_sdk_ieee802154_set_long_addr_filter(sl_rail_handle_t r_handle,
                                                            uint64_t *address)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   // sets the addresses for filtering
-  status = RAIL_IEEE802154_SetLongAddress(r_handle, (uint8_t*)address,
-                                          ADDRESS_FILTER_INDEX);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_IEEE802154_SetLongAddress() status: %lu failed", status);
+  status = sl_rail_ieee802154_set_long_address(r_handle, (uint8_t*)address,
+                                               ADDRESS_FILTER_INDEX);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_ieee802154_set_long_address() status: %lu failed", status);
     return SL_RAIL_SDK_IEEE802154_ERROR;
   }
 

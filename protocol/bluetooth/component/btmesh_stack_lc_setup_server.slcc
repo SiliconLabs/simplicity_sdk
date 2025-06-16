@@ -1,6 +1,6 @@
 id: "btmesh_stack_lc_setup_server"
 label: "Light Control Setup Server Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh LC Setup Server model. This model works as the configuration interface for an LC Server located in the same element. It allows an LC Client to adjust the feedback loop coefficients, state transition times, and ambient light threshold levels. The LC Setup Server is separate from the LC Server to provide the possibility for application key domain separation. For example, an LC Client could have the permission to turn the lights on and off by knowing the application key the LC Server uses, but it would not have the permission to change the light controller configuration if it doesn't have the key the LC Setup Server uses."
 category: "Bluetooth Mesh|Stack|Models"
 quality: "production"

@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_dlk_negotiation' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -84,11 +84,11 @@ sl_status_t sl_zigbee_dlk_finish_key_exchange(sl_zigbee_dlk_negotiation_context_
     msg.data.dlk_finish_key_exchange.request.partner = *partner;
   }
 
-  if ((partner_key_length) > (64)) {
+  if (partner_key_length > 64) {
     assert(false); // "vector partner_key length exceeds expected maximum
   }
 
-  memmove(msg.data.dlk_finish_key_exchange.request.partner_key, partner_key, sizeof(uint8_t) * (partner_key_length));
+  memmove(msg.data.dlk_finish_key_exchange.request.partner_key, partner_key, sizeof(uint8_t) * partner_key_length);
   msg.data.dlk_finish_key_exchange.request.partner_key_length = partner_key_length;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_dlk_finish_key_exchange_process_ipc_command, &msg);
 
@@ -121,7 +121,7 @@ sl_status_t sl_zigbee_dlk_open_key_exchange(sl_zigbee_dlk_negotiation_context_t 
   msg.data.dlk_open_key_exchange.request.secret = secret;
 
   if (psk_bytes != NULL) {
-    memmove(msg.data.dlk_open_key_exchange.request.psk_bytes, psk_bytes, sizeof(uint8_t) * (16));
+    memmove(msg.data.dlk_open_key_exchange.request.psk_bytes, psk_bytes, sizeof(uint8_t) * 16);
   }
 
   msg.data.dlk_open_key_exchange.request.dlk_start_complete_callback = dlk_start_complete_callback;

@@ -1,6 +1,6 @@
 id: ot_mcu_platform_abstraction
 label: Platform Abstraction
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: experimental
 description: This component provides the abstraction layer between the OpenThread stack on host MCU and Silicon Labs platform. It also adds support for additional features such as Wi-Fi coex and RTOS support

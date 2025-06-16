@@ -36,7 +36,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup mesh_blob_transfer_server
+ * @addtogroup btmesh_blob_transfer_server
  * @{
  ******************************************************************************/
 
@@ -87,7 +87,7 @@ extern void sl_btmesh_blob_transfer_server_storage_full(void);
 
 /** @} end mesh_blob_transfer_server_api */
 
-/** @} end mesh_blob_transfer_server */
+/** @} end btmesh_blob_transfer_server */
 
 #ifdef __cplusplus
 }

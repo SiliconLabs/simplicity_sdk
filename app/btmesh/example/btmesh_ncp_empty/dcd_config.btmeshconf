@@ -5,7 +5,7 @@
     "vid": "0x0700",
     "elements": [
       {
-        "name": "Primary Element",
+        "name": "Main",
         "location": "0x0000",
         "sig_models": [
           { "mid": "0x0000", "name": "Configuration Server" },
@@ -73,10 +73,7 @@
           { "mid": "0x1404", "name": "DFU Distribution Server" },
           { "mid": "0x1405", "name": "DFU Distribution Client" }
         ],
-        "vendor_models": [
-            { "cid": "0x02ff", "mid": "0xfffd", "name": "Silabs Configuration Server" },
-            { "cid": "0x02ff", "mid": "0xfffc", "name": "Silabs Configuration Client" }
-        ]
+        "vendor_models": []
       },
       {
         "name": "Secondary Element",

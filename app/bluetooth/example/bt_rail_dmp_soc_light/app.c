@@ -28,15 +28,14 @@
  *
  ******************************************************************************/
 #include <stdbool.h>
-#include "sl_common.h"
 #include "app_log.h"
 #include "app_assert.h"
+#include "sl_main_init.h"
 #include "sl_bluetooth.h"
 #include "sl_component_catalog.h"
 #ifdef SL_CATALOG_CLI_PRESENT
 #include "sl_cli.h"
 #endif // SL_CATALOG_CLI_PRESENT
-#include "app.h"
 #include "app_bluetooth.h"
 #include "app_proprietary.h"
 
@@ -56,7 +55,7 @@ void app_init(void)
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //

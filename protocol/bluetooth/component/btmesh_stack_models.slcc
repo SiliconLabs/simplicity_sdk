@@ -1,6 +1,6 @@
 id: "btmesh_stack_models"
 label: "Bluetooth Mesh Stack Models"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Meta-component for grouping mesh models' SBOM metadata"
 category: "Bluetooth Mesh|Stack"
 quality: "production"

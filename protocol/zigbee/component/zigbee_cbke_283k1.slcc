@@ -1,6 +1,6 @@
 id: zigbee_cbke_283k1
 label: CBKE 283k1
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides Certificate-Based Key Exchange (CBKE) functions specific to the 283k ECC curve used in Smart Energy 1.2 and later.

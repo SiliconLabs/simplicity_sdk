@@ -1,14 +1,14 @@
 id: device_init_hfxo
-label: "High Frequency Crystal Oscillator (HFXO)"
-package: platform
+label: High Frequency Crystal Oscillator (HFXO)
+package: platform_core
 description: >
-  Instantiate the component for High Frequency Crystal Oscillator (HFXO)
-  initialization based on the provided configuration.
+    Instantiate the component for High Frequency Crystal Oscillator (HFXO)
+    initialization based on the provided configuration.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 config_file:
   - path: config/s2/sdid200/sl_device_init_hfxo_config.h
@@ -60,15 +60,15 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_hfxo.h
-      handler: sl_device_init_hfxo
+        event: platform_init
+        include: sl_device_init_hfxo.h
+        handler: sl_device_init_hfxo
     priority: -9650
-    condition: [sl_system]
+    condition: [sl_system, kernel]
   - name: device_init_clocks_present
     value: hfxo
   - name: component_catalog
     value: device_init_hfxo
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-hfxo
+    docset: gecko-platform
+    document: platform-service/device-init-hfxo

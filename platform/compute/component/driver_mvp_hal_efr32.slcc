@@ -1,17 +1,17 @@
 id: driver_mvp_hal_efr32
 label: MVP HAL Driver for EFR32 parts
-package: platform
+package: compute
 description: >
-  This component provides the HAL part of the MVP driver. It is customized for
-  EFR32 parts with MVP.
+    This component provides the HAL part of the MVP driver. It is customized for
+    EFR32 parts with MVP.
 
-  The API of this component is marked as internal.
+    The API of this component is marked as internal.
 category: Platform|Compute
 quality: production
 root_path: platform/compute/driver/mvp
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 source:
   - path: src/sl_mvp_hal_efr32.c
 include:

@@ -1,5 +1,6 @@
+---
 id: bt_iop_post_build
-package: Bluetooth
+package: bluetooth_le_middleware
 label: BLE Interoperability Test Post Build
 description: Post build scripts for BLE Interoperability Test.
 category: Bluetooth|Application|Firmware Update
@@ -12,12 +13,25 @@ ui_hints:
 root_path: app/bluetooth/common/bt_iop_post_build
 requires:
   - name: bootloader_app_properties
-  - name: in_place_ota_dfu
 other_file:
-  - path: iop_create_bl_files.ps1
+  - path: series2/iop_create_bl_files.ps1
+    condition:
+      - device_series_2
     project:
       transfer_ownership: true
-  - path: iop_create_bl_files.sh
+  - path: series2/iop_create_bl_files.sh
+    condition:
+      - device_series_2
+    project:
+      transfer_ownership: true
+  - path: series3/iop_create_bl_files.ps1
+    condition:
+      - device_series_3
+    project:
+      transfer_ownership: true
+  - path: series3/iop_create_bl_files.sh
+    condition:
+      - device_series_3
     project:
       transfer_ownership: true
 provides:

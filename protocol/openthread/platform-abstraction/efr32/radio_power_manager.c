@@ -34,14 +34,13 @@
 
 #include <openthread-core-config.h>
 
-#include "pa_conversions_efr32.h"
 #include "platform-band.h"
 #include "platform-efr32.h"
 #include "radio_multi_channel.h"
 #include "radio_power_manager.h"
 #include "rail_config.h"
-#include "rail_ieee802154.h"
 #include "sl_multipan.h"
+#include "sl_rail_ieee802154.h"
 
 #ifdef SL_CATALOG_RAIL_MULTIPLEXER_PRESENT
 #include "sl_rail_mux_rename.h"
@@ -101,7 +100,6 @@ static void sli_get_default_and_max_powers_across_iids(int8_t  *default_tx_power
  * @returns The radio Tx Power for the given channel, in dBm.
  *
  */
-
 static int8_t sli_get_max_tx_power_across_iids(uint16_t channel)
 {
     int8_t max_channel_tx_power = SL_INVALID_TX_POWER;
@@ -112,7 +110,7 @@ static int8_t sli_get_max_tx_power_across_iids(uint16_t channel)
 
     if (sl_is_multi_channel_enabled())
     {
-        RAIL_IEEE802154_RxChannelSwitchingCfg_t channel_switching_cfg;
+        sl_rail_ieee802154_rx_channel_switching_cfg_t channel_switching_cfg;
 
         // Get switching config
         sl_get_channel_switching_cfg(&channel_switching_cfg);
@@ -126,7 +124,7 @@ static int8_t sli_get_max_tx_power_across_iids(uint16_t channel)
         // Find the max_default_tx_power, to be maximum of the default Tx power accross all
         // the interfaces.
 
-        for (uint8_t i = 0U; i < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
+        for (uint8_t i = 0U; i < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
         {
             channel = channel_switching_cfg.channels[i];
             sli_get_default_and_max_powers_across_iids(&max_default_tx_power, &max_channel_tx_power, channel);
@@ -147,13 +145,13 @@ static int8_t sli_get_max_tx_power_across_iids(uint16_t channel)
 
 void sli_set_tx_power_in_rail(int8_t power_in_dbm)
 {
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
-    // RAIL_SetTxPowerDbm() takes power in units of deci-dBm (0.1dBm)
+    // sl_rail_set_tx_power_dbm() takes power in units of deci-dBm (0.1dBm)
     // Multiply by 10 because power_in_dbm is supposed be in units dBm
-    status = RAIL_SetTxPowerDbm(gRailHandle, ((RAIL_TxPower_t)power_in_dbm) * 10);
+    status = sl_rail_set_tx_power_dbm(gRailHandle, ((sl_rail_tx_power_t)power_in_dbm) * 10);
 
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 
 void sli_init_power_manager(void)
@@ -164,27 +162,27 @@ void sli_init_power_manager(void)
 #endif //! OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE
 }
 
-void sli_update_tx_power_after_config_update(const RAIL_TxPowerConfig_t *tx_pwr_config, int8_t tx_power)
+void sli_update_tx_power_after_config_update(const sl_rail_tx_power_config_t *tx_pwr_config, int8_t tx_power)
 {
-    RAIL_Status_t       status;
-    RAIL_TxPowerLevel_t tx_power_lvl;
-    RAIL_TxPower_t      tx_power_dbm = tx_power * 10;
+    sl_rail_status_t         status;
+    sl_rail_tx_power_level_t tx_power_lvl;
+    sl_rail_tx_power_t       tx_power_dbm = tx_power * 10;
 
-    tx_power_lvl = RAIL_GetTxPower(gRailHandle);
+    tx_power_lvl = sl_rail_get_tx_power(gRailHandle);
 
-    // Always need to call RAIL_SetTxPowerDbm after RAIL_ConfigTxPower
+    // Always need to call sl_rail_config_tx_power after sl_rail_config_tx_power
     // First need to get existing power setting and reassert value after config
 
-    if (tx_power_lvl != RAIL_TX_POWER_LEVEL_INVALID)
+    if (tx_power_lvl != SL_RAIL_TX_POWER_LEVEL_INVALID)
     {
-        tx_power_dbm = RAIL_GetTxPowerDbm(gRailHandle);
+        tx_power_dbm = sl_rail_get_tx_power_dbm(gRailHandle);
     }
 
-    status = RAIL_ConfigTxPower(gRailHandle, tx_pwr_config);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_config_tx_power(gRailHandle, tx_pwr_config);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-    status = RAIL_SetTxPowerDbm(gRailHandle, tx_power_dbm);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_set_tx_power_dbm(gRailHandle, tx_power_dbm);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 
 otError sli_set_channel_max_tx_power(otInstance *instance, uint8_t channel, int8_t max_power)
@@ -237,7 +235,7 @@ int8_t sl_get_tx_power_for_current_channel(otInstance *instance)
     int8_t   tx_power;
     uint16_t channel;
 
-    RAIL_GetChannel(gRailHandle, &channel);
+    sl_rail_get_channel(gRailHandle, &channel);
 
 #if OPENTHREAD_CONFIG_POWER_CALIBRATION_ENABLE
     uint8_t  raw_power_calibration[SL_OPENTHREAD_RAW_POWER_CALIBRATION_LENGTH];

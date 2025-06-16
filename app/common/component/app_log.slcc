@@ -1,6 +1,6 @@
 id: app_log
 label: Log
-package: platform
+package: platform_common_apps
 description: >
   The Log component provides the logging functionality at different levels:
   1) INFO

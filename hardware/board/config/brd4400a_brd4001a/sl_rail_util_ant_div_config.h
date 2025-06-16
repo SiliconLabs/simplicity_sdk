@@ -31,8 +31,6 @@
 #ifndef SL_RAIL_UTIL_ANT_DIV_CONFIG_H
 #define SL_RAIL_UTIL_ANT_DIV_CONFIG_H
 
-#include "rail_types.h"
-
 #define SL_RAIL_UTIL_ANT_DIV_DISABLED  (0U)
 #define SL_RAIL_UTIL_ANT_DIV_ANTENNA0  (1U) // antenna0
 #define SL_RAIL_UTIL_ANT_DIV_ANTENNA1  (2U) // antenna1

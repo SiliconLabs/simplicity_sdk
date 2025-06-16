@@ -12,9 +12,7 @@
 #include <ZAF_Common_interface.h>
 #include <zaf_event_distributor_ncp.h>
 #include <ZW_TransportSecProtocol.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 // Event distributor object
 static SEventDistributor g_EventDistributor = { 0 };
@@ -42,7 +40,7 @@ static void EventHandlerZwRx(void)
 
   // Handle incoming replies
   while (xQueueReceive(pAppHandles->ZwRxQueue, (uint8_t *)(&RxPackage), 0) == pdTRUE) {
-    DPRINTF("Incoming Rx %x \r\n", RxPackage.eReceiveType);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Incoming Rx %x \r\n", RxPackage.eReceiveType);
 
     switch (RxPackage.eReceiveType) {
 #ifdef ZW_CONTROLLER_BRIDGE
@@ -57,7 +55,7 @@ static void EventHandlerZwRx(void)
         break;
 
       default:
-        DPRINTF("Invalid Receive Type: %d", RxPackage.eReceiveType);
+        ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Invalid Receive Type: %d", RxPackage.eReceiveType);
         break;
     }
 
@@ -78,16 +76,16 @@ static void EventHandlerZwCommandStatus(void)
   // Handle incoming replies
   while (xQueueReceive(pAppHandles->ZwCommandStatusQueue, (uint8_t*)(&Status), 0) == pdTRUE) {
     {
-      DPRINTF("Incoming Status msg %x\r\n", Status.eStatusType);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Incoming Status msg %x\r\n", Status.eStatusType);
 
       switch (Status.eStatusType) {
         case EZWAVECOMMANDSTATUS_TX:
         {
           SZWaveTransmitStatus *pTxStatus = &Status.Content.TxStatus;
           if (!pTxStatus->bIsTxFrameLegal) {
-            DPRINT("Auch - not sure what to do\r\n");
+            ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Auch - not sure what to do\r\n");
           } else {
-            DPRINT("Tx Status received\r\n");
+            ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Tx Status received\r\n");
             if (pTxStatus->Handle) {
               ZW_TX_Callback_t pCallback = (ZW_TX_Callback_t)pTxStatus->Handle;
               pCallback(pTxStatus->TxStatus, &pTxStatus->ExtendedTxStatus);
@@ -110,15 +108,15 @@ static void EventHandlerZwCommandStatus(void)
           break;
 
         case EZWAVECOMMANDSTATUS_INVALID_TX_REQUEST:
-          DPRINTF("Invalid TX Request to protocol - %d\r\n", Status.Content.InvalidTxRequestStatus.InvalidTxRequest);
+          ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Invalid TX Request to protocol - %d\r\n", Status.Content.InvalidTxRequestStatus.InvalidTxRequest);
           break;
 
         case EZWAVECOMMANDSTATUS_INVALID_COMMAND:
-          DPRINTF("Invalid command to protocol - %d\r\n", Status.Content.InvalidCommandStatus.InvalidCommand);
+          ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Invalid command to protocol - %d\r\n", Status.Content.InvalidCommandStatus.InvalidCommand);
           break;
 
         default:
-          DPRINTF("Unknown / Unexpected  CMD - %d\r\n", Status.eStatusType);
+          ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Unknown / Unexpected  CMD - %d\r\n", Status.eStatusType);
           break;
       }
       zaf_event_distributor_app_zw_command_status(&Status);

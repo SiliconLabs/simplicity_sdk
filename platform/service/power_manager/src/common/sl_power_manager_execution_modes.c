@@ -113,8 +113,8 @@ void sli_power_manager_implement_execution_mode_on_wakeup(void)
   CORE_DECLARE_IRQ_STATE;
 
   CORE_ENTER_CRITICAL();
-  sli_clock_manager_get_sysclk_source(&current_sysclk_source_clock);
-  if ((performance_mode_requirement >= 1) && (current_sysclk_source_clock != SL_OSCILLATOR_SOCPLL)) {
+  sl_clock_manager_get_sysclk_source(&current_sysclk_source_clock);
+  if ((performance_mode_requirement >= 1) && (current_sysclk_source_clock != SL_OSCILLATOR_SOCPLL0)) {
     // If there are performance mode requiremets but SYSCLK has not been updated to performance mode, peform update after entering EM0.
     sli_power_manager_hal_apply_performance_mode();
   } else if (performance_mode_requirement == 0) {
@@ -136,8 +136,8 @@ void sli_clock_manager_notify_hfxo_ready(void)
   CORE_DECLARE_IRQ_STATE;
 
   CORE_ENTER_CRITICAL();
-  if ((performance_mode_requirement >= 1) && (current_sysclk_source_clock != SL_OSCILLATOR_SOCPLL)) {
-    sl_status_t status = sli_clock_manager_set_sysclk_source(SL_OSCILLATOR_SOCPLL);
+  if ((performance_mode_requirement >= 1) && (current_sysclk_source_clock != SL_OSCILLATOR_SOCPLL0)) {
+    sl_status_t status = slx_clock_manager_set_sysclk_source(SL_OSCILLATOR_SOCPLL0);
     EFM_ASSERT(status == SL_STATUS_OK);
   }
   // Remove HFXO FORCEEN.

@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32BG24B020F1536IM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32BG24B020F1536IM40.
 - category: Platform|Device|EFR32BG24
 - quality: production

@@ -1,5 +1,5 @@
 id: tz_sl_interface_crypto
-package: platform
+package: security_trustzone
 description: >-
   This component provides a TrustZone secure library interface
 category: Platform|Security|TrustZone

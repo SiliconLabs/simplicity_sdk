@@ -45,6 +45,7 @@ extern COEX_Events_t {{ entry["event_filter"] }};
 
 void COEX_on_event(COEX_Events_t events)
 {
+  (void) events;
 {%- for entry in rail_util_coex_callbacks %}
   if (({{ entry["event_filter"] }} & events) != 0U) {
     {{ entry["handler"] }}({{ entry["event_filter"] }} & events);

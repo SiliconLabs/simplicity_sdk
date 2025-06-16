@@ -88,6 +88,8 @@ typedef enum {
   SL_WISUN_MSG_DIRECT_CONNECT_LINK_STATUS_IND_ID  = 0x95,
   /// This event is sent when a BR stop request has been completed.
   SL_WISUN_BR_MSG_STOPPED_IND_ID                  = 0x96,
+  /// This event is sent once the routing table is updated (topology change).
+  SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID     = 0x97,
 } sl_wisun_msg_ind_id_t;
 
 /**************************************************************************//**
@@ -156,6 +158,7 @@ typedef struct {
   ///   - bit #SL_WISUN_NETWORK_UPDATE_FLAGS_GLOBAL_IP: Global IP address has changed
   ///   - bit #SL_WISUN_NETWORK_UPDATE_FLAGS_PRIMARY_PARENT: primary parent has changed
   ///   - bit #SL_WISUN_NETWORK_UPDATE_FLAGS_SECONDARY_PARENT: secondary parent has changed
+  ///   - bit #SL_WISUN_NETWORK_UPDATE_FLAGS_HOP_COUNT: estimated hop count has changed
   uint32_t flags;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_network_update_ind_body_t;
 SL_PACK_END()
@@ -701,6 +704,34 @@ SL_PACK_END()
 
 /** @} (end SL_WISUN_BR_MSG_STOPPED_IND) */
 
+/**************************************************************************//**
+ * @defgroup SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID sl_wisun_br_msg_routing_table_update_ind
+ * @{
+ ******************************************************************************/
+
+/// Indication message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the indication
+  uint32_t status;
+  /// Routing table update event
+  ///   SL_WISUN_ROUTING_TABLE_UPDATE_ROUTE_CHANGED: route changed
+  uint32_t event;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_routing_table_update_ind_body_t;
+SL_PACK_END()
+
+/// Indication message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Indication message body
+  sl_wisun_br_msg_routing_table_update_ind_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_routing_table_update_ind_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID) */
+
 /// @brief Wi-SUN event definitions
 /// @details This structure contains a Wi-SUN API event and its associated data.
 SL_PACK_START(1)
@@ -758,6 +789,8 @@ typedef struct {
     sl_wisun_msg_direct_connect_link_status_ind_body_t direct_connect_link_status;
     /// #SL_WISUN_BR_MSG_STOPPED_IND_ID event data
     sl_wisun_br_msg_stopped_ind_body_t br_stopped;
+    /// #SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID event data
+    sl_wisun_br_msg_routing_table_update_ind_body_t br_routing_table_update;
   } evt;
 } SL_ATTRIBUTE_PACKED sl_wisun_evt_t;
 SL_PACK_END()

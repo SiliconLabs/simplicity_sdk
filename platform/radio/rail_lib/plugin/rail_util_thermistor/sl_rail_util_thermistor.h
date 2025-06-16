@@ -31,18 +31,14 @@
 #ifndef SL_RAIL_UTIL_THERMISTOR_H
 #define SL_RAIL_UTIL_THERMISTOR_H
 
-#include "rail.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * Configure the thermistor and crystal compensation settings for use with RAIL.
- *
- * @return Status code indicating success of the function call.
  */
-RAIL_Status_t sl_rail_util_thermistor_init(void);
+void sl_rail_util_thermistor_init(void);
 
 #ifdef __cplusplus
 }

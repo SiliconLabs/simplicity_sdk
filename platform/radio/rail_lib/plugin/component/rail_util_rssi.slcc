@@ -1,19 +1,21 @@
 id: rail_util_rssi
 label: RAIL Utility, RSSI
 description: Utility to aid with Received Signal Strength Indicator (RSSI) Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_rssi
-    name: RAIL Utility, RSSI
-    license: Zlib
+    sbom:
+        id: rail_util_rssi
+        name: RAIL Utility, RSSI
+        license: Zlib
 documentation:
-  docset: rail
-  document: rail-api/rail-util-rssi
+    docset: rail
+    document: rail-api/rail-util-rssi
 requires:
   - name: rail_lib
+  - name: status
+  - name: component_catalog
 provides:
   - name: rail_util_rssi
 config_file:
@@ -77,7 +79,7 @@ source:
 template_contribution:
   - name: event_handler
     value:
-      event: stack_init
-      include: sl_rail_util_rssi.h
-      handler: sl_rail_util_rssi_init
+        event: stack_init
+        include: sl_rail_util_rssi.h
+        handler: sl_rail_util_rssi_init
     priority: -9010 # Must be called before sl_rail_util_init

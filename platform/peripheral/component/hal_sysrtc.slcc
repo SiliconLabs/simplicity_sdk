@@ -1,23 +1,24 @@
+# This HAL applies to series 2 and 3 devices.
 id: hal_sysrtc
 label: SYSRTC
-package: platform
+package: platform_core
 description: >
   System Real Time Counter (SYSRTC) peripheral API
-category: Platform|Peripheral
+category: Platform|Peripheral|HAL
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-component_root_path: "platform/peripheral"
+    sbom:
+        license: Zlib
+component_root_path: platform/peripheral
 source:
-  - path: "src/sl_hal_sysrtc.c"
+  - path: src/sl_hal_sysrtc.c
 include:
-  - path: "inc"
+  - path: inc
     file_list:
-    - path: "sl_hal_sysrtc.h"
-    - path: "sl_hal_sysrtc_compat.h"
-    - path: "peripheral_sysrtc.h"
-    - path: "peripheral_sysrtc_compat.h"
+      - path: sl_hal_sysrtc.h
+      - path: sl_hal_sysrtc_compat.h
+      - path: peripheral_sysrtc.h
+      - path: peripheral_sysrtc_compat.h
 provides:
   - name: hal_sysrtc
 requires:
@@ -36,11 +37,13 @@ define:
 documentation:
   docset: gecko-platform
   document:
-    - page: emlib/api/efr32xg23/group-sysrtc
+    - page: platform-peripheral-efr32xg23/sysrtc
       condition: [device_sdid_210]
-    - page: emlib/api/efr32xg24/group-sysrtc
+    - page: platform-peripheral-efr32xg24/sysrtc
       condition: [device_sdid_215]
-    - page: emlib/api/efr32xg25/group-sysrtc
+    - page: platform-peripheral-efr32xg25/sysrtc
       condition: [device_sdid_220]
-    - page: emlib/api/efr32xg28/group-sysrtc
+    - page: platform-peripheral-efr32xg28/sysrtc
       condition: [device_sdid_235]
+    - page: platform-peripheral-sixg301/sysrtc
+      condition: [device_generic_family_sixx301]

@@ -55,6 +55,15 @@
 
 #define LED_BLINK_PERIOD_MS      2000
 #define LIGHT_ENDPOINT           1
+#define ZIGBEE_STARTUP_DELAY_MS 40
+
+#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && (SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0)
+#include "sl_simple_button.h"
+#include "sl_simple_button_instances.h"
+#ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
+#include "force-sleep-wakeup.h"
+#endif //SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
+#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT && SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0
 
 static sl_zigbee_af_event_t commissioning_led_event;
 static sl_zigbee_af_event_t finding_and_binding_event;
@@ -64,6 +73,7 @@ static sl_zigbee_af_event_t finding_and_binding_event;
 
 static void commissioning_led_event_handler(sl_zigbee_af_event_t *event)
 {
+  (void)event;
   if (sl_zigbee_af_network_state() == SL_ZIGBEE_JOINED_NETWORK) {
     uint16_t identifyTime;
     sl_zigbee_af_read_server_attribute(LIGHT_ENDPOINT,
@@ -85,6 +95,7 @@ static void commissioning_led_event_handler(sl_zigbee_af_event_t *event)
 
 static void finding_and_binding_event_handler(sl_zigbee_af_event_t *event)
 {
+  (void)event;
   if (sl_zigbee_af_network_state() == SL_ZIGBEE_JOINED_NETWORK) {
     sl_zigbee_af_event_set_inactive(&finding_and_binding_event);
 
@@ -122,7 +133,8 @@ void sl_zigbee_af_main_init_cb(void)
   sl_zigbee_af_event_init(&commissioning_led_event, commissioning_led_event_handler);
   sl_zigbee_af_isr_event_init(&finding_and_binding_event, finding_and_binding_event_handler);
 
-  sl_zigbee_af_event_set_active(&commissioning_led_event);
+  // Start the commissioning LED event after network is up, and communicated to app framework task in the main loop
+  sl_zigbee_af_event_set_delay_ms(&commissioning_led_event, ZIGBEE_STARTUP_DELAY_MS);
 }
 
 /** @brief Complete network steering.
@@ -148,6 +160,10 @@ void sl_zigbee_af_network_steering_complete_cb(sl_status_t status,
                                                uint8_t joinAttempts,
                                                uint8_t finalState)
 {
+  (void)totalBeacons;
+  (void)joinAttempts;
+  (void)finalState;
+
   sl_zigbee_app_debug_println("Join network complete: 0x%02X", status);
 
   if (status != SL_STATUS_OK) {
@@ -178,6 +194,9 @@ void sl_zigbee_af_network_steering_complete_cb(sl_status_t status,
 void sl_zigbee_af_network_creator_complete_cb(const sl_zigbee_network_parameters_t *network,
                                               bool usedSecondaryChannels)
 {
+  (void)network;
+  (void)usedSecondaryChannels;
+
   sl_zigbee_app_debug_println("Form Network Complete: 0x%02X",
                               SL_STATUS_OK);
 }
@@ -197,6 +216,11 @@ void sl_zigbee_af_post_attribute_change_cb(uint8_t endpoint,
                                            uint8_t size,
                                            uint8_t* value)
 {
+  (void)manufacturerCode;
+  (void)type;
+  (void)size;
+  (void)value;
+
   if (clusterId == ZCL_ON_OFF_CLUSTER_ID
       && attributeId == ZCL_ON_OFF_ATTRIBUTE_ID
       && mask == CLUSTER_MASK_SERVER) {
@@ -249,11 +273,6 @@ void sl_zigbee_af_radio_needs_calibrating_cb(void)
 }
 
 #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && (SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0)
-#include "sl_simple_button.h"
-#include "sl_simple_button_instances.h"
-#ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
-#include "force-sleep-wakeup.h"
-#endif //SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
 /***************************************************************************//**
  * A callback called in interrupt context whenever a button changes its state.
  *

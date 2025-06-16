@@ -22,18 +22,29 @@
 
 import abc
 import copy
+import dataclasses
 import functools
+import json
+import tarfile
+import tempfile
+from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import btmesh.util
 from bgapix.bglibx import BGLibExtRetryParams
 from btmesh.db import FWID, ModelID, Node
-from btmesh.util import (BtmeshMulticastRetryParams, BtmeshRetryParams,
-                         ConnectionParamsRange)
+from btmesh.util import (
+    BtmeshMulticastRetryParams,
+    BtmeshRetryParams,
+    ConnectionParamsRange)
 
 from ..db import BtmeshDfuAppGroup, app_db
-from ..ui import (AppUIColumnInfo, BtmeshDfuAppParseSpecError,
-                  BtmeshDfuAppSpecName, app_ui)
+from ..ui import (
+    AppUIColumnInfo,
+    BtmeshDfuAppParseSpecError,
+    BtmeshDfuAppSpecName,
+    app_ui,
+)
 from ..util.argparsex import ArgumentParserExt
 
 
@@ -47,6 +58,11 @@ def spec_parse_error_handler(func):
 
     return wrapper_spec_parse_error_handler
 
+@dataclasses.dataclass
+class FWParams():
+    fw_data: bytes
+    fwid: FWID
+    metadata: bytes = b''
 
 class BtmeshCmd(abc.ABC):
     GROUP_ADDR_OPT_LONG = "--group-addr"
@@ -64,6 +80,11 @@ class BtmeshCmd(abc.ABC):
     ELEM_ADDRS_OPT_LONG = "--addrs"
     ELEM_ADDRS_OPT_SHORT = ""
     ELEM_ADDRS_OPTS = f"{ELEM_ADDRS_OPT_LONG}"
+
+    MDLS_OPT_LONG = "--mdls"
+    MDLS_OPT_SHORT = "-m"
+    MDLS_OPTS = f"{MDLS_OPT_LONG}/{MDLS_OPT_SHORT}"
+    MDLS_ATTR_NAME = MDLS_OPT_LONG[2:].replace("-", "_")
 
     BD_ADDRS_OPT_LONG = "--bd-addrs"
     BD_ADDRS_OPTS = f"{BD_ADDRS_OPT_LONG}"
@@ -121,6 +142,10 @@ class BtmeshCmd(abc.ABC):
 
     CONN_MAX_CE_LENGTH_OPT_LONG = "--conn-max-ce-len"
     CONN_MAX_CE_LENGTH_ATTR_NAME = CONN_MAX_CE_LENGTH_OPT_LONG[2:].replace("-", "_")
+
+    AUTO_NEW_TERM_ON_OPT_LONG = "--auto-new-term"
+    AUTO_NEW_TERM_OFF_OPT_LONG = f"--no-{AUTO_NEW_TERM_ON_OPT_LONG[2:]}"
+    AUTO_NEW_TERM_ATTR_NAME = AUTO_NEW_TERM_ON_OPT_LONG[2:].replace("-", "_")
 
     RETRY_MAX_HELP_DEFAULT = (
         "Maximum command retry count when the expected event is not received "
@@ -262,11 +287,13 @@ class BtmeshCmd(abc.ABC):
     ALL_COLUMNS_OPTS = f"{ALL_COLUMNS_OPT_LONG}"
     ALL_COLUMNS_ATTR_NAME = ALL_COLUMNS_OPT_LONG[2:].replace("-", "_")
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def parser(self) -> ArgumentParserExt:
         raise NotImplementedError()
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def current_parser(self) -> Optional[ArgumentParserExt]:
         raise NotImplementedError()
 
@@ -840,6 +867,7 @@ class BtmeshCmd(abc.ABC):
         parser: ArgumentParserExt,
         add_elem_arg: bool = False,
         add_elem_addrs_arg: bool = False,
+        add_group_addr_arg: bool = False,
         elem_default: Optional[int] = None,
         group_addr_help: str = "",
         group_help: str = "",
@@ -847,12 +875,13 @@ class BtmeshCmd(abc.ABC):
         elem_help: str = "",
         elem_addrs_help: str = "",
     ) -> None:
-        parser.add_argument(
-            self.GROUP_ADDR_OPT_LONG,
-            self.GROUP_ADDR_OPT_SHORT,
-            help=f"{group_addr_help} The group address can be specified as a "
-            f"binary (0b), octal(0o), decimal, hex (0x) integer.",
-        )
+        if add_group_addr_arg:
+            parser.add_argument(
+                self.GROUP_ADDR_OPT_LONG,
+                self.GROUP_ADDR_OPT_SHORT,
+                help=f"{group_addr_help} The group address can be specified as a "
+                f"binary (0b), octal(0o), decimal, hex (0x) integer.",
+            )
         target_group = parser.add_mutually_exclusive_group(required=True)
         target_group.add_argument(
             self.GROUP_OPT_LONG,
@@ -913,6 +942,7 @@ class BtmeshCmd(abc.ABC):
         # in pargs parameter doesn't have elem and elem_addrs attributes.
         elem_support = hasattr(pargs, "elem")
         elem_addr_support = hasattr(pargs, "addrs")
+        group_addr_support = hasattr(pargs, "group_addr")
         # The --elem and --addrs are mutually exclusive. The --addrs provides
         # the element addresses directly while --elem determines the element
         # index and the element addresses are calculated from --elem and
@@ -1004,23 +1034,86 @@ class BtmeshCmd(abc.ABC):
                 addr for node in nodes for addr in node.get_elem_addrs(pargs.elem)
             ]
 
-        if group_addr and pargs.group_addr:
+        if group_addr_support and group_addr and pargs.group_addr:
             # Parser error raises an exception
             self.current_parser.error(
                 f"argument {self.GROUP_ADDR_OPTS}: not allowed with argument "
                 f"{self.GROUP_OPTS} when the app group specified by "
                 f"{self.GROUP_OPTS} has non-zero group address"
             )
-        if pargs.group_addr:
+        if group_addr_support and pargs.group_addr:
             btmesh.util.validate_group_address(pargs.group_addr)
             group_addr = btmesh.util.addr_to_int(pargs.group_addr)
-        elif pargs.group_addr == 0:
+        elif group_addr_support and pargs.group_addr == 0:
             # It is allowed to pass an app group by --group option with
             # --group-addr 0 as unassigned address. This selects the nodes from
             # the app group but the BT Mesh messages are sent to the unicast
             # address of each node.
             group_addr = 0
         return group_addr, nodes, elem_addrs
+
+    def add_mdls_arg(self, parser: ArgumentParserExt, help: str = ""):
+        parser.add_argument(
+            self.MDLS_OPT_LONG,
+            self.MDLS_OPT_SHORT,
+            metavar="<mdlspec>",
+            default=[],
+            nargs="+",
+            help=f"{help} {app_ui.MDLSPEC_HELP}",
+        )
+
+    def process_mdls_arg(self, pargs) -> List[ModelID]:
+        mdlspecs = getattr(pargs, self.MDLS_ATTR_NAME)
+        return self.parse_mdlspecs(mdlspecs)
+
+    def add_auto_new_term_args(self, parser: ArgumentParserExt, default: bool = True, help: str = ""):
+        self.auto_new_term_group = parser.add_mutually_exclusive_group()
+        onoff_text = "on" if default else "off"
+        AUTO_NEW_TERM_STATE_DEFAULT = (
+            f"Auto new term is turned {onoff_text} by default."
+        )
+        AUTO_NEW_TERM_HELP_DEFAULT = (
+            f"Turn on auto new term feature. "
+            f"Auto new term feature starts new term on each target node "
+            f"automatically after successful firmware update if the metadata "
+            f"check reported CD Changed and RPR Supported as Additional "
+            f"Information. "
+            f"New term is started by executing Composition or Address Refresh "
+            f"procedures on the target nodes based on the content of Composition "
+            f"Data page 0 and 128. "
+            f"If the number of elements is higher in the new term then Address "
+            f"Refresh procedure is executed otherwise Composition Refresh "
+            f"procedure is executed."
+        )
+        if help:
+            help = f"{help} {AUTO_NEW_TERM_STATE_DEFAULT}"
+        else:
+            help = f"{AUTO_NEW_TERM_HELP_DEFAULT} {AUTO_NEW_TERM_STATE_DEFAULT}"
+
+        self.auto_new_term_group.add_argument(
+            self.AUTO_NEW_TERM_ON_OPT_LONG,
+            dest=self.AUTO_NEW_TERM_ATTR_NAME,
+            action="store_const",
+            const=True,
+            help=help,
+        )
+        self.auto_new_term_group.add_argument(
+            self.AUTO_NEW_TERM_OFF_OPT_LONG,
+            dest=self.AUTO_NEW_TERM_ATTR_NAME,
+            action="store_const",
+            const=False,
+            help=(
+                f"Turn off auto new term feature. "
+                f"See details at {self.AUTO_NEW_TERM_ON_OPT_LONG} option. "
+                f"{AUTO_NEW_TERM_STATE_DEFAULT}"
+            ),
+        )
+
+    def process_auto_new_term_args(self, pargs, default: bool = True) -> bool:
+        auto_new_term = getattr(pargs, self.AUTO_NEW_TERM_ATTR_NAME)
+        if auto_new_term is None:
+            auto_new_term = default
+        return auto_new_term
 
     def add_chunk_size_arg(
         self, parser: ArgumentParserExt, default: int = None, help=""
@@ -1086,6 +1179,92 @@ class BtmeshCmd(abc.ABC):
             columns = columns_arg
         selected_columns = {col: column_info_dict[col].header for col in columns}
         return selected_columns
+
+
+    def process_firmware_archive(self, archive_path: Path) -> FWParams:
+
+        if not archive_path.exists():
+            self.current_parser.error(
+                f'The firmware archive file does not exist at "{archive_path}" path.'
+            )
+
+        # Create temp directory to extract archive contents
+        with tempfile.TemporaryDirectory(prefix="btmesh_dfu_") as temp_dir:
+            try:
+                # Extract archive
+                app_ui.info(f"Extracting firmware archive from {archive_path}...")
+
+                filename = archive_path.name
+                if archive_path.suffix == '.gz':
+                    filename = archive_path.stem
+                output_path = Path(temp_dir) / filename
+
+                with tarfile.open(archive_path, 'r:gz') as tar:
+                    tar.extractall(path=output_path)
+
+                app_ui.info("Extracted archive to temporary directory")
+
+                # Construct path to archive
+                manifest_path = output_path / "manifest.json"
+
+                if not manifest_path.exists():
+                    self.current_parser.error(
+                        "Could not find manifest.json in the firmware archive"
+                    )
+
+                # Parse manifest.json
+                with open(manifest_path, 'r') as manifest_file:
+                    manifest = json.load(manifest_file)
+
+                fw_info = manifest.get("manifest", {}).get("firmware", {})
+                firmware_image_file = fw_info.get("firmware_image_file")
+                metadata_file = fw_info.get("metadata_file")
+                firmware_id = fw_info.get("firmware_id")
+
+                if not all([firmware_image_file, firmware_id]):
+                    self.current_parser.error(
+                        "Invalid manifest.json format in firmware archive. "
+                        "Missing required fields."
+                    )
+
+                # Get directory containing manifest.json
+                manifest_dir = manifest_path.parent
+
+                # Locate the firmware and metadata files from manifest
+                gbl_path = manifest_dir / firmware_image_file
+                metadata_path = manifest_dir / metadata_file
+
+                if not gbl_path.exists():
+                    self.current_parser.error(
+                        f"Firmware file '{firmware_image_file}' not found in archive"
+                    )
+
+                # Read firmware data
+                with open(gbl_path, 'rb') as fw_file:
+                    fw_data = fw_file.read()
+
+                metadata = None
+                # Metadata is optional - Read if exists
+                if metadata_file:
+                    with open(metadata_path, 'rb') as metadata_file:
+                        metadata = metadata_file.read()
+
+                firmware_id_bytes = bytes.fromhex(firmware_id)
+                btmesh.util.validate_raw_fwid(firmware_id_bytes)
+
+                # Create FWID object
+                fwid = FWID.from_bytes(firmware_id_bytes)
+
+                app_ui.info(f"Successfully parsed firmware archive:")
+                app_ui.info(f"  - Firmware file: {firmware_image_file} ({len(fw_data)} bytes)")
+                app_ui.info(f"  - Metadata file: {metadata_file} ({len(metadata)} bytes)")
+                app_ui.info(f"  - Firmware ID: {firmware_id}")
+                app_ui.info(f"  - FWID: {app_ui.fwid_str(fwid)}")
+
+                return FWParams(fw_data=fw_data, fwid=fwid, metadata=metadata)
+
+            except Exception as e:
+                self.current_parser.error(f"Failed to process firmware archive: {str(e)}")
 
     @spec_parse_error_handler
     def parse_bdaddrspecs(

@@ -1,6 +1,6 @@
 !!omap
 - id: RM21Z000F1024IM32
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for RM21Z000F1024IM32.
 - category: Platform|Device|EFR32MG21
 - quality: production

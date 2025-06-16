@@ -846,7 +846,65 @@ static UNUSED void gppTunnelingDelay(uint8_t bidirectionalInfo, uint8_t gpdLink)
   }
 }
 
-static bool autoCommissioningCallback(GP_PARAMS)
+static void sendUnicastCommissioningNotification(sl_zigbee_gp_params_t *params, uint16_t options)
+{
+  if (sl_zigbee_af_fill_command_green_power_cluster_gp_commissioning_notification_smart(
+        options,
+        params->addr.id.sourceId,
+        params->addr.id.gpdIeeeAddress,
+        params->addr.endpoint,
+        params->sequenceNumber,
+        params->gpdfSecurityLevel,
+        params->gpdSecurityFrameCounter,
+        params->gpdCommandId,
+        params->gpdCommandPayloadLength,
+        params->gpdCommandPayload,
+        sl_zigbee_get_node_id(),
+        params->gpdLink,
+        params->mic) == 0) {
+    return;
+  }
+
+  sl_zigbee_aps_frame_t *apsFrame = sl_zigbee_af_get_command_aps_frame();
+  apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
+  sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT, commissioningState.commissioningSink);
+  sli_zigbee_af_set_add_delay(0);
+}
+
+static void sendBroadcastCommissioningNotification(sl_zigbee_gp_params_t *params, uint16_t options)
+{
+  if (sl_zigbee_af_fill_command_green_power_cluster_gp_commissioning_notification_smart(
+        options,
+        params->addr.id.sourceId,
+        params->addr.id.gpdIeeeAddress,
+        params->addr.endpoint,
+        params->sequenceNumber,
+        params->gpdfSecurityLevel,
+        params->gpdSecurityFrameCounter,
+        params->gpdCommandId,
+        params->gpdCommandPayloadLength,
+        params->gpdCommandPayload,
+        sl_zigbee_get_node_id(),
+        params->gpdLink,
+        params->mic) == 0) {
+    return;
+  }
+
+  sl_zigbee_aps_frame_t *apsFrame = sl_zigbee_af_get_command_aps_frame();
+  apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->sequence = params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
+  apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
+  sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS,
+                                      sli_zigbee_gpd_alias(&(params->addr)),
+                                      params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
+  sli_zigbee_af_set_add_delay(0);
+}
+
+static bool autoCommissioningCallback(sl_zigbee_gp_params_t *params)
 {
   uint16_t options = 0;
   sl_zigbee_aps_frame_t *apsFrame = NULL;
@@ -855,15 +913,15 @@ static bool autoCommissioningCallback(GP_PARAMS)
     return true;
   }
 
-  if (addr->applicationId == SL_ZIGBEE_GP_APPLICATION_SOURCE_ID
-      && addr->id.sourceId == 0x00000000) {
+  if (params->addr.applicationId == SL_ZIGBEE_GP_APPLICATION_SOURCE_ID
+      && params->addr.id.sourceId == 0x00000000) {
     return true;
   }
-  if (gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING || gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS) {
+  if (params->gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING || params->gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS) {
     return true;
   }
 
-  if (bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK) {
+  if (params->bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK) {
     return true;
   }
 
@@ -880,99 +938,93 @@ static bool autoCommissioningCallback(GP_PARAMS)
      }
    */
 
-  if (status == SL_ZIGBEE_GP_STATUS_NO_SECURITY) {
+  if (params->status == SL_ZIGBEE_GP_STATUS_NO_SECURITY) {
     options = 0;
   }
   //TODO handle other cases
 
-  options |= addr->applicationId;
-  options |= gpdfSecurityLevel
+  options |= params->addr.applicationId;
+  options |= params->gpdfSecurityLevel
              << GP_COMMISSIONING_SECURITY_LEVEL_TO_OPTIONS_SHIFT;
-  options |= gpdfSecurityKeyType
+  options |= params->gpdfSecurityKeyType
              << GP_COMMISSIONING_SECURITY_KEY_TYPE_TO_OPTIONS_SHIFT; //security key type
   options |= SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_PROXY_INFO_PRESENT;
   if (sl_zigbee_af_fill_command_green_power_cluster_gp_commissioning_notification_smart(options,
-                                                                                        addr->id.sourceId,
-                                                                                        addr->id.gpdIeeeAddress,
-                                                                                        addr->endpoint,
-                                                                                        sequenceNumber,
-                                                                                        gpdfSecurityLevel,
-                                                                                        gpdSecurityFrameCounter,
-                                                                                        gpdCommandId,
-                                                                                        gpdCommandPayloadLength,
-                                                                                        gpdCommandPayload,
+                                                                                        params->addr.id.sourceId,
+                                                                                        params->addr.id.gpdIeeeAddress,
+                                                                                        params->addr.endpoint,
+                                                                                        params->sequenceNumber,
+                                                                                        params->gpdfSecurityLevel,
+                                                                                        params->gpdSecurityFrameCounter,
+                                                                                        params->gpdCommandId,
+                                                                                        params->gpdCommandPayloadLength,
+                                                                                        params->gpdCommandPayload,
                                                                                         sl_zigbee_get_node_id(),
-                                                                                        gpdLink,
-                                                                                        mic) == 0) {
+                                                                                        params->gpdLink,
+                                                                                        params->mic) == 0) {
     return true;
   }
 
   apsFrame = sl_zigbee_af_get_command_aps_frame();
   apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
   apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
-  gppTunnelingDelay(bidirectionalInfo, gpdLink);
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
   if (commissioningState.unicastCommunication) {
     sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT,
                                       commissioningState.commissioningSink);
   } else {
-    apsFrame->sequence = sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
+    apsFrame->sequence = params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
     apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
     sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS,
-                                        sli_zigbee_gpd_alias(addr),
-                                        sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
+                                        sli_zigbee_gpd_alias(&(params->addr)),
+                                        params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
   }
   sli_zigbee_af_set_add_delay(0);
   return true;
 }
 
-static bool commissioningGpdfCallback(GP_PARAMS)
+static bool commissioningGpdfCallback(sl_zigbee_gp_params_t *params)
 {
-  sl_zigbee_aps_frame_t *apsFrame;
-
   // Per GP spec 14-0563-08:
   // Commissioning: Step 12a: Proxy receives commissioning command
   // If applicationId == 0b0000 and srcId == 0 or reserved range 0xfffffff9 - 0xffffffffe
   // OR applicationId == 0b0010 and srcId == 0, drop frame.
-  if (!sli_zigbee_af_gp_make_addr(addr,
-                                  addr->applicationId,
-                                  addr->id.sourceId,
-                                  addr->id.gpdIeeeAddress,
-                                  addr->endpoint)
-      || IS_GPD_SRC_ID_ZERO(addr->applicationId, addr->id.sourceId)) {
+  if (!sli_zigbee_af_gp_make_addr(&(params->addr),
+                                  params->addr.applicationId,
+                                  params->addr.id.sourceId,
+                                  params->addr.id.gpdIeeeAddress,
+                                  params->addr.endpoint)
+      || IS_GPD_SRC_ID_ZERO(params->addr.applicationId, params->addr.id.sourceId)) {
     // GPD Address or App Id are invalid, so drop the command
     goto kickout;
   }
 
-  if (autoCommissioning) {
+  if (params->autoCommissioning) {
     goto kickout;
   }
 
   // Step b
-  if ((gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC)
-      || (gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED)) {
-    if ((status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
-        || (status == SL_ZIGBEE_GP_STATUS_UNPROCESSED)) {
-      // fwd frame with Security processing failed bit set as part of GP
-      // Commissioning Notification.
-      goto send_notification;
-    }
+  if (((params->gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC)
+       || (params->gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED))
+      && ((params->status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
+          || (params->status == SL_ZIGBEE_GP_STATUS_UNPROCESSED))) {
+    // fwd frame with Security processing failed bit set as part of GP
+    // Commissioning Notification.
+    goto send_notification;
   }
 
   // Step c
   // RxAfterTx is true
-  {
-    bool frameFound = false;
-    if ((bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK)
-        && (gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING)) {
-      if (addr->applicationId == SL_ZIGBEE_GP_APPLICATION_IEEE_ADDRESS) {
-        // TODO: check endpoint
-      }
-    }
+  bool frameFound = false;
+  if ((params->bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK)
+      && (params->gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING)
+      && (params->addr.applicationId == SL_ZIGBEE_GP_APPLICATION_IEEE_ADDRESS)) {
+    // check endpoint
+  }
 
-    if (frameFound) {
-      // send at least one Commissioning Reply GPDF
-      //XXX compare to where we do this now
-    }
+  if (frameFound) {
+    // send at least one Commissioning Reply GPDF
+    //XXX compare to where we do this now
   }
 
   // Step d
@@ -990,84 +1042,36 @@ static bool commissioningGpdfCallback(GP_PARAMS)
 
   // Step e: sending GP Commissioning Notification
   send_notification: {
-    uint16_t options = addr->applicationId;
-    if (bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK) {
+    uint16_t options = params->addr.applicationId;
+    if (params->bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK) {
       options |= SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_RX_AFTER_TX;
     }
 
-    if ((status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
-        || (status == SL_ZIGBEE_GP_STATUS_UNPROCESSED)) {
+    if ((params->status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
+        || (params->status == SL_ZIGBEE_GP_STATUS_UNPROCESSED)) {
       options |=
         SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_SECURITY_PROCESSING_FAILED;
-      options |= (gpdfSecurityKeyType ? 0x4 : 0) // see 1.0 spec line 3040
+      options |= (params->gpdfSecurityKeyType ? 0x4 : 0) // see 1.0 spec line 3040
                  << GP_COMMISSIONING_SECURITY_KEY_TYPE_TO_OPTIONS_SHIFT;
     } else {
-      options |= gpdfSecurityKeyType
+      options |= params->gpdfSecurityKeyType
                  << GP_COMMISSIONING_SECURITY_KEY_TYPE_TO_OPTIONS_SHIFT;
     }
 
-    options |= gpdfSecurityLevel
+    options |= params->gpdfSecurityLevel
                << GP_COMMISSIONING_SECURITY_LEVEL_TO_OPTIONS_SHIFT;
     options |= SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_PROXY_INFO_PRESENT;
     if (commissioningState.unicastCommunication) {
-      if (sl_zigbee_af_fill_command_green_power_cluster_gp_commissioning_notification_smart(options,
-                                                                                            addr->id.sourceId,
-                                                                                            addr->id.gpdIeeeAddress,
-                                                                                            addr->endpoint,
-                                                                                            sequenceNumber,
-                                                                                            gpdfSecurityLevel,
-                                                                                            gpdSecurityFrameCounter,
-                                                                                            gpdCommandId,
-                                                                                            gpdCommandPayloadLength,
-                                                                                            gpdCommandPayload,
-                                                                                            sl_zigbee_get_node_id(),
-                                                                                            gpdLink,
-                                                                                            mic) == 0) {
-        goto kickout;
-      }
-
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
-      apsFrame = sl_zigbee_af_get_command_aps_frame();
-      apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
-      UNUSED sl_status_t retval = sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT,
-                                                                    commissioningState.commissioningSink);
-      sli_zigbee_af_set_add_delay(0);
+      sendUnicastCommissioningNotification(params, options);
     } else {
-      if (sl_zigbee_af_fill_command_green_power_cluster_gp_commissioning_notification_smart(options,
-                                                                                            addr->id.sourceId,
-                                                                                            addr->id.gpdIeeeAddress,
-                                                                                            addr->endpoint,
-                                                                                            sequenceNumber,
-                                                                                            gpdfSecurityLevel,
-                                                                                            gpdSecurityFrameCounter,
-                                                                                            gpdCommandId,
-                                                                                            gpdCommandPayloadLength,
-                                                                                            gpdCommandPayload,
-                                                                                            sl_zigbee_get_node_id(),
-                                                                                            gpdLink,
-                                                                                            mic) == 0) {
-        goto kickout;
-      }
-
-      apsFrame = sl_zigbee_af_get_command_aps_frame();
-      apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
-      apsFrame->sequence = sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
-      apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
-
-      UNUSED sl_status_t retval = sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS,
-                                                                      sli_zigbee_gpd_alias(addr),
-                                                                      sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
-      sli_zigbee_af_set_add_delay(0);
+      sendBroadcastCommissioningNotification(params, options);
     }
   }
 
   kickout: return true;
 }
 
-static bool channelRequestGpdfCallback(GP_PARAMS)
+static bool channelRequestGpdfCallback(sl_zigbee_gp_params_t *params)
 {
   if (!commissioningState.inCommissioningMode) {
     return true;
@@ -1088,14 +1092,14 @@ static bool channelRequestGpdfCallback(GP_PARAMS)
     options |=
       SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_RX_AFTER_TX;
 
-    if (status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE) {
+    if (params->status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE) {
       options |=
         SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_SECURITY_PROCESSING_FAILED;
     }
 
-    options |= gpdfSecurityLevel
+    options |= params->gpdfSecurityLevel
                << GP_COMMISSIONING_SECURITY_LEVEL_TO_OPTIONS_SHIFT;
-    options |= gpdfSecurityKeyType
+    options |= params->gpdfSecurityKeyType
                << GP_COMMISSIONING_SECURITY_KEY_TYPE_TO_OPTIONS_SHIFT;
     options |= SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_PROXY_INFO_PRESENT;
 
@@ -1106,22 +1110,22 @@ static bool channelRequestGpdfCallback(GP_PARAMS)
                                                                                             0x00000000, //addr.id.sourceId,
                                                                                             NULL, //addr.id.gpdIeeeAddress,
                                                                                             0, //addr.endpoint,
-                                                                                            sequenceNumber,
-                                                                                            gpdfSecurityLevel,
-                                                                                            gpdSecurityFrameCounter,
-                                                                                            gpdCommandId,
-                                                                                            gpdCommandPayloadLength,
-                                                                                            gpdCommandPayload,
+                                                                                            params->sequenceNumber,
+                                                                                            params->gpdfSecurityLevel,
+                                                                                            params->gpdSecurityFrameCounter,
+                                                                                            params->gpdCommandId,
+                                                                                            params->gpdCommandPayloadLength,
+                                                                                            params->gpdCommandPayload,
                                                                                             sl_zigbee_get_node_id(),
-                                                                                            gpdLink,
-                                                                                            mic) == 0) {
+                                                                                            params->gpdLink,
+                                                                                            params->mic) == 0) {
         return true;
       }
 
       apsFrame = sl_zigbee_af_get_command_aps_frame();
       apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
       apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
+      gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
       UNUSED sl_status_t retval = sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT,
                                                                     commissioningState.commissioningSink);
       sli_zigbee_af_set_add_delay(0);
@@ -1130,27 +1134,27 @@ static bool channelRequestGpdfCallback(GP_PARAMS)
                                                                                             0x00000000, //addr.id.sourceId,
                                                                                             NULL, //addr.id.gpdIeeeAddress,
                                                                                             0, //addr.endpoint,
-                                                                                            sequenceNumber,
-                                                                                            gpdfSecurityLevel,
-                                                                                            gpdSecurityFrameCounter,
-                                                                                            gpdCommandId,
-                                                                                            gpdCommandPayloadLength,
-                                                                                            gpdCommandPayload,
+                                                                                            params->sequenceNumber,
+                                                                                            params->gpdfSecurityLevel,
+                                                                                            params->gpdSecurityFrameCounter,
+                                                                                            params->gpdCommandId,
+                                                                                            params->gpdCommandPayloadLength,
+                                                                                            params->gpdCommandPayload,
                                                                                             sl_zigbee_get_node_id(),
-                                                                                            gpdLink,
-                                                                                            mic) == 0) {
+                                                                                            params->gpdLink,
+                                                                                            params->mic) == 0) {
         return true;
       }
 
       apsFrame = sl_zigbee_af_get_command_aps_frame();
       apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
       apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT; //sl_zigbee_af_current_endpoint();
-      apsFrame->sequence = sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
+      apsFrame->sequence = params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET;
       apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
+      gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
       UNUSED sl_status_t retval = sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS,
-                                                                      sli_zigbee_gpd_alias(addr),
-                                                                      sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
+                                                                      sli_zigbee_gpd_alias(&(params->addr)),
+                                                                      params->sequenceNumber - SL_ZIGBEE_GP_COMMISSIONING_NOTIFICATION_SEQUENCE_NUMBER_OFFSET);
       sli_zigbee_af_set_add_delay(0);
     }
   }
@@ -1158,48 +1162,107 @@ static bool channelRequestGpdfCallback(GP_PARAMS)
   return true;
 }
 
-static bool gpdfForwardCallback(GP_PARAMS)
+static void forwardDerivedGroupNotification(sl_zigbee_gp_params_t *params,
+                                            sl_zigbee_gp_proxy_table_entry_t *entry)
 {
-  uint8_t i;
-  uint16_t options = 0;
-  uint16_t alias = 0;
-  sl_zigbee_aps_frame_t *apsFrame;
+  sl_zigbee_aps_frame_t *apsFrame = sl_zigbee_af_get_command_aps_frame();
+  apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->sequence = params->sequenceNumber;
+  apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
+  apsFrame->radius = entry->groupcastRadius;
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
 
-  if (proxyTableIndex == 0xFF) {
-    return true;
-  }
-  sl_zigbee_gp_proxy_table_entry_t entry;
-  if (proxyTableIndex != 0xFF) {
-#ifndef EZSP_HOST
-    //TODO, we need to decide how to do this for host
-    sli_zigbee_gp_proxy_table_set_first_to_forward(proxyTableIndex);
-    sli_zigbee_gp_proxy_table_set_in_range(proxyTableIndex);    //TODO is this the right place for this?
-#endif
-    if (sl_zigbee_gp_proxy_table_get_entry(proxyTableIndex, &entry) != SL_STATUS_OK) {
-      return true;
+  // get derived alias for address alias and group ID alias
+  uint16_t alias = (entry->options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_ASSIGNED_ALIAS)
+                   ? entry->assignedAlias
+                   : sli_zigbee_gpd_alias(&(params->addr));
+
+  sl_zigbee_af_send_command_multicast(sli_zigbee_gpd_alias(&(params->addr)),
+                                      alias,
+                                      params->sequenceNumber);
+  sli_zigbee_af_set_add_delay(0);
+}
+
+static void forwardGroupcastNotification(sl_zigbee_gp_params_t *params,
+                                         sl_zigbee_gp_sink_list_entry_t *sinkEntry,
+                                         uint8_t groupcastRadius)
+{
+  sl_zigbee_aps_frame_t *apsFrame = sl_zigbee_af_get_command_aps_frame();
+  apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->sequence = params->sequenceNumber - SL_ZIGBEE_GP_NOTIFICATION_COMMISSIONED_GROUPCAST_SEQUENCE_NUMBER_OFFSET;
+  apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
+  apsFrame->radius = groupcastRadius;
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
+
+  sl_zigbee_af_send_command_multicast(sinkEntry->target.groupcast.groupID,
+                                      (sinkEntry->target.groupcast.alias == 0xFFFF)
+                                      ? sli_zigbee_gpd_alias(&(params->addr))
+                                      : sinkEntry->target.groupcast.alias,
+                                      params->sequenceNumber - SL_ZIGBEE_GP_NOTIFICATION_COMMISSIONED_GROUPCAST_SEQUENCE_NUMBER_OFFSET);
+  sli_zigbee_af_set_add_delay(0);
+}
+
+static void forwardUnicastNotification(sl_zigbee_gp_params_t *params, sl_zigbee_gp_sink_list_entry_t *sinkEntry)
+{
+  sl_zigbee_aps_frame_t *apsFrame = sl_zigbee_af_get_command_aps_frame();
+  apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
+  gppTunnelingDelay(params->bidirectionalInfo, params->gpdLink);
+  // The sinkNodeId is optimised to not be in the proxy table token structure because it can be looked up.
+  // In case the proxy table is updated with a valid address earlier, it needs to use that.
+  // So, check if the proxy table node id is not valid UCAST id before looking up the map and then forward the notification.
+  if (!isNodeIdValid(sinkEntry->target.unicast.sinkNodeId)) {
+    sl_802154_short_addr_t nodeId;
+    (void)sl_zigbee_lookup_node_id_by_eui64(sinkEntry->target.unicast.sinkEUI, &nodeId);
+    if (isNodeIdValid(nodeId)) {
+      sinkEntry->target.unicast.sinkNodeId = nodeId;
     }
   }
 
-  options |= addr->applicationId;
+  sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT, sinkEntry->target.unicast.sinkNodeId);
+  sli_zigbee_af_set_add_delay(0);
+}
+
+static void forwardToSinkTable(sl_zigbee_gp_params_t *params, sl_zigbee_gp_proxy_table_entry_t *entry)
+{
+  for (uint8_t i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
+    if (entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_FULL_UNICAST
+        || entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_LW_UNICAST) {
+      forwardUnicastNotification(params, &entry->sinkList[i]);
+    } else if (entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST) {
+      forwardGroupcastNotification(params, &entry->sinkList[i], entry->groupcastRadius);
+    }
+  }
+
+  if (entry->options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_DERIVED_GROUP_GPS) {
+    forwardDerivedGroupNotification(params, entry);
+  }
+}
+
+static uint16_t prepareNotificationOptions(sl_zigbee_gp_params_t *params, sl_zigbee_gp_proxy_table_entry_t *entry)
+{
+  uint16_t options = params->addr.applicationId;
 
   //Traverse the sink list to set the options flags
-  for (i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
-    if (entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_FULL_UNICAST
-        || entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_LW_UNICAST) {
+  for (uint8_t i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
+    if (entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_FULL_UNICAST
+        || entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_LW_UNICAST) {
       options |= SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_ALSO_UNICAST;
-    } else if (entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST) {
+    } else if (entry->sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST) {
       options |= SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_ALSO_COMMISSIONED_GROUP;
     }
   }
 
-  if (entry.options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_DERIVED_GROUP_GPS) {
+  if (entry->options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_DERIVED_GROUP_GPS) {
     options |= SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_ALSO_DERIVED_GROUP;
   }
 
-  options |= gpdfSecurityLevel
+  options |= params->gpdfSecurityLevel
              << SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_SECURITY_LEVEL_OFFSET;
 
-  options |= gpdfSecurityKeyType
+  options |= params->gpdfSecurityKeyType
              << SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_SECURITY_KEY_TYPE_OFFSET;
 
 #ifndef ENABLE_BIDIRECTIONAL_OPERATION
@@ -1214,28 +1277,51 @@ static bool gpdfForwardCallback(GP_PARAMS)
   options |= SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_PROXY_INFO_PRESENT;
 
   // comm/decomm frames ignore rx after tx bit in operational mode
-  if (((gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING
-        && gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_DECOMMISSIONING)
+  if (((params->gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING
+        && params->gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_DECOMMISSIONING)
        || commissioningState.inCommissioningMode)
-      && (bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK)) {
+      && (params->bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK)) {
     options |= SL_ZIGBEE_AF_GP_NOTIFICATION_OPTION_RX_AFTER_TX;
   }
 
-  if (  gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_KEY_NONE) {
+  return options;
+}
+
+static bool gpdfForwardCallback(sl_zigbee_gp_params_t *params)
+{
+  uint16_t options = 0;
+
+  if (params->proxyTableIndex == 0xFF) {
+    return true;
+  }
+  sl_zigbee_gp_proxy_table_entry_t entry;
+  if (params->proxyTableIndex != 0xFF) {
+#ifndef EZSP_HOST
+    sli_zigbee_gp_proxy_table_set_first_to_forward(params->proxyTableIndex);
+    sli_zigbee_gp_proxy_table_set_in_range(params->proxyTableIndex);
+#endif
+    if (sl_zigbee_gp_proxy_table_get_entry(params->proxyTableIndex, &entry) != SL_STATUS_OK) {
+      return true;
+    }
+  }
+
+  options = prepareNotificationOptions(params, &entry);
+
+  if ( params->gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_KEY_NONE) {
     // If no security use the MAC sequence number instead
-    gpdSecurityFrameCounter = (uint32_t)(sequenceNumber & 0x000000ff);
+    params->gpdSecurityFrameCounter = (uint32_t)(params->sequenceNumber & 0x000000ff);
   }
 
   if (sl_zigbee_af(options,
-                   addr->id.sourceId,
-                   addr->id.gpdIeeeAddress,
-                   addr->endpoint,
-                   gpdSecurityFrameCounter,
-                   gpdCommandId,
-                   gpdCommandPayloadLength,
-                   gpdCommandPayload,
+                   params->addr.id.sourceId,
+                   params->addr.id.gpdIeeeAddress,
+                   params->addr.endpoint,
+                   params->gpdSecurityFrameCounter,
+                   params->gpdCommandId,
+                   params->gpdCommandPayloadLength,
+                   params->gpdCommandPayload,
                    sl_zigbee_get_node_id(),
-                   gpdLink) == 0) {
+                   params->gpdLink) == 0) {
     return true;
   }
 
@@ -1245,68 +1331,11 @@ static bool gpdfForwardCallback(GP_PARAMS)
   // in its entry. And the expected outcome from the combo basic is that it should be able to forward
   // the messages to the sink table based groupcast. The following callback is used to get an updated sink
   // list entry from user. If the green power server is present it implements this callback.
-  sl_zigbee_af_green_power_client_gpdf_sink_table_based_forward_cb(addr,
+  sl_zigbee_af_green_power_client_gpdf_sink_table_based_forward_cb(&(params->addr),
                                                                    entry.sinkList,
                                                                    GP_SINK_LIST_ENTRIES);
 
-  for (i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
-    if (entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_FULL_UNICAST
-        || entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_LW_UNICAST) {
-      apsFrame = sl_zigbee_af_get_command_aps_frame();
-      apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
-      // The sinkNodeId is optimised to not be in the proxy table token structure because it can be looked up.
-      // Incase the proxy table is updated witha valid address earlier it needs to use that.
-      // So, check if the proxy table node id is not valid UCAST id before looking up the map and then forward the notification.
-      if (!isNodeIdValid(entry.sinkList[i].target.unicast.sinkNodeId)) {
-        sl_802154_short_addr_t nodeId;
-        (void) sl_zigbee_lookup_node_id_by_eui64(entry.sinkList[i].target.unicast.sinkEUI, &nodeId);
-        if (isNodeIdValid(nodeId)) {
-          entry.sinkList[i].target.unicast.sinkNodeId = nodeId;
-        }
-      }
-
-      UNUSED sl_status_t retval = sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT,
-                                                                    entry.sinkList[i].target.unicast.sinkNodeId);
-      sli_zigbee_af_set_add_delay(0);
-    } else if (entry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST) {
-      apsFrame = sl_zigbee_af_get_command_aps_frame();
-      apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-      apsFrame->sequence = sequenceNumber - SL_ZIGBEE_GP_NOTIFICATION_COMMISSIONED_GROUPCAST_SEQUENCE_NUMBER_OFFSET;
-      apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
-      apsFrame->radius = entry.groupcastRadius;
-      gppTunnelingDelay(bidirectionalInfo, gpdLink);
-      UNUSED sl_status_t retval = sl_zigbee_af_send_command_multicast(entry.sinkList[i].target.groupcast.groupID,
-                                                                      (entry.sinkList[i].target.groupcast.alias == 0xFFFF)
-                                                                      ? sli_zigbee_gpd_alias(addr)
-                                                                      : entry.sinkList[i].target.groupcast.alias,
-                                                                      sequenceNumber - SL_ZIGBEE_GP_NOTIFICATION_COMMISSIONED_GROUPCAST_SEQUENCE_NUMBER_OFFSET);
-      sli_zigbee_af_set_add_delay(0);
-    }
-  }
-  if (entry.options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_DERIVED_GROUP_GPS) {
-    apsFrame = sl_zigbee_af_get_command_aps_frame();
-    apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-    apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;  //sl_zigbee_af_current_endpoint();
-    apsFrame->sequence = sequenceNumber;
-    apsFrame->options |= SL_ZIGBEE_APS_OPTION_USE_ALIAS_SEQUENCE_NUMBER;
-    apsFrame->radius = entry.groupcastRadius;
-    gppTunnelingDelay(bidirectionalInfo, gpdLink);
-
-    //get derived alias for address alias and group ID alias
-    if (entry.options & SL_ZIGBEE_AF_GP_PROXY_TABLE_ENTRY_OPTIONS_ASSIGNED_ALIAS) {
-      alias = entry.assignedAlias;
-    } else {
-      alias = sli_zigbee_gpd_alias(addr);
-    }
-
-    UNUSED sl_status_t retval = sl_zigbee_af_send_command_multicast((sl_zigbee_multicast_id_t) sli_zigbee_gpd_alias(addr),
-                                                                    (sl_802154_short_addr_t)alias,
-                                                                    sequenceNumber);
-    sli_zigbee_af_set_add_delay(0);
-  }
+  forwardToSinkTable(params, &entry);
   return true;
 }
 
@@ -1509,17 +1538,74 @@ bool sli_zigbee_af_gp_message_checking(sl_zigbee_gp_address_t *gpAddr, uint8_t s
   return true;
 }
 
+static void processMessageInCommissioningMode(sl_zigbee_gp_params_t *params)
+{
+  if (params->autoCommissioning) {
+    autoCommissioningCallback(params);
+  }
+
+  // If status is unprocessed and security is level 3, then gpdCommandId with its payload are encrypted
+  // and can not be interpreated by proxy, hence forward it as a GP Commissioning Notification with security
+  // processing failed bit set, so that sink can process the commissioning notification.
+  if ((params->status == SL_ZIGBEE_GP_STATUS_UNPROCESSED || params->status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
+      && params->gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED) {
+    params->status = SL_ZIGBEE_GP_STATUS_AUTH_FAILURE;
+    commissioningGpdfCallback(params);
+    return;
+  }
+
+  // Proceed with command processing based on gpdCommandId
+  switch (params->gpdCommandId) {
+    case SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING:
+    case SL_ZIGBEE_ZCL_GP_GPDF_DECOMMISSIONING:
+    case SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS:
+      commissioningGpdfCallback(params);
+      break;
+
+    case SL_ZIGBEE_ZCL_GP_GPDF_CHANNEL_REQUEST:
+      channelRequestGpdfCallback(params);
+      break;
+
+    default:
+      if (params->status == SL_ZIGBEE_GP_STATUS_NO_SECURITY
+          && ((params->gpdCommandId >= MIN_RESERVED_GPD_COMMAND_ID
+               && params->gpdCommandId <= MAX_RESERVED_GPD_COMMAND_ID)
+              || (params->gpdCommandId >= SL_ZIGBEE_ZCL_GP_GPDF_MFR_DEF_GPD_CMD0
+                  && params->gpdCommandId <= SL_ZIGBEE_ZCL_GP_GPDF_MFR_DEF_GPD_CMD_F))) {
+        commissioningGpdfCallback(params);
+      } else if (params->status == SL_ZIGBEE_GP_STATUS_UNPROCESSED) {
+        params->status = SL_ZIGBEE_GP_STATUS_AUTH_FAILURE;
+        commissioningGpdfCallback(params);
+      } else {
+        gpdfForwardCallback(params);
+      }
+      break;
+  }
+}
+
+static void processMessageInNonCommissioningMode(sl_zigbee_gp_params_t *params)
+{
+  // Outside of commissioning mode, everything gets forwarded, including commissioning related messages
+  // But not success messages (See A3.9.1)
+  if (params->gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS && !commissioningState.inCommissioningMode) {
+    // Drop a success message
+    return;
+  }
+
+  gpdfForwardCallback(params);
+}
+
 //GP-DATA.indication
-void sli_zigbee_af_green_power_client_gpep_incoming_message_callback(GP_PARAMS)
+void sli_zigbee_af_green_power_client_gpep_incoming_message_callback(sl_zigbee_gp_params_t *params)
 {
   // sl_zigbee_af_green_power_cluster_println("Gpep cmd %x status %x SFC %4x, timestampe: %u", gpdCommandId, status, gpdSecurityFrameCounter, packetInfo->last_hop_timestamp);
   if ((commissioningState.channelStatus & GP_CLIENT_ON_TRANSMIT_CHANNEL_MASK)
-      && gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_CHANNEL_REQUEST) {
+      && params->gpdCommandId != SL_ZIGBEE_ZCL_GP_GPDF_CHANNEL_REQUEST) {
     //drop everything but a channel request when we're off on a different channel
     return;
   }
 
-  if ( gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_NONE
+  if ( params->gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_NONE
        && !commissioningState.inCommissioningMode) {
     // earlier a message satisfying this condition would have been
     // dropped in gp-data, but
@@ -1531,7 +1617,7 @@ void sli_zigbee_af_green_power_client_gpep_incoming_message_callback(GP_PARAMS)
     // in the commisisong mode, and not in the operational mode
     // (EMZIGBEE-1578)
     bool secureEntry = false;
-    uint8_t index = sl_zigbee_gp_proxy_table_lookup(addr);
+    uint8_t index = sl_zigbee_gp_proxy_table_lookup(&(params->addr));
     if (index != 0xFF) {
       sl_zigbee_gp_proxy_table_entry_t entry;
       sl_status_t getStatus = sl_zigbee_gp_proxy_table_get_entry(index, &entry);
@@ -1547,91 +1633,22 @@ void sli_zigbee_af_green_power_client_gpep_incoming_message_callback(GP_PARAMS)
     }
   }
 
-  if (status == SL_ZIGBEE_GP_STATUS_OK
-      || status == SL_ZIGBEE_GP_STATUS_NO_SECURITY
-      || (status == SL_ZIGBEE_GP_STATUS_UNPROCESSED && commissioningState.inCommissioningMode)
-      || (status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE  && commissioningState.inCommissioningMode)) {
-    // duplicate filter
-    if (sli_zigbee_af_gp_message_checking(addr, sequenceNumber)) {
-      if (commissioningState.inCommissioningMode) {
-        if (autoCommissioning) {
-          autoCommissioningCallback(GP_ARGS);
-        }
-        // If status is unprocessed and security is level 3, then gpdCommandId with its payload are encrypted
-        // and can not be interpreated by proxy, hence forward it as a GP Commissioning Notification with security
-        // processing failed bit set, so that sink can process the commissioning notification.
-        if ((status == SL_ZIGBEE_GP_STATUS_UNPROCESSED || status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE)
-            && gpdfSecurityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED) {
-          status = SL_ZIGBEE_GP_STATUS_AUTH_FAILURE;
-          commissioningGpdfCallback(GP_ARGS);
-          return;
-        }
-        // Proceed with command processing based on gpdCommandId
-        switch (gpdCommandId) {
-          case SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING:
-          case SL_ZIGBEE_ZCL_GP_GPDF_DECOMMISSIONING:
-          case SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS:
-            commissioningGpdfCallback(GP_ARGS);
-            break;
-          case SL_ZIGBEE_ZCL_GP_GPDF_CHANNEL_REQUEST:
-            channelRequestGpdfCallback(GP_ARGS);
-            break;
-
-          default:
-            if (status == SL_ZIGBEE_GP_STATUS_NO_SECURITY
-                && ((gpdCommandId >= MIN_RESERVED_GPD_COMMAND_ID
-                     && gpdCommandId <= MAX_RESERVED_GPD_COMMAND_ID)
-                    || (gpdCommandId >= SL_ZIGBEE_ZCL_GP_GPDF_MFR_DEF_GPD_CMD0
-                        && gpdCommandId <= SL_ZIGBEE_ZCL_GP_GPDF_MFR_DEF_GPD_CMD_F))) {
-              commissioningGpdfCallback(GP_ARGS);
-            } else if (status == SL_ZIGBEE_GP_STATUS_UNPROCESSED) {
-              status = SL_ZIGBEE_GP_STATUS_AUTH_FAILURE;
-              commissioningGpdfCallback(GP_ARGS);
-            } else {
-              gpdfForwardCallback(GP_ARGS);
-            }
-            break;
-        }
-      } else {
-        //outside of commissioning mode, everything gets forwarded, including commissioning related messages
-        // But not success messages (See A3.9.1)
-        if (gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_SUCCESS
-            && !commissioningState.inCommissioningMode) {
-          // Drop a success message
-        } else {
-          gpdfForwardCallback(GP_ARGS);
-        }
-      }
+  if ((params->status == SL_ZIGBEE_GP_STATUS_OK
+       || params->status == SL_ZIGBEE_GP_STATUS_NO_SECURITY
+       || (params->status == SL_ZIGBEE_GP_STATUS_UNPROCESSED && commissioningState.inCommissioningMode)
+       || (params->status == SL_ZIGBEE_GP_STATUS_AUTH_FAILURE  && commissioningState.inCommissioningMode))
+      && sli_zigbee_af_gp_message_checking(&(params->addr), params->sequenceNumber)) {
+    if (commissioningState.inCommissioningMode) {
+      processMessageInCommissioningMode(params);
+    } else {
+      processMessageInNonCommissioningMode(params);
     }
   }
 }
 
 void sl_zigbee_af_green_power_client_clear_proxy_table(void)
 {
-#ifndef EZSP_HOST
-  sli_zigbee_gp_clear_proxy_table();
-#else
-  sl_zigbee_gp_proxy_table_entry_t entry;
-  uint8_t entryIndex;
-  for (entryIndex = 0; entryIndex < SL_ZIGBEE_GP_PROXY_TABLE_SIZE; entryIndex++) {
-    if (sl_zigbee_gp_proxy_table_get_entry(entryIndex, &entry) != SL_STATUS_OK) {
-      return;
-    }
-    uint8_t allZeroesIeeeAddress[17];
-    if (entry.status == SL_ZIGBEE_GP_PROXY_TABLE_ENTRY_STATUS_ACTIVE) {
-      sl_zigbee_gp_proxy_table_process_gp_pairing(SL_ZIGBEE_AF_GP_PAIRING_OPTION_REMOVE_GPD,
-                                                  &(entry.gpd),
-                                                  0,// commMode,
-                                                  SL_ZIGBEE_NULL_NODE_ID,
-                                                  0,// sinkGroupId,
-                                                  SL_ZIGBEE_NULL_NODE_ID,// assignedAlias,
-                                                  allZeroesIeeeAddress,//sinkIeeeAddress,
-                                                  (sl_zigbee_key_data_t *) allZeroesIeeeAddress,// sl_zigbee_key_data_t* gpdKey,
-                                                  0,// gpdSecurityFrameCounter,
-                                                  0); // forwardingRadius)
-    }
-  }
-#endif
+  sl_zigbee_gp_clear_proxy_table();
 }
 
 void sli_zigbee_af_green_power_client_d_gp_sent_callback(sl_status_t status, uint8_t gpepHandle)
@@ -1650,7 +1667,7 @@ void sli_zigbee_af_green_power_client_stack_status_callback(sl_status_t status)
   if (status == SL_STATUS_NETWORK_DOWN
       && sl_zigbee_is_performing_rejoin() == FALSE) {
     // Clear proxy table when leaving the network.
-    sl_zigbee_af_green_power_client_clear_proxy_table();
+    sl_zigbee_gp_clear_proxy_table();
     // Ensure to close any commissioning session in progress.
     exitCommissioningEventHandler(&exitCommissioningEvent);
   }

@@ -20,8 +20,7 @@
  * application files. An example could be a peripheral driver that enqueues an event when something
  * specific happens, e.g. when battery level reach a certain level.
  */
-typedef enum EVENT_APP_WALL_CONTROLLER
-{
+typedef enum EVENT_APP_WALL_CONTROLLER{
   EVENT_EMPTY = DEFINE_EVENT_APP_NBR,
   EVENT_APP_KEY01_SHORT_PRESS,
   EVENT_APP_KEY01_HOLD,

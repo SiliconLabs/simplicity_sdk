@@ -1,7 +1,7 @@
 !!omap
 - id: xg27_dk2602a
 - label: XG27-DK2602A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG27 Dev Kit.
 - category: Platform|Board|Kit|Development Kit
 - quality: production

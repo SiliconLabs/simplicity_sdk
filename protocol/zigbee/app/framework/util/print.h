@@ -26,16 +26,6 @@
 
 extern uint16_t sl_zigbee_af_print_active_area;
 
-// These print functions are required by the CBKE crypto engine.
-#define sl_zigbee_af_print_zigbee_key printZigbeeKey
-#define sl_zigbee_af_print_cert      printCert
-#define sl_zigbee_af_print_key       printKey
-#define sl_zigbee_af_print_ieee_line  printIeeeLine
-#define sl_zigbee_af_print_text_line  printTextLine
-
-#define sl_zigbee_af_print_public_key(key)  printKey(true, key)
-#define sl_zigbee_af_print_private_key(key) printKey(false, key)
-
 /** @name Printing */
 // @{
 
@@ -129,6 +119,7 @@ void sl_zigbee_af_print_all_off(void);
 void sl_zigbee_af_print_status(void);
 #endif
 
+#if defined(SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT)
 /**
  * @brief prints eui64 stored in little endian format
  */
@@ -146,13 +137,23 @@ void sl_zigbee_af_print_message_data(uint8_t* data, uint16_t length);
 
 /** @} END Printing */
 
-void sl_zigbee_af_print_zigbee_key(const uint8_t *key);
-void sl_zigbee_af_print_cert(const uint8_t *cert);
-void sl_zigbee_af_print_cert_283k1(const uint8_t *cert);
-void sl_zigbee_af_print_key(bool publicKey, const uint8_t *key);
-void sl_zigbee_af_print_key_283k1(bool publickKey, const uint8_t *key);
-void sl_zigbee_af_print_ieee_line(const sl_802154_long_addr_t ieee);
-void sl_zigbee_af_print_text_line(const char * text);
+extern void printZigbeeKey(const uint8_t* key);
+extern void printCert(const uint8_t* cert);
+extern void printKey(bool publicKey, const uint8_t* key);
+extern void printKey283k1(bool publicKey, const uint8_t* key);
+extern void printCert283k1(const uint8_t* cert);
+extern void printIeeeLine(const sl_802154_long_addr_t ieee);
+extern void printTextLine(const char * text);
+// These print functions are required by the CBKE crypto engine.
+#define sl_zigbee_af_print_zigbee_key printZigbeeKey
+#define sl_zigbee_af_print_cert      printCert
+#define sl_zigbee_af_print_key       printKey
+#define sl_zigbee_af_print_ieee_line  printIeeeLine
+#define sl_zigbee_af_print_text_line  printTextLine
+#define sl_zigbee_af_print_public_key(key)  printKey(true, key)
+#define sl_zigbee_af_print_private_key(key) printKey(false, key)
+#define sl_zigbee_af_print_key_283k1 printKey283k1
+#define sl_zigbee_af_print_cert_283k1  printCert283k1
 
 void sl_zigbee_af_print8_byte_blocks(uint8_t numBlocks,
                                      const uint8_t *block,
@@ -161,4 +162,36 @@ void sl_zigbee_af_print_issuer(const uint8_t *issuer);
 
 void sl_zigbee_af_print_channel_list_from_mask(uint32_t channelMask);
 
+void sli_zigbee_af_print_status(const char * task,
+                                sl_status_t status);
+#else
+
+#define sl_zigbee_af_print_little_endian_eui64(...)
+
+/**
+ * @brief prints eui64 stored in big endian format
+ */
+#define sl_zigbee_af_print_big_endian_eui64(...)
+
+/**
+ * @brief prints all message data in message format
+ */
+#define sl_zigbee_af_print_message_data(...)
+
+/** @} END Printing */
+
+#define sl_zigbee_af_print_zigbee_key(...)
+#define sl_zigbee_af_print_cert(...)
+#define sl_zigbee_af_print_cert_283k1(...)
+#define sl_zigbee_af_print_key(...)
+#define sl_zigbee_af_print_key_283k1(...)
+#define sl_zigbee_af_print_ieee_line(...)
+#define sl_zigbee_af_print_text_line(...)
+
+#define sl_zigbee_af_print8_byte_blocks(...)
+#define sl_zigbee_af_print_issuer(...)
+#define sl_zigbee_af_print_channel_list_from_mask(...)
+#define sli_zigbee_af_print_status(...)
+
+#endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 #endif // __AF_DEBUG_PRINT__

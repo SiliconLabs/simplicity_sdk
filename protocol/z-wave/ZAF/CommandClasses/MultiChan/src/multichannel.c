@@ -12,16 +12,12 @@ bool ZAF_CC_MultiChannel_IsCCSupported(
   RECEIVE_OPTIONS_TYPE_EX * pRxOpt,
   ZW_APPLICATION_TX_BUFFER * pCmd)
 {
-  if (0 == pRxOpt->destNode.endpoint)
-  {
+  if (0 == pRxOpt->destNode.endpoint) {
     return (TransportCmdClassSupported(pCmd->ZW_Common.cmdClass, pCmd->ZW_Common.cmd, pRxOpt->securityKey));
-  }
-  else
-  {
+  } else {
     zaf_cc_list_t* pNonSec = GetEndpointcmdClassList(false, pRxOpt->destNode.endpoint);
     zaf_cc_list_t* pSec    = GetEndpointcmdClassList(true, pRxOpt->destNode.endpoint);
-    if ((NULL != pNonSec) && (NULL != pSec))
-    {
+    if ((NULL != pNonSec) && (NULL != pSec)) {
       return (CmdClassSupported(pRxOpt->securityKey,
                                 pCmd->ZW_Common.cmdClass,
                                 pCmd->ZW_Common.cmd,
@@ -41,16 +37,14 @@ void CmdClassMultiChannelEncapsulate(
   size_t sizeCmdFrameHeader;
 
   if (IS_NULL(*ppData)
-   || ((0 == pTxOptionsEx->sourceEndpoint)
-   && (0 == pTxOptionsEx->pDestNode->node.endpoint)))
-  {
+      || ((0 == pTxOptionsEx->sourceEndpoint)
+          && (0 == pTxOptionsEx->pDestNode->node.endpoint))) {
     return;
   }
 
   sizeCmdFrameHeader = sizeof(ZW_MULTI_CHANNEL_CMD_ENCAP_V2_FRAME) - sizeof(ALL_EXCEPT_ENCAP);
   *ppData -= sizeCmdFrameHeader;
   pTxBuf = (ZW_APPLICATION_TX_BUFFER *)*ppData;
-
 
   *dataLength += sizeCmdFrameHeader;
 
@@ -59,4 +53,3 @@ void CmdClassMultiChannelEncapsulate(
   pTxBuf->ZW_MultiChannelCmdEncapV2Frame.properties1 = pTxOptionsEx->sourceEndpoint;
   pTxBuf->ZW_MultiChannelCmdEncapV2Frame.properties2 = (uint8_t)(pTxOptionsEx->pDestNode->node.endpoint | (pTxOptionsEx->pDestNode->node.BitAddress << 0x07));
 }
-

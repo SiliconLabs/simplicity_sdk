@@ -31,8 +31,6 @@
 /*                            PRIVATE FUNCTIONS                             */
 /****************************************************************************/
 
-
-
 /*==============================   handleCommandClassBinarySwitch  ============
 **
 **  Function:  handler for Binary Switch Info CC
@@ -50,15 +48,13 @@ CC_Security_handler(
 {
   uint8_t length;
 
-  if(true == Check_not_legal_response_job(rxOpt))
-  {
+  if (true == Check_not_legal_response_job(rxOpt)) {
     /*Get/Report do not support endpoint bit-addressing */
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
-  if ((SECURITY_COMMANDS_SUPPORTED_GET != pCmd->ZW_Common.cmd) &&
-      (SECURITY_2_COMMANDS_SUPPORTED_GET != pCmd->ZW_Common.cmd))
-  {
+  if ((SECURITY_COMMANDS_SUPPORTED_GET != pCmd->ZW_Common.cmd)
+      && (SECURITY_2_COMMANDS_SUPPORTED_GET != pCmd->ZW_Common.cmd)) {
     return RECEIVED_FRAME_STATUS_NO_SUPPORT;
   }
 
@@ -66,35 +62,29 @@ CC_Security_handler(
   security_key_t secureLevel;
   zaf_cc_list_t *pCmdClassList  = NULL;
 
-  if ((SECURITY_KEY_S2_UNAUTHENTICATED <= rxOpt->securityKey) &&  // We must respond to "S0 SUPPORTED GET" also when included at higher S2 level
-      (SECURITY_KEY_S0 >= rxOpt->securityKey) &&
-	  (SECURITY_COMMANDS_SUPPORTED_GET == pCmd->ZW_Common.cmd) && (COMMAND_CLASS_SECURITY == pCmd->ZW_Common.cmdClass))
-  {
+  if ((SECURITY_KEY_S2_UNAUTHENTICATED <= rxOpt->securityKey)     // We must respond to "S0 SUPPORTED GET" also when included at higher S2 level
+      && (SECURITY_KEY_S0 >= rxOpt->securityKey)
+      && (SECURITY_COMMANDS_SUPPORTED_GET == pCmd->ZW_Common.cmd) && (COMMAND_CLASS_SECURITY == pCmd->ZW_Common.cmdClass)) {
     pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.cmdClass = COMMAND_CLASS_SECURITY;
     pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.cmd = SECURITY_COMMANDS_SUPPORTED_REPORT;
     pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.reportsToFollow = 0;
     length = sizeof(pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame) - 3;
     secureLevel = SECURITY_KEY_S0;
     pPayload = &pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.commandClassSupport1;
-  }
-  else if ((SECURITY_KEY_S2_UNAUTHENTICATED <= rxOpt->securityKey) && (SECURITY_KEY_S2_ACCESS >= rxOpt->securityKey) &&
-		   (SECURITY_2_COMMANDS_SUPPORTED_GET == pCmd->ZW_Common.cmd) && (COMMAND_CLASS_SECURITY_2 == pCmd->ZW_Common.cmdClass))
-  {
+  } else if ((SECURITY_KEY_S2_UNAUTHENTICATED <= rxOpt->securityKey) && (SECURITY_KEY_S2_ACCESS >= rxOpt->securityKey)
+             && (SECURITY_2_COMMANDS_SUPPORTED_GET == pCmd->ZW_Common.cmd) && (COMMAND_CLASS_SECURITY_2 == pCmd->ZW_Common.cmdClass)) {
     pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.cmdClass = COMMAND_CLASS_SECURITY_2;
     pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.cmd = SECURITY_2_COMMANDS_SUPPORTED_REPORT;
     length = 2; /*SECURITY_2_COMMANDS_SUPPORTED_REPORT = 2*/
     secureLevel = rxOpt->securityKey;//SECURITY_KEY_S2_UNAUTHENTICATED;
     pPayload = &pFrameOut->ZW_SecurityCommandsSupportedReport1byteFrame.reportsToFollow;
-  }
-  else
-  {
+  } else {
     /*Job failed */
     return RECEIVED_FRAME_STATUS_NO_SUPPORT;
   }
 
   pCmdClassList = GetCommandClassList((0 != ZAF_GetNodeID()), secureLevel, rxOpt->destNode.endpoint);
-  if(NULL != pCmdClassList)
-  {
+  if (NULL != pCmdClassList) {
     length += pCmdClassList->list_size;
     memcpy(pPayload, pCmdClassList->cc_list, pCmdClassList->list_size);
   }
@@ -108,5 +98,5 @@ CC_Security_handler(
  * Register for both S0 and S2. Version is set to zero because the version is set by and fetched
  * from the Z-Wave protocol.
  */
-REGISTER_CC_V2(COMMAND_CLASS_SECURITY,   0x00, CC_Security_handler);
+REGISTER_CC_V2(COMMAND_CLASS_SECURITY, 0x00, CC_Security_handler);
 REGISTER_CC_V2(COMMAND_CLASS_SECURITY_2, 0x00, CC_Security_handler);

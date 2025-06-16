@@ -1,15 +1,15 @@
 id: device_clock_hal
 label: Device Manager Clock HAL
-package: platform
+package: platform_core
 description: >
-  This component represent the clock HAL layer of the Device Manager.
+    This component represent the clock HAL layer of the Device Manager.
 category: Services|Device Manager
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 provides:
   - name: device_clock_hal
     condition: [device_sdid_200]
@@ -29,6 +29,8 @@ provides:
     condition: [device_sdid_235]
   - name: device_clock_hal
     condition: [device_sdid_240]
+  - name: device_clock_hal
+    condition: [device_generic_family_sixx301]
 requires:
   - name: device_clock
 root_path: platform/service/device_manager
@@ -49,3 +51,5 @@ source:
     condition: [device_sdid_235]
   - path: clocks/sl_device_clock_efr32xg29.c
     condition: [device_sdid_240]
+  - path: clocks/sl_device_clock_sixx301.c
+    condition: [device_generic_family_sixx301]

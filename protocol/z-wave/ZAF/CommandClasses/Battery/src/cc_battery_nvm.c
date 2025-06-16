@@ -10,8 +10,6 @@
 #include <ZAF_nvm.h>
 #include <ZAF_file_ids.h>
 #include <zpal_misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 bool
 cc_battery_write(SBatteryData* battery_data)

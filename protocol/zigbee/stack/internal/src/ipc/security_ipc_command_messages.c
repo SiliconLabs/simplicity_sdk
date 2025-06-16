@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'security' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -38,6 +38,7 @@ void sli_zigbee_stack_clear_key_table_process_ipc_command(sli_zigbee_ipc_cmd_t *
 
 void sli_zigbee_stack_clear_transient_link_keys_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_clear_transient_link_keys();
 }
 
@@ -175,11 +176,11 @@ sl_status_t sl_zigbee_aps_crypt_message(bool encrypt,
   msg.data.aps_crypt_message.request.encrypt = encrypt;
   msg.data.aps_crypt_message.request.length = length;
 
-  if ((length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (length > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector message length exceeds expected maximum
   }
 
-  memmove(msg.data.aps_crypt_message.request.message, message, sizeof(uint8_t) * (length));
+  memmove(msg.data.aps_crypt_message.request.message, message, sizeof(uint8_t) * length);
   msg.data.aps_crypt_message.request.apsHeaderEndIndex = apsHeaderEndIndex;
 
   if (remoteEui64 != NULL) {

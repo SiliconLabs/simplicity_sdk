@@ -48,6 +48,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include "sl_bt_api.h"
 #include "sl_bt_ncp_host.h"
 #include "app_log.h"
@@ -261,11 +262,11 @@ void sync_boot()
           app_log("System rebooted\n");
           sl_bt_evt_system_boot_t *p = \
             &evt.data.evt_system_boot;
-          app_log("NCP version: v%d.%d.%d-b%d\n",
+          app_log("NCP version: v%d.%d.%d+%08" PRIx32 "\n",
                   p->major,
                   p->minor,
                   p->patch,
-                  p->build);
+                  p->hash);
           return;
       }
     }

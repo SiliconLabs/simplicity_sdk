@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component handles the retrieval of diagnostic information from the stack through the diagnostic cluster. Implement the component as follows. 1. Mark all diagnostic attributes you wish to track as external. 2. Add a call to sl_zigbee_af_read_diagnostic_attribute(attributeMetadata, buffer); from sl_zigbee_af_external_attribute_read_cb().
 id: zigbee_diagnostic_server
 label: Diagnostic Server

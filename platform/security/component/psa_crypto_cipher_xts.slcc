@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_xts
-package: platform
+package: security_mbedtls
 label: XTS Mode
 description: >-
   This component provides support for the XTS cipher mode in PSA Crypto.

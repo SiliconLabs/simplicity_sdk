@@ -51,6 +51,13 @@
 // <i> Default: On
 #define ESL_TAG_VENDOR_OPCODES_ENABLED            1
 
+// <q ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED> Encrypted Adv. Data replay mitigation
+// <i> Prevents replay attacks by ignoring replay EAD packets.
+// <i> Disable for backward compatibility with an ESLP v1.0 compatible AP that sets a new randomizer value
+// <i> for each sync packet (as opposed to incrementing the randomizer, as specified in ESLP v1.0.1).
+// <i> Default: On
+#define ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED     1
+
 // <h> ESL Tag Advertiser configuration
 // <o ESL_TAG_ADVERTISING_INTERVAL_MIN> Minimum connectable advertising interval <100-10000>
 // <i> Default: 750 (Double with Intermittent advertising enabled to keep the average power consumption in the same range).

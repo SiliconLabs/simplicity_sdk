@@ -1,0 +1,8 @@
+upgrade:
+  - sdk:
+      id: simplicity_sdk
+      version: "2025.6.0"
+    configuration:
+      - script: app/btmesh/script/migration/btmesh_dma_channel_config_migration.lua
+        description: >
+          Increment DMA channel count by 1 to support increased iostream DMA channel count requirement.

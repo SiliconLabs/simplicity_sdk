@@ -47,14 +47,24 @@ extern "C" {
 /** @cond DOXYGEN_INCLUDE_INTERNAL */
 
 /**
- * @brief Initialize Bluetooth support for Event System IPC
+ * @brief Make permanent allocations for Bluetooth support for Event System IPC
  *
  * This function is called by Bluetooth RTOS adaptation at the right time in the
  * init sequence.
  *
  * @return SL_STATUS_OK if successful, otherwise an error code
  */
-sl_status_t sli_bt_init_event_system(void);
+sl_status_t sli_bt_event_system_permanent_allocations(void);
+
+/**
+ * @brief Perform functional init for Bluetooth support for Event System IPC
+ *
+ * This function is called by Bluetooth RTOS adaptation at the right time in the
+ * init sequence.
+ *
+ * @return SL_STATUS_OK if successful, otherwise an error code
+ */
+sl_status_t sli_bt_event_system_functional_init(void);
 
 /**
  * @brief Publish a BGAPI event to Event System IPC

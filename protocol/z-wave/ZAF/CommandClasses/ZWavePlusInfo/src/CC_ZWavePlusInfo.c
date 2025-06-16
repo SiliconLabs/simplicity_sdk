@@ -1,8 +1,8 @@
 /***************************************************************************
-*
-* @copyright 2018 Silicon Laboratories Inc.
-* @brief ZWave+ Info Command Class source file
-*/
+ *
+ * @copyright 2018 Silicon Laboratories Inc.
+ * @brief ZWave+ Info Command Class source file
+ */
 
 /****************************************************************************/
 /*                              INCLUDE FILES                               */
@@ -46,19 +46,16 @@ zw_plus_info_config_icons_t unassinged_icons =
 
 static received_frame_status_t
 CC_ZWavePlusInfo_handler(
-    RECEIVE_OPTIONS_TYPE_EX *rxOpt,
-    ZW_APPLICATION_TX_BUFFER *pCmd,
-    __attribute__((unused)) uint8_t cmdLength,
-    ZW_APPLICATION_TX_BUFFER * pFrameOut,
-    uint8_t * pLengthOut
-)
+  RECEIVE_OPTIONS_TYPE_EX *rxOpt,
+  ZW_APPLICATION_TX_BUFFER *pCmd,
+  __attribute__((unused)) uint8_t cmdLength,
+  ZW_APPLICATION_TX_BUFFER * pFrameOut,
+  uint8_t * pLengthOut
+  )
 {
-
-  if (pCmd->ZW_Common.cmd == ZWAVEPLUS_INFO_GET)
-  {
+  if (pCmd->ZW_Common.cmd == ZWAVEPLUS_INFO_GET) {
     /*Check pTxBuf is free*/
-    if(false == Check_not_legal_response_job(rxOpt))
-    {
+    if (false == Check_not_legal_response_job(rxOpt)) {
       pFrameOut->ZW_ZwaveplusInfoReportV2Frame.cmdClass = COMMAND_CLASS_ZWAVEPLUS_INFO;
       pFrameOut->ZW_ZwaveplusInfoReportV2Frame.cmd = ZWAVEPLUS_INFO_REPORT;
       pFrameOut->ZW_ZwaveplusInfoReportV2Frame.zWaveVersion = ZW_PLUS_VERSION;
@@ -68,14 +65,11 @@ CC_ZWavePlusInfo_handler(
       uint8_t numOfEndpoint = cc_zwave_plus_info_config_get_endpoint_count();
       zw_plus_info_config_icons_t *pIcons;
 
-      if ((0 != numOfEndpoint ) &&                       // Must be the first check so that we avoid reading from a NULL pointer.
-         (numOfEndpoint >= rxOpt->destNode.endpoint) &&
-         (0 != rxOpt->destNode.endpoint))
-      {
+      if ((0 != numOfEndpoint)                           // Must be the first check so that we avoid reading from a NULL pointer.
+          && (numOfEndpoint >= rxOpt->destNode.endpoint)
+          && (0 != rxOpt->destNode.endpoint)) {
         pIcons = cc_zwave_plus_info_config_get_endpoint_entry(rxOpt->destNode.endpoint);
-      }
-      else
-      {
+      } else {
         pIcons = cc_zwave_plus_info_config_get_root_icons();
       }
 

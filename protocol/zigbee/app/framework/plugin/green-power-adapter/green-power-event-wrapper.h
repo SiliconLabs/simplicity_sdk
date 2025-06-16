@@ -47,10 +47,10 @@ void sl_zigbee_af_event_set_inactive_wrapper(sl_zigbee_event_wrapper_t *event);
 bool sl_zigbee_event_is_active_wrapper(sl_zigbee_event_wrapper_t *event);
 bool sl_zigbee_af_event_is_scheduled_wrapper(sl_zigbee_event_wrapper_t *event);
 
-#ifdef sli_zigbee_event_t
-#undef sli_zigbee_event_t
+#ifdef sl_zigbee_af_event_t
+#undef sl_zigbee_af_event_t
 #endif
-#define sli_zigbee_event_t sl_zigbee_event_wrapper_t
+#define sl_zigbee_af_event_t sl_zigbee_event_wrapper_t
 
 #ifdef sl_zigbee_af_event_init
 #undef sl_zigbee_af_event_init

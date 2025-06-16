@@ -31,12 +31,17 @@
 #ifndef SL_BTMESH_SCENE_CLIENT_H
 #define SL_BTMESH_SCENE_CLIENT_H
 
-/*******************************************************************************
- * This function select scene and send it to the server.
- *
- * @param[in] scene_to_recall  Scene to recall, possible values 1-255.
- *
- ******************************************************************************/
+/**************************************************************************//**
+* @addtogroup btmesh_scene_client
+* @{
+******************************************************************************/
+
+/**************************************************************************//**
+* This function select scene and send it to the server.
+*
+* @param[in] scene_to_recall  Scene to recall, possible values 1-255.
+*
+******************************************************************************/
 void sl_btmesh_select_scene(uint8_t scene_to_recall);
 
 /**************************************************************************//**
@@ -44,7 +49,9 @@ void sl_btmesh_select_scene(uint8_t scene_to_recall);
  *
  * This function is called automatically after enabling the component.
  *
+ * @param[in] evt  Pointer to incoming event.
  *****************************************************************************/
 void sl_btmesh_handle_scene_client_on_event(sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_scene_client) */
 #endif // SL_BTMESH_SCENE_CLIENT_H

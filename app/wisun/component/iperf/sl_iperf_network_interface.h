@@ -84,7 +84,7 @@ extern "C" {
 /// Size definition of IPv6 address
 #define SL_IPERF_IN6ADDR_SIZE     (16U)
 
-/// iPerf timestamp millisecond data type deifinition
+/// iPerf timestamp millisecond data type definition
 typedef uint64_t sl_iperf_ts_ms_t;
 
 /// iPerf time data type definition
@@ -263,7 +263,7 @@ int32_t sl_iperf_socket_recvfrom(int32_t sockid, void *buf, uint32_t len,
  * @param[in] optname Option name.
  * @param[in] optval Option value structure pointer. For Wi-SUN it is casted to sl_wisun_socket_option_t
  * @param[in] optlen Must be the size of sl_wisun_socket_option_data_t union
- * @return Return 0 on succes, other wise -1
+ * @return Return 0 on success, other wise -1
  *****************************************************************************/
 int32_t sl_iperf_socket_setsockopt(int32_t sockid, int32_t level, int32_t optname,
                                    const void *optval, size_t optlen);
@@ -329,6 +329,12 @@ void sl_iperf_get_socket_addr_ip(const sl_iperf_socket_addr_t * const addr, void
 bool sl_iperf_network_is_connected(void);
 
 /**************************************************************************//**
+ * @brief Wait for network connection
+ * @details Waiting for the network connected status.
+ *****************************************************************************/
+void sl_iperf_network_wait_for_connection(void);
+
+/**************************************************************************//**
  * @brief iPerf host to network short
  * @details htons implementation for iPerf
  * @param[in] val Value
@@ -354,7 +360,7 @@ uint32_t sl_iperf_network_htonl(uint32_t val);
 
 /**************************************************************************//**
  * @brief iPerf network to host long
- * @details ntohl implementatino for iPerf
+ * @details ntohl implementation for iPerf
  * @param[in] val Value
  * @return uint32_t Converted value
  *****************************************************************************/
@@ -379,7 +385,7 @@ void sl_iperf_delay_ms(const uint32_t ms);
  * @details It converts the character string src into a network address structure.
  * @param[in] src_str Source string
  * @param[out] dst_addr Destination address pointer
- * @return 1 on succes, -1 on error (POSIX described the 0 value too)
+ * @return 1 on success, -1 on error (POSIX described the 0 value too)
  *****************************************************************************/
 int32_t sl_iperf_inet_pton(const char *src_str,
                            sl_iperf_socket_addr_t * const dst_addr);
@@ -402,7 +408,7 @@ const char *sl_iperf_inet_ntop(const  sl_iperf_socket_addr_t * const src_addr,
  * @brief Join multicast group
  * @details Join socket to multicast group to get packets on group address
  * @param[in] sockid Socket ID to join
- * @param[in] multicast_addr Multicast groupt address
+ * @param[in] multicast_addr Multicast group address
  * @return int32_t
  *****************************************************************************/
 int32_t sl_iperf_join_multicast_group(const int32_t sockid,
@@ -412,7 +418,7 @@ int32_t sl_iperf_join_multicast_group(const int32_t sockid,
  * @brief Leave multicast group
  * @details Remove socket from multicast group
  * @param[in] sockid Socket ID to join
- * @param[in] multicast_addr Multicast groupt address
+ * @param[in] multicast_addr Multicast group address
  * @return int32_t
  *****************************************************************************/
 int32_t sl_iperf_leave_multicast_group(const int32_t sockid,

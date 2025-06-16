@@ -22,7 +22,7 @@
 #include "stack/internal/inc/high_datarate_phy_stack_interface_internal_def.h"
 
 typedef struct {
-  RAIL_CsmaConfig_t csma_params;
+  sl_rail_csma_config_t csma_params;
 } sli_mac_stack_lower_mac_set_high_datarate_csma_params_ipc_req_t;
 
 typedef struct {
@@ -54,7 +54,7 @@ typedef struct {
 typedef struct {
   uint8_t nwk_index;
   uint8_t payload[MAX_HIGH_DATARATE_PHY_PACKET_LENGTH];
-  RAIL_Time_t timestamp;
+  sl_rail_time_t timestamp;
 } sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_ipc_req_t;
 
 typedef struct {
@@ -71,7 +71,7 @@ typedef struct {
 } sli_mac_stack_set_mode_switch_sync_detect_ipc_req_t;
 
 typedef struct {
-  RAIL_Status_t result;
+  sl_rail_status_t result;
 } sli_mac_stack_set_mode_switch_sync_detect_ipc_rsp_t;
 
 typedef struct {

@@ -1,6 +1,6 @@
 id: bluetooth_hci_filter
 label: HCI Extended Advertisment Filtering
-package: Bluetooth
+package: bluetooth_le_controller
 description: >
   Provides API to create HCI event handler hooks to filter out events
   that are passed to host stack

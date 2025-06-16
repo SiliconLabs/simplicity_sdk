@@ -1,6 +1,6 @@
 id: ots_client
 label: Object Client
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   The Object Transfer Service (OTS) Object Client provides an API for
   managing objects on the remote Object Server.

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: >
   Silicon Labs implementation of reporting. Reports are asynchronous messages
   sent out when a ZCL attribute has changed. This component supports both requesting

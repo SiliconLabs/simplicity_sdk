@@ -1,6 +1,6 @@
 id: zigbee_device_config
 label: Zigbee Device Config
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component is used for Zigbee device configuration.

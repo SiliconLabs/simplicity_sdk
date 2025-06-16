@@ -1,7 +1,7 @@
 id: radio_priority_configurator
 label: Radio Priority Configurator
-package: platform
-category: Radio|Mac
+package: common_15_4
+category: 802.15.4|Radio
 quality: production
 description: "Adds the Radio Priority Configurator tool to the project."
 

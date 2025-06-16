@@ -1,6 +1,6 @@
 id: sl_fault_injection_hardening
 label: Fault Injection Hardening
-package: platform
+package: platform_trustzone
 description: >
   Fault injection hardening library provides support for different measures, which can either be enabled/disabled by selecting one of the TFM_FIH_PROFILEs
 category: Platform|Security

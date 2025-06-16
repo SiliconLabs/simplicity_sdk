@@ -1,6 +1,6 @@
 id: ot_platform_abstraction_headers
 label: Platform Abstraction headers
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides header files for the OpenThread Platform Abstraction Layer

@@ -1,6 +1,6 @@
 id: zigbee_x86_64
 label: Zigbee x86_64
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines to build Zigbee apps against x86_64.

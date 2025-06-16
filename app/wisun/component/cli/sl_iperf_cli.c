@@ -176,7 +176,7 @@ One of [bits/s, Kbits/s, Mbits/s, Gbits/s, bytes/s, Kbytes/s, Mbytes/s, Gbytes/s
 /// Option flags
 typedef uint32_t sl_iperf_cli_opt_flags_t;
 
-/// Perpare getter buffer macro function
+/// Prepare getter buffer macro function
 #define __prepare_getter_buff(__format, __val)                             \
   do {                                                                     \
     snprintf(_getter_buff, SL_IPERF_CLI_MAX_STR_ARG_LEN, __format, __val); \
@@ -556,7 +556,7 @@ static sl_iperf_cli_property_t _iperf_properties[] = {
   }
 };
 
-/// iPerf options setting paramters number
+/// iPerf options setting parameters number
 static const size_t _iperf_properties_size = sizeof(_iperf_properties) / sizeof(sl_iperf_cli_property_t);
 
 /// iPerf last test result

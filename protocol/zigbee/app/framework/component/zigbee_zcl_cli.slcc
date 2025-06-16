@@ -1,6 +1,6 @@
 id: zigbee_zcl_cli
 label: Zigbee ZCL CLI
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component provides ZCL-related CLI commands

@@ -47,6 +47,8 @@
 #include "mac/mac_types.hpp"
 #include "radio/trel_interface.hpp"
 #include "radio/trel_packet.hpp"
+#include "radio/trel_peer.hpp"
+#include "radio/trel_peer_discoverer.hpp"
 
 namespace ot {
 
@@ -77,6 +79,16 @@ public:
     static constexpr uint8_t  kFcsSize = 0;                          ///< FCS size for TREL frame.
 
     /**
+     * Used as input by `CheckPeerAddrOnRxSuccess()` to determine whether the peer socket address can be updated based
+     * on a received TREL packet from the peer if there is a discrepancy.
+     */
+    enum PeerSockAddrUpdateMode : uint8_t
+    {
+        kAllowPeerSockAddrUpdate,    ///< Peer socket address can be updated.
+        kDisallowPeerSockAddrUpdate, ///< Peer socket address cannot be updated.
+    };
+
+    /**
      * Initializes the `Link` object.
      *
      * @param[in]  aInstance  A reference to the OpenThread instance.
@@ -94,7 +106,7 @@ public:
      * Notifies TREL radio link that device's extended MAC address has changed for it to update any
      * internal address/state.
      */
-    void HandleExtAddressChange(void) { mInterface.HandleExtAddressChange(); }
+    void HandleExtAddressChange(void) { mPeerDiscoverer.HandleExtAddressChange(); }
 
     /**
      * Enables the TREL radio link.
@@ -137,6 +149,17 @@ public:
      */
     void Send(void);
 
+    /**
+     * Checks the address/port from the last received TREL packet against the ones recorded in the corresponding `Peer`
+     * entry and acts if there is a discrepancy.
+     *
+     * This method signals to the platform about the discrepancy. Based on @p aMode, it may also update the `Peer`
+     * entry information directly to match the new address/port information.
+     *
+     * @param[in] aMode   Determines whether to update the `Peer` entry if there is a discrepancy.
+     */
+    void CheckPeerAddrOnRxSuccess(PeerSockAddrUpdateMode aMode);
+
 private:
     static constexpr uint16_t kMaxHeaderSize   = sizeof(Header);
     static constexpr uint16_t k154AckFrameSize = 3 + kFcsSize;
@@ -157,7 +180,7 @@ private:
     void BeginTransmit(void);
     void InvokeSendDone(Error aError) { InvokeSendDone(aError, nullptr); }
     void InvokeSendDone(Error aError, Mac::RxFrame *aAckFrame);
-    void ProcessReceivedPacket(Packet &aPacket);
+    void ProcessReceivedPacket(Packet &aPacket, const Ip6::SockAddr &aSockAddr);
     void HandleAck(Packet &aAckPacket);
     void SendAck(Packet &aRxPacket);
     void ReportDeferredAckStatus(Neighbor &aNeighbor, Error aError);
@@ -171,18 +194,22 @@ private:
     using TxTasklet    = TaskletIn<Link, &Link::HandleTxTasklet>;
     using TimeoutTimer = TimerMilliIn<Link, &Link::HandleTimer>;
 
-    State        mState;
-    uint8_t      mRxChannel;
-    Mac::PanId   mPanId;
-    uint32_t     mTxPacketNumber;
-    TxTasklet    mTxTasklet;
-    TimeoutTimer mTimer;
-    Interface    mInterface;
-    Mac::RxFrame mRxFrame;
-    Mac::TxFrame mTxFrame;
-    uint8_t      mTxPacketBuffer[kMaxHeaderSize + kMtuSize];
-    uint8_t      mAckPacketBuffer[kMaxHeaderSize];
-    uint8_t      mAckFrameBuffer[k154AckFrameSize];
+    State          mState;
+    uint8_t        mRxChannel;
+    Mac::PanId     mPanId;
+    uint32_t       mTxPacketNumber;
+    TxTasklet      mTxTasklet;
+    TimeoutTimer   mTimer;
+    Interface      mInterface;
+    PeerTable      mPeerTable;
+    PeerDiscoverer mPeerDiscoverer;
+    Ip6::SockAddr  mRxPacketSenderAddr;
+    Peer          *mRxPacketPeer;
+    Mac::RxFrame   mRxFrame;
+    Mac::TxFrame   mTxFrame;
+    uint8_t        mTxPacketBuffer[kMaxHeaderSize + kMtuSize];
+    uint8_t        mAckPacketBuffer[kMaxHeaderSize];
+    uint8_t        mAckFrameBuffer[k154AckFrameSize];
 };
 
 /**

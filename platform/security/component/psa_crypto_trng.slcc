@@ -1,5 +1,5 @@
 id: psa_crypto_trng
-package: platform
+package: security_mbedtls
 label: TRNG
 description: >-
   This component provides support for using a hardware TRNG as the sole
@@ -46,6 +46,8 @@ recommends:
 template_contribution:
   - name: psa_crypto_config
     value: MBEDTLS_PSA_CRYPTO_EXTERNAL_RNG
+    # PLATFORM_HYD-5151
+    unless: [device_generic_family_sixx353, device_family_sixg300xiwifi74000]
 
 metadata:
   sbom:

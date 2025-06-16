@@ -574,12 +574,16 @@ sl_status_t sl_se_init_otp(sl_se_command_context_t *cmd_ctx,
 
     mcu_settings_flags |= SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_ANTI_ROLLBACK;
   }
+
+  // Narrow and Full page lock are not supported in S3
+  #if !defined(_SILICON_LABS_32B_SERIES_3)
   if (otp_init->secure_boot_page_lock_narrow) {
     mcu_settings_flags |= SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_PAGE_LOCK_NARROW;
   }
   if (otp_init->secure_boot_page_lock_full) {
     mcu_settings_flags |= SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_PAGE_LOCK_FULL;
   }
+  #endif
 
   #if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
   static struct {
@@ -723,12 +727,16 @@ sl_status_t sl_se_read_otp(sl_se_command_context_t *cmd_ctx,
   otp_settings->enable_anti_rollback =
     (otp_raw.mcu_settings_flags
      & SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_ANTI_ROLLBACK);
+
+  // Narrow and Full page lock are not supported in S3
+  #if !defined(_SILICON_LABS_32B_SERIES_3)
   otp_settings->secure_boot_page_lock_narrow =
     (otp_raw.mcu_settings_flags
      & SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_PAGE_LOCK_NARROW);
   otp_settings->secure_boot_page_lock_full =
     (otp_raw.mcu_settings_flags
      & SE_OTP_MCU_SETTINGS_FLAG_SECURE_BOOT_PAGE_LOCK_FULL);
+  #endif
 
   #if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
   // Split levels
@@ -873,6 +881,73 @@ sl_status_t sl_se_read_otp(sl_se_command_context_t *cmd_ctx,
 
 #if defined(SLI_MAILBOX_COMMAND_SUPPORTED)
 
+#if defined(_SILICON_LABS_32B_SERIES_3)
+
+/***************************************************************************//**
+ * @brief
+ *   Writes data to User Data section in MTP. The full MTP element is written every
+ *   time, so length of write data (num_bytes) must always be equal to
+ *   \ref SL_SE_USER_DATA_SIZE.
+ ******************************************************************************/
+sl_status_t sl_se_write_user_data(sl_se_command_context_t *cmd_ctx,
+                                  const void *data,
+                                  size_t num_bytes)
+{
+  if (cmd_ctx == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (data == NULL && num_bytes > 0UL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (num_bytes != SL_SE_USER_DATA_SIZE) {
+    // We only support writing the full MTP region
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Setup SE command structures
+  sli_se_mailbox_command_t *se_cmd = &cmd_ctx->command;
+  sli_se_datatransfer_t in_data = SLI_SE_DATATRANSFER_DEFAULT(data, num_bytes);
+
+  sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_WRITE_USER_DATA);
+  sli_se_mailbox_command_add_input(se_cmd, &in_data);
+
+  sli_se_mailbox_command_add_parameter(se_cmd, num_bytes);
+
+  // Execute and wait
+  return sli_se_execute_and_wait(cmd_ctx);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Retrieves the data from the user data section in MTP.
+ ******************************************************************************/
+sl_status_t sl_se_get_user_data(sl_se_command_context_t *cmd_ctx,
+                                void *output_data,
+                                size_t num_bytes)
+{
+  if (cmd_ctx == NULL || output_data == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  if (num_bytes != SL_SE_USER_DATA_SIZE) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  // Setup SE command structures
+  sli_se_mailbox_command_t *se_cmd = &cmd_ctx->command;
+  sli_se_datatransfer_t out_data = SLI_SE_DATATRANSFER_DEFAULT(output_data, SL_SE_USER_DATA_SIZE);
+
+  sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_GET_USER_DATA);
+  sli_se_mailbox_command_add_output(se_cmd, &out_data);
+
+  // Execute and wait
+  return sli_se_execute_and_wait(cmd_ctx);
+}
+
+#else
+
 /***************************************************************************//**
  * Writes data to User Data section in MTP. Write data must be aligned to
  * word size and contain a number of bytes that is divisable by four.
@@ -922,6 +997,7 @@ sl_status_t sl_se_erase_user_data(sl_se_command_context_t *cmd_ctx)
   // Execute and wait.
   return sli_se_execute_and_wait(cmd_ctx);
 }
+#endif //defined(_SILICON_LABS_32B_SERIES_3)
 
 /***************************************************************************//**
  * Returns the current boot status, versions and system configuration.

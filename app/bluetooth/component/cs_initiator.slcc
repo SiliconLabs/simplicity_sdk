@@ -1,5 +1,5 @@
 id: cs_initiator
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CS Initiator
 description: >
   Channel Sounding (CS) Initiator provides an instantiable initiator (central) logic that produce its own CS results
@@ -18,7 +18,12 @@ include:
     file_list:
       - path: cs_initiator.h
       - path: cs_initiator_client.h
+      - path: cs_initiator_common.h
       - path: cs_initiator_log.h
+      - path: cs_initiator_estimate.h
+      - path: cs_initiator_error.h
+      - path: cs_initiator_extract.h
+      - path: cs_initiator_state_machine.h
 
 config_file:
   - path: config/cs_initiator_config.h
@@ -26,19 +31,23 @@ config_file:
 source:
   - path: src/cs_initiator.c
   - path: src/cs_initiator_client.c
+  - path: src/cs_initiator_estimate.c
+  - path: src/cs_initiator_error.c
+  - path: src/cs_initiator_extract.c
+  - path: src/cs_initiator_state_machine.c
 
 requires:
   - name: app_assert
   - name: app_log
   - name: app_timer
   - name: bluetooth_stack
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_central
   - name: bluetooth_feature_cs
   - name: bluetooth_feature_extended_scanner
   - name: bluetooth_feature_gatt
   - name: bluetooth_feature_legacy_scanner
-  - name: cs_ras
-  - name: cs_acp
+  - name: cs_ras_client
+  - name: cs_result
   - name: component_catalog
   - name: power_manager
   - name: rtllib
@@ -58,12 +67,14 @@ template_contribution:
     value:
       include: cs_initiator.h
       handler: cs_initiator_on_event
+    priority: 420 # cs_ras_client_on_bt_event must be higher than cs_initiator_on_event
     condition:
       - ncp
   - name: bluetooth_on_event
     value:
       include: cs_initiator.h
       function: cs_initiator_on_event
+    priority: 420 # cs_ras_client_on_bt_event must be higher than cs_initiator_on_event
     unless:
       - ncp
   - name: event_handler
@@ -74,3 +85,8 @@ template_contribution:
 documentation:
   docset: bluetooth
   document: bluetooth-service-api/cs-initiator
+validation_library:
+  - path: ../../../common/validation/autonumber_common.lua
+    name: autonumber_common
+validation_helper:
+  - path: config/cs_initiator_validation.lua

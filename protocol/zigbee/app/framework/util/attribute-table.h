@@ -66,6 +66,18 @@ sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
                                                     bool justTest,
                                                     bool updateNvm);
 
+sl_zigbee_af_status_t sli_zigbee_af_write_attribute_with_sync(uint8_t endpoint,
+                                                              sl_zigbee_af_cluster_id_t cluster,
+                                                              sl_zigbee_af_attribute_id_t attributeID,
+                                                              uint8_t mask,
+                                                              uint16_t manufacturerCode,
+                                                              uint8_t *data,
+                                                              sl_zigbee_af_attribute_type_t dataType,
+                                                              bool overrideReadOnlyAndDataType,
+                                                              bool justTest,
+                                                              bool updateNvm,
+                                                              bool syncMultiProtocol);
+
 sl_zigbee_af_status_t sli_zigbee_af_read_attribute(uint8_t endpoint,
                                                    sl_zigbee_af_cluster_id_t cluster,
                                                    sl_zigbee_af_attribute_id_t attributeID,

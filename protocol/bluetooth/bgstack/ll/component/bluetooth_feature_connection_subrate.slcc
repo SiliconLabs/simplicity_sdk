@@ -1,6 +1,6 @@
 id: "bluetooth_feature_connection_subrating"
 label: Bluetooth Feature Connection Subrating
-package: Bluetooth
+package: bluetooth_le_controller
 description: >
   Provides the connection subrating feature
 
@@ -18,12 +18,6 @@ requires:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_connection_subrating
-  - name: event_handler
-    value:
-      event: internal_app_init
-      include: sl_btctrl_hci.h
-      handler: sl_btctrl_hci_parser_init_subrate
-    priority: 0
 metadata:
   sbom:
     license: MSLA

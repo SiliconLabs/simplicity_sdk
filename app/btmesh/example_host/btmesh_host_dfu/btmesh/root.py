@@ -34,7 +34,10 @@ from .event import LocalEventBus
 from .mbt import BlobTransferClient
 from .prov import Provisioner
 from .proxy import Proxy
+from .rpr import RemoteProvisioningClient
 from .util import BtmeshMulticastRetryParams, BtmeshRetryParams
+
+from . import util
 
 logger = logging.getLogger(__name__)
 
@@ -82,9 +85,9 @@ class Btmesh:
             conf=self.conf,
             retry_params_default=retry_params_default.to_base(),
         )
+        self.components.append(self.mbt_clt)
 
         # Firmware Update Client component
-        self.components.append(self.mbt_clt)
         self.dfu_clt = FwUpdateClient(
             self.core,
             conf=self.conf,
@@ -103,12 +106,19 @@ class Btmesh:
         )
         self.components.append(self.dist_clt)
 
+        # Remote Provisioning Client component
+        self.rpr_clt = RemoteProvisioningClient(
+            self.core,
+            conf=self.conf
+        )
+        self.components.append(self.rpr_clt)
+
         dcdif = DCDIf(self._get_dcd)
         self.core.dcdif = dcdif
 
-    def _get_dcd(self, node: Node) -> DCD:
+    def _get_dcd(self, node: Node, page: int = util.DCD_PAGE_0) -> DCD:
         return self.conf.get_dcd_cached(
-            node, retry_params=self.conf.conf_retry_params_default
+            node, page=page, retry_params=self.conf.conf_retry_params_default
         )
 
     @property

@@ -31,6 +31,11 @@
 #ifndef SL_BTMESH_REMOTE_PROVISIONING_SERVER_H
 #define SL_BTMESH_REMOTE_PROVISIONING_SERVER_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_remote_provisioning_server
+ * @{
+ ******************************************************************************/
+
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
@@ -43,4 +48,5 @@
  ******************************************************************************/
 void sli_btmesh_handle_remote_provisioning_server_on_event(const sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_remote_provisioning_server) */
 #endif // SL_BTMESH_REMOTE_PROVISIONING_SERVER_H

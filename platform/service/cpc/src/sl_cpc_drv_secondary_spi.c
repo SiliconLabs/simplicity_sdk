@@ -91,7 +91,8 @@
 #if defined(SL_CPC_DRV_SPI_IS_EUSART)
 
 #define PRS_SIGNAL_EXTI(cs_pin_no)          SL_CONCAT_PASTER_2(prsSignalGPIO_PIN, cs_pin_no)
-#define PRS_SIGNAL_USART(periph_no, signal) SL_CONCAT_PASTER_4(prsSignalEUSART, periph_no, _, signal)
+#define PRS_SIGNAL_SPI(periph_no, signal) \
+  SL_CONCAT_PASTER_4(prsSignalEUSART, periph_no, _, signal)
 #define SPI_PERIPHERAL(periph_no)           SL_CONCAT_PASTER_2(SL_PERIPHERAL_EUSART, periph_no)
 #define LDMA_SIGNAL_TX(periph_no)           SL_CONCAT_PASTER_3(dmadrvPeripheralSignal_EUSART, periph_no, _TXBL)
 #define LDMA_SIGNAL_RX(periph_no)           SL_CONCAT_PASTER_3(dmadrvPeripheralSignal_EUSART, periph_no, _RXDATAV)
@@ -104,7 +105,8 @@
 
 #elif defined(SL_CPC_DRV_SPI_IS_USART) // EUSART
 
-#define PRS_SIGNAL_USART(periph, signal)    SL_CONCAT_PASTER_4(prsSignalUSART, periph, _, signal)
+#define PRS_SIGNAL_SPI(periph, signal) \
+  SL_CONCAT_PASTER_4(prsSignalUSART, periph, _, signal)
 #define SPI_PERIPHERAL(periph_no)           SL_CONCAT_PASTER_2(SL_PERIPHERAL_USART, periph_no)
 #define LDMA_SIGNAL_TX(periph_no)           SL_CONCAT_PASTER_3(dmadrvPeripheralSignal_USART, periph_no, _TXBL)
 #define LDMA_SIGNAL_RX(periph_no)           SL_CONCAT_PASTER_3(dmadrvPeripheralSignal_USART, periph_no, _RXDATAV)
@@ -180,7 +182,8 @@ typedef sl_hal_prs_sync_producer_signal_t prs_signal_t;
 #define PRS_ASYNC_CONNECT_PRODUCER          sl_hal_prs_async_connect_channel_producer
 #define PRS_SIGNAL_NONE                     SL_HAL_PRS_ASYNC_NONE
 #define PRS_SIGNAL_EXTI(cs_pin_no)          SL_CONCAT_PASTER_2(SL_HAL_PRS_ASYNC_GPIO_PIN, cs_pin_no)
-#define PRS_SIGNAL_USART(periph_no, signal) SL_CONCAT_PASTER_4(SL_HAL_PRS_ASYNC_EUSART, periph_no, L_, signal)
+#define PRS_SIGNAL_SPI(periph_no, signal) \
+  SL_CONCAT_PASTER_4(SL_HAL_PRS_ASYNC_EUSART, periph_no, L_, signal)
 #define PRS_TYPE_ASYNC                      SL_HAL_PRS_TYPE_ASYNC
 
 // LDMA
@@ -529,6 +532,12 @@ sli_cpc_drv_t spi_driver = {
   }
 };
 
+/*******************************************************************************
+ ***************************   WEAK FUNCTIONS   ********************************
+ ******************************************************************************/
+void sli_cpc_drv_wake_gpio_init(void);
+void sli_cpc_drv_wake_host_gpio(bool active);
+
 /***************************************************************************/ /**
  * Initialize only the SPI peripheral to be used in a standalone manner
  * (during the bootloader poking). On the secondary (this) side, the initialization
@@ -547,6 +556,8 @@ static sl_status_t spi_drv_hw_init(sli_cpc_drv_t *drv)
   GPIO_SET_PIN_MODE(SL_CPC_DRV_SPI_CLK_PORT, SL_CPC_DRV_SPI_CLK_PIN, GPIO_MODE_INPUT, 0);
   GPIO_SET_PIN_MODE(SL_CPC_DRV_SPI_CS_PORT, SL_CPC_DRV_SPI_CS_PIN, GPIO_MODE_INPUT_PULL, 1);   // Pull up to give a idle high state to the input Chip Select signal
   GPIO_SET_PIN_MODE(SL_CPC_DRV_SPI_IRQ_PORT, SL_CPC_DRV_SPI_IRQ_PIN, GPIO_MODE_PUSH_PULL, 1);  // Initial value of IRQ signal is HIGH (no frame to send)
+
+  sli_cpc_drv_wake_gpio_init();
 
   // Configure the GPIO routing to the SPI peripheral
   {
@@ -719,7 +730,9 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
     SLI_CPC_ASSERT(signal == PRS_SIGNAL_NONE);
 
     // The PRS Channel was free, now configure it
-    PRS_ASYNC_CONNECT_PRODUCER(SL_CPC_DRV_SPI_TXC_SYNCTRIG_PRS_CH, PRS_SIGNAL_USART(SL_CPC_DRV_SPI_PERIPHERAL_NO, TXC));
+    PRS_ASYNC_CONNECT_PRODUCER(
+      SL_CPC_DRV_SPI_TXC_SYNCTRIG_PRS_CH,
+      PRS_SIGNAL_SPI(SL_CPC_DRV_SPI_PERIPHERAL_NO, TXC));
   }
 
   // This driver needs to route the incoming Chip Select signal to a PRS channel.
@@ -741,7 +754,7 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
     // The configured CS SYNCTRIG bit works with its corresponding PRS Channel number. Make sure that PRS Channel is not used.
     SLI_CPC_ASSERT(signal == PRS_SIGNAL_NONE);
 
-    #if defined(SL_CPC_DRV_SPI_IS_EUSART)
+#if defined(SL_CPC_DRV_SPI_IS_EUSART) && defined(_SILICON_LABS_32B_SERIES_2)
     {
       // EUSART has a quirk that needs to be dealt with differently then USART
       // The only way of routing the incoming CS signal to a PRS channel is
@@ -752,32 +765,34 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
       // pins 0-3   (interrupt number 0-3)
       // pins 4-7   (interrupt number 4-7)
 
-      #if (SL_CPC_DRV_SPI_CS_EXTI_NUMBER >= 0 && SL_CPC_DRV_SPI_CS_EXTI_NUMBER <= 3)
-        #if !(SL_CPC_DRV_SPI_CS_PIN >= 0 && SL_CPC_DRV_SPI_CS_PIN <= 3)
-          #error "For an EXTI0..3, only pin Px0..3 can be used as CS"
-        #endif
-      #elif (SL_CPC_DRV_SPI_CS_EXTI_NUMBER >= 4 && SL_CPC_DRV_SPI_CS_EXTI_NUMBER <= 7)
-        #if !(SL_CPC_DRV_SPI_CS_PIN >= 4 && SL_CPC_DRV_SPI_CS_PIN <= 7)
-          #error "For an EXTI4..7, only pin Px4..7 can be used as CS"
-        #endif
-      #else
-        #error "Only EXTI0..7 can be used because the PRS only support those as inputs"
-      #endif
+#if (SL_CPC_DRV_SPI_CS_EXTI_NUMBER >= 0 && SL_CPC_DRV_SPI_CS_EXTI_NUMBER <= 3)
+#if !(SL_CPC_DRV_SPI_CS_PIN >= 0 && SL_CPC_DRV_SPI_CS_PIN <= 3)
+#error "For an EXTI0..3, only pin Px0..3 can be used as CS"
+#endif
+#elif (SL_CPC_DRV_SPI_CS_EXTI_NUMBER >= 4 && SL_CPC_DRV_SPI_CS_EXTI_NUMBER <= 7)
+#if !(SL_CPC_DRV_SPI_CS_PIN >= 4 && SL_CPC_DRV_SPI_CS_PIN <= 7)
+#error "For an EXTI4..7, only pin Px4..7 can be used as CS"
+#endif
+#else
+#error "Only EXTI0..7 can be used because the PRS only support those as inputs"
+#endif
 
-      GPIO_CONFIGURE_EXT_INT(SL_CPC_DRV_SPI_CS_PORT,
-                             SL_CPC_DRV_SPI_CS_PIN,
+      GPIO_CONFIGURE_EXT_INT(SL_CPC_DRV_SPI_CS_PORT, SL_CPC_DRV_SPI_CS_PIN,
                              SL_CPC_DRV_SPI_CS_EXTI_NUMBER,
                              false, // don't care about rising edge
                              false);
-      PRS_ASYNC_CONNECT_PRODUCER(SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH, PRS_SIGNAL_EXTI(SL_CPC_DRV_SPI_CS_EXTI_NUMBER));
+      PRS_ASYNC_CONNECT_PRODUCER(
+        SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH,
+        PRS_SIGNAL_EXTI(SL_CPC_DRV_SPI_CS_EXTI_NUMBER));
     }
-    #elif defined(SL_CPC_DRV_SPI_IS_USART)
+#else
     {
-      // For the USART, unlike the EUSART, the CS signal can be retrieved via the prsSignalUSARTx_CS. No need to
-      // pass through the EXTI mechanism
-      PRS_ASYNC_CONNECT_PRODUCER(SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH, PRS_SIGNAL_USART(SL_CPC_DRV_SPI_PERIPHERAL_NO, CS));
+      // The CS signal can be retrieved via PRS.
+      PRS_ASYNC_CONNECT_PRODUCER(
+        SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH,
+        PRS_SIGNAL_SPI(SL_CPC_DRV_SPI_PERIPHERAL_NO, CS));
     }
-    #endif
+#endif
   }
 
   // SPI DMA configuration
@@ -1573,7 +1588,7 @@ static sl_status_t spi_drv_transmit_data(sli_cpc_drv_t *drv,
   }
   tx_buf_available_count--;
   sli_cpc_push_back_driver_buffer_handle(&tx_submitted_list_head, buffer_handle);
-
+  sli_cpc_drv_wake_host_gpio(true);
   prime_dma_for_transmission();
 
   MCU_EXIT_ATOMIC();
@@ -2241,6 +2256,8 @@ static bool end_of_payload_xfer(void)
 
     if (tx_submitted_list_head) {
       prime_dma_for_transmission();
+    } else {
+      sli_cpc_drv_wake_host_gpio(false);
     }
   }
 
@@ -2337,4 +2354,26 @@ static void flush_tx(void)
   currently_transmiting_buffer_handle = NULL;
 
   LOGIC_ANALYZER_TRACE_TX_FLUSHED;
+}
+
+/***************************************************************************//**
+ * @brief Initializes the GPIO wake pin used to wake up the host/primary device.
+ *
+ ******************************************************************************/
+SL_WEAK void sli_cpc_drv_wake_gpio_init(void)
+{
+  // User implementation for initializing the GPIO wake pin.
+}
+
+/***************************************************************************//**
+ * @brief Sets the GPIO wake pin to the specified active state.
+ *
+ * @note This function is called during an IRQ context.
+ *
+ * @param[in] active  If true, sets the GPIO pin to active state;
+ *                    otherwise, sets it to inactive state.
+ ******************************************************************************/
+SL_WEAK void sli_cpc_drv_wake_host_gpio(bool active)
+{
+  (void)active;
 }

@@ -29,15 +29,16 @@
  ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
-#include "app.h"
 #include "sl_core.h"
+#include "sl_main_init.h"
+#include "app.h"
 
 static uint16_t button_semaphore_cnt = 0;
 
 /******************************************************************************
  * Application Runtime Init.
  *****************************************************************************/
-void app_init_runtime(void)
+void app_init_bt(void)
 {
   // Initialize semaphore
   button_semaphore_cnt = 0;

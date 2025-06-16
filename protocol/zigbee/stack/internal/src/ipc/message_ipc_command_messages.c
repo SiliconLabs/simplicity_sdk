@@ -266,7 +266,7 @@ sl_status_t sl_zigbee_proxy_next_broadcast_from_long(const uint8_t *euiSource)
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (euiSource != NULL) {
-    memmove(msg.data.proxy_next_broadcast_from_long.request.euiSource, euiSource, sizeof(uint8_t) * (EUI64_SIZE));
+    memmove(msg.data.proxy_next_broadcast_from_long.request.euiSource, euiSource, sizeof(uint8_t) * EUI64_SIZE);
   }
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_proxy_next_broadcast_from_long_process_ipc_command, &msg);
@@ -297,11 +297,11 @@ sl_status_t sl_zigbee_send_broadcast(sl_802154_short_addr_t alias,
   msg.data.send_broadcast.request.messageTag = messageTag;
   msg.data.send_broadcast.request.messageLength = messageLength;
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector message length exceeds expected maximum
   }
 
-  memmove(msg.data.send_broadcast.request.message, message, sizeof(uint8_t) * (messageLength));
+  memmove(msg.data.send_broadcast.request.message, message, sizeof(uint8_t) * messageLength);
 
   if (apsSequence != NULL) {
     msg.data.send_broadcast.request.apsSequence = *apsSequence;
@@ -343,11 +343,11 @@ sl_status_t sl_zigbee_send_multicast(sl_zigbee_aps_frame_t *apsFrame,
   msg.data.send_multicast.request.messageTag = messageTag;
   msg.data.send_multicast.request.messageLength = messageLength;
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector message length exceeds expected maximum
   }
 
-  memmove(msg.data.send_multicast.request.message, message, sizeof(uint8_t) * (messageLength));
+  memmove(msg.data.send_multicast.request.message, message, sizeof(uint8_t) * messageLength);
 
   if (apsSequence != NULL) {
     msg.data.send_multicast.request.apsSequence = *apsSequence;
@@ -380,22 +380,22 @@ sl_status_t sl_zigbee_send_reply(sl_802154_short_addr_t destination,
 
   msg.data.send_reply.request.messageLength = messageLength;
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector messageContents length exceeds expected maximum
   }
 
-  memmove(msg.data.send_reply.request.messageContents, messageContents, sizeof(uint8_t) * (messageLength));
+  memmove(msg.data.send_reply.request.messageContents, messageContents, sizeof(uint8_t) * messageLength);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_reply_process_ipc_command, &msg);
 
   if (apsFrame != NULL) {
     *apsFrame = msg.data.send_reply.request.apsFrame;
   }
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector messageContents length exceeds expected maximum
   }
 
-  memmove(messageContents, msg.data.send_reply.request.messageContents, sizeof(uint8_t) * (messageLength));
+  memmove(messageContents, msg.data.send_reply.request.messageContents, sizeof(uint8_t) * messageLength);
   return msg.data.send_reply.response.result;
 }
 
@@ -418,11 +418,11 @@ sl_status_t sl_zigbee_send_unicast(sl_zigbee_outgoing_message_type_t type,
   msg.data.send_unicast.request.messageTag = messageTag;
   msg.data.send_unicast.request.messageLength = messageLength;
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector message length exceeds expected maximum
   }
 
-  memmove(msg.data.send_unicast.request.message, message, sizeof(uint8_t) * (messageLength));
+  memmove(msg.data.send_unicast.request.message, message, sizeof(uint8_t) * messageLength);
 
   if (apsSequence != NULL) {
     msg.data.send_unicast.request.apsSequence = *apsSequence;

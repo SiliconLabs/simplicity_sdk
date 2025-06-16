@@ -32,12 +32,12 @@
 
 #include <stdio.h>
 
-/// Dummy type for compatibility.
+/// Mock type for compatibility.
 typedef int sl_iostream_t;
 
-/// Dummy type for compatibility.
+/// Mock type for compatibility.
 typedef enum {
-  DUMMY_VALUE,
+  MOCK_VALUE,
 } sl_iostream_type_t;
 
 /// sl_iostream_printf host side implementation.
@@ -47,10 +47,10 @@ typedef enum {
     fflush(stdout);                     \
   } while (0)
 
-/// Dummy implementation for compatibility.
+/// Mock implementation for compatibility.
 #define sl_iostream_get_default() NULL
 
-/// Dummy implementation for compatibility.
+/// Mock implementation for compatibility.
 #define sl_iostream_set_default(stream) (void)stream
 
 #endif // SL_IOSTREAM_H

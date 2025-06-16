@@ -45,6 +45,8 @@
 #include "events.h"
 #include "zpal_power_manager.h"
 
+#include "zw_power_manager_ids.h"
+
 /******************************************************************************
  * CLI - sleeping: Enabling or disabling the device to go into sleep mode
  *****************************************************************************/
@@ -68,25 +70,16 @@ void cli_sleeping(sl_cli_command_arg_t *arguments)
  *****************************************************************************/
 void zw_cli_sleeping_util_prevent_sleeping(bool is_prevent)
 {
-  static zpal_pm_handle_t pm_handle = NULL;
-
-  if ((true == is_prevent) && (pm_handle == NULL)) {
-    pm_handle  = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-    zpal_pm_stay_awake(pm_handle, 0);
+  if ((true == is_prevent)) {
+    zpal_pm_relock(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, 0, ZPAL_PM_APP_RADIO_CLI_ID);
   } else {
-    zpal_pm_cancel(pm_handle);
-    pm_handle = NULL;
+    zpal_pm_lock_cancel(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, ZPAL_PM_APP_RADIO_CLI_ID);
   }
 }
 
 void zw_cli_sleeping_util_prevent_sleeping_timeout(uint8_t seconds)
 {
-  static zpal_pm_handle_t pm_handle = NULL;
-
-  if (pm_handle == NULL) {
-    pm_handle  = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-    zpal_pm_stay_awake(pm_handle, seconds * 1000);
-  }
+  zpal_pm_lock(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, seconds * 1000, ZPAL_PM_APP_RADIO_CLI_ID);
 }
 
 #endif // SL_CATALOG_ZW_CLI_SLEEPING_PRESENT

@@ -57,7 +57,7 @@ typedef enum {
   SL_NCP_ERROR_RECEIVE    = 1,
   SL_NCP_ERROR_TIMER      = 2,
   SL_NCP_ERROR_ENCRYPT    = 3,
-  SL_NCP_ERROR_BGAPI_LOCK = 4,
+  SL_NCP_ERROR_RSP_BUFFER = 4,
   SL_NCP_ERROR_EVT_ENQUE  = 5,
   SL_NCP_ERROR_EVT_DEQUE  = 6,
 } sl_ncp_error_t;

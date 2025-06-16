@@ -56,7 +56,7 @@
 #endif
 
 namespace otbr {
-namespace Ncp {
+namespace Host {
 class RcpHost;
 }
 } // namespace otbr
@@ -87,7 +87,7 @@ public:
      * @param[in] aInstance  The Thread instance.
      * @param[in] aHost      The Thread controller.
      */
-    ThreadHelper(otInstance *aInstance, otbr::Ncp::RcpHost *aHost);
+    ThreadHelper(otInstance *aInstance, otbr::Host::RcpHost *aHost);
 
     /**
      * This method adds a callback for device role change.
@@ -235,25 +235,6 @@ public:
      */
     void StateChangedCallback(otChangedFlags aFlags);
 
-#if OTBR_ENABLE_DBUS_SERVER
-    /**
-     * This method sets a callback for calls of UpdateVendorMeshCopTxtEntries D-Bus API.
-     *
-     * @param[in] aHandler  The handler on MeshCoP TXT changes.
-     */
-    void SetUpdateMeshCopTxtHandler(UpdateMeshCopTxtHandler aHandler)
-    {
-        mUpdateMeshCopTxtHandler = std::move(aHandler);
-    }
-
-    /**
-     * This method handles MeshCoP TXT updates done by UpdateVendorMeshCopTxtEntries D-Bus API.
-     *
-     * @param[in] aUpdate  The key-value pairs to be updated in the TXT record.
-     */
-    void OnUpdateMeshCopTxt(std::map<std::string, std::vector<uint8_t>> aUpdate);
-#endif
-
     void DetachGracefully(ResultHandler aHandler);
 
 #if OTBR_ENABLE_TELEMETRY_DATA_API
@@ -340,7 +321,7 @@ private:
 
     otInstance *mInstance;
 
-    otbr::Ncp::RcpHost *mHost;
+    otbr::Host::RcpHost *mHost;
 
     ScanHandler                     mScanHandler;
     std::vector<otActiveScanResult> mScanResults;
@@ -366,10 +347,6 @@ private:
 
 #if OTBR_ENABLE_DHCP6_PD
     Dhcp6PdStateCallback mDhcp6PdCallback;
-#endif
-
-#if OTBR_ENABLE_DBUS_SERVER
-    UpdateMeshCopTxtHandler mUpdateMeshCopTxtHandler;
 #endif
 
 #if OTBR_ENABLE_TELEMETRY_DATA_API && (OTBR_ENABLE_NAT64 || OTBR_ENABLE_DHCP6_PD)

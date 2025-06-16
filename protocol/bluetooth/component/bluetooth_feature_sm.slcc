@@ -1,6 +1,6 @@
 id: "bluetooth_feature_sm"
 label: "Security Manager"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth security manager (SM) feature
 category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events
@@ -10,7 +10,6 @@ requires:
   - name: "bluetooth_stack"
   - name: "bluetooth_feature_bonding_database"
   - name: "bluetooth_crypto"
-  - name: "nvm3_default"
 recommends:
   - id: "bluetooth_feature_builtin_bonding_database"
 provides:

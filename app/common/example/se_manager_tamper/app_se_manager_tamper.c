@@ -314,14 +314,18 @@ sl_status_t init_se_otp_conf(void)
   otp_init.enable_secure_boot = false;
   otp_init.verify_secure_boot_certificate = false;
   otp_init.enable_anti_rollback = false;
+
+#if !defined(_SILICON_LABS_32B_SERIES_3)
   otp_init.secure_boot_page_lock_narrow = false;
   otp_init.secure_boot_page_lock_full = false;
+#endif
 
+#if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
   // Overwrite tamper signal levels in SL_SE_OTP_INIT_DEFAULT if necessary.
   // It is not possible to degrade the default response level of a tamper
   // signal, so if a response is set to a lower level than the default response
   // level, this won't have any effect.
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
+  #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_FILTER_COUNTER] =
     SL_SE_TAMPER_LEVEL_INTERRUPT;
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_WATCHDOG] =
@@ -356,10 +360,8 @@ sl_status_t init_se_otp_conf(void)
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS3] = SL_SE_TAMPER_LEVEL_FILTER;
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS4] = SL_SE_TAMPER_LEVEL_RESET;
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS5] = SL_SE_TAMPER_LEVEL_RESET;
-  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS6] =
-    SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
-  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS7] =
-    SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS6] = SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS7] = SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
 
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_DECOUPLE_BOD] =
     SL_SE_TAMPER_LEVEL_RESET;
@@ -377,7 +379,7 @@ sl_status_t init_se_otp_conf(void)
     SL_SE_TAMPER_LEVEL_FILTER;
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SE_ICACHE_ERROR] =
     SL_SE_TAMPER_LEVEL_RESET;
-#else
+#elif !defined(_SILICON_LABS_32B_SERIES_3)
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_FILTER_COUNTER] =
     SL_SE_TAMPER_LEVEL_INTERRUPT;
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_WATCHDOG] =
@@ -438,10 +440,35 @@ sl_status_t init_se_otp_conf(void)
   otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS5] = SL_SE_TAMPER_LEVEL_RESET;
 
 #if !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
-  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS6] =
-    SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_PRS6] = SL_SE_TAMPER_LEVEL_PERMANENTLY_ERASE_OTP;
 #endif
-
+#elif defined(_SILICON_LABS_32B_SERIES_3)
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_WATCHDOG] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_CRYPTO_ERROR] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SE_RAM_ECC_2] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SE_MAJOR_FAULT] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_L2ICACHE] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SE_SOFTWARE_ASSERTION] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SELFTEST_FAILED] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_SECURE_LOCK_ERROR] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_OTP_ALARM] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SE_ICACHE_ERROR] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_BOD] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_KSU_ECC_2] =
+    SL_SE_TAMPER_LEVEL_RESET;
+  otp_init.tamper_levels[SL_SE_TAMPER_SIGNAL_QSPI_RESEED_ERR] =
+    SL_SE_TAMPER_LEVEL_RESET;
 #endif
 
   // Overwrite tamper filter options in SL_SE_OTP_INIT_DEFAULT if necessary.
@@ -453,7 +480,7 @@ sl_status_t init_se_otp_conf(void)
 
   // Overwrite reset threshold in SL_SE_OTP_INIT_DEFAULT if necessary.
   otp_init.tamper_reset_threshold = 5;
-
+#endif
   // Commit OTP settings. This command is only available once!
   print_error_cycle(sl_se_init_otp(&cmd_ctx, &otp_init), &cmd_ctx);
 }

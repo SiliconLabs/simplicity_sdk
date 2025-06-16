@@ -17,36 +17,31 @@ component:
   - id: "wisun_default_phy"
   - id: "wisun_configuration"
   - id: "wisun_rf_test"
-  - id: "sl_system"
-  - id: "device_init"
+  - id: "sl_main"
+  - id: "clock_manager"
+  - id: "board_control"
+    condition: [hardware_board]
   - id: "micriumos_kernel"
   - id: "sleeptimer"
   - id: "nvm3_default"
   - id: "slist"
-  - id: "silabs_core_sl_malloc"
+  - id: "memory_manager"
   - id: "iostream_recommended_stream"
   - id: "iostream_retarget_stdio"
   - id: "iostream_stdlib_config"
   - id: "cli"
     instance: [vcom]
   - id: "wisun_cli_util"
-  - id: "rail_util_pa"
   - id: "wisun_low_power"
-
-requires:
-  - name: freertos_heap_3
-    condition: [freertos]
 
 source:
   - path: "app.c"
-  - path: "main.c"
   - path: "app_cli.c"
   - path: "app_settings.c"
 
 include:
   - path: "."
     file_list:
-    - path: "app.h"
     - path: "app_cli.h"
     - path: "app_settings.h"
 
@@ -60,7 +55,7 @@ configuration:
   - name: "SL_BOARD_ENABLE_VCOM"
     value: "1"
   - name: "SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE"
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
     condition: [iostream_usart]
   - name: "SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF"
     value: "1"
@@ -88,7 +83,7 @@ configuration:
                  # interrupted by chip interrupts.
     condition: [iostream_eusart]
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition: [iostream_eusart]
   - name: SL_IOSTREAM_LEUART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "1"
@@ -118,8 +113,14 @@ configuration:
     value: 1024
   - name: BUFFER_SIZE_UP
     value: 8192
-  - name: "SL_SLEEPTIMER_PERIPHERAL"
-    value: "SL_SLEEPTIMER_PERIPHERAL_BURTC"
+  - name: SL_CLOCK_MANAGER_EUSART0CLK_SOURCE
+    value: CMU_EUSART0CLKCTRL_CLKSEL_LFXO
+    condition: [iostream_eusart]
+  - name: SL_MAIN_START_TASK_STACK_SIZE_BYTES
+    value: 2048
+  - name: SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION
+    value: "SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM"
+    condition: [device_sdid_220]
 
 template_contribution:
   - name: "event_handler"

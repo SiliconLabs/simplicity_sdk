@@ -103,7 +103,7 @@ static sl_status_t nvm3_halCryptoSeInit(void)
 {
   // Initialize the SE manager
   if (sl_se_init() != SL_STATUS_OK) {
-    return SL_STATUS_NVM3_CRYPTO_INIT_FAILED;
+    return SL_STATUS_INITIALIZATION;
   }
   // Initialize key descriptor for NVM3 crypto operations
   nvm3_keyDescInit();
@@ -118,7 +118,7 @@ static sl_status_t nvm3_halCryptoSeGenRandNum(uint8_t *output, size_t outputSize
   sl_se_command_context_t cmd_ctx;
   sl_se_init_command_context(&cmd_ctx);
   if (sl_se_get_random(&cmd_ctx, output, outputSize) != SL_STATUS_OK) {
-    return SL_STATUS_NVM3_RANDOM_NUM_GENERATION_FAILED;
+    return SL_STATUS_SECURITY_RANDOM_NUM_GEN_ERROR;
   }
   return SL_STATUS_OK;
 }
@@ -159,7 +159,7 @@ static sl_status_t nvm3_halCryptoSeEncrypt(const uint8_t *nonce,
                               cipherData,
                               NVM3_GCM_TAG_SIZE,
                               tag) != SL_STATUS_OK) {
-    return SL_STATUS_NVM3_ENCRYPTION_FAILED;
+    return SL_STATUS_SECURITY_ENCRYPT_ERROR;
   }
   return SL_STATUS_OK;
 }

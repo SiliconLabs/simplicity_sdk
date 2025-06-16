@@ -85,10 +85,10 @@ void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
  *
  * @param[in] rail_handle The RAIL handle associated with the channel config
  * change notification.
- * @param[in] entry The channel configuration being changed to.
+ * @param[in] p_entry A pointer to the channel configuration being changed to.
  */
 void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                           const RAIL_ChannelConfigEntry_t *entry);
+                                           const RAIL_ChannelConfigEntry_t *p_entry);
 
 /**
  * A callback available to the application, called on registered RAIL events.

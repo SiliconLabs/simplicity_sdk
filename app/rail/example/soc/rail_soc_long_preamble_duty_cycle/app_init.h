@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -42,19 +42,23 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-extern RAIL_RxDutyCycleConfig_t duty_cycle_config;
+extern sl_rail_rx_duty_cycle_config_t duty_cycle_config;
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
+/*******************************************************************************
+ * Wrapper function to help with baremetal and RTOS compatibility.
+ ******************************************************************************/
+void app_init(void);
+
 /**************************************************************************//**
  * The function is used for some basic initialization related to the app.
- * @return RAIL_Handle_t RAIL handle
  *
  * It ensures the followings:
  * - Turn OFF LEDs
  * - Start RAIL reception
  * - Printf start message
  *****************************************************************************/
-RAIL_Handle_t app_init(void);
+void rail_app_init(void);
 
 #endif  // APP_INIT_H

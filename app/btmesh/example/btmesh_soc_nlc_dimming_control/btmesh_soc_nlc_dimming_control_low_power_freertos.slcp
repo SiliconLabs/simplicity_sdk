@@ -6,7 +6,7 @@ description: >
   in a Networked Lighting Control (NLC) system. It is optimized for
   low current consumption with disabled CLI, logging, and LCD.
   Push Button presses control Basic Lightness Controllers in the network
-  by Generic Level Delta or Generic On/Off messages. This example runs on top 
+  by Generic Level Delta or Generic On/Off messages. This example runs on top
   of FreeRTOS.
 
 category: Bluetooth Mesh Examples
@@ -36,18 +36,17 @@ component:
   - id: clock_manager
   - id: device_init
   - id: freertos
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
   - path: app.c
   - path: app_freertos.c
-  - path: main.c
 
 include:
   - path: .
@@ -81,6 +80,8 @@ other_file:
   - path: ../../documentation/example/btmesh_soc_nlc_dimming_control/readme_img10.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_BUTTON_PRESS_CONFIG_QUEUE_SIZE
     value: "4"
   - name: configTIMER_TASK_STACK_DEPTH
@@ -103,6 +104,10 @@ configuration:
       - psa_crypto
   - name: SL_SIMPLE_BUTTON_ALLOW_LED_CONFLICT
     value: "1"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

@@ -1,14 +1,14 @@
 id: iostream_uart_common
-package: platform
-label: "IO Stream: Common code for UART-type streams"
+package: platform_core
+label: 'IO Stream: Common code for UART-type streams'
 description: Common code for UART-type streams.
 category: Services|IO Stream
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 provides:
   - name: iostream_uart_common
 root_path: platform/service/iostream

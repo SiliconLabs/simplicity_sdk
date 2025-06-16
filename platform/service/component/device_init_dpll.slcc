@@ -1,17 +1,17 @@
 id: device_init_dpll
-label: "Digital Phase-Locked Loop (DPLL)"
-package: platform
+label: Digital Phase-Locked Loop (DPLL)
+package: platform_core
 description: >
-  Instantiate the component for Digital Phase-Locked Loop (DPLL) initialization
-  and lock for the main High Frequency RC Oscillator (HFRCO), based on the
-  provided component configuration. The reference clock, target oscillator
-  frequency as well as other settings can be specified via the component
-  configuration.
+    Instantiate the component for Digital Phase-Locked Loop (DPLL) initialization
+    and lock for the main High Frequency RC Oscillator (HFRCO), based on the
+    provided component configuration. The reference clock, target oscillator
+    frequency as well as other settings can be specified via the component
+    configuration.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 config_file:
   - path: config/s2/sdid200/sl_device_init_dpll_config.h
@@ -58,15 +58,15 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_dpll.h
-      handler: sl_device_init_dpll
+        event: platform_init
+        include: sl_device_init_dpll.h
+        handler: sl_device_init_dpll
     priority: -9550
-    condition: [sl_system]
+    condition: [sl_system, kernel]
   - name: device_init_clocks_present
     value: dpll
   - name: component_catalog
     value: device_init_dpll
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-dpll
+    docset: gecko-platform
+    document: platform-service/device-init-dpll

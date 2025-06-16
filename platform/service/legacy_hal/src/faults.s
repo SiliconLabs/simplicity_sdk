@@ -48,7 +48,7 @@ NMI_Handler:
 
         __CODE__
         __THUMB__
-        __EXPORT__ HardFault_Handler
+        __WEAK__ HardFault_Handler
 HardFault_Handler:
         b.w fault
 

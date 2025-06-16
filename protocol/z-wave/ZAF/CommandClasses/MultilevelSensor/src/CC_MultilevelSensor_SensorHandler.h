@@ -69,7 +69,7 @@ cc_multilevel_sensor_check_sensor_type_registered(uint8_t endpoint, uint8_t sens
 
 /**
  * Registers an interface to a specific sensor type. The number of registered sensor
- * types is maximized with REGISTERED_SENSOR_NUMBER_LIMIT 
+ * types is maximized with REGISTERED_SENSOR_NUMBER_LIMIT
  * @param[in] i_new_sensor Pointer to a filled sensor interface struct
  * @return CC_MULTILEVEL_SENSOR_RETURN_VALUE_OK if interface is registered for a sensor.
  */
@@ -92,7 +92,7 @@ cc_multilevel_sensor_get_supported_sensors(uint8_t* o_supported_sensor_buffer);
  * @return CC_MULTILEVEL_SENSOR_RETURN_VALUE_OK if interface is registered for a sensor.
  */
 cc_multilevel_sensor_return_value
-cc_multilevel_sensor_get_supported_scale(uint8_t sensor_type_value , uint8_t* o_supported_scale);
+cc_multilevel_sensor_get_supported_scale(uint8_t sensor_type_value, uint8_t* o_supported_scale);
 
 /**
  * Getter function for a sensor type's interface
@@ -144,6 +144,6 @@ cc_multilevel_sensor_reset_administration(void);
 /**
  * @}
  * @}
- */ 
+ */
 
-#endif  // CC_MULTILEVELSENSOR_SENSORHANDLER_H
+#endif // CC_MULTILEVELSENSOR_SENSORHANDLER_H

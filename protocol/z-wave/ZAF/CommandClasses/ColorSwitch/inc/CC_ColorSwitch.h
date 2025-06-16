@@ -33,12 +33,10 @@ typedef enum EColorComponents_ {
   ECOLORCOMPONENT_COLOR_UNDEFINED
 } EColorComponents;
 
-
 /**
  * Structure that holds Color Switch CC related data.
  */
-typedef struct colorComponent_
-{
+typedef struct colorComponent_{
   RECEIVE_OPTIONS_TYPE_EX rxOpt;             ///< saves Rx values, including data about supervision.
                                              ///< (Must be first member - required by TSE)
   EColorComponents colorId;                  ///< Color Component ID
@@ -50,7 +48,7 @@ typedef struct colorComponent_
 /**
  * @brief Can be used as single cb function for all colors. Defined in the app.
  * Called when change takes place in driver and app needs to update LED status
- * 
+ *
  */
 void cc_color_switch_refresh_cb(void);
 

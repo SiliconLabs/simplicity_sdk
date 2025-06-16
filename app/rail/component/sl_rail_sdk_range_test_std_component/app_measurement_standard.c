@@ -38,18 +38,18 @@
 #include "app_menu.h"
 #include "app_measurement.h"
 #include "app_measurement_standard.h"
-#include "rail_ieee802154.h"
-#include "rail_ble.h"
+#include "sl_rail_ieee802154.h"
+#include "sl_rail_ble.h"
 #include "sl_rail_sdk_fifo_size_config.h"
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
 #include "sl_rail_util_init.h"
 #endif
-#include "rail_chip_specific.h"
+#include "sl_rail_chip_specific.h"
 #include "app_assert.h"
 #include "app_log.h"
 #include "sl_rail_util_pa_config.h"
-#include "pa_curve_types_efr32.h"
-#include "pa_conversions_efr32.h"
+#include "sl_rail_util_pa_curve_types_efr32.h"
+#include "sl_rail_util_pa_conversions_efr32.h"
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 #include "sl_rail_util_ant_div.h"
 #endif
@@ -67,52 +67,65 @@ static void range_test_generate_remainder(uint8_t *remainder);
 //                                Global Variables
 // -----------------------------------------------------------------------------
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
-RAIL_Handle_t emPhyRailHandle;
+sl_rail_handle_t emPhyRailHandle;
 #endif
 
-/// Memory allocation for RAIL TX FIFO
-extern __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rail_tx_buffer[SL_RAIL_SDK_TX_FIFO_SIZE];
+/** Macro to determine array size. */
+#define COMMON_UTILS_COUNTOF(a) (sizeof(a) / sizeof((a)[0]))
+
+// Provide weak overridable internal RX FIFO and RX Packet Buffer for
+// non-UC protocols to share and for RAIL 2.x backwards compatibility.
+static sl_rail_packet_queue_entry_t builtin_rx_packet_queue[SL_RAIL_BUILTIN_RX_PACKET_QUEUE_ENTRIES];
+static SL_RAIL_DECLARE_FIFO_BUFFER(builtin_rx_fifo, SL_RAIL_BUILTIN_RX_FIFO_BYTES);
+__WEAK sl_rail_packet_queue_entry_t * const sl_rail_builtin_rx_packet_queue_ptr = builtin_rx_packet_queue;
+__WEAK sl_rail_fifo_buffer_align_t * const sl_rail_builtin_rx_fifo_ptr = builtin_rx_fifo;
+__WEAK const uint16_t sl_rail_builtin_rx_packet_queue_entries = COMMON_UTILS_COUNTOF(builtin_rx_packet_queue);
+__WEAK const uint16_t sl_rail_builtin_rx_fifo_bytes = sizeof(builtin_rx_fifo);
+
+// Provide weak overridable internal TX FIFO and TX Packet Buffer for
+// non-UC protocols to share and for RAIL 2.x backwards compatibility.
+static SL_RAIL_DECLARE_FIFO_BUFFER(sli_tx_fifo_buffer, SL_RAIL_SDK_TX_FIFO_SIZE);
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
 /// Config for IEEE protocol
-static const RAIL_IEEE802154_Config_t rail_ieee802154_config = {
-  .addresses = NULL,
-  .ackConfig = {
+static const sl_rail_ieee802154_config_t rail_ieee802154_config = {
+  .p_addresses = NULL,
+  .ack_config = {
     .enable = false,          // Turn on auto ACK for IEEE 802.15.4.
-    .ackTimeout = 672,        // 54-12 symbols * 16 us/symbol = 672 us.
-    .rxTransitions = {
-      .success = RAIL_RF_STATE_RX,        // Go to TX to send the ACK.
-      .error = RAIL_RF_STATE_RX,          // For an always-on device stay in RX.
+    .ack_timeout_us = 672,        // 54-12 symbols * 16 us/symbol = 672 us.
+    .rx_transitions = {
+      .success = SL_RAIL_RF_STATE_RX,        // Go to TX to send the ACK.
+      .error = SL_RAIL_RF_STATE_RX,          // For an always-on device stay in RX.
     },
-    .txTransitions = {
-      .success = RAIL_RF_STATE_RX,        // Go to RX for receiving the ACK.
-      .error = RAIL_RF_STATE_RX,          // For an always-on device stay in RX.
+    .tx_transitions = {
+      .success = SL_RAIL_RF_STATE_RX,        // Go to RX for receiving the ACK.
+      .error = SL_RAIL_RF_STATE_RX,          // For an always-on device stay in RX.
     },
   },
   .timings = {
-    .idleToRx = 100,
-    .idleToTx = 100,
-    .rxToTx = 192,          // 12 symbols * 16 us/symbol = 192 us
-    .txToRx = 192,          // 12 symbols * 16 us/symbol = 192 us
-    .rxSearchTimeout = 0,       // Not used
-    .txToRxSearchTimeout = 0,       // Not used
+    .idle_to_rx = 100,
+    .idle_to_tx = 100,
+    .rx_to_tx = 192,          // 12 symbols * 16 us/symbol = 192 us
+    .tx_to_rx = 192,          // 12 symbols * 16 us/symbol = 192 us
+    .rxsearch_timeout = 0,       // Not used
+    .tx_to_rxsearch_timeout = 0,       // Not used
   },
-  .framesMask = RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
-  .promiscuousMode = true,        // Enable format and address filtering.
-  .isPanCoordinator = false,
+  .frames_mask = SL_RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
+  .promiscuous_mode = true,        // Enable format and address filtering.
+  .is_pan_coordinator = false,
 };
 
 /// Rail handlers for ble and ieee protocols
-RAIL_Handle_t rail_handles[PROT_NO_OF_ELEMENTS] = { NULL };
+sl_rail_handle_t rail_handles[PROT_NO_OF_ELEMENTS] = { SL_RAIL_EFR32_HANDLE, SL_RAIL_EFR32_HANDLE };
 
 /// Collection of all available standard phys
 static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = IEEE802154_250KBPS,
     .protocol = PROT_IEEE802154,
-#if RAIL_SUPPORTS_PROTOCOL_IEEE802154 && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_8)
+#if SL_RAIL_SUPPORTS_PROTOCOL_IEEE802154 && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_8)
     .is_supported = true
 #else
     .is_supported = false
@@ -121,7 +134,7 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = IEEE802154_250KBPS_ANTDIV,
     .protocol = PROT_IEEE802154,
-#if RAIL_SUPPORTS_PROTOCOL_IEEE802154 && defined(SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT)
+#if SL_RAIL_SUPPORTS_PROTOCOL_IEEE802154 && defined(SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT)
     .is_supported = true
 #else
     .is_supported = false
@@ -130,7 +143,7 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = BLE_125KBPS,
     .protocol = PROT_BLE,
-#if ((RAIL_BLE_SUPPORTS_CODED_PHY == 1) && (RAIL_SUPPORTS_PROTOCOL_BLE == 1))
+#if ((SL_RAIL_BLE_SUPPORTS_CODED_PHY == 1) && (SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1))
     .is_supported = true
 #else
     .is_supported = false
@@ -139,7 +152,7 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = BLE_500KBPS,
     .protocol = PROT_BLE,
-#if ((RAIL_BLE_SUPPORTS_CODED_PHY == 1) && (RAIL_SUPPORTS_PROTOCOL_BLE == 1))
+#if ((SL_RAIL_BLE_SUPPORTS_CODED_PHY == 1) && (SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1))
     .is_supported = true
 #else
     .is_supported = false
@@ -148,7 +161,7 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = BLE_1MBPS,
     .protocol = PROT_BLE,
-#if ((RAIL_BLE_SUPPORTS_1MBPS == 1) && (RAIL_SUPPORTS_PROTOCOL_BLE == 1))
+#if ((SL_RAIL_BLE_SUPPORTS_1_MBPS == 1) && (SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1))
     .is_supported = true
 #else
     .is_supported = false
@@ -157,7 +170,7 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   {
     .phy = BLE_2MBPS,
     .protocol = PROT_BLE,
-#if ((RAIL_BLE_SUPPORTS_2MBPS == 1) && (RAIL_SUPPORTS_PROTOCOL_BLE == 1))
+#if ((SL_RAIL_BLE_SUPPORTS_2_MBPS == 1) && (SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1))
     .is_supported = true
 #else
     .is_supported = false
@@ -165,24 +178,16 @@ static range_test_std_phys_t range_test_std_phys[NUM_OF_PREDEFINED_PHYS] = {
   }
 };
 
-/// Scheduler for BLE rail handler
-static RAILSched_Config_t rail_ble_scheduler = { 0 };
 /// Scheduler state control for BLE rail handler
-static RAIL_BLE_State_t rail_ble_state = { 0 };
-/// Scheduler for IEEE rail handler
-static RAILSched_Config_t rail_ieee802154_scheduler = { 0 };
+static sl_rail_ble_state_t rail_ble_state = { 0 };
 
 /// Rail configurations for available non custom phys
-static RAIL_Config_t rail_standard_configs[PROT_NO_OF_ELEMENTS] = {
+static sl_rail_config_t rail_standard_configs[PROT_NO_OF_ELEMENTS] = {
   {
-    .scheduler = &rail_ble_scheduler,
-    .eventsCallback = &sl_rail_util_on_event,
-    .protocol = &rail_ble_state
+    .events_callback = &sl_rail_util_on_event,
   },
   {
-    .scheduler = &rail_ieee802154_scheduler,
-    .eventsCallback = &sl_rail_util_on_event,
-    .protocol = NULL
+    .events_callback = &sl_rail_util_on_event,
   }
 };
 
@@ -227,9 +232,9 @@ bool std_phy_is_supported(uint8_t index)
 /*******************************************************************************
  * @brief Return the standard handler which is used currently
  *
- * @return RAIL_Handle_t: pointer for actual rail standard handler
+ * @return sl_rail_handle_t: pointer for actual rail standard handler
  ******************************************************************************/
-RAIL_Handle_t get_standard_rail_handler(void)
+sl_rail_handle_t get_standard_rail_handler(void)
 {
   return rail_handles[range_test_std_phys[current_phy_standard_value()].protocol];
 }
@@ -249,113 +254,127 @@ bool is_init_range_test_standard_ready(void)
  ******************************************************************************/
 void init_range_test_standard_phys(uint8_t* number_of_phys)
 {
-  uint8_t carrier_frequency_range = SL_RAIL_UTIL_PA_SELECTION_2P4GHZ;
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-
-  const RAIL_TxPowerCurves_t *power_amplifier_value = RAIL_GetTxPowerCurve(carrier_frequency_range);
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
 #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
   // Added 3rd buffer as only 2 buffer is supported by default
-  status = RAIL_AddStateBuffer3(RAIL_EFR32_HANDLE);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_AddStateBuffer3 error, 3rd state buffer was previously added or this isn't the RAIL multiprotocol library. Error code: %X", status);
+  status = sl_rail_add_state_buffer_3(RAIL_EFR32_HANDLE);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_add_state_buffer_3 error, 3rd state buffer was previously added or this isn't the RAIL multiprotocol library. Error code: %X", status);
   }
 #endif
 
   *number_of_phys = *number_of_phys + NUM_OF_PREDEFINED_PHYS;
   for (int i = 0; i < PROT_NO_OF_ELEMENTS; i++) {
-    rail_handles[i] =  RAIL_Init(&rail_standard_configs[i], NULL);
-    app_assert(rail_handles[i] != NULL, "Init failed on %s", i == 0 ? "BLE" : "IEEE");
+    // Initialize the rail_init_config structure
+    rail_standard_configs[i].events_callback = &sl_rail_util_on_event;
+    rail_standard_configs[i].rx_packet_queue_entries = sl_rail_builtin_rx_packet_queue_entries;
+    rail_standard_configs[i].rx_fifo_bytes = sl_rail_builtin_rx_fifo_bytes;
+    rail_standard_configs[i].p_rx_packet_queue = sl_rail_builtin_rx_packet_queue_ptr;
+    rail_standard_configs[i].p_rx_fifo_buffer = sl_rail_builtin_rx_fifo_ptr;
+    rail_standard_configs[i].tx_fifo_bytes = SL_RAIL_SDK_TX_FIFO_SIZE;
+    rail_standard_configs[i].tx_fifo_init_bytes = 0U;
+    rail_standard_configs[i].p_tx_fifo_buffer = sli_tx_fifo_buffer;
 
-    while (!RAIL_IsInitialized()) ;
+    status =  sl_rail_init(&rail_handles[i], &rail_standard_configs[i], NULL);
+    app_assert(rail_handles[i] != NULL, "Init failed on %s with error code %ld", i == 0 ? "BLE" : "IEEE", status);
 
-    RAIL_SetTxFifo(rail_handles[i], rail_tx_buffer, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
+    while (!sl_rail_is_initialized(rail_handles[i])) ;
 
     status =
-      RAIL_ConfigEvents(rail_handles[i],
-                        RAIL_EVENTS_ALL,
-                        (RAIL_EVENTS_RX_COMPLETION
-                         | RAIL_EVENTS_TX_COMPLETION
-                         | RAIL_EVENT_SCHEDULER_STATUS
-                         | RAIL_EVENT_CONFIG_SCHEDULED
-                         | RAIL_EVENT_CONFIG_UNSCHEDULED
-                         | RAIL_EVENT_CAL_NEEDED));
+      sl_rail_config_events(rail_handles[i],
+                            SL_RAIL_EVENTS_ALL,
+                            (SL_RAIL_EVENTS_RX_COMPLETION
+                             | SL_RAIL_EVENTS_TX_COMPLETION
+                             | SL_RAIL_EVENT_SCHEDULER_STATUS
+                             | SL_RAIL_EVENT_CONFIG_SCHEDULED
+                             | SL_RAIL_EVENT_CONFIG_UNSCHEDULED
+                             | SL_RAIL_EVENT_CAL_NEEDED));
 
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_ConfigEvents failed");
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_config_events failed");
     }
 
     if (PROT_IEEE802154 == i) {
       // Configure RAIL instance to run in IEEE 802.15.4 mode
-      status = RAIL_IEEE802154_Init(rail_handles[i], &rail_ieee802154_config);
+      status = sl_rail_ieee802154_init(rail_handles[i], &rail_ieee802154_config);
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
       emPhyRailHandle = rail_handles[i];
       sl_rail_util_ant_div_init();
       sl_rail_util_ant_div_set_rx_antenna_mode(SL_RAIL_UTIL_ANTENNA_MODE_DISABLED);
       sl_rail_util_ant_div_update_antenna_config();
 #endif
-      if (status != RAIL_STATUS_NO_ERROR) {
-        app_log_error("RAIL_IEEE802154_Init failed");
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_error("sl_rail_ieee802154_init failed");
       }
       // Configures channels and more.
       // Note: As discussed in RAIL_LIB-2862, this API has to be called before
       //       TX power is configured.
-      status = RAIL_IEEE802154_Config2p4GHzRadio(rail_handles[i]);
-      if (status != RAIL_STATUS_NO_ERROR) {
-        app_log_error("RAIL_IEEE802154_Config2p4GHzRadio failed");
+      status = sl_rail_ieee802154_config_2p4_ghz_radio(rail_handles[i]);
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_error("sl_rail_ieee802154_config_2p4_ghz_radio failed");
       }
-      if (status == RAIL_STATUS_NO_ERROR) {
+      if (status == SL_RAIL_STATUS_NO_ERROR) {
         range_test_std_phys[IEEE802154_250KBPS].is_supported = true;
       } else {
         range_test_std_phys[IEEE802154_250KBPS].is_supported = false;
       }
-      RAIL_Idle(rail_handles[i], RAIL_IDLE, true);
+      sl_rail_idle(rail_handles[i], SL_RAIL_IDLE, true);
     } else if (PROT_BLE == i) {
-#if RAIL_SUPPORTS_PROTOCOL_BLE == 1
+#if SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1
       // Configure RAIL instance to run in BLE mode
-      RAIL_BLE_Init(rail_handles[PROT_BLE]);
+      sl_rail_ble_init(rail_handles[PROT_BLE]);
 
-      RAIL_Idle(rail_handles[PROT_BLE], RAIL_IDLE, true);
+      sl_rail_idle(rail_handles[PROT_BLE], SL_RAIL_IDLE, true);
       // To get the default to switch from
-      status = RAIL_BLE_ConfigPhy1MbpsViterbi(rail_handles[PROT_BLE]);
-      if (status != RAIL_STATUS_NO_ERROR) {
-        app_log_error("RAIL_BLE_ConfigPhy1MbpsViterbi failed with %lu\n", status);
+      status = sl_rail_ble_config_phy_1_mbps(rail_handles[PROT_BLE]);
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_error("sl_rail_ble_config_phy_1_mbps failed with %lu\n", status);
       }
 
-      RAIL_Idle(rail_handles[i], RAIL_IDLE, true);
+      sl_rail_idle(rail_handles[i], SL_RAIL_IDLE, true);
       // Configures us for the first advertising channel (Physical: 0, Logical: 37).
       // The CRC init value and Access Address come from the BLE specification.
       // Note: As discussed in RAIL_LIB-2862, this API has to be called before
       //       TX power is configured.
-      status = RAIL_BLE_ConfigChannelRadioParams(rail_handles[PROT_BLE],
-                                                 BLE_CRC_INIT,
-                                                 BLE_ACCESS_ADDRESS,
-                                                 BLE_LOGICAL_CH,
-                                                 DISABLE_WHITENING);
-      if (status != RAIL_STATUS_NO_ERROR) {
+      sl_rail_ble_state_t ble_params = {
+        .crc_init = BLE_CRC_INIT,
+        .access_address = BLE_ACCESS_ADDRESS,
+        .logical_channel = BLE_LOGICAL_CH,
+        .disable_whitening = DISABLE_WHITENING,
+      };
+      status = sl_rail_ble_config_channel_radio_params(rail_handles[PROT_BLE],
+                                                       &ble_params);
+      if (status != SL_RAIL_STATUS_NO_ERROR) {
         app_log_error("RAIL_BLE_ConfigChannelRadioParams failed");
       }
-      RAIL_Idle(rail_handles[PROT_BLE], RAIL_IDLE, true);
+      sl_rail_idle(rail_handles[PROT_BLE], SL_RAIL_IDLE, true);
 #endif
     }
 
-    RAIL_TxPowerConfig_t txPowerConfig = {
+    sl_rail_tx_power_config_t txPowerConfig = {
       .mode = SL_RAIL_UTIL_PA_SELECTION_2P4GHZ,
-      .voltage = SL_RAIL_UTIL_PA_VOLTAGE_MV,
-      .rampTime = SL_RAIL_UTIL_PA_RAMP_TIME_US,
+      .voltage_mv = SL_RAIL_UTIL_PA_VOLTAGE_MV,
+      .ramp_time_us = SL_RAIL_UTIL_PA_RAMP_TIME_US,
     };
+    sl_rail_tx_power_t max_power_ddbm = 0;
+    sl_rail_tx_power_t increment_ddbm = 0;
 
-    status = RAIL_ConfigTxPower(rail_handles[i], &txPowerConfig);
+    status = sl_rail_config_tx_power(rail_handles[i], &txPowerConfig);
     // Error: The PA could not be initialized due to an improper configuration.
     // Please ensure your configuration is valid for the selected part.
-    app_assert(status == RAIL_STATUS_NO_ERROR, "RAIL_ConfigTxPower failed");
+    app_assert(status == SL_RAIL_STATUS_NO_ERROR, "sl_rail_config_tx_power failed");
     //The IEEE802154 and the BLE setting requires 2.4GHz base-frequency
-    if (power_amplifier_value == NULL) {
-      status = RAIL_SetTxPowerDbm(rail_handles[i], 100);
+    status = sl_rail_get_tx_power_curve_limits(rail_handles[i],
+                                               SL_RAIL_UTIL_PA_SELECTION_2P4GHZ,
+                                               &max_power_ddbm,
+                                               &increment_ddbm);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      status = sl_rail_set_tx_power_dbm(rail_handles[i], 100);
     } else {
-      status = RAIL_SetTxPowerDbm(rail_handles[i], power_amplifier_value->maxPower);
+      status = sl_rail_set_tx_power_dbm(rail_handles[i], max_power_ddbm);
     }
-    app_assert(status == RAIL_STATUS_NO_ERROR, "RAIL_SetTxPower failed");
+    app_assert(status == SL_RAIL_STATUS_NO_ERROR, "sl_rail_set_tx_power failed");
   }
 
   init_done = true;
@@ -370,46 +389,46 @@ bool ble_protocol_change(void)
 {
   bool is_supported = false;
 // Idle
-  RAIL_Idle(rail_handles[PROT_BLE], RAIL_IDLE, true);
-#if RAIL_SUPPORTS_PROTOCOL_BLE == 1
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_idle(rail_handles[PROT_BLE], SL_RAIL_IDLE, true);
+#if SL_RAIL_SUPPORTS_PROTOCOL_BLE == 1
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   switch (current_phy_standard_value()) {
-#if RAIL_BLE_SUPPORTS_CODED_PHY
+#if SL_RAIL_BLE_SUPPORTS_CODED_PHY
     case BLE_125KBPS:
       if (range_test_std_phys[current_phy_standard_value()].is_supported) {
-        status = RAIL_BLE_ConfigPhyCoded(rail_handles[PROT_BLE],
-                                         RAIL_BLE_Coding_125kbps);
-        if (status != RAIL_STATUS_NO_ERROR) {
-          app_log_error("RAIL_BLE_Coding_125kbps failed with %lu\n", status);
+        status = sl_rail_ble_config_phy_coded(rail_handles[PROT_BLE],
+                                              SL_RAIL_BLE_CODING_125_KBPS);
+        if (status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_error("SL_RAIL_BLE_CODING_125_KBPS failed with %lu\n", status);
         }
       }
       break;
     case BLE_500KBPS:
       if (range_test_std_phys[current_phy_standard_value()].is_supported) {
-        status = RAIL_BLE_ConfigPhyCoded(rail_handles[PROT_BLE],
-                                         RAIL_BLE_Coding_500kbps);
-        if (status != RAIL_STATUS_NO_ERROR) {
-          app_log_error("RAIL_BLE_Coding_500kbps failed with %lu\n", status);
+        status = sl_rail_ble_config_phy_coded(rail_handles[PROT_BLE],
+                                              SL_RAIL_BLE_CODING_500_KBPS);
+        if (status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_error("SL_RAIL_BLE_CODING_500_KBPS failed with %lu\n", status);
         }
       }
       break;
 #endif
-#if RAIL_BLE_SUPPORTS_1MBPS
+#if SL_RAIL_BLE_SUPPORTS_1_MBPS
     case BLE_1MBPS:
       if (range_test_std_phys[current_phy_standard_value()].is_supported) {
-        status = RAIL_BLE_ConfigPhy1MbpsViterbi(rail_handles[PROT_BLE]);
-        if (status != RAIL_STATUS_NO_ERROR) {
-          app_log_error("RAIL_BLE_ConfigPhy1MbpsViterbi failed with %lu\n", status);
+        status = sl_rail_ble_config_phy_1_mbps(rail_handles[PROT_BLE]);
+        if (status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_error("sl_rail_ble_config_phy_1_mbps failed with %lu\n", status);
         }
       }
       break;
 #endif
-#if RAIL_BLE_SUPPORTS_2MBPS
+#if SL_RAIL_BLE_SUPPORTS_2_MBPS
     case BLE_2MBPS:
       if (range_test_std_phys[current_phy_standard_value()].is_supported) {
-        status = RAIL_BLE_ConfigPhy2MbpsViterbi(rail_handles[PROT_BLE]);
-        if (status != RAIL_STATUS_NO_ERROR) {
-          app_log_error("RAIL_BLE_ConfigPhy2MbpsViterbi failed with %lu\n", status);
+        status = sl_rail_ble_config_phy_2_mbps(rail_handles[PROT_BLE]);
+        if (status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_error("sl_rail_ble_config_phy_2_mbps failed with %lu\n", status);
         }
       }
       break;
@@ -418,7 +437,7 @@ bool ble_protocol_change(void)
       break;
   }
   if (range_test_std_phys[current_phy_standard_value()].is_supported) {
-    if (status == RAIL_STATUS_NO_ERROR) {
+    if (status == SL_RAIL_STATUS_NO_ERROR) {
       is_supported = true;
     } else {
       is_supported = false;
@@ -426,12 +445,15 @@ bool ble_protocol_change(void)
         false;
     }
   }
-  status = RAIL_BLE_ConfigChannelRadioParams(rail_handles[PROT_BLE],
-                                             BLE_CRC_INIT,
-                                             BLE_ACCESS_ADDRESS,
-                                             BLE_LOGICAL_CH,
-                                             DISABLE_WHITENING);
-  if (status != RAIL_STATUS_NO_ERROR) {
+  sl_rail_ble_state_t ble_params = {
+    .crc_init = BLE_CRC_INIT,
+    .access_address = BLE_ACCESS_ADDRESS,
+    .logical_channel = BLE_LOGICAL_CH,
+    .disable_whitening = DISABLE_WHITENING,
+  };
+  status = sl_rail_ble_config_channel_radio_params(rail_handles[PROT_BLE], &ble_params);
+
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_error("RAIL_BLE_ConfigChannelRadioParams failed");
   }
 #else
@@ -446,7 +468,7 @@ bool ble_protocol_change(void)
  ******************************************************************************/
 void set_ieee_handler_to_idle(void)
 {
-  RAIL_Idle(rail_handles[PROT_IEEE802154], RAIL_IDLE, true);
+  sl_rail_idle(rail_handles[PROT_IEEE802154], SL_RAIL_IDLE, true);
 }
 
 /*******************************************************************************
@@ -469,7 +491,7 @@ bool is_current_phy_ble(void)
  ******************************************************************************/
 void set_ble_handler_to_idle(void)
 {
-  RAIL_Idle(rail_handles[PROT_BLE], RAIL_IDLE, true);
+  sl_rail_idle(rail_handles[PROT_BLE], SL_RAIL_IDLE, true);
 }
 
 /*******************************************************************************
@@ -511,14 +533,14 @@ void print_standard_name(char *print_buffer, uint8_t phy_index)
 {
   // Length for print_buffer comes from app_menu.c
   if (phy_standard_value(phy_index) == IEEE802154_250KBPS) {
-#if RAIL_SUPPORTS_PROTOCOL_IEEE802154
+#if SL_RAIL_SUPPORTS_PROTOCOL_IEEE802154
     snprintf(print_buffer, 15, "IEEE 802.15.4");
 #endif
   } else if (phy_standard_value(phy_index) == IEEE802154_250KBPS_ANTDIV) {
     snprintf(print_buffer, 16, "IEEE 802.ANTDIV");
   } else {
     switch (phy_standard_value(phy_index)) {
-#if RAIL_BLE_SUPPORTS_CODED_PHY
+#if SL_RAIL_BLE_SUPPORTS_CODED_PHY
       case BLE_125KBPS:
         snprintf(print_buffer, 15, "BLE 125kbps");
         break;
@@ -526,12 +548,12 @@ void print_standard_name(char *print_buffer, uint8_t phy_index)
         snprintf(print_buffer, 15, "BLE 500kbps");
         break;
 #endif
-#if RAIL_BLE_SUPPORTS_1MBPS
+#if SL_RAIL_BLE_SUPPORTS_1_MBPS
       case BLE_1MBPS:
         snprintf(print_buffer, 15, "BLE 1Mbps");
         break;
 #endif
-#if RAIL_BLE_SUPPORTS_2MBPS
+#if SL_RAIL_BLE_SUPPORTS_2_MBPS
       case BLE_2MBPS:
         snprintf(print_buffer, 15, "BLE 2Mbps");
         break;
@@ -705,13 +727,13 @@ void menu_set_std_phy(bool init)
       sl_rail_util_ant_div_set_rx_antenna_mode(SL_RAIL_UTIL_ANTENNA_MODE_DISABLED);
       sl_rail_util_ant_div_update_antenna_config();
 #endif
-      RAIL_IEEE802154_Config2p4GHzRadio(rail_handles[PROT_IEEE802154]);
+      sl_rail_ieee802154_config_2p4_ghz_radio(rail_handles[PROT_IEEE802154]);
     } else if (range_test_std_phys[current_phy_standard_value()].is_supported
                && current_phy_standard_value() == IEEE802154_250KBPS_ANTDIV) {
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
       sl_rail_util_ant_div_set_rx_antenna_mode(SL_RAIL_UTIL_ANTENNA_MODE_DIVERSITY);
       sl_rail_util_ant_div_update_antenna_config();
-      RAIL_IEEE802154_Config2p4GHzRadioAntDiv(rail_handles[PROT_IEEE802154]);
+      sl_rail_ieee802154_config_2p4_ghz_radio_ant_div(rail_handles[PROT_IEEE802154]);
 #else
       range_test_settings.current_phy++;
       menu_set_std_phy(false);
@@ -836,7 +858,7 @@ void std_phy_list_generation(uint8_t phy_index, uint8_t *buffer, uint8_t *length
   uint8_t std_phy_index = phy_index - get_number_of_custom_phys();
   if (range_test_std_phys[std_phy_index].is_supported) {
     switch (std_phy_index) {
-#if RAIL_SUPPORTS_PROTOCOL_IEEE802154
+#if SL_RAIL_SUPPORTS_PROTOCOL_IEEE802154
       case IEEE802154_250KBPS:
         snprintf((char*)(&buffer[*length]), 255, "%u:IEEE 802.15.4,", phy_index);
         break;
@@ -844,7 +866,7 @@ void std_phy_list_generation(uint8_t phy_index, uint8_t *buffer, uint8_t *length
         snprintf((char*)(&buffer[*length]), 255, "%u:IEEE 802.15.4 ANTDIV,", phy_index);
         break;
 #endif
-#if RAIL_BLE_SUPPORTS_CODED_PHY
+#if SL_RAIL_BLE_SUPPORTS_CODED_PHY
       case BLE_125KBPS:
         snprintf((char*)(&buffer[*length]), 255, "%u:BLE 125kbps,", phy_index);
         break;
@@ -852,12 +874,12 @@ void std_phy_list_generation(uint8_t phy_index, uint8_t *buffer, uint8_t *length
         snprintf((char*)(&buffer[*length]), 255, "%u:BLE 500kbps,", phy_index);
         break;
 #endif
-#if RAIL_BLE_SUPPORTS_1MBPS
+#if SL_RAIL_BLE_SUPPORTS_1_MBPS
       case BLE_1MBPS:
         snprintf((char*)(&buffer[*length]), 255, "%u:BLE 1Mbps,", phy_index);
         break;
 #endif
-#if RAIL_BLE_SUPPORTS_2MBPS
+#if SL_RAIL_BLE_SUPPORTS_2_MBPS
       case BLE_2MBPS:
         snprintf((char*)(&buffer[*length]), 255, "%u:BLE 2Mbps,", phy_index);
         break;

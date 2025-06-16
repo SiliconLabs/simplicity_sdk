@@ -42,6 +42,7 @@
 #include "sl_status.h"
 #include "sl_mempool.h"
 #include "sl_string.h"
+#include "sl_sleeptimer.h"
 #include "sl_wisun_event_mgr.h"
 #include "sl_wisun_app_core.h"
 #include "sl_wisun_coap.h"
@@ -60,6 +61,7 @@
 #if defined(SL_CATALOG_TEMP_SENSOR_PRESENT)
 #include "sl_wisun_rht_measurement.h"
 #endif
+
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -90,17 +92,17 @@
 #define SL_WISUN_COAP_JSON_MEAS_RESP_END_FORMAT_STR \
   "\n]}"
 
-/// JSON formated measurement data maximum size
-#define SL_WISUN_COAP_METER_JSON_REQUIRED_PAYALOAD_SIZE \
+/// JSON formatted measurement data maximum size
+#define SL_WISUN_COAP_METER_JSON_REQUIRED_PAYLOAD_SIZE \
   (SL_WISUN_METER_MEASUREMENT_BUFFER_SIZE * 36 + 64)
 
-#if (SL_WISUN_COAP_METER_JSON_REQUIRED_PAYALOAD_SIZE > (SL_WISUN_COAP_NOTIFY_SOCK_BUFF_SIZE - 32U))
+#if (SL_WISUN_COAP_METER_JSON_REQUIRED_PAYLOAD_SIZE > (SL_WISUN_COAP_NOTIFY_SOCK_BUFF_SIZE - 32U))
 #define SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE (SL_WISUN_COAP_NOTIFY_SOCK_BUFF_SIZE - 32U)
 #else
-#define SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE SL_WISUN_COAP_METER_JSON_REQUIRED_PAYALOAD_SIZE
+#define SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE SL_WISUN_COAP_METER_JSON_REQUIRED_PAYLOAD_SIZE
 #endif
 
-/// JSON formated measurement data maximum size
+/// JSON formatted measurement data maximum size
 #define SL_WISUN_COAP_METER_JSON_MEAS_DATA_SIZE         350U
 
 /// JSON format string for measurement
@@ -224,7 +226,7 @@ typedef enum sl_wisun_coap_meter_measurement_type {
 // -----------------------------------------------------------------------------
 
 /**************************************************************************//**
- * @brief Create formated json string from measurement packet
+ * @brief Create formatted json string from measurement packet
  * @details Use snprintf to static buffer
  * @param[in] packet packet
  * @param[in] ip_str_global node global ipv6 address
@@ -339,6 +341,20 @@ static bool _notify_condition_cb(const sl_wisun_coap_notify_t *notify);
 static sl_wisun_coap_packet_t * _build_const_resp(const sl_wisun_coap_packet_t * const req_packet,
                                                   const char * const resp_str,
                                                   const sn_coap_msg_code_e code);
+/**************************************************************************//**
+ * @brief Get LFN profile
+ * @details Get LFN profile from configuration
+ * @return sl_wisun_lfn_params_t * LFN profile constant pointer or NULL on error
+ *****************************************************************************/
+static const sl_wisun_lfn_params_t * _get_lfn_profile(void);
+
+/**************************************************************************//**
+ * @brief Calculate LFN threshold in milliseconds
+ * @details Calculate LFN threshold in milliseconds from LFN profile parameters
+ * @param[in] lfn_params LFN profile parameters
+ * @return uint32_t LFN threshold in milliseconds
+ *****************************************************************************/
+__STATIC_INLINE uint32_t _calc_lfn_threshold_ms(const sl_wisun_lfn_params_t * const lfn_params);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -366,6 +382,12 @@ static uint8_t _metrics_buff[SL_WISUN_METER_MEASUREMENT_BUFFER_SIZE * sizeof(sl_
 
 /// Notification payload buffer
 static uint8_t _payload_buff[SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE] = { 0 };
+
+/// LFN Parameters
+static const sl_wisun_lfn_params_t *_lfn_params = NULL;
+
+/// LFN threshold in milliseconds to send
+static uint32_t _lfn_threshold_ms = 0;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -450,6 +472,9 @@ void sl_wisun_coap_meter_init(void)
     sl_wisun_coap_notify_tick_evt_enable(true);
     assert(app_wisun_em_custom_callback_register(SL_WISUN_MSG_LFN_WAKE_UP_IND_ID,
                                                  _lfn_wakeup_evt_cb) == SL_STATUS_OK);
+    _lfn_params = _get_lfn_profile();
+    assert(_lfn_params != NULL);
+    _lfn_threshold_ms = _calc_lfn_threshold_ms(_lfn_params);
   }
 
   // Init metrics mempool
@@ -459,7 +484,7 @@ void sl_wisun_coap_meter_init(void)
                            _metrics_buff,
                            sizeof(_metrics_buff)) == SL_STATUS_OK);
 
-#if (SL_WISUN_COAP_METER_JSON_REQUIRED_PAYALOAD_SIZE > SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE)
+#if (SL_WISUN_COAP_METER_JSON_REQUIRED_PAYLOAD_SIZE > SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE)
   printf("[Warning: Payload buffer is truncated to %lu bytes]\n", SL_WISUN_COAP_METER_JOSN_PAYLOAD_SIZE);
 #endif
 }
@@ -761,7 +786,8 @@ static sl_wisun_coap_packet_t *_prepare_measurement_resp(const sl_wisun_coap_pac
     sli_wisun_meter_get_humidity(&packet);
     sli_wisun_meter_get_light(&packet);
     content = (char *)_meter_packet2json(&packet, ip_str_global);
-
+    app_wisun_trace_util_destroy_ip_str(ip_str_global);
+    
     // Temperature measurement
   } else if (measurement == SL_WISUN_COAP_METER_MEASUREMENT_TYPE_TEMPERATURE) {
     sli_wisun_meter_get_temperature(&packet);
@@ -805,8 +831,19 @@ static void _redirect_resp(sockaddr_in6_t * const new_addr,
 
 static void _lfn_wakeup_evt_cb(sl_wisun_evt_t * evt)
 {
+  uint32_t time = 0UL;
+  static uint32_t prev_time = 0UL;
+  uint32_t elapsed_time = 0UL;
+
   (void) evt;
-  (void) sl_wisun_coap_notify_tick();
+
+  time = sl_sleeptimer_get_tick_count();
+  elapsed_time = sl_sleeptimer_tick_to_ms(time - prev_time);
+
+  if (elapsed_time >= _lfn_threshold_ms) {
+    prev_time = time;
+    (void) sl_wisun_coap_notify_tick();
+  }
 }
 
 static sl_wisun_coap_packet_t * _notify_hnd_cb(const sl_wisun_coap_notify_t *notify)
@@ -932,4 +969,27 @@ static sl_wisun_coap_packet_t * _build_const_resp(const sl_wisun_coap_packet_t *
   resp_packet->payload_ptr = (uint8_t *)resp_str;
   resp_packet->payload_len = (uint16_t)sl_strnlen((char *)resp_str, SL_WISUN_METER_REQUEST_RESPONSE_STR_MAX_LEN);
   return resp_packet;
+}
+
+static const sl_wisun_lfn_params_t * _get_lfn_profile(void)
+{
+#if !defined(WISUN_CONFIG_DEVICE_PROFILE)
+  return &SL_WISUN_PARAMS_LFN_TEST;
+#else
+  switch (WISUN_CONFIG_DEVICE_PROFILE) {
+    case SL_WISUN_LFN_PROFILE_TEST:
+      return &SL_WISUN_PARAMS_LFN_TEST;
+    case SL_WISUN_LFN_PROFILE_BALANCED:
+      return &SL_WISUN_PARAMS_LFN_BALANCED;
+    case SL_WISUN_LFN_PROFILE_ECO:
+      return &SL_WISUN_PARAMS_LFN_ECO;
+    default:
+      return NULL;
+  }
+#endif
+}
+__STATIC_INLINE uint32_t _calc_lfn_threshold_ms(const sl_wisun_lfn_params_t * const lfn_params)
+{
+  // 90% of the LFN unicast interval
+  return (uint32_t)(((uint64_t)lfn_params->data_layer.unicast_interval_ms * 90UL) / 100UL);
 }

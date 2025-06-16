@@ -60,10 +60,12 @@ sl_status_t sl_wisun_br_stop(void);
  * @param[in] gtk Group Transient Key
  * @param[in] index Index of the key from 0 to 3 for GTKs and 4 to 6 for LGTKs
  * @note This API is provided for test and debug purposes: setting a specific
- *       key in production is not recommended. Furthermore, using this API to
- *       set a GTK or LGTK disables the rotation of this key type so the
- *       application is responsible for setting new ones when suitable.
- * @return SL_STATUS_OK if successful, an error code otherwise
+ *       key in production is not recommended. 
+ *       The keys set using this API are saved to NVM, and subsequent calls to
+ *       this API are ignored until the NVM is cleared using
+ *       @ref sl_wisun_clear_credential_cache.
+ * @return SL_STATUS_OK if successful, SL_STATUS_ALREADY_EXISTS when
+ *         ignored, an error code otherwise
  *****************************************************************************/
 sl_status_t sl_wisun_br_set_gtk(const uint8_t *gtk, uint8_t index);
 
@@ -77,7 +79,7 @@ sl_status_t sl_wisun_br_set_gtk(const uint8_t *gtk, uint8_t index);
  *    <br/><b>SL_WISUN_NETWORK_SIZE_LARGE</b>: 800 to 1500 nodes
  * @return SL_STATUS_OK if successful, an error code otherwise
  *
- * This function sets the size of the network. The size is to used set various
+ * This function sets the size of the network. The size is used to set various
  * stack parameters, such as timing parameters to optimize device behavior
  * in regards to node count. The device will function with any setting but
  * may exhibit non-optimal behavior. Setting the size too large may cause
@@ -172,6 +174,7 @@ sl_status_t sl_wisun_br_set_broadcast_settings(uint32_t interval_ms,
  * This functions sets the Border Router parameter set. These parameters
  * impact connection time, bandwidth usage, and latency. Use of a predefined
  * parameter set is recommended (@ref SL_WISUN_BR_PARAMETER_SETS).
+ * Small profile will be used by default for all missing configurations.
  * This function must be called before starting the Border Router.
  *****************************************************************************/
 sl_status_t sl_wisun_br_set_connection_parameters(const sl_wisun_br_connection_params_t *params);
@@ -194,14 +197,14 @@ sl_status_t sl_wisun_br_set_lfn_parameters(const sl_wisun_br_lfn_params_t *param
  *
  * @param[in] lfn_limit Maximum number of LFN children
  *   - **0**: LFN parenting is disabled in the Border Router
- *   - **1 - 10**: Maximum number of LFN children the Border Router can parent
+ *   - **> 0**: Maximum number of LFN children the Border Router can parent
  * @param[in] lfn_support_pan  LFN parenting support in the PAN
  *   - **true**: LFN parenting is enabled in the PAN
  *   - **false**: LFN parenting is disabled in the PAN
  * @return SL_STATUS_OK if successful, an error code otherwise
  *
  * This function configures LFN parenting support in the Border Router
- * and in the PAN.
+ * and in the PAN. Set @ref sl_wisun_config_neighbor_table accordingly.
  *****************************************************************************/
 sl_status_t sl_wisun_br_set_lfn_support(uint8_t lfn_limit, bool lfn_support_pan);
 
@@ -286,6 +289,58 @@ sl_status_t sl_wisun_br_ipv6_down(const uint8_t* data, size_t data_length);
  * Border Router or one of the connected nodes.
  *****************************************************************************/
 sl_status_t sl_wisun_br_ipv6_route_exists(const uint8_t *ipv6_address, bool *exists);
+
+/**************************************************************************//**
+ * Trigger a global repair process from the Border Router.
+ *
+ * @return SL_STATUS_OK if successful
+ *         SL_STATUS_NOT_READY if the Border Router is not started
+ *         SL_STATUS_FAIL if the DODAG Version is not incremented
+ *
+ * Increments the RPL DODAG Version to allow nodes in the network to choose
+ * a new position whose rank is not constrained by their rank within
+ * the old DODAG Version.
+ * The new DODAG Version is propagated through DIOs in the entire network and will
+ * cause all nodes to re-run a parent selection within the new DODAG Version,
+ * effectively temporarily disconnecting them from the network.
+ *
+ * @note This operation will disrupt network communications as the
+ *       repair process is carried out. It is not recommended to trigger a
+ *       global repair more often than once every 24 hours.
+ *****************************************************************************/
+sl_status_t sl_wisun_br_trigger_global_repair(void);
+
+/**************************************************************************//**
+ * Get the Routing Table Size.
+ *
+ * @param[out] entry_count Number of entries in the routing table
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function retrieves the number of entries in the routing table. This allows
+ * for allocation before calling sl_wisun_br_get_routing_table().
+ * The allocated memory should be at least equal to:
+ * sizeof(sl_wisun_br_routing_table_entry_t) * entry_count.
+ *****************************************************************************/
+sl_status_t sl_wisun_br_get_routing_table_entry_count(uint16_t *entry_count);
+
+/**************************************************************************//**
+ * Get the Routing Table.
+ *
+ * @param[in,out] entry_count Maximum number of entries to read on input,
+ *                              number of entries read on output
+ * @param[out] table Pointer to the application allocated memory where
+ *                       the routing table is written
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * The routing table is unordered and only contains the parent-child relationship
+ * between the nodes. The table is in the format:
+ * | Node GUA/ULA 16 bytes   | parent GUA/ULA 16 bytes |
+ *
+ * @note This function should be called after sl_wisun_br_get_routing_table_entry_count()
+ *      to get the number of entries in the routing table.
+ *****************************************************************************/
+
+sl_status_t sl_wisun_br_get_routing_table(uint16_t *entry_count, sl_wisun_br_routing_table_entry_t *table);
 
 /** @} (end addtogroup SL_WISUN_BR_API) */
 

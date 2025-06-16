@@ -196,6 +196,11 @@ bool sl_iperf_network_is_connected(void)
   return sl_wisun_app_core_util_network_is_connected();
 }
 
+void sl_iperf_network_wait_for_connection(void)
+{
+  sl_wisun_app_core_util_wait_for_connection();
+}
+
 uint16_t sl_iperf_network_htons(uint16_t val)
 {
   return (uint16_t) sl_iperf_i16_change_byte_order((int16_t)val);
@@ -264,7 +269,7 @@ static int32_t _set_multicast_sock_opt(const int32_t sockid,
 {
   int32_t r = SL_IPERF_NW_API_ERROR;
 
-  // The caller guarantees the aligment of the option data,
+  // The caller guarantees the alignment of the option data,
   // thus the warning can be ignored.
   #ifdef __GNUC__
   #pragma GCC diagnostic push

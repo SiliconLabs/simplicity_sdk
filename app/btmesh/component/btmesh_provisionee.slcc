@@ -1,6 +1,6 @@
 id: "btmesh_provisionee"
 label: "Btmesh Provisionee"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Btmesh Provisionee
   This component is prepared for integration into SOC applications.
@@ -52,3 +52,6 @@ template_contribution:
       function: "sl_bt_provisionee_on_event"
   - name: "component_catalog"
     value: "btmesh_provisionee"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-provisionee

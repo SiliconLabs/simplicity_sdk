@@ -105,6 +105,15 @@ void app_mac_allow(const sl_cli_command_arg_t *arguments);
 void app_mac_deny(const sl_cli_command_arg_t *arguments);
 #endif
 
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT)
+/**************************************************************************//**
+ * @brief CLI app set trace level handler
+ * @details CLI function
+ * @param[in] arguments Arguments
+ *****************************************************************************/
+void app_set_trace_level(const sl_cli_command_arg_t *arguments);
+#endif
+
 /**************************************************************************//**
  * @brief App CLI handler
  * @details CLI function

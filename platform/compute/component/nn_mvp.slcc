@@ -1,17 +1,17 @@
 id: nn_mvp
 label: MVP NN
-package: platform
+package: aiml
 description: >
-  This component provides MVP accelerated NN (neural network) kernels.
-  The API of this component is marked as internal, and is used to implement
-  acceleration for TensorFlow Lite Micro. See the TensorFlow Lite Micro component
-  for Machine Learning APIs.
+    This component provides MVP accelerated NN (neural network) kernels.
+    The API of this component is marked as internal, and is used to implement
+    acceleration for TensorFlow Lite Micro. See the TensorFlow Lite Micro component
+    for Machine Learning APIs.
 category: Platform|Compute
 quality: production
 root_path: platform/compute/nn/mvp
 metadata:
-  sbom:
-    license: Zlib and MSLA
+    sbom:
+        license: Zlib and MSLA
 config_file:
   - path: config/sl_nn_mvp_config.h
 source:

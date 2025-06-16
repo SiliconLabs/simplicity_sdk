@@ -17,7 +17,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: mpu_simple_app.c
 include:
   - path: .
@@ -25,7 +24,7 @@ include:
     - path: app.h
     - path: mpu_simple_app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: mpu

@@ -15,11 +15,11 @@
  *
  ******************************************************************************/
 
-#include "rail.h"
+#include "sl_rail.h"
 #include "coexistence.h"
 
 static COEX_ReqState_t pwmReq;
-static RAIL_MultiTimer_t pwmRequestTimer;
+static sl_rail_multi_timer_t pwmRequestTimer;
 static COEX_ReqCb_t pwmReqCb;
 static bool pwmIsAsserted;
 static COEX_PwmArgs_t pwmArgs;
@@ -31,13 +31,13 @@ const COEX_PwmArgs_t *COEX_GetPwmRequest(void)
   return &pwmArgs;
 }
 
-static void pwmRequestTimerCb(RAIL_MultiTimer_t *tmr,
-                              RAIL_Time_t expectedTimeOfEvent,
+static void pwmRequestTimerCb(sl_rail_multi_timer_t *tmr,
+                              sl_rail_time_t expectedTimeOfEvent,
                               void *cbArg)
 {
   (void)expectedTimeOfEvent;
   (void)cbArg;
-  RAIL_Time_t delay;
+  sl_rail_time_t delay;
   COEX_Req_t coexReq;
 
   if (pwmIsAsserted) {
@@ -49,11 +49,12 @@ static void pwmRequestTimerCb(RAIL_MultiTimer_t *tmr,
   }
   COEX_SetRequest(&pwmReq, coexReq, pwmReqCb);
   pwmIsAsserted = !pwmIsAsserted;
-  RAIL_SetMultiTimer(tmr,
-                     delay,
-                     RAIL_TIME_DELAY,
-                     &pwmRequestTimerCb,
-                     NULL);
+  sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE,
+                          tmr,
+                          delay,
+                          SL_RAIL_TIME_DELAY,
+                          &pwmRequestTimerCb,
+                          NULL);
 }
 
 // (dutyCycle/100{percent})*(periodHalfMs/2)*1000{milliseconds/microseconds}
@@ -71,10 +72,10 @@ bool COEX_SetPwmRequest(COEX_Req_t coexReq,
   pwmArgs.periodHalfMs = periodHalfMs;
   pwmArgs.req = coexReq;
   if (periodHalfMs == 0 || dutyCycle == 0 || coexReq == COEX_REQ_OFF) {
-    RAIL_CancelMultiTimer(&pwmRequestTimer);
+    sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &pwmRequestTimer);
     COEX_SetRequest(&pwmReq, COEX_REQ_OFF, cb);
   } else if (dutyCycle == 100) {
-    RAIL_CancelMultiTimer(&pwmRequestTimer);
+    sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &pwmRequestTimer);
     COEX_SetRequest(&pwmReq, pwmArgs.req, cb);
   } else {
     pwmReqCb = cb;

@@ -1,12 +1,12 @@
 id: linux_arch_32
 label: Linux OS (32 bit)
-package: platform
+package: devices
 description: OS component for 32 bit Linux build targets.
 category: Platform|Device|Native
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 requires:
   - name: linux
 provides:

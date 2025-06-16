@@ -1,6 +1,6 @@
 id: "bluetooth_feature_advertiser"
 label: "Advertising Base Feature"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This Bluetooth advertising component, corresponding to the "advertiser" class
   in Bluetooth APIs, is the base of legacy, extended and periodic advertisings.
@@ -22,16 +22,12 @@ requires:
 provides:
   - name: "bluetooth_feature_advertiser"
   - name: "bluetooth_feature_peripheral_connection"
+    allow_multiple: true
   - name: "bluetooth_feature_connection_creation"
     allow_multiple: true
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_advertiser
-  - name: bluetooth_controller_init
-    value:
-      include: "sl_bluetooth_advertiser_config.h"
-      function: sl_btctrl_init_adv()
-    priority: 3
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-advertiser

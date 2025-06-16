@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides support for reading and manipulating counters that record different events in the stack.
 label: Counters
 quality: production

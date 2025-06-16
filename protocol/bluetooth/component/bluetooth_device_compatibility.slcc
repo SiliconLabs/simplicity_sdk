@@ -1,6 +1,6 @@
 id: "bluetooth_device_compatibility"
 label: "Device compatibility defines for Bluetooth features"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component defines device compatibilities for Bluetooth features.
   A feature is supported by all device families if no compatibility is defined

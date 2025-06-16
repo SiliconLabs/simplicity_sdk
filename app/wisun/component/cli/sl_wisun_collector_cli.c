@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "sl_string.h"
 #include "sl_cli.h"
 #include "sl_status.h"
 #include "socket/socket.h"
@@ -138,7 +139,7 @@ static void _send_request(const char *ip_str, const char *request)
     return;
   }
 
-  if (sendto(sockid, request, strlen(request), 0,
+  if (sendto(sockid, request, sl_strlen((char*)request), 0,
              (const struct sockaddr *)&meter_addr, sizeof(meter_addr)) == SOCKET_RETVAL_ERROR) {
     printf("[Failed: collector sendto failed]\n");
     return;

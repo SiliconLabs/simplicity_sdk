@@ -34,7 +34,7 @@
 /****************************************************************************/
 /*                               FUNCTIONS                                  */
 /****************************************************************************/
-static uint8_t 
+static uint8_t
 lifeline_reporting(ccc_pair_t * p_ccc_pair)
 {
   p_ccc_pair->cmdClass = COMMAND_CLASS_DEVICE_RESET_LOCALLY;
@@ -42,7 +42,7 @@ lifeline_reporting(ccc_pair_t * p_ccc_pair)
   return 1;
 }
 
-void 
+void
 CC_DeviceResetLocally_notification_tx(void)
 {
   transmission_result_t transmissionResult = {
@@ -51,26 +51,22 @@ CC_DeviceResetLocally_notification_tx(void)
     .isFinished = TRANSMISSION_RESULT_FINISHED,
   };
 
-  if(!ZAF_GetNodeID())
-  {
+  if (!ZAF_GetNodeID()) {
     CC_DeviceResetLocally_done(&transmissionResult);
-  }
-  else
-  {
-    cc_group_t cmdGrp = { 
-      .cmdClass=COMMAND_CLASS_DEVICE_RESET_LOCALLY,
-      .cmd=DEVICE_RESET_LOCALLY_NOTIFICATION
+  } else {
+    cc_group_t cmdGrp = {
+      .cmdClass = COMMAND_CLASS_DEVICE_RESET_LOCALLY,
+      .cmd = DEVICE_RESET_LOCALLY_NOTIFICATION
     };
 
-    if(JOB_STATUS_SUCCESS != cc_engine_multicast_request(
-        NULL,
-        ENDPOINT_ROOT,
-        &cmdGrp,
-        NULL,
-        0,
-        false,
-        CC_DeviceResetLocally_done))
-    {
+    if (JOB_STATUS_SUCCESS != cc_engine_multicast_request(
+          NULL,
+          ENDPOINT_ROOT,
+          &cmdGrp,
+          NULL,
+          0,
+          false,
+          CC_DeviceResetLocally_done)) {
       CC_DeviceResetLocally_done(&transmissionResult);
     }
   }

@@ -64,49 +64,73 @@ void sl_btmesh_generic_base_on_event(sl_btmesh_msg_t *evt)
 
   #if SL_BTMESH_GENERIC_CTL_SERVER_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_CTL_SERVER_PRESENT)
       sc = sl_btmesh_generic_server_init_ctl();
-      app_assert_status_f(sc, "Failed to init ctl server");
+      // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+      // Allow continuing, the error shall disappear after DCD update.
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init ctl server");
+      }
   #endif // SL_BTMESH_GENERIC_CTL_SERVER_INIT_CFG_VAL
   #if SL_BTMESH_GENERIC_HSL_SERVER_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_HSL_SERVER_PRESENT)
       sc = sl_btmesh_generic_server_init_hsl();
-      app_assert_status_f(sc, "Failed to init hsl server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init hsl server");
+      }
   #endif // SL_BTMESH_GENERIC_HSL_SERVER_INIT_CFG_VAL
   #if SL_BTMESH_GENERIC_POWER_LEVEL_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_power_level();
-      app_assert_status_f(sc, "Failed to init power level server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init power level server");
+      }
   #endif // SL_BTMESH_GENERIC_POWER_LEVEL_SERVER_INIT_CFG_VAL
 #elif SL_BTMESH_GENERIC_LIGHTNESS_SERVER_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_LIGHTING_SERVER_PRESENT)
       sc = sl_btmesh_generic_server_init_lightness();
-      app_assert_status_f(sc, "Failed to init lightness server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init lightness server");
+      }
 #else // SL_BTMESH_GENERIC_CTL_SERVER_INIT_CFG_VAL || SL_BTMESH_GENERIC_HSL_SERVER_INIT_CFG_VAL || SL_BTMESH_GENERIC_POWER_LEVEL_SERVER_INIT_CFG_VAL
   #if SL_BTMESH_GENERIC_LEVEL_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_level();
-      app_assert_status_f(sc, "Failed to init level server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init level server");
+      }
   #endif // SL_BTMESH_GENERIC_LEVEL_SERVER_INIT_CFG_VAL
   #if SL_BTMESH_GENERIC_POWER_ON_OFF_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_power_on_off();
-      app_assert_status_f(sc, "Failed to init power on/off server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init power on/off server");
+      }
   #else //SL_BTMESH_GENERIC_POWER_ON_OFF_SERVER_INIT_CFG_VAL
     #if SL_BTMESH_GENERIC_ON_OFF_SERVER_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_GENERIC_ONOFF_SERVER_PRESENT)
       sc = sl_btmesh_generic_server_init_on_off();
-      app_assert_status_f(sc, "Failed to init on/off server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init on/off server");
+      }
     #endif // SL_BTMESH_GENERIC_ON_OFF_SERVER_INIT_CFG_VAL
     #if SL_BTMESH_GENERIC_DEFAULT_TRANSITION_TIME_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_default_transition_time();
-      app_assert_status_f(sc, "Failed to init default transition time server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init default transition time server");
+      }
     #endif // SL_BTMESH_GENERIC_DEFAULT_TRANSITION_TIME_SERVER_INIT_CFG_VAL
   #endif //SL_BTMESH_GENERIC_POWER_ON_OFF_SERVER_INIT_CFG_VAL
 #endif // SL_BTMESH_GENERIC_CTL_SERVER_INIT_CFG_VAL || SL_BTMESH_GENERIC_HSL_SERVER_INIT_CFG_VAL || SL_BTMESH_GENERIC_POWER_LEVEL_SERVER_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_BATTERY_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_battery();
-      app_assert_status_f(sc, "Failed to init battery server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init battery server");
+      }
 #endif // SL_BTMESH_GENERIC_BATTERY_SERVER_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_LOCATION_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_location();
-      app_assert_status_f(sc, "Failed to init location server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init location server");
+      }
 #endif // SL_BTMESH_GENERIC_LOCATION_SERVER_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_PROPERTY_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_property();
-      app_assert_status_f(sc, "Failed to init property server");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init property server");
+      }
 #endif // SL_BTMESH_GENERIC_PROPERTY_SERVER_INIT_CFG_VAL
       sc = sl_btmesh_generic_server_init_common();
       app_assert_status_f(sc, "Failed to common init Generic Server");
@@ -119,48 +143,70 @@ void sl_btmesh_generic_base_on_event(sl_btmesh_msg_t *evt)
 
 #if SL_BTMESH_GENERIC_ON_OFF_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_LIGHTING_CLIENT_PRESENT)
       sc = sl_btmesh_generic_client_init_on_off();
-      app_assert_status_f(sc, "Failed to init on/off client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init on/off client");
+      }
 #endif // SL_BTMESH_GENERIC_ON_OFF_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_LIGHTING_CLIENT_PRESENT)
 #if SL_BTMESH_GENERIC_LEVEL_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_GENERIC_LEVEL_CLIENT_EXT_PRESENT)
       sc = sl_btmesh_generic_client_init_level();
-      app_assert_status_f(sc, "Failed to init level client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init level client");
+      }
 #endif // SL_BTMESH_GENERIC_LEVEL_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_DEFAULT_TRANSITION_TIME_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_default_transition_time();
-      app_assert_status_f(sc, "Failed to init default transition time client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init default transition time client");
+      }
 #endif // SL_BTMESH_GENERIC_DEFAULT_TRANSITION_TIME_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_POWER_ON_OFF_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_power_on_off();
-      app_assert_status_f(sc, "Failed to init power on/off client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init power on/off client");
+      }
 #endif // SL_BTMESH_GENERIC_POWER_ON_OFF_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_POWER_LEVEL_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_power_level();
-      app_assert_status_f(sc, "Failed to init power level client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init power level client");
+      }
 #endif // SL_BTMESH_GENERIC_POWER_LEVEL_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_BATTERY_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_battery();
-      app_assert_status_f(sc, "Failed to init battery client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init battery client");
+      }
 #endif // SL_BTMESH_GENERIC_BATTERY_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_LOCATION_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_location();
-      app_assert_status_f(sc, "Failed to init location client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init location client");
+      }
 #endif // SL_BTMESH_GENERIC_LOCATION_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_PROPERTY_CLIENT_INIT_CFG_VAL
       sc = sl_btmesh_generic_client_init_property();
-      app_assert_status_f(sc, "Failed to init property client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init property client");
+      }
 #endif // SL_BTMESH_GENERIC_PROPERTY_CLIENT_INIT_CFG_VAL
 #if SL_BTMESH_GENERIC_LIGHTNESS_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_LIGHTING_CLIENT_PRESENT)
       sc = sl_btmesh_generic_client_init_lightness();
-      app_assert_status_f(sc, "Failed to init lightness client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init lightness client");
+      }
 #endif // SL_BTMESH_GENERIC_LIGHTNESS_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_LIGHTING_CLIENT_PRESENT)
 #if SL_BTMESH_GENERIC_CTL_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_CTL_CLIENT_PRESENT)
       sc = sl_btmesh_generic_client_init_ctl();
-      app_assert_status_f(sc, "Failed to init ctl client");
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init ctl client");
+      }
 #endif // SL_BTMESH_GENERIC_CTL_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_CTL_CLIENT_PRESENT)
-#if SL_BTMESH_GENERIC_HSL_CLIENT_INIT_CFG_VAL
+#if SL_BTMESH_GENERIC_HSL_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_HSL_CLIENT_PRESENT)
       sc = sl_btmesh_generic_client_init_hsl();
-      app_assert_status_f(sc, "Failed to init hsl client");
-#endif // SL_BTMESH_GENERIC_HSL_CLIENT_INIT_CFG_VAL
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init hsl client");
+      }
+#endif // SL_BTMESH_GENERIC_HSL_CLIENT_INIT_CFG_VAL || defined(SL_CATALOG_BTMESH_HSL_CLIENT_PRESENT)
       sc = sl_btmesh_generic_client_init_common();
       app_assert_status_f(sc, "Failed to common init Generic Client");
 
@@ -180,5 +226,7 @@ void sl_btmesh_generic_base_on_event(sl_btmesh_msg_t *evt)
       mesh_lib_generic_client_event_handler(evt);
       break;
 #endif // SL_BTMESH_GENERIC_BASE_CLIENT_CFG_VAL
+    default:
+      break;
   }
 }

@@ -217,6 +217,8 @@ class Calc_Global_Sol(CALC_Global_ocelot):
         self._addModelRegister(model, 'AGC.COLLDETCTRL.OVRTHDSEL', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'AGC.COLLDETCTRL.RSSIINSEL', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'AGC.COLLDETCTRL.INPUTSEL', int, ModelVariableFormat.HEX)
+        self._addModelRegister(model, 'AGC.COLLDETTHD.MATHRESHOLD', int, ModelVariableFormat.HEX)
+        self._addModelRegister(model, 'AGC.COLLDETTHD.OVRTHRESHOLD', int, ModelVariableFormat.HEX)
 
         # SEQ Peripheral - MODEMINFO register
         self._addModelRegister(model, 'SEQ.MODEMINFO.LEGACY_EN', int, ModelVariableFormat.HEX)
@@ -258,6 +260,9 @@ class Calc_Global_Sol(CALC_Global_ocelot):
         self._addModelRegister(model, 'SUNOFDM.RXCFG1.COARSEFREQ', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SUNOFDM.RXCFG1.EXTCOARSEFREQ', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SUNOFDM.RXCFG1.GIRECOMB', int, ModelVariableFormat.HEX)
+        self._addModelRegister(model, 'SUNOFDM.RXCFG1.PSDU_CE_MODE', int, ModelVariableFormat.HEX)
+        self._addModelRegister(model, 'SUNOFDM.RXCFG1.PHR_CE_MODE', int, ModelVariableFormat.HEX)
+        self._addModelRegister(model, 'SUNOFDM.RXCFG1.FRCMAXSPEED', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SUNOFDM.RXCFG2.RSSISETPOINT', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SUNOFDM.COLLDET.COLLDETTHR', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SUNOFDM.AFC.AFCMIXERRATIOGAIN', int, ModelVariableFormat.HEX)

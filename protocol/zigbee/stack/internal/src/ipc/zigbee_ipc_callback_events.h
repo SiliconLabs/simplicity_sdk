@@ -82,6 +82,8 @@ SL_ENUM_GENERIC(sl_zigbee_stack_cb_event_tag_t, uint16_t) {
   SLI_ZIGBEE_STACK_INCOMING_ROUTE_RECORD_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_MESSAGE_SENT_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_OVERRIDE_INCOMING_ROUTE_RECORD_HANDLER_IPC_EVENT_TYPE,
+  SLI_ZIGBEE_STACK_POST_INCOMING_PACKET_FILTER_CB_IPC_EVENT_TYPE,
+  SLI_ZIGBEE_STACK_POST_OUTGOING_PACKET_FILTER_CB_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_REDIRECT_OUTGOING_MESSAGE_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_ENERGY_SCAN_RESULT_HANDLER_IPC_EVENT_TYPE,
   SLI_ZIGBEE_STACK_NETWORK_FOUND_HANDLER_IPC_EVENT_TYPE,
@@ -144,6 +146,8 @@ typedef struct {
     sli_zigbee_stack_incoming_route_record_handler_ipc_event_t incoming_route_record_handler;
     sli_zigbee_stack_message_sent_handler_ipc_event_t message_sent_handler;
     sli_zigbee_stack_override_incoming_route_record_handler_ipc_event_t override_incoming_route_record_handler;
+    sli_zigbee_stack_post_incoming_packet_filter_cb_ipc_event_t post_incoming_packet_filter_cb;
+    sli_zigbee_stack_post_outgoing_packet_filter_cb_ipc_event_t post_outgoing_packet_filter_cb;
     sli_zigbee_stack_redirect_outgoing_message_handler_ipc_event_t redirect_outgoing_message_handler;
     sli_zigbee_stack_energy_scan_result_handler_ipc_event_t energy_scan_result_handler;
     sli_zigbee_stack_network_found_handler_ipc_event_t network_found_handler;

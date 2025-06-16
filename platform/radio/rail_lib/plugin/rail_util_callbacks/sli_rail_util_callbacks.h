@@ -31,7 +31,11 @@
 #ifndef SLI_RAIL_UTIL_CALLBACKS_H
 #define SLI_RAIL_UTIL_CALLBACKS_H
 
+#ifdef  SL_RAIL_3_API
+#include "sl_rail.h"
+#else//!SL_RAIL_3_API
 #include "rail.h"
+#endif//SL_RAIL_3_API
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,20 +50,29 @@ extern "C" {
  * @note: This function is not intended for application use. For application
  * use, see \ref sl_rail_util_on_rf_ready.
  */
+#ifdef  SL_RAIL_3_API
+void sli_rail_util_on_rf_ready(sl_rail_handle_t rail_handle);
+#else//!SL_RAIL_3_API
 void sli_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
+#endif//SL_RAIL_3_API
 
 /**
  * An internal callback, called on a channel configuration change.
  *
  * @param[in] rail_handle The RAIL handle associated with the channel config
  * change notification.
- * @param[in] entry The channel configuration being changed to.
+ * @param[in] p_entry A pointer to the channel configuration being changed to.
  *
  * @note: This function is not intended for application use. For application
  * use, see \ref sl_rail_util_on_channel_config_change.
  */
+#ifdef  SL_RAIL_3_API
+void sli_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                            const sl_rail_channel_config_entry_t *p_entry);
+#else//!SL_RAIL_3_API
 void sli_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                            const RAIL_ChannelConfigEntry_t *entry);
+                                            const RAIL_ChannelConfigEntry_t *p_entry);
+#endif//SL_RAIL_3_API
 
 /**
  * An internal callback, called on registered RAIL events.
@@ -71,8 +84,13 @@ void sli_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
  * @note: This function is not intended for application use. For application
  * use, see \ref sl_rail_util_on_event.
  */
+#ifdef  SL_RAIL_3_API
+void sli_rail_util_on_event(sl_rail_handle_t rail_handle,
+                            sl_rail_events_t events);
+#else//!SL_RAIL_3_API
 void sli_rail_util_on_event(RAIL_Handle_t rail_handle,
                             RAIL_Events_t events);
+#endif//SL_RAIL_3_API
 
 #ifdef __cplusplus
 }

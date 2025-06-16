@@ -38,33 +38,23 @@
 // Zigbee Stack task definitions
 
 static osEventFlagsId_t zigbee_ipc_flags_id;
-__ALIGNED(4) static uint8_t zigbee_ipc_flags_cb[osEventFlagsCbSize];
-static osEventFlagsAttr_t zigbee_ipc_flags_attr = {
-  .name = "ZigbeeIPCFlags",
-  .cb_mem = zigbee_ipc_flags_cb,
-  .cb_size = osEventFlagsCbSize,
-  .attr_bits = 0
-};
 
 //Zigbee stack size is specified in bytes and is word aligned
 static osThreadId_t zigbee_stack_task_id;
-__ALIGNED(8) static uint8_t zigbee_stack_task_stack[SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE];
-__ALIGNED(4) static uint8_t zigbee_stack_task_cb[osThreadCbSize];
 static osThreadAttr_t zigbee_stack_task_attr;
 
+__ALIGNED(4) static uint8_t * zigbee_ipc_flags_cb;
+__ALIGNED(4) static uint8_t * zigbee_ipc_mutex_cb;
+__ALIGNED(8) static uint8_t * zigbee_stack_task_stack;
+__ALIGNED(4) static uint8_t * zigbee_stack_task_cb;
+__ALIGNED(4) static uint8_t * zigbee_stack_task_semaphore_cb;
+
+static osEventFlagsAttr_t zigbee_ipc_flags_attr;
+
 static osSemaphoreId_t zigbee_stack_task_semaphore_id;
-__ALIGNED(4) static uint8_t zigbee_stack_task_semaphore_cb[osSemaphoreCbSize];
-static osSemaphoreAttr_t zigbee_stack_task_semaphore_attr = {
-  .name = "Zigbee Stack task semaphore",
-  .cb_mem = zigbee_stack_task_semaphore_cb,
-  .cb_size = osSemaphoreCbSize,
-  .attr_bits = 0
-};
+static osSemaphoreAttr_t zigbee_stack_task_semaphore_attr;
 static volatile osMutexId_t zigbee_ipc_mutex_id;
-static const osMutexAttr_t zigbee_ipc_mutex_attr = {
-  .name = "Zigbee IPC Mutex",
-  .attr_bits = osMutexRecursive | osMutexPrioInherit,
-};
+static osMutexAttr_t zigbee_ipc_mutex_attr;
 static void zigbee_stack_task(void *p_arg);
 static void zigbee_stack_task_yield(void);
 extern uint32_t sli_zigbee_stack_get_ms_to_next_wakeup(void);
@@ -98,13 +88,17 @@ void sl_zigbee_wakeup_stack_task(void)
   osStatus_t retVal = osSemaphoreRelease(zigbee_stack_task_semaphore_id);
   assert(retVal != osErrorParameter);
 }
-
-void sli_zigbee_stack_rtos_task_init_cb(void)
+void sli_zigbee_stack_rtos_perm_allocation(void)
 {
-  // Create ZigBee task.
+  zigbee_stack_task_stack = (uint8_t *)sl_malloc(SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE);
+  zigbee_stack_task_cb = (uint8_t *)sl_malloc(osThreadCbSize);
+  zigbee_stack_task_semaphore_cb = (uint8_t *)sl_malloc(osSemaphoreCbSize);
+  zigbee_ipc_flags_cb = (uint8_t *)sl_malloc(osEventFlagsCbSize);
+  zigbee_ipc_mutex_cb = (uint8_t *)sl_malloc(osMutexCbSize);
+
   zigbee_stack_task_attr.name = "Zigbee Stack";
-  zigbee_stack_task_attr.stack_mem = &zigbee_stack_task_stack[0];
-  zigbee_stack_task_attr.stack_size = sizeof(zigbee_stack_task_stack);
+  zigbee_stack_task_attr.stack_mem = zigbee_stack_task_stack;
+  zigbee_stack_task_attr.stack_size = SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE;
   zigbee_stack_task_attr.cb_mem = zigbee_stack_task_cb;
   zigbee_stack_task_attr.cb_size = osThreadCbSize;
   zigbee_stack_task_attr.priority = (osPriority_t)SL_ZIGBEE_STACK_RTOS_TASK_PRIORITY;
@@ -116,10 +110,21 @@ void sli_zigbee_stack_rtos_task_init_cb(void)
                                      &zigbee_stack_task_attr);
   assert(zigbee_stack_task_id != NULL);
 
+  zigbee_stack_task_semaphore_attr.name = "Zigbee Stack task semaphore";
+
+  //.cb_mem = zigbee_stack_task_semaphore_cb,
+  zigbee_stack_task_semaphore_attr.cb_size = osSemaphoreCbSize;
+  zigbee_stack_task_semaphore_attr.attr_bits = 0;
+
+  zigbee_stack_task_semaphore_attr.cb_mem = zigbee_stack_task_semaphore_cb;
   zigbee_stack_task_semaphore_id =   osSemaphoreNew(ZIGBEE_TASK_SEMAPHORE_MAX_COUNT,
                                                     ZIGBEE_TASK_SEMAPHORE_INITIAL_COUNT,
                                                     &zigbee_stack_task_semaphore_attr);
   assert(zigbee_stack_task_semaphore_id != NULL);
+  zigbee_ipc_mutex_attr.name = "Zigbee IPC Mutex";
+  zigbee_ipc_mutex_attr.cb_mem = zigbee_ipc_mutex_cb;
+  zigbee_ipc_mutex_attr.cb_size = osMutexCbSize;
+  zigbee_ipc_mutex_attr.attr_bits = osMutexRecursive | osMutexPrioInherit;
 
   // Create mutex for Zigbee IPC
   zigbee_ipc_mutex_id = osMutexNew(&zigbee_ipc_mutex_attr);
@@ -127,9 +132,19 @@ void sli_zigbee_stack_rtos_task_init_cb(void)
     // Unable to create mutex
     assert(0);
   }
-
+  zigbee_ipc_flags_attr.cb_mem = zigbee_ipc_flags_cb;
+  zigbee_ipc_flags_attr.name = "ZigbeeIPCFlags";
+  zigbee_ipc_flags_attr.cb_size = osEventFlagsCbSize;
+  zigbee_ipc_flags_attr.attr_bits = 0;
   zigbee_ipc_flags_id = osEventFlagsNew(&zigbee_ipc_flags_attr);
   assert(zigbee_ipc_flags_id != NULL);
+}
+
+void sli_zigbee_stack_rtos_task_init_cb(void)
+{
+#ifndef SL_CATALOG_SL_MAIN_PRESENT
+  sli_zigbee_stack_rtos_perm_allocation();
+#endif
 #ifdef SL_CATALOG_ZIGBEE_REAL_IPC_PRESENT
   // Register event system publisher for publishing callbacks from stack to application framework
   sl_event_publisher_register(&sli_zigbee_ipc_publisher, SL_EVENT_CLASS_ZIGBEE, event_data_free_cb_irq);

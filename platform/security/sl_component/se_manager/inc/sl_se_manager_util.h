@@ -79,6 +79,10 @@ typedef enum {
   SL_SE_LIFECYCLE_EVENT_HOST_DEBUG_LOCKED = 6,            ///< Host has been debug locked
   SL_SE_LIFECYCLE_EVENT_AXIP_NONCE_ROLL_DISABLED = 7,     ///< AXiP nonce rolling has been disabled
 } sl_se_lifecycle_event_flag_t;
+
+/// Size of the USER_DATA element
+#define SL_SE_USER_DATA_SIZE                        0xFC
+
 #endif // #if defined(_SILICON_LABS_32B_SERIES_3)
 
 // -----------------------------------------------------------------------------
@@ -414,6 +418,53 @@ sl_status_t sl_se_get_debug_lock_status(sl_se_command_context_t *cmd_ctx,
 sl_status_t sl_se_apply_debug_lock(sl_se_command_context_t *cmd_ctx);
 
 #if defined(SLI_MAILBOX_COMMAND_SUPPORTED)
+
+#if defined(_SILICON_LABS_32B_SERIES_3)
+
+/***************************************************************************//**
+ * @brief
+ *   Writes data to User Data section in MTP. The full MTP element is written every
+ *   time, so length of write data (num_bytes) must always be equal to
+ *   \ref SL_SE_USER_DATA_SIZE.
+ *
+ * @param[in] cmd_ctx
+ *   Pointer to an SE command context object.
+ * @param[in] data
+ *   Data to write to flash.
+ * @param[in] num_bytes
+ *   Number of bytes to write to flash. NB: Must be equal to \ref SL_SE_USER_DATA_SIZE
+ *   size
+ * @return
+ *   One of the following sl_status_t codes:
+ *   - @c SL_STATUS_OK when the command was executed successfully
+ *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
+ ******************************************************************************/
+sl_status_t sl_se_write_user_data(sl_se_command_context_t *cmd_ctx,
+                                  const void *data,
+                                  size_t num_bytes);
+
+/***************************************************************************//**
+ * @brief
+ *   Retrieves the data from the user data section in MTP.
+ * @param[in] cmd_ctx
+ *   Pointer to an SE command context object.
+ * @param[out] output_data
+ *   Data to write to flash. Must be large enough to contain \ref SL_SE_USER_DATA_SIZE
+ *   bytes
+ * @param[in] num_bytes
+ *   Number of bytes to read from flash, NB: Must be equal to \ref SL_SE_USER_DATA_SIZE
+ *   size
+ * @return
+ *   One of the following sl_status_t codes:
+ *   - @c SL_STATUS_OK when the command was executed successfully
+ *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
+ *   - @c SL_STATUS_NOT_INITIALIZED if element is empty/unwritten
+ ******************************************************************************/
+sl_status_t sl_se_get_user_data(sl_se_command_context_t *cmd_ctx,
+                                void *output_data,
+                                size_t num_bytes);
+
+#else // defined(_SILICON_LABS_32B_SERIES_3)
 /***************************************************************************//**
  * @brief
  *   Writes data to User Data section in MTP. Write data must be aligned to
@@ -456,6 +507,7 @@ sl_status_t sl_se_write_user_data(sl_se_command_context_t *cmd_ctx,
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
 sl_status_t sl_se_erase_user_data(sl_se_command_context_t *cmd_ctx);
+#endif // defined(_SILICON_LABS_32B_SERIES_3)
 
 /***************************************************************************//**
  * @brief

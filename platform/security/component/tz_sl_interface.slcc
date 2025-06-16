@@ -1,5 +1,5 @@
 id: tz_sl_interface
-package: platform
+package: security_trustzone
 label: Interface for TrustZone Secure Key Library
 description: >-
   This component provides the TrustZone secure library interface files

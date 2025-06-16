@@ -38,7 +38,7 @@ void sli_zigbee_stack_beacon_survey_complete_callback(sl_zigbee_zdo_status_t sta
   cb_event->data.beacon_survey_complete_callback.potential_parent_count = potential_parent_count;
 
   if (potential_parents != NULL) {
-    memmove(cb_event->data.beacon_survey_complete_callback.potential_parents, potential_parents, sizeof(sl_zigbee_potential_parent_t) * (potential_parent_count));
+    memmove(cb_event->data.beacon_survey_complete_callback.potential_parents, potential_parents, sizeof(sl_zigbee_potential_parent_t) * potential_parent_count);
   }
 
   cb_event->data.beacon_survey_complete_callback.pan_id_conflicts = pan_id_conflicts;

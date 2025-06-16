@@ -384,9 +384,16 @@ static void serviceDiscoveryCallback(const sl_zigbee_af_service_discovery_result
 
 static void discoveryKeepaliveEndpoint(void)
 {
-  // Use profile ID wildcard since it's not known what type of endpoint the server will have
+  // Use profile ID wildcard since it's not known what type of endpoint the server will have, unless
+  // we're doing BDB, in which case we need to use the HA profile ID
+#ifdef SL_ZIGBEE_AF_HAS_SECURITY_PROFILE_Z3
+  uint16_t profile_id = HA_PROFILE_ID;
+#else // SL_ZIGBEE_AF_HAS_SECURITY_PROFILE_Z3
+  uint16_t profile_id = SL_ZIGBEE_WILDCARD_PROFILE_ID;
+#endif // SL_ZIGBEE_AF_HAS_SECURITY_PROFILE_Z3
+
   sl_status_t status = sl_zigbee_af_find_devices_by_profile_and_cluster(SL_ZIGBEE_TRUST_CENTER_NODE_ID,
-                                                                        0xFFFF,
+                                                                        profile_id,
                                                                         ZCL_KEEPALIVE_CLUSTER_ID,
                                                                         true, // server
                                                                         serviceDiscoveryCallback);
@@ -480,6 +487,11 @@ void sli_zigbee_af_send_keepalive_signal(void)
   } else {
     delayUntilNextKeepalive();
   }
+}
+
+void sli_zigbee_af_send_keepalive_now(void)
+{
+  sl_zigbee_af_event_set_active(sl_zigbee_af_trust_center_keepalive_tick_network_events);
 }
 
 void sli_zigbee_af_trust_center_keepalive_read_attributes_response_callback(uint8_t *buffer,

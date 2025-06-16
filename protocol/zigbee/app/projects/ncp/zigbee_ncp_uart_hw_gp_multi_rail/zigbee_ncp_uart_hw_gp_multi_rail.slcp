@@ -1,12 +1,13 @@
 project_name: zigbee_ncp_uart_hw_gp_multi_rail
 label: Zigbee - NCP UartHwGpMultiRail
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 description: This network co-processor (NCP) application uses the multiple RAIL demo component (multirail-demo), which uses the second RAIL handle to schedule a pre-configured outgoing Green Power device frame (GPDF) in response to an incoming bidirectional GPDF with its rx-after-tx bit set.
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: iostream_usart
     instance:
       - vcom
@@ -34,8 +35,8 @@ component:
   - id: zigbee_multirail_demo
   - id: zigbee_xncp
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
@@ -90,6 +91,7 @@ configuration:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 define:
@@ -97,11 +99,11 @@ define:
     value: 15
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

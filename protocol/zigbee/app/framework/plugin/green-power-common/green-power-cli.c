@@ -122,6 +122,11 @@ WEAK(void sl_zigbee_af_green_power_cluster_gp_sink_cli_commissioning_window_exte
 {
 }
 
+WEAK(void sl_zigbee_af_green_power_cluster_gp_sink_cli_commissioning_window_close(SL_CLI_COMMAND_ARG))
+{
+  // Stub function.
+}
+
 WEAK(void sl_zigbee_af_green_power_server_commissioning_mode(SL_CLI_COMMAND_ARG))
 {
 #ifdef SL_CATALOG_ZIGBEE_AF_SUPPORT_PRESENT

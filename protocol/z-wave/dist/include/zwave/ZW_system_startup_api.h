@@ -55,7 +55,6 @@ uint32_t GetDeepSleepWakeupTick(void);
  */
 uint32_t GetLastTickBeforeDeepSleep(void);
 
-
 /**
  * Get the reset reason of the device when it was last reset or woke up from EM4 sleep.
  *
@@ -97,14 +96,14 @@ void ZW_system_startup_SetMainApplicationTaskHandle(TaskHandle_t xHandle);
 /**
  * Passed the Command Class set from the Application to the Protocol
  * using a shared variable
- * 
+ *
  * @param[in] CCSet Command Class Set
  */
 void ZW_system_startup_SetCCSet(SCommandClassSet_t *CCSet);
 
 /**
  * @brief Gets the Command Class Set
- * 
+ *
  * @return SCommandClassSet_t* A pointer to the Command Class Set
  */
 SCommandClassSet_t *ZW_system_startup_GetCCSet(void);
@@ -121,8 +120,8 @@ bool ZW_system_startup_IsSchedulerStarted(void);
 
 /**
  * Used to get a pointer to The Application node information @ref SAppNodeInfo_t structure.
- * 
- *  @return const SAppNodeInfo_t* 
+ *
+ *  @return const SAppNodeInfo_t*
  */
 const SAppNodeInfo_t* ZW_system_startup_getAppNodeInfo(void);
 

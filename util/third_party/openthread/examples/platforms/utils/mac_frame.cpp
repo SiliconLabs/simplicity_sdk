@@ -224,6 +224,16 @@ bool otMacFrameIsKeyIdMode1(otRadioFrame *aFrame)
     return (error == OT_ERROR_NONE) ? (keyIdMode == Mac::Frame::kKeyIdMode1) : false;
 }
 
+bool otMacFrameIsKeyIdMode2(otRadioFrame *aFrame)
+{
+    uint8_t keyIdMode;
+    otError error;
+
+    error = static_cast<const Mac::Frame *>(aFrame)->GetKeyIdMode(keyIdMode);
+
+    return (error == OT_ERROR_NONE) ? (keyIdMode == Mac::Frame::kKeyIdMode2) : false;
+}
+
 uint8_t otMacFrameGetKeyId(otRadioFrame *aFrame)
 {
     uint8_t keyId = 0;
@@ -306,9 +316,15 @@ otError otMacFrameProcessTransmitSecurity(otRadioFrame *aFrame, otRadioContext *
     otMacKeyMaterial *key = nullptr;
     uint8_t           keyId;
     uint32_t          frameCounter;
+    bool              processKeyId;
 
-    VerifyOrExit(otMacFrameIsSecurityEnabled(aFrame) && otMacFrameIsKeyIdMode1(aFrame) &&
-                 !aFrame->mInfo.mTxInfo.mIsSecurityProcessed);
+    processKeyId =
+#if OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE
+        otMacFrameIsKeyIdMode2(aFrame) ||
+#endif
+        otMacFrameIsKeyIdMode1(aFrame);
+
+    VerifyOrExit(otMacFrameIsSecurityEnabled(aFrame) && processKeyId && !aFrame->mInfo.mTxInfo.mIsSecurityProcessed);
 
     if (otMacFrameIsAck(aFrame))
     {
@@ -364,20 +380,24 @@ exit:
 #if OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
 void otMacFrameUpdateTimeIe(otRadioFrame *aFrame, uint64_t aRadioTime, otRadioContext *aRadioContext)
 {
-    if (aFrame->mInfo.mTxInfo.mIeInfo->mTimeIeOffset != 0)
+    uint8_t *timeIe;
+    uint64_t time;
+
+    VerifyOrExit((aFrame->mInfo.mTxInfo.mIeInfo != nullptr) && (aFrame->mInfo.mTxInfo.mIeInfo->mTimeIeOffset != 0));
+
+    timeIe  = aFrame->mPsdu + aFrame->mInfo.mTxInfo.mIeInfo->mTimeIeOffset;
+    time    = aRadioTime + aFrame->mInfo.mTxInfo.mIeInfo->mNetworkTimeOffset;
+    *timeIe = aFrame->mInfo.mTxInfo.mIeInfo->mTimeSyncSeq;
+
+    *(++timeIe) = static_cast<uint8_t>(time & 0xff);
+    for (uint8_t i = 1; i < sizeof(uint64_t); i++)
     {
-        uint8_t *timeIe = aFrame->mPsdu + aFrame->mInfo.mTxInfo.mIeInfo->mTimeIeOffset;
-        uint64_t time   = aRadioTime + aFrame->mInfo.mTxInfo.mIeInfo->mNetworkTimeOffset;
-
-        *timeIe = aFrame->mInfo.mTxInfo.mIeInfo->mTimeSyncSeq;
-
+        time        = time >> 8;
         *(++timeIe) = static_cast<uint8_t>(time & 0xff);
-        for (uint8_t i = 1; i < sizeof(uint64_t); i++)
-        {
-            time        = time >> 8;
-            *(++timeIe) = static_cast<uint8_t>(time & 0xff);
-        }
     }
+
+exit:
+    return;
 }
 #endif // OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
 

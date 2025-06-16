@@ -1,6 +1,6 @@
 id: zigbee_arm32
 label: Zigbee ARM32
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines to build Zigbee apps against ARM32.

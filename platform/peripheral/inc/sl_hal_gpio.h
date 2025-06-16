@@ -41,29 +41,39 @@ extern "C" {
 
 #include <stdbool.h>
 #include <stddef.h>
+#include "sl_status.h"
 #include "sl_assert.h"
 #include "sl_device_gpio.h"
 #include "sl_code_classification.h"
 
-/* *INDENT-OFF* */
-// *****************************************************************************
-/// @addtogroup gpio GPIO - General Purpose Input Output
-/// @brief General Purpose Input Output peripheral
-///
-/// @li @ref gpio_intro
-///
-///@n @section gpio_intro Introduction
-///  This module contains functions to control the GPIO peripheral of Silicon Labs 32-bit MCUs and SoCs.
-///  The GPIO peripheral is used for interrupt configuration, pin configuration and direct pin manipulation
-///  as well as routing for peripheral pin connections.
-///
-/// @{
-// *****************************************************************************
-/* *INDENT-ON* */
+/***************************************************************************//**
+ * @addtogroup gpio GPIO - General Purpose Input Output
+ * @brief General Purpose Input Output peripheral
+ * @li @ref gpio_intro
+ *
+ *@n @section gpio_intro Introduction
+ *  This module contains functions to control the GPIO peripheral of Silicon Labs 32-bit MCUs and SoCs.
+ *  The GPIO peripheral is used for interrupt configuration, pin configuration and direct pin manipulation
+ *  as well as routing for peripheral pin connections.
+ *
+ * @{
+ ******************************************************************************/
 
 /*******************************************************************************
  ********************************   DEFINES   **********************************
  ******************************************************************************/
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+
+#if defined(__CM33_REV) || defined(__CM55_REV)
+#define SL_HAL_GPIO_IRQN_SUPPORTED
+#endif
+
+#if defined(__CM55_REV)
+#define SL_HAL_GPIO_SKIP_VALIDATION
+#endif
+
+/** @endcond */
 
 /// Define for port specific pin mask
 #if defined(GPIO_PA_MASK)
@@ -264,6 +274,9 @@ extern "C" {
 /// Validation of interrupt number and pin.
 #define SL_HAL_GPIO_INTNO_PIN_VALID(int_no, pin)    (((int_no) & ~_GPIO_EXTIPINSELL_EXTIPINSEL0_MASK) == ((pin) & ~_GPIO_EXTIPINSELL_EXTIPINSEL0_MASK))
 
+/// Invalid Slewrate
+#define SL_HAL_GPIO_SLEWRATE_INVALID  (0xFF)
+
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
@@ -308,16 +321,16 @@ sl_gpio_mode_t sl_hal_gpio_get_pin_mode(const sl_gpio_t *gpio);
  *       2: pins 8-11  (interrupt number 8-11)
  *       3: pins 12-15 (interrupt number 12-15)
  * @note It is recommended to disable interrupts before configuring the GPIO pin interrupt.
- *       See @ref sl_hal_gpio_disable_interrupts() for more information.
+ *       See sl_hal_gpio_disable_interrupts() for more information.
  *       The GPIO interrupt handler must be in place before enabling the interrupt.
  *       Notice that any pending interrupt for the selected interrupt is cleared by this function.
  *       Notice that only interrupt will be configured by this function. It is not enabled.
  *       It is recommended to enable interrupts after configuring the GPIO pin interrupt if needed.
- *       See @ref sl_hal_gpio_enable_interrupts() for more information.
+ *       See sl_hal_gpio_enable_interrupts() for more information.
  *
  * @param[in] gpio Pointer to GPIO structure with port and pin
  * @param[in] int_no The interrupt number to trigger.
- * @param[in] flags Interrupt configuration flags. @ref sl_hal_gpio_interrupt_flag_t for more information.
+ * @param[in] flags Interrupt configuration flags. sl_hal_gpio_interrupt_flag_t for more information.
  *
  * @return Return the available interrupt number
  ******************************************************************************/
@@ -342,7 +355,7 @@ void sl_hal_gpio_enable_pin_em4_wakeup(uint32_t pinmask,
  * Configure EM4WU pins as external level-sensitive interrupts.
  *
  * @note It is recommended to disable interrupts before configuring the GPIO pin interrupt.
- *       See @ref sl_hal_gpio_disable_interrupts() for more information.
+ *       See sl_hal_gpio_disable_interrupts() for more information.
  *       The provided port, pin and int_no inputs should be valid EM4 related parameters
  *       because there are dedicated port, pin and EM4 Wakeup interrupt combination for
  *       configuring the port, pin for EM4 functionality.
@@ -351,7 +364,7 @@ void sl_hal_gpio_enable_pin_em4_wakeup(uint32_t pinmask,
  *       Notice that any pending interrupt for the selected interrupt is cleared by this function.
  *       Notice that any only EM4WU interrupt is configured by this function. It is not enabled.
  *       It is recommended to enable interrupts after configuring the GPIO pin interrupt if needed.
- *       See @ref sl_hal_gpio_enable_interrupts() for more information.
+ *       See sl_hal_gpio_enable_interrupts() for more information.
  *
  * @param[in] gpio Pointer to GPIO structure with port and pin
  * @param[in] int_no The EM4WU interrupt number to trigger.
@@ -417,7 +430,10 @@ SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_GPIO, SL_CODE_CLASS_TIME_CRITICAL)
 __INLINE void sl_hal_gpio_set_pin(const sl_gpio_t *gpio)
 {
   EFM_ASSERT(gpio != NULL);
+
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
 
   GPIO->P_SET[gpio->port].DOUT = 1UL << gpio->pin;
 }
@@ -453,21 +469,58 @@ __INLINE void sl_hal_gpio_set_port_value(sl_gpio_port_t port,
 /***************************************************************************//**
  * Set slewrate for pins on a GPIO port which are configured into normal modes.
  *
- * @param[in] port The GPIO port to configure.
+ * @param[in] gpio Pointer to GPIO structure with port and pin
  * @param[in] slewrate The slewrate to configure for pins on this GPIO port.
+ *
+ * @return SL_STATUS_OK if there's no error.
+ *         SL_STATUS_INVALID_PARAMETER if port is invalid.
  ******************************************************************************/
-__INLINE void sl_hal_gpio_set_slew_rate(sl_gpio_port_t port,
-                                        uint8_t slewrate)
+__INLINE sl_status_t sl_hal_gpio_set_slew_rate(const sl_gpio_t *gpio,
+                                               uint8_t slewrate)
 {
-  EFM_ASSERT(SL_HAL_GPIO_PORT_IS_VALID(port));
-  EFM_ASSERT(slewrate <= (_GPIO_P_CTRL_SLEWRATE_MASK
-                          >> _GPIO_P_CTRL_SLEWRATE_SHIFT));
+  EFM_ASSERT(gpio != NULL);
+  (void)slewrate;
+#if defined(_GPIO_P_CTRL_SLEWRATE_MASK)
+  if (!(SL_HAL_GPIO_PORT_IS_VALID(gpio->port))
+      || (slewrate > (_GPIO_P_CTRL_SLEWRATE_MASK >> _GPIO_P_CTRL_SLEWRATE_SHIFT))) {
+    EFM_ASSERT(false);
+    return SL_STATUS_INVALID_PARAMETER;
+  }
 
-  GPIO->P[port].CTRL = (GPIO->P[port].CTRL
-                        & ~_GPIO_P_CTRL_SLEWRATE_MASK)
-                       | (slewrate << _GPIO_P_CTRL_SLEWRATE_SHIFT);
+  GPIO->P[gpio->port].CTRL = (GPIO->P[gpio->port].CTRL
+                              & ~_GPIO_P_CTRL_SLEWRATE_MASK)
+                             | (slewrate << _GPIO_P_CTRL_SLEWRATE_SHIFT);
+#endif
+  return SL_STATUS_OK;
 }
 
+/***************************************************************************//**
+ * Get slewrate for pins on a GPIO port.
+ *
+ * @param[in] gpio Pointer to GPIO structure with port and pin
+ *
+ * @param[out] slewrate Pointer to store the slewrate of selected GPIO port.
+ *
+ * @return SL_STATUS_OK if there's no error.
+ *         SL_STATUS_INVALID_PARAMETER if port is invalid.
+ ******************************************************************************/
+__INLINE sl_status_t sl_hal_gpio_get_slew_rate(const sl_gpio_t *gpio,
+                                               uint8_t *slewrate)
+{
+  EFM_ASSERT((gpio != NULL) && (slewrate != NULL));
+
+#if defined(_GPIO_P_CTRL_SLEWRATE_MASK)
+  if (!SL_HAL_GPIO_PORT_IS_VALID(gpio->port)) {
+    EFM_ASSERT(false);
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  *slewrate = (GPIO->P[gpio->port].CTRL & _GPIO_P_CTRL_SLEWRATE_MASK) >> _GPIO_P_CTRL_SLEWRATE_SHIFT;
+#endif
+  return SL_STATUS_OK;
+}
+
+#if defined(_GPIO_P_CTRL_SLEWRATEALT_MASK)
 /***************************************************************************//**
  * Set slewrate for pins on a GPIO port which are configured into alternate modes.
  *
@@ -477,27 +530,15 @@ __INLINE void sl_hal_gpio_set_slew_rate(sl_gpio_port_t port,
 __INLINE void sl_hal_gpio_set_slew_rate_alternate(sl_gpio_port_t port,
                                                   uint8_t slewrate_alt)
 {
+  (void)slewrate_alt;
   EFM_ASSERT(SL_HAL_GPIO_PORT_IS_VALID(port));
+
   EFM_ASSERT(slewrate_alt <= (_GPIO_P_CTRL_SLEWRATEALT_MASK
                               >> _GPIO_P_CTRL_SLEWRATEALT_SHIFT));
 
   GPIO->P[port].CTRL = (GPIO->P[port].CTRL
                         & ~_GPIO_P_CTRL_SLEWRATEALT_MASK)
                        | (slewrate_alt << _GPIO_P_CTRL_SLEWRATEALT_SHIFT);
-}
-
-/***************************************************************************//**
- * Get slewrate for pins on a GPIO port.
- *
- * @param[in] port The GPIO port to access to get slew rate.
- *
- * @return Return the slewrate setting for the selected GPIO port.
- ******************************************************************************/
-__INLINE uint8_t sl_hal_gpio_get_slew_rate(sl_gpio_port_t port)
-{
-  EFM_ASSERT(SL_HAL_GPIO_PORT_IS_VALID(port));
-
-  return (GPIO->P[port].CTRL & _GPIO_P_CTRL_SLEWRATE_MASK) >> _GPIO_P_CTRL_SLEWRATE_SHIFT;
 }
 
 /***************************************************************************//**
@@ -509,11 +550,16 @@ __INLINE uint8_t sl_hal_gpio_get_slew_rate(sl_gpio_port_t port)
  ******************************************************************************/
 __INLINE uint8_t sl_hal_gpio_get_slew_rate_alternate(sl_gpio_port_t port)
 {
+  uint8_t slewrate_alt = SL_HAL_GPIO_SLEWRATE_INVALID;
   EFM_ASSERT(SL_HAL_GPIO_PORT_IS_VALID(port));
 
-  return (GPIO->P[port].CTRL & _GPIO_P_CTRL_SLEWRATEALT_MASK) >> _GPIO_P_CTRL_SLEWRATEALT_SHIFT;
-}
+#if defined(_GPIO_P_CTRL_SLEWRATEALT_MASK)
+  slewrate_alt = (GPIO->P[port].CTRL & _GPIO_P_CTRL_SLEWRATEALT_MASK) >> _GPIO_P_CTRL_SLEWRATEALT_SHIFT;
+#endif
 
+  return slewrate_alt;
+}
+#endif
 /***************************************************************************//**
  * Set a single pin in GPIO data out port register to 0.
  *
@@ -522,7 +568,10 @@ __INLINE uint8_t sl_hal_gpio_get_slew_rate_alternate(sl_gpio_port_t port)
 __INLINE void sl_hal_gpio_clear_pin(const sl_gpio_t *gpio)
 {
   EFM_ASSERT(gpio != NULL);
+
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
 
   GPIO->P_CLR[gpio->port].DOUT = 1UL << gpio->pin;
 }
@@ -551,7 +600,10 @@ __INLINE void sl_hal_gpio_clear_port(sl_gpio_port_t port,
 __INLINE bool sl_hal_gpio_get_pin_input(const sl_gpio_t *gpio)
 {
   EFM_ASSERT(gpio != NULL);
+
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
 
   bool pin_input = ((GPIO->P[gpio->port].DIN) >> gpio->pin) & 1UL;
 
@@ -568,7 +620,10 @@ __INLINE bool sl_hal_gpio_get_pin_input(const sl_gpio_t *gpio)
 __INLINE bool sl_hal_gpio_get_pin_output(const sl_gpio_t *gpio)
 {
   EFM_ASSERT(gpio != NULL);
+
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
 
   bool pin_output = ((GPIO->P[gpio->port].DOUT) >> gpio->pin) & 1UL;
 
@@ -612,7 +667,10 @@ SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_GPIO, SL_CODE_CLASS_TIME_CRITICAL)
 __INLINE void sl_hal_gpio_toggle_pin(const sl_gpio_t *gpio)
 {
   EFM_ASSERT(gpio != NULL);
+
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
 
   GPIO->P_TGL[gpio->port].DOUT = 1UL << gpio->pin;
 }
@@ -800,7 +858,7 @@ __INLINE void sl_hal_gpio_disable_pin_em4_wakeup(uint32_t pinmask)
 {
   EFM_ASSERT((pinmask & ~_GPIO_EM4WUEN_MASK) == 0UL);
 
-  GPIO->EM4WUEN &= ~pinmask;
+  GPIO->EM4WUEN_CLR = pinmask;
 }
 
 /**************************************************************************//**
@@ -911,6 +969,62 @@ __INLINE void sl_hal_gpio_enable_debug_swd_io(bool enable)
 #ifdef __cplusplus
 }
 #endif
+
+/* *INDENT-OFF* */
+/****************************************************************************//**
+ * @addtogroup gpio GPIO - General Purpose Input Output
+ * @{
+ *
+ * @n @section gpio_example Example
+ *  The following example demonstrates the basic GPIO operations available in the Silicon Labs
+ *  GPIO API. This example shows how to:
+ *  - Define and configure a GPIO pin as an output
+ *  - Control pin state (high, low, toggle)
+ *  - Read the pin's input state
+ *  - Configure and enable external interrupts
+ *
+ *   This code can be used as a starting point for controlling LEDs, reading button inputs,
+ *   or configuring interrupt-driven GPIO events in your application.
+ *
+ *  @code{.c}
+ *  {
+ *    // Define GPIO pin
+ *    sl_gpio_t led_pin = {
+ *      .port = 0,  // Port A
+ *      .pin = 0    // Pin 0
+ *    };
+ *
+ *    // Configure pin as push-pull output
+ *    sl_hal_gpio_set_pin_mode(&led_pin, SL_GPIO_MODE_PUSH_PULL, false);
+ *
+ *    // Set pin high
+ *    sl_hal_gpio_set_pin(&led_pin);
+ *
+ *    // Wait a moment
+ *    for(volatile int i = 0; i < 100000; i++);
+ *
+ *    // Clear pin (set low)
+ *    sl_hal_gpio_clear_pin(&led_pin);
+ *
+ *    // Toggle pin
+ *    sl_hal_gpio_toggle_pin(&led_pin);
+ *
+ *    // Read pin input
+ *    bool pin_state = sl_hal_gpio_get_pin_input(&led_pin);
+ *
+ *    // Configure external interrupt
+ *    int32_t int_no = sl_hal_gpio_configure_external_interrupt(&led_pin,
+ *                                                             SL_HAL_GPIO_INTERRUPT_UNAVAILABLE,
+ *                                                             SL_GPIO_INTERRUPT_RISING_EDGE);
+ *
+ *    // Enable interrupt
+ *    sl_hal_gpio_enable_interrupts(1 << int_no);
+ *  }
+ *  @endcode
+ *
+ * @} (end addtogroup gpio)
+ ******************************************************************************/
+/* *INDENT-ON* */
 
 #endif /* GPIO_PRESENT */
 #endif /* SL_HAL_GPIO_H */

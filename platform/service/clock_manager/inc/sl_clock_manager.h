@@ -65,9 +65,9 @@ extern "C" {
  *  The API function sl_clock_manager_init() is used to initialize the Clock Manager
  *  module based on the configuration values specified in the two configuration files.
  *  This function must be called early during your initialization sequence.
- *  If the SL System component (@ref system) is used by your application, the
- *  sl_clock_manager_init() call will be added automatically to your initialization
- *  sequence.
+ *  If either the SL System component (@ref system) or the SL Main component
+ *  (@ref sl_main) is used by your application, the sl_clock_manager_init() call will
+ *  be added automatically to your initialization sequence.
  *
  *  ### Oscillators Configuration
  *  Oscillators' configurations are all grouped in the \a sl_clock_manager_oscillator_config.h
@@ -144,9 +144,9 @@ extern "C" {
  *
  *  The runtime part, which is associated with the \a clock_manager_runtime component,
  *  has also an initialization function of its own, sl_clock_manager_runtime_init().
- *  This function must also be part of the initialization sequence. If the SL System
- *  component (@ref system) is used by your application, the
- *  sl_clock_manager_runtime_init() call will be added automatically to your
+ *  This function must also be part of the initialization sequence. If either the SL System
+ *  component (@ref system) or the SL Main component (@ref sl_main) is used by your application,
+ *  the sl_clock_manager_runtime_init() call will be added automatically to your
  *  initialization sequence.
  *
  *  ## Functionalities
@@ -377,6 +377,7 @@ sl_status_t sl_clock_manager_get_clock_branch_precision(sl_clock_branch_t clock_
  * @note modules' bus clocks are defined in the
  *       @ref device_clock in the Bus Clock Defines section.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_clock_manager_enable_bus_clock(sl_bus_clock_t module_bus_clock);
 
 /***************************************************************************//**
@@ -390,6 +391,7 @@ sl_status_t sl_clock_manager_enable_bus_clock(sl_bus_clock_t module_bus_clock);
  * @note modules' bus clocks are defined in the
  *       @ref device_clock in the Bus Clock Defines section.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_clock_manager_disable_bus_clock(sl_bus_clock_t module_bus_clock);
 
 /***************************************************************************//**
@@ -651,6 +653,33 @@ sl_status_t sl_clock_manager_set_ext_flash_clk(sl_oscillator_t oscillator);
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_clock_manager_get_ext_flash_clk(sl_oscillator_t *oscillator);
+
+/***************************************************************************//**
+ * Set SYSCLK clock source.
+ *
+ * @param[in] oscillator  Oscillator to use for the SYSCLK branch.
+ *
+ * @return  Status code.
+ *          SL_STATUS_OK if successful. Error code otherwise.
+ *
+ * @note This is an advanced function. Changing the SYSCLK at runtime will
+ *       affect the clock of every modules that is connected to this clock
+ *       branch and could affect their operation and/or performance. Make
+ *       sure the time is appropriate when calling this function.
+ ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
+sl_status_t slx_clock_manager_set_sysclk_source(sl_oscillator_t oscillator);
+
+/***************************************************************************//**
+ * Get SYSCLK clock source.
+ *
+ * @param[out] oscillator  Oscillator used for the SYSCLK branch.
+ *
+ * @return  Status code.
+ *          SL_STATUS_OK if successful. Error code otherwise.
+ ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
+sl_status_t sl_clock_manager_get_sysclk_source(sl_oscillator_t *oscillator);
 
 /** @} (end addtogroup clock_manager) */
 

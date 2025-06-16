@@ -69,7 +69,7 @@ void cli_get_channel(sl_cli_command_arg_t *arguments)
  *****************************************************************************/
 void cli_set_channel(sl_cli_command_arg_t *arguments)
 {
-  uint8_t new_channel = sl_cli_get_argument_uint16(arguments, 0);
+  uint16_t new_channel = sl_cli_get_argument_uint16(arguments, 0);
   uint8_t success = set_selected_channel(new_channel);
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
   if (success) {
@@ -78,9 +78,9 @@ void cli_set_channel(sl_cli_command_arg_t *arguments)
     app_log_warning("New channel is not in range\n");
   }
 #endif
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   status = restart_rx_channel();
-  if (status != RAIL_STATUS_NO_ERROR) {
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
     app_log_warning("RX change didn't happened\n");
 #endif

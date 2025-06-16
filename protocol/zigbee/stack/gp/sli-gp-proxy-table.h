@@ -31,7 +31,6 @@ extern uint32_t sli_zigbee_gp_incoming_fc_token_timeout;
 //#define SL_ZIGBEE_GP_PROXY_TABLE_ENTRY_STATUS_MASK 0x01
 
 uint8_t sli_zigbee_gp_proxy_table_entry_in_use(uint8_t index);
-void sli_zigbee_gp_clear_proxy_table(void);
 
 //the follwoing gets called every sec and may be(?) every time a proxy table entry token is re-written
 void sli_zigbee_gp_write_incoming_fc_to_token(uint8_t index);
@@ -112,7 +111,7 @@ uint8_t sli_zigbee_gp_proxy_table_find_or_allocate_entry(sl_zigbee_gp_address_t 
 void sli_zigbee_gp_proxy_table_add_sink(uint8_t index,
                                         //      uint16_t options,
                                         uint8_t commMode,
-                                        const sl_802154_long_addr_t sinkIeeeAddress,
+                                        const uint8_t* sinkIeeeAddress,
                                         sl_802154_short_addr_t sinkNwkAddress,
                                         uint16_t sinkGroupId,
 //                           uint32_t gpdSecurityFrameCounter,
@@ -120,8 +119,7 @@ void sli_zigbee_gp_proxy_table_add_sink(uint8_t index,
                                         uint16_t assignedAlias
                                         //                        uint8_t forwardingRadius)
                                         );
-void sli_zigbee_gp_proxy_table_remove_sink(uint8_t index, const sl_802154_long_addr_t sinkIeeeAddress, uint16_t sinkGroupId, uint16_t assignedAlias);
-void sli_zigbee_gp_proxy_table_remove_entry(uint8_t index);
+void sli_zigbee_gp_proxy_table_remove_sink(uint8_t index, const uint8_t* sinkIeeeAddress, uint16_t sinkGroupId, uint16_t assignedAlias);
 void sli_zigbee_gp_proxy_table_set_key(uint8_t index, const uint8_t * gpdKey, sl_zigbee_gp_key_type_t securityKeyType);
 void sli_zigbee_gp_proxy_table_get_key(uint8_t index, sl_zigbee_key_data_t *key);
 bool sli_zigbee_gp_address_match(const sl_zigbee_gp_address_t *a1, const sl_zigbee_gp_address_t *a2);

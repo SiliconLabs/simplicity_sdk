@@ -61,7 +61,9 @@ extern void sl_zigbee_af_release_lock();
 void sli_zigbee_stack_init_callback(void)
 {
   sl_status_t status;
-
+  #if (!defined(SL_CATALOG_SL_MAIN_PRESENT) && !defined(SL_ZIGBEE_SCRIPTED_TEST))
+  sli_legacy_buffer_manager_initialize_buffers();
+  #endif
   // Initialize the radio and the stack.  If this fails, we have to assert
   // because something is wrong.
   status = sli_zigbee_stack_init();

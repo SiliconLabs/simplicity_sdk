@@ -30,6 +30,11 @@
 #ifndef SL_BTMESH_HSL_SERVER_H
 #define SL_BTMESH_HSL_SERVER_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_hsl_server
+ * @{
+ ******************************************************************************/
+
 #include "sl_btmesh_api.h"
 
 // -----------------------------------------------------------------------------
@@ -53,7 +58,7 @@ void sl_btmesh_hsl_server_on_event(sl_btmesh_msg_t *evt);
  ******************************************************************************/
 void sl_btmesh_hsl_server_init(void);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Component node reset handler.
  * Clearing component specific nvm content during node reset.
  * This function is called automatically by Universal Configurator after
@@ -61,4 +66,5 @@ void sl_btmesh_hsl_server_init(void);
  ******************************************************************************/
 void sl_btmesh_hsl_server_on_node_reset(void);
 
+/** @} (end addtogroup btmesh_hsl_server) */
 #endif // SL_BTMESH_HSL_SERVER_H

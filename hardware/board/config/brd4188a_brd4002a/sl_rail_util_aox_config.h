@@ -31,16 +31,11 @@
 #ifndef SL_RAIL_UTIL_AOX_CONFIG_H
 #define SL_RAIL_UTIL_AOX_CONFIG_H
 
-#include "rail_types.h"
-
 // <<< Use Configuration Wizard in Context Menu >>>
 // <o SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT> Number of AoX Antenna Pins
 // <0-6:1>
 // <i> Default: 0
 #define SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT 2
-#if SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT == 0
-#warning "The AoX component is only needed to configure multiple AoX antennas!"
-#endif //SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT == 0
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>

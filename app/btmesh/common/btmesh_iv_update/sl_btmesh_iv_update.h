@@ -34,13 +34,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @defgroup iv_update Automatic IV Update Component
- * @brief Automatic IV Update Implementation
- * This component implements IV Update related functionality
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup iv_update
+ * @addtogroup btmesh_iv_update
  * @{
  ******************************************************************************/
 
@@ -50,6 +44,6 @@
  ******************************************************************************/
 void sl_btmesh_iv_update_on_event(sl_btmesh_msg_t *evt);
 
-/** @} (end addtogroup iv_update) */
+/** @} (end addtogroup btmesh_iv_update) */
 
 #endif /* SL_BTMESH_IV_UPDATE_H */

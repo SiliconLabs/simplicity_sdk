@@ -33,7 +33,6 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -61,7 +60,7 @@ typedef enum {
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 /*******************************************************************************
  * Set the next state for the process state machine

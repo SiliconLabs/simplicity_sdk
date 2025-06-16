@@ -1,15 +1,17 @@
 project_name: z3-light_ot-ftd_soc
 label: z3-light_ot-ftd_soc
-package: Zigbee
+package: multiprotocol
 category: Zigbee Application
 quality: production
 description: This is a modified version of Zigbee 3.0 light application + OT-FTD application, that enables using the same rail handle with 2 different 15.4 stacks. This app brings in CMSIS-RTOS by default
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
-  - id: iostream_recommended_stream
+  - id: iostream_recommended_console
+  - id: zigbee_debug_basic
   - id: zigbee_debug_print
   - id: zigbee_pro_stack
   - id: rail_mux
@@ -65,10 +67,16 @@ component:
   # -- End of LED and BUtton GPIO Conflcit Note --
   - id: zigbee_application_bootloader
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
+  - name: SL_MAIN_START_TASK_STACK_SIZE_BYTES
+    value: 2048
+    unless: [device_series_3]
+  - name: SL_MAIN_START_TASK_STACK_SIZE_BYTES
+    value: 5098
+    condition: [device_series_3]
   - name: SL_BOARD_ENABLE_VCOM
     value: 1
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
@@ -149,12 +157,51 @@ configuration:
     value: 600
     condition:
       - cmsis_rtos2
+  # On series 3, the bootloader requires more stack to do context parsing of OTA images
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - device_series_3
+  # On series 3, IPC for big hdr phy packets requires bigger stack sizes   
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - zigbee_high_datarate_phy
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - zigbee_high_datarate_phy
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - zigbee_high_datarate_phy
+      - device_series_3
+  - name: SL_HDR_PHY_MAX_PACKET_SIZE
+    value: 2045
+    condition:
+      - zigbee_high_datarate_phy
+      - device_series_3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS
+    value: 2000
+    condition:
+      - device_series_3
 
 define:
   - name: OS_CFG_COMPAT_INIT
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -166,9 +213,9 @@ include:
   - path: ./
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false

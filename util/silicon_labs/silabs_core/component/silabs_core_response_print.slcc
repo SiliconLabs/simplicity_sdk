@@ -1,6 +1,6 @@
 id: silabs_core_response_print
 label: Response Print
-package: platform
+package: platform_core
 description: Silabs core utility to format text using response print syntax.
 category: Platform|Utilities
 quality: production

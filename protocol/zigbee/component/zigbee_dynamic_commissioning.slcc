@@ -1,6 +1,6 @@
 id: zigbee_dynamic_commissioning
 label: Dynamic Commissioning
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 

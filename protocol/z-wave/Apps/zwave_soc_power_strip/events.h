@@ -20,8 +20,7 @@
  * application files. An example could be a peripheral driver that enqueues an event when something
  * specific happens, e.g. on electric overload.
  */
-typedef enum EVENT_APP_POWER_STRIP
-{
+typedef enum EVENT_APP_POWER_STRIP{
   EVENT_EMPTY = DEFINE_EVENT_APP_NBR,
   EVENT_APP_NEXT_EVENT_JOB,
   EVENT_APP_FINISH_EVENT_JOB,

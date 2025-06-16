@@ -16,21 +16,18 @@
  * @{
  */
 
-typedef struct
-{
+typedef struct {
   MULTICHAN_NODE_ID subGrp[CC_ASSOCIATION_MAX_NODES_IN_GROUP];
 }
 ASSOCIATION_GROUP;
 
-typedef struct
-{
+typedef struct {
   MULTICHAN_NODE_ID_PACKED subGrp[CC_ASSOCIATION_MAX_NODES_IN_GROUP];
 }
 ASSOCIATION_GROUP_PACKED;
 
 // Used to save association data to file system.
-typedef struct SAssociationInfo
-{
+typedef struct SAssociationInfo{
   ASSOCIATION_GROUP_PACKED Groups[ZAF_CONFIG_NUMBER_OF_END_POINTS + 1][CC_ASSOCIATION_MAX_GROUPS_PER_ENDPOINT];  // +1 is for creating a rootdevice endpoint
 } SAssociationInfo;
 

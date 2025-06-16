@@ -1,6 +1,6 @@
 id: suds_doc
 label: SUDS Documentation Component
-package: platform
+package: security_mbedtls
 quality: production
 ui_hints:
   visibility: never

@@ -583,7 +583,7 @@ public:
      *
      * @returns The link quality in value.
      */
-    LinkQuality GetLinkQualityIn(void) const { return GetLinkInfo().GetLinkQuality(); }
+    LinkQuality GetLinkQualityIn(void) const { return GetLinkInfo().GetLinkQualityIn(); }
 
     /**
      * Generates a new challenge value for MLE Link Request/Response exchanges.
@@ -597,14 +597,12 @@ public:
      */
     const Mle::TxChallenge &GetChallenge(void) const { return mValidPending.mPending.mChallenge; }
 
-#if OPENTHREAD_CONFIG_UPTIME_ENABLE
     /**
      * Returns the connection time (in seconds) of the neighbor (seconds since entering `kStateValid`).
      *
      * @returns The connection time (in seconds), zero if device is not currently in `kStateValid`.
      */
     uint32_t GetConnectionTime(void) const;
-#endif
 
 #if OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
     /**
@@ -762,12 +760,26 @@ private:
     // and this neighbor is the Subject.
     LinkMetrics::Metrics mEnhAckProbingMetrics;
 #endif
-#if OPENTHREAD_CONFIG_UPTIME_ENABLE
     uint32_t mConnectionStart;
-#endif
 };
 
 DefineCoreType(otNeighborInfo, Neighbor::Info);
+
+/**
+ * Represents a CSL neighbor.
+ */
+class CslNeighbor : public Neighbor
+#if OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+    ,
+                    public IndirectSender::NeighborInfo,
+                    public DataPollHandler::NeighborInfo
+#endif
+#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+    ,
+                    public CslTxScheduler::NeighborInfo
+#endif
+{
+};
 
 } // namespace ot
 

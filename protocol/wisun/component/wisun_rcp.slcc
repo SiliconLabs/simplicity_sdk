@@ -13,7 +13,7 @@ ui_hints:
 # depending of the environment:
 #
 #  wisun_rcp           requires   wisun_rcp_implementation
-#  wisun_rcp           recommends wisun_rcp_sources
+#  wisun_rcp           recommends wisun_rcp_library
 #  wisun_rcp_library   requires   wisun_rcp
 #  wisun_rcp_library   provides   wisun_rcp_implementation
 #  wisun_rcp_sources   requires   wisun_rcp
@@ -52,6 +52,7 @@ include:
       - path: common/int24.h
       - path: common/iobuf.h
       - path: common/string_extra.h
+      - path: common/math_utils.h
       - path: common/ns_list.h
       - path: common/ns_types.h
 

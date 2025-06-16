@@ -2,7 +2,7 @@
 - id: BGM210LA22JIF_config
 - label: BGM210LA22JIF config
 - description: Configuration files for BGM210LA22JIF
-- package: platform
+- package: devices
 - category: Platform|Device|BGM21|Config
 - quality: production
 - metadata:
@@ -34,11 +34,6 @@
     path: BGM210LA22JIF/sl_device_init_hfxo_config.h
     unless:
     - hardware_board
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: BGM210LA22JIF/iot_flash_cfg_msc.h
   - override:
       component: rail_util_pa
       file_id: rail_util_pa_config

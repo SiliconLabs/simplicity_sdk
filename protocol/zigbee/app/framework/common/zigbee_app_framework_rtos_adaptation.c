@@ -45,18 +45,14 @@ extern void sl_zigbee_af_release_lock(void);
 
 //Zigbee AF task size is specified in bytes and is word aligned
 static osThreadId_t zigbee_app_framework_task_id;
-__ALIGNED(8) static uint8_t zigbee_app_framework_task_stack[SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE];
-__ALIGNED(4) static uint8_t zigbee_app_framework_task_cb[osThreadCbSize];
 static osThreadAttr_t zigbee_app_framework_task_attr;
 
+__ALIGNED(8) static uint8_t * zigbee_app_framework_task_stack;
+__ALIGNED(4) static uint8_t * zigbee_app_framework_task_cb;
+__ALIGNED(4) static uint8_t * zigbee_app_framework_task_semaphore_cb;
+
 static osSemaphoreId_t zigbee_app_framework_task_semaphore_id;
-__ALIGNED(4) static uint8_t zigbee_app_framework_task_semaphore_cb[osSemaphoreCbSize];
-static osSemaphoreAttr_t zigbee_app_framework_task_semaphore_attr = {
-  .name = "Zigbee AF task semaphore",
-  .cb_mem = zigbee_app_framework_task_semaphore_cb,
-  .cb_size = osSemaphoreCbSize,
-  .attr_bits = 0
-};
+static osSemaphoreAttr_t zigbee_app_framework_task_semaphore_attr;
 
 static void zigbee_app_framework_task(void *p_arg);
 static void zigbee_app_framework_task_yield(void);
@@ -88,12 +84,15 @@ void sl_zigbee_wakeup_app_framework_task(void)
   assert(retVal != osErrorParameter);
 }
 
-void sli_zigbee_app_framework_rtos_task_init_cb(void)
+void sli_zigbee_app_framework_rtos_perm_allocation(void)
 {
-  // Create ZigBee task.
+  zigbee_app_framework_task_stack = (uint8_t *)sl_malloc(SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE);
+  zigbee_app_framework_task_cb = (uint8_t *)sl_malloc(osThreadCbSize);
+  zigbee_app_framework_task_semaphore_cb = (uint8_t *)sl_malloc(osSemaphoreCbSize);
+
   zigbee_app_framework_task_attr.name = "Zigbee AppFramework";
-  zigbee_app_framework_task_attr.stack_mem = &zigbee_app_framework_task_stack[0];
-  zigbee_app_framework_task_attr.stack_size = sizeof(zigbee_app_framework_task_stack);
+  zigbee_app_framework_task_attr.stack_mem = zigbee_app_framework_task_stack;
+  zigbee_app_framework_task_attr.stack_size = SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE;
   zigbee_app_framework_task_attr.cb_mem = zigbee_app_framework_task_cb;
   zigbee_app_framework_task_attr.cb_size = osThreadCbSize;
   zigbee_app_framework_task_attr.priority = (osPriority_t)SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_PRIORITY;
@@ -104,11 +103,21 @@ void sli_zigbee_app_framework_rtos_task_init_cb(void)
                                              NULL,
                                              &zigbee_app_framework_task_attr);
   assert(zigbee_app_framework_task_id != NULL);
-
+  zigbee_app_framework_task_semaphore_attr.name = "Zigbee AF task semaphore";
+  zigbee_app_framework_task_semaphore_attr.cb_size = osSemaphoreCbSize;
+  zigbee_app_framework_task_semaphore_attr.attr_bits = 0;
+  zigbee_app_framework_task_semaphore_attr.cb_mem = zigbee_app_framework_task_semaphore_cb;
   zigbee_app_framework_task_semaphore_id =   osSemaphoreNew(ZIGBEE_TASK_SEMAPHORE_MAX_COUNT,
                                                             ZIGBEE_TASK_SEMAPHORE_INITIAL_COUNT,
                                                             &zigbee_app_framework_task_semaphore_attr);
   assert(zigbee_app_framework_task_semaphore_id != NULL);
+}
+
+void sli_zigbee_app_framework_rtos_task_init_cb(void)
+{
+  #ifndef SL_CATALOG_SL_MAIN_PRESENT
+  sli_zigbee_app_framework_rtos_perm_allocation();
+  #endif
 }
 
 //------------------------------------------------------------------------------
@@ -148,10 +157,13 @@ static void zigbee_app_framework_task(void *p_arg)
 #endif
     sli_zigbee_app_framework_tick_callback();
 
-    sl_event_t *event_ptr;
-
-    //Process all events in the event queue
-    while ( SL_STATUS_OK == sl_event_queue_get(callback_event_queue, 0, 1, &event_ptr)) {
+    // Process the events in the event queue.
+    // We check the count prior to actually call sl_event_queue_get()
+    // to avoid unnecessary context switches in case the queue is empty.
+    while (sl_event_queue_get_count(callback_event_queue) > 0) {
+      sl_event_t *event_ptr;
+      sl_status_t get_status = sl_event_queue_get(callback_event_queue, 0, 1, &event_ptr);
+      assert(get_status == SL_STATUS_OK);
       sli_zigbee_process_stack_callbacks_event(event_ptr);
       sl_event_process(&event_ptr);
     }

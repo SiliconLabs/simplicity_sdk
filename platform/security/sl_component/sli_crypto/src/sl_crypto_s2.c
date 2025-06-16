@@ -32,6 +32,14 @@
 #include "sl_assert.h"
 #include "sli_protocol_crypto.h"
 
+sl_status_t sli_crypto_init(void)
+{
+  #if defined(SLI_RADIOAES_REQUIRES_MASKING)
+  sli_aes_seed_mask();
+  #endif
+
+  return SL_STATUS_OK;
+}
 /***************************************************************************//**
  * @brief          CCM buffer authenticated decryption optimized for BLE
  ******************************************************************************/

@@ -1,17 +1,17 @@
 id: rail_util_recommended
 label: RAIL Utility, Recommended
 description: Recommended selection of common RAIL utilities
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_recommended
-    name: RAIL Utility, Recommended
-    license: Zlib
+    sbom:
+        id: rail_util_recommended
+        name: RAIL Utility, Recommended
+        license: Zlib
 documentation:
-  docset: rail
-  document: rail-api/rail-util-recommended
+    docset: rail
+    document: rail-api/rail-util-recommended
 provides:
   - name: rail_util_recommended
 requires:

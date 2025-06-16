@@ -1,6 +1,6 @@
 project_name: connect_bt_dmp_soc_empty
 label: "Connect Bluetooth DMP - SoC Empty"
-package: Connect
+package: "connect_sample_applications"
 description: >
   The Connect Empty DMP (Dynamic Multiprotocol) example serves as an RTOS-based
   project, providing a foundational skeleton for Connect. While it lacks
@@ -13,7 +13,7 @@ quality: production
 #---------------- UC/UP components -------------------
 component:
   - id: radio_config_simple_connect_singlephy
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: board_control
@@ -25,7 +25,7 @@ component:
   - id: connect_ble_cli
   - id: token_manager
   - id: micriumos_kernel
-  - id: rail_util_pti
+  - id: sl_rail_util_pti
   - id: bt_ipc_listener
     condition: [device_series_3]
 #------------Memory Protection Unit-------------------
@@ -60,7 +60,6 @@ config_file:
     directory: btconf
 
 source:
-  - path: main.c
   - path: app_init.c
   - path: app_process.c
   - path: app_bluetooth.c
@@ -91,9 +90,9 @@ configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: "1"
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
   - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF

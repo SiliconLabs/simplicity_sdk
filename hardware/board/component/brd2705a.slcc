@@ -1,7 +1,7 @@
 !!omap
 - id: brd2705a
 - label: BRD2705A
-- package: platform
+- package: boards
 - description: Board support for BRD2705A.
 - category: Platform|Board|Thunderboard
 - quality: production

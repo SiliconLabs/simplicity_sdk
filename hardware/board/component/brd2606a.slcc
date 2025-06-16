@@ -1,7 +1,7 @@
 !!omap
 - id: brd2606a
 - label: BRD2606A
-- package: platform
+- package: boards
 - description: Board support for BRD2606A.
 - category: Platform|Board|Starter Kit
 - quality: production

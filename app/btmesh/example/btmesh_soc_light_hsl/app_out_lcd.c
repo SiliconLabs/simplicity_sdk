@@ -57,8 +57,8 @@
 
 #include "sl_btmesh_wstk_lcd.h"
 
-#define UINT16_TO_PERCENTAGE(level) ((((uint32_t)(level) * 100) + 32767) / 65535)
-#define UINT16_TO_DEGREE(level) ((((uint32_t)(level) * 360) + 32767) / 65535)
+#define UINT16_TO_PERCENTAGE(level) (uint16_t)((((uint32_t)(level) * 100) + 32767) / 65535)
+#define UINT16_TO_DEGREE(level) (uint16_t)((((uint32_t)(level) * 360) + 32767) / 65535)
 
 // -----------------------------------------------------------------------------
 // BT mesh Friend Node Callbacks

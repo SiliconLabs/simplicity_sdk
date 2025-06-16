@@ -1,6 +1,6 @@
 id: bluetooth_ncp_transport_cpc
 label: Bluetooth NCP Transport over CPC
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Component that provides transport layer for Bluetooth NCP over CPC.
 

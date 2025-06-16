@@ -20,6 +20,6 @@ void cc_door_lock_migrate(void);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_DOOR_LOCK_IO_H */

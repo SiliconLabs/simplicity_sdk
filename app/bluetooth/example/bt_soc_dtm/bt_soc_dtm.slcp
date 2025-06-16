@@ -1,3 +1,4 @@
+---
 project_name: bt_soc_dtm
 package: Bluetooth
 label: Bluetooth - SoC DTM
@@ -19,33 +20,35 @@ component:
   - id: bluetooth_stack
   - id: gatt_configuration
   - id: bluetooth_feature_legacy_advertiser
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gatt
   - id: bluetooth_feature_gatt_server
   - id: bluetooth_feature_sm
   - id: bluetooth_feature_system
   - id: bluetooth_feature_test
   - id: bluetooth_feature_afh
-  - id: bt_fp_aoa
+  - id: bluetooth_feature_aoa_transmitter
+    condition:
+      - device_supports_bluetooth_cte
+  - id: bluetooth_feature_aoa_receiver
+    condition:
+      - device_supports_bluetooth_cte
+      - device_supports_bluetooth_iq_sampling
+      - device_supports_bluetooth_antenna_switching
+      - hardware_board_has_rfswitch_aox
   - id: in_place_ota_dfu
-  - id: bootloader_interface
-  - id: app_log
   - id: app_assert
   - id: memory_manager
   - id: board_control
-  - id: iostream_usart
-    instance:
-      - exp
-  - id: iostream_retarget_stdio
-  - id: printf
+  - id: iostream
   - id: mpu
-  - id: sl_system
+  - id: sleeptimer
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
   - path: dtm.c
 
@@ -72,6 +75,26 @@ configuration:
     value: "0"
     condition:
       - psa_crypto
+
+  # USART: VCOM = EXP
+  - name: SL_IOSTREAM_USART_VCOM_PARITY
+    value: "usartNoParity"
+  - name: SL_IOSTREAM_USART_VCOM_STOP_BITS
+    value: "usartStopbits1"
+  - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
+    value: "usartHwFlowControlNone"
+  - name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: "1"
+
+  # EUSART: VCOM = EXP
+  - name: SL_IOSTREAM_EUSART_VCOM_PARITY
+    value: "SL_IOSTREAM_EUSART_UART_NO_PARITY"
+  - name: SL_IOSTREAM_EUSART_VCOM_STOP_BITS
+    value: "SL_IOSTREAM_EUSART_UART_STOP_BITS_1"
+  - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
+  - name: SL_IOSTREAM_EUSART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: "1"
 
 post_build:
   - profile: bt_common

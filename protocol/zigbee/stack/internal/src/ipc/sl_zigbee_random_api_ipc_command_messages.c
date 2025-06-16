@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_random_api' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -63,18 +63,18 @@ sl_status_t sl_zigbee_get_strong_random_number_array(uint16_t *randomNumber,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((count) > (MAX_IPC_VEC_ARG_CAPACITY / sizeof(uint16_t))) {
+  if (count > MAX_IPC_VEC_ARG_CAPACITY / sizeof(uint16_t)) {
     assert(false); // "vector randomNumber length exceeds expected maximum
   }
 
-  memmove(msg.data.get_strong_random_number_array.request.randomNumber, randomNumber, sizeof(uint16_t) * (count));
+  memmove(msg.data.get_strong_random_number_array.request.randomNumber, randomNumber, sizeof(uint16_t) * count);
   msg.data.get_strong_random_number_array.request.count = count;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_strong_random_number_array_process_ipc_command, &msg);
 
-  if ((count) > (MAX_IPC_VEC_ARG_CAPACITY / sizeof(uint16_t))) {
+  if (count > MAX_IPC_VEC_ARG_CAPACITY / sizeof(uint16_t)) {
     assert(false); // "vector randomNumber length exceeds expected maximum
   }
 
-  memmove(randomNumber, msg.data.get_strong_random_number_array.request.randomNumber, sizeof(uint16_t) * (count));
+  memmove(randomNumber, msg.data.get_strong_random_number_array.request.randomNumber, sizeof(uint16_t) * count);
   return msg.data.get_strong_random_number_array.response.result;
 }

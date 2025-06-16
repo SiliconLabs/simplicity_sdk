@@ -1,6 +1,6 @@
 id: "btmesh_stack_scheduler_client"
 label: "Scheduler Client Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Scheduler Client model.
   It is used to support the functionality of a node that can configure the schedule on another node.
   Schedule being the occurrence of an event and the type of event to be triggered."

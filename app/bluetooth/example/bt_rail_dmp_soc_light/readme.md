@@ -81,7 +81,7 @@ The project also contains the Silabs DMP Light service in the GATT database. GAT
 
 To learn how to use the GATT Configurator, see [UG438: GATT Configurator User’s Guide for Bluetooth SDK v3.x](https://www.silabs.com/documents/public/user-guides/ug438-gatt-configurator-users-guide-sdk-v3x.pdf).
 
-The Bluetooth task creation and the stack initialization is implemented in the `sl_system_init()` function, called from the `main` function. The Bluetooth event handler function, `sl_bt_on_event`, can be found in the file *bluetooth_app.c*. This contains the Bluetooth implementation.
+The Bluetooth task creation and the stack initialization is implemented in the `sl_stack_init()` function, called from the `main` function. The Bluetooth event handler function, `sl_bt_on_event`, can be found in the file *bluetooth_app.c*. This contains the Bluetooth implementation.
 
 ### Proprietary Configuration
 

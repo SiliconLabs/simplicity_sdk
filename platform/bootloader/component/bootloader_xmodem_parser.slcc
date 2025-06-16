@@ -17,6 +17,9 @@ provides:
     condition: [bootloader_core_nonsecure]
 requires:
   - name: bootloader_crc
+    condition: [device_series_2]
+  - name: btl_crc
+    condition: [device_series_3]
 metadata:
   sbom:
     license: MSLA

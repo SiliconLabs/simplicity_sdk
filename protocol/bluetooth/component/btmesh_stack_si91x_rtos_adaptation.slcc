@@ -1,6 +1,6 @@
 id: "btmesh_stack_si91x_rtos_adaptation"
 label: "Bluetooth Mesh RTOS Adaptation for Si91x"
-package: "Btmesh"
+package: bluetooth_mesh
 description: >
   Bluetooth Mesh RTOS adaptation for running the Bluetooth Mesh stack in a kernel on the Si91x family of devices.
 category: Btmesh|RTOS Adaptation

@@ -42,6 +42,7 @@ enum {
     HIF_CMD_SET_FHSS_FFN_BC                   = 0x31,
     HIF_CMD_SET_FHSS_LFN_BC                   = 0x32,
     HIF_CMD_SET_FHSS_ASYNC                    = 0x33,
+    HIF_CMD_SET_FHSS_LFN_UC                   = 0x34,
     HIF_CMD_SET_SEC_KEY                       = 0x40,
     HIF_CMD_SET_SEC_FRAME_COUNTER_TX          = 0x41,
     HIF_CMD_SET_SEC_FRAME_COUNTER_RX          = 0x42,
@@ -99,6 +100,8 @@ enum hif_data_status {
     HIF_STATUS_NOACK    = 0x03, // No valid ACK received
     HIF_STATUS_TIMEDOUT = 0x04, // Buffer lifetime expired on RCP
     HIF_STATUS_INTERNAL_ERROR = 0x05, // Stack internal error
+    HIF_STATUS_ABORTED  = 0x06, // Transmission cancelled
+    HIF_STATUS_MAX      = 0xff,
 };
 
 void hif_push_bool(struct iobuf_write *buf, bool val);
@@ -115,7 +118,7 @@ void hif_push_str(struct iobuf_write *buf, const char *val);
 void hif_push_fixed_u8_array(struct iobuf_write *buf, const uint8_t *val, int num);
 void hif_push_fixed_u16_array(struct iobuf_write *buf, const uint16_t *val, int num);
 void hif_push_fixed_u32_array(struct iobuf_write *buf, const uint32_t *val, int num);
-void hif_push_data(struct iobuf_write *buf, const uint8_t *val, size_t size);
+void hif_push_data(struct iobuf_write *buf, const uint8_t *val, uint16_t size);
 void hif_push_raw(struct iobuf_write *buf, const uint8_t *val, size_t size);
 
 bool hif_pop_bool(struct iobuf_read *buf);
@@ -133,7 +136,7 @@ void hif_pop_fixed_u8_array(struct iobuf_read *buf, uint8_t *val, int num);
 void hif_pop_fixed_u16_array(struct iobuf_read *buf, uint16_t *val, int num);
 void hif_pop_fixed_u32_array(struct iobuf_read *buf, uint32_t *val, int num);
 unsigned int hif_pop_data(struct iobuf_read *buf, uint8_t *val, unsigned int size);
-unsigned int hif_pop_data_ptr(struct iobuf_read *buf, const uint8_t **val);
+uint16_t hif_pop_data_ptr(struct iobuf_read *buf, const uint8_t **val);
 unsigned int hif_pop_raw(struct iobuf_read *buf, uint8_t *val, unsigned int size);
 unsigned int hif_pop_raw_ptr(struct iobuf_read *buf, const uint8_t **val);
 

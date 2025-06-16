@@ -36,7 +36,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include <stdbool.h>
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -154,9 +154,9 @@ void handle_payload_length_for_standard(void);
 
 /*******************************************************************************
  * Get the rail handler which is selected in the phy selection
- * @return RAIL_Handle_t a pointer to the will be used handler
+ * @return sl_rail_handle_t a pointer to the will be used handler
  ******************************************************************************/
-RAIL_Handle_t get_current_rail_handler(void);
+sl_rail_handle_t get_current_rail_handler(void);
 
 /*******************************************************************************
  * Set power level to the defined max and init it if needed
@@ -251,7 +251,7 @@ bool receive_measurement(void);
 void print_log(void);
 
 /*******************************************************************************
- * @brief Prints out the errors that happened during RAIL_Handle on RX or TX
+ * @brief Prints out the errors that happened during rail_handle on RX or TX
  ******************************************************************************/
 void print_errors_from_rail_handler(void);
 
@@ -264,7 +264,7 @@ uint8_t get_number_of_custom_phys(void);
 /******************************************************************************
 * RAIL callback, called if a RAIL event occurs
 ******************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events);
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events);
 
 /*******************************************************************************
  * Helper function to apply the new power level from the range test settings
@@ -272,16 +272,11 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events);
 void update_tx_power(void);
 
 /*******************************************************************************
- * Get the minimum Power Amplifier setting in deci-dBm units
- * @return minimum PA value in deci-dBm
+ * Get the minimum and maximum Power Amplifier setting in deci-dBm units
+ * @param[out] min_power_deci_dbm: pointer to store minimum PA value in deci-dBm (can be NULL)
+ * @param[out] max_power_deci_dbm: pointer to store maximum PA value in deci-dBm (can be NULL)
  ******************************************************************************/
-int16_t get_min_tx_power_deci_dbm(void);
-
-/*******************************************************************************
- * Get the maximum Power Amplifier setting in deci-dBm units
- * @return maximum PA value in deci-dBm
- ******************************************************************************/
-int16_t get_max_tx_power_deci_dbm(void);
+void get_tx_power_deci_dbm_range(int16_t *min_power_deci_dbm, int16_t *max_power_deci_dbm);
 
 /*******************************************************************************
  * @brief Function that returns the safe size of the string

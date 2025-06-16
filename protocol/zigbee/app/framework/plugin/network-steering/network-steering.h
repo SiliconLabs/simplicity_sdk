@@ -59,6 +59,10 @@ extern "C" {
  * distributed security link key (D0D1D2...) to join on the primary channel
  * mask, and then the secondary channel mask.
  *
+ * The plugin operates through a series of states, such as scanning primary channels with different
+ * keys, then secondary channels, and so on. These states are represented by enumerations like
+ * SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CENTRALIZED and others.
+ *
  */
 
 /**
@@ -75,57 +79,62 @@ extern const uint8_t sli_zigbee_af_network_steering_plugin_name[];
 // -----------------------------------------------------------------------------
 // Types
 
+/**
+ * @brief Various states of the network steering process.
+ */
 #ifdef DOXYGEN_SHOULD_SKIP_THIS
 enum sl_zigbee_af_plugin_network_steering_state_t
 #else
 enum
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 {
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_NONE                         = 0x00,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_NONE                         = 0x00,  /**< (0x00) No network steering in progress */
   // The Use Configured Key states are only run if explicitly configured to do
   // so. See sli_zigbee_af_network_steering_set_configured_key()
 
 #ifndef OPTIMIZE_SCANS
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CONFIGURED      = 0x01,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CONFIGURED    = 0x02,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_INSTALL_CODE    = 0x03,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_INSTALL_CODE  = 0x04,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CENTRALIZED     = 0x05,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CENTRALIZED   = 0x06,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_DISTRIBUTED     = 0x07,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_DISTRIBUTED   = 0x08,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_FINISHED                = 0x09,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CONFIGURED      = 0x01,  /**< (0x01) Scanning primary mask using pre-configured key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CONFIGURED    = 0x02,  /**< (0x02) Scanning secondary mask using pre-configured key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_INSTALL_CODE    = 0x03,  /**< (0x03) Scanning primary mask using install code */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_INSTALL_CODE  = 0x04,  /**< (0x04) Scanning secondary mask using install code */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CENTRALIZED     = 0x05,  /**< (0x05) Scanning primary mask using well-known key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CENTRALIZED   = 0x06,  /**< (0x06) Scanning secondary mask using well-known key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_DISTRIBUTED     = 0x07,  /**< (0x07) Scanning primary mask using distributed key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_DISTRIBUTED   = 0x08,  /**< (0x08) Scanning secondary mask using distributed key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_FINISHED                = 0x09,  /**< (0x09) Scan has finished */
 #else // !OPTIMIZE_SCANS
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CONFIGURED      = 0x01,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_INSTALL_CODE    = 0x02,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CENTRALIZED     = 0x03,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_DISTRIBUTED     = 0x04,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CONFIGURED    = 0x05,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_INSTALL_CODE  = 0x06,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CENTRALIZED   = 0x07,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_DISTRIBUTED   = 0x08,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CONFIGURED      = 0x01,  /**< (0x01) Scanning primary mask using pre-configured key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_INSTALL_CODE    = 0x02,  /**< (0x02) Scanning secondary mask using pre-configured key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CENTRALIZED     = 0x03,  /**< (0x03) Scanning primary mask using install code */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_DISTRIBUTED     = 0x04,  /**< (0x04) Scanning secondary mask using install code */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CONFIGURED    = 0x05,  /**< (0x05) Scanning primary mask using well-known key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_INSTALL_CODE  = 0x06,  /**< (0x06) Scanning secondary mask using well-known key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CENTRALIZED   = 0x07,  /**< (0x07) Scanning primary mask using distributed key */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_DISTRIBUTED   = 0x08,  /**< (0x08) Scanning secondary mask using distributed key */
 
   // Either the USE_ALL_KEY states are run or the non USE_ALL_KEY states are
   // run, but never both
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_USE_ALL_KEYS    = 0x09,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_USE_ALL_KEYS  = 0x0A,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_USE_ALL_KEYS    = 0x09,  /**< (0x09) Scanning primary mask using all keys at once  */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_USE_ALL_KEYS  = 0x0A,  /**< (0x0A) Scanning secondary mask using all keys at once  */
 
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_FINISHED                = 0x0B,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_FINISHED                = 0x0B,  /**< (0x0B) Scan has finished */
 #endif // OPTIMIZE_SCANS
 
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_UPDATE_TCLK                  = 0x10,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_VERIFY_TCLK                  = 0x20,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_UPDATE_TCLK                  = 0x10,  /**< (0x10) Updating TC Link Key  */
 };
 typedef uint8_t sl_zigbee_af_plugin_network_steering_joining_state_t;
 
+/**
+ * @brief Network steering options.
+ */
 #ifdef DOXYGEN_SHOULD_SKIP_THIS
 enum sl_zigbee_af_plugin_network_steering_options_t
 #else
 enum
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 {
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NONE                       = 0x00,
-  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NO_TCLK_UPDATE             = 0x01,
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NONE                       = 0x00,  /**< (0x00) No options specified */
+  SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NO_TCLK_UPDATE             = 0x01,  /**< (0x01) No TC Link Key Update */
 };
 typedef uint8_t sl_zigbee_af_plugin_network_steering_options_t;
 
@@ -167,7 +176,11 @@ extern uint32_t sli_zigbee_af_network_steering_secondary_channel_mask;
  * default key, and the distributed default key.
  *
  * @return An ::sl_status_t value that indicates the success or failure of
- * the initiating of the network steering process.
+ * the initiating of the network steering process. The function may also return the success or
+ * failure of sl_zigbee_af_permit_join() if the device is already in a network and the function is called.
+ * - ::SL_STATUS_INVALID_STATE if both channel masks are not configured or network steering is in process.
+ * - ::SL_STATUS_FAIL is scan queue is full.
+ * - ::SL_STATUS_OK if the device has started scanning.
  *
  * @note Do not call this API from a stack status callback, as this plugin acts
  * when its own stack status callback is invoked.
@@ -179,6 +192,8 @@ sl_status_t sl_zigbee_af_network_steering_start(void);
  *
  * @return An ::sl_status_t value that indicates the success or failure of
  * the initiating of the network steering process.
+ * - ::SL_STATUS_INVALID_STATE if no network steering is in progress.
+ * - ::SL_STATUS_OK if the steering was successfully stopped.
  */
 sl_status_t sl_zigbee_af_network_steering_stop(void);
 
@@ -205,16 +220,16 @@ sl_status_t sl_zigbee_af_network_steering_stop(void);
  *
  * This callback is fired when the Network Steering plugin is complete.
  *
- * @param status On success this will be set to SL_STATUS_OK to indicate a
+ * @param[out] status On success this will be set to SL_STATUS_OK to indicate a
  * network was joined successfully. On failure this will be the status code of
  * the last join or scan attempt. Ver.: always
  *
- * @param totalBeacons The total number of 802.15.4 beacons that were heard,
+ * @param[out] totalBeacons The total number of 802.15.4 beacons that were heard,
  * including beacons from different devices with the same PAN ID. Ver.: always
- * @param joinAttempts The number of join attempts that were made to get onto
+ * @param[out] joinAttempts The number of join attempts that were made to get onto
  * an open Zigbee network. Ver.: always
  *
- * @param finalState The finishing state of the network steering process. From
+ * @param[out] finalState The finishing state of the network steering process. From
  * this, one is able to tell on which channel mask and with which key the
  * process was complete. Ver.: always
  */
@@ -229,7 +244,7 @@ void sl_zigbee_af_network_steering_complete_cb(sl_status_t status,
  * power level. The application has the ability to change the max power level
  * used for this particular channel.
  *
- * @param channel The channel that the plugin is inquiring about the power
+ * @param[out] channel The channel that the plugin is inquiring about the power
  * level. Ver.: always
  */
 int8_t sl_zigbee_af_network_steering_get_power_for_radio_channel_cb(uint8_t channel);
@@ -240,7 +255,7 @@ int8_t sl_zigbee_af_network_steering_get_power_for_radio_channel_cb(uint8_t chan
  * key. The application set the distributed key from Zigbee Alliance through this callback
  * or the network steering will use the default test key.
  *
- * @param pointer to the distributed key struct
+ * @param[out] pointer to the distributed key struct
  * @return true if the key is loaded successfully, otherwise false.
  * level. Ver.: always
  */
@@ -251,7 +266,7 @@ bool sl_zigbee_af_network_steering_get_distributed_key_cb(sl_zigbee_key_data_t *
  * This callback allows the application to set the node type that the network
  * steering process will use in joining a network.
  *
- * @param state The current ::sl_zigbee_af_plugin_network_steering_joining_state_t.
+ * @param[out] state The current ::sl_zigbee_af_plugin_network_steering_joining_state_t.
  *
  * @return An ::sl_zigbee_node_type_t value that the network steering process will
  * try to join a network as.

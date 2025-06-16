@@ -60,37 +60,33 @@
 #include "zaf_config_api.h"
 #include "cc_notification_io.h"
 #include "assert.h"
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /**
  * @brief Defines a frame with the maximum possible number of event parameters.
  */
-typedef struct
-{
-    uint8_t   cmdClass;
-    uint8_t   cmd;
-    uint8_t   v1AlarmType;
-    uint8_t   v1AlarmLevel;
-    uint8_t   reserved;
-    uint8_t   notificationStatus;
-    uint8_t   notificationType;
-    uint8_t   mevent;
-    uint8_t   properties1;
-    uint8_t   eventParameters[31];        /* Array of max size according to spec: CC:0071.03.05.11.00B */
+typedef struct {
+  uint8_t   cmdClass;
+  uint8_t   cmd;
+  uint8_t   v1AlarmType;
+  uint8_t   v1AlarmLevel;
+  uint8_t   reserved;
+  uint8_t   notificationStatus;
+  uint8_t   notificationType;
+  uint8_t   mevent;
+  uint8_t   properties1;
+  uint8_t   eventParameters[31];          /* Array of max size according to spec: CC:0071.03.05.11.00B */
 } ZW_NOTIFICATION_REPORT_31BYTE_V8_FRAME;
 
 void CC_Notification_report_stx(zaf_tx_options_t *tx_options, void* pData);
 
 JOB_STATUS CmdClassNotificationReport(
-    uint8_t notification_index,
-    uint8_t * pEvPar,
-    uint8_t evParLen,
-    void(*pCallback)(TRANSMISSION_RESULT * pTransmissionResult));
+  uint8_t notification_index,
+  uint8_t * pEvPar,
+  uint8_t evParLen,
+  void(*pCallback)(TRANSMISSION_RESULT * pTransmissionResult));
 
 static cc_notification_t * notifications;
-
 
 /**
  * Finds first notification type for given endpoint
@@ -105,7 +101,7 @@ static int get_notification_by_endpoint(uint8_t endpoint)
       return i;
     }
   }
-   return -1;
+  return -1;
 }
 
 static void init(void)
@@ -118,7 +114,8 @@ static void init(void)
   notifications = cc_notification_get_config();
 }
 
-static void reset(void) {
+static void reset(void)
+{
   notifications = cc_notification_get_config();
   uint8_t n_notifications = cc_notification_get_config_length();
 
@@ -132,9 +129,10 @@ static void reset(void) {
   cc_notification_write();
 }
 
-static void set_notification_status(uint8_t index, NOTIFICATION_STATUS notificationStatus) {
+static void set_notification_status(uint8_t index, NOTIFICATION_STATUS notificationStatus)
+{
   if (notificationStatus != notifications[index].status) {
-    DPRINTF("Change notification[%d] status from %d to %d\n", index,  notifications[index].status, notificationStatus);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Change notification[%d] status from %d to %d\n", index, notifications[index].status, notificationStatus);
     notifications[index].status = notificationStatus;
   }
 }
@@ -148,11 +146,10 @@ static void set_notification_status(uint8_t index, NOTIFICATION_STATUS notificat
  * @private
  */
 e_cmd_handler_return_code_t handleAppNotificationSet(
-    notification_type_t notificationType,
-    NOTIFICATION_STATUS notificationStatus,
-    uint8_t endpoint)
+  notification_type_t notificationType,
+  NOTIFICATION_STATUS notificationStatus,
+  uint8_t endpoint)
 {
-
   if (false == cc_notification_is_type_supported(notificationType)) {
     return E_CMD_HANDLER_RETURN_CODE_FAIL;
   }
@@ -199,13 +196,13 @@ e_cmd_handler_return_code_t handleAppNotificationSet(
  * @private
  */
 uint8_t cc_notification_supported_events_bitmask(
-    notification_type_t type,
-    uint8_t endpoint,
-    uint8_t * pBitMaskArray)
+  notification_type_t type,
+  uint8_t endpoint,
+  uint8_t * pBitMaskArray)
 {
   uint8_t count = 0;
   if (!endpoint) {
-     endpoint = zaf_config_get_default_endpoint();
+    endpoint = zaf_config_get_default_endpoint();
   }
   int8_t index = cc_notification_get_index_by_type_and_endpoint(type, endpoint);
   if (index < 0) {
@@ -216,18 +213,17 @@ uint8_t cc_notification_supported_events_bitmask(
   uint8_t number_of_events = cc_notification_config_get_number_of_events(index);
 
   for (uint8_t i = 0; i < number_of_events; i++) {
-    if (0 != notifications[index].events[i] &&
-        0xFE > notifications[index].events[i]) {
-
-      pBitMaskArray[notifications[index].events[i]/8] |= (uint8_t)(0x01<< (notifications[index].events[i]%8));
+    if (0 != notifications[index].events[i]
+        && 0xFE > notifications[index].events[i]) {
+      pBitMaskArray[notifications[index].events[i] / 8] |= (uint8_t)(0x01 << (notifications[index].events[i] % 8));
 
       /*calc number of bitmask bytes*/
-      if (count < (notifications[index].events[i]/8 + 1)) {
-        count = notifications[index].events[i]/8 + 1;
+      if (count < (notifications[index].events[i] / 8 + 1)) {
+        count = notifications[index].events[i] / 8 + 1;
       }
     }
   }
-  DPRINTF("Supported Events number of bit masks = %d\n", count);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Supported Events number of bit masks = %d\n", count);
   return count;
 }
 
@@ -248,14 +244,14 @@ bool notification_report_get_data(notification_type_t* pType,
                                   uint8_t* pEvent,
                                   NOTIFICATION_STATUS* pStatus)
 {
-  DPRINTF("notification_report_get_data Type %d  ep %d event %d\n", *pType, endpoint, *pEvent);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "notification_report_get_data Type %d  ep %d event %d\n", *pType, endpoint, *pEvent);
   if (!endpoint) {
     endpoint = zaf_config_get_default_endpoint();
   }
 
   int index;
   if (NOTIFICATION_TYPE_MULTIDEVICE == *pType) {
-    if (0 != * pEvent) {
+    if (0 != *pEvent) {
       // Event must be 0 if Type is 0xFF. Requirement CC:0071.03.04.11.008
       return false;
     }
@@ -270,7 +266,7 @@ bool notification_report_get_data(notification_type_t* pType,
     *pEvent = cc_notification_get_current_event((uint8_t)index);
   } else {
     // Type specified
-    index =cc_notification_get_index_by_type_and_endpoint(*pType, endpoint);
+    index = cc_notification_get_index_by_type_and_endpoint(*pType, endpoint);
     if (index < 0) {
       return false;
     }
@@ -292,21 +288,21 @@ bool notification_report_get_data(notification_type_t* pType,
 s_CC_notification_data_t ZAF_TSE_NotificationData = { 0 };
 
 static RECEIVE_OPTIONS_TYPE_EX pRxOpt = {
-    .rxStatus = 0,        /* rxStatus, verified by the TSE for Multicast */
-    .securityKey = 0,     /* securityKey, ignored by the TSE */
-    .sourceNode = {       /* sourceNode (nodeId, endpoint), verified against lifeline destinations by the TSE */
-      .endpoint = 0,
-      .res = 0
-    },
-    .destNode = {         /* destNode (nodeId, endpoint), verified by the TSE for local endpoint */
-      .endpoint = 0,
-      .BitAddress = 0
-    }
+  .rxStatus = 0,          /* rxStatus, verified by the TSE for Multicast */
+  .securityKey = 0,       /* securityKey, ignored by the TSE */
+  .sourceNode = {         /* sourceNode (nodeId, endpoint), verified against lifeline destinations by the TSE */
+    .endpoint = 0,
+    .res = 0
+  },
+  .destNode = {           /* destNode (nodeId, endpoint), verified by the TSE for local endpoint */
+    .endpoint = 0,
+    .BitAddress = 0
+  }
 };
 
 /**
  * Prepare the data input for the TSE for Notification events.
-*/
+ */
 void* CC_Notification_prepare_zaf_tse_data(uint8_t index, uint8_t *pEventParameters, uint8_t eventParamLength)
 {
   /*
@@ -328,12 +324,12 @@ void* CC_Notification_prepare_zaf_tse_data(uint8_t index, uint8_t *pEventParamet
 }
 
 JOB_STATUS CC_Notification_TriggerAndTransmit(
-    uint8_t index,
-    uint8_t notificationEvent,
-    uint8_t * pEvPar,
-    uint8_t evParLen,
-    void (*pCallback)(TRANSMISSION_RESULT * pTransmissionResult),
-    bool tse)
+  uint8_t index,
+  uint8_t notificationEvent,
+  uint8_t * pEvPar,
+  uint8_t evParLen,
+  void (*pCallback)(TRANSMISSION_RESULT * pTransmissionResult),
+  bool tse)
 {
   if (NULL == cc_notification_get(index)) {
     // wrong index
@@ -348,12 +344,12 @@ JOB_STATUS CC_Notification_TriggerAndTransmit(
 
   notifications[index].current_event = notificationEvent;
 
-  DPRINTF("Notification[%d] triggered, event:%d\n", index, notificationEvent);
-  DPRINTF("%s Event params ", __func__);
-  for (uint8_t i = 0; i< evParLen; i++) {
-   DPRINTF(" %d",pEvPar[i]);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Notification[%d] triggered, event:%d\n", index, notificationEvent);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "%s Event params ", __func__);
+  for (uint8_t i = 0; i < evParLen; i++) {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, " %d", pEvPar[i]);
   }
-  DPRINT(".\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, ".\n");
 
   if (NOTIFICATION_STATUS_UNSOLICIT_ACTIVATED != notifications[index].status) {
     // Don't send notification report. All done, exit with success.
@@ -367,7 +363,7 @@ JOB_STATUS CC_Notification_TriggerAndTransmit(
     /* Tell the lifeline destinations that an Endpoint state has been modified */
     pData = CC_Notification_prepare_zaf_tse_data(index, pEvPar, evParLen);
     if (pData) {
-      DPRINT("Trigger TSE.\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Trigger TSE.\n");
       ZAF_TSE_Trigger(CC_Notification_report_stx, pData, true);
     }
   }
@@ -389,33 +385,31 @@ JOB_STATUS CC_Notification_TriggerAndTransmit(
  * @private
  */
 uint8_t cc_notification_supported_notifications_bitmask(
-    uint8_t * pBitMaskArray,
-    uint8_t   bBitMaskLen,
-    uint8_t endpoint)
+  uint8_t * pBitMaskArray,
+  uint8_t   bBitMaskLen,
+  uint8_t endpoint)
 {
   uint8_t count = 0;
 
-  for(uint8_t i = 0; i < cc_notification_get_config_length(); i++) {
+  for (uint8_t i = 0; i < cc_notification_get_config_length(); i++) {
     if (0 != endpoint && endpoint != notifications[i].endpoint) {
       // if endoipoint is given (not root device) and it doesn't match, move on
       continue;
     }
     /*Don't write to the bitmask array if the index is out of bound or */
     /*the notification type is invalid*/
-    if ((notifications[i].type != NOTIFICATION_TYPE_NONE) &&
-        (bBitMaskLen > (notifications[i].type / 8)))
-    {
+    if ((notifications[i].type != NOTIFICATION_TYPE_NONE)
+        && (bBitMaskLen > (notifications[i].type / 8))) {
       /* Add Bit in bit-mask byte (notifications[i].type / 8)*/
       *(pBitMaskArray + (notifications[i].type / 8)) |= (uint8_t)(1 << ((notifications[i].type) % 8));
 
       /* Find max number of bit masks*/
-      if (count < ((notifications[i].type / 8) + 1))
-      {
+      if (count < ((notifications[i].type / 8) + 1)) {
         count = (uint8_t)((notifications[i].type / 8) + 1);
       }
     }
   }
-  DPRINTF("Supported Notifications number of bit masks = %d\n", count);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Supported Notifications number of bit masks = %d\n", count);
   return count;
 }
 
@@ -429,26 +423,25 @@ CC_Notification_handler(
 {
   size_t size;
 
-  DPRINTF("CmdClassAlarm %d\r\n", pCmd->ZW_Common.cmd);
-  switch (pCmd->ZW_Common.cmd)
-  {
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "CmdClassAlarm %d\r\n", pCmd->ZW_Common.cmd);
+  switch (pCmd->ZW_Common.cmd) {
     case NOTIFICATION_SET_V4:
       if (E_CMD_HANDLER_RETURN_CODE_FAIL == handleAppNotificationSet(
-          (notification_type_t)pCmd->ZW_NotificationSetV4Frame.notificationType,
-          (NOTIFICATION_STATUS)pCmd->ZW_NotificationSetV4Frame.notificationStatus,
-          rxOpt->destNode.endpoint)) {
+            (notification_type_t)pCmd->ZW_NotificationSetV4Frame.notificationType,
+            (NOTIFICATION_STATUS)pCmd->ZW_NotificationSetV4Frame.notificationStatus,
+            rxOpt->destNode.endpoint)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
       return RECEIVED_FRAME_STATUS_SUCCESS;
       break;
 
     case NOTIFICATION_GET_V4:
-      if(true == Check_not_legal_response_job(rxOpt)) {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
-      if(3 > cmdLength) {
-        DPRINT("Invalid Notification Get Frame Length\n");
+      if (3 > cmdLength) {
+        ZPAL_LOG_WARNING(ZPAL_LOG_CC_NOTIFICATION, "Invalid Notification Get Frame Length\n");
         return RECEIVED_FRAME_STATUS_FAIL;
       }
       notification_type_t type;
@@ -464,23 +457,23 @@ CC_Notification_handler(
       pFrameOut->ZW_NotificationReport1byteV4Frame.eventParameter1 = 0;
       pFrameOut->ZW_NotificationReport1byteV4Frame.mevent = 0;
 
-      if(3 == cmdLength) {
-        DPRINT("ZW_ALARM_GET_V1_FRAME\n");
+      if (3 == cmdLength) {
+        ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "ZW_ALARM_GET_V1_FRAME\n");
 
         size = sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - 2; //Remove event-parameter and sequence number
         type = 0xFF;
         status = 0xFF;
       } else {
         if (4 == cmdLength) {
-          DPRINT("ZW_ALARM_GET_V2_FRAME\n");
+          ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "ZW_ALARM_GET_V2_FRAME\n");
         } else {
-          DPRINT("ZW_NOTIFICAION_GET\n");
+          ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "ZW_NOTIFICAION_GET\n");
 
           pFrameOut->ZW_NotificationReport1byteV4Frame.mevent = pCmd->ZW_NotificationGetV4Frame.mevent;
-          DPRINTF("Type %d/event %d/ EP %d\n",
-                  pCmd->ZW_NotificationGetV4Frame.notificationType,
-                  pCmd->ZW_NotificationGetV4Frame.mevent,
-                  rxOpt->destNode.endpoint);
+          ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "Type %d/event %d/ EP %d\n",
+                         pCmd->ZW_NotificationGetV4Frame.notificationType,
+                         pCmd->ZW_NotificationGetV4Frame.mevent,
+                         rxOpt->destNode.endpoint);
         }
         if (!cc_notification_is_type_supported(pCmd->ZW_NotificationGetV4Frame.notificationType)
             && NOTIFICATION_TYPE_MULTIDEVICE != pCmd->ZW_NotificationGetV4Frame.notificationType) {
@@ -489,10 +482,10 @@ CC_Notification_handler(
 
         type = pCmd->ZW_NotificationGetV4Frame.notificationType;
 
-        size = (sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t) +
-            (pFrameOut->ZW_NotificationReport1byteV4Frame.properties1
-                & NOTIFICATION_REPORT_PROPERTIES1_EVENT_PARAMETERS_LENGTH_MASK_V4)) -
-                    sizeof(uint8_t); /* Removed sequence number*/
+        size = (sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t)
+                + (pFrameOut->ZW_NotificationReport1byteV4Frame.properties1
+                   & NOTIFICATION_REPORT_PROPERTIES1_EVENT_PARAMETERS_LENGTH_MASK_V4))
+               - sizeof(uint8_t);    /* Removed sequence number*/
 
         if (false == notification_report_get_data(&type,
                                                   rxOpt->destNode.endpoint,
@@ -510,17 +503,17 @@ CC_Notification_handler(
       return RECEIVED_FRAME_STATUS_SUCCESS;
 
     case NOTIFICATION_SUPPORTED_GET_V4:
-      if(true == Check_not_legal_response_job(rxOpt)) {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
       memset(&pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.bitMask1, 0, NOTIFICATION_BITMASK_ARRAY_LENGTH);
       pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.cmdClass = COMMAND_CLASS_NOTIFICATION_V4;
       pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.cmd = NOTIFICATION_SUPPORTED_REPORT_V4;
       pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.properties1 =
-          cc_notification_supported_notifications_bitmask (
-              &(pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.bitMask1),
-              NOTIFICATION_BITMASK_ARRAY_LENGTH,
-              rxOpt->destNode.endpoint);
+        cc_notification_supported_notifications_bitmask(
+          &(pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.bitMask1),
+          NOTIFICATION_BITMASK_ARRAY_LENGTH,
+          rxOpt->destNode.endpoint);
 
       /*
        * Requirement CC:0071.03.08.11.001:
@@ -529,13 +522,13 @@ CC_Notification_handler(
        */
       pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.properties1 &= 0x7F;
 
-      *pFrameOutLength = sizeof(ZW_NOTIFICATION_SUPPORTED_REPORT_1BYTE_V4_FRAME) - 1 +
-                                       pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.properties1;
+      *pFrameOutLength = sizeof(ZW_NOTIFICATION_SUPPORTED_REPORT_1BYTE_V4_FRAME) - 1
+                         + pFrameOut->ZW_NotificationSupportedReport1byteV4Frame.properties1;
 
       return RECEIVED_FRAME_STATUS_SUCCESS;
 
     case EVENT_SUPPORTED_GET_V4:
-      if(true == Check_not_legal_response_job(rxOpt)) {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -544,14 +537,14 @@ CC_Notification_handler(
       pFrameOut->ZW_EventSupportedReport1byteV4Frame.cmd = EVENT_SUPPORTED_REPORT_V4;
       pFrameOut->ZW_EventSupportedReport1byteV4Frame.notificationType = pCmd->ZW_EventSupportedGetV4Frame.notificationType;
       pFrameOut->ZW_EventSupportedReport1byteV4Frame.properties1 =
-          cc_notification_supported_events_bitmask((notification_type_t) pFrameOut->ZW_EventSupportedReport1byteV4Frame.notificationType,
-                                                   rxOpt->destNode.endpoint,
-                                                   &(pFrameOut->ZW_EventSupportedReport1byteV4Frame.bitMask1));
+        cc_notification_supported_events_bitmask((notification_type_t) pFrameOut->ZW_EventSupportedReport1byteV4Frame.notificationType,
+                                                 rxOpt->destNode.endpoint,
+                                                 &(pFrameOut->ZW_EventSupportedReport1byteV4Frame.bitMask1));
 
       pFrameOut->ZW_EventSupportedReport1byteV4Frame.properties1 &= 0x7F;
 
-      *pFrameOutLength = sizeof(ZW_EVENT_SUPPORTED_REPORT_1BYTE_V4_FRAME) - 1 +
-                          (pFrameOut->ZW_EventSupportedReport1byteV4Frame.properties1 & 0x1F); /*remove reserved bits*/
+      *pFrameOutLength = sizeof(ZW_EVENT_SUPPORTED_REPORT_1BYTE_V4_FRAME) - 1
+                         + (pFrameOut->ZW_EventSupportedReport1byteV4Frame.properties1 & 0x1F); /*remove reserved bits*/
 
       return RECEIVED_FRAME_STATUS_SUCCESS;
 
@@ -574,11 +567,20 @@ CC_Notification_handler(
  * @private
  */
 JOB_STATUS CmdClassNotificationReport(
-    uint8_t notification_index,
-    uint8_t * pEvPar,
-    uint8_t evParLen,
-    void(*pCallback)(TRANSMISSION_RESULT * pTransmissionResult))
+  uint8_t notification_index,
+  uint8_t * pEvPar,
+  uint8_t evParLen,
+  void(*pCallback)(TRANSMISSION_RESULT * pTransmissionResult))
 {
+  /**
+   * Variable to hold the current AGI profile while the frame awaits transmission
+   * in the ZAF transport queue.
+   */
+  static agi_profile_t profile = {
+    .profile_MS = 0x00,
+    .profile_LS = 0x00
+  };
+
   // Make sure evParLen cannot be higher than the mask value: CC:0071.03.05.11.00B
   if (NOTIFICATION_REPORT_PROPERTIES1_EVENT_PARAMETERS_LENGTH_MASK_V8 < evParLen) {
     assert(false);
@@ -598,24 +600,23 @@ JOB_STATUS CmdClassNotificationReport(
   };
   memcpy(&frame.eventParameters[0], pEvPar, evParLen);
 
-  uint8_t dataLength = sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t) +
-                       frame.properties1 - sizeof(CMD_CLASS_GRP);
+  uint8_t dataLength = sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t)
+                       + frame.properties1 - sizeof(CMD_CLASS_GRP);
 
   /* Remove sequence number if Sequence flag is not set*/
-  if (!(NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V4 & frame.properties1))
-  {
+  if (!(NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V4 & frame.properties1)) {
     dataLength -= (uint8_t)sizeof(uint8_t);
   }
-  
-  const agi_profile_t profile = cc_notification_get_agi_profile(notification_index);
+
+  profile = cc_notification_get_agi_profile(notification_index);
 
   return cc_engine_multicast_request(&profile,
-      cc_notification_get_endpoint(notification_index),
-      (CMD_CLASS_GRP *) &frame,
-      &frame.v1AlarmType,
-      dataLength,
-      true,
-      pCallback);
+                                     cc_notification_get_endpoint(notification_index),
+                                     (CMD_CLASS_GRP *) &frame,
+                                     &frame.v1AlarmType,
+                                     dataLength,
+                                     true,
+                                     pCallback);
 }
 
 /**
@@ -629,10 +630,10 @@ JOB_STATUS CmdClassNotificationReport(
 void
 CC_Notification_report_stx(zaf_tx_options_t *tx_options, void* pData)
 {
-  DPRINTF("* %s() *\n"
-      "\ttxOpt.src = %d\n"
-      "\ttxOpt.options %#02x\n",
-      __func__, tx_options->source_endpoint, tx_options->tx_options);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_NOTIFICATION, "* %s() *\n"
+                                           "\ttxOpt.src = %d\n"
+                                           "\ttxOpt.options %#02x\n",
+                 __func__, tx_options->source_endpoint, tx_options->tx_options);
 
   /* Prepare payload for report */
   s_CC_notification_data_t* pNotificationData = (s_CC_notification_data_t*)pData;
@@ -654,12 +655,11 @@ CC_Notification_report_stx(zaf_tx_options_t *tx_options, void* pData)
          pNotificationData->pEventParameters,
          pNotificationData->eventParamLength);
 
-  size_t dataLength = sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t) +
-                       txBuf.ZW_NotificationReport1byteV4Frame.properties1;
+  size_t dataLength = sizeof(ZW_NOTIFICATION_REPORT_1BYTE_V4_FRAME) - sizeof(uint8_t)
+                      + txBuf.ZW_NotificationReport1byteV4Frame.properties1;
 
   /* Remove sequence number if Sequence flag is not set*/
-  if (!(NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V4 & txBuf.ZW_NotificationReport1byteV4Frame.properties1))
-  {
+  if (!(NOTIFICATION_REPORT_PROPERTIES1_SEQUENCE_BIT_MASK_V4 & txBuf.ZW_NotificationReport1byteV4Frame.properties1)) {
     dataLength -= sizeof(uint8_t);
   }
   tx_options->use_supervision = true;

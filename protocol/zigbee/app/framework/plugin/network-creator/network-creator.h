@@ -50,7 +50,9 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Globals
 
+/** @brief The first set of channels that the plugin will scan when forming (hex) <0-0xFFFFFFFF> <f.h> */
 extern uint32_t sli_zigbee_af_network_creator_primary_channel_mask;
+/** @brief The second set of channels that the plugin will scan when forming (hex) <0-0xFFFFFFFF> <f.h> */
 extern uint32_t sli_zigbee_af_network_creator_secondary_channel_mask;
 
 /**
@@ -61,14 +63,18 @@ extern uint32_t sli_zigbee_af_network_creator_secondary_channel_mask;
 // -----------------------------------------------------------------------------
 // API
 
-/** @brief Command the network creator to form a network with the following qualities.
+/** @brief Command the network creator to form a network with arbitrary PAN ID, TX power, and channel.
  *
  *
- *  @param centralizedNetwork Whether or not to form a network using
+ *  @param[in] centralizedNetwork Whether or not to form a network using
  *  centralized security. If this argument is false, a network with
  *  distributed security will be formed.
  *
- *  @return Status of the commencement of the network creator process.
+ *  @return sl_status_t value that indicates either the successful formation
+ *  of the new network, or the reason that the network formation failed.
+ * - ::SL_STATUS_INVALID_STATE if there is an ongoing scan or a network is already active.
+ * - ::SL_STATUS_FAIL if the scan queue is full.
+ * - ::SL_STATUS_OK  if the network creator process has started.
  */
 sl_status_t sl_zigbee_af_network_creator_start(bool centralizedNetwork);
 
@@ -78,20 +84,24 @@ sl_status_t sl_zigbee_af_network_creator_start(bool centralizedNetwork);
  */
 void sl_zigbee_af_network_creator_stop(void);
 
-/** @brief Command the network creator to form a centralized network.
+/** @brief Command the network creator to form a network with the given qualities (arguments).
  *
  *  Commands the network creator to form a centralized or distributed
  *  network with specified PAN ID, TX power, and channel.
  *
- *  @param centralizedNetwork Indicates whether or not to form a network using
+ *  @param[in] centralizedNetwork Indicates whether or not to form a network using
  *  centralized security. If this argument is false, a network with
  *  distributed security will be formed.
  *
- *  @param panId The pan ID of the network to be formed.
- *  @param radioTxPower The TX power of the network to be formed.
- *  @param channel The channel of the network to be formed.
+ *  @param[in] panId The pan ID of the network to be formed.
+ *  @param[in] radioTxPower The TX power of the network to be formed.
+ *  @param[in] channel The channel of the network to be formed.
  *
- *  @return Status of the commencement of the network creator process.
+ *  @return sl_status_t value that indicates either the successful formation
+ *  of the new network, or the reason that the network formation failed.
+ * - ::SL_STATUS_INVALID_STATE if there is an ongoing scan or a network is already active.
+ * - ::SL_STATUS_FAIL if the scan queue is full.
+ * - ::SL_STATUS_OK if the network creator process has started.
  */
 sl_status_t sl_zigbee_af_network_creator_network_form(bool centralizedNetwork,
                                                       sl_802154_pan_id_t panId,
@@ -117,16 +127,15 @@ sl_status_t sl_zigbee_af_network_creator_network_form(bool centralizedNetwork,
  * @{
  */
 
-/** @brief Complete the network creation process.
+/** @brief The network creation process has been completed successfully
  *
  * This callback notifies the user that the network creation process has
  * completed successfully.
  *
- * @param network The network that the network creator plugin successfully
- * formed. Ver.: always
+ * @param[out] network The network that the network creator plugin successfully
+ * formed. sl_zigbee_network_parameters_t includes panId, radioTxPower, and radioChannel. Ver.: always
  *
- * @param usedSecondaryChannels Whether or not the network creator wants to
- * form a network on the secondary channels. Ver.: always
+ * @param[out] usedSecondaryChannels Whether or not the network created used secondary channels
  */
 void sl_zigbee_af_network_creator_complete_cb(const sl_zigbee_network_parameters_t *network,
                                               bool usedSecondaryChannels);

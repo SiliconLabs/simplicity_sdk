@@ -49,15 +49,15 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup fw_upd_client BT Mesh Firmware Update Client
- * @{
- ******************************************************************************/
 static void sl_btmesh_firmware_update_client_element_init(uint16_t elem_index)
 {
   sl_status_t sc = sl_btmesh_fw_update_client_init(elem_index);
 
-  app_assert_status_f(sc, "Failed to init Firmware Update Client");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Failed to init Firmware Update Client");
+  }
 }
 
 static void sl_btmesh_firmware_update_client_init(void)
@@ -67,19 +67,28 @@ static void sl_btmesh_firmware_update_client_init(void)
 
 void sl_btmesh_firmware_update_client_on_event(const sl_btmesh_msg_t *const evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id: {
-      sl_btmesh_firmware_update_client_init();
+      if (!booted) {
+        sl_btmesh_firmware_update_client_init();
+        booted = true;
+      }
       break;
     }
     case sl_btmesh_evt_node_initialized_id: {
       if (0 != evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_firmware_update_client_init();
+        booted = true;
       }
       break;
     }
+    default:
+      break;
   }
 }
-
-/** @} end fw_upd_client */

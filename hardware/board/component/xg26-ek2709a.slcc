@@ -1,8 +1,8 @@
 !!omap
 - id: xg26_ek2709a
 - label: XG26-EK2709A
-- package: platform
-- description: Kit BSP support for the xG26 Explorer Kit.
+- package: boards
+- description: Kit BSP support for the EFR32xG26 Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production
 - metadata:

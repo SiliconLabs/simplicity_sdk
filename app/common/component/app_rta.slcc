@@ -1,6 +1,6 @@
 id: app_rta
 label: Application Runtime Adaptor (RTA)
-package: platform
+package: platform_common_apps
 description: >
   Application Runtime Adaptor (RTA) component provides runtime context for
   application level software components.
@@ -33,6 +33,7 @@ requires:
   - name: memory_manager
   - name: power_manager
   - name: sl_core
+  - name: component_catalog
 root_path: app/common/util/app_rta
 include:
   - path: inc
@@ -69,20 +70,64 @@ source:
 template_file:
   - path: template/app_rta_init.c.jinja
 template_contribution:
+  # Initialization with sl_system
   - name: event_handler
     value:
       event: internal_app_init
       include: app_rta_internal.h
       handler: app_rta_internal_init
     condition:
+      - sl_system
       - kernel
   - name: event_handler
     value:
       event: internal_app_init
       include: app_rta_internal_bm.h
       handler: app_rta_internal_init
+    condition:
+      - sl_system
     unless:
       - kernel
+
+  # Initialization with sl_main
+  ## Initialization stage 1
+  - name: event_handler
+    value:
+      event: internal_init_early
+      include: app_rta_internal.h
+      handler: app_rta_internal_init
+    condition:
+      - sl_main
+      - kernel
+  - name: event_handler
+    value:
+      event: internal_init_early
+      include: app_rta_internal_bm.h
+      handler: app_rta_internal_init
+    condition:
+      - sl_main
+    unless:
+      - kernel
+
+  ## Initialization stage 2
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: app_rta_internal.h
+      handler: app_rta_ready
+    condition:
+      - sl_main
+      - kernel
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: app_rta_internal_bm.h
+      handler: app_rta_ready
+    condition:
+      - sl_main
+    unless:
+      - kernel
+
   - name: power_manager_handler
     value:
       event: is_ok_to_sleep
@@ -90,6 +135,7 @@ template_contribution:
       handler: app_rta_is_ok_to_sleep
     unless:
       - kernel
+
   - name: power_manager_handler
     value:
       event: sleep_on_isr_exit
@@ -97,6 +143,7 @@ template_contribution:
       handler: app_rta_on_isr_exit
     unless:
       - kernel
+
   - name: event_handler
     value:
       event: internal_app_process_action

@@ -20,8 +20,7 @@
 
 #define FILE_ID_DCDC_CONFIGURATION FILE_ID_PROPRIETARY_1
 
-typedef struct
-{
+typedef struct {
   uint8_t dcdc_config;
 }
 dcdc_configuration_file_t;
@@ -33,12 +32,11 @@ static dcdc_configuration_file_t dcdc_configuration_file;
 bool SetDcDcConfig(uint8_t DcdcConfig)
 {
   bool result = sl_dcdc_config_set(DcdcConfig);
-  if (true == result)
-  {
+  if (true == result) {
     dcdc_configuration_file.dcdc_config = DcdcConfig;
-    zpal_status_t status = ZAF_nvm_app_write( FILE_ID_DCDC_CONFIGURATION,
-                                          &dcdc_configuration_file,
-                                          DCDC_CONFIGURATION_FILE_SIZE);
+    zpal_status_t status = ZAF_nvm_app_write(FILE_ID_DCDC_CONFIGURATION,
+                                             &dcdc_configuration_file,
+                                             DCDC_CONFIGURATION_FILE_SIZE);
     return (ZPAL_STATUS_OK == status);
   }
   return false;
@@ -53,8 +51,7 @@ uint8_t GetDcDcConfig(void)
 void SerialAPI_hw_psu_init(void)
 {
   uint8_t dcdcConfig = GetDcDcConfig();
-  if (DCDC_CONFIG_UNALTERED != dcdcConfig)
-  {
+  if (DCDC_CONFIG_UNALTERED != dcdcConfig) {
     sl_dcdc_config_set(dcdcConfig);
   }
 }

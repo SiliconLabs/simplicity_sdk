@@ -10,7 +10,7 @@
 #include "SizeOf.h"
 #include "zaf_config.h"
 #include <assert.h>
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 
 {% if endpoints is defined %}
@@ -41,7 +41,7 @@ zw_plus_info_config_icons_t * cc_zwave_plus_info_config_get_endpoint_entry(uint8
       return &endpoint_configs[endpoint - 1];
     }
   }
-  DPRINTF("Missing CC Z-Wave Plus Info Configuration for the given endpoint: %d\n", endpoint);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_ZWAVE_PLUS_INFO, "Missing CC Z-Wave Plus Info Configuration for the given endpoint: %d\n", endpoint);
   assert(0);
   return NULL;
 }

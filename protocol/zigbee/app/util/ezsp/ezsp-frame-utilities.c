@@ -530,6 +530,25 @@ void append_sl_zigbee_gp_sink_table_entry_t(sl_zigbee_gp_sink_table_entry_t *val
   append_sl_zigbee_key_data_t(&(value->gpdKey));
 }
 
+void fetch_sl_zigbee_gp_params_t(sl_zigbee_gp_params_t *param)
+{
+  param->status = fetchInt8u();
+  param->gpdLink = fetchInt8u();
+  param->sequenceNumber = fetchInt8u();
+  fetch_sl_zigbee_gp_address_t(&(param->addr));
+  param->gpdfSecurityLevel = fetchInt8u();
+  param->gpdfSecurityKeyType = fetchInt8u();
+  param->autoCommissioning = fetchInt8u();
+  param->bidirectionalInfo = fetchInt8u();
+  param->gpdSecurityFrameCounter = fetchInt32u();
+  param->gpdCommandId = fetchInt8u();
+  param->mic = fetchInt32u();
+  param->proxyTableIndex = fetchInt8u();
+  param->gpdCommandPayloadLength = fetchInt8u();
+  fetchInt8uArray(param->gpdCommandPayloadLength, param->gpdCommandPayload);
+  fetch_sl_zigbee_rx_packet_info_t(&(param->packetInfo));
+}
+
 void append_sl_zigbee_duty_cycle_limits_t(sl_zigbee_duty_cycle_limits_t* limits)
 {
   appendInt16u(limits->limitThresh);

@@ -46,7 +46,7 @@ The projects contain the needed services in the GATT database. GATT definitions 
 
 The sensors and I/O are also handled in this file by overriding the default weak implementation of the service handling functions.
 
-Additional functionality can be added to the empty app_process_action function.
+Additional functionality can be added to the empty sl_app_process_action function.
 
 ## Troubleshooting
 

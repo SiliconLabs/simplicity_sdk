@@ -44,7 +44,7 @@ extern "C" {
 #include "sl_enum.h"
 
 /***************************************************************************//**
- * @addtogroup etampdet
+ * @addtogroup etampdet ETAMPDET - External Tamper Detect
  * @{
  ******************************************************************************/
 
@@ -52,306 +52,306 @@ extern "C" {
  *********************************   ENUM   ************************************
  ******************************************************************************/
 
-/** ETAMPDET channels. */
+/// ETAMPDET channels.
 SL_ENUM(sl_hal_etampdet_channel_t) {
-  /** Channel 0. */
+  // Channel 0.
   channel_0 = 0,
 
-  /** Channel 1. */
+  // Channel 1.
   channel_1,
 };
 
-/** ETAMPDET filter thresholds. */
+/// ETAMPDET filter thresholds.
 SL_ENUM(sl_hal_etampdet_channel_cnt_mismatch_threshold_t) {
-  /** Raise detect flag after seeing 1 event before reset counter expire. */
+  /// Raise detect flag after seeing 1 event before reset counter expire.
   detect_filt_threshold_1 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold1,
 
-  /** Raise detect flag after seeing 2 events before reset counter expire. */
+  /// Raise detect flag after seeing 2 events before reset counter expire.
   detect_filt_threshold_2 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold2,
 
-  /** Raise detect flag after seeing 3 events before reset counter expire. */
+  /// Raise detect flag after seeing 3 events before reset counter expire.
   detect_filt_threshold_3 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold3,
 
-  /** Raise detect flag after seeing 4 events before reset counter expire. */
+  /// Raise detect flag after seeing 4 events before reset counter expire.
   detect_filt_threshold_4 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold4,
 
-  /** Raise detect flag after seeing 5 events before reset counter expire. */
+  /// Raise detect flag after seeing 5 events before reset counter expire.
   detect_filt_threshold_5 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold5,
 
-  /** Raise detect flag after seeing 6 events before reset counter expire. */
+  /// Raise detect flag after seeing 6 events before reset counter expire.
   detect_filt_threshold_6 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold6,
 
-  /** Raise detect flag after seeing 7 events before reset counter expire. */
+  /// Raise detect flag after seeing 7 events before reset counter expire.
   detect_filt_threshold_7 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold7,
 
-  /** Raise detect flag after seeing 8 events before reset counter expire. */
+  /// Raise detect flag after seeing 8 events before reset counter expire.
   detect_filt_threshold_8 = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_DetectFilterThreshold8,
 };
 
-/** ETAMPDET filter moving window size. */
+// ETAMPDET filter moving window size.
 SL_ENUM(sl_hal_etampdet_channel_filt_win_size_t) {
-  /** Detect filter moving window size 2. */
+  /// Detect filter moving window size 2.
   detect_filt_win_size_2 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize2,
 
-  /** Detect filter moving window size 3. */
+  /// Detect filter moving window size 3.
   detect_filt_win_size_3 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize3,
 
-  /** Detect filter moving window size 4. */
+  /// Detect filter moving window size 4.
   detect_filt_win_size_4 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize4,
 
-  /** Detect filter moving window size 5. */
+  /// Detect filter moving window size 5.
   detect_filt_win_size_5 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize5,
 
-  /** Detect filter moving window size 6. */
+  /// Detect filter moving window size 6.
   detect_filt_win_size_6 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize6,
 
-  /** Detect filter moving window size 7. */
+  /// Detect filter moving window size 7.
   detect_filt_win_size_7 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize7,
 
-  /** Detect filter moving window size 8. */
+  /// Detect filter moving window size 8.
   detect_filt_win_size_8 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize8,
 
-  /** Detect filter moving window size 9. */
+  /// Detect filter moving window size 9.
   detect_filt_win_size_9 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize9,
 
-  /** Detect filter moving window size 10. */
+  /// Detect filter moving window size 10.
   detect_filt_win_size_10 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize10,
 
-  /** Detect filter moving window size 11. */
+  /// Detect filter moving window size 11.
   detect_filt_win_size_11 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize11,
 
-  /** Detect filter moving window size 12. */
+  /// Detect filter moving window size 12.
   detect_filt_win_size_12 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize12,
 
-  /** Detect filter moving window size 13. */
+  /// Detect filter moving window size 13.
   detect_filt_win_size_13 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize13,
 
-  /** Detect filter moving window size 14. */
+  /// Detect filter moving window size 14.
   detect_filt_win_size_14 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize14,
 
-  /** Detect filter moving window size 15. */
+  /// Detect filter moving window size 15.
   detect_filt_win_size_15 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize15,
 
-  /** Detect filter moving window size 16. */
+  /// Detect filter moving window size 16.
   detect_filt_win_size_16 = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_DetectFilterMovingWinSize16,
 };
 
-/** ETAMPDET upper part of divider ripple counter. */
+/// ETAMPDET upper part of divider ripple counter.
 SL_ENUM(sl_hal_etampdet_upper_clk_presc_t) {
-  /** Ripple counter divider bypassed. */
+  /// Ripple counter divider bypassed.
   upper_clk_prescaler_bypass = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_Bypass,
 
-  /** Divide by 2. */
+  /// Divide by 2.
   upper_clk_prescaler_divide_2 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy2,
 
-  /** Divide by 4. */
+  /// Divide by 4.
   upper_clk_prescaler_divide_4 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy4,
 
-  /** Divide by 8. */
+  /// Divide by 8.
   upper_clk_prescaler_divide_8 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy8,
 
-  /** Divide by 16. */
+  /// Divide by 16.
   upper_clk_prescaler_divide_16 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy16,
 
-  /** Divide by 32. */
+  /// Divide by 32.
   upper_clk_prescaler_divide_32 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy32,
 
-  /** Divide by 64. */
+  /// Divide by 64.
   upper_clk_prescaler_divide_64 = _ETAMPDET_CLKPRESCVAL_UPPERPRESC_DivideBy64,
 };
 
-/** ETAMPDET lower part of divider binary counter. */
+/// ETAMPDET lower part of divider binary counter.
 SL_ENUM(sl_hal_etampdet_lower_clk_presc_t) {
-  /** Divider is bypassed. */
+  /// Divider is bypassed.
   lower_clk_prescaler_bypass = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_Bypass,
 
-  /** Divide by 2. */
+  /// Divide by 2.
   lower_clk_prescaler_divide_2 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy2,
 
-  /** Divide by 3. */
+  /// Divide by 3.
   lower_clk_prescaler_divide_3 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy3,
 
-  /** Divide by 4. */
+  /// Divide by 4.
   lower_clk_prescaler_divide_4 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy4,
 
-  /** Divide by 5. */
+  /// Divide by 5.
   lower_clk_prescaler_divide_5 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy5,
 
-  /** Divide by 6. */
+  /// Divide by 6.
   lower_clk_prescaler_divide_6 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy6,
 
-  /** Divide by 7. */
+  /// Divide by 7.
   lower_clk_prescaler_divide_7 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy7,
 
-  /** Divide by 8. */
+  /// Divide by 8.
   lower_clk_prescaler_divide_8 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy8,
 
-  /** Divide by 9. */
+  /// Divide by 9.
   lower_clk_prescaler_divide_9 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy9,
 
-  /** Divide by 10. */
+  /// Divide by 10.
   lower_clk_prescaler_divide_10 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy10,
 
-  /** Divide by 11. */
+  /// Divide by 11.
   lower_clk_prescaler_divide_11 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy11,
 
-  /** Divide by 12. */
+  /// Divide by 12.
   lower_clk_prescaler_divide_12 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy12,
 
-  /** Divide by 13. */
+  /// Divide by 13.
   lower_clk_prescaler_divide_13 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy13,
 
-  /** Divide by 14. */
+  /// Divide by 14.
   lower_clk_prescaler_divide_14 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy14,
 
-  /** Divide by 15. */
+  /// Divide by 15.
   lower_clk_prescaler_divide_15 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy15,
 
-  /** Divide by 16. */
+  /// Divide by 16.
   lower_clk_prescaler_divide_16 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy16,
 
-  /** Divide by 17. */
+  /// Divide by 17.
   lower_clk_prescaler_divide_17 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy17,
 
-  /** Divide by 18. */
+  /// Divide by 18.
   lower_clk_prescaler_divide_18 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy18,
 
-  /** Divide by 19. */
+  /// Divide by 19.
   lower_clk_prescaler_divide_19 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy19,
 
-  /** Divide by 20. */
+  /// Divide by 20.
   lower_clk_prescaler_divide_20 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy20,
 
-  /** Divide by 21. */
+  /// Divide by 21.
   lower_clk_prescaler_divide_21 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy21,
 
-  /** Divide by 22. */
+  /// Divide by 22.
   lower_clk_prescaler_divide_22 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy22,
 
-  /** Divide by 23. */
+  /// Divide by 23.
   lower_clk_prescaler_divide_23 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy23,
 
-  /** Divide by 24. */
+  /// Divide by 24.
   lower_clk_prescaler_divide_24 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy24,
 
-  /** Divide by 25. */
+  /// Divide by 25.
   lower_clk_prescaler_divide_25 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy25,
 
-  /** Divide by 26. */
+  /// Divide by 26.
   lower_clk_prescaler_divide_26 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy26,
 
-  /** Divide by 27. */
+  /// Divide by 27.
   lower_clk_prescaler_divide_27 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy27,
 
-  /** Divide by 28. */
+  /// Divide by 28.
   lower_clk_prescaler_divide_28 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy28,
 
-  /** Divide by 29. */
+  /// Divide by 29.
   lower_clk_prescaler_divide_29 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy29,
 
-  /** Divide by 30. */
+  /// Divide by 30.
   lower_clk_prescaler_divide_30 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy30,
 
-  /** Divide by 31. */
+  /// Divide by 31.
   lower_clk_prescaler_divide_31 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy31,
 
-  /** Divide by 32. */
+  /// Divide by 32.
   lower_clk_prescaler_divide_32 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy32,
 
-  /** Divide by 33. */
+  /// Divide by 33.
   lower_clk_prescaler_divide_33 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy33,
 
-  /** Divide by 34. */
+  /// Divide by 34.
   lower_clk_prescaler_divide_34 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy34,
 
-  /** Divide by 35. */
+  /// Divide by 35.
   lower_clk_prescaler_divide_35 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy35,
 
-  /** Divide by 36. */
+  /// Divide by 36.
   lower_clk_prescaler_divide_36 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy36,
 
-  /** Divide by 37. */
+  /// Divide by 37.
   lower_clk_prescaler_divide_37 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy37,
 
-  /** Divide by 38. */
+  /// Divide by 38.
   lower_clk_prescaler_divide_38 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy38,
 
-  /** Divide by 39. */
+  /// Divide by 39.
   lower_clk_prescaler_divide_39 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy39,
 
-  /** Divide by 40. */
+  /// Divide by 40.
   lower_clk_prescaler_divide_40 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy40,
 
-  /** Divide by 41. */
+  /// Divide by 41.
   lower_clk_prescaler_divide_41 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy41,
 
-  /** Divide by 42. */
+  /// Divide by 42.
   lower_clk_prescaler_divide_42 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy42,
 
-  /** Divide by 43. */
+  /// Divide by 43.
   lower_clk_prescaler_divide_43 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy43,
 
-  /** Divide by 44. */
+  /// Divide by 44.
   lower_clk_prescaler_divide_44 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy44,
 
-  /** Divide by 45. */
+  /// Divide by 45.
   lower_clk_prescaler_divide_45 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy45,
 
-  /** Divide by 46. */
+  /// Divide by 46.
   lower_clk_prescaler_divide_46 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy46,
 
-  /** Divide by 47. */
+  /// Divide by 47.
   lower_clk_prescaler_divide_47 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy47,
 
-  /** Divide by 48. */
+  /// Divide by 48.
   lower_clk_prescaler_divide_48 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy48,
 
-  /** Divide by 49. */
+  /// Divide by 49.
   lower_clk_prescaler_divide_49 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy49,
 
-  /** Divide by 50. */
+  /// Divide by 50.
   lower_clk_prescaler_divide_50 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy50,
 
-  /** Divide by 51. */
+  /// Divide by 51.
   lower_clk_prescaler_divide_51 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy51,
 
-  /** Divide by 52. */
+  /// Divide by 52.
   lower_clk_prescaler_divide_52 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy52,
 
-  /** Divide by 53. */
+  /// Divide by 53.
   lower_clk_prescaler_divide_53 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy53,
 
-  /** Divide by 54. */
+  /// Divide by 54.
   lower_clk_prescaler_divide_54 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy54,
 
-  /** Divide by 55. */
+  /// Divide by 55.
   lower_clk_prescaler_divide_55 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy55,
 
-  /** Divide by 56. */
+  /// Divide by 56.
   lower_clk_prescaler_divide_56 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy56,
 
-  /** Divide by 57. */
+  /// Divide by 57.
   lower_clk_prescaler_divide_57 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy57,
 
-  /** Divide by 58. */
+  /// Divide by 58.
   lower_clk_prescaler_divide_58 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy58,
 
-  /** Divide by 59. */
+  /// Divide by 59.
   lower_clk_prescaler_divide_59 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy59,
 
-  /** Divide by 60. */
+  /// Divide by 60.
   lower_clk_prescaler_divide_60 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy60,
 
-  /** Divide by 61. */
+  /// Divide by 61.
   lower_clk_prescaler_divide_61 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy61,
 
-  /** Divide by 62. */
+  /// Divide by 62.
   lower_clk_prescaler_divide_62 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy62,
 
-  /** Divide by 63. */
+  /// Divide by 63.
   lower_clk_prescaler_divide_63 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy63,
 
-  /** Divide by 64. */
+  /// Divide by 64.
   lower_clk_prescaler_divide_64 = _ETAMPDET_CLKPRESCVAL_LOWERPRESC_DivideBy64,
 };
 
@@ -359,44 +359,43 @@ SL_ENUM(sl_hal_etampdet_lower_clk_presc_t) {
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
-/** ETAMPDET channel configuration structure. */
+/// ETAMPDET channel configuration structure.
 typedef struct {
-  /** Seed value to load into channel LFSR. */
+  /// Seed value to load into channel LFSR.
   uint32_t channel_seed_val;
 
-  /** Channel id */
+  /// Channel id.
   sl_hal_etampdet_channel_t channel;
 
-  /** Channel Filter moving window size. */
+  /// Channel Filter moving window size.
   sl_hal_etampdet_channel_filt_win_size_t channel_filt_win_size;
 
-  /** Channel filter threshold value where a tamper detect will be triggered. */
+  /// Channel filter threshold value where a tamper detect will be triggered.
   sl_hal_etampdet_channel_cnt_mismatch_threshold_t channel_cnt_mismatch;
 
-  /** Enable channel driving pad. */
+  /// Enable channel driving pad.
   bool channel_pad_en;
 
-  /** Enable channel tamper detect filtering feature. */
+  /// Enable channel tamper detect filtering feature.
   bool channel_tampdet_filt_en;
 
-  /** Enable 1 clock delay to the TX value used for comparison. This is to
-   * support trace propagation delay more than 1 clock cycle. */
+  /// Enable 1 clock delay to the TX value used for comparison. This is to
+  /// support trace propagation delay more than 1 clock cycle.
   bool channel_cmp_dly_en;
 
-  /** Set to enable EM4 wakeup when channel tamper detect is set. */
+  /// Set to enable EM4 wakeup when channel tamper detect is set.
   bool em4_wakeup_en;
 } sl_hal_etampdet_config_channel_t;
 
-/** ETAMPDET configuration structure. */
+/// ETAMPDET configuration structure.
 typedef struct {
-  /** Upper clock prescaler value. */
+  /// Upper clock prescaler value.
   sl_hal_etampdet_upper_clk_presc_t upper_clk_presc_val;
 
-  /** Lower clock prescaler value. */
+  /// Lower clock prescaler value.
   sl_hal_etampdet_lower_clk_presc_t lower_clk_presc_val;
 } sl_hal_etampdet_config_t;
 
-/** ETAMPDET default channel configuration. */
 #define ETAMPDET_CONFIG_CHANNEL_DEFAULT                                            \
   {                                                                                \
     0x13579BDF,                                 /* Set default seed value. */      \
@@ -415,37 +414,46 @@ typedef struct {
     upper_clk_prescaler_bypass, /* Bypass upper prescaler. */ \
     lower_clk_prescaler_bypass, /* Bypass lower prescaler.*/  \
   }                                                           \
+/// ETAMPDET default channel configuration.
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
 /***************************************************************************//**
- * Initialize ETAMPDET.
+ * @brief
+ *   Initialize ETAMPDET.
  *
- * @param[in] config  The pointer to the initialization structure.
+ * @param[in] config
+ *   The pointer to the initialization structure.
  *
- * @note User should call @ref sl_hal_etampdet_init_channel() for full initialization.
- *       This function should be called before @ref sl_hal_etampdet_init_channel()
+ * @note
+ *   User should call @ref sl_hal_etampdet_init_channel() for full initialization.
+ *   This function should be called before @ref sl_hal_etampdet_init_channel()
  *
- * @note The control registers setting of the GPIOs to be used by ETAMPDET
- *       should be at the default values to ensure that other clients
- *       are not accidentally driving the GPIOs that ETAMPDET is using.
+ * @note
+ *   The control registers setting of the GPIOs to be used by ETAMPDET
+ *   should be at the default values to ensure that other clients
+ *   are not accidentally driving the GPIOs that ETAMPDET is using.
  ******************************************************************************/
 void sl_hal_etampdet_init(const sl_hal_etampdet_config_t *config);
 
 /***************************************************************************//**
- * Initialize ETAMPDET channel.
+ * @brief
+ *   Initialize ETAMPDET channel.
  *
- * @param[in] config_channel  The pointer to the  channel initialization structure.
+ * @param[in] config_channel
+ *   The pointer to the  channel initialization structure.
  *
- * @note User should call @ref sl_hal_etampdet_init() for full initialization.
+ * @note
+ *   User should call @ref sl_hal_etampdet_init() for full initialization.
  ******************************************************************************/
 void sl_hal_etampdet_init_channel(const sl_hal_etampdet_config_channel_t *config_channel);
 
 /***************************************************************************//**
- * Wait for the ETAMPDET to complete all synchronization of register changes
- * and commands.
+ * @brief
+ *   Wait for the ETAMPDET to complete all synchronization of register changes
+ *   and commands.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_wait_sync(void)
 {
@@ -455,7 +463,8 @@ __STATIC_INLINE void sl_hal_etampdet_wait_sync(void)
 }
 
 /***************************************************************************//**
- * Wait for the ETAMPDET to complete disabling procedure.
+ * @brief
+ *   Wait for the ETAMPDET to complete disabling procedure.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_wait_ready(void)
 {
@@ -471,7 +480,8 @@ __STATIC_INLINE void sl_hal_etampdet_wait_ready(void)
 }
 
 /***************************************************************************//**
- * Enable ETAMPDET.
+ * @brief
+ *   Enable ETAMPDET.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_enable(void)
 {
@@ -483,7 +493,8 @@ __STATIC_INLINE void sl_hal_etampdet_enable(void)
 }
 
 /***************************************************************************//**
- * Disable ETAMPDET.
+ * @brief
+ *   Disable ETAMPDET.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_disable(void)
 {
@@ -496,48 +507,56 @@ __STATIC_INLINE void sl_hal_etampdet_disable(void)
 }
 
 /***************************************************************************//**
- * Load seed value into channel LFSR.
+ * @brief
+ *   Load seed value into channel LFSR.
  *
- * @param[in] channel  The channel number.
+ * @param[in] channel
+ *   The channel number.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_load(sl_hal_etampdet_channel_t channel)
 {
   // Wait for synchronization to complete if necessary
   sl_hal_etampdet_wait_sync();
 
-  ETAMPDET->CMD |= ETAMPDET_CMD_CHNLLOAD0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
+  ETAMPDET->CMD_SET = ETAMPDET_CMD_CHNLLOAD0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
 }
 
 /***************************************************************************//**
- * Start ETAMPDET channel.
+ * @brief
+ *   Start ETAMPDET channel.
  *
- * @param[in] channel  The channel number.
+ * @param[in] channel
+ *   The channel number.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_start(sl_hal_etampdet_channel_t channel)
 {
   // Wait for synchronization to complete if necessary
   sl_hal_etampdet_wait_sync();
 
-  ETAMPDET->CMD |= ETAMPDET_CMD_CHNLSTART0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
+  ETAMPDET->CMD_SET = ETAMPDET_CMD_CHNLSTART0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
 }
 
 /***************************************************************************//**
- * Stop ETAMPDET channel.
+ * @brief
+ *   Stop ETAMPDET channel.
  *
- * @param[in] channel  The channel number.
+ * @param[in] channel
+ *   The channel number.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_stop(sl_hal_etampdet_channel_t channel)
 {
   // Wait for synchronization to complete if necessary
   sl_hal_etampdet_wait_sync();
 
-  ETAMPDET->CMD |= ETAMPDET_CMD_CHNLSTOP0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
+  ETAMPDET->CMD_SET = ETAMPDET_CMD_CHNLSTOP0 << (channel * _ETAMPDET_CMD_CHNLSTART1_SHIFT);
 }
 
 /***************************************************************************//**
- * Enable ETAMPDET interrupts.
+ * @brief
+ *   Enable ETAMPDET interrupts.
  *
- * @param[in] interrupts  The interrupts flags to enable.
+ * @param[in] interrupts
+ *   The interrupts flags to enable.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_enable_interrupts(uint32_t interrupts)
 {
@@ -545,9 +564,11 @@ __STATIC_INLINE void sl_hal_etampdet_enable_interrupts(uint32_t interrupts)
 }
 
 /***************************************************************************//**
- * Disable ETAMPDET interrupts.
+ * @brief
+ *   Disable ETAMPDET interrupts.
  *
- * @param[in] interrupts  The interrupts flags to disable.
+ * @param[in] interrupts
+ *   The interrupts flags to disable.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_disable_interrupts(uint32_t interrupts)
 {
@@ -555,9 +576,11 @@ __STATIC_INLINE void sl_hal_etampdet_disable_interrupts(uint32_t interrupts)
 }
 
 /***************************************************************************//**
- * Set ETAMPDET interrupts.
+ * @brief
+ *   Set ETAMPDET interrupts.
  *
- * @param[in] interrupts  The interrupts flags to set.
+ * @param[in] interrupts
+ *   The interrupts flags to set.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_set_interrupts(uint32_t interrupts)
 {
@@ -565,9 +588,11 @@ __STATIC_INLINE void sl_hal_etampdet_set_interrupts(uint32_t interrupts)
 }
 
 /***************************************************************************//**
- * Clear ETAMPDET interrupts.
+ * @brief
+ *   Clear ETAMPDET interrupts.
  *
- * @param[in] interrupts  The interrupts flags to clear.
+ * @param[in] interrupts
+ *   The interrupts flags to clear.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_clear_interrupts(uint32_t interrupts)
 {
@@ -575,13 +600,16 @@ __STATIC_INLINE void sl_hal_etampdet_clear_interrupts(uint32_t interrupts)
 }
 
 /***************************************************************************//**
- * Gets pending ETAMPDET interrupt flags.
+ * @brief
+ *   Gets pending ETAMPDET interrupt flags.
  *
- * @note  Event bits are not cleared by using this function.
+ * @note
+ *   Event bits are not cleared by using this function.
  *
- * @return  Pending ETAMPDET interrupt sources.
- *          Returns a set of interrupt flags OR-ed together for multiple
- *          interrupt sources.
+ * @return
+ *   Pending ETAMPDET interrupt sources.
+ *   Returns a set of interrupt flags OR-ed together for multiple
+ *   interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_etampdet_get_interrupts(void)
 {
@@ -589,15 +617,18 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_interrupts(void)
 }
 
 /***************************************************************************//**
- * Gets enabled and pending ETAMPDET interrupt flags.
- * Useful for handling more interrupt sources in the same interrupt handler.
+ * @brief
+ *   Gets enabled and pending ETAMPDET interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
  *
- * @note  Interrupt flags are not cleared by using this function.
+ * @note
+ *   Interrupt flags are not cleared by using this function.
  *
- * @return  Pending and enabled ETAMPDET interrupt sources.
- *          The return value is the bitwise AND of
- *          - the enabled interrupt sources in ETAMPDET_IEN and
- *          - the pending interrupt flags ETAMPDET_IF.
+ * @return
+ *   Pending and enabled ETAMPDET interrupt sources.
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in ETAMPDET_IEN and
+ *   - the pending interrupt flags ETAMPDET_IF.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_etampdet_get_enabled_interrupts(void)
 {
@@ -607,11 +638,13 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_enabled_interrupts(void)
 }
 
 /***************************************************************************//**
- * Lock ETAMPDET registers.
+ * @brief
+ *   Lock ETAMPDET registers.
  *
- * @note  When ETAMPDET registers are locked, ETAMPDET_EN, ETAMPDET_CFG, ETAMPDET_CMD,
- *        ETAMPDET_CHNLSEEDVALx, ETAMPDET_CNTMISMATCHMAX, ETAMPDET_CHNLFILTWINSIZE,
- *        ETAMPDET_EM4WUEN and ETAMPDET_CLKPRESCVAL registers cannot be written to.
+ * @note
+ *   When ETAMPDET registers are locked, ETAMPDET_EN, ETAMPDET_CFG, ETAMPDET_CMD,
+ *   ETAMPDET_CHNLSEEDVALx, ETAMPDET_CNTMISMATCHMAX, ETAMPDET_CHNLFILTWINSIZE,
+ *   ETAMPDET_EM4WUEN and ETAMPDET_CLKPRESCVAL registers cannot be written to.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_lock(void)
 {
@@ -619,9 +652,11 @@ __STATIC_INLINE void sl_hal_etampdet_lock(void)
 }
 
 /***************************************************************************//**
- * Unlock ETAMPDET registers.
+ * @brief
+ *   Unlock ETAMPDET registers.
  *
- * @note  When ETAMPDET registers are unlocked, registers are writable.
+ * @note
+ *   When ETAMPDET registers are unlocked, registers are writable.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_unlock(void)
 {
@@ -629,9 +664,11 @@ __STATIC_INLINE void sl_hal_etampdet_unlock(void)
 }
 
 /***************************************************************************//**
- * Gets ETAMPDET STATUS register value.
+ * @brief
+ *   Gets ETAMPDET STATUS register value.
  *
- * @return  Current STATUS register value.
+ * @return
+ *   Current STATUS register value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_etampdet_get_status(void)
 {
@@ -639,14 +676,18 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_status(void)
 }
 
 /***************************************************************************//**
- * Set ETAMPDET channel seed value.
+ * @brief
+ *   Set ETAMPDET channel seed value.
  *
- * @param[in] channel  The channel to set seed value.
+ * @param[in] channel
+ *   The channel to set seed value.
  *
- * @param[in] seed_value  The seed value to set into LFSR of the channel.
+ * @param[in] seed_value
+ *   The seed value to set into LFSR of the channel.
  *
- * @note  It is recommended to get the random seed value using TRNG (True random
- *        Number Generator) peripheral.
+ * @note
+ *   It is recommended to get the random seed value using TRNG (True random
+ *   Number Generator) peripheral.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_etampdet_set_seed_value(uint32_t seed_value, sl_hal_etampdet_channel_t channel)
 {
@@ -658,11 +699,14 @@ __STATIC_INLINE void sl_hal_etampdet_set_seed_value(uint32_t seed_value, sl_hal_
 }
 
 /***************************************************************************//**
- * Get ETAMPDET channel seed value.
+ * @brief
+ *   Get ETAMPDET channel seed value.
  *
- * @param[in] channel  The channel to get seed value from.
+ * @param[in] channel
+ *   The channel to get seed value from.
  *
- * @return  The seed value of the channel.
+ * @return
+ *   The seed value of the channel.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_etampdet_get_seed_value(sl_hal_etampdet_channel_t channel)
 {
@@ -678,6 +722,110 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_seed_value(sl_hal_etampdet_channel_
 #ifdef __cplusplus
 }
 #endif
+
+/***************************************************************************//**
+ * @addtogroup etampdet ETAMPDET - External Tamper Detect
+ * @{
+ *
+ *@n @section etampdet_example Example
+ *  The following is an example of how to configure and use the ETAMPDET peripheral
+ *  for tamper detection with filtering enabled.
+ *
+ * @code
+ * // Global variable to track tamper detection
+ * volatile bool tamper_detected = false;
+ *
+ * // ETAMPDET interrupt handler
+ * void ETAMPDET_IRQHandler(void)
+ * {
+ *   // Disable further interrupts
+ *   sl_interrupt_manager_disable_irq(ETAMPDET_IRQn);
+ *   sl_hal_etampdet_disable_interrupts(ETAMPDET_IEN_TAMPDET0);
+ *
+ *   // Clear the interrupt
+ *   sl_hal_etampdet_clear_interrupts(ETAMPDET_IF_TAMPDET0);
+ *   sl_interrupt_manager_clear_pending_irq(ETAMPDET_IRQn);
+ *
+ *   // Set flag to indicate tamper was detected
+ *   tamper_detected = true;
+ * }
+ *
+ * void etampdet_example(void)
+ * {
+ *   // Initialize ETAMPDET with default configuration (bypass prescalers)
+ *   sl_hal_etampdet_config_t etampdet_config = ETAMPDET_CONFIG_DEFAULT;
+ *   sl_hal_etampdet_init(&etampdet_config);
+ *
+ *   // Configure ETAMPDET channel 0
+ *   sl_hal_etampdet_config_channel_t channel_config = ETAMPDET_CONFIG_CHANNEL_DEFAULT;
+ *
+ *   // Set a random seed value
+ *   channel_config.channel_seed_val = 0x13579BDF;
+ *
+ *   // Select channel 0
+ *   channel_config.channel = channel_0;
+ *
+ *   // Enable tamper detection filtering to reduce false triggers
+ *   channel_config.channel_tampdet_filt_en = true;
+ *
+ *   // Set filter window size to 4 (detect when multiple checks fail)
+ *   channel_config.channel_filt_win_size = detect_filt_win_size_4;
+ *
+ *   // Configure threshold to 3 (need 3 failures to trigger)
+ *   channel_config.channel_cnt_mismatch = detect_filt_threshold_3;
+ *
+ *   // Initialize the channel with our configuration
+ *   sl_hal_etampdet_init_channel(&channel_config);
+ *
+ *   // Clear any pending interrupts
+ *   sl_hal_etampdet_clear_interrupts(ETAMPDET_IF_TAMPDET0);
+ *   sl_interrupt_manager_clear_pending_irq(ETAMPDET_IRQn);
+ *
+ *   // Enable tamper detection interrupt for channel 0
+ *   sl_hal_etampdet_enable_interrupts(ETAMPDET_IEN_TAMPDET0);
+ *   sl_interrupt_manager_enable_irq(ETAMPDET_IRQn);
+ *
+ *   // Enable ETAMPDET
+ *   sl_hal_etampdet_enable();
+ *   sl_hal_etampdet_wait_sync();
+ *
+ *   // Load the seed value into channel 0
+ *   sl_hal_etampdet_load(channel_config.channel);
+ *
+ *   // Start tamper detection on channel 0
+ *   sl_hal_etampdet_start(channel_config.channel);
+ *   sl_hal_etampdet_wait_sync();
+ *
+ *   // Wait for tamper detection or timeout
+ *   // In a real application, you might want to use a timer or other mechanism
+ *   // rather than busy waiting
+ *   uint32_t timeout = 1000000;
+ *   while (!tamper_detected && timeout > 0) {
+ *     timeout--;
+ *   }
+ *
+ *   // Handle tamper detection result
+ *   if (tamper_detected) {
+ *     // Tamper was detected, take appropriate action
+ *     // ...
+ *   }
+ *
+ *   // Cleanup
+ *   sl_interrupt_manager_disable_irq(ETAMPDET_IRQn);
+ *   sl_hal_etampdet_disable_interrupts(ETAMPDET_IEN_TAMPDET0);
+ *
+ *   // Stop tamper detection on channel 0
+ *   sl_hal_etampdet_stop(channel_config.channel);
+ *   sl_hal_etampdet_wait_sync();
+ *
+ *   // Disable ETAMPDET
+ *   sl_hal_etampdet_disable();
+ *   sl_hal_etampdet_wait_ready();
+ * }
+ * @endcode
+ *
+ * @} (end addtogroup etampdet)
+ ******************************************************************************/
 
 #endif /* defined(ETAMPDET_PRESENT) */
 #endif /* SL_HAL_ETAMPDET_H */

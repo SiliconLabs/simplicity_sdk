@@ -96,7 +96,7 @@ const sl_peripheral_val_t sl_peripheral_val_dmem = { .base = DMEM_BASE,
 #if defined(DPLL0_BASE)
 // Define peripheral DPLL0.
 const sl_peripheral_val_t sl_peripheral_val_dpll0 = { .base = DPLL0_BASE,
-                                                      .clk_branch = SL_CLOCK_BRANCH_DPLLREFCLK,
+                                                      .clk_branch = SL_CLOCK_BRANCH_INVALID,
                                                       .bus_clock = SL_BUS_CLOCK_DPLL0 };
 #endif
 

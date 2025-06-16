@@ -58,7 +58,7 @@ The list of available commands is output on the console with the associated help
 | wisun clear_credential_cache | Clear the wisun credential cache | > wisun clear_credential_cache |
 | wisun reset_statistics | Reset the statistics | > wisun reset_statistics |
 | wisun set_trace_level \<string> | Set [trace level](https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-level-t) for a [trace group](https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-group-t) | > wisun set_trace_level all,debug<br>[Set 64 trace groups]<br>> wisun set_trace_level 1,none;4,info<br>[Set 2 trace groups]|
-| wisun set_lfn_support \<lfn_limit> | configure LFN support: <br> - [uint8] lfn_limit: Number of LFN children (10 maximum) | > wisun set_lfn_support 3 |
+| wisun set_lfn_support \<lfn_limit> | configure LFN support: <br> - [uint8] lfn_limit: Number of LFN children | > wisun set_lfn_support 3 |
 | wisun mode_switch \<mode> \<phy_mode_id> \<neighbor_mac_address> |  configure mode switch: <br> - [uint8] mode: 0=disabled, 1=enabled, 2=default <br> - [uint8] PhyModeID <br> - [string] neighbor MAC address (optional)   | > wisun mode_switch 1 84 <br> > wisun mode_switch 1 84 01:02:03:04:05:06:07:08 |
 | wisun trigger \<frame type> | Trigger a transmission of a periodic frame <br> - [string] pas: PAN Advertisement Solicit, pa: PAN Advertisement, pcs: PAN Configuration Solicit, pc: PAN Configuration, dis: DODAG Information Solicitation, dio: DODAG Information Object | > wisun trigger pas |
 | wisun getsockname \<socket> | Get local IP address of the socket | > wisun getsockname 3 |
@@ -66,6 +66,7 @@ The list of available commands is output on the console with the associated help
 | wisun set_phy_sens \<phy_mode_id> \<sensitivy> | Set the sensitivity for the given PhyModeID <br> - [uint8] PhyModeID <br> - [int16] sensitivy in dBm | > wisun set_phy_sens 1 -70 |
 | wisun set_direct_connect_state \<state> | Set Direct Connect state <br> - [uint8] state: 0=disabled, 1=enabled <br> | wisun set_direct_connect_state 1 |
 | wisun accept_direct_connect_link \<remote address> | Accept a Direct Connect link request | wisun accept_direct_connect_link fe80::b6e3:f9ff:fec5:83df |
+| wisun concurrent_detection \<state> | Configure concurrent detection <br> - [uint8] state: 0=disabled, 1=enabled <br> | > wisun concurrent_detection 1 |
 
 ## Wi-SUN Settings
 
@@ -128,11 +129,18 @@ Next time you issue the `wisun join_xxxxx` command, the device starts a connecti
 | wisun.async_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to async frames | |
 | wisun.unicast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to unicast frequency hopping | |
 | wisun.broadcast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to broadcast frequency hopping | |
-| wisun.neighbor_table_size | R/W | integer | 1 to 254 | Size of the neighbor table, excluding temporary entries and RPL parents | |
+| wisun.max_child_count | R/W | integer | 1 to 254 | Maximum number of RPL children | |
+| wisun.max_neighbor_count | R/W | integer | 1 to 254 | Size of the neighbor table, including temporary entries and RPL parents | |
+| wisun.max_security_neighbor_count | R/W | integer | 1 to 254 | Size of the security neighbor table | |
 | wisun.preferred_pan_id | R/W | integer | 0 to 65535 | Preferred PAN ID (0xFFFF to disable) | |
 | wisun.keychain | R/W | integer | - automatic (0) <br> - built-in (1) <br> - NVM (2) | Keychain to use for device credentials | |
 | wisun.keychain_index | R/W | integer | 0 to 255 | Device credential index to use for built-in keychain | |
 | wisun.direct_connect_pmk \<pmk> | R/W | string | 64 hex characters | Preshared Master Key for Direct Connect |
+| wisun.max_hop_count | R/W | integer | 1 to 24 | Hop count after which the node automatically enables the RPL leaf mode |
+| wisun.lowpan_mtu | R/W | integer |  | Maximum size of 6LoWPAN packets after which packets are fragmented |
+| wisun.ipv6_mru | R/W | integer |  | Maximum size of a fragmented IPv6 packet the node is willing to accept after reassembly |
+| wisun.max_edfe_fragment_count | R/W | integer | 0 - 10 | Maximum amount of 6LoWPAN/IPv6 fragments to send in a single EDFE exchange |
+| wisun.socket_rx_buffer_size | R/W | integer |  | Socket receiver buffer size for ICMP echo requests |
 
 #### Non-Standard ('explicit') Channel Plan
 

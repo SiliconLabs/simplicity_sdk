@@ -318,7 +318,8 @@ void sli_cli_input_update_history(sl_cli_handle_t handle)
   while ((sl_strnlen(handle->input_buffer, sizeof(handle->input_buffer)) + 1) > (sizeof(handle->history_buf) - sl_strnlen(handle->history_buf, sizeof(handle->history_buf)))) {
     // Remove the oldest history string(s) to make space for the last
     size_t history_cnt = history_get_count(handle);
-    size_t ofs_begin, ofs_end;
+    size_t ofs_begin;
+    size_t ofs_end;
     handle->history_pos = history_cnt;
     history_get_ofs(handle, &ofs_begin, &ofs_end);
     handle->history_buf[ofs_begin] = '\0';
@@ -370,7 +371,8 @@ void sl_cli_input_get_history(sl_cli_handle_t handle,
   }
 
   if (handle->history_pos > 0) {
-    size_t ofs_begin, ofs_end;
+    size_t ofs_begin;
+    size_t ofs_end;
     bool found = history_get_ofs(handle, &ofs_begin, &ofs_end);
     if (found) {
       for (size_t o = ofs_begin; o < ofs_end; o++) {

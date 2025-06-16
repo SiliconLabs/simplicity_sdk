@@ -2,7 +2,6 @@
 local autonumber_common = {}
 
 function autonumber_common.autonumber(input)
-    logit("Autonumber function.")
     local base = 10
     local orig_input = input
     if (type(input) == "string") then

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Gas Smart Metering Equipment (GSME).
 label: GBCS Gas Smart Metering Equipment (GSME)
 quality: production

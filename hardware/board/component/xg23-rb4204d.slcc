@@ -1,7 +1,7 @@
 !!omap
 - id: xg23_rb4204d
 - label: XG23-RB4204D
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG23 868-915 MHz 14 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

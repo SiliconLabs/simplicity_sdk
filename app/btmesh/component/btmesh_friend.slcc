@@ -1,6 +1,6 @@
 id: "btmesh_friend"
 label: "Friend"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Friend component enables Bluetooth Mesh Friend Feature for the node. Friend nodes are required when
   Low Power Nodes (LPN) are present in the mesh network. When a friendship is established between an LPN and Friend node,
@@ -46,3 +46,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-friend

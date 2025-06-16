@@ -230,7 +230,10 @@ void cli_set_power(sl_cli_command_arg_t *arguments)
   }
 
   int16_t power = sl_cli_get_argument_int16(arguments, 0);
-  if ((get_min_tx_power_deci_dbm() <= power) && (power <= get_max_tx_power_deci_dbm())) {
+  int16_t min_power_deci_dbm, max_power_deci_dbm;
+  get_tx_power_deci_dbm_range(&min_power_deci_dbm, &max_power_deci_dbm);
+
+  if ((min_power_deci_dbm <= power) && (power <= max_power_deci_dbm)) {
     range_test_settings.tx_power = power;
     update_tx_power();
     apply_changes();
@@ -239,7 +242,7 @@ void cli_set_power(sl_cli_command_arg_t *arguments)
     add_bluetooth_indication(gattdb_txPower);
 #endif
   } else {
-    app_log_info("Out of range! Correct range is %d - %d\n", get_min_tx_power_deci_dbm(), get_max_tx_power_deci_dbm());
+    app_log_info("Out of range! Correct range is %d - %d\n", min_power_deci_dbm, max_power_deci_dbm);
   }
 }
 

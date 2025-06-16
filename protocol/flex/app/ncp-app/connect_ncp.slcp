@@ -6,6 +6,7 @@ category: "Connect Examples"
 quality: "production"
 
 component:
+  - id: sl_main
   - id: nvm3_lib
   - id: connect_app_framework_common
   - id: connect_stack_common
@@ -18,7 +19,7 @@ component:
   - id: psa_crypto
   - id: connect_ncp
   - id: connect_cpc
-  - id: cpc_secondary_recommended_interface
+  - id: cpc_secondary_recommended_uart_interface
   - id: iostream_cpc
   - id: iostream_retarget_stdio
   - id: bootloader_interface
@@ -35,11 +36,11 @@ configuration:
     condition:
       - device_family_efr32fg25
 
+source:
+  - path: app.c
+
 include:
   - path: "./"
-
-source:
-  - path: "main.c"
 
 other_file:
   - path: "../script/connect_create_gbl_image.bat"

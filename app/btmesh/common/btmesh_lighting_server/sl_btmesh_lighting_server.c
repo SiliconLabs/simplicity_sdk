@@ -54,11 +54,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Lighting Server
- * @{
- ******************************************************************************/
-
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
 #define scene_server_reset_register(elem_index) \
   scene_server_reset_register_impl(elem_index)
@@ -94,12 +89,13 @@
 
 /// Lightbulb state
 static PACKSTRUCT(struct lightbulb_state {
+  uint32_t transtime_ms;          /**< Remaining Transition time in milliseconds */
   // On/Off Server state
   uint8_t onoff_current;          /**< Current generic on/off value */
   uint8_t onoff_target;           /**< Target generic on/off value */
 
   // Transition Time Server state
-  uint8_t transtime;              /**< Transition time */
+  uint8_t transtime;              /**< Default Transition time */
 
   // On Power Up Server state
   uint8_t onpowerup;              /**< On Power Up value */
@@ -197,6 +193,20 @@ static void lighting_delayed_onoff_request_timer_cb(app_timer_t *handle,
 static void lighting_state_store_timer_cb(app_timer_t *handle,
                                           void *data);
 
+// OnOff State change callbacks
+static sl_btmesh_lighting_onoff_state_change_cb_t on_off_change_callback = NULL;
+
+/*******************************************************************************
+ * Register a callback for OnOff state changes
+ *
+ * @param[in] cb Function pointer
+ ******************************************************************************/
+sl_status_t sl_btmesh_register_lightness_onoff_state_change_cb(sl_btmesh_lighting_onoff_state_change_cb_t cb)
+{
+  on_off_change_callback = cb;
+  return SL_STATUS_OK;
+}
+
 /*******************************************************************************
  * Get current lightness value
  *
@@ -284,14 +294,14 @@ void sl_btmesh_set_lightness_last(uint16_t lightness)
  *
  * @return  Default lightness on power up
  ******************************************************************************/
-uint16_t sl_btmesh_get_lightness_onpowerup(void)
+uint8_t sl_btmesh_get_lightness_onpowerup(void)
 {
   return lightbulb_state.onpowerup;
 }
 
 #if defined(SL_BTMESH_LIGHTING_SERVER_DEBUG_PRINTS_FOR_STATE_CHANGE_EVENTS_CFG_VAL) \
   && SL_BTMESH_LIGHTING_SERVER_DEBUG_PRINTS_FOR_STATE_CHANGE_EVENTS_CFG_VAL
-/***************************************************************************//**
+/*******************************************************************************
  * This function prints debug information for mesh server state change event.
  *
  * @param[in] evt  Pointer to mesh_lib_generic_server_state_changed event.
@@ -309,7 +319,7 @@ static void server_state_changed(sl_btmesh_evt_generic_server_state_changed_t *e
 }
 #endif // LOG_ENABLE
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update the lightness level in the mesh stack during a transition
  *
  * @param[in] lightness     Current lightness level within the transition
@@ -318,7 +328,14 @@ static void server_state_changed(sl_btmesh_evt_generic_server_state_changed_t *e
 void sl_btmesh_update_lightness(uint16_t lightness, uint32_t remaining_ms)
 {
   lightbulb_state.lightness_current = lightness;
-  lightness_update(BTMESH_LIGHTING_SERVER_MAIN, remaining_ms, mesh_lighting_state_lightness_actual);
+  // Update the lightness level in the mesh stack
+  // If a generic level move is in progress use UNKNOWN_REMAINING_TIME for the
+  // transition time otherwise, use the actual remaining_ms for the update
+  if (move_pri_level_delta == 0) {
+    lightness_update(BTMESH_LIGHTING_SERVER_MAIN, remaining_ms, mesh_lighting_state_lightness_actual);
+  } else {
+    lightness_update(BTMESH_LIGHTING_SERVER_MAIN, UNKNOWN_REMAINING_TIME, mesh_lighting_state_lightness_actual);
+  }
 }
 
 /*******************************************************************************
@@ -330,16 +347,26 @@ void sl_btmesh_update_lightness(uint16_t lightness, uint32_t remaining_ms)
  ******************************************************************************/
 void sl_btmesh_lighting_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_lighting_server_init();
-      break;
-    case sl_btmesh_evt_node_initialized_id:
-      if (evt->data.evt_node_initialized.provisioned) {
+      if (!booted) {
         sl_btmesh_lighting_server_init();
+        booted = true;
       }
       break;
+    case sl_btmesh_evt_node_initialized_id: {
+      if (evt->data.evt_node_initialized.provisioned) {
+        sl_btmesh_lighting_server_init();
+        booted = true;
+      }
+      break;
+    }
     case sl_btmesh_evt_node_reset_id:
       sl_btmesh_lighting_server_on_node_reset();
       break;
@@ -348,6 +375,8 @@ void sl_btmesh_lighting_server_on_event(sl_btmesh_msg_t *evt)
       && SL_BTMESH_LIGHTING_SERVER_DEBUG_PRINTS_FOR_STATE_CHANGE_EVENTS_CFG_VAL
       server_state_changed(&(evt->data.evt_generic_server_state_changed));
 #endif // LOG_ENABLE
+      break;
+    default:
       break;
   }
 }
@@ -362,7 +391,7 @@ void sl_btmesh_lighting_server_on_node_reset(void)
   app_btmesh_nvm_erase(SL_BTMESH_LIGHTING_SERVER_PS_KEY_CFG_VAL);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function convert mesh format of default transition time to milliseconds.
  *
  * @return Default transition time in milliseconds.
@@ -372,17 +401,7 @@ uint32_t sl_btmesh_get_default_transition_time(void)
   return mesh_lib_transition_time_to_ms(lightbulb_state.transtime);
 }
 
-/***************************************************************************//**
- * \defgroup GenericOnOff
- * \brief Generic OnOff Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup GenericOnOff
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic on/off request.
  *
  * @param[in] element_index  Server model element index.
@@ -416,7 +435,7 @@ static sl_status_t onoff_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic on/off state.
  *
  * @param[in] element_index  Server model element index.
@@ -442,7 +461,7 @@ static sl_status_t onoff_update(uint16_t element_index, uint32_t remaining_ms)
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic on/off state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -466,7 +485,7 @@ static sl_status_t onoff_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic on/off model.
  *
  * @param[in] model_id       Server model ID.
@@ -499,25 +518,36 @@ static void onoff_request(uint16_t model_id,
   log_info("ON/OFF request: requested state=<%s>, transition=%lu, delay=%u" NL,
            request->on_off ? "ON" : "OFF", transition_ms, delay_ms);
 
+  // OnOff requests should cancel any ongoing Generic Level Move transitions
+  // bound to the Light Lightness model
+  // Delayed updates cancel the transition at the timer callback
+  if (!delay_ms) {
+    pri_level_move_stop();
+    if (on_off_change_callback) {
+      on_off_change_callback();
+    }
+  }
+
+  lightbulb_state.transtime_ms = transition_ms;
   if (lightbulb_state.onoff_current == request->on_off) {
     log_info("Request for current state received; no op" NL);
   } else {
     log_info("Turning light bulb <%s>" NL, request->on_off ? "ON" : "OFF");
+    lightbulb_state.onoff_target = request->on_off;
+    if (lightbulb_state.onoff_target == MESH_GENERIC_ON_OFF_STATE_OFF) {
+      lightbulb_state.lightness_target = 0;
+    } else {
+      // restore last brightness
+      lightbulb_state.lightness_target = lightbulb_state.lightness_last;
+    }
     if (transition_ms == 0 && delay_ms == 0) { // Immediate change
       lightbulb_state.onoff_current = request->on_off;
-      lightbulb_state.onoff_target = request->on_off;
-      if (lightbulb_state.onoff_current == MESH_GENERIC_ON_OFF_STATE_OFF) {
-        lightbulb_state.lightness_target = 0;
-      } else {
-        // restore last brightness
-        lightbulb_state.lightness_target = lightbulb_state.lightness_last;
-      }
-      sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, IMMEDIATE);
+      lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+      sl_btmesh_lighting_set_level(lightbulb_state.lightness_current, IMMEDIATE);
     } else if (delay_ms > 0) {
       // a delay has been specified for the light change. Start a soft timer
       // that will trigger the change after the given delay
       // Current state remains as is for now
-      lightbulb_state.onoff_target = request->on_off;
       sl_status_t sc = app_timer_start(&lighting_delayed_onoff_request_timer,
                                        delay_ms,
                                        lighting_delayed_onoff_request_timer_cb,
@@ -528,19 +558,8 @@ static void onoff_request(uint16_t model_id,
       delayed_onoff_trans = transition_ms;
     } else {
       // no delay but transition time has been set.
-      lightbulb_state.onoff_target = request->on_off;
-      if (lightbulb_state.onoff_target == MESH_GENERIC_ON_OFF_STATE_ON) {
-        lightbulb_state.onoff_current = MESH_GENERIC_ON_OFF_STATE_ON;
-      }
-
       onoff_update(element_index, transition_ms);
 
-      if (request->on_off == MESH_GENERIC_ON_OFF_STATE_OFF) {
-        lightbulb_state.lightness_target = 0;
-      } else {
-        // restore last brightness
-        lightbulb_state.lightness_target = lightbulb_state.lightness_last;
-      }
       sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
                                    transition_ms);
       // lightbulb current state will be updated when transition is complete
@@ -569,7 +588,7 @@ static void onoff_request(uint16_t model_id,
                          mesh_lighting_state_lightness_actual);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic on/off change event.
  *
  * @param[in] model_id       Server model ID.
@@ -596,13 +615,12 @@ static void onoff_change(uint16_t model_id,
              current->on_off.on);
 
     lightbulb_state.onoff_current = current->on_off.on;
-    lightbulb_state_changed();
   } else {
     log_info("Dummy ON/OFF change - same state as before" NL);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic on/off recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -653,7 +671,7 @@ static void onoff_recall(uint16_t model_id,
   onoff_update_and_publish(element_index, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light on/off request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -661,6 +679,8 @@ static void onoff_transition_complete(void)
 {
   // transition done -> set state, update and publish
   lightbulb_state.onoff_current = lightbulb_state.onoff_target;
+  lightbulb_state.transtime_ms = 0;
+  lightbulb_state.lightness_current = lightbulb_state.lightness_target;
 
   log_info("Transition complete. New state is %s" NL,
            lightbulb_state.onoff_current ? "ON" : "OFF");
@@ -669,7 +689,7 @@ static void onoff_transition_complete(void)
   onoff_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light on/off request has completed.
  ******************************************************************************/
 static void delayed_onoff_request(void)
@@ -681,32 +701,18 @@ static void delayed_onoff_request(void)
 
   if (delayed_onoff_trans == 0) {
     // no transition delay, update state immediately
-
     lightbulb_state.onoff_current = lightbulb_state.onoff_target;
-    if (lightbulb_state.onoff_current == MESH_GENERIC_ON_OFF_STATE_OFF) {
-      sl_btmesh_set_state(LED_STATE_OFF);
-    } else {
-      // restore last brightness level
-      sl_btmesh_lighting_set_level(lightbulb_state.lightness_last, IMMEDIATE);
-      lightbulb_state.lightness_current = lightbulb_state.lightness_last;
-    }
+    lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+    sl_btmesh_lighting_set_level(lightbulb_state.lightness_current, IMMEDIATE);
 
     lightbulb_state_changed();
 
     onoff_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
                              delayed_onoff_trans);
   } else {
-    if (lightbulb_state.onoff_target == MESH_GENERIC_ON_OFF_STATE_OFF) {
-      lightbulb_state.lightness_target = 0;
-    } else {
-      // restore last brightness level, with transition delay
-      lightbulb_state.lightness_target = lightbulb_state.lightness_last;
-      lightbulb_state.onoff_current = MESH_GENERIC_ON_OFF_STATE_ON;
-
-      onoff_update(BTMESH_LIGHTING_SERVER_MAIN, delayed_onoff_trans);
-    }
     sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
                                  delayed_onoff_trans);
+    onoff_update(BTMESH_LIGHTING_SERVER_MAIN, delayed_onoff_trans);
 
     // state is updated when transition is complete
     sl_status_t sc = app_timer_start(&lighting_onoff_transition_complete_timer,
@@ -718,19 +724,7 @@ static void delayed_onoff_request(void)
   }
 }
 
-/** @} (end addtogroup GenericOnOff) */
-
-/***************************************************************************//**
- * \defgroup GenericPowerOnOff
- * \brief Generic Power OnOff Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup GenericPowerOnOff
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic power on/off request.
  *
  * @param[in] element_index  Server model element index.
@@ -758,7 +752,7 @@ static sl_status_t power_onoff_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic power on/off state.
  *
  * @param[in] element_index  Server model element index.
@@ -779,7 +773,7 @@ static sl_status_t power_onoff_update(uint16_t element_index)
                                0);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic power on/off state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -801,7 +795,7 @@ static sl_status_t power_onoff_update_and_publish(uint16_t element_index)
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic power on/off model.
  *
  * @param[in] model_id       Server model ID.
@@ -855,19 +849,7 @@ static void power_onoff_request(uint16_t model_id,
   power_onoff_update_and_publish(element_index);
 }
 
-/** @} (end addtogroup GenericPowerOnOff) */
-
-/***************************************************************************//**
- * \defgroup GenericTransitionTime
- * \brief Generic Default Transition Time Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup GenericTransitionTime
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic default transition time request.
  *
  * @param[in] element_index  Server model element index.
@@ -895,7 +877,7 @@ static sl_status_t transtime_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic default transition time state.
  *
  * @param[in] element_index  Server model element index.
@@ -916,7 +898,7 @@ static sl_status_t transtime_update(uint16_t element_index)
                                0);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic default transition time state and publish model state
  * to the network.
  *
@@ -939,7 +921,7 @@ static sl_status_t transtime_update_and_publish(uint16_t element_index)
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic default transition time
  * model.
  *
@@ -989,19 +971,7 @@ static void transtime_request(uint16_t model_id,
   transtime_update_and_publish(element_index);
 }
 
-/** @} (end addtogroup GenericTransitionTime) */
-
-/****************************************************************************//**
- * \defgroup LightLightness
- * \brief Light Lightness Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightLightness
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Convert from lightness actual to lightness linear value.
  *
  * @param[in] actual  Actual value that is converted.
@@ -1014,7 +984,7 @@ static uint16_t actual2linear(uint16_t actual)
   return (uint16_t)linear;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Convert from lightness linear to lightness actual value.
  *
  * @param[in] linear  Linear value that is converted.
@@ -1027,7 +997,7 @@ static uint16_t linear2actual(uint16_t linear)
   return (uint16_t)actual;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light lightness request.
  *
  * @param[in] element_index  Server model element index.
@@ -1071,7 +1041,7 @@ static sl_status_t lightness_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light lightness state.
  *
  * @param[in] element_index  Server model element index.
@@ -1095,10 +1065,14 @@ static sl_status_t lightness_update(uint16_t element_index,
   }
 
   target.kind = kind;
-  if (kind == mesh_lighting_state_lightness_actual) {
-    target.lightness.level = lightbulb_state.lightness_target;
+  if (remaining_ms != 0) {
+    if (kind == mesh_lighting_state_lightness_actual) {
+      target.lightness.level = lightbulb_state.lightness_target;
+    } else {
+      target.lightness.level = actual2linear(lightbulb_state.lightness_target);
+    }
   } else {
-    target.lightness.level = actual2linear(lightbulb_state.lightness_target);
+    target.lightness.level =  current.lightness.level;
   }
 
   return generic_server_update(MESH_LIGHTING_LIGHTNESS_SERVER_MODEL_ID,
@@ -1108,7 +1082,7 @@ static sl_status_t lightness_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light lightness state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -1134,7 +1108,7 @@ static sl_status_t lightness_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light lightness model.
  *
  * @param[in] model_id       Server model ID.
@@ -1183,6 +1157,14 @@ static void lightness_request(uint16_t model_id,
 
   log_info("lightness_request: level=%u, transition=%lu, delay=%u" NL,
            actual_request, transition_ms, delay_ms);
+
+  // Lightness is bound to an underlying Generic Level
+  // If lightess is set, any ongoing Generic Level Move transitions must be cancelled
+  // Delayed updates cancel the transition at the timer callback
+  if (!delay_ms) {
+    pri_level_move_stop();
+  }
+  lightbulb_state.transtime_ms = transition_ms;
 
   if (lightbulb_state.lightness_current == actual_request) {
     log_info("Request for current state received; no op" NL);
@@ -1273,7 +1255,7 @@ static void lightness_request(uint16_t model_id,
 #endif
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light lightness change event.
  *
  * @param[in] model_id       Server model ID.
@@ -1307,14 +1289,13 @@ static void lightness_change(uint16_t model_id,
              lightbulb_state.lightness_current,
              current->lightness.level);
     lightbulb_state.lightness_current = current->lightness.level;
-    lightbulb_state_changed();
   } else {
     log_info("Lightness update -same value (%d)" NL,
              lightbulb_state.lightness_current);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light lightness recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -1370,7 +1351,7 @@ static void lightness_recall(uint16_t model_id,
                                mesh_lighting_state_lightness_actual);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light lightness request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1378,6 +1359,7 @@ static void lightness_transition_complete(void)
 {
   // transition done -> set state, update and publish
   lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+  lightbulb_state.transtime_ms = 0;
   if (lightbulb_state.lightness_target != 0) {
     lightbulb_state.lightness_last = lightbulb_state.lightness_target;
   }
@@ -1391,7 +1373,7 @@ static void lightness_transition_complete(void)
                                lightness_kind);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light lightness request has completed.
  ******************************************************************************/
 static void delayed_lightness_request(void)
@@ -1426,19 +1408,7 @@ static void delayed_lightness_request(void)
   }
 }
 
-/** @} (end addtogroup LightLightness) */
-
-/***************************************************************************//**
- * \defgroup LightLightnessSetup
- * \brief Light Lightness Setup Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightLightnessSetup
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light lightness setup request.
  *
  * @param[in] element_index  Server model element index.
@@ -1482,7 +1452,7 @@ static sl_status_t lightness_setup_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light lightness setup state.
  *
  * @param[in] element_index  Server model element index.
@@ -1519,7 +1489,7 @@ static sl_status_t lightness_setup_update(uint16_t element_index,
                                0);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light lightness setup model.
  *
  * @param[in] model_id       Server model ID.
@@ -1567,7 +1537,7 @@ static void lightness_setup_request(uint16_t model_id,
       }
       break;
 
-    case mesh_lighting_request_lightness_range:
+    case mesh_lighting_request_lightness_range: {
       kind = mesh_lighting_state_lightness_range;
       log_info("lightness_setup_request: state=lightness_range, min_lightness=%u, max_lightness=%u" NL,
                request->lightness_range.min, request->lightness_range.max);
@@ -1575,31 +1545,33 @@ static void lightness_setup_request(uint16_t model_id,
       if ((lightbulb_state.lightness_min == request->lightness_range.min)
           && (lightbulb_state.lightness_max == request->lightness_range.max)) {
         log_info("Request for current state received; no op" NL);
-      } else {
-        if (lightbulb_state.lightness_min != request->lightness_range.min) {
-          log_info("Setting min lightness to <%u>" NL,
-                   request->lightness_range.min);
-          lightbulb_state.lightness_min = request->lightness_range.min;
-          if (lightbulb_state.lightness_current < request->lightness_range.min
-              && lightbulb_state.lightness_current != 0) {
-            lightbulb_state.lightness_current = request->lightness_range.min;
-            sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
-                                         IMMEDIATE);
-          }
-        }
-        if (lightbulb_state.lightness_max != request->lightness_range.max) {
-          log_info("Setting max lightness to <%u>" NL,
-                   request->lightness_range.max);
-          lightbulb_state.lightness_max = request->lightness_range.max;
-          if (lightbulb_state.lightness_current > request->lightness_range.max) {
-            lightbulb_state.lightness_current = request->lightness_range.max;
-            sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
-                                         IMMEDIATE);
-          }
-        }
-        lightbulb_state_changed();
+        break;
       }
+      if (lightbulb_state.lightness_min != request->lightness_range.min) {
+        log_info("Setting min lightness to <%u>" NL,
+                 request->lightness_range.min);
+        lightbulb_state.lightness_min = request->lightness_range.min;
+        if (lightbulb_state.lightness_current < request->lightness_range.min
+            && lightbulb_state.lightness_current != 0) {
+          lightbulb_state.lightness_current = request->lightness_range.min;
+          sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
+                                       IMMEDIATE);
+        }
+      }
+      if (lightbulb_state.lightness_max != request->lightness_range.max) {
+        log_info("Setting max lightness to <%u>" NL,
+                 request->lightness_range.max);
+        lightbulb_state.lightness_max = request->lightness_range.max;
+        if (lightbulb_state.lightness_current > request->lightness_range.max) {
+          lightbulb_state.lightness_current = request->lightness_range.max;
+          sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
+                                       IMMEDIATE);
+        }
+      }
+      lightbulb_state_changed();
+
       break;
+    }
 
     default:
       break;
@@ -1612,7 +1584,7 @@ static void lightness_setup_request(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light lightness setup change event.
  *
  * @param[in] model_id       Server model ID.
@@ -1677,19 +1649,7 @@ static void lightness_setup_change(uint16_t model_id,
   }
 }
 
-/** @} (end addtogroup LightLightnessSetup) */
-
-/***************************************************************************//**
- * \defgroup PriGenericLevel
- * \brief Generic Level Server model on primary element.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup PriGenericLevel
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic level request on primary element.
  *
  * @param[in] element_index  Server model element index.
@@ -1723,7 +1683,7 @@ static sl_status_t pri_level_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on primary element.
  *
  * @param[in] element_index  Server model element index.
@@ -1750,7 +1710,7 @@ static sl_status_t pri_level_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on primary element
  * and publish model state to the network.
  *
@@ -1775,7 +1735,7 @@ static sl_status_t pri_level_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Schedule next generic level move request on primary element.
  *
  * @param[in] remaining_delta   The remaining level delta to the target state.
@@ -1790,8 +1750,8 @@ static void pri_level_move_schedule_next_request(int32_t remaining_delta)
                                  transition_ms);
   } else {
     transition_ms = move_pri_level_trans;
-    sl_btmesh_lighting_set_level(lightbulb_state.lightness_current
-                                 + move_pri_level_delta,
+    sl_btmesh_lighting_set_level((uint16_t)(lightbulb_state.lightness_current
+                                            + move_pri_level_delta),
                                  move_pri_level_trans);
   }
   sl_status_t sc = app_timer_start(&lighting_pri_level_move_timer,
@@ -1802,7 +1762,7 @@ static void pri_level_move_schedule_next_request(int32_t remaining_delta)
   app_assert_status_f(sc, "Failed to start Pri Level timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handle generic level move request on primary element.
  ******************************************************************************/
 static void pri_level_move_request(void)
@@ -1825,31 +1785,36 @@ static void pri_level_move_request(void)
   } else {
     lightbulb_state.pri_level_current += move_pri_level_delta;
   }
+  lightbulb_state.transtime_ms = UNKNOWN_REMAINING_TIME;
   lightbulb_state_changed();
   pri_level_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
                                UNKNOWN_REMAINING_TIME);
 
   if (remaining_delta != 0) {
     pri_level_move_schedule_next_request(remaining_delta);
+  } else {
+    lightbulb_state.lightness_last = lightbulb_state.lightness_current;
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Stop generic level move on primary element.
  ******************************************************************************/
-static void pri_level_move_stop(void)
+void pri_level_move_stop(void)
 {
   // Cancel timers
   sl_status_t sc = app_timer_stop(&lighting_delayed_pri_level_timer);
   app_assert_status_f(sc, "Failed to stop Delayed Primary Level timer");
   sc = app_timer_stop(&lighting_pri_level_move_timer);
   app_assert_status_f(sc, "Failed to stop Primary Level Move timer");
+  sc = sl_btmesh_stop_transition_timer();
+  app_assert_status_f(sc, "Failed to stop Transition timer");
   //Reset move parameters
   move_pri_level_delta = 0;
   move_pri_level_trans = 0;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic level model
  * on primary element.
  *
@@ -1881,7 +1846,7 @@ static void pri_level_request(uint16_t model_id,
   (void)server_addr;
 
   uint16_t lightness;
-  uint32_t remaining_ms = UNKNOWN_REMAINING_TIME;
+  uint32_t remaining_ms = 0;
 
   switch (request->kind) {
     case mesh_generic_request_level:
@@ -1895,59 +1860,58 @@ static void pri_level_request(uint16_t model_id,
       if (lightbulb_state.pri_level_current == request->level) {
         log_info("Request for current state received; no op" NL);
         lightbulb_state.pri_level_target = request->level;
-      } else {
-        log_info("Setting pri_level to <%d>" NL, request->level);
-
-        lightness = request->level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-        if (!lightness) {
-          lightness = SL_BTMESH_LIGHTING_SERVER_LIGHTNESS_MIN_CFG_VAL;
-        }
-        if (transition_ms == 0 && delay_ms == 0) { // Immediate change
-          lightbulb_state.pri_level_current = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-          lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
-          lightbulb_state.lightness_current = lightness;
-          lightbulb_state.lightness_target = lightness;
-          if (lightness != 0) {
-            lightbulb_state.lightness_last = lightness;
-          }
-
-          // update LED Level
-          sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, IMMEDIATE);
-        } else if (delay_ms > 0) {
-          // a delay has been specified for the change. Start a soft timer
-          // that will trigger the change after the given delay
-          // Current state remains as is for now
-          lightbulb_state.pri_level_target = request->level;
-          lightbulb_state.lightness_target = lightness;
-          pri_level_request_kind = mesh_generic_request_level;
-          sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
-                                           delay_ms,
-                                           lighting_delayed_pri_level_timer_cb,
-                                           NO_CALLBACK_DATA,
-                                           false);
-          app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
-
-          // store transition parameter for later use
-          delayed_pri_level_trans = transition_ms;
-        } else {
-          // no delay but transition time has been set.
-          lightbulb_state.pri_level_target = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-          lightbulb_state.lightness_target = lightness;
-          sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, transition_ms);
-
-          // lightbulb current state will be updated when transition is complete
-          sl_status_t sc = app_timer_start(&lighting_level_transition_complete_timer,
-                                           transition_ms,
-                                           lighting_level_transition_complete_timer_cb,
-                                           NO_CALLBACK_DATA,
-                                           false);
-          app_assert_status_f(sc, "Failed to start Primary Level Transition Complete timer");
-        }
-
-        // State has changed, so the current scene number is reset
-        scene_server_reset_register(element_index);
+        remaining_ms = delay_ms + transition_ms;
+        break;
       }
+      log_info("Setting pri_level to <%d>" NL, request->level);
 
+      lightness = (uint16_t)(request->level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
+      if (!lightness) {
+        lightness = SL_BTMESH_LIGHTING_SERVER_LIGHTNESS_MIN_CFG_VAL;
+      }
+      if (transition_ms == 0 && delay_ms == 0) { // Immediate change
+        lightbulb_state.pri_level_current = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
+        lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
+        lightbulb_state.lightness_current = lightness;
+        lightbulb_state.lightness_target = lightness;
+        if (lightness != 0) {
+          lightbulb_state.lightness_last = lightness;
+        }
+
+        // update LED Level
+        sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, IMMEDIATE);
+      } else if (delay_ms > 0) {
+        // a delay has been specified for the change. Start a soft timer
+        // that will trigger the change after the given delay
+        // Current state remains as is for now
+        lightbulb_state.pri_level_target = request->level;
+        lightbulb_state.lightness_target = lightness;
+        pri_level_request_kind = mesh_generic_request_level;
+        sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
+                                         delay_ms,
+                                         lighting_delayed_pri_level_timer_cb,
+                                         NO_CALLBACK_DATA,
+                                         false);
+        app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
+
+        // store transition parameter for later use
+        delayed_pri_level_trans = transition_ms;
+      } else {
+        // no delay but transition time has been set.
+        lightbulb_state.pri_level_target = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
+        lightbulb_state.lightness_target = lightness;
+        sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, transition_ms);
+
+        // lightbulb current state will be updated when transition is complete
+        sl_status_t sc = app_timer_start(&lighting_level_transition_complete_timer,
+                                         transition_ms,
+                                         lighting_level_transition_complete_timer_cb,
+                                         NO_CALLBACK_DATA,
+                                         false);
+        app_assert_status_f(sc, "Failed to start Primary Level Transition Complete timer");
+      }
+      // State has changed, so the current scene number is reset
+      scene_server_reset_register(element_index);
       remaining_ms = delay_ms + transition_ms;
       break;
 
@@ -1969,38 +1933,45 @@ static void pri_level_request(uint16_t model_id,
         log_info("Request for current state received; no op" NL);
         lightbulb_state.pri_level_target = requested_level;
         remaining_ms = IMMEDIATE;
-      } else {
-        log_info("Setting pri_level to <%d>" NL, requested_level);
-
-        lightness = requested_level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-
-        if (delay_ms > 0) {
-          // a delay has been specified for the move. Start a soft timer
-          // that will trigger the move after the given delay
-          // Current state remains as is for now
-          lightbulb_state.pri_level_target = requested_level;
-          lightbulb_state.lightness_target = lightness;
-          pri_level_request_kind = mesh_generic_request_level_move;
-          sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
-                                           delay_ms,
-                                           lighting_delayed_pri_level_timer_cb,
-                                           NO_CALLBACK_DATA,
-                                           false);
-          app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
-        } else {
-          // no delay so start move
-          lightbulb_state.pri_level_target = requested_level;
-          lightbulb_state.lightness_target = lightness;
-
-          int32_t remaining_delta = (int32_t)lightbulb_state.pri_level_target
-                                    - lightbulb_state.pri_level_current;
-          pri_level_move_schedule_next_request(remaining_delta);
-        }
-        remaining_ms = UNKNOWN_REMAINING_TIME;
-
-        // State has changed, so the current scene number is reset
-        scene_server_reset_register(element_index);
+        break;
       }
+      log_info("Setting pri_level to <%d>" NL, requested_level);
+
+      lightness = (uint16_t)(requested_level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
+
+      if (delay_ms > 0) {
+        // a delay has been specified for the move. Start a soft timer
+        // that will trigger the move after the given delay
+        // Current state remains as is for now
+        lightbulb_state.pri_level_target = requested_level;
+        lightbulb_state.lightness_target = lightness;
+        pri_level_request_kind = mesh_generic_request_level_move;
+        sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
+                                         delay_ms,
+                                         lighting_delayed_pri_level_timer_cb,
+                                         NO_CALLBACK_DATA,
+                                         false);
+        app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
+      } else {
+        // no delay so start move
+        lightbulb_state.pri_level_target = requested_level;
+        lightbulb_state.lightness_target = lightness;
+
+        int32_t remaining_delta = (int32_t)lightbulb_state.pri_level_target
+                                  - lightbulb_state.pri_level_current;
+        pri_level_move_schedule_next_request(remaining_delta);
+      }
+
+      // Remaning time should only be set to the UNKNOWN_REMAINING_TIME if
+      // a transition or delay time is specified
+      if (transition_ms > 0 || delay_ms > 0) {
+        remaining_ms = UNKNOWN_REMAINING_TIME;
+      } else {
+        remaining_ms = 0;
+      }
+
+      // State has changed, so the current scene number is reset
+      scene_server_reset_register(element_index);
       break;
     }
 
@@ -2012,6 +1983,7 @@ static void pri_level_request(uint16_t model_id,
       lightbulb_state.lightness_target = lightbulb_state.lightness_current;
       lightbulb_state.pri_level_current = lightbulb_state.lightness_current
                                           - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
+      lightbulb_state.lightness_last = lightbulb_state.lightness_current;
       lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
       if (delay_ms > 0) {
         // a delay has been specified for the move halt. Start a soft timer
@@ -2025,18 +1997,19 @@ static void pri_level_request(uint16_t model_id,
                                          NO_CALLBACK_DATA,
                                          false);
         app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
-      } else {
-        pri_level_move_stop();
-        sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
-                                     IMMEDIATE);
-        remaining_ms = IMMEDIATE;
+        break;
       }
+      pri_level_move_stop();
+      sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
+                                   IMMEDIATE);
+      remaining_ms = IMMEDIATE;
       break;
 
     default:
       break;
   }
 
+  lightbulb_state.transtime_ms = remaining_ms;
   lightbulb_state_changed();
 
   if (request_flags & MESH_REQUEST_FLAG_RESPONSE_REQUIRED) {
@@ -2050,7 +2023,7 @@ static void pri_level_request(uint16_t model_id,
                          mesh_lighting_state_lightness_actual);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level change event
  * on primary element.
  *
@@ -2077,15 +2050,13 @@ static void pri_level_change(uint16_t model_id,
              lightbulb_state.pri_level_current,
              current->level.level);
     lightbulb_state.pri_level_current = current->level.level;
-    lightbulb_state_changed();
-    pri_level_move_stop();
   } else {
     log_info("Primary level update -same value (%d)" NL,
              lightbulb_state.pri_level_current);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level recall event on primary element.
  *
  * @param[in] model_id       Server model ID.
@@ -2132,7 +2103,7 @@ static void pri_level_recall(uint16_t model_id,
   pri_level_update_and_publish(element_index, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a generic level request on primary element
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -2141,6 +2112,7 @@ static void pri_level_transition_complete(void)
   // transition done -> set state, update and publish
   lightbulb_state.pri_level_current = lightbulb_state.pri_level_target;
   lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+  lightbulb_state.transtime_ms = 0;
 
   if (lightbulb_state.lightness_target != 0) {
     lightbulb_state.lightness_last = lightbulb_state.lightness_target;
@@ -2153,7 +2125,7 @@ static void pri_level_transition_complete(void)
   pri_level_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for generic level request
  * on primary element has completed.
  ******************************************************************************/
@@ -2217,9 +2189,7 @@ static void delayed_pri_level_request(void)
   }
 }
 
-/** @} (end addtogroup PriGenericLevel) */
-
-/***************************************************************************//**
+/*******************************************************************************
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
  ******************************************************************************/
@@ -2262,7 +2232,7 @@ static void init_models(void)
                                   pri_level_recall);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light state from Persistent Storage and
  * copies the data in the global variable lightbulb_state.
  * If PS key with ID SL_BTMESH_LIGHTING_SERVER_PS_KEY_CFG_VAL does not exist or loading failed,
@@ -2311,7 +2281,7 @@ static sl_status_t lightbulb_state_load(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
@@ -2342,7 +2312,7 @@ static void lightbulb_state_validate_and_correct(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function saves the current light state in Persistent Storage so that
  * the data is preserved over reboots and power cycles.
  * The light state is hold in a global variable lightbulb_state.
@@ -2364,7 +2334,7 @@ static sl_status_t lightbulb_state_store(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the lightbulb state in RAM is changed.
  * It sets up a soft timer that will save the state in flash after small delay.
  * The purpose is to reduce amount of unnecessary flash writes.
@@ -2391,7 +2361,7 @@ void sl_btmesh_lighting_server_init(void)
   lightbulb_state_load();
 
   // Handle on power up behavior
-  uint32_t transition_ms = sl_btmesh_get_default_transition_time();
+  uint32_t default_transition_ms = sl_btmesh_get_default_transition_time();
   switch (lightbulb_state.onpowerup) {
     case MESH_GENERIC_ON_POWER_UP_STATE_OFF:
       log_info("On power up state is OFF" NL);
@@ -2413,19 +2383,20 @@ void sl_btmesh_lighting_server_init(void)
         lightbulb_state.lightness_current = lightbulb_state.lightness_default;
         lightbulb_state.lightness_target = lightbulb_state.lightness_default;
       }
-      if (transition_ms > 0) {
+      if (default_transition_ms > 0) {
         lightbulb_state.lightness_current = 0;
+        lightbulb_state.transtime_ms = default_transition_ms;
         sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
                                      IMMEDIATE);
         sl_status_t sc =
           app_timer_start(&lighting_transition_complete_timer,
-                          transition_ms,
+                          default_transition_ms,
                           lighting_transition_complete_timer_cb,
                           NO_CALLBACK_DATA,
                           false);
         app_assert_status_f(sc, "Failed to start Lighting Transition Complete timer");
         sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
-                                     transition_ms);
+                                     default_transition_ms);
       } else {
         sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
                                      IMMEDIATE);
@@ -2438,19 +2409,16 @@ void sl_btmesh_lighting_server_init(void)
       if (lc_get_mode() == 0)
 #endif
       {
-        if (transition_ms > 0 && lightbulb_state.lightness_target > 0) {
-          lightbulb_state.lightness_current = 0;
-          sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
-                                       IMMEDIATE);
+        if (lightbulb_state.transtime_ms == UNKNOWN_REMAINING_TIME) {
           sl_status_t sc =
             app_timer_start(&lighting_transition_complete_timer,
-                            transition_ms,
+                            lightbulb_state.transtime_ms,
                             lighting_transition_complete_timer_cb,
                             NO_CALLBACK_DATA,
                             false);
           app_assert_status_f(sc, "Failed to start Lighting Transition Complete timer");
           sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
-                                       transition_ms);
+                                       lightbulb_state.transtime_ms);
         } else {
           lightbulb_state.lightness_current = lightbulb_state.lightness_target;
           sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
@@ -2494,18 +2462,16 @@ void sl_btmesh_lighting_server_init(void)
     onoff_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
                              IMMEDIATE);
 
+    pri_level_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
+                                 IMMEDIATE);
+
     lightness_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
                                  IMMEDIATE,
                                  mesh_lighting_state_lightness_actual);
   }
 }
 
-/***************************************************************************//**
- * @addtogroup BtmeshWrappers
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_respond to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -2538,7 +2504,7 @@ static sl_status_t generic_server_respond(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_update to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -2564,7 +2530,7 @@ static sl_status_t generic_server_update(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_publish to log if the Btmesh API call
  * results in error. The parameters and the return value of the two functions
  * are the same.
@@ -2586,7 +2552,7 @@ static sl_status_t generic_server_publish(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -2600,15 +2566,18 @@ static void generic_server_register_handler(uint16_t model_id,
   sl_status_t sc =
     mesh_lib_generic_server_register_handler(model_id, elem_index, cb, ch, recall);
 
-  app_assert_status_f(sc,
-                      "Lighting server failed to register handlers "
-                      "(mdl=0x%04x,elem=%d)",
-                      model_id,
-                      elem_index);
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Lighting server failed to register handlers "
+                            "(mdl=0x%04x,elem=%d)",
+                        model_id,
+                        elem_index);
+  }
 }
 
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for sl_btmesh_scene_server_reset_register with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -2621,19 +2590,18 @@ static void scene_server_reset_register_impl(uint16_t elem_index)
 {
   sl_status_t sc = sl_btmesh_scene_server_reset_register(elem_index);
 
-  // The function can fail if there is no scene server model in the element or
-  // the btmesh_stack_scene_server component is not present. Both of these
-  // are configuration issues so assert can be used.
-  app_assert_status_f(sc, "Lighting server failed to reset scene register.");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Lighting server failed to reset scene register.");
+  }
 }
 #endif
-
-/** @} (end addtogroup BtmeshWrappers) */
 
 // -----------------------------------------------------------------------------
 // Timer Callbacks
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling generic level move
  *
  * @param[in] handle Pointer to the timer handle
@@ -2648,7 +2616,7 @@ static void lighting_pri_level_move_timer_cb(app_timer_t *handle,
   pri_level_move_request();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling lightness request transition
  *
  * @param[in] handle Pointer to the timer handle
@@ -2664,7 +2632,7 @@ static void lighting_transition_complete_timer_cb(app_timer_t *handle,
   lightness_transition_complete();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling primary generic level request transition
  *
  * @param[in] handle Pointer to the timer handle
@@ -2680,7 +2648,7 @@ static void lighting_level_transition_complete_timer_cb(app_timer_t *handle,
   pri_level_transition_complete();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling on/off request transition
  *
  * @param[in] handle Pointer to the timer handle
@@ -2696,7 +2664,7 @@ static void lighting_onoff_transition_complete_timer_cb(app_timer_t *handle,
   onoff_transition_complete();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling delayed primary generic level request
  *
  * @param[in] handle Pointer to the timer handle
@@ -2712,7 +2680,7 @@ static void lighting_delayed_pri_level_timer_cb(app_timer_t *handle,
   delayed_pri_level_request();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling delayed lightness request
  *
  * @param[in] handle Pointer to the timer handle
@@ -2723,11 +2691,14 @@ static void lighting_delayed_lightness_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  pri_level_move_stop();
+
   // delay for a lightness request has passed, now process the request
   delayed_lightness_request();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling delayed on/off request
  *
  * @param[in] handle Pointer to the timer handle
@@ -2738,11 +2709,16 @@ static void lighting_delayed_onoff_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  pri_level_move_stop();
+  if (on_off_change_callback) {
+    on_off_change_callback();
+  }
   // delay for an on/off request has passed, now process the request
   delayed_onoff_request();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Callback for the timer handling storage state change
  *
  * @param[in] handle Pointer to the timer handle
@@ -2756,5 +2732,3 @@ static void lighting_state_store_timer_cb(app_timer_t *handle,
   // save the lightbulb state
   lightbulb_state_store();
 }
-
-/** @} (end addtogroup Lighting Server) */

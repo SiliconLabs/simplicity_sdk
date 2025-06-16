@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides an implementation of a Smart Energy price server.  The price server holds a table of prices locally and answers requests to retrieve the list of commodity prices.  It requires extension to add / remove prices from the table and to send out new prices to those devices that have subscribed to the ESI for price updates.
 label: Price Server
 quality: production

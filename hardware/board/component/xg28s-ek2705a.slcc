@@ -1,7 +1,7 @@
 !!omap
 - id: xg28s_ek2705a
 - label: XG28S-EK2705A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG28 Explorer Kit for Amazon Sidewalk.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "sl_string.h"
 #include "sl_wisun_cli_settings.h"
 #include "sl_wisun_ip6string.h"
 #include "nvm3.h"
@@ -62,7 +63,7 @@
  * @param[in] settings_domain settings domain
  * @param[in,out] settings destination ptr of settings
  * @param[in] settings_size size of the settings
- * @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL on error
+ * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 static sl_status_t app_settings_nvm_load(uint8_t settings_domain,
                                          void *const settings,
@@ -74,7 +75,7 @@ static sl_status_t app_settings_nvm_load(uint8_t settings_domain,
 * @param[in] settings_domain settings domain
 * @param[in] settings source settings
 * @param[in] settings_size size of the settings
-* @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL on error
+* @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
 ******************************************************************************/
 static sl_status_t app_settings_nvm_save(uint8_t settings_domain,
                                          const void *const settings,
@@ -141,7 +142,7 @@ void app_settings_init(void)
   }
 }
 
-/* App setinngs save */
+/* App settings save */
 sl_status_t app_settings_save(void)
 {
   uint8_t index = 0;
@@ -432,7 +433,7 @@ sl_status_t app_settings_get_ip_address(char *value_str,
     sl_wisun_ip6tos(address.address, value_str);
   } else {
     memcpy(value_str, APP_SETTINGS_NONE_VALUE_STR,
-           strlen(APP_SETTINGS_NONE_VALUE_STR) + 1);
+           sl_strlen(APP_SETTINGS_NONE_VALUE_STR) + 1);
   }
 
   return SL_STATUS_OK;
@@ -446,7 +447,7 @@ sl_status_t app_settings_get_ip_address(char *value_str,
 static void app_help_print_and_pad(const char * permission, const app_settings_entry_t *entry)
 {
   printf("%s %s.%s", permission, app_settings_domain_str[entry->domain], entry->key);
-  size_t string_length = strlen(permission) + strlen(app_settings_domain_str[entry->domain]) + strlen(entry->key);
+  size_t string_length = sl_strlen((char*)permission) + sl_strlen((char*)app_settings_domain_str[entry->domain]) + sl_strlen((char*)(entry->key));
   for (; string_length < 60; string_length++) {
     printf(" ");
   }

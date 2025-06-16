@@ -16,7 +16,7 @@
 // <i> Define the stack size of the Bluetooth link layer task. The value is in bytes
 // <i> and will be word aligned when it is applied at the task creation.
 #ifdef _SILICON_LABS_32B_SERIES_3
-#define SL_BTCTRL_RTOS_LINK_LAYER_TASK_STACK_SIZE   (1312)
+#define SL_BTCTRL_RTOS_LINK_LAYER_TASK_STACK_SIZE   (1400)
 #else
 #define SL_BTCTRL_RTOS_LINK_LAYER_TASK_STACK_SIZE   (1000)
 #endif // _SILICON_LABS_32B_SERIES_3

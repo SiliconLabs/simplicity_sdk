@@ -5,7 +5,7 @@ description: >
   An out-of-the-box Software Demo where the device acts as a switch using
   the Light CTL Client Model. It is optimized for low current consumption
   with disabled CLI, logging, and LCD. Push Button presses or CLI commands
-  can control the lightness and color temperature of the LEDs on a remote device. 
+  can control the lightness and color temperature of the LEDs on a remote device.
   This example runs on top of Micrium OS.
 
   Note - this example is not compatible with the Dimming Control NLC Profile.
@@ -36,19 +36,18 @@ component:
   - id: btmesh_proxy
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: micriumos_kernel
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
   - path: app.c
   - path: app_micriumos.c
-  - path: main.c
 
 include:
   - path: .
@@ -68,20 +67,22 @@ config_file:
     directory: btmeshconf
 
 readme:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_low_power_rtos.md
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_low_power_rtos.md
 
 other_file:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img0.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img1.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img2.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img3.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img4.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img5.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img6.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img7.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img8.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img0.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img1.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img2.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img3.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img4.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img5.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img6.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img7.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img8.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_BUTTON_PRESS_CONFIG_QUEUE_SIZE
     value: "4"
   - name: SL_BTMESH_LPN_POLL_TIMEOUT_CFG_VAL
@@ -124,6 +125,10 @@ configuration:
       - psa_crypto
   - name: SL_SIMPLE_BUTTON_ALLOW_LED_CONFLICT
     value: "1"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

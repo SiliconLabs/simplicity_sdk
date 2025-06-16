@@ -7,23 +7,16 @@
 #include "ZAF_Common_interface.h"
 #include "zaf_protocol_config.h"
 #include "zpal_radio_utils.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "zpal_radio.h"
 
 static SApplicationHandles * m_pAppHandles;
-static zpal_pm_handle_t m_PowerLock;
 static CP_Handle_t m_CmdPublisherHandle;
 static zaf_wake_up_callback_t wake_up_callback;
 
 void ZAF_setAppHandle(SApplicationHandles* pAppHandle)
 {
   m_pAppHandles = pAppHandle;
-}
-
-void ZAF_setPowerLock(zpal_pm_handle_t powerLock)
-{
-  m_PowerLock = powerLock;
 }
 
 void ZAF_SetCPHandle(CP_Handle_t handle)
@@ -61,12 +54,6 @@ const zpal_radio_network_stats_t* ZAF_getNetworkStatistics()
 {
   assert(m_pAppHandles);
   return m_pAppHandles->pNetworkStatistics;
-}
-
-zpal_pm_handle_t ZAF_getPowerLock()
-{
-  assert(m_PowerLock);
-  return m_PowerLock;
 }
 
 uint8_t ZAF_GetSecurityKeys(void)
@@ -114,21 +101,16 @@ EInclusionMode_t ZAF_GetInclusionMode(void)
 {
   node_id_t currentNodeID = ZAF_GetNodeID();
 
-  if (currentNodeID == 0)
-  {
+  if (currentNodeID == 0) {
     return EINCLUSIONMODE_NOT_SET;
-  }
-  else if (currentNodeID <= ZW_MAX_NODES  // Included as regular Z-Wave
-      && currentNodeID > 1)  // Only controller can have node id 1.
-  {
+  } else if (currentNodeID <= ZW_MAX_NODES  // Included as regular Z-Wave
+             && currentNodeID > 1) { // Only controller can have node id 1.
     return EINCLUSIONMODE_ZWAVE_CLS;
-  }
-  else if (currentNodeID >= LOWEST_LONG_RANGE_NODE_ID
-      && currentNodeID <= HIGHEST_LONG_RANGE_NODE_ID)  // Included as Z-Wave Long Range
-  {
+  } else if (currentNodeID >= LOWEST_LONG_RANGE_NODE_ID
+             && currentNodeID <= HIGHEST_LONG_RANGE_NODE_ID) { // Included as Z-Wave Long Range
     return EINCLUSIONMODE_ZWAVE_LR;
   }
-  DPRINTF("NodeID %d is out of bounds and the InclusionMode cannot be determined", currentNodeID);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_COMMON, "NodeID %d is out of bounds and the InclusionMode cannot be determined", currentNodeID);
   return EINCLUSIONMODE_NOT_SET;
 }
 
@@ -142,10 +124,12 @@ bool ZAF_isLongRangeRegion(zpal_radio_region_t eRegion)
   return zpal_radio_region_is_long_range(eRegion);
 }
 
-void zaf_set_stay_awake_callback(zaf_wake_up_callback_t callback) {
+void zaf_set_stay_awake_callback(zaf_wake_up_callback_t callback)
+{
   wake_up_callback = callback;
 }
 
-zaf_wake_up_callback_t zaf_get_stay_awake_callback(void) {
+zaf_wake_up_callback_t zaf_get_stay_awake_callback(void)
+{
   return wake_up_callback;
 }

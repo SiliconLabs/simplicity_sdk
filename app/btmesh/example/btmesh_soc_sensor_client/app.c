@@ -29,13 +29,13 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <stdio.h>
-#include "sl_common.h"
 #include "sl_status.h"
 #include "sl_udelay.h"
 
 #include "sl_btmesh.h"
 #include "sl_bluetooth.h"
 #include "app.h"
+#include "sl_main_init.h"
 #include "app_assert.h"
 #include "app_log.h"
 
@@ -150,28 +150,33 @@ void app_change_leds_to_buttons(void)
 }
 
 /*******************************************************************************
+ * Application Early Init
+ ******************************************************************************/
+void app_init_early(void)
+{
+  /////////////////////////////////////////////////////////////////////////////
+  // Put your additional application init code here!                         //
+  // This is called once before the OS is initialized if RTOS is used.       //
+  // This function precedes permanent memory allocations.                    //
+  /////////////////////////////////////////////////////////////////////////////
+}
+
+/*******************************************************************************
  * Application Init.
  ******************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
+  app_init_runtime();
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
   // This is called once during start-up.                                    //
   /////////////////////////////////////////////////////////////////////////////
-  #if !defined(SL_CATALOG_KERNEL_PRESENT)
-  app_log("Bt Mesh Sensor Client initialized" APP_LOG_NL);
-  // Ensure right init order in case of shared pin for enabling buttons
-  app_change_buttons_to_leds();
-  // Change LEDs to buttons in case of shared pin
-  app_change_leds_to_buttons();
-  app_handle_reset_conditions();
-  #endif // SL_CATALOG_KERNEL_PRESENT
 }
 
 /*******************************************************************************
  * Application Process Action.
  ******************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   if (app_is_process_required()) {
     /////////////////////////////////////////////////////////////////////////////
@@ -288,7 +293,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     case sl_bt_evt_connection_closed_id:
       if (num_connections > 0) {
-        if (--num_connections == 0) {
+        num_connections--;
+        if (num_connections == 0) {
           lcd_print("", SL_BTMESH_WSTK_LCD_ROW_CONNECTION_CFG_VAL);
           app_log("Disconnected" APP_LOG_NL);
         }
@@ -308,15 +314,21 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
  ******************************************************************************/
 void sl_btmesh_on_event(sl_btmesh_msg_t *evt)
 {
+  static volatile bool booted = false;
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         schedule_registered_device_update(DEVICE_REGISTER_SHORT_TIMEOUT);
+        booted = true;
       }
       break;
-    case sl_btmesh_evt_node_provisioned_id:
-      schedule_registered_device_update(DEVICE_REGISTER_LONG_TIMEOUT);
-      break;
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        schedule_registered_device_update(DEVICE_REGISTER_LONG_TIMEOUT);
+        booted = true;
+      }
+    }
+    break;
     default:
       break;
   }
@@ -430,12 +442,19 @@ static void sensor_client_change_current_property(void)
   switch (current_property) {
     case PRESENT_AMBIENT_TEMPERATURE:
       current_property = PEOPLE_COUNT;
+      app_log("Selected: people count" APP_LOG_NL);
       break;
     case PEOPLE_COUNT:
       current_property = PRESENT_AMBIENT_LIGHT_LEVEL;
+      app_log("Selected: ambient light level" APP_LOG_NL);
       break;
     case PRESENT_AMBIENT_LIGHT_LEVEL:
+      current_property = PRECISE_TOTAL_DEVICE_ENERGY_USE;
+      app_log("Selected: energy monitor" APP_LOG_NL);
+      break;
+    case PRECISE_TOTAL_DEVICE_ENERGY_USE:
       current_property = PRESENT_AMBIENT_TEMPERATURE;
+      app_log("Selected: ambient temperature" APP_LOG_NL);
       break;
     default:
       app_log("Unsupported property ID change" APP_LOG_NL);

@@ -37,6 +37,7 @@
 #if OPENTHREAD_CONFIG_BLE_TCAT_ENABLE
 
 #include "instance/instance.hpp"
+#include "thread/network_diagnostic.hpp"
 
 namespace ot {
 namespace MeshCoP {
@@ -112,7 +113,7 @@ exit:
     return error;
 }
 
-Error TcatAgent::Connected(MeshCoP::SecureTransport &aTlsContext)
+Error TcatAgent::Connected(MeshCoP::Tls::Extension &aTls)
 {
     size_t len;
     Error  error;
@@ -120,13 +121,13 @@ Error TcatAgent::Connected(MeshCoP::SecureTransport &aTlsContext)
     VerifyOrExit(IsEnabled(), error = kErrorInvalidState);
     len = sizeof(mCommissionerAuthorizationField);
     SuccessOrExit(
-        error = aTlsContext.GetThreadAttributeFromPeerCertificate(
+        error = aTls.GetThreadAttributeFromPeerCertificate(
             kCertificateAuthorizationField, reinterpret_cast<uint8_t *>(&mCommissionerAuthorizationField), &len));
     VerifyOrExit(len == sizeof(mCommissionerAuthorizationField), error = kErrorParse);
     VerifyOrExit((mCommissionerAuthorizationField.mHeader & kCommissionerFlag) == 1, error = kErrorParse);
 
     len = sizeof(mDeviceAuthorizationField);
-    SuccessOrExit(error = aTlsContext.GetThreadAttributeFromOwnCertificate(
+    SuccessOrExit(error = aTls.GetThreadAttributeFromOwnCertificate(
                       kCertificateAuthorizationField, reinterpret_cast<uint8_t *>(&mDeviceAuthorizationField), &len));
     VerifyOrExit(len == sizeof(mDeviceAuthorizationField), error = kErrorParse);
     VerifyOrExit((mDeviceAuthorizationField.mHeader & kCommissionerFlag) == 0, error = kErrorParse);
@@ -136,7 +137,7 @@ Error TcatAgent::Connected(MeshCoP::SecureTransport &aTlsContext)
     mCommissionerHasExtendedPanId = false;
 
     len = sizeof(mCommissionerDomainName) - 1;
-    if (aTlsContext.GetThreadAttributeFromPeerCertificate(
+    if (aTls.GetThreadAttributeFromPeerCertificate(
             kCertificateDomainName, reinterpret_cast<uint8_t *>(&mCommissionerDomainName), &len) == kErrorNone)
     {
         mCommissionerDomainName.m8[len] = '\0';
@@ -144,7 +145,7 @@ Error TcatAgent::Connected(MeshCoP::SecureTransport &aTlsContext)
     }
 
     len = sizeof(mCommissionerNetworkName) - 1;
-    if (aTlsContext.GetThreadAttributeFromPeerCertificate(
+    if (aTls.GetThreadAttributeFromPeerCertificate(
             kCertificateNetworkName, reinterpret_cast<uint8_t *>(&mCommissionerNetworkName), &len) == kErrorNone)
     {
         mCommissionerNetworkName.m8[len] = '\0';
@@ -152,7 +153,7 @@ Error TcatAgent::Connected(MeshCoP::SecureTransport &aTlsContext)
     }
 
     len = sizeof(mCommissionerExtendedPanId);
-    if (aTlsContext.GetThreadAttributeFromPeerCertificate(
+    if (aTls.GetThreadAttributeFromPeerCertificate(
             kCertificateExtendedPanId, reinterpret_cast<uint8_t *>(&mCommissionerExtendedPanId), &len) == kErrorNone)
     {
         if (len == sizeof(mCommissionerExtendedPanId))
@@ -404,6 +405,14 @@ Error TcatAgent::HandleSingleTlv(const Message &aIncomingMessage, Message &aOutg
             error = HandleSetActiveOperationalDataset(aIncomingMessage, offset, length);
             break;
 
+        case kTlvGetActiveOperationalDataset:
+            error = HandleGetActiveOperationalDataset(aOutgoingMessage, response);
+            break;
+
+        case kTlvGetDiagnosticTlvs:
+            error = HandleGetDiagnosticTlvs(aIncomingMessage, aOutgoingMessage, offset, length, response);
+            break;
+
         case kTlvStartThreadInterface:
             error = HandleStartThreadInterface();
             break;
@@ -453,6 +462,9 @@ Error TcatAgent::HandleSingleTlv(const Message &aIncomingMessage, Message &aOutg
             break;
         case kTlvRequestPskdHash:
             error = HandleRequestPskdHash(aIncomingMessage, aOutgoingMessage, offset, length, response);
+            break;
+        case kTlvGetCommissionerCertificate:
+            error = HandleGetCommissionerCertificate(aOutgoingMessage, response);
             break;
         default:
             error = kErrorInvalidCommand;
@@ -509,17 +521,22 @@ Error TcatAgent::HandleSetActiveOperationalDataset(const Message &aIncomingMessa
     Dataset     dataset;
     OffsetRange offsetRange;
     Error       error;
+    uint8_t     buf[kCommissionerCertMaxLength];
+    size_t      bufLen = sizeof(buf);
 
     offsetRange.Init(aOffset, aLength);
     SuccessOrExit(error = dataset.SetFrom(aIncomingMessage, offsetRange));
     SuccessOrExit(error = dataset.ValidateTlvs());
 
-    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mApplicationFlags,
-                                             mDeviceAuthorizationField.mApplicationFlags, &dataset))
+    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mCommissioningFlags,
+                                             mDeviceAuthorizationField.mCommissioningFlags, &dataset))
     {
         error = kErrorRejected;
         ExitNow();
     }
+
+    SuccessOrExit(error = Get<Ble::BleSecure>().GetPeerCertificateDer(buf, &bufLen, bufLen));
+    Get<Settings>().SaveTcatCommissionerCertificate(buf, static_cast<uint16_t>(bufLen));
 
     Get<ActiveDatasetManager>().SaveLocal(dataset);
 
@@ -527,15 +544,132 @@ exit:
     return error;
 }
 
+Error TcatAgent::HandleGetActiveOperationalDataset(Message &aOutgoingMessage, bool &aResponse)
+{
+    Error         error = kErrorNone;
+    Dataset       dataset;
+    Dataset::Tlvs datasetTlvs;
+
+    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mCommissioningFlags,
+                                             mDeviceAuthorizationField.mCommissioningFlags, &dataset))
+    {
+        error = kErrorRejected;
+        ExitNow();
+    }
+
+    SuccessOrExit(error = Get<ActiveDatasetManager>().Read(datasetTlvs));
+    SuccessOrExit(
+        error = Tlv::AppendTlv(aOutgoingMessage, kTlvResponseWithPayload, datasetTlvs.mTlvs, datasetTlvs.mLength));
+    aResponse = true;
+
+exit:
+    return error;
+}
+
+Error TcatAgent::HandleGetCommissionerCertificate(Message &aOutgoingMessage, bool &aResponse)
+{
+    Error    error = kErrorNone;
+    Dataset  dataset;
+    uint8_t  buf[kCommissionerCertMaxLength];
+    uint16_t bufLen = sizeof(buf);
+
+    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mCommissioningFlags,
+                                             mDeviceAuthorizationField.mCommissioningFlags, &dataset))
+    {
+        error = kErrorRejected;
+        ExitNow();
+    }
+
+    VerifyOrExit(kErrorNone == Get<Settings>().ReadTcatCommissionerCertificate(buf, bufLen),
+                 error = kErrorInvalidState);
+    SuccessOrExit(error = Tlv::AppendTlv(aOutgoingMessage, kTlvResponseWithPayload, buf, bufLen));
+    aResponse = true;
+
+exit:
+    return error;
+}
+
+Error TcatAgent::HandleGetDiagnosticTlvs(const Message &aIncomingMessage,
+                                         Message       &aOutgoingMessage,
+                                         uint16_t       aOffset,
+                                         uint16_t       aLength,
+                                         bool          &aResponse)
+{
+    Error           error = kErrorNone;
+    OffsetRange     offsetRange;
+    ot::ExtendedTlv extTlv;
+    uint16_t        initialLength;
+    uint16_t        length;
+
+    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mCommissioningFlags,
+                                             mDeviceAuthorizationField.mCommissioningFlags, nullptr))
+    {
+        error = kErrorRejected;
+        ExitNow();
+    }
+
+    offsetRange.Init(aOffset, aLength);
+    initialLength = aOutgoingMessage.GetLength();
+
+    // Start with extTlv to avoid the need for a temporary message buffer to calucalate reply length
+    extTlv.SetType(kTlvResponseWithPayload);
+    extTlv.SetLength(0);
+    SuccessOrExit(error = aOutgoingMessage.Append(extTlv));
+
+    error =
+        Get<NetworkDiagnostic::Server>().AppendRequestedTlvsForTcat(aIncomingMessage, aOutgoingMessage, offsetRange);
+
+    // Ensure enough message buffers are left for transmission of the result. Report error otherwise.
+    if (Get<MessagePool>().GetFreeBufferCount() < kBufferReserve)
+    {
+        error = kErrorNoBufs;
+    }
+
+    if (error != kErrorNone)
+    {
+        IgnoreError(aOutgoingMessage.SetLength(initialLength));
+        ExitNow();
+    }
+
+    length = aOutgoingMessage.GetLength() - initialLength - sizeof(extTlv);
+
+    if (length > 0)
+    {
+        extTlv.SetLength(length);
+        aOutgoingMessage.WriteBytes(initialLength, &extTlv, sizeof(extTlv));
+        aResponse = true;
+    }
+    else
+    {
+        IgnoreError(aOutgoingMessage.SetLength(initialLength));
+    }
+
+exit:
+    return error;
+}
+
 Error TcatAgent::HandleDecomission(void)
 {
-    Error error = kErrorNone;
+    Error         error = kErrorNone;
+    unsigned char buf[kCommissionerCertMaxLength];
+    size_t        bufLen = sizeof(buf);
+    Dataset       dataset;
+
+    if (!CheckCommandClassAuthorizationFlags(mCommissionerAuthorizationField.mDecommissioningFlags,
+                                             mDeviceAuthorizationField.mDecommissioningFlags, &dataset))
+    {
+        error = kErrorRejected;
+        ExitNow();
+    }
+
+    SuccessOrExit(error = Get<Ble::BleSecure>().GetPeerCertificateDer(buf, &bufLen, bufLen));
+    Get<Settings>().SaveTcatCommissionerCertificate(buf, static_cast<uint16_t>(bufLen));
 
     IgnoreReturnValue(otThreadSetEnabled(&GetInstance(), false));
     Get<ActiveDatasetManager>().Clear();
     Get<PendingDatasetManager>().Clear();
 
-    error = Get<Instance>().ErasePersistentInfo();
+    IgnoreReturnValue(Get<Instance>().ErasePersistentInfo());
 
 #if !OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
     {
@@ -545,6 +679,7 @@ Error TcatAgent::HandleDecomission(void)
     }
 #endif
 
+exit:
     return error;
 }
 
@@ -789,7 +924,7 @@ Error TcatAgent::HandleStartThreadInterface(void)
 #endif
 
     Get<ThreadNetif>().Up();
-    error = Get<Mle::MleRouter>().Start();
+    error = Get<Mle::Mle>().Start();
 
 exit:
     return error;

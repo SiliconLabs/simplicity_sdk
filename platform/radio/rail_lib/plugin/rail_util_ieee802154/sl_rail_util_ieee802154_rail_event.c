@@ -28,16 +28,114 @@
  *
  ******************************************************************************/
 
+#include "sl_rail.h"
 #include "rail.h"
 #include "sl_rail_util_ieee802154_stack_event.h"
+
+static bool ack_waiting = false;
+
+#if     SL_RAIL_3_API
+
+static inline bool is_receiving_frame(sl_rail_handle_t rail_handle)
+{
+  return (sl_rail_get_radio_state(rail_handle) & SL_RAIL_RF_STATE_RX_ACTIVE)
+         == SL_RAIL_RF_STATE_RX_ACTIVE;
+}
+
+void sl_rail_util_ieee801254_on_rail_event(sl_rail_handle_t railHandle, sl_rail_events_t events)
+{
+  if (events & (SL_RAIL_EVENT_RX_SYNC_0_DETECT
+                | SL_RAIL_EVENT_RX_SYNC_1_DETECT)) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_STARTED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_RX_FILTER_PASSED) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACCEPTED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_SIGNAL_DETECTED) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_SIGNAL_DETECTED, 0U);
+  }
+  if (events & (SL_RAIL_EVENT_TX_CHANNEL_BUSY | SL_RAIL_EVENT_TX_BLOCKED)) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_BLOCKED,
+                                            (uint32_t) sl_rail_is_auto_ack_waiting_for_ack(railHandle));
+  }
+  if (events & (SL_RAIL_EVENT_TX_UNDERFLOW | SL_RAIL_EVENT_TX_ABORTED)) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ABORTED,
+                                            (uint32_t) sl_rail_is_auto_ack_waiting_for_ack(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_RX_ACK_TIMEOUT) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ACK_TIMEDOUT, 0);
+  }
+  if ((events & SL_RAIL_EVENT_TX_PACKET_SENT) != SL_RAIL_EVENTS_NONE) {
+    ack_waiting = sl_rail_is_auto_ack_waiting_for_ack(railHandle);
+    (void) sl_rail_util_ieee802154_on_event((ack_waiting
+                                             ? SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ACK_WAITING
+                                             : SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ENDED), 0U);
+  }
+  if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
+    if (ack_waiting
+        || !sl_rail_is_auto_ack_enabled(railHandle)
+        || sl_rail_is_rx_auto_ack_paused(railHandle)) {
+      (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ENDED,
+                                              (uint32_t) is_receiving_frame(railHandle));
+    }
+    if (ack_waiting) {
+      ack_waiting = false;
+      (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ACK_RECEIVED, 0U);
+    }
+  }
+  if (events & SL_RAIL_EVENT_TX_START_CCA) {
+    // We are starting RXWARM for a CCA check
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_CCA_SOON, 0U);
+  }
+  if (events & SL_RAIL_EVENT_TX_CCA_RETRY) {
+    // We failed a CCA check and need to retry
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_CCA_BUSY, 0U);
+  }
+  if (events & SL_RAIL_EVENT_TX_CHANNEL_CLEAR) {
+    // We're going on-air
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_STARTED, 0U);
+  }
+  if (events & SL_RAIL_EVENT_RX_FRAME_ERROR) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_CORRUPTED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  // The following 3 events cause us to not receive a packet
+  if (events & (SL_RAIL_EVENT_RX_PACKET_ABORTED
+                | SL_RAIL_EVENT_RX_ADDRESS_FILTERED
+                | SL_RAIL_EVENT_RX_FIFO_OVERFLOW)) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_FILTERED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_RX_ACK_TIMEOUT) {
+    ack_waiting = false;
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ACK_TIMEDOUT, 0);
+  }
+  if (events & SL_RAIL_EVENT_TXACK_PACKET_SENT) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_SENT,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & (SL_RAIL_EVENT_TXACK_ABORTED | SL_RAIL_EVENT_TXACK_UNDERFLOW)) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_ABORTED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_TXACK_BLOCKED) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_BLOCKED,
+                                            (uint32_t) is_receiving_frame(railHandle));
+  }
+  if (events & SL_RAIL_EVENT_CONFIG_UNSCHEDULED) {
+    (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_IDLED, 0U);
+  }
+}
+
+#else//!SL_RAIL_3_API
 
 static inline bool isReceivingFrame(RAIL_Handle_t railHandle)
 {
   return (RAIL_GetRadioState(railHandle) & RAIL_RF_STATE_RX_ACTIVE)
          == RAIL_RF_STATE_RX_ACTIVE;
 }
-
-static bool ack_waiting = false;
 
 void sl_rail_util_ieee801254_on_rail_event(RAIL_Handle_t railHandle, RAIL_Events_t events)
 {
@@ -125,3 +223,5 @@ void sl_rail_util_ieee801254_on_rail_event(RAIL_Handle_t railHandle, RAIL_Events
     (void) sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_IDLED, 0U);
   }
 }
+
+#endif//SL_RAIL_3_API

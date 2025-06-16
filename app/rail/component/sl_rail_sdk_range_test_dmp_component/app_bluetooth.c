@@ -48,6 +48,7 @@
 #include "app_process.h"
 #include "sl_sleeptimer.h"
 #include "sl_bt_api.h"
+#include "sl_code_classification.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -202,11 +203,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     ///////////////////////////////////////////////////////////////////////////
     case sl_bt_evt_system_boot_id:
       connection_handler = 0xFF;
-      app_log_info("[info] [B] Booted: v%d.%d.%d-b%d\n",
+      app_log_info("[info] [B] Booted: v%d.%d.%d+%08lx\n",
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
 
       bt_status = sl_bt_system_get_identity_address(&bluetooth_address, &bluetooth_address_type);
       app_assert_status_f(bt_status, "sl_bt_system_get_identity_address failed with %#X\n", bt_status);
@@ -1094,8 +1095,7 @@ static void update_phy_power_range(void)
   sl_status_t bt_status = SL_STATUS_OK;
   uint8_t buf[4] = { 0 };
 
-  power_min = get_min_tx_power_deci_dbm();
-  power_max = get_max_tx_power_deci_dbm();
+  get_tx_power_deci_dbm_range(&power_min, &power_max);
 
   buf[0] = (uint8_t)(power_min & 0x00FF);
   buf[1] = (uint8_t)((power_min >> 8) & 0x00FF);
@@ -1114,7 +1114,7 @@ static void update_phy_power_range(void)
  * @param[in] handle: not used
  * @param[in] data: not used
  ******************************************************************************/
-static void receive_ended_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void receive_ended_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;

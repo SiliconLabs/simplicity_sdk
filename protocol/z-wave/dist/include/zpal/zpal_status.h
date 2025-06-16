@@ -26,13 +26,12 @@ extern "C" {
  * @{
  */
 
-typedef enum 
-{
-    ZPAL_STATUS_OK = 0,             ///< No error.
-    ZPAL_STATUS_FAIL,               ///< Generic error.
-    ZPAL_STATUS_BUFFER_FULL,        ///< There is no more room in the buffer.
-    ZPAL_STATUS_BUSY,               ///< Process is busy.
-    ZPAL_STATUS_INVALID_ARGUMENT    ///< At least one argument is invalid.
+typedef enum {
+  ZPAL_STATUS_OK = 0,               ///< No error.
+  ZPAL_STATUS_FAIL,                 ///< Generic error.
+  ZPAL_STATUS_BUFFER_FULL,          ///< There is no more room in the buffer.
+  ZPAL_STATUS_BUSY,                 ///< Process is busy.
+  ZPAL_STATUS_INVALID_ARGUMENT      ///< At least one argument is invalid.
 } zpal_status_t;
 
 /**

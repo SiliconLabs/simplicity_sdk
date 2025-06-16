@@ -80,14 +80,15 @@ def concurrent_phy(phy_name,reg_field_list,override_dict=None): #decorator maker
             concurrent_model = CalcManager(part_family=model.part_family, part_rev=model.part_revision, target=model.target).calculate_phy(phy_name=phy_name,optional_inputs=override_dict)
 
             #Assign special concurrent PHY variables
-            model.vars.alt_min_if_hz.value_forced = concurrent_model.vars.min_if_hz.value
-            model.vars.alt_softmodem_used.value_forced = 1 if \
-                concurrent_model.vars.demod_select.value == concurrent_model.vars.demod_select.var_enum.SOFT_DEMOD else 0
-            model.vars.alt_wisun_mode_switch_phr.value_forced = concurrent_model.vars.wisun_mode_switch_phr.value
-            model.vars.alt_wisun_phy_mode_id.value_forced = concurrent_model.vars.wisun_phy_mode_id.value
-            model.vars.alt_stack_info.value_forced = concurrent_model.vars.stack_info.value
-            model.vars.alt_rssi_adjust_db.value_forced = concurrent_model.vars.rssi_adjust_db.value
-            model.vars.softmodem_antdivmode.value_forced = concurrent_model.vars.softmodem_antdivmode.value
+            if hasattr(concurrent_model.vars,'min_if_hz'):
+                model.vars.alt_min_if_hz.value_forced = concurrent_model.vars.min_if_hz.value
+                model.vars.alt_softmodem_used.value_forced = 1 if \
+                    concurrent_model.vars.demod_select.value == concurrent_model.vars.demod_select.var_enum.SOFT_DEMOD else 0
+                model.vars.alt_wisun_mode_switch_phr.value_forced = concurrent_model.vars.wisun_mode_switch_phr.value
+                model.vars.alt_wisun_phy_mode_id.value_forced = concurrent_model.vars.wisun_phy_mode_id.value
+                model.vars.alt_stack_info.value_forced = concurrent_model.vars.stack_info.value
+                model.vars.alt_rssi_adjust_db.value_forced = concurrent_model.vars.rssi_adjust_db.value
+                model.vars.softmodem_antdivmode.value_forced = concurrent_model.vars.softmodem_antdivmode.value
 
             #Finally loop go through the Profile Outputs for the concurrent PHY and copy them over
             for reg_field in reg_field_list:

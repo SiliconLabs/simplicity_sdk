@@ -18,9 +18,9 @@ void func_id_set_listen_before_talk(__attribute__((unused)) uint8_t inputLength,
 {
   uint8_t bReturn;
   SZwaveCommandPackage setLBTMode = {
-       .eCommandType = EZWAVECOMMANDTYPE_ZW_SET_LBT_THRESHOLD,
-       .uCommandParams.SetLBTThreshold.channel = pInputBuffer[0],
-       .uCommandParams.SetLBTThreshold.level = (int8_t)pInputBuffer[1]
+    .eCommandType = EZWAVECOMMANDTYPE_ZW_SET_LBT_THRESHOLD,
+    .uCommandParams.SetLBTThreshold.channel = pInputBuffer[0],
+    .uCommandParams.SetLBTThreshold.level = (int8_t)pInputBuffer[1]
   };
 
   bReturn = QueueProtocolCommand((uint8_t*)&setLBTMode);
@@ -29,4 +29,3 @@ void func_id_set_listen_before_talk(__attribute__((unused)) uint8_t inputLength,
   *pOutputLength = 1;
 }
 #endif
-

@@ -393,7 +393,7 @@ static void sleepyMeterEventHandler(sl_zigbee_af_event_t * event)
                                   2 * MILLISECOND_TICKS_PER_SECOND);
 
   // don't do anything unless we're on the network
-  if (sl_zigbee_network_state() != SL_ZIGBEE_JOINED_NETWORK) {
+  if (sl_zigbee_af_network_state() != SL_ZIGBEE_JOINED_NETWORK) {
     setSleepyMeterState(INITIAL_STATE);
     return;
   }

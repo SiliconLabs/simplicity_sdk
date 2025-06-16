@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6102a
 - label: SLWSTK6102A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xGM210P Wireless Gecko Module Starter Kit.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

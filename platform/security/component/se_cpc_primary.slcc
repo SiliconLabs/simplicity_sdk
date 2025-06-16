@@ -1,5 +1,5 @@
 id: se_cpc_primary
-package: platform
+package: security_se_cpc
 label: Secure Engine Co-Processor Communcation Primary
 description: >-
   Provides primary support for Secure Engine mailbox communication over CPC

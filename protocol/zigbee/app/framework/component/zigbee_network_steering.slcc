@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component performs the necessary steps to join the network of any Zigbee Profile.  It tries first to perform a join using an install code on the primary channel mask, and then the secondary channel mask. If that does not work it then tries to use the default well-known link key (ZigbeeAlliance09) to join on the primary channel mask, and then the secondary channel mask. Finally, if the previous two key types fail, the component tries to use the distributed security link key (D0D1D2...) to join on the primary channel mask, and then the secondary channel mask.
 label: Network Steering
 quality: production

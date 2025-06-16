@@ -1,6 +1,6 @@
 id: btmesh_blob_transfer_server_core
 label: BLOB Transfer Server Core
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides BT Mesh BLOB (Binary Large OBject) Transfer Server Core API
   for managing the BLOB Transfer Server instances.
@@ -59,3 +59,6 @@ validation_library:
 validation_helper:
   - path: btmesh_blob_transfer_server_validation.lua
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-transfer-server-core

@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "sl_string.h"
 #include "socket/socket.h"
 #include "sl_wisun_trace_util.h"
 #include "sl_wisun_udp_client.h"
@@ -114,14 +115,13 @@ void sl_wisun_udp_client_write(const int32_t sockid,
   }
 
   // send data
-  res = sendto(sockid, str, strlen(str), 0, (const struct sockaddr *) &server_addr, sizeof(server_addr));
+  res = sendto(sockid, str, sl_strlen((char*)str), 0, (const struct sockaddr *) &server_addr, sizeof(server_addr));
   if (res == SOCKET_RETVAL_ERROR) {
     printf("[Failed to send on socket: %ld]\n", sockid);
   }
 
   // Save socket buffer length for read
-  _socket_buff_length += strlen(str);
-
+  _socket_buff_length += sl_strlen((char*)str);
 }
 
 /* read on udp client socket */

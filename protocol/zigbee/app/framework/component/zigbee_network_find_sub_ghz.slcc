@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component extends the functionality of the Network Find component to sub-GHz. channels.
 label: Network Find (Sub-GHz)
 quality: production

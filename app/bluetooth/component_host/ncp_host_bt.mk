@@ -40,7 +40,8 @@ $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/app/bluetooth/common_host/tcp \
 $(SDK_DIR)/app/bluetooth/common_host/uart \
 $(SDK_DIR)/platform/common/inc \
-$(SDK_DIR)/protocol/bluetooth/inc
+$(SDK_DIR)/protocol/bluetooth/inc \
+$(SDK_DIR)/protocol/bluetooth/config
 
 ifneq (, $(filter $(OS), posix))
   override INCLUDEPATHS += $(SDK_DIR)/app/bluetooth/common_host/named_socket
@@ -66,8 +67,6 @@ ifneq ($(SECURITY), 0)
   override INCLUDEPATHS += $(SDK_DIR)/app/bluetooth/common_host/ncp_sec
   override C_SRC += $(SDK_DIR)/app/bluetooth/common_host/ncp_sec/ncp_sec_host.c
   override CFLAGS += -DSECURITY
-  # Suppress OpenSSL 3.0 warnings until proper update is made on ncp_sec
-  override CFLAGS += -DOPENSSL_API_COMPAT=0x10101000L
   REQUIRED_PACKAGES += openssl
 endif
 

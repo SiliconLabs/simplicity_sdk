@@ -266,7 +266,7 @@ sl_wisun_lfn_profile_t sl_wisun_app_core_get_lfn_profile(void);
 
 /**************************************************************************//**
  * @brief Get LFN parameters
- * @return sl_wisun_lfn_params_t pointer to the set profile paramaters of LFN.
+ * @return sl_wisun_lfn_params_t pointer to the set profile parameters of LFN.
  *****************************************************************************/
 const sl_wisun_lfn_params_t *sl_wisun_app_core_get_lfn_params(void);
 #endif

@@ -31,28 +31,32 @@
  *
  ******************************************************************************/
 
+#include "sl_rail.h"
+#include "rail.h"
+
+#if (RAIL_SUPPORTS_EXTERNAL_THERMISTOR || SL_RAIL_SUPPORTS_EXTERNAL_THERMISTOR)
+
 #include "sl_rail_util_thermistor.h"
-
-#if RAIL_SUPPORTS_EXTERNAL_THERMISTOR
-
 #include <math.h>
 
-static const RAIL_HFXOThermistorConfig_t hfxoThermistorConfig = {
-  .port = GPIO_THMSW_EN_PORT,
-  .pin = GPIO_THMSW_EN_PIN
-};
-
-RAIL_Status_t sl_rail_util_thermistor_init(void)
+#ifndef SLI_LIBRAIL_BUILD
+// Do not put an sl_rail_util_thermistor_init() implementation into librail.
+void sl_rail_util_thermistor_init(void)
 {
-  return RAIL_ConfigHFXOThermistor(RAIL_EFR32_HANDLE, &hfxoThermistorConfig);
+#if (defined(GPIO_THMSW_EN_PORT) && defined(GPIO_THMSW_EN_PIN))
+  sl_rail_hfxo_thermistor_config_t hfxo_thermistor_config = {
+    .port = GPIO_THMSW_EN_PORT,
+    .pin = GPIO_THMSW_EN_PIN
+  };
+  (void)sl_rail_config_hfxo_thermistor(SL_RAIL_EFR32_HANDLE, &hfxo_thermistor_config);
+#endif// (defined(GPIO_THMSW_EN_PORT) && defined(GPIO_THMSW_EN_PIN))
 }
+#endif//SLI_LIBRAIL_BUILD
 
 /* This macro is defined when Silicon Labs builds this into the library as WEAK
    to ensure it can be overriden by customer versions of these functions. The macro
    should *not* be defined in a customer build. */
-#ifdef RAIL_UTIL_THERMISTOR_WEAK
-__WEAK
-#endif
+SLI_LIBRAIL_WEAK
 RAIL_Status_t RAIL_ConvertThermistorImpedance(RAIL_Handle_t railHandle,
                                               uint32_t thermistorImpedance,
                                               int16_t *thermistorTemperatureC)
@@ -69,16 +73,14 @@ RAIL_Status_t RAIL_ConvertThermistorImpedance(RAIL_Handle_t railHandle,
   return RAIL_STATUS_NO_ERROR;
 }
 
-#ifdef RAIL_UTIL_THERMISTOR_WEAK
-__WEAK
-#endif
+SLI_LIBRAIL_WEAK
 RAIL_Status_t RAIL_ComputeHFXOPPMError(RAIL_Handle_t railHandle,
                                        int16_t crystalTemperatureC,
                                        int8_t *crystalPPMError)
 {
   (void) railHandle;
   // Equation is:
-  // f(T) = 1.05*10^-4(T-T0)^3 + 1.0*10^-4(T-T0)^2 - 0.74(T-T0) - 0.35, Reference to 30℃
+  // f(T) = 1.05*10^-4(T-T0)^3 + 1.0*10^-4(T-T0)^2 - 0.74(T-T0) - 0.35, Reference to 30C
   // Cache T-T0
   double deltaRefTempC = (double)crystalTemperatureC - 30.0;
   *crystalPPMError = (int8_t) round(1.05 * 0.0001 * pow(deltaRefTempC, 3.0)
@@ -88,4 +90,26 @@ RAIL_Status_t RAIL_ComputeHFXOPPMError(RAIL_Handle_t railHandle,
   return RAIL_STATUS_NO_ERROR;
 }
 
-#endif // RAIL_SUPPORTS_EXTERNAL_THERMISTOR
+// Below needed for RAIL 3
+
+SLI_LIBRAIL_WEAK
+sl_rail_status_t sl_railcb_convert_thermistor_impedance(sl_rail_handle_t rail_handle,
+                                                        uint32_t thermistor_impedance_ohms,
+                                                        int16_t *p_thermistor_temperature_8c)
+{
+  return (sl_rail_status_t)RAIL_ConvertThermistorImpedance((RAIL_Handle_t)rail_handle,
+                                                           thermistor_impedance_ohms,
+                                                           p_thermistor_temperature_8c);
+}
+
+SLI_LIBRAIL_WEAK
+sl_rail_status_t sl_railcb_compute_hfxo_error_ppm(sl_rail_handle_t rail_handle,
+                                                  int16_t crystal_temperature_c,
+                                                  int8_t *p_crystal_error_ppm)
+{
+  return (sl_rail_status_t)RAIL_ComputeHFXOPPMError((RAIL_Handle_t)rail_handle,
+                                                    crystal_temperature_c,
+                                                    p_crystal_error_ppm);
+}
+
+#endif // (RAIL_SUPPORTS_EXTERNAL_THERMISTOR || SL_RAIL_SUPPORTS_EXTERNAL_THERMISTOR)

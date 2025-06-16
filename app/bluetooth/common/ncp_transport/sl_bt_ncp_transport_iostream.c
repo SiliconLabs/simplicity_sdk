@@ -3,7 +3,7 @@
  * @brief Bluetooth NCP Transport Layer over IO Stream source
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -38,6 +38,7 @@
 #include "sl_bt_ncp_transport_iostream_config.h"
 #include "app_rta.h"
 #include "sl_iostream.h"
+#include "sli_iostream.h"
 #include "sl_iostream_handles.h"
 #include "sl_component_catalog.h"
 #ifdef SL_CATALOG_APP_ASSERT_PRESENT
@@ -56,6 +57,7 @@ typedef struct {
   sl_iostream_t     *stream;         //< IO Stream instance
   bool              receive_enabled; //< Enabled state of the reception
   size_t            tx_count;        //< The amount of data in the TX buffer
+  struct sli_iostream_write_async_op write_async_op; // IO Stream async operator
 } transport_t;
 
 // -----------------------------------------------------------------------------
@@ -67,6 +69,10 @@ static void on_runtime_error(app_rta_error_t error, sl_status_t result);
 static void tx_step(void);
 // TX step function
 static void rx_step(void);
+// iostream on transmit callback wrapper
+static void on_iostream_transmit(sli_iostream_write_async_op_t *op,
+                                 sl_status_t status,
+                                 void *arg);
 
 // -----------------------------------------------------------------------------
 // Private variables
@@ -139,37 +145,6 @@ void sli_bt_ncp_transport_init(void)
 
   memset(&transport, 0, sizeof(transport));
 
-  char *name = SL_BT_NCP_TRANSPORT_IOSTREAM_CONFIG_STREAM_INSTANCE;
-  sl_iostream_type_t type = SL_BT_NCP_TRANSPORT_IOSTREAM_CONFIG_STREAM_TYPE;
-
-  sl_iostream_t *iostream = NULL;
-  sl_iostream_t *iostream_type = NULL;
-
-  for (uint32_t i = 0; i < sl_iostream_instances_count; i++) {
-    if (sl_iostream_instances_info[i]->type == type) {
-      if (strcmp(sl_iostream_instances_info[i]->name, name) == 0) {
-        iostream = sl_iostream_instances_info[i]->handle;
-        break;
-      }
-      if (iostream_type == NULL) {
-        iostream_type = sl_iostream_instances_info[i]->handle;
-      }
-    }
-  }
-
-  if (iostream == NULL) {
-    // The stream is not found by name
-    if (iostream_type != NULL) {
-      // Stream found by type
-      iostream = iostream_type;
-    } else {
-      // Not found stream, set to default
-      iostream = sl_iostream_get_default();
-    }
-  }
-
-  transport.stream = iostream;
-
   // Create context for TX
   app_rta_config_t config = {
     .requirement.runtime          = true,
@@ -212,7 +187,36 @@ void sli_bt_ncp_transport_init(void)
 
 void sli_bt_ncp_transport_rta_ready(void)
 {
-  // No action required.
+  char *name = SL_BT_NCP_TRANSPORT_IOSTREAM_CONFIG_STREAM_INSTANCE;
+  sl_iostream_type_t type = SL_BT_NCP_TRANSPORT_IOSTREAM_CONFIG_STREAM_TYPE;
+
+  sl_iostream_t *iostream = NULL;
+  sl_iostream_t *iostream_type = NULL;
+
+  for (uint32_t i = 0; i < sl_iostream_instances_count; i++) {
+    if (sl_iostream_instances_info[i]->type == type) {
+      if (strcmp(sl_iostream_instances_info[i]->name, name) == 0) {
+        iostream = sl_iostream_instances_info[i]->handle;
+        break;
+      }
+      if (iostream_type == NULL) {
+        iostream_type = sl_iostream_instances_info[i]->handle;
+      }
+    }
+  }
+
+  if (iostream == NULL) {
+    // The stream is not found by name
+    if (iostream_type != NULL) {
+      // Stream found by type
+      iostream = iostream_type;
+    } else {
+      // Not found stream, set to default
+      iostream = sl_iostream_get_default();
+    }
+  }
+
+  transport.stream = iostream;
 }
 
 // Step function (to be called externally)
@@ -236,20 +240,42 @@ static void tx_step(void)
   }
 
   if (transport.tx_count > 0) {
+    // Try sync write first (especially on streams that don't support async)
+    // since there's no other way to determine iostream UART mode.
     sc = sl_iostream_write(transport.stream,
                            transport.tx_buf,
                            transport.tx_count);
-    if (sc == SL_STATUS_OK) {
-      transport.tx_count = 0;
-      (void)app_rta_release(transport.ctx_tx);
-      sl_bt_ncp_transport_on_transmit(SL_STATUS_OK);
+    if (sc == SL_STATUS_NOT_AVAILABLE) { // Feature not available due to software configuration.
+      // Try async as fallback on supported UART streams
+      sc = sli_iostream_init_async_write_op(&transport.write_async_op,
+                                            transport.tx_buf,
+                                            transport.tx_count,
+                                            on_iostream_transmit,
+                                            &transport);
+      if (sc == SL_STATUS_OK) {
+        (void)sli_iostream_async_write(transport.stream,
+                                       &transport.write_async_op);
+      }
     } else {
-      (void)app_rta_proceed(transport.ctx_tx);
-      (void)app_rta_release(transport.ctx_tx);
+      on_iostream_transmit(NULL, sc, &transport);
     }
   }
 }
 
+static void on_iostream_transmit(sli_iostream_write_async_op_t *op,
+                                 sl_status_t status,
+                                 void *arg)
+{
+  (void)op;
+  if (status == SL_STATUS_OK) {
+    ((transport_t *)arg)->tx_count = 0;
+    (void)app_rta_release(((transport_t *)arg)->ctx_tx);
+    sl_bt_ncp_transport_on_transmit(SL_STATUS_OK);
+  } else {
+    (void)app_rta_proceed(((transport_t *)arg)->ctx_tx);
+    (void)app_rta_release(((transport_t *)arg)->ctx_tx);
+  }
+}
 // Step function for RX
 static void rx_step(void)
 {

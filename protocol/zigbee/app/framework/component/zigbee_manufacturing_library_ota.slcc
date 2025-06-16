@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Component for supporting manufacturing library commands over the air.
 label: Manufacturing Library Ota
 quality: production

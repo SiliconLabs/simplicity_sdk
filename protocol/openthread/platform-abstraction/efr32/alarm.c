@@ -47,9 +47,9 @@
 #include "platform-efr32.h"
 #include "utils/code_utils.h"
 
-#include "rail.h"
 #include "sl_core.h"
 #include "sl_multipan.h"
+#include "sl_rail.h"
 #include "sl_sleeptimer.h"
 
 #ifndef TESTING
@@ -70,7 +70,7 @@ struct wrap_timer_data
 static sl_sleeptimer_timer_handle_t sl_handle[OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_NUM];
 
 // microsecond timer (RAIL timer)
-static RAIL_MultiTimer_t rail_timer[OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_NUM];
+static sl_rail_multi_timer_t rail_timer[OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_NUM];
 
 // forward declare generic alarm handle
 struct AlarmHandle;
@@ -109,7 +109,7 @@ static uint64_t sPendingTimeMs[OPENTHREAD_CONFIG_MULTIPLE_INSTANCE_NUM];
 STATIC void msAlarmCallback(sl_sleeptimer_timer_handle_t *aHandle, void *aData);
 
 // microsecond-alarm callback
-STATIC void usAlarmCallback(struct RAIL_MultiTimer *tmr, RAIL_Time_t expectedTimeOfEvent, void *cbArg);
+STATIC void usAlarmCallback(struct sl_rail_multi_timer *tmr, sl_rail_time_t expectedTimeOfEvent, void *cbArg);
 
 // timer specific operations
 static void     msTimerStart(AlarmHandle *aMsAlarm, uint32_t aAlarmDuration);
@@ -192,10 +192,14 @@ static void usTimerStart(AlarmHandle *aUsAlarm, uint32_t aAlarmDuration)
 {
     OT_ASSERT(aUsAlarm != NULL);
     OT_ASSERT(aUsAlarm->mIsRunning == false);
-    RAIL_Status_t status =
-        RAIL_SetMultiTimer(aUsAlarm->mTimerHandle, aAlarmDuration, RAIL_TIME_DELAY, usAlarmCallback, (void *)aUsAlarm);
+    sl_rail_status_t status = sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE,
+                                                      aUsAlarm->mTimerHandle,
+                                                      aAlarmDuration,
+                                                      SL_RAIL_TIME_DELAY,
+                                                      usAlarmCallback,
+                                                      (void *)aUsAlarm);
 #if OPENTHREAD_CONFIG_ASSERT_ENABLE
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 #else
     OT_UNUSED_VARIABLE(status);
 #endif
@@ -208,13 +212,13 @@ static uint32_t usTimerGetMaxTime(void)
 
 static uint32_t usTimerGetNow(void)
 {
-    return RAIL_GetTime();
+    return sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
 }
 
 static void usTimerStop(AlarmHandle *aUsAlarm)
 {
     OT_ASSERT(aUsAlarm != NULL);
-    RAIL_CancelMultiTimer((struct RAIL_MultiTimer *)aUsAlarm->mTimerHandle);
+    sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, (struct sl_rail_multi_timer *)aUsAlarm->mTimerHandle);
 }
 
 static inline bool isAlarmOverflowInProgress(AlarmHandle *aAlarm)
@@ -392,7 +396,7 @@ STATIC void msAlarmCallback(sl_sleeptimer_timer_handle_t *aHandle, void *aData)
 
 // microsecond-alarm callback
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-STATIC void usAlarmCallback(struct RAIL_MultiTimer *tmr, RAIL_Time_t expectedTimeOfEvent, void *cbArg)
+STATIC void usAlarmCallback(struct sl_rail_multi_timer *tmr, sl_rail_time_t expectedTimeOfEvent, void *cbArg)
 {
     OT_UNUSED_VARIABLE(tmr);
     OT_UNUSED_VARIABLE(expectedTimeOfEvent);
@@ -552,7 +556,7 @@ uint64_t otPlatTimeGet(void)
     uint64_t        now64TimeUs;
     CORE_DECLARE_IRQ_STATE;
     CORE_ENTER_CRITICAL();
-    now32TimeUs = RAIL_GetTime();
+    now32TimeUs = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
     if (now32TimeUs < prev32TimeUs)
     {
         timerWraps += 1U;

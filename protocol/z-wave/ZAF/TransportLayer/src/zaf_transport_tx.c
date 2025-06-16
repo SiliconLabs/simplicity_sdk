@@ -14,9 +14,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "association_plus_base.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
-#include "DebugPrintConfig.h"
+#include "zpal_log.h"
 
 typedef struct {
   zaf_tx_callback_t callback;
@@ -39,8 +37,8 @@ static void transport_tx(void);
 static void
 transport_callback(transmission_result_t * transmission_result)
 {
-  DPRINTF("Transport callback: Status:%d Finished:%d\n",
-          transmission_result->status, transmission_result->isFinished);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "Transport callback: Status:%d Finished:%d\n",
+                 transmission_result->status, transmission_result->isFinished);
 
   if (transmission_result->isFinished != TRANSMISSION_RESULT_NOT_FINISHED) {
     /* Handle callback before transmitting again */
@@ -77,7 +75,7 @@ transport_tx(void)
   MULTICHAN_NODE_ID node_id = { 0 };
 
   if (xQueueReceive(transport_queue_handle, &queue_item, 0) == pdPASS) {
-    DPRINT("Transmitting frame\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "Transmitting frame\n");
     transport_busy = true;
 
     transport_pending_callback = queue_item.callback;
@@ -120,7 +118,7 @@ transport_tx(void)
       }
     }
   } else {
-    DPRINT("No more frames to transmit\n");
+    ZPAL_LOG_INFO(ZPAL_LOG_ZAF_TRANSPORT, "No more frames to transmit\n");
     transport_busy = false;
   }
 }
@@ -137,10 +135,10 @@ zaf_transport_tx(const uint8_t *frame, uint8_t frame_length,
   memcpy(&queue_item.frame, frame, frame_length);
   memcpy(&queue_item.zaf_tx_options, zaf_tx_options, sizeof(zaf_tx_options_t));
 
-  DPRINT("Adding new frame to queue\n");
+  ZPAL_LOG_INFO(ZPAL_LOG_ZAF_TRANSPORT, "Adding new frame to queue\n");
   ret = xQueueSend(transport_queue_handle, &queue_item, 0);
   if (ret == pdFAIL) {
-    DPRINT("Failed to add new frame to queue\n");
+    ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_TRANSPORT, "Failed to add new frame to queue\n");
     return false;
   }
 
@@ -161,13 +159,13 @@ zaf_transport_init(void)
                                               ZAF_TRANSPORT_QUEUE_ITEM_SIZE,
                                               transport_queue_buffer,
                                               &transport_queue);
-  DPRINT("zaf transport init\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "zaf transport init\n");
 }
 
 void
 zaf_transport_resume(void)
 {
-  DPRINTF("zaf transport resumed %d\n", transport_busy);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "zaf transport resumed %d\n", transport_busy);
   transport_queue_paused = false;
   if (!transport_busy) {
     transport_tx();
@@ -177,7 +175,7 @@ zaf_transport_resume(void)
 void
 zaf_transport_pause(void)
 {
-  DPRINTF("zaf transport paused %d\n", transport_busy);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "zaf transport paused %d\n", transport_busy);
   transport_queue_paused = true;
 }
 

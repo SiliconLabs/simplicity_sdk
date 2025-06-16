@@ -244,7 +244,7 @@ static void _clnt_thr_fnc(void * args);
 // -----------------------------------------------------------------------------
 
 #if SL_FTP_CLNT_DEFAULT_BUFF_ENABLE
-/// Controll channel default buffer
+/// Control channel default buffer
 static uint8_t _ctrl_buff[SL_FTP_CLNT_CTRL_BUFF_SIZE] = { 0U };
 
 /// Data channel default buffer
@@ -371,7 +371,7 @@ static sl_status_t _connect_channel(sl_ftp_clnt_ch_t * const clnt_ch)
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_wiusn_ftp_clnt_connect(sl_ftp_clnt_t * const clnt)
+sl_status_t sl_wisun_ftp_clnt_connect(sl_ftp_clnt_t * const clnt)
 {
   if (_connect_channel(&clnt->ctrl_ch) == SL_STATUS_FAIL) {
     return SL_STATUS_FAIL;
@@ -537,7 +537,7 @@ sl_status_t sl_ftp_clnt_connect_auth(sl_ftp_clnt_t * const clnt,
   sl_status_t status = SL_STATUS_FAIL;
   const char *mode_cmd = NULL;
 
-  status = sl_wiusn_ftp_clnt_connect(clnt);
+  status = sl_wisun_ftp_clnt_connect(clnt);
   if (status != SL_STATUS_OK) {
     printf("[FTP client socket cannot be created]");
     return status;
@@ -858,18 +858,18 @@ static void _clnt_thr_fnc(void * args)
   int32_t res = SL_FTP_ERROR;
   uint32_t timeout = 0UL;
   uint32_t flags = 0UL;
+
   (void) args;
 
   // wait for network connected state
-  while (!sl_ftp_is_network_connected()) {
-    sl_ftp_delay_ms(1000UL);
-  }
+  sl_ftp_wait_for_connection();
+
   sl_ftp_debug("FTP Data Service started\n");
+
   SL_FTP_SERVICE_LOOP() {
     // Pop from the queue
     status = osMessageQueueGet(_ftp_clnt_msg_queue_in, &clnt, &msg_prio, osWaitForever);
     if (status != osOK) {
-      sl_ftp_delay_ms(1UL);
       continue;
     }
 
@@ -878,7 +878,6 @@ static void _clnt_thr_fnc(void * args)
     // flag error
     if (flags & SL_FTP_DATA_CH_ERROR_MSK) {
       sl_ftp_debug("Error flags: %lu\n", flags);
-      sl_ftp_delay_ms(1UL);
       continue;
     }
 
@@ -894,12 +893,11 @@ static void _clnt_thr_fnc(void * args)
       sl_ftp_debug("Receiving on data channel started: %ld, %s, %u\n",
                    clnt.data_ch.sock_id, clnt.data_ch.host, clnt.data_ch.port);
 
-      SL_FTP_SERVICE_LOOP(){
+      SL_FTP_SERVICE_LOOP() {
         flags = osEventFlagsGet(clnt.evt_flags);
         if ((flags & SL_FTP_DATA_CH_ERROR_MSK)
             || (flags & SL_FTP_DATA_CH_REQUEST_CLOSE_MSK)) {
           sl_ftp_debug("Close request flags: %lu\n", flags);
-          sl_ftp_delay_ms(1UL);
           break;
         }
 
@@ -935,7 +933,6 @@ static void _clnt_thr_fnc(void * args)
     // clear all flags
     (void) osEventFlagsClear(clnt.evt_flags, SL_FTP_DATA_CH_ALL_FLAG_MSK);
     (void) osEventFlagsSet(clnt.evt_flags, SL_FTP_DATA_CH_RESPONSE_CLOSED_MSK);
-    sl_ftp_delay_ms(1UL);
   }
 }
 

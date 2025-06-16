@@ -28,16 +28,16 @@
 #define FREERTOS_CONFIG_800_H
 
 /*-----------------------------------------------------------
- * Application specific definitions.
- *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
- *
- * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
- *
- * See http://www.freertos.org/a00110.html.
- *----------------------------------------------------------*/
+* Application specific definitions.
+*
+* These definitions should be adjusted for your particular hardware and
+* application requirements.
+*
+* THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+* FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+*
+* See http://www.freertos.org/a00110.html.
+*----------------------------------------------------------*/
 
 #if !defined(__IAR_SYSTEMS_ASM__)
 #if (defined(__ARMCC_VERSION) || defined(__GNUC__) || defined(__ICCARM__))
@@ -66,7 +66,7 @@ extern uint32_t SystemCoreClock;
 //  Note: This value can be modified based on the requirement
 //  of a given platform component
 //  Some platform component also expect a calloc.
-#define configTOTAL_HEAP_SIZE                   ( ( size_t ) ( 1024 * 8 ) )
+#define configTOTAL_HEAP_SIZE                   ( ( size_t ) (1024 * 8) )
 
 //  <o>Timer task stack depth [words] <0-65535>
 //  <i> Stack for timer task in words.
@@ -79,7 +79,7 @@ extern uint32_t SystemCoreClock;
 #define configTIMER_QUEUE_LENGTH                8
 
 #ifdef __NVIC_PRIO_BITS
-    /* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
+/* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
     #define configPRIO_BITS            __NVIC_PRIO_BITS
 #else
     #define configPRIO_BITS            3    /* 7 priority levels */
@@ -87,12 +87,12 @@ extern uint32_t SystemCoreClock;
 
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0x07
 #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY    0x01
-#define configKERNEL_INTERRUPT_PRIORITY         ( configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
+#define configKERNEL_INTERRUPT_PRIORITY         (configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
 
 //  <o>Preemption interrupt priority
 //  <i> Maximum priority of interrupts that are safe to call FreeRTOS API.
 //  <i> Default: 48
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY    ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
 
 //  <q>Use time slicing
 //  <i> Enable setting to use timeslicing.

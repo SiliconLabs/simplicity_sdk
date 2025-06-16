@@ -68,7 +68,9 @@ dwt_cycle_counter_handle_t critical_cycle_counter = { 0 };
  ******************************************************************************/
 
 #if (SL_CORE_DEBUG_INTERRUPTS_MASKED_TIMING == 1)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 static void cycle_counter_start(dwt_cycle_counter_handle_t *handle);
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 static void cycle_counter_stop(dwt_cycle_counter_handle_t *handle);
 #endif
 
@@ -378,10 +380,15 @@ void CORE_ResetSystem(void)
   // completed before reset
   __DSB();
 
+#ifndef __CM0PLUS_REV
   // Keep priority group unchanged
   SCB->AIRCR  = (0x5FAUL << SCB_AIRCR_VECTKEY_Pos)
                 | (SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk)
                 | SCB_AIRCR_SYSRESETREQ_Msk;
+#else
+  SCB->AIRCR  = (0x5FAUL << SCB_AIRCR_VECTKEY_Pos)
+                | SCB_AIRCR_SYSRESETREQ_Msk;
+#endif
 
   // Ensure completion of memory access
   __DSB();

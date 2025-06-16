@@ -8,7 +8,7 @@
  * Main Application Task (MAT) via FreeRTOS IPCs mechanisms.
  *
  * ATTENTION: This module may not call any ZAF API function, except for the
- * zpal_pm_stay_awake() function!
+ * zpal_pm_lock() function!
  *
  * @copyright 2020 Silicon Laboratories Inc.
  */

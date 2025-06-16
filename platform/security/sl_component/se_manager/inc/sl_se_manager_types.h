@@ -98,6 +98,8 @@ typedef struct {
   bool verify_secure_boot_certificate;
   /// Enable anti-rollback for host application upgrades.
   bool enable_anti_rollback;
+
+#if !defined(_SILICON_LABS_32B_SERIES_3)
   /// Set flag to enable locking down all flash pages that cover the
   /// secure-booted image, except the last page if end of signature is not
   /// page-aligned.
@@ -106,6 +108,8 @@ typedef struct {
   /// secure-booted image, including the last page if end of signature is not
   /// page-aligned.
   bool secure_boot_page_lock_full;
+#endif
+
 #if defined(SLI_MAILBOX_COMMAND_SUPPORTED) && (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
   /// List of tamper levels to configure for the different tamper sources.
   sl_se_tamper_level_t tamper_levels[SL_SE_TAMPER_SIGNAL_NUM_SIGNALS];
@@ -409,6 +413,9 @@ typedef enum {
   SL_SE_HASH_SHA384,    ///< SHA-384
   SL_SE_HASH_SHA512,    ///< SHA-512
 #endif
+#if defined(_SILICON_LABS_32B_SERIES_3)
+  SL_SE_HASH_AES_MMO,   ///< AES MMO
+#endif
 } sl_se_hash_type_t;
 
 /// SHA-1 streaming context.
@@ -455,6 +462,56 @@ typedef struct {
 #endif
 
 /// @} (end addtogroup sl_se_manager_hash)
+
+#if defined(_SILICON_LABS_32B_SERIES_3)
+/// @addtogroup sl_se_crypto_alg Crypto Algorithm Utilities
+/// @{
+/// SE Crypto algorithms (ciphers, AEADs, MACs, hashes, etc) used for
+/// the code region write function.
+typedef enum {
+  SL_SE_ALG_AES_CTR,               ///< Counter mode AES cipher
+  SL_SE_ALG_SHA_256,               ///< SHA2-256
+} sl_se_crypto_alg_t;
+
+/// AEAD info type
+typedef struct {
+  sl_se_cipher_operation_t mode;   ///< encryption or decryption
+  sl_se_key_descriptor_t *key;     ///< Key to be used for encryption or decryption
+  unsigned char *iv;               ///< Initial Vector/Nonce
+  size_t iv_len;                   ///< Initial Vector/Nonce length
+  unsigned char *add;              ///< Additional data
+  size_t add_len;                  ///< Additional data length
+  unsigned char *tag;              ///< Tag
+  size_t tag_len;                  ///< Tag length
+} sl_se_aead_info_t;
+
+/// Cipher info type
+typedef struct {
+  sl_se_cipher_operation_t mode;   ///< encryption or decryption
+  sl_se_key_descriptor_t *key;     ///< Key to be used for encryption or decryption
+} sl_se_cipher_info_t;
+
+/// Hash info type
+typedef struct {
+  unsigned char *digest;           ///< Pointer to message digest buffer
+  size_t digest_size;              ///< Size of message digest
+} sl_se_hash_info_t;
+
+/// Union to provide algorithm specific information depending on 'alg'
+/// parameter in @ref sl_se_crypto_operation_t.
+typedef union {
+  sl_se_aead_info_t   aead;   ///< aead specific information if 'alg' is AEAD type, e.g SL_SE_ALG_GCM
+  sl_se_cipher_info_t cipher; ///< cipher specific information if 'alg' is CIPHER type, e.g. SL_SE_ALG_AES_CTR
+  sl_se_hash_info_t   hash;   ///< hash specific information if 'alg' is HASH type, e.g.  HASH type, e.g. SL_SE_ALG_SHA_256
+} sl_se_crypto_alg_specific_info_t;
+
+/// Information associated with crypto related operations for extmem
+typedef struct {
+  sl_se_crypto_alg_t *alg;         ///< SE Crypto algorithm to use for the crypto operation
+  sl_se_crypto_alg_specific_info_t alg_specific_info; ///< Algorithm specific info
+} sl_se_crypto_operation_t;
+/// @} (end addtogroup sl_se_crypto_alg)
+#endif //defined(_SILICON_LABS_32B_SERIES_3)
 
 /// @addtogroup sl_se_manager_key_derivation
 /// @{

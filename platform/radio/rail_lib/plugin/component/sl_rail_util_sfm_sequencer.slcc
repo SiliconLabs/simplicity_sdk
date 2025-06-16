@@ -1,0 +1,18 @@
+id: sl_rail_util_sfm_sequencer
+label: SL RAIL Utility, SFM Sequencer Image Selection
+description: Utility to aid with selecting a Software Modem (SFM) sequencer image.
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_sfm_sequencer
+        name: SL RAIL Utility, SFM Sequencer Image Selection
+        license: Zlib
+provides:
+  - name: sl_rail_util_sfm_sequencer
+requires:
+  - name: rail_util_sfm_sequencer
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

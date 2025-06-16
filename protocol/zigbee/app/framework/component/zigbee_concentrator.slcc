@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Code that handles periodically broadcasting a many-to-one-route-request (MTORR) so that the device will act as a concentrator (sink) in the network. Note NCP/SoC source route table size can now be defined as part of the source routing library.
 label: Concentrator Support
 quality: production

@@ -68,7 +68,7 @@ void CC_UserCredential_init_database(void);
  */
 u3c_db_operation_result CC_UserCredential_get_user(
   uint16_t unique_identifier,
-  u3c_user * user,
+  u3c_user_t * user,
   uint8_t * name
   );
 
@@ -82,7 +82,7 @@ u3c_db_operation_result CC_UserCredential_get_user(
 uint16_t CC_UserCredential_get_next_user(uint16_t unique_identifier);
 
 u3c_db_operation_result CC_UserCredential_add_user(
-  u3c_user * user,
+  u3c_user_t * user,
   uint8_t * name
   );
 
@@ -93,7 +93,7 @@ u3c_db_operation_result CC_UserCredential_add_user(
  * @param[in] name Pointer to the user's new name (set to NULL to keep old name)
  */
 u3c_db_operation_result CC_UserCredential_modify_user(
-  u3c_user * user,
+  u3c_user_t * user,
   uint8_t * name
   );
 
@@ -124,7 +124,7 @@ u3c_db_operation_result CC_UserCredential_get_credential(
   uint16_t user_unique_identifier,
   u3c_credential_type credential_type,
   uint16_t credential_slot,
-  u3c_credential_metadata * credential_metadata,
+  u3c_credential_metadata_t * credential_metadata,
   uint8_t * credential_data
   );
 
@@ -162,11 +162,11 @@ bool CC_UserCredential_get_next_credential(
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_add_credential(
-  u3c_credential * credential
+  u3c_credential_t * credential
   );
 
 u3c_db_operation_result CC_UserCredential_modify_credential(
-  u3c_credential * credential
+  u3c_credential_t * credential
   );
 
 /**

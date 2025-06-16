@@ -1,6 +1,6 @@
 id: btmesh_blob_transfer_server_recommended_instance_all
 label: BLOB Transfer Server Recommended Instances for Distributor and Target Roles
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides recommended instances of BT Mesh BLOB (Binary Large OBject) Transfer
   Server component when both BT Mesh DFU Target Node and BT Mesh DFU Distributor
@@ -40,3 +40,6 @@ recommends:
       - dfu_dist
 ui_hints:
   visibility: advanced
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-transfer-server-recommended-instance-all

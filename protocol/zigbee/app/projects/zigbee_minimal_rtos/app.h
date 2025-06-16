@@ -130,5 +130,4 @@
 #define ENDPOINT_FULL_DEVICE_2_DEFINITION           \
   { ENDPOINT_FULL_DEVICE_2, &fullDeviceDescription, \
     fullDeviceInClusters, fullDeviceOutClusters }
-
 #endif // ZIGBEE_MINIMAL_RTOS_APP_HEADER

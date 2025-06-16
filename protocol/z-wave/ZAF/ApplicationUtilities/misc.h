@@ -26,5 +26,4 @@
  * @} // ZAF
  */
 
-
 #endif /*#ifndef _MISC_H_*/

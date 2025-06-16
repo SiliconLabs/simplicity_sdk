@@ -32,18 +32,19 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_power_manager.h"
 #include "app_process.h"
 #include "app_assert.h"
 #include "app_log.h"
+#include "sl_rail_util_init.h"
 #include "sl_rail_sdk_channel_selector.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 
 #include "sl_rail_sdk_packet_assistant.h"
@@ -62,7 +63,7 @@
  * Print to CLI the current value of the TX power
  * @param[in] rail_handle: where to get the TX power levels
  ******************************************************************************/
-static void print_current_power_levels(RAIL_Handle_t rail_handle);
+static void print_current_power_levels(sl_rail_handle_t rail_handle);
 
 /*******************************************************************************
  * Print out the newly selected sleep_mode
@@ -73,13 +74,13 @@ static void print_new_sleep_mode(void);
  * Configure and starts RX to make it periodical
  * @param[in] rail_handle: which rail_handle to use for receiving
  ******************************************************************************/
-static void handle_periodic_rx(RAIL_Handle_t rail_handle);
+static void handle_periodic_rx(sl_rail_handle_t rail_handle);
 
 /*******************************************************************************
  * Configure and starts TX to make it periodical
  * @param[in] rail_handle: which rail_handle to use for sending
  ******************************************************************************/
-static void handle_periodic_tx(RAIL_Handle_t rail_handle);
+static void handle_periodic_tx(sl_rail_handle_t rail_handle);
 
 /*******************************************************************************
  * The API selects the proper sleep level and set it for power_manager
@@ -89,7 +90,7 @@ static void manage_sleep_levels(void);
 /*******************************************************************************
  * The API set the rail back to idle state
  ******************************************************************************/
-static void set_radio_to_idle_state(RAIL_Handle_t rail_handle);
+static void set_radio_to_idle_state(sl_rail_handle_t rail_handle);
 
 /*******************************************************************************
  * Clear flag and allow power manager to go lower then EM1
@@ -102,21 +103,11 @@ static void clear_em1_mode(void);
 static void set_em1_mode(void);
 
 /*******************************************************************************
- * Clear flag and allow power manager to go lower then EM2
- ******************************************************************************/
-static void clear_em2_mode(void);
-
-/*******************************************************************************
- * Set flag and power manager to EM2 maximum sleep mode
- ******************************************************************************/
-static void set_em2_mode(void);
-
-/*******************************************************************************
  * API to handle received packets
  *
  * @param[in] rail_handle: the rail instance that the packet will be read from
  ******************************************************************************/
-static void handle_received_packet(RAIL_Handle_t rail_handle);
+static void handle_received_packet(sl_rail_handle_t rail_handle);
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
@@ -124,8 +115,8 @@ static void handle_received_packet(RAIL_Handle_t rail_handle);
 volatile uint8_t sleep_mode = 1;
 
 /// TX power settings
-volatile RAIL_TxPowerLevel_t power_raw = 0;
-volatile RAIL_TxPower_t power_deci_dbm = 0;
+volatile sl_rail_tx_power_level_t power_raw = 0;
+volatile sl_rail_tx_power_t power_deci_dbm = 0;
 volatile bool is_raw = false;
 
 /// Scheduled TX/RX variables
@@ -141,10 +132,6 @@ volatile bool rx_ended = true;
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-/// Receive and Send FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[SL_RAIL_SDK_RX_FIFO_SIZE];
-
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[SL_RAIL_SDK_TX_FIFO_SIZE];
 
 /// Transmit packet
 static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
@@ -153,11 +140,10 @@ static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
 };
 
 /// RAIL Rx packet handle
-static volatile RAIL_RxPacketHandle_t rx_packet_handle;
+static volatile sl_rail_rx_packet_handle_t rx_packet_handle;
 
 /// Flags to manage rail sleep levels
 static bool em1_is_enabled = false;
-static bool em2_is_enabled = false;
 static bool allow_to_sleep = true;
 
 /// State machine state variable and buffer
@@ -165,21 +151,23 @@ static state_t app_state = S_IDLE;
 static bool periodic_receive = false;
 
 /// config for the TX schedule option
-static RAIL_ScheduleTxConfig_t schedule_tx_config = {
-  .mode = RAIL_TIME_DELAY,
-  .txDuringRx = RAIL_SCHEDULED_TX_DURING_RX_ABORT_TX,
+static sl_rail_scheduled_tx_config_t schedule_tx_config = {
+  .mode = SL_RAIL_TIME_DELAY,
+  .tx_during_rx = SL_RAIL_SCHEDULED_TX_DURING_RX_ABORT_TX,
   .when = 500000
 };
 
 /// config for the RX schedule option
-static RAIL_ScheduleRxConfig_t schedule_rx_config = {
-  .startMode = RAIL_TIME_DELAY,
+static sl_rail_scheduled_rx_config_t schedule_rx_config = {
+  .start_mode = SL_RAIL_TIME_DELAY,
   .start =  500000,
-  .endMode = RAIL_TIME_DELAY,
+  .end_mode = SL_RAIL_TIME_DELAY,
   .end = 500000,
-  .rxTransitionEndSchedule = 0,
-  .hardWindowEnd = 0
+  .rx_transition_end_schedule = 0,
+  .hard_window_end = 0
 };
+
+static uint8_t rx_buffer[SL_RAIL_SDK_RX_FIFO_SIZE];
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -187,10 +175,12 @@ static RAIL_ScheduleRxConfig_t schedule_rx_config = {
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
 
   switch (app_state) {
     case S_IDLE:
@@ -203,18 +193,18 @@ void app_process_action(RAIL_Handle_t rail_handle)
     case S_CW:
       app_log_info("Tx CW mode; EM%d\n", sleep_mode);
       set_radio_to_idle_state(rail_handle);
-      rail_status = RAIL_StartTxStream(rail_handle, get_selected_channel(), RAIL_STREAM_CARRIER_WAVE);
-      if (rail_status != RAIL_STATUS_NO_ERROR) {
-        app_log_warning("RAIL_StartRx() result: %lu", rail_status);
+      rail_status = sl_rail_start_tx_stream(rail_handle, get_selected_channel(), SL_RAIL_STREAM_CARRIER_WAVE, SL_RAIL_TX_OPTIONS_DEFAULT);
+      if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_warning("sl_rail_start_tx_stream() result: %lu", rail_status);
       }
       app_state = S_IDLE;
       break;
     case S_RX:
       app_log_info("Rx mode; EM%d\n", sleep_mode);
       set_radio_to_idle_state(rail_handle);
-      rail_status = RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
-      if (rail_status != RAIL_STATUS_NO_ERROR) {
-        app_log_warning("RAIL_StartRx() result: %lu", rail_status);
+      rail_status = sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
+      if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_warning("sl_rail_start_rx() result: %lu", rail_status);
       }
       app_state = S_IDLE;
       break;
@@ -227,16 +217,16 @@ void app_process_action(RAIL_Handle_t rail_handle)
     case S_SET_POWER_LEVEL:
       set_radio_to_idle_state(rail_handle);
       if (is_raw) {
-        rail_status = RAIL_SetTxPower(rail_handle, power_raw);
-        power_deci_dbm = RAIL_GetTxPowerDbm(rail_handle);
-        if (rail_status != RAIL_STATUS_NO_ERROR) {
-          app_log_warning("RAIL_SetTxPower() result: %lu", rail_status);
+        rail_status = sl_rail_set_tx_power(rail_handle, power_raw);
+        power_deci_dbm = sl_rail_get_tx_power_dbm(rail_handle);
+        if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_warning("sl_rail_set_tx_power() result: %lu", rail_status);
         }
       } else {
-        rail_status = RAIL_SetTxPowerDbm(rail_handle, power_deci_dbm);
-        power_raw = RAIL_GetTxPower(rail_handle);
-        if (rail_status != RAIL_STATUS_NO_ERROR) {
-          app_log_warning("RAIL_SetTxPowerDbm() result: %lu", rail_status);
+        rail_status = sl_rail_set_tx_power_dbm(rail_handle, power_deci_dbm);
+        power_raw = sl_rail_get_tx_power(rail_handle);
+        if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+          app_log_warning("sl_rail_set_tx_power_dbm() result: %lu", rail_status);
         }
       }
       print_current_power_levels(rail_handle);
@@ -285,13 +275,13 @@ void init_em1_mode(void)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   // Handle Rx events
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer, download it later at the state machine
-      rx_packet_handle = RAIL_HoldRxPacket(rail_handle);
+      rx_packet_handle = sl_rail_hold_rx_packet(rail_handle);
       if (app_state == S_PERIODIC_RX) {
         periodic_receive = true;
       } else {
@@ -301,13 +291,13 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     }
   }
   // Handle Tx events
-  if ( events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       packet_sending = false;
     }
   }
 
-  if (events & RAIL_EVENT_RX_SCHEDULED_RX_END) {
+  if (events & SL_RAIL_EVENT_RX_SCHEDULED_RX_END) {
     rx_ended = true;
   }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -315,19 +305,6 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 #endif
 }
 
-/******************************************************************************
- * Set up the rail TX fifo for later usage
- * @param[in] rail_handle Which rail handler should be updated
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle)
-{
-  uint16_t allocated_tx_fifo_size = 0;
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle, tx_fifo, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == SL_RAIL_SDK_TX_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             SL_RAIL_SDK_TX_FIFO_SIZE);
-}
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
@@ -335,19 +312,19 @@ void set_up_tx_fifo(RAIL_Handle_t rail_handle)
  * Print to CLI the current value of the TX power
  * @param[in] rail_handle: where to get the TX power levels
  ******************************************************************************/
-static void print_current_power_levels(RAIL_Handle_t rail_handle)
+static void print_current_power_levels(sl_rail_handle_t rail_handle)
 {
   if (is_raw) {
     app_log_info("Power            %d/%d\n",
                  power_raw,
-                 (RAIL_GetTxPower(rail_handle)));
+                 (sl_rail_get_tx_power(rail_handle)));
   } else {
 #if defined(__IAR_SYSTEMS_ICC__)
   #pragma diag_suppress=Pa205
 #endif
     app_log_info("Power:            %.1f/%.1fdBm\n",
                  (float)(power_deci_dbm) / 10.0,
-                 (float)(RAIL_GetTxPowerDbm(rail_handle)) / 10.0);
+                 (float)(sl_rail_get_tx_power_dbm(rail_handle)) / 10.0);
   }
 #if defined(__IAR_SYSTEMS_ICC__)
   #pragma diag_default=Pa205
@@ -366,10 +343,10 @@ static void print_new_sleep_mode(void)
  * Configure and starts RX to make it periodical
  * @param[in] rail_handle: which rail_handle to use for receiving
  ******************************************************************************/
-static void handle_periodic_rx(RAIL_Handle_t rail_handle)
+static void handle_periodic_rx(sl_rail_handle_t rail_handle)
 {
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   if (init_needed) {
     init_needed = false;
     set_radio_to_idle_state(rail_handle);
@@ -382,9 +359,9 @@ static void handle_periodic_rx(RAIL_Handle_t rail_handle)
   }
   if (rx_ended) {
     rx_ended = false;
-    rail_status = RAIL_ScheduleRx(rail_handle, get_selected_channel(), &schedule_rx_config, NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_ScheduleRx() result: %lu", rail_status);
+    rail_status = sl_rail_start_scheduled_rx(rail_handle, get_selected_channel(), &schedule_rx_config, NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_start_scheduled_rx() result: %lu", rail_status);
     }
   }
 }
@@ -393,10 +370,10 @@ static void handle_periodic_rx(RAIL_Handle_t rail_handle)
  * Configure and starts TX to make it periodical
  * @param[in] rail_handle: which rail_handle to use for sending
  ******************************************************************************/
-static void handle_periodic_tx(RAIL_Handle_t rail_handle)
+static void handle_periodic_tx(sl_rail_handle_t rail_handle)
 {
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
 
   if (init_needed) {
     init_needed = false;
@@ -408,9 +385,9 @@ static void handle_periodic_tx(RAIL_Handle_t rail_handle)
 
   if (!packet_sending) {
     prepare_packet(rail_handle, out_packet, sizeof(out_packet));
-    rail_status = RAIL_StartScheduledTx(rail_handle, get_selected_channel(), RAIL_TX_OPTIONS_DEFAULT, &schedule_tx_config, NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_StartScheduledTx() result: %lu", rail_status);
+    rail_status = sl_rail_start_scheduled_tx(rail_handle, get_selected_channel(), SL_RAIL_TX_OPTIONS_DEFAULT, &schedule_tx_config, NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_start_scheduled_tx() result: %lu", rail_status);
     }
     packet_sending = true;
   }
@@ -421,39 +398,42 @@ static void handle_periodic_tx(RAIL_Handle_t rail_handle)
  *
  * @param[in] rail_handle: the rail instance that the packet will be read from
  ******************************************************************************/
-static void handle_received_packet(RAIL_Handle_t rail_handle)
+static void handle_received_packet(sl_rail_handle_t rail_handle)
 {
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   // for received packets
-  RAIL_RxPacketInfo_t packet_info;
+  sl_rail_rx_packet_info_t packet_info;
 
-  if (rx_packet_handle == RAIL_RX_PACKET_HANDLE_INVALID) {
-    app_log_error("RAIL_HoldRxPacket() error: RAIL_RX_PACKET_HANDLE_INVALID\n"
+  if (rx_packet_handle == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    app_log_error("sl_rail_hold_rx_packet() error: SL_RAIL_RX_PACKET_HANDLE_INVALID\n"
                   "No such RAIL rx packet yet exists or rail_handle is not active");
   }
-  rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
-  if (rx_packet_handle == RAIL_RX_PACKET_HANDLE_INVALID) {
-    app_log_error("RAIL_GetRxPacketInfo() error: RAIL_RX_PACKET_HANDLE_INVALID\n");
+  rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+  if (rx_packet_handle == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    app_log_error("sl_rail_get_rx_packet_info() error: SL_RAIL_RX_PACKET_HANDLE_INVALID\n");
   }
   uint8_t *start_of_packet = 0;
-  uint16_t packet_size = unpack_packet(rx_fifo, &packet_info, &start_of_packet);
-  rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_ReleaseRxPacket() result: %lu", rail_status);
+  if (packet_info.packet_bytes <= SL_RAIL_SDK_RX_FIFO_SIZE) {
+    uint16_t packet_size = unpack_packet(rail_handle, rx_buffer, &packet_info, &start_of_packet);
+    rail_status = sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_release_rx_packet() result: %lu", rail_status);
+    }
+    printf_rx_packet(start_of_packet, packet_size);
   }
-  printf_rx_packet(start_of_packet, packet_size);
+
   if (periodic_receive) {
     rx_ended = false;
-    rail_status = RAIL_ScheduleRx(rail_handle, get_selected_channel(), &schedule_rx_config, NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_ScheduleRx() result: %lu", rail_status);
+    rail_status = sl_rail_start_scheduled_rx(rail_handle, get_selected_channel(), &schedule_rx_config, NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_start_scheduled_rx() result: %lu", rail_status);
     }
     app_state = S_PERIODIC_RX;
   } else {
-    rail_status = RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_StartRx() result: %lu", rail_status);
+    rail_status = sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_start_rx() result: %lu", rail_status);
     }
     app_state = S_IDLE;
   }
@@ -474,13 +454,9 @@ static void manage_sleep_levels(void)
       break;
     case 2:
       clear_em1_mode();
-      set_em2_mode();
-      break;
-    case 3:
-      clear_em1_mode();
-      clear_em2_mode();
       break;
     default:
+      allow_to_sleep = false;
       break;
   }
 }
@@ -488,10 +464,10 @@ static void manage_sleep_levels(void)
 /*******************************************************************************
  * The API set the rail back to idle state
  ******************************************************************************/
-static void set_radio_to_idle_state(RAIL_Handle_t rail_handle)
+static void set_radio_to_idle_state(sl_rail_handle_t rail_handle)
 {
-  RAIL_StopTxStream(rail_handle);
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
+  sl_rail_stop_tx_stream(rail_handle);
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
 }
 
 /*******************************************************************************
@@ -513,27 +489,5 @@ static void clear_em1_mode(void)
   if (em1_is_enabled) {
     em1_is_enabled = false;
     sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
-  }
-}
-
-/*******************************************************************************
- * Set flag and power manager to EM2 maximum sleep mode
- ******************************************************************************/
-static void set_em2_mode(void)
-{
-  if (!em2_is_enabled) {
-    em2_is_enabled = true;
-    sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
-  }
-}
-
-/*******************************************************************************
- * Clear flag and allow power manager to go lower then EM2
- ******************************************************************************/
-static void clear_em2_mode(void)
-{
-  if (em2_is_enabled) {
-    em2_is_enabled = false;
-    sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM2);
   }
 }

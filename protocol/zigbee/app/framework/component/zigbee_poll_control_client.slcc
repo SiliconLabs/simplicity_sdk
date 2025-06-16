@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Poll Control client cluster.  The component responds in kind to check-in commands from the paired Poll Control server.
 label: Poll Control Client Cluster
 quality: production

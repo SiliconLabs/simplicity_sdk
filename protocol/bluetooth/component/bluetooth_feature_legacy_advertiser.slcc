@@ -1,6 +1,6 @@
 id: "bluetooth_feature_legacy_advertiser"
 label: "Legacy Advertising"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component, corresponding to the "legacy_advertiser" class in Bluetooth APIs,
   provides the legacy advertising feature. Specifically, this component enables

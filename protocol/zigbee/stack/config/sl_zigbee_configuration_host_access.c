@@ -44,7 +44,7 @@ uint8_t sl_zigbee_get_multicast_table_size(void)
 sl_zigbee_multicast_table_entry_t* sl_zigbee_get_multicast_table(sl_zigbee_multicast_table_entry_t* table)
 {
   uint8_t multicast_table_size = sl_zigbee_get_multicast_table_size();
-  for (int i = 0; i < multicast_table_size; i++) {
+  for (uint8_t i = 0; i < multicast_table_size; i++) {
     (void) sl_zigbee_ezsp_get_multicast_table_entry(i, &(table[i]));
   }
   return table;
@@ -53,7 +53,7 @@ sl_zigbee_multicast_table_entry_t* sl_zigbee_get_multicast_table(sl_zigbee_multi
 sl_status_t sl_zigbee_set_multicast_table(sl_zigbee_multicast_table_entry_t* entry)
 {
   uint8_t multicast_table_size = sl_zigbee_get_multicast_table_size();
-  for (int i = 0; i < multicast_table_size; i++) {
+  for (uint8_t i = 0; i < multicast_table_size; i++) {
     sl_status_t status = sl_zigbee_ezsp_set_multicast_table_entry(i, &(entry[i]));
     if (status != SL_STATUS_OK) {
       return status;
@@ -255,11 +255,63 @@ uint8_t sl_zigbee_get_route_table_size(void)
   uint16_t size = 0;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_ROUTE_TABLE_SIZE,
                                                 (uint16_t*)&(size));
-  return size;
+  return (uint8_t)size;
 }
 
 void sli_zigbee_set_end_device_configuration(uint8_t end_device_configuration)
 {
   (void) sl_zigbee_ezsp_set_configuration_value(SL_ZIGBEE_EZSP_CONFIG_END_DEVICE_CONFIGURATION,
                                                 end_device_configuration);
+}
+
+void sl_zigbee_set_join_uses_install_code(bool enable)
+{
+  (void) sl_zigbee_ezsp_set_value(SL_ZIGBEE_EZSP_VALUE_JOIN_USE_INSTALL_CODE_ENABLE, 1, (uint8_t*)&enable);
+}
+
+bool sl_zigbee_get_join_uses_install_code(void)
+{
+  bool enabled = false;
+  uint8_t valueLength = 1;
+  (void) sl_zigbee_ezsp_get_value(SL_ZIGBEE_EZSP_VALUE_JOIN_USE_INSTALL_CODE_ENABLE,
+                                  &valueLength,
+                                  (uint8_t*)&enabled);
+  return enabled;
+}
+
+bool sl_zigbee_gp_sink_table_remove_group(uint8_t index,
+                                          uint16_t sinkGroupId,
+                                          uint16_t assignedAlias)
+{
+  uint8_t gpSinkTableSize = 0;
+  sl_zigbee_gp_sink_table_entry_t sinkEntry;
+  if (SL_STATUS_OK != sl_zigbee_ezsp_gp_sink_table_get_entry(index, &sinkEntry)) {
+    return false;
+  }
+  if (SL_STATUS_OK != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&gpSinkTableSize)) {
+    return false;
+  }
+  if ((index >= gpSinkTableSize) || (sinkEntry.status != SL_ZIGBEE_GP_SINK_TABLE_ENTRY_STATUS_ACTIVE)) {
+    // Index is out of range or entry isn't active, so can't remove
+    return false;
+  }
+
+  // Search for entry and remove if we get a match
+  for (uint8_t i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
+    if (sinkEntry.sinkList[i].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST
+        && sinkEntry.sinkList[i].target.groupList.groupID == sinkGroupId
+        && sinkEntry.sinkList[i].target.groupList.alias == assignedAlias) {
+      sinkEntry.sinkList[i].type = SL_ZIGBEE_GP_SINK_TYPE_UNUSED;
+      sinkEntry.sinkList[i].target.groupList.alias = 0;
+      sinkEntry.sinkList[i].target.groupList.groupID = 0;
+
+      // No need to check whether the entry actually changed. Token manager won't perform
+      // the write if the stored token is the same as the token we intend to write.
+      if (SL_STATUS_OK != sl_zigbee_ezsp_gp_sink_table_set_entry(index, &sinkEntry)) {
+        return false;
+      }
+      return true;
+    }
+  }
+  return false;
 }

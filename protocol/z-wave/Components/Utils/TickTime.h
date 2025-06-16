@@ -21,6 +21,18 @@ static inline uint32_t getTickTime(void)
 }
 
 /**
+ * Calculate the difference between two tick times.
+ *
+ * @param iStartTickTime Start tick time
+ * @param iEndTickTime End tick time
+ * @return Difference between end tick time and start tick time
+ */
+static inline uint32_t getTickTimeDiff(uint32_t iStartTickTime, uint32_t iEndTickTime)
+{
+  return ((iEndTickTime >= iStartTickTime) ? iEndTickTime - iStartTickTime : ~iStartTickTime + 1 + iEndTickTime);
+}
+
+/**
  * Get passed tickTime ticks since iStartTickTime.
  *
  * Only useful if passed tickTime ticks never exceeds 0xFFFFFFFF as
@@ -34,10 +46,7 @@ static inline uint32_t getTickTime(void)
  */
 static inline uint32_t getTickTimePassed(uint32_t iStartTickTime)
 {
-  uint32_t u32Tick = getTickTime();
-  return ((u32Tick >= iStartTickTime) ? u32Tick - iStartTickTime : ~iStartTickTime + 1 + u32Tick);
+  return getTickTimeDiff(iStartTickTime, getTickTime());
 }
 
-
 #endif // _TICKTIME_H_
-

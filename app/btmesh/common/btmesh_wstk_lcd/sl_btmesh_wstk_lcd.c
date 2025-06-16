@@ -41,7 +41,7 @@
 #include "em_types.h"
 #include "dmd.h"
 
-/***************************************************************************//**
+/*******************************************************************************
  * Refresh selected page.
  *
  * @return Status code
@@ -50,7 +50,7 @@
  ******************************************************************************/
 static sl_status_t refresh_page(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Checks if new data is available to display and updates the LCD
  ******************************************************************************/
 static void sli_btmesh_wstk_LCD_step(void);
@@ -75,12 +75,7 @@ static uint8_t refresh_needed = 0;
 /// Context for LCD handling
 app_rta_context_t sli_btmesh_lcd_ctx;
 
-/***************************************************************************//**
- * @addtogroup disp_interface
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Call a callback function at the given frequency.
  *
  * @param[in] pFunction  Pointer to function that should be called at the
@@ -301,8 +296,6 @@ sl_status_t sl_btmesh_LCD_prev_page(void)
   return SL_STATUS_OK;
 }
 
-/** @} (end addtogroup disp_interface) */
-
 static sl_status_t refresh_page(void)
 {
   sl_status_t status;
@@ -337,7 +330,9 @@ static sl_status_t refresh_page(void)
   if ((page_num < num_of_pages - 1) && (SL_STATUS_OK == status)) {
     status = graphDrawArrow(SL_BTMESH_LCD_RIGHT_ARROW);
   }
-
+  if (SL_STATUS_OK != status) {
+    return status;
+  }
   ret = DMD_updateDisplay();
   if (DMD_OK != ret) {
     return SL_STATUS_FAIL;

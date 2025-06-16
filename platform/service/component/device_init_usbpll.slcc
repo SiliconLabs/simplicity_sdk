@@ -1,16 +1,14 @@
 id: device_init_usbpll
-label: "USB Phase-Locked Loop"
-package: platform
+label: USB Phase-Locked Loop
+package: platform_core
 description: >
-  Instantiate the component for automatically setting up the Phase-Locked Loop 
-  (PLL) for the Universal Serial Bus (USB) peripheral. The USB PLL is designed 
-  to give a high accuracy 48Mhz clock by using the High Frequency Crystal
-  Oscillator (HFXO) as its input reference clock.
+    Instantiate the component for automatically setting up the Phase-Locked Loop  (PLL) for the Universal Serial Bus (USB) peripheral. The USB PLL is designed  to give a high accuracy 48Mhz clock by using the High Frequency Crystal
+    Oscillator (HFXO) as its input reference clock.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 include:
   - path: inc
@@ -29,13 +27,13 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_usbpll.h
-      handler: sl_device_init_usbpll
+        event: platform_init
+        include: sl_device_init_usbpll.h
+        handler: sl_device_init_usbpll
     priority: -9545
-    condition: [sl_system]
+    condition: [sl_system, kernel]
   - name: component_catalog
     value: device_init_usbpll
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-usbpll
+    docset: gecko-platform
+    document: platform-service/device-init-usbpll

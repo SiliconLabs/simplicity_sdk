@@ -38,37 +38,34 @@
 #include <openthread/platform/radio.h>
 
 #include "radio_counters.h"
-#include "rail.h"
 #include "rail_config.h"
-#include "rail_ieee802154.h"
 #include "sl_802154_radio_priority_config.h"
+#include "sl_rail.h"
+#include "sl_rail_ieee802154.h"
 
 #define RAIL_TX_FIFO_SIZE (OT_RADIO_FRAME_MAX_SIZE + 1)
 
 #define RADIO_SCHEDULER_CHANNEL_SLIP_TIME 500000UL
 
 #define RADIO_TIMING_CSMA_OVERHEAD_US 500
-#define RADIO_TIMING_DEFAULT_BYTETIME_US 32   // only used if RAIL_GetBitRate returns 0
-#define RADIO_TIMING_DEFAULT_SYMBOLTIME_US 16 // only used if RAIL_GetSymbolRate returns 0
+#define RADIO_TIMING_DEFAULT_BYTETIME_US 32   // only used if sl_rail_get_bit_rate returns 0
+#define RADIO_TIMING_DEFAULT_SYMBOLTIME_US 16 // only used if sl_rail_get_symbol_rate returns 0
 typedef struct efr32CommonConfig
 {
-    RAIL_Config_t mRailConfig;
-#if RADIO_CONFIG_DMP_SUPPORT
-    RAILSched_Config_t mRailSchedState;
-#endif
+    sl_rail_config_t mRailConfig;
     union
     {
         // Used to align this buffer as needed
-        RAIL_FIFO_ALIGNMENT_TYPE align[RAIL_TX_FIFO_SIZE / RAIL_FIFO_ALIGNMENT];
+        SL_RAIL_DECLARE_FIFO_BUFFER(align, RAIL_TX_FIFO_SIZE);
         uint8_t fifo[RAIL_TX_FIFO_SIZE]; // must be 2 power between 64 and 4096, and bigger than OT_RADIO_FRAME_MAX_SIZE
     } mRailTxFifo;
 } efr32CommonConfig;
 
 typedef struct efr32BandConfig
 {
-    const RAIL_ChannelConfig_t *mChannelConfig;
-    uint8_t                     mChannelMin;
-    uint8_t                     mChannelMax;
+    const sl_rail_channel_config_t *mChannelConfig;
+    uint8_t                         mChannelMin;
+    uint8_t                         mChannelMax;
 } efr32BandConfig;
 
 #endif // PLATFORM_BAND_H_

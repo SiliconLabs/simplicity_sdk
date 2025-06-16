@@ -1,14 +1,14 @@
 id: power_manager_core
-label: "Power Manager: Core"
-package: platform
+label: 'Power Manager: Core'
+package: platform_core
 description: Power Manager core (no handler generation)
 category: Services|Power Manager
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 root_path: platform/service/power_manager/
 include:
   - path: inc
@@ -38,16 +38,19 @@ requires:
   - name: slist
   - name: atomic
   - name: enum
+  - name: emlib_iadc
+    condition: [device_sdid_205]
   - name: sleeptimer
   - name: power_manager_energy_mode_impl
   - name: code_classification
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_power_manager.h
-      handler: sl_power_manager_init
+        event: platform_init
+        include: sl_power_manager.h
+        handler: sl_power_manager_init
     priority: 10000
+    condition: [sl_system, kernel]
   - name: component_catalog
     value: power_manager
   - name: code_classification_components

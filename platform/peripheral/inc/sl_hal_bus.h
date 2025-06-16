@@ -52,11 +52,14 @@ extern "C" {
  * @brief
  *   Perform a single-bit write operation on a 32-bit word in RAM.
  *
- * @param[in] addr An address of a 32-bit word in RAM.
+ * @param[in] addr
+ *   An address of a 32-bit word in RAM.
  *
- * @param[in] bit A bit position to write, 0-31.
+ * @param[in] bit
+ *   A bit position to write, 0-31.
  *
- * @param[in] val A value to set bit to, 0 or 1.
+ * @param[in] val
+ *   A value to set bit to, 0 or 1.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_bus_ram_write_bit(volatile uint32_t *addr,
                                               uint32_t bit,
@@ -72,12 +75,14 @@ __STATIC_INLINE void sl_hal_bus_ram_write_bit(volatile uint32_t *addr,
  * @brief
  *   Perform a single-bit read operation on a 32-bit word in RAM.
  *
- * @param[in] addr RAM address.
+ * @param[in] addr
+ *   RAM address.
  *
- * @param[in] bit A bit position to read, 0-31.
+ * @param[in] bit
+ *   A bit position to read, 0-31.
  *
  * @return
- *     The requested bit shifted to bit position 0 in the return value.
+ *   The requested bit shifted to bit position 0 in the return value.
  ******************************************************************************/
 __STATIC_INLINE unsigned int sl_hal_bus_ram_read_bit(volatile const uint32_t *addr,
                                                      uint32_t bit)
@@ -94,11 +99,14 @@ __STATIC_INLINE unsigned int sl_hal_bus_ram_read_bit(volatile const uint32_t *ad
  *   perform an atomic read-modify-write operation on a single register bit.
  *   See the reference manual for more details about alias addressing.
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] bit A bit position to write, 0-31.
+ * @param[in] bit
+ *   A bit position to write, 0-31.
  *
- * @param[in] val A value to set bit to, 0 or 1.
+ * @param[in] val
+ *   A value to set bit to, 0 or 1.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_COMMON, SL_CODE_CLASS_TIME_CRITICAL)
 __STATIC_INLINE void sl_hal_bus_reg_write_bit(volatile uint32_t *addr,
@@ -127,12 +135,14 @@ __STATIC_INLINE void sl_hal_bus_reg_write_bit(volatile uint32_t *addr,
  * @brief
  *   Perform a single-bit atomic read operation on a peripheral register.
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] bit A bit position to read, 0-31.
+ * @param[in] bit
+ *   A bit position to read, 0-31.
  *
  * @return
- *     The requested bit shifted to bit position 0 in the return value.
+ *   The requested bit shifted to bit position 0 in the return value.
  ******************************************************************************/
 __STATIC_INLINE unsigned int sl_hal_bus_reg_read_bit(volatile const uint32_t *addr,
                                                      uint32_t bit)
@@ -155,9 +165,11 @@ __STATIC_INLINE unsigned int sl_hal_bus_reg_read_bit(volatile const uint32_t *ad
  *   perform an atomic read-modify-write operation.
  *   See the reference manual for more details about alias addressing.
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] mask A mask to set.
+ * @param[in] mask
+ *   A mask to set.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_bus_reg_set_mask(volatile uint32_t *addr,
                                              uint32_t mask)
@@ -189,9 +201,11 @@ __STATIC_INLINE void sl_hal_bus_reg_set_mask(volatile uint32_t *addr,
  *   perform an atomic read-modify-write operation.
  *   See the reference manual for more details about alias addressing.
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] mask A mask to clear.
+ * @param[in] mask
+ *   A mask to clear.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_bus_reg_clear_mask(volatile uint32_t *addr,
                                                uint32_t mask)
@@ -222,15 +236,18 @@ __STATIC_INLINE void sl_hal_bus_reg_clear_mask(volatile uint32_t *addr,
  *   guarantee atomicity. Note that atomicity can only be guaranteed if register
  *   is modified only by the core, and not by other peripherals (like DMA).
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] mask A peripheral register mask.
+ * @param[in] mask
+ *   A peripheral register mask.
  *
- * @param[in] val  A peripheral register value. The value must be shifted to the
-                  correct bit position in the register corresponding to the field
-                  defined by the mask parameter. The register value must be
-                  contained in the field defined by the mask parameter. The
-                  register value is masked to prevent involuntary spillage.
+ * @param[in] val
+ *   A peripheral register value. The value must be shifted to the
+ *   correct bit position in the register corresponding to the field
+ *   defined by the mask parameter. The register value must be
+ *   contained in the field defined by the mask parameter. The
+ *   register value is masked to prevent involuntary spillage.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_bus_reg_write_mask(volatile uint32_t *addr,
                                                uint32_t mask,
@@ -252,9 +269,11 @@ __STATIC_INLINE void sl_hal_bus_reg_write_mask(volatile uint32_t *addr,
  * @note
  *   This operation is not hardware accelerated.
  *
- * @param[in] addr A peripheral register address.
+ * @param[in] addr
+ *   A peripheral register address.
  *
- * @param[in] mask A peripheral register mask.
+ * @param[in] mask
+ *   A peripheral register mask.
  *
  * @return
  *   An unshifted and masked register value.

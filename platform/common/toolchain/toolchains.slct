@@ -222,6 +222,23 @@ exporter:
           - tool: linker
             option: nano_c_libs
             value: false
+      rdimon_c_libs:
+        enabled:
+          - tool: makefile.arm.gcc.linker
+            option: misc
+            action: append
+            value: "--specs=rdimon.specs -lc -lrdimon"
+          - tool: makefile.arm.gcc.compiler
+            option: misc
+            action: append
+            value: "--specs=rdimon.specs -lc -lrdimon"
+          - tool: linker
+            option: rdimon_c_libs
+            value: true
+        disabled:
+          - tool: linker
+            option: rdimon_c_libs
+            value: false
       fp16:
         enabled:
           - tool: makefile.arm.gcc.compiler

@@ -218,7 +218,7 @@ The ot-ble-dmp application also includes the Power Manager component, which is r
 
 The Power Manager component includes seamless FreeRTOS integration. It runs automatically from within the FreeRTOS Idle Task. When all tasks have yielded (because they are pending on some event to continue processing), the Idle Task runs, and the power manager code can then put the system to sleep.
 
-The application informs the power manager whether or not to sleep through the `efr32AllowSleepCallback` function, which is used by power manager prior to updating the application energy mode. Setting the return value to false tells the Power Manager that the lowest energy level allowed is EM2, which only idles the processor and does not go to sleep. Setting the return value to true allows the Power Manager to enter lower energy levels to support deep sleep. See the reference for your MCU on https://docs.silabs.com/ under
+The application informs the power manager what sleep level it would like by adding and removing energy requirements via the API calls `sl_power_manager_add_em_requirement()` and `sl_power_manager_remove_em_requirement()`. Adding an EM1 requirement tells the Power Manager that the lowest energy level allowed is EM1, which only idles the processor and does not go to sleep. Removing the EM1 requirement allows the power manager to enter energy level EM2, which is deep sleep. See the reference for your MCU on https://docs.silabs.com/ under
 `Modules > Platform Services > Power Manager`.
 
 ## OpenThread Sleepy End Device Demo

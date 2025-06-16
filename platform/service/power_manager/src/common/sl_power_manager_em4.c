@@ -45,6 +45,10 @@
 #endif
 #endif
 
+#if defined(SL_CATALOG_METRIC_EM4_WAKE_PRESENT)
+#include "sli_metric_em4_wake.h"
+#endif
+
 #include <stdlib.h>
 #include <stdint.h>
 
@@ -92,7 +96,7 @@ void sli_power_manager_init_em4(void)
 {
 #if !defined(_SILICON_LABS_32B_SERIES_2)
   EMU->EM4CTRL = (EMU->EM4CTRL & ~_EMU_EM4CTRL_EM4IORETMODE_MASK)
-                 | (uint32_t)SL_POWER_MANAGER_INIT_EMU_EM4_PIN_RETENTION_MODE;
+                 | SL_POWER_MANAGER_INIT_EMU_EM4_PIN_RETENTION_MODE;
 #else
   EMU_EM4Init_TypeDef em4_init = EMU_EM4INIT_DEFAULT;
   em4_init.pinRetentionMode = (EMU_EM4PinRetention_TypeDef)SL_POWER_MANAGER_INIT_EMU_EM4_PIN_RETENTION_MODE;

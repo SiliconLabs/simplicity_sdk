@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include "app_menu.h"
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
 #include "rail_config.h"
 #include "sl_rail_util_init.h"
@@ -408,11 +408,11 @@ uint8_t menu_item_icon(uint8_t item)
 void apply_new_phy(bool init)
 {
   menu_set_std_phy(init);
-  set_power_level_to_max(true);
   // Initialise all dependent menu items.
+  menu_set_channel(true);
   menu_set_rf_frequency(true);
   menu_set_rf_pa(true);
-  menu_set_channel(true);
+  set_power_level_to_max(true);
   menu_set_packets_length(true);
 }
 
@@ -583,19 +583,21 @@ static menu_item_icon_t menu_set_phy_display(char *buff[])
  ******************************************************************************/
 static bool menu_set_rf_pa(bool init)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  int16_t min_power_deci_dbm, max_power_deci_dbm;
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
   if (init) {
     // Init the rangetest power field to the current power level
     // to sync demanded and current value.
-    range_test_settings.tx_power = RAIL_GetTxPowerDbm(rail_handle);
+    range_test_settings.tx_power = sl_rail_get_tx_power_dbm(rail_handle);
     if ((range_test_settings.tx_power % TX_POWER_INC) != 0 ) {
       range_test_settings.tx_power = ROUND_UP(range_test_settings.tx_power, TX_POWER_INC);
     }
   } else {
     range_test_settings.tx_power += TX_POWER_INC;
     // Limit and cycle requested power.
-    if (range_test_settings.tx_power > get_max_tx_power_deci_dbm()) {
-      range_test_settings.tx_power = get_min_tx_power_deci_dbm();
+    get_tx_power_deci_dbm_range(&min_power_deci_dbm, &max_power_deci_dbm);
+    if (range_test_settings.tx_power > max_power_deci_dbm) {
+      range_test_settings.tx_power = min_power_deci_dbm;
     }
   }
 
@@ -616,7 +618,7 @@ static bool menu_set_rf_pa(bool init)
  ******************************************************************************/
 static menu_item_icon_t menu_set_rf_pa_display(char *buff[])
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
   // Enough to hold a sign and two digits,
   // one decimal point and one decimal digits and dBm */
   char pVal[35U];
@@ -626,7 +628,7 @@ static menu_item_icon_t menu_set_rf_pa_display(char *buff[])
   int16_t reqpower;
 
   if (buff) {
-    power = RAIL_GetTxPowerDbm(rail_handle);
+    power = sl_rail_get_tx_power_dbm(rail_handle);
     reqpower = range_test_settings.tx_power;
     snprintf(pVal, sizeof(pVal),
              "%+i.%d/%+i.%ddBm",

@@ -1,6 +1,6 @@
 id: zigbee_pro_stack_alt_mac
 label: Pro Stack Alt MAC
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: Provides Zigbee PRO stack functionality along with APIs to interface with alternate MAC.

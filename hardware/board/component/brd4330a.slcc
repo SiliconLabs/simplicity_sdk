@@ -1,7 +1,7 @@
 !!omap
 - id: brd4330a
 - label: BRD4330A
-- package: platform
+- package: boards
 - description: Board support for BRD4330A.
 - category: Platform|Board|Radio Board
 - quality: production

@@ -20,9 +20,11 @@
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
+from typing import Optional
 from btmesh.db import DCD, Node
 from btmesh.root import Btmesh
 from btmesh.util import BtmeshRetryParams
+import btmesh.util
 
 from .cfg import app_cfg
 
@@ -58,6 +60,22 @@ class RemoteNode:
             # The get_dcd function updates the Node object in the database with
             # the DCD information
             self.btmesh.conf.get_dcd(
-                self._node, update_db=True, retry_params=self.retry_params
+                self._node,
+                page=btmesh.util.DCD_PAGE_0,
+                update_db=True,
+                retry_params=self.retry_params,
+            )
+        return self._node.dcd
+
+    @property
+    def dcd_page_128(self) -> Optional[DCD]:
+        if self._node.dcd is None:
+            # The get_dcd function updates the Node object in the database with
+            # the DCD information
+            self.btmesh.conf.get_dcd(
+                self._node,
+                page=btmesh.util.DCD_PAGE_128,
+                update_db=True,
+                retry_params=self.retry_params,
             )
         return self._node.dcd

@@ -1,6 +1,6 @@
 id: zigbee_zll
 label: Zigbee light link
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides the functionality to support Zigbee Light Link (ZLL) functionality on a device.

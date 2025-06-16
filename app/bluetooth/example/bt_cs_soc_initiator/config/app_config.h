@@ -46,7 +46,14 @@
 // <q ALWAYS_INIT_TRACE> Enable trace on init
 // <i> If enabled, this option bypasses trace initialization with push button.
 // <i> Default: 0
-#define ALWAYS_INIT_TRACE    0
+#define ALWAYS_INIT_TRACE                     0
+
+// <q CS_INITIATOR_UART_LOG> Enable initiator log on UART
+// <i> Default: 1
+// <i> Enable or disable VCOM logging alongside RTT logging to save power.
+#ifndef CS_INITIATOR_UART_LOG
+#define CS_INITIATOR_UART_LOG                 1
+#endif
 
 // <<< end of configuration section >>>
 

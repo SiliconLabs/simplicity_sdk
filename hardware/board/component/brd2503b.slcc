@@ -1,7 +1,7 @@
 !!omap
 - id: brd2503b
 - label: BRD2503B
-- package: platform
+- package: boards
 - description: Board support for BRD2503B.
 - category: Platform|Board|Starter Kit
 - quality: production

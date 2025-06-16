@@ -36,8 +36,8 @@
 #include "coexistence-ble.h"
 #include "coexistence-ble-ll.h"
 #include "coexistence-hal.h"
-#include "rail_ble.h"
-#include "rail_ieee802154.h"
+#include "sl_rail_ble.h"
+#include "sl_rail_ieee802154.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -156,7 +156,7 @@ static uint16_t fastRandom(void)
 
 static void abortTxCallback(void)
 {
-  (void)RAIL_StopTx(railHandle, RAIL_STOP_MODE_ACTIVE);
+  (void)sl_rail_stop_tx(railHandle, SL_RAIL_STOP_MODE_ACTIVE);
 }
 
 void sl_bt_class_coex_init(void)
@@ -168,12 +168,12 @@ static void initCoexTest(void)
   if (coexInitialized) {
     return;
   }
-  if (RAIL_IEEE802154_IsEnabled(railHandle)) {
+  if (sl_rail_ieee802154_is_enabled(railHandle)) {
     sl_rail_util_coex_init();
     sl_rail_util_coex_set_enable(true);
     sl_rail_util_ieee802154_on_event(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TICK, 0U);
   }
-  if (RAIL_BLE_IsEnabled(railHandle)) {
+  if (sl_rail_ble_is_enabled(railHandle)) {
     sl_bt_ll_coex_set_context(railHandle,
                               &abortTxCallback,
                               &fastRandom);

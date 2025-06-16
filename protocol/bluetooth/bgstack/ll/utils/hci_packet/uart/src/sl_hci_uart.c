@@ -17,7 +17,6 @@
 #define UART_RX_BUFFER_SIZE         (UART_RX_CHUNKS_N * UART_RX_BUFFER_CHUNK_SIZE)
 #define LDMA_RX_DESCRIPTORS_N       6
 
-static bool sleep_disabled = false;
 static UARTDRV_Handle_t handle = NULL;
 static LDMA_Descriptor_t ldma_rx_descriptors[LDMA_RX_DESCRIPTORS_N];
 static void (*tx_complete)(uint32_t);
@@ -36,6 +35,7 @@ static uint16_t rx_read_idx;
 static void energy_mode_transition_cb(sl_power_manager_em_t from,
                                       sl_power_manager_em_t to);
 
+static bool sleep_disabled = false;
 static sl_power_manager_em_transition_event_handle_t pm_handle;
 static sl_power_manager_em_transition_event_info_t pm_event_info =
 { POWER_MANAGER_EVENTS_OF_INTEREST, energy_mode_transition_cb };
@@ -88,6 +88,11 @@ static void energy_mode_transition_cb(sl_power_manager_em_t from,
 
 void sl_hci_uart_init(void)
 {
+  // Return if already initialized
+  if (handle != NULL) {
+    return;
+  }
+
   memset(rx_buffer, 0, sizeof(rx_buffer));
   rx_write_idx = 0;
   rx_read_idx = 0;
@@ -208,7 +213,11 @@ static void update_buffer_status(UARTDRV_Handle_t handle)
 
 void sl_hci_disable_sleep(bool set_sleep_disabled)
 {
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
   sleep_disabled = set_sleep_disabled;
+#else
+  (void)set_sleep_disabled;
+#endif
 }
 
 static uint16_t readable_bytes(uint16_t read_idx, uint16_t write_idx, uint16_t size)

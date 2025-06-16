@@ -19,7 +19,8 @@ filter:
 
 component:
   - id: app_assert
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_central
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gatt
   - id: bluetooth_feature_gatt_server
   - id: bluetooth_feature_nvm
@@ -68,8 +69,6 @@ component:
   - id: btmesh_stack_sensor_server
   - id: btmesh_stack_sensor_client
   - id: btmesh_stack_sensor_setup_server
-  - id: btmesh_stack_silabs_config_client
-  - id: btmesh_stack_silabs_config_server
   - id: btmesh_stack_solicitation_config_client
   - id: btmesh_stack_test
   - id: btmesh_stack_time_server
@@ -91,12 +90,11 @@ component:
   - id: uartdrv_usart
     instance:
       - vcom
-  - id: sl_system
+  - id: sl_main
 
 source:
   - path: app.c
   - path: app_freertos.c
-  - path: main.c
 
 include:
   - path: .
@@ -126,6 +124,8 @@ other_file:
   - path: ../../documentation/example/btmesh_ncp_empty/readme_img9.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: SL_BT_RTOS_HOST_STACK_TASK_STACK_SIZE
     value: "4000"
   - name: SL_BOARD_ENABLE_VCOM
@@ -141,7 +141,7 @@ configuration:
   - name: SL_BTMESH_CONFIG_MAX_PROV_BEARERS
     value: "3"
   - name: SL_BT_CONFIG_BUFFER_SIZE
-    value: 3280
+    value: "4200"
   - name: SL_PSA_KEY_USER_SLOT_COUNT
     value: "1"
     condition:
@@ -167,6 +167,10 @@ configuration:
     value: uartdrvFlowControlNone
     condition:
       - hardware_board_tb
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:sdid:!205

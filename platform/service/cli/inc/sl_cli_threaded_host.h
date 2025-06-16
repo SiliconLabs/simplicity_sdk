@@ -39,6 +39,10 @@
 #endif
 #include "sl_cli.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SL_CLI_THREADED_HOST_PIPE_DATA_LENGTH 2
 
 struct semaphore {
@@ -60,4 +64,9 @@ void sli_cli_threaded_host_init(void);
 bool sli_cli_is_input_handled(void);
 
 int sli_cli_get_pipe_read_fd(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // EZSP_HOST || ZIGBEE_PRO_COMPLIANCE_ON_HOST

@@ -1,6 +1,6 @@
 id: ot_subghz_phy
 label: Sub-GHz PHY
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: evaluation
 description: This component provides (proprietary) Sub-GHz PHY support for OpenThread. The (proprietary) Sub-GHz PHY uses 2 byte PHR and 2GFSK modulation technique in 915 MHz band.

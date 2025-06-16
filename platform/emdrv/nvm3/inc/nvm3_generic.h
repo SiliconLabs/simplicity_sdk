@@ -195,6 +195,35 @@ typedef enum {
 } nvm3_SecurityType_t;
 #endif
 
+/// @endcond
+
+/// @brief Structure to hold NVM3 memory information.
+typedef struct {
+  bool isMemoryLow;                               ///< True if NVM3 instance is running low on memory
+  size_t availableMemory;                         ///< Available memory for the user in bytes
+  bool isCacheLow;                                ///< True if cache size is insufficient or overflowed
+  size_t additionalCacheNeeded;                   ///< Additional cache size needed to accommodate all objects
+} nvm3_MemInfo_t;
+
+/// @brief NVM3 callback parameters.
+typedef struct {
+  size_t lowMemoryThreshold;                      ///< Low memory threshold to be set by the user
+} nvm3_CallbackParams_t;
+
+/***************************************************************************//**
+ * @brief
+ *  NVM3 low memory callback function pointer.
+ *  This callback is invoked when the NVM3 instance detects low memory conditions
+ *  or a cache overflow. The application can use this callback to handle such
+ *  conditions, such as freeing up memory or logging the event.
+ *
+ * @param[in] lowMemParams
+ *   A pointer to a structure containing parameters related to low memory condition
+ ******************************************************************************/
+typedef void (*nvm3_LowMemCallback_t)(nvm3_MemInfo_t *lowMemParams);
+
+/// @cond DO_NOT_INCLUDE_WITH_DOXYGEN
+
 typedef struct {
   nvm3_HalPtr_t nvmAdr;                           // NVM address
   size_t nvmSize;                                 // NVM size
@@ -211,6 +240,9 @@ typedef struct {
   size_t minUnused;                               // The minimum value of the unusedNvmSize
   const nvm3_HalHandle_t *halHandle;              // HAL handle
   nvm3_HalInfo_t halInfo;                         // HAL information
+  nvm3_MemInfo_t memInfo;                         // Stores memory-related information
+  nvm3_LowMemCallback_t lowMemCallback;           // Callback invoked for low memory or cache overflow
+  size_t lowMemoryThreshold;                      // User-defined low memory threshold
 #if defined(NVM3_SECURITY)
   const nvm3_HalCryptoHandle_t *halCryptoHandle;  // HAL crypto handle
   nvm3_SecurityType_t secType;                    // Security type
@@ -666,6 +698,73 @@ __STATIC_INLINE size_t nvm3_countDeletedObjects(nvm3_Handle_t *h)
   return nvm3_enumDeletedObjects(h, NULL, 0, NVM3_KEY_MIN, NVM3_KEY_MAX);
 }
 
+/***************************************************************************//**
+ * @brief
+ *  Registers a callback function for an NVM3 instance. This callback will be
+ *  invoked when the NVM3 instance detects low memory conditions or a cache
+ *  overflow. The user must provide callback parameters, including the low
+ *  memory threshold, and will be notified when NVM3 free memory falls below
+ *  this threshold. It is recommended that the callback be registered before
+ *  calling any NVM3 APIs.
+ *
+ * @param[in] h
+ *   A pointer to an NVM3 driver handle. The handle must be initialized and
+ *   opened before calling this function.
+ *
+ * @param[in] callbackParams
+ *   A pointer to a structure containing callback parameters, such as the low
+ *   memory threshold. This structure must be properly initialized by the user.
+ *
+ * @param[in] lowMemCallback
+ *   A pointer to the NVM3 low memory callback function. This function will be
+ *   invoked when low memory or cache overflow conditions are detected.
+ *
+ * @return
+ *   @ref SL_STATUS_OK on success if the callback is successfully registered.
+ *   Returns a NVM3 @ref sl_status_t error code on failure, such as:
+ *   - @ref SL_STATUS_INVALID_PARAMETER if the handle or callback parameters are NULL.
+ *   - @ref SL_STATUS_NOT_INITIALIZED if the NVM3 instance is not initialized.
+ ******************************************************************************/
+sl_status_t nvm3_registerCallback(nvm3_Handle_t *h, const nvm3_CallbackParams_t *callbackParams, nvm3_LowMemCallback_t lowMemCallback);
+
+/***************************************************************************//**
+ * @brief
+ *  This function is used to deregister the callback for an NVM3 instance.
+ *  Once deregistered, the NVM3 instance will no longer invoke the callback
+ *  function for low memory or cache overflow conditions.
+ *
+ * @param[in] h
+ *   A pointer to an NVM3 driver handle. The handle must be initialized and
+ *   opened before calling this function.
+ *
+ * @return
+ *   @ref SL_STATUS_OK on success if the callback is successfully deregistered.
+ *   Returns a NVM3 @ref sl_status_t error code on failure, such as:
+ *   - @ref SL_STATUS_INVALID_PARAMETER if the handle is NULL.
+ *   - @ref SL_STATUS_NOT_INITIALIZED if the NVM3 instance is not initialized.
+ ******************************************************************************/
+sl_status_t nvm3_deregisterCallback(nvm3_Handle_t *h);
+
+/***************************************************************************//**
+ * @brief
+ *  Retrieves memory-related information for the NVM3 instance.
+ *  This function populates the provided `memInfo` structure with details
+ *  about the current memory state of the NVM3 instance, including available
+ *  memory, cache status, and additional cache requirements.
+ *
+ * @param[in] h
+ *  A pointer to the NVM3 driver handle.
+ *
+ * @param[out] memInfo
+ *  A pointer to a structure where memory-related information will be stored.
+ *
+ * @return
+ *  - @ref SL_STATUS_OK if the operation is successful.
+ *  - @ref SL_STATUS_INVALID_PARAMETER if the handle or `memInfo` is NULL.
+ *  - @ref SL_STATUS_NOT_INITIALIZED if the NVM3 instance is not initialized.
+ ******************************************************************************/
+sl_status_t nvm3_getMemInfo(nvm3_Handle_t *h, nvm3_MemInfo_t *memInfo);
+
 /** @} (end addtogroup nvm3) */
 
 #ifdef __cplusplus
@@ -716,8 +815,13 @@ __STATIC_INLINE size_t nvm3_countDeletedObjects(nvm3_Handle_t *h)
    During the call, NVM3 will either move data to a new page or erase pages
    that can be reused. At most, the call will block for a period equal to a page
    erasure time or the time to write the largest size object (whatever is largest)
-   plus a small execution overhead. Page erasure and flash write timing for the
-   EFM32 or EFR32 parts can be found in the datasheet.
+   plus a small execution overhead for EFM32 or EFR32 devices. Page erasure and
+   flash write timing for the EFM32 or EFR32 parts can be found in the datasheet.
+   For Series-3 devices using external QSPI flash, repack operations may take longer
+   due to the increased latency of accessing external flash over the QSPI bus.
+   Additionally, with security features such as authenticated encryption (AES-GCM)
+   enabled, the repack timings may be further impacted due to the cryptographic
+   overhead.
 
    NVM3 uses two thresholds for repacking:
    -# Forced threshold. This is the threshold used to force automatic repacking
@@ -796,12 +900,14 @@ __STATIC_INLINE size_t nvm3_countDeletedObjects(nvm3_Handle_t *h)
    for IAR and ARM GCC. The maximum stack usage measured was 420 bytes for
    IAR, and 472 bytes for ARM GCC builds. The unit test used to validate the
    stack usage has a 10% margin and uses a stack limit of 462 bytes for IAR
-   and 520 bytes for ARM GCC. The maximum stack usage measured on SIXX device was
-   540 bytes for IAR, and 520 bytes for ARM GCC builds with security. The unit
-   test used to validate the stack usage has a 10% margin and uses a stack
-   limit of 600 bytes for IAR and 576 bytes for ARM GCC builds with security.
-   Note that the actual stack usage is a little different on the Cortex M4 and M33
-   with NVM3 source.
+   and 520 bytes for ARM GCC. The maximum stack usage measured on SIXX device
+   was 524 bytes for IAR, and 532 bytes for ARM GCC builds with SE crypto.
+   The unit test used to validate the stack uses a stack limit of 584 bytes for
+   IAR and 592 bytes for ARM GCC builds with SE crypto. The maximum stack usage
+   measured on SIXX device was 712 bytes for IAR and ARM GCC builds with Host
+   crypto. The unit test used to validate the stack uses a stack limit of 792
+   bytes for IAR and ARM GCC builds with Host crypto. Note that the actual stack
+   usage is a little different on the Cortex M4 and M33 with NVM3 source.
 
    # The API {#nvm3_api}
    The NVM3 API is defined in the nvm3.h file. The application code
@@ -849,7 +955,10 @@ __STATIC_INLINE size_t nvm3_countDeletedObjects(nvm3_Handle_t *h)
 
    # API Locking and Interrupt handling {#nvm3_locking}
    Common for all NVM3 API calls is that they are not re-entrant. By default,
-   all functions are protected with protection functions that disable interrupts.
+   all functions are protected with protection functions that disable interrupts
+   on Series-2 devices and by using mutexes on Series-3 devices.
+
+   @note NVM3 APIs must not be called from within an ISR.
 
    @note The default NVM3 protection functions can be substituted by the
    application if other synchronization functions are available and disabling
@@ -869,7 +978,7 @@ __STATIC_INLINE size_t nvm3_countDeletedObjects(nvm3_Handle_t *h)
    NVM3_MAX_OBJECT_SIZE value. For a device with 4 kB page size and typical
    values for NVM3_MAX_OBJECT_SIZE, the following is the minimum required
    number of pages:
-     - For NVM3_MAX_OBJECT_SIZE=208:  3 pages
+     - For NVM3_MAX_OBJECT_SIZE=204:  3 pages
      - For NVM3_MAX_OBJECT_SIZE=1900: 4 pages
      - For NVM3_MAX_OBJECT_SIZE=4096: 5 pages
 

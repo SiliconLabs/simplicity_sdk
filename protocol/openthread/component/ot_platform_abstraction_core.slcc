@@ -1,6 +1,6 @@
 id: ot_platform_abstraction_core
 label: Platform Abstraction (Core)
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides the abstraction layer between the OpenThread stack and Silicon Labs platform
@@ -12,7 +12,6 @@ provides:
 requires:
   - name: code_classification
   - name: cpp_support
-  - name: sl_system
   - name: sli_protocol_crypto
     condition: [device_series_2]
   - name: sli_crypto
@@ -48,7 +47,7 @@ requires:
   - name: ot_sbom_tcplp
   - name: cmsis_rtos2
     condition: [device_series_3]
-  - name: ot_uart_implemention
+  - name: ot_uart_implementation
   - name: radio_priority_15_4
 recommends:
   - id: ot_platform_abstraction_source

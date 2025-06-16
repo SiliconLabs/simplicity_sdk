@@ -232,13 +232,14 @@ void sl_zigbee_mark_buffers_handler(void)
 }
 
 // -----------------------------------------------------------------------------
-// Weak implementation of sli_zigbee_af_packet_handoff_incoming_callback
-WEAK(sl_zigbee_packet_action_t sli_zigbee_af_packet_handoff_incoming_callback(
+// Weak implementation of sli_zigbee_dispatch_packet_handoff_incoming_callback
+WEAK(sl_zigbee_packet_action_t sli_zigbee_dispatch_packet_handoff_incoming_callback(
        sl_zigbee_zigbee_packet_type_t packetType,
        sli_buffer_manager_buffer_t packetBuffer,
        uint8_t index,
        // Return:
-       void *data))
+       void *data,
+       uint8_t data_len))
 {
   (void)packetType;
   (void)packetBuffer;
@@ -254,24 +255,26 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data)
+  void *data,
+  uint8_t data_len)
 {
   sl_zigbee_packet_action_t ret;
   sl_zigbee_af_push_callback_network_index();
-  ret = sli_zigbee_af_packet_handoff_incoming_callback(packetType, packetBuffer, index, data);
-  sli_zigbee_af_packet_handoff_incoming(packetType, packetBuffer, index, data);
+  ret = sli_zigbee_dispatch_packet_handoff_incoming_callback(packetType, packetBuffer, index, data, data_len);
+  sli_zigbee_dispatch_packet_handoff_incoming(packetType, packetBuffer, index, data, data_len);
   sl_zigbee_af_pop_network_index();
   return ret;
 }
 
 // -----------------------------------------------------------------------------
-// Weak implementation of sli_zigbee_af_packet_handoff_outgoing_callback
-WEAK(sl_zigbee_packet_action_t sli_zigbee_af_packet_handoff_outgoing_callback(
+// Weak implementation of sli_zigbee_dispatch_packet_handoff_outgoing_callback
+WEAK(sl_zigbee_packet_action_t sli_zigbee_dispatch_packet_handoff_outgoing_callback(
        sl_zigbee_zigbee_packet_type_t packetType,
        sli_buffer_manager_buffer_t packetBuffer,
        uint8_t index,
        // Return:
-       void *data))
+       void *data,
+       uint8_t data_len))
 {
   (void)packetType;
   (void)packetBuffer;
@@ -287,12 +290,13 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data)
+  void *data,
+  uint8_t data_len)
 {
   sl_zigbee_packet_action_t ret;
   sl_zigbee_af_push_callback_network_index();
-  ret = sli_zigbee_af_packet_handoff_outgoing_callback(packetType, packetBuffer, index, data);
-  sli_zigbee_af_packet_handoff_outgoing(packetType, packetBuffer, index, data);
+  ret = sli_zigbee_dispatch_packet_handoff_outgoing_callback(packetType, packetBuffer, index, data, data_len);
+  sli_zigbee_dispatch_packet_handoff_outgoing(packetType, packetBuffer, index, data, data_len);
   sl_zigbee_af_pop_network_index();
   return ret;
 }
@@ -1043,9 +1047,11 @@ void sl_zigbee_counter_rollover_handler(
   sl_zigbee_af_pop_network_index();
 }
 
-// Weak implementation of public Callback sl_zigbee_af_mux_invalid_rx_cb
+/* Weak implementation of public Callback sl_zigbee_af_mux_invalid_rx_cb */
 WEAK(void sl_zigbee_af_mux_invalid_rx_cb(uint8_t new_rx_channel, uint8_t old_rx_channel))
 {
+  (void)new_rx_channel;
+  (void)old_rx_channel;
 }
 
 void sl_zigbee_mux_invalid_rx_handler(uint8_t new_rx_channel, uint8_t old_rx_channel)
@@ -1079,8 +1085,10 @@ void sl_zigbee_raw_transmit_complete_handler(
   uint8_t* messageContents,
   // SL_STATUS_OK if the transmission was successful, or
   // SL_STATUS_ZIGBEE_DELIVERY_FAILED if not
-  sl_status_t status)
+  sl_status_t status,
+  uint8_t messageTag)
 {
+  (void)messageTag;
   sl_zigbee_af_push_callback_network_index();
   sli_zigbee_af_raw_transmit_complete(messageLength, messageContents, status);
   sl_zigbee_af_raw_transmit_complete_cb(messageLength, messageContents, status);
@@ -1662,96 +1670,20 @@ void sl_zigbee_calculate_smacs_283k1_handler(
 // -----------------------------------------------------------------------------
 // Weak implementation of public Callback sl_zigbee_af_gpep_incoming_message_cb
 WEAK(void sl_zigbee_af_gpep_incoming_message_cb(
-       // The status of the GPDF receive.
-       sl_zigbee_gp_status_t status,
-       // The gpdLink value of the received GPDF.
-       uint8_t gpdLink,
-       // The GPDF sequence number.
-       uint8_t sequenceNumber,
-       // The address of the source GPD.
-       sl_zigbee_gp_address_t *addr,
-       // The security level of the received GPDF.
-       sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-       // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-       sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-       // Whether the incoming GPDF had the auto-commissioning bit set.
-       bool autoCommissioning,
-       // Bidirectional information represented in bitfields, where bit0 holds
-       // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-       // for outgoing gpdf.
-       uint8_t bidirectionalInfo,
-       // The security frame counter of the incoming GDPF.
-       uint32_t gpdSecurityFrameCounter,
-       // The gpdCommandId of the incoming GPDF.
-       uint8_t gpdCommandId,
-       // The received MIC of the GPDF.
-       uint32_t mic,
-       // The proxy table index of the corresponding proxy table entry to the
-       // incoming GPDF.
-       uint8_t proxyTableIndex,
-       // The length of the GPD command payload.
-       uint8_t gpdCommandPayloadLength,
-       // The GPD command payload.
-       uint8_t *gpdCommandPayload,
-       // Rx packet information
-       sl_zigbee_rx_packet_info_t *packetInfo))
+       // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+       sl_zigbee_gp_params_t *params))
 {
-  (void)status;
-  (void)gpdLink;
-  (void)sequenceNumber;
-  (void)addr;
-  (void)gpdfSecurityLevel;
-  (void)gpdfSecurityKeyType;
-  (void)autoCommissioning;
-  (void)bidirectionalInfo;
-  (void)gpdSecurityFrameCounter;
-  (void)gpdCommandId;
-  (void)mic;
-  (void)proxyTableIndex;
-  (void)gpdCommandPayloadLength;
-  (void)gpdCommandPayload;
-  (void)packetInfo;
+  (void)params;
 }
 
 // A callback invoked by the ZigBee GP stack when a GPDF is received.
 void sl_zigbee_gpep_incoming_message_handler(
-  // The status of the GPDF receive.
-  sl_zigbee_gp_status_t status,
-  // The gpdLink value of the received GPDF.
-  uint8_t gpdLink,
-  // The GPDF sequence number.
-  uint8_t sequenceNumber,
-  // The address of the source GPD.
-  sl_zigbee_gp_address_t *addr,
-  // The security level of the received GPDF.
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-  // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-  // Whether the incoming GPDF had the auto-commissioning bit set.
-  bool autoCommissioning,
-  // Bidirectional information represented in bitfields, where bit0 holds
-  // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-  // for outgoing gpdf.
-  uint8_t bidirectionalInfo,
-  // The security frame counter of the incoming GDPF.
-  uint32_t gpdSecurityFrameCounter,
-  // The gpdCommandId of the incoming GPDF.
-  uint8_t gpdCommandId,
-  // The received MIC of the GPDF.
-  uint32_t mic,
-  // The proxy table index of the corresponding proxy table entry to the
-  // incoming GPDF.
-  uint8_t proxyTableIndex,
-  // The length of the GPD command payload.
-  uint8_t gpdCommandPayloadLength,
-  // The GPD command payload.
-  uint8_t *gpdCommandPayload,
-  // Rx packet information
-  sl_zigbee_rx_packet_info_t *packetInfo)
+  // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+  sl_zigbee_gp_params_t *params)
 {
   sl_zigbee_af_push_callback_network_index();
-  sli_zigbee_af_gpep_incoming_message(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, packetInfo);
-  sl_zigbee_af_gpep_incoming_message_cb(status, gpdLink, sequenceNumber, addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, packetInfo);
+  sli_zigbee_af_gpep_incoming_message(params);
+  sl_zigbee_af_gpep_incoming_message_cb(params);
   sl_zigbee_af_pop_network_index();
 }
 

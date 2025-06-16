@@ -21,7 +21,7 @@
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_ADVERTISER_PRESENT)
 #include "sl_bt_pawr_advertiser_config.h"
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, pawr_advertiser, sli_bt_pawr_advertiser_config_t) = {
+const sli_bt_pawr_advertiser_config_t sli_bt_pawr_advertiser_config = {
   .max_pawr_advertisers = SL_BT_CONFIG_MAX_PAWR_ADVERTISERS
 };
 

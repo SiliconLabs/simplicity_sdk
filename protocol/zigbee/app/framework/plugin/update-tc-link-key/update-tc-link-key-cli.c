@@ -22,8 +22,18 @@
 #include "app/framework/plugin/network-steering/network-steering-internal.h"
 
 #include "app/util/serial/sl_zigbee_command_interpreter.h"
-void sl_zigbee_af_set_t_c_link_key_update_timer_command(sl_cli_command_arg_t *arguments)
+void sl_zigbee_af_set_tc_link_key_update_timer_command(sl_cli_command_arg_t *arguments)
 {
   uint32_t timeInMilliseconds = sl_cli_get_argument_uint32(arguments, 0);
-  sl_zigbee_af_set_t_c_link_key_update_timer_milli_seconds(timeInMilliseconds);
+  sl_zigbee_af_set_tc_link_key_update_timer_ms(timeInMilliseconds);
+}
+
+void sl_zigbee_af_set_tc_link_key_update_now_command(sl_cli_command_arg_t *arguments)
+{
+  (void)arguments;
+  sl_status_t status = sl_zigbee_af_tc_link_key_update_now();
+  if (status != SL_STATUS_OK) {
+    sl_zigbee_af_core_println("Manual TCLK update failed.%s",
+                              status == SL_STATUS_IN_PROGRESS ? " TCLK update already in progress" : "");
+  }
 }

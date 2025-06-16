@@ -5,7 +5,7 @@ description: >
   Certificate generating firmware example. Software is generating the device
   EC key pair, the signing request for the device certificate, and other related
   data. The generated data can be read out by the Central Authority.
-  
+
 category: Bluetooth Mesh Examples
 quality: production
 
@@ -40,7 +40,7 @@ component:
   - id: psa_crypto_hmac
   - id: psa_crypto_sha256
   - id: psa_crypto_sha1
-  - id: sl_system
+  - id: sl_main
   - id: sleeptimer
 
 requires:
@@ -49,14 +49,12 @@ requires:
 
 source:
   - path: app.c
-  - path: main.c
   - path: csr_generator.c
   - path: der.c
 
 include:
   - path: .
     file_list:
-    - path: app.h
     - path: csr_generator.h
     - path: der.h
 
@@ -74,6 +72,8 @@ other_file:
   - path: ../../documentation/example/btmesh_soc_csr_generator/readme_img4.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
   - name: CSR_GENERATOR_EC_KEY_ALGO
@@ -102,6 +102,10 @@ configuration:
       - psa_crypto
   - name: SL_STACK_SIZE
     value: "0x1400"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:flash:512

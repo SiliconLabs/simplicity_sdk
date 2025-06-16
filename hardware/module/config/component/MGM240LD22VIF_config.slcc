@@ -2,7 +2,7 @@
 - id: MGM240LD22VIF_config
 - label: MGM240LD22VIF config
 - description: Configuration files for MGM240LD22VIF
-- package: platform
+- package: devices
 - category: Platform|Device|MGM24|Config
 - quality: production
 - metadata:
@@ -34,11 +34,6 @@
     path: MGM240LD22VIF/sl_device_init_hfxo_config.h
     unless:
     - hardware_board
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: MGM240LD22VIF/iot_flash_cfg_msc.h
   - override:
       component: rail_util_pa
       file_id: rail_util_pa_config

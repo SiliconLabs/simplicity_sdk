@@ -15,9 +15,7 @@
 #include "ZAF_TSE.h"
 #include "zaf_config_api.h"
 #include "zaf_event_distributor_soc.h"
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
@@ -46,10 +44,8 @@ static cc_binary_switch_t * find_switch_by_endpoint(uint8_t endpoint)
   assert(NULL != mp_switches);
   assert(0 != m_switch_count);
   cc_binary_switch_t * p_switch = mp_switches;
-  for(uint8_t i = 0; i < m_switch_count; i++, p_switch++)
-  {
-    if (endpoint == p_switch->endpoint)
-    {
+  for (uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
+    if (endpoint == p_switch->endpoint) {
       return p_switch;
     }
   }
@@ -61,7 +57,7 @@ static cc_binary_switch_t * find_switch_by_actuator(s_Actuator * p_actuator)
   assert(NULL != mp_switches);
   assert(0 != m_switch_count);
   cc_binary_switch_t * p_switch = mp_switches;
-  for(uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
+  for (uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
     if (p_actuator == &p_switch->actuator) {
       return p_switch;
     }
@@ -87,7 +83,7 @@ static uint8_t encode_value(uint8_t value)
 
 static void actuator_callback(s_Actuator * p_actuator)
 {
-  DPRINT("\nactuator_callback()");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_BINARY_SWITCH, "\nactuator_callback()");
   cc_binary_switch_t * p_switch = find_switch_by_actuator(p_actuator);
 
   uint8_t current_value = ZAF_Actuator_GetCurrentValue(p_actuator);
@@ -110,10 +106,10 @@ static void actuator_callback(s_Actuator * p_actuator)
      */
     p_switch->old_value = current_value;
 
-    DPRINT("\nCurrent value == Target value");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_BINARY_SWITCH, "\nCurrent value == Target value");
     // Reached the final value => Trigger True Status
     if (!ZAF_TSE_Trigger(CC_BinarySwitch_report_stx, (void *)p_switch, true)) {
-      DPRINT("\nTSE fail");
+      ZPAL_LOG_WARNING(ZPAL_LOG_CC_BINARY_SWITCH, "\nTSE fail");
     }
 
     /*
@@ -133,7 +129,7 @@ static void actuator_callback(s_Actuator * p_actuator)
                                     p_switch->rxOpt.sessionId, // This is last status update, no need to set anything.
                                     CC_SUPERVISION_STATUS_SUCCESS,
                                     0); // durationRemaining should always be 0 at this point
-      DPRINTF("\n%s: TX Supervision Report", __func__);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_BINARY_SWITCH, "\n%s: TX Supervision Report", __func__);
     }
     zaf_event_distributor_enqueue_cc_event(
       COMMAND_CLASS_SWITCH_BINARY, CC_BINARY_SWITCH_EVENT_REACHED_FINAL_VALUE, p_switch);
@@ -141,20 +137,19 @@ static void actuator_callback(s_Actuator * p_actuator)
 }
 
 static received_frame_status_t CC_BinarySwitch_handler(
-    cc_handler_input_t * input,
-    cc_handler_output_t * output)
+  cc_handler_input_t * input,
+  cc_handler_output_t * output)
 {
   uint8_t endpoint = input->rx_options->destNode.endpoint;
   cc_binary_switch_t * p_switch;
 
-  switch (input->frame->ZW_Common.cmd)
-  {
+  switch (input->frame->ZW_Common.cmd) {
     case SWITCH_BINARY_GET:
       if (true == Check_not_legal_response_job(input->rx_options)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
-      if(0 == endpoint) {
+      if (0 == endpoint) {
         endpoint = zaf_config_get_default_endpoint();
       }
 
@@ -187,18 +182,16 @@ static received_frame_status_t CC_BinarySwitch_handler(
 
     case SWITCH_BINARY_SET:
     {
-      if ((0x63 < input->frame->ZW_SwitchBinarySetV2Frame.targetValue) &&
-          (0xFF != input->frame->ZW_SwitchBinarySetV2Frame.targetValue))
-      {
+      if ((0x63 < input->frame->ZW_SwitchBinarySetV2Frame.targetValue)
+          && (0xFF != input->frame->ZW_SwitchBinarySetV2Frame.targetValue)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
-      if (2 >= input->length)
-      {
+      if (2 >= input->length) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
-      if(0 == endpoint) {
+      if (0 == endpoint) {
         endpoint = zaf_config_get_default_endpoint();
       }
 
@@ -211,8 +204,7 @@ static received_frame_status_t CC_BinarySwitch_handler(
       // Save receive options for later use by Supervision and True Status.
       p_switch->rxOpt = *(input->rx_options);
 
-      if (3 == input->length) /* version 1 (does not have duration) */
-      {
+      if (3 == input->length) { /* version 1 (does not have duration) */
         input->frame->ZW_SwitchBinarySetV2Frame.duration = p_switch->default_duration;
       }
 
@@ -228,13 +220,12 @@ static received_frame_status_t CC_BinarySwitch_handler(
       }
 
       e_cmd_handler_return_code_t return_code = cc_binary_switch_set_handler(
-          input->frame->ZW_SwitchBinarySetV2Frame.targetValue,
-          input->frame->ZW_SwitchBinarySetV2Frame.duration,
-          endpoint);
+        input->frame->ZW_SwitchBinarySetV2Frame.targetValue,
+        input->frame->ZW_SwitchBinarySetV2Frame.duration,
+        endpoint);
 
       if (E_CMD_HANDLER_RETURN_CODE_WORKING == return_code
           && p_switch->rxOpt.bSupervisionActive && !is_multicast(&p_switch->rxOpt)) {
-
         output->duration = ZAF_Actuator_GetDurationRemaining(&p_switch->actuator);
         return RECEIVED_FRAME_STATUS_WORKING;
       } else if (E_CMD_HANDLER_RETURN_CODE_FAIL == return_code) {
@@ -243,7 +234,7 @@ static received_frame_status_t CC_BinarySwitch_handler(
         // Do nothing. The CC handler returns success per default.
       }
     }
-      break;
+    break;
     default:
       return RECEIVED_FRAME_STATUS_NO_SUPPORT;
       break;
@@ -399,8 +390,7 @@ static void init_and_reset(void)
   m_switch_count = cc_binary_switch_get_config_length();
 
   cc_binary_switch_t * p_switch = mp_switches;
-  for (uint32_t i = 0; i < m_switch_count; i++, p_switch++)
-  {
+  for (uint32_t i = 0; i < m_switch_count; i++, p_switch++) {
     ZAF_Actuator_Init(&(p_switch->actuator), 0, 99, 20, p_switch->default_duration, actuator_callback);
     p_switch->old_value = ZAF_Actuator_GetCurrentValue(&p_switch->actuator);
   }

@@ -1,5 +1,5 @@
 id: mbedtls_cipher_ofb
-package: platform
+package: security_mbedtls
 label: OFB Mode
 description: >-
   This component provides support for OFB cipher modes in mbed TLS.

@@ -1,7 +1,7 @@
 !!omap
 - id: brd4182a_b04
 - label: BRD4182A rev B04
-- package: platform
+- package: boards
 - description: Board support for BRD4182A.
 - category: Platform|Board|Radio Board
 - quality: production

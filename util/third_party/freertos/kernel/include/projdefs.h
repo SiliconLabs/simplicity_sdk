@@ -1,19 +1,8 @@
-/***************************************************************************//**
- * # License
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is Third Party Software licensed by Silicon Labs from a third party
- * and is governed by the sections of the MSLA applicable to Third Party
- * Software and the additional terms set forth below.
- *
- ******************************************************************************/
-
 /*
- * FreeRTOS Kernel V10.4.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V11.1.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -44,37 +33,52 @@
  * Defines the prototype to which task functions must conform.  Defined in this
  * file to ensure the type is known before portable.h is included.
  */
-typedef void (* TaskFunction_t)( void * );
+typedef void (* TaskFunction_t)(void * arg);
 
 /* Converts a time in milliseconds to a time in ticks.  This macro can be
  * overridden by a macro of the same name defined in FreeRTOSConfig.h in case the
  * definition here is not suitable for your application. */
 #ifndef pdMS_TO_TICKS
-    #define pdMS_TO_TICKS( xTimeInMs )    ( ( TickType_t ) ( ( ( TickType_t ) ( xTimeInMs ) * ( TickType_t ) configTICK_RATE_HZ ) / ( TickType_t ) 1000U ) )
+    #define pdMS_TO_TICKS(xTimeInMs)    ( ( TickType_t ) ( ( ( uint64_t ) (xTimeInMs) * ( uint64_t ) configTICK_RATE_HZ) / ( uint64_t ) 1000U) )
 #endif
 
-#define pdFALSE                                  ( ( BaseType_t ) 0 )
-#define pdTRUE                                   ( ( BaseType_t ) 1 )
+/* Converts a time in ticks to a time in milliseconds.  This macro can be
+ * overridden by a macro of the same name defined in FreeRTOSConfig.h in case the
+ * definition here is not suitable for your application. */
+#ifndef pdTICKS_TO_MS
+    #define pdTICKS_TO_MS(xTimeInTicks)    ( ( TickType_t ) ( ( ( uint64_t ) (xTimeInTicks) * ( uint64_t ) 1000U) / ( uint64_t ) configTICK_RATE_HZ) )
+#endif
 
-#define pdPASS                                   ( pdTRUE )
-#define pdFAIL                                   ( pdFALSE )
-#define errQUEUE_EMPTY                           ( ( BaseType_t ) 0 )
-#define errQUEUE_FULL                            ( ( BaseType_t ) 0 )
+#define pdFALSE                                  ( ( BaseType_t ) 0)
+#define pdTRUE                                   ( ( BaseType_t ) 1)
+#define pdFALSE_SIGNED                           ( ( BaseType_t ) 0)
+#define pdTRUE_SIGNED                            ( ( BaseType_t ) 1)
+#define pdFALSE_UNSIGNED                         ( ( UBaseType_t ) 0)
+#define pdTRUE_UNSIGNED                          ( ( UBaseType_t ) 1)
+
+#define pdPASS                                   (pdTRUE)
+#define pdFAIL                                   (pdFALSE)
+#define errQUEUE_EMPTY                           ( ( BaseType_t ) 0)
+#define errQUEUE_FULL                            ( ( BaseType_t ) 0)
 
 /* FreeRTOS error definitions. */
-#define errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY    ( -1 )
-#define errQUEUE_BLOCKED                         ( -4 )
-#define errQUEUE_YIELD                           ( -5 )
+#define errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY    (-1)
+#define errQUEUE_BLOCKED                         (-4)
+#define errQUEUE_YIELD                           (-5)
 
 /* Macros used for basic data corruption checks. */
 #ifndef configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES
     #define configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES    0
 #endif
 
-#if ( configUSE_16_BIT_TICKS == 1 )
+#if (configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_16_BITS)
     #define pdINTEGRITY_CHECK_VALUE    0x5a5a
-#else
+#elif (configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_32_BITS)
     #define pdINTEGRITY_CHECK_VALUE    0x5a5a5a5aUL
+#elif (configTICK_TYPE_WIDTH_IN_BITS == TICK_TYPE_WIDTH_64_BITS)
+    #define pdINTEGRITY_CHECK_VALUE    0x5a5a5a5a5a5a5a5aULL
+#else
+    #error configTICK_TYPE_WIDTH_IN_BITS set to unsupported tick type width.
 #endif
 
 /* The following errno values are used by FreeRTOS+ components, not FreeRTOS
@@ -107,6 +111,7 @@ typedef void (* TaskFunction_t)( void * );
 #define pdFREERTOS_ERRNO_ENOTEMPTY        90  /* Directory not empty */
 #define pdFREERTOS_ERRNO_ENAMETOOLONG     91  /* File or path name too long */
 #define pdFREERTOS_ERRNO_EOPNOTSUPP       95  /* Operation not supported on transport endpoint */
+#define pdFREERTOS_ERRNO_EAFNOSUPPORT     97  /* Address family not supported by protocol */
 #define pdFREERTOS_ERRNO_ENOBUFS          105 /* No buffer space available */
 #define pdFREERTOS_ERRNO_ENOPROTOOPT      109 /* Protocol not available */
 #define pdFREERTOS_ERRNO_EADDRINUSE       112 /* Address already in use */
@@ -128,6 +133,5 @@ typedef void (* TaskFunction_t)( void * );
 /* Re-defining endian values for generic naming. */
 #define pdLITTLE_ENDIAN                   pdFREERTOS_LITTLE_ENDIAN
 #define pdBIG_ENDIAN                      pdFREERTOS_BIG_ENDIAN
-
 
 #endif /* PROJDEFS_H */

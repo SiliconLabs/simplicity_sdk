@@ -31,6 +31,10 @@
 #ifndef APP_H
 #define APP_H
 
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
+#include "sl_component_catalog.h"
+#endif
+
 /******************************************************************************
  * Application Init.
  *****************************************************************************/

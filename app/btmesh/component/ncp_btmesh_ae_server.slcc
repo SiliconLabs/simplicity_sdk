@@ -1,6 +1,6 @@
 id: "ncp_btmesh_ae_server"
 label: "NCP Advertisement Extension Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   NCP Advertisement Extension Server component enables the Silabs Configuration Server vendor model for the node to
   allow data transfer over Advertisement Extension. This is a proprietary feature which breaks compliance with AE in
@@ -35,3 +35,6 @@ requires:
 
 validation_helper:
   - path: "../../script/validation/ncp_soc_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/ncp-btmesh-ae-server

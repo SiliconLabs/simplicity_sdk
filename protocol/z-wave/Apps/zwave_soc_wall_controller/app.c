@@ -8,9 +8,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include "MfgTokens.h"
-#include "DebugPrintConfig.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "ZW_system_startup_api.h"
 #include "CC_Basic.h"
 #include "CC_CentralScene.h"
@@ -25,15 +23,13 @@
 #include "zaf_event_distributor_soc.h"
 #include "zpal_misc.h"
 #include "zaf_protocol_config.h"
-#ifdef DEBUGPRINT
 #include "ZAF_PrintAppInfo.h"
-#endif
 
 #ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
+#if (!defined(UNIT_TEST))
 #include "app_hw.h"
 #endif
 
@@ -83,10 +79,6 @@ static key_event_t keyEventGlobal;
 static CCMLS_PRIMARY_SWITCH_T multiLevelDirection[NUMBER_OF_KEYS] = { CCMLS_PRIMARY_SWITCH_DOWN, CCMLS_PRIMARY_SWITCH_DOWN, CCMLS_PRIMARY_SWITCH_DOWN };
 static uint8_t buttonStates[NUMBER_OF_KEYS] = { 0, 0, 0 };
 
-#ifdef DEBUGPRINT
-static uint8_t m_aDebugPrintBuffer[96];
-#endif
-
 void ApplicationTask(SApplicationHandles* pAppHandles);
 
 /**
@@ -100,7 +92,7 @@ AGITransmission(uint8_t profile, key_id_t activeButton)
 {
   agi_profile_t agi_profile;
 
-  DPRINTF("\r\nAGITransmission %d", keyEventGlobal);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nAGITransmission %d", keyEventGlobal);
 
   agi_profile.profile_MS = ASSOCIATION_GROUP_INFO_REPORT_AGI_PROFILE_CONTROL;
   agi_profile.profile_LS = profile;
@@ -111,13 +103,13 @@ AGITransmission(uint8_t profile, key_id_t activeButton)
        * If button is on, turn device off.
        */
       buttonStates[activeButton] = 0x00;
-      DPRINT("\r\nBasic OFF");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nBasic OFF");
     } else {
       /*
        * If button is off, turn device on.
        */
       buttonStates[activeButton] = 0xFF;
-      DPRINT("\r\nBasic ON");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nBasic ON");
     }
     (void) CC_Basic_Set_tx(&agi_profile, ENDPOINT_ROOT, buttonStates[activeButton],
                            true, NULL);
@@ -134,7 +126,7 @@ AGITransmission(uint8_t profile, key_id_t activeButton)
                                                     CCMLS_SECONDARY_SWITCH_NO_INC_DEC,
                                                     0, 2, 0);
   } else if (KEY_EVENT_UP == keyEventGlobal) {
-    DPRINT("\r\npre BUTTON_UP EVENT_APP_CC_SWITCH_MULTILEVEL_JOB");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\npre BUTTON_UP EVENT_APP_CC_SWITCH_MULTILEVEL_JOB");
     (void) CmdClassMultilevelSwitchStopLevelChange(&agi_profile, ENDPOINT_ROOT,
                                                    NULL);
   }
@@ -148,13 +140,11 @@ ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 {
   SRadioConfig_t* RadioConfig;
 
-  DPRINT("Enabling watchdog\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
-#endif
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
 
   RadioConfig = zaf_get_radio_config();
 
@@ -202,12 +192,9 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   uint32_t unhandledEvents = 0;
   ZAF_Init(xTaskGetCurrentTaskHandle(), pAppHandles);
 
-#ifdef DEBUGPRINT
   ZAF_PrintAppInfo();
-#endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
-  /* This preprocessor statement can be deleted from the source code */
+#if (!defined(UNIT_TEST))
   app_hw_init();
 #endif
 
@@ -216,11 +203,11 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION_SMARTSTART);
 
   // Wait for and process events
-  DPRINT("WallController Event processor Started\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "WallController Event processor Started\r\n");
   for (;; ) {
     unhandledEvents = zaf_event_distributor_distribute();
     if (0 != unhandledEvents) {
-      DPRINTF("Unhandled Events: 0x%08lx\n", unhandledEvents);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Unhandled Events: 0x%08lx\n", unhandledEvents);
 #ifdef UNIT_TEST
       return;
 #endif
@@ -235,14 +222,14 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 void
 zaf_event_distributor_app_event_manager(const uint8_t event)
 {
-  DPRINTF("zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
 
   switch (event) {
     /**************************************************************************************
      * KEY 1
      *************************************************************************************/
     case EVENT_APP_KEY01_SHORT_PRESS:
-      DPRINT("\r\nK1SHORT_PRESS\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK1SHORT_PRESS\r\n");
 
       keyEventGlobal = KEY_EVENT_SHORT_PRESS;
       AGITransmission(ASSOCIATION_GROUP_INFO_REPORT_AGI_CONTROL_KEY01, KEY01);
@@ -254,7 +241,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY01_HOLD:
-      DPRINT("\r\nK1HOLD\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK1HOLD\r\n");
       cc_central_scene_handle_notification_timer(true, SCENE_NUMBER(KEY01));
 
       keyEventGlobal = KEY_EVENT_HOLD;
@@ -268,7 +255,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY01_RELEASE:
-      DPRINT("\r\nK1UP\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK1UP\r\n");
       cc_central_scene_handle_notification_timer(false, SCENE_NUMBER(KEY01));
 
       keyEventGlobal = KEY_EVENT_UP;
@@ -285,7 +272,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
      *************************************************************************************/
 
     case EVENT_APP_KEY02_SHORT_PRESS:
-      DPRINT("\r\nK2SHORT_PRESS\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK2SHORT_PRESS\r\n");
 
       keyEventGlobal = KEY_EVENT_SHORT_PRESS;
       AGITransmission(ASSOCIATION_GROUP_INFO_REPORT_AGI_CONTROL_KEY02, KEY02);
@@ -297,7 +284,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY02_HOLD:
-      DPRINT("\r\nK2HOLD\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK2HOLD\r\n");
       cc_central_scene_handle_notification_timer(true, SCENE_NUMBER(KEY02));
 
       keyEventGlobal = KEY_EVENT_HOLD;
@@ -311,7 +298,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY02_RELEASE:
-      DPRINT("\r\nK2UP\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK2UP\r\n");
       cc_central_scene_handle_notification_timer(false, SCENE_NUMBER(KEY02));
 
       keyEventGlobal = KEY_EVENT_UP;
@@ -328,7 +315,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
      *************************************************************************************/
 
     case EVENT_APP_KEY03_SHORT_PRESS:
-      DPRINT("\r\nK3SHORT_PRESS\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK3SHORT_PRESS\r\n");
 
       keyEventGlobal = KEY_EVENT_SHORT_PRESS;
       AGITransmission(ASSOCIATION_GROUP_INFO_REPORT_AGI_CONTROL_KEY03, KEY03);
@@ -340,7 +327,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY03_HOLD:
-      DPRINT("\r\nK3HOLD\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK3HOLD\r\n");
       cc_central_scene_handle_notification_timer(true, SCENE_NUMBER(KEY03));
 
       keyEventGlobal = KEY_EVENT_HOLD;
@@ -355,7 +342,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
 
     case EVENT_APP_KEY03_RELEASE:
-      DPRINT("\r\nK3UP\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nK3UP\r\n");
       cc_central_scene_handle_notification_timer(false, SCENE_NUMBER(KEY03));
 
       keyEventGlobal = KEY_EVENT_UP;

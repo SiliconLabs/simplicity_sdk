@@ -47,11 +47,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup lpn
- * @{
- ******************************************************************************/
-
 /// High Priority
 #define HIGH_PRIORITY                  0
 /// No Timer Options
@@ -192,7 +187,7 @@ static void sli_btmesh_lpn_feature_init(void)
               netkey_bytes_written);
   } else {
     // The get networks API provides the netkeys in little endian format
-    lpn_friend_netkey_idx = (netkey_bytes[1] << 8) | netkey_bytes[0];
+    lpn_friend_netkey_idx = (uint16_t)((netkey_bytes[1] << 8) | netkey_bytes[0]);
     // Establish friendship with the lpn_friend_netkey_idx network key
     // The lpn_establish_friendship function uses global variable to identify
     // the network index because it does not change after provisioning but the
@@ -206,7 +201,7 @@ static void sli_btmesh_lpn_feature_init(void)
   lpn_high_throughput_head = NULL;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initialize LPN functionality with configuration and friendship establishment.
  ******************************************************************************/
 void sl_btmesh_lpn_feature_init(void)
@@ -246,7 +241,7 @@ static void sli_btmesh_lpn_feature_deinit(void)
   sl_btmesh_lpn_on_deinit();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Deinitialize LPN functionality.
  ******************************************************************************/
 void sl_btmesh_lpn_feature_deinit(void)
@@ -373,10 +368,10 @@ void sl_btmesh_lpn_on_event(sl_btmesh_msg_t* evt)
         return;
       }
       if (num_mesh_proxy_conn > 0) {
-        if (--num_mesh_proxy_conn == 0) {
+        num_mesh_proxy_conn--;
+        if (num_mesh_proxy_conn == 0) {
           // Initialize lpn when there is no active proxy connection
           sli_btmesh_lpn_feature_init();
-        } else {
         }
       }
       (void) app_btmesh_rta_release();
@@ -491,7 +486,7 @@ sl_status_t sl_btmesh_lpn_high_throughput_unregister(sl_btmesh_lpn_high_throughp
   return retval;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Establishes friendship and logs if the request fails
  ******************************************************************************/
 static void lpn_establish_friendship(void)
@@ -502,7 +497,7 @@ static void lpn_establish_friendship(void)
   log_status_error_f(result, "Friend not found" NL);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Set the timer that delay LPN initialization to enable quick configuration
  *  over advertising bearer.
  *
@@ -518,10 +513,6 @@ static void set_configuration_timer(uint32_t delay)
   app_assert_status_f(sc, "Failed to start timer");
 }
 
-/**************************************************************************//**
- * @addtogroup btmesh_lpn_tmr_cb Timer Callbacks
- * @{
- *****************************************************************************/
 static void lpn_friend_find_timer_cb(app_timer_t *handle, void *data)
 {
   (void)data;
@@ -602,17 +593,14 @@ static void lpn_high_throughput_timer_cb(app_timer_t *handle, void *data)
   (void) app_btmesh_rta_release();
 }
 
-/** @} (end addtogroup btmesh_lpn_tmr_cb) */
-
-/// @addtogroup btmesh_lpn_weak_cb Weak implementation of Callbacks
-/// @{
-
 SL_WEAK void sl_btmesh_lpn_on_init(void)
 {
+  return;
 }
 
 SL_WEAK void sl_btmesh_lpn_on_deinit(void)
 {
+  return;
 }
 
 SL_WEAK void sl_btmesh_lpn_on_friendship_established(uint16_t node_address)
@@ -629,7 +617,3 @@ SL_WEAK void sl_btmesh_lpn_on_friendship_terminated(uint16_t reason)
 {
   (void) reason;
 }
-
-/// @} (end addtogroup btmesh_lpn_weak_cb)
-
-/** @} (end addtogroup lpn) */

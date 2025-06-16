@@ -1,6 +1,6 @@
 id: "bluetooth_feature_resource_report"
 label: "Resource usage report in Bluetooth stack"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Reports the memory buffer usage in the Bluetooth stack.
 category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events

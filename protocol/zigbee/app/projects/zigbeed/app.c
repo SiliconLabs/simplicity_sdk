@@ -45,6 +45,7 @@
 #include <string.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <limits.h>
 #ifdef __linux__
 #include <sys/prctl.h>
 #endif
@@ -83,6 +84,9 @@ extern jmp_buf gResetJump;
 #define RADIO_URL_MAX_LEN 150
 char radioUrl[RADIO_URL_MAX_LEN];
 
+#define DEFAULT_CONF_PATH "/usr/local/etc/zigbeed.conf"
+char confFilePath[PATH_MAX] = DEFAULT_CONF_PATH;
+
 /**
  * This enumeration defines the argument return values.
  *
@@ -93,15 +97,17 @@ enum {
   OT_POSIX_OPT_EZSP_INTERFACE = 'p',
   OT_POSIX_OPT_HELP           = 'h',
   OT_POSIX_OPT_VERBOSE        = 'v',
+  OT_POSIX_OPT_CONF           = 'c',
 };
 
-#define GETOPT_OPTION_STRING "r:d:p:hv:"
+#define GETOPT_OPTION_STRING "r:d:p:hv:c:"
 static const struct option kOptions[] = {
   { "radio-url", required_argument, NULL, OT_POSIX_OPT_RADIO_URL },
   { "debug-level", required_argument, NULL, OT_POSIX_OPT_DEBUG_LEVEL },
   { "ezsp-interface", required_argument, NULL, OT_POSIX_OPT_EZSP_INTERFACE },
   { "help", no_argument, NULL, OT_POSIX_OPT_HELP },
   { "verbose", required_argument, NULL, OT_POSIX_OPT_VERBOSE },
+  { "conf", required_argument, NULL, OT_POSIX_OPT_CONF },
   { 0, 0, 0, 0 }
 };
 
@@ -115,7 +121,8 @@ static void PrintUsage(const char *aProgramName, FILE *aStream, int aExitCode)
           "    -d  --debug-level <level>     Debug level for Spinel syslog logging.\n"
           "    -p  --ezsp-interface <name>   EZSP interface name.\n"
           "    -h  --help                    Display this usage information.\n"
-          "    -v  --verbose <value>         Also log Spinel to stderr, value: 1=enable; 0=disable.\n",
+          "    -v  --verbose <value>         Also log Spinel to stderr, value: 1=enable; 0=disable.\n"
+          "    -c  --conf <path>             Path to the configuration file.\n",
           aProgramName);
   exit(aExitCode);
 }
@@ -250,6 +257,10 @@ static void ParseArg(int aArgCount, char *aArgVector[], PosixConfig *aConfig)
       case OT_POSIX_OPT_VERBOSE:
         aConfig->mIsVerbose = (bool)atoi(optarg);
         break;
+      case OT_POSIX_OPT_CONF:
+        strncpy(confFilePath, optarg, sizeof(confFilePath) - 1);
+        confFilePath[sizeof(confFilePath) - 1] = '\0';
+        break;
       case '?':
         fprintf(stderr, "Error: Unrecognized option (%s)\n", optarg);
         PrintUsage(aArgVector[0], stderr, OT_EXIT_INVALID_ARGUMENTS);
@@ -273,7 +284,7 @@ void app_process_args(int argc, char *argv[])
     confArgv[i] = NULL;
   }
   confArgv[0] = argv[0];
-  confArgc = ParseEtcConf("/usr/local/etc/zigbeed.conf", confArgc, confArgv + 1);
+  confArgc = ParseEtcConf(confFilePath, confArgc, confArgv + 1);
   if (confArgc < 0) {
     PrintUsage(argv[0], stderr, OT_EXIT_INVALID_ARGUMENTS);
   }

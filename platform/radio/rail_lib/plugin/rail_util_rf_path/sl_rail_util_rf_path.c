@@ -28,7 +28,8 @@
  *
  ******************************************************************************/
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "rail_types.h" // Support RAIL 2.x antenna designators in configs
 #include "sl_rail_util_rf_path.h"
 #ifdef RAIL_INTERNAL_BUILD
 #include "sl_rail_util_rf_path_internal.h"
@@ -42,9 +43,9 @@
 
 void sl_rail_util_rf_path_init(void)
 {
-  RAIL_AntennaConfig_t antennaConfig = { 0 };
-#if defined(SL_RAIL_UTIL_RF_PATH_INT_RF_PATH_MODE) // efr32xg2x chip-specific
-  antennaConfig.defaultPath = SL_RAIL_UTIL_RF_PATH_INT_RF_PATH_MODE;
-#endif // internal rf path
-  (void) RAIL_ConfigAntenna(RAIL_EFR32_HANDLE, &antennaConfig);
+  sl_rail_antenna_config_t antenna_config = { 0 };
+#if defined(SL_RAIL_UTIL_RF_PATH_INT_RF_PATH_MODE)
+  antenna_config.default_rf_path = SL_RAIL_UTIL_RF_PATH_INT_RF_PATH_MODE;
+#endif
+  (void) sl_rail_config_antenna(SL_RAIL_EFR32_HANDLE, &antenna_config);
 }

@@ -1,3 +1,5 @@
+from pycalcmodel.core.model import ModelRoot
+from pycalcmodel.core.profile import ModelProfile
 from pyradioconfig.parts.jumbo.profiles.profile_wisun_fan_1_1 import ProfileWisunFan1v1Jumbo
 from pyradioconfig.parts.common.profiles.ocelot_regs import build_modem_regs_ocelot
 from pyradioconfig.parts.common.profiles.profile_common import buildCrcOutputs, buildFecOutputs, buildFrameOutputs, \
@@ -25,6 +27,7 @@ class ProfileWisunFan1v1Ocelot(ProfileWisunFan1v1Jumbo):
         self.build_advanced_profile_inputs(model, profile)
         self.build_hidden_profile_inputs(model, profile)
         self.build_deprecated_profile_inputs(model, profile)
+        self.build_metadata_profile_inputs(model, profile)
 
         # Build outputs
         self.build_register_profile_outputs(model, profile)
@@ -98,6 +101,48 @@ class ProfileWisunFan1v1Ocelot(ProfileWisunFan1v1Jumbo):
         self.make_hidden_input(profile, model.vars.agc_lock_mode, 'Advanced', readable_name="AGC lock mode")
         self.make_hidden_input(profile, model.vars.agc_enable_adc_attenuation, 'Advanced',
                                readable_name="Enable ADC attenuation")
+
+
+    def build_metadata_profile_inputs(self, model: ModelRoot, profile: ModelProfile):
+        self.make_metadata_input(profile, model.vars.meta_bitrates, "metadata",
+                                 readable_name="WiSUN Bitrates", value_limit_min=[],
+                                 value_limit_max=[2_500_000_000], units_multiplier=UnitsMultiplier.KILO)
+
+        self.make_metadata_input(profile, model.vars.meta_mcs_restriction, "metadata",
+                                 readable_name="WiSUN MCS Restriction", value_limit_min=[],
+                                 value_limit_max=[100])
+
+        self.make_metadata_input(profile, model.vars.meta_modulation_type, "metadata",
+                                 readable_name="WiSUN Modulation")
+
+        self.make_metadata_input(profile, model.vars.meta_modulation_index, "metadata",
+                                 readable_name="WiSUN Modulation Index",
+                                 value_limit_min=0.4, value_limit_max=1.1)
+
+        self.make_metadata_input(profile, model.vars.meta_fec, "metadata",
+                                 readable_name="WiSUN FEC")
+
+        self.make_metadata_input(profile, model.vars.meta_min_frequency, "metadata",
+                                 readable_name="WiSUN Freq Band Start", value_limit_min=0,
+                                 value_limit_max=2_500_000_000,
+                                 units_multiplier=UnitsMultiplier.MEGA)
+
+        self.make_metadata_input(profile, model.vars.meta_max_frequency, "metadata",
+                                 readable_name="WiSUN Freq Band End", value_limit_min=0,
+                                 value_limit_max=2_500_000_000,
+                                 units_multiplier=UnitsMultiplier.MEGA)
+
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_start, 'metadata',
+                                 readable_name='Channel Config Start channel index',
+                                 value_limit_min=0, value_limit_max=25_000)
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_end, 'metadata',
+                                 readable_name='Channel Config Last channel index',
+                                 value_limit_min=0, value_limit_max=25_000)
+
+        self.make_metadata_input(profile, model.vars.meta_group, "metadata",
+                                 readable_name="WiSUN Grouping")
+
+
 
     def build_register_profile_outputs(self, model, profile):
         # Overriding this method to include modem regs for Ocelot

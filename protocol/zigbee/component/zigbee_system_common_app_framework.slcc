@@ -1,6 +1,6 @@
 id: zigbee_system_common_app_framework
 label: Zigbee System Common, Application Framework Task
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: Subset of the common system component dealing with the application framework RTOS task.
@@ -28,6 +28,13 @@ template_contribution:
     priority: -8997
     condition:
       - cmsis_rtos2
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: sl_zigbee_system_common.h
+      handler: sli_zigbee_app_framework_rtos_perm_allocation
+    priority: -8997
+    condition: [sl_main, cmsis_rtos2]
   - name: event_handler
     value:
       event: stack_init

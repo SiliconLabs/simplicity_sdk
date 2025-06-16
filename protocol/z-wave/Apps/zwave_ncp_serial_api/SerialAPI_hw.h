@@ -1,7 +1,7 @@
 /**
  * @file
  * Platform abstraction for Serial API application
- * 
+ *
  * @copyright 2022 Silicon Laboratories Inc.
  */
 #ifndef SERIALAPI_HW_H_

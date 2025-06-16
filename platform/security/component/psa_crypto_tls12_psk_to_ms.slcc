@@ -1,5 +1,5 @@
 id: psa_crypto_tls12_psk_to_ms
-package: platform
+package: security_mbedtls
 label: TLS 1.2 PSK to Master Secret
 description: >-
   This component provides support for the functions specified in TLS 1.2

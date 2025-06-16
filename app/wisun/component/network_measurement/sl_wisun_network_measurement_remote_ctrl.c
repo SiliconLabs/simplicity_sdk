@@ -97,11 +97,11 @@
 /// Failed str
 #define SL_WISUN_NWM_REMOTE_CTRL_FAILED_STR                       "failed"
 /// Ping transaction result format str
-#define SL_WISUN_NWM_REMOTE_CTRL_PING_RESULT_FROMAT_STR           "[COAP CLI Ping transaction %s]\n"
+#define SL_WISUN_NWM_REMOTE_CTRL_PING_RESULT_FORMAT_STR           "[COAP CLI Ping transaction %s]\n"
 /// iPerf transaction result format str
-#define SL_WISUN_NWM_REMOTE_CTRL_IPERF_RESULT_FROMAT_STR          "[COAP CLI iPerf transaction %s]\n"
+#define SL_WISUN_NWM_REMOTE_CTRL_IPERF_RESULT_FORMAT_STR          "[COAP CLI iPerf transaction %s]\n"
 /// Neighbor info transaction result format str
-#define SL_WISUN_NWM_REMOTE_CTRL_NBRINFO_RESULT_FROMAT_STR        "[COAP CLI NeighborInfo transaction %s]\n"
+#define SL_WISUN_NWM_REMOTE_CTRL_NBRINFO_RESULT_FORMAT_STR        "[COAP CLI NeighborInfo transaction %s]\n"
 
 /// Arg help str
 #define SL_WISUN_NWM_REMOTE_CTRL_ARG_HELP_STR                     "help"
@@ -245,7 +245,7 @@ static const sl_wisun_nwm_remote_ctrl_resp_t _resp_unknown_cli = {
   .payload = SL_WISUN_NWM_REMOTE_CTRL_RESP_UNKNOWN_CLI_STR,
   .msg_code = COAP_MSG_CODE_RESPONSE_NOT_ACCEPTABLE
 };
-/// Response test queue faled
+/// Response test queue failed
 static const sl_wisun_nwm_remote_ctrl_resp_t _resp_test_queue_failed = {
   .payload = SL_WISUN_NWM_REMOTE_CTRL_RESP_TEST_QUEUE_FAILED_STR,
   .msg_code = COAP_MSG_CODE_RESPONSE_NOT_ACCEPTABLE
@@ -475,7 +475,7 @@ sl_wisun_coap_packet_t * sl_wisun_coap_remote_cli_ping_cb(const sl_wisun_coap_pa
   sl_wisun_coap_packet_t * resp_packet = NULL;
 
   resp_packet = _parse_ping(req_packet);
-  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_PING_RESULT_FROMAT_STR, resp_packet);
+  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_PING_RESULT_FORMAT_STR, resp_packet);
   return resp_packet;
 }
 
@@ -484,7 +484,7 @@ sl_wisun_coap_packet_t * sl_wisun_coap_remote_cli_iperf_cb(const sl_wisun_coap_p
   sl_wisun_coap_packet_t * resp_packet = NULL;
 
   resp_packet = _parse_iperf(req_packet);
-  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_IPERF_RESULT_FROMAT_STR, resp_packet);
+  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_IPERF_RESULT_FORMAT_STR, resp_packet);
   return resp_packet;
 }
 
@@ -493,7 +493,7 @@ sl_wisun_coap_packet_t * sl_wisun_coap_remote_cli_nbr_cb(const sl_wisun_coap_pac
   sl_wisun_coap_packet_t * resp_packet = NULL;
 
   resp_packet = _build_response(req_packet, SL_WISUN_NWM_REMOTE_CTRL_BUF_TARGET_NBINF);
-  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_NBRINFO_RESULT_FROMAT_STR, resp_packet);
+  _print_cb_result(SL_WISUN_NWM_REMOTE_CTRL_NBRINFO_RESULT_FORMAT_STR, resp_packet);
   return resp_packet;
 }
 

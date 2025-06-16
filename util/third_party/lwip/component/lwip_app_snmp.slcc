@@ -1,6 +1,6 @@
 id: lwip_app_snmp
 label: "LWIP SNMP High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP snmp high layer application specifically programmed with the lwIP low-level raw API,
     SNMPv2c and SNMPv3 compatible agent there is also a MIB compiler and a MIB viewer in lwIP

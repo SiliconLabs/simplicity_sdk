@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6021a
 - label: SLWSTK6021A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG22 Wireless Starter Kit.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

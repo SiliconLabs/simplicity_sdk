@@ -49,8 +49,9 @@ extern "C" {
  * ## Initialization
  *
  *   The cycle counter must be enabled prior to any call to its API.
- *   If sl_system is used, only sl_system_init() must be called, otherwise
- *   sl_cycle_counter_enable() must be called manually.
+ *   If sl_main is used, only sli_main_init() must be called.
+ *   (DEPRECATED) If sl_system is used, only sl_system_init() must be called.
+ *   Otherwise sl_cycle_counter_enable() must be called manually.
  *
  * ## Limitations
  *

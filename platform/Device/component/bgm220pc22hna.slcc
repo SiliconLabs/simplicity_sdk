@@ -1,6 +1,6 @@
 !!omap
 - id: BGM220PC22HNA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for BGM220PC22HNA.
 - category: Platform|Device|BGM22
 - quality: production

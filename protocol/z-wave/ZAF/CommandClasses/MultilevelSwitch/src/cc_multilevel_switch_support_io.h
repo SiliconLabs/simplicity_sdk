@@ -21,6 +21,6 @@ bool cc_multilevel_switch_read(uint8_t multilevel_component_id, cc_multilevel_sw
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* cc_multilevel_switch_support_io_H */

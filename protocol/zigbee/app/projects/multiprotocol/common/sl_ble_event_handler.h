@@ -27,7 +27,7 @@ void zb_ble_dmp_read_light_state(uint8_t connection);
 void zb_ble_dmp_read_trigger_source(uint8_t connection);
 void zb_ble_dmp_read_source_address(uint8_t connection);
 
-void zb_ble_dmp_write_light_state(uint8_t connection, uint8array *writeValue);
+void zb_ble_dmp_write_light_state(uint8_t connection, byte_array *writeValue);
 
 void zb_ble_dmp_notify_light(uint8_t lightState);
 void zb_ble_dmp_notify_trigger_source(uint8_t connection, uint8_t triggerSource);

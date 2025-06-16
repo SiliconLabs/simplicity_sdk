@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -59,6 +59,7 @@ extern otInstance *OT_API_REAL_NAME(otInstanceInitMultiple)(uint8_t aIdx);
 extern otInstance *OT_API_REAL_NAME(otInstanceInitSingle)(void);
 extern uint32_t    OT_API_REAL_NAME(otInstanceGetId)(otInstance *aInstance);
 extern uint64_t    OT_API_REAL_NAME(otInstanceGetUptime)(otInstance *aInstance);
+extern uint8_t     OT_API_REAL_NAME(otInstanceGetIndex)(otInstance *aInstance);
 extern void        OT_API_REAL_NAME(otInstanceFactoryReset)(otInstance *aInstance);
 extern void        OT_API_REAL_NAME(otInstanceFinalize)(otInstance *aInstance);
 extern void        OT_API_REAL_NAME(otInstanceGetUptimeAsString)(otInstance *aInstance, char *aBuffer, uint16_t aSize);
@@ -154,6 +155,14 @@ uint64_t OT_API_WRAPPER_NAME(otInstanceGetUptime)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint64_t ret = OT_API_REAL_NAME(otInstanceGetUptime)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+uint8_t OT_API_WRAPPER_NAME(otInstanceGetIndex)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    uint8_t ret = OT_API_REAL_NAME(otInstanceGetIndex)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

@@ -36,7 +36,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup fw_upd_client BT Mesh Firmware Update Client
+ * @addtogroup btmesh_firmware_update_client BT Mesh Firmware Update Client
  * @{
  ******************************************************************************/
 
@@ -50,7 +50,7 @@ extern "C" {
  ******************************************************************************/
 void sl_btmesh_firmware_update_client_on_event(const sl_btmesh_msg_t *const evt);
 
-/** @} end fw_upd_client */
+/** @} end btmesh_firmware_update_client */
 
 #ifdef __cplusplus
 }

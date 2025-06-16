@@ -1,6 +1,6 @@
 id: ot_headers
 label: OpenThread headers
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides the OpenThread header files.
@@ -104,6 +104,11 @@ include:
       - path: platform/toolchain.h
       - path: platform/trel.h
       - path: platform/debug_uart.h
+  - path: ../include
+    file_list:
+      - path: common/arg_macros.hpp
+      - path: common/code_utils.hpp
+      - path: common/new.hpp
   - path: ./
     file_list:
       - path: openthread-core-config.h
@@ -119,16 +124,14 @@ include:
       - path: coap/coap_message.hpp
       - path: coap/coap_secure.hpp
       - path: common/appender.hpp
-      - path: common/arg_macros.hpp
       - path: common/array.hpp
       - path: common/as_core_type.hpp
       - path: common/binary_search.hpp
       - path: common/bit_set.hpp
       - path: common/callback.hpp
       - path: common/clearable.hpp
-      - path: common/code_utils.hpp
       - path: common/const_cast.hpp
-      - path: common/crc16.hpp
+      - path: common/crc.hpp
       - path: common/data.hpp
       - path: common/debug.hpp
       - path: common/encoding.hpp
@@ -147,7 +150,6 @@ include:
       - path: common/log.hpp
       - path: common/logging.hpp
       - path: common/message.hpp
-      - path: common/new.hpp
       - path: common/non_copyable.hpp
       - path: common/notifier.hpp
       - path: common/num_utils.hpp
@@ -298,6 +300,8 @@ include:
       - path: radio/trel_interface.hpp
       - path: radio/trel_link.hpp
       - path: radio/trel_packet.hpp
+      - path: radio/trel_peer.hpp
+      - path: radio/trel_peer_discoverer.hpp
       - path: thread/address_resolver.hpp
       - path: thread/announce_begin_server.hpp
       - path: thread/announce_sender.hpp
@@ -320,7 +324,6 @@ include:
       - path: thread/lowpan.hpp
       - path: thread/mesh_forwarder.hpp
       - path: thread/mle.hpp
-      - path: thread/mle_router.hpp
       - path: thread/mle_tlvs.hpp
       - path: thread/mle_types.hpp
       - path: thread/mlr_manager.hpp
@@ -342,6 +345,7 @@ include:
       - path: thread/router.hpp
       - path: thread/router_table.hpp
       - path: thread/src_match_controller.hpp
+      - path: thread/thread_link_info.hpp
       - path: thread/thread_netif.hpp
       - path: thread/thread_tlvs.hpp
       - path: thread/time_sync_service.hpp

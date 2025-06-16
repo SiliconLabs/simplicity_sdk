@@ -72,15 +72,13 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  set_up_tx_fifo(rail_handle);
-
-  power_raw = RAIL_GetTxPower(rail_handle);
-  power_deci_dbm = RAIL_GetTxPowerDbm(rail_handle);
+  power_raw = sl_rail_get_tx_power(rail_handle);
+  power_deci_dbm = sl_rail_get_tx_power_dbm(rail_handle);
 
   // CLI info message
   print_sample_app_name("Emode");
@@ -92,8 +90,15 @@ RAIL_Handle_t app_init(void)
 
   // add restriction in app_process to be able to control via terminal
   init_em1_mode();
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

@@ -28,8 +28,13 @@
   #include "parser/gbl/btl_gbl_parser.h"
 #endif
 
+#include "em_device.h"
 MISRAC_DISABLE
+#if defined (_SILICON_LABS_32B_SERIES_3)
+#include "sl_common.h"
+#else
 #include "em_common.h"
+#endif
 MISRAC_ENABLE
 
 /***************************************************************************//**

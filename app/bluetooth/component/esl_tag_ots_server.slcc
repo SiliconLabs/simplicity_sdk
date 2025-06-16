@@ -1,5 +1,5 @@
 id: esl_tag_ots_erver
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag OTS Server
 description: >
   Object Transfer Server component for the ESL Image tranfer. This is a hidden,

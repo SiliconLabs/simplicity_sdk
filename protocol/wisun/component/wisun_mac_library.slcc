@@ -18,13 +18,9 @@ provides:
 
 library:
   - path: "libwisun_mac_efr32xg2x_gcc.a"
-    condition: ["toolchain_gcc", "device_sdid_220"]
-  - path: "libwisun_mac_efr32xg2x_gcc.a"
-    condition: ["toolchain_gcc", "device_sdid_235"]
+    condition: ["toolchain_gcc", "device_series_2"]
   - path: "libwisun_mac_efr32xg2x_iar.a"
-    condition: ["toolchain_iar", "device_sdid_220"]
-  - path: "libwisun_mac_efr32xg2x_iar.a"
-    condition: ["toolchain_iar", "device_sdid_235"]
+    condition: ["toolchain_iar", "device_series_2"]
 
 metadata:
   sbom:

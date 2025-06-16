@@ -1,5 +1,5 @@
 id: esl_tag_display
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag Display
 description: >
   Extends the Bluetooth Electronic Shelf Label design with display class

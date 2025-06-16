@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<multi_phy_configuration part_family="efr32xg26" part_revision="A0" rail_adapter_version="rail_api_3.x" status_code="0" xsd_version="0.0.17">
+  <base_channel_configurations>
+    <base_channel_configuration name="ble_phy_1Mbps_viterbi" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_AOX_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_1Mbps_viterbi_0_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_1Mbps_viterbi_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>183</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_1Mbps_viterbi_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_2Mbps_viterbi" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_2M_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_0_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>160</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_2Mbps_aox" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_2M_AOX_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_2Mbps_aox_0_34">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>34</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_aox_35">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>35</channel_number_start>
+          <channel_number_end>35</channel_number_end>
+          <max_power>182</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_aox_36">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>36</channel_number_start>
+          <channel_number_end>36</channel_number_end>
+          <max_power>157</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_aox_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>37</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>125</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_aox_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>83</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_aox_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_125kbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LR_125k_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_125kbps_0_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_125kbps_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>183</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_125kbps_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_500kbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LR_500k_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_500kbps_0_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_500kbps_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>183</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_500kbps_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration name="ble_phy_1Mbps_viterbi_hadm" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_HADM_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_1Mbps_viterbi_hadm_0_78">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>78</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_CTRL_TXFCDMODE</key>
+              <value>2</value>
+            </override>
+            <override>
+              <key>FRC_FCD1_WORDS</key>
+              <value>255</value>
+            </override>
+            <override>
+              <key>FRC_FCD1_SKIPWHITE</key>
+              <value>1</value>
+            </override>
+            <override>
+              <key>AGC_CTRL1_RSSIPERIOD</key>
+              <value>1</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi1M_hadm</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi_hadm" name="ble_phy_2Mbps_viterbi_hadm" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_2M_HADM_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_hadm_0_78">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>1000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>78</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+          <profile_input_overrides>
+            <override>
+              <key>FRC_CTRL_TXFCDMODE</key>
+              <value>2</value>
+            </override>
+            <override>
+              <key>FRC_FCD1_WORDS</key>
+              <value>255</value>
+            </override>
+            <override>
+              <key>FRC_FCD1_SKIPWHITE</key>
+              <value>1</value>
+            </override>
+            <override>
+              <key>AGC_CTRL1_RSSIPERIOD</key>
+              <value>1</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi2M_hadm</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_simulscan" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_Concurrent_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_simulscan_0_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+            <override>
+              <key>MODEM_DSACTRL_SCHPRD</key>
+              <value>1</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_simulscan_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>183</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+            <override>
+              <key>MODEM_DSACTRL_SCHPRD</key>
+              <value>1</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_simulscan_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+            <override>
+              <key>MODEM_DSACTRL_SCHPRD</key>
+              <value>1</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration name="ieee802154_phy_2G4Hz" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_phy_2G4Hz">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration name="ieee802154_phy_2G4Hz_fast_switch" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_antdiv_fastswitch"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_phy_2G4Hz_fast_switch">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ieee802154_phy_2G4Hz" name="ieee802154_phy_2G4Hz_antdiv" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_diversity_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_phy_2G4Hz_antdiv">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ieee802154_phy_2G4Hz" name="ieee802154_phy_2G4Hz_antdiv_fem" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_diversity_fem_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_phy_2G4Hz_antdiv_fem">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ieee802154_phy_2G4Hz" name="ieee802154_phy_2G4Hz_fem" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_IEEE802154_2p4GHz_fem_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ieee802154_phy_2G4Hz_fem">
+          <base_frequency>2405000000</base_frequency>
+          <channel_spacing>5000000</channel_spacing>
+          <physical_channel_offset>11</physical_channel_offset>
+          <channel_number_start>11</channel_number_start>
+          <channel_number_end>26</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>40000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+    </base_channel_configuration>
+  </base_channel_configurations>
+</multi_phy_configuration>

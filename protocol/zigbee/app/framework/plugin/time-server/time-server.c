@@ -36,11 +36,6 @@
 #define MASTER_ZONE_DST
 #endif
 
-// Time Status fields (4 bits in total)
-#define MASTER_BIT          BIT(0)
-#define SYNCHRONIZED_BIT    BIT(1)
-#define MASTER_ZONE_DST_BIT BIT(2)
-#define SUPERSEDING_BIT     BIT(3)
 #define INVALID_ENDPOINT 0xFF
 
 static sl_zigbee_af_status_t readTime(uint8_t endpoint, uint32_t *time);
@@ -83,14 +78,14 @@ void sl_zigbee_af_time_cluster_server_init_cb(uint8_t endpoint)
   // The first bit of TimeStatus indicates whether the real time clock
   // corresponding to the Time attribute is internally set to the time
   // standard.
-  timeStatus |= MASTER_BIT;
+  timeStatus |= BIT(0);
 #elif defined(SYNCHRONIZED)
   // The Synchronized bit specifies whether Time has been set over the ZigBee
   // network to synchronize it (as close as may be practical) to the time standard
   // bit must be explicitly written to indicate this - i.e. it is not set
   // automatically on writing to the Time attribute. If the Master bit is 1, the value of
   // this bit is 0.
-  timeStatus |= SYNCHRONIZED_BIT;
+  timeStatus |= BIT(1);
 #endif
 
 #ifdef MASTER_ZONE_DST
@@ -101,14 +96,14 @@ void sl_zigbee_af_time_cluster_server_init_cb(uint8_t endpoint)
       && sli_zigbee_af_contains_time_server_attribute(endpoint, ZCL_DST_START_ATTRIBUTE_ID)
       && sli_zigbee_af_contains_time_server_attribute(endpoint, ZCL_DST_END_ATTRIBUTE_ID)
       && sli_zigbee_af_contains_time_server_attribute(endpoint, ZCL_DST_SHIFT_ATTRIBUTE_ID)) {
-    timeStatus |= MASTER_ZONE_DST_BIT;
+    timeStatus |= BIT(2);
   }
 #endif // MASTER_ZONE_DST
 
 #ifdef SUPERSEDING
   // Indicates that the time server should be considered as a more authoritative
   // time server.
-  timeStatus |= SUPERSEDING_BIT;
+  timeStatus |= BIT(3);
 #endif // SUPERSEDING
 
   status = sl_zigbee_af_write_attribute(endpoint,
@@ -159,6 +154,7 @@ sl_zigbee_af_status_t sl_zigbee_af_time_cluster_server_pre_attribute_changed_cb(
     return status;
   }
 
+  // Only allow Time to be written if not master, per ZCL spec.
   uint8_t timeStatus = 0;
   status = sl_zigbee_af_read_attribute(endpoint,
                                        ZCL_TIME_CLUSTER_ID,
@@ -167,17 +163,15 @@ sl_zigbee_af_status_t sl_zigbee_af_time_cluster_server_pre_attribute_changed_cb(
                                        (uint8_t *)&timeStatus,
                                        sizeof(timeStatus),
                                        NULL);  // data type
-  if (SL_ZIGBEE_ZCL_STATUS_SUCCESS != status) {
-    return status;
-  }
 
   switch (attributeId) {
-    // Only allow Time to be written if not master, per ZCL spec.
     case ZCL_TIME_ATTRIBUTE_ID:
     {
-      if (timeStatus & MASTER_BIT) {
-        // Master bit is set in TimeStatus, disallow write.
-        status = SL_ZIGBEE_ZCL_STATUS_READ_ONLY;
+      if (SL_ZIGBEE_ZCL_STATUS_SUCCESS == status) {
+        if (timeStatus & BIT(0)) {
+          // Master bit is set in TimeStatus, disallow write.
+          status = SL_ZIGBEE_ZCL_STATUS_READ_ONLY;
+        }
       }
     }
     break;
@@ -188,9 +182,11 @@ sl_zigbee_af_status_t sl_zigbee_af_time_cluster_server_pre_attribute_changed_cb(
     case ZCL_DST_END_ATTRIBUTE_ID:
     case ZCL_DST_SHIFT_ATTRIBUTE_ID:
     {
-      if (timeStatus & MASTER_ZONE_DST_BIT) {
-        // MasterZoneDst bit is set in TimeStatus, disallow write.
-        status = SL_ZIGBEE_ZCL_STATUS_READ_ONLY;
+      if (SL_ZIGBEE_ZCL_STATUS_SUCCESS == status) {
+        if (timeStatus & BIT(2)) {
+          // MasterZoneDst bit is set in TimeStatus, disallow write.
+          status = SL_ZIGBEE_ZCL_STATUS_READ_ONLY;
+        }
       }
     }
     break;

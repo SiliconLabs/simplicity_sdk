@@ -49,6 +49,9 @@
 #include "bootload_internal_def.h"
 #include "zigbee-device-stack-internal-def.h"
 #include "library_internal_def.h"
+#if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_MEMORY_USAGE_API_PRESENT)
+#include "sl_zigbee_memory_usage_internal_def.h"
+#endif
 #if !defined(SL_COMPONENT_CATALOG_PRESENT) || defined(SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT)
 #include "zll-api-internal-def.h"
 #endif

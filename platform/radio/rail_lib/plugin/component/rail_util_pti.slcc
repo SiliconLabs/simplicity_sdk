@@ -1,22 +1,22 @@
 id: rail_util_pti
 label: RAIL Utility, PTI
 description: Utility to aid with RAIL Packet Trace Interface (PTI) Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_pti
-    name: RAIL Utility, PTI
-    license: Zlib
+    sbom:
+        id: rail_util_pti
+        name: RAIL Utility, PTI
+        license: Zlib
 requires:
   - name: rail_lib
   - name: gpio
 provides:
   - name: rail_util_pti
 documentation:
-  docset: rail
-  document: rail-api/rail-util-pti
+    docset: rail
+    document: rail-api/rail-util-pti
 config_file:
   - path: platform/radio/rail_lib/plugin/rail_util_pti/config/efr32xg25/sl_rail_util_pti_config.h
     file_id: rail_util_pti_config
@@ -35,9 +35,9 @@ source:
 template_contribution:
   - name: event_handler
     value:
-      event: stack_init
-      include: sl_rail_util_pti.h
-      handler: sl_rail_util_pti_init
+        event: stack_init
+        include: sl_rail_util_pti.h
+        handler: sl_rail_util_pti_init
     priority: -9010
   - name: component_catalog
     value: rail_util_pti

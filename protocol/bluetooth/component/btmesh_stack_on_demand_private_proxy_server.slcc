@@ -1,6 +1,6 @@
 id: "btmesh_stack_on_demand_private_proxy_server"
 label: "On-Demand Private Proxy Server Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides the Bluetooth mesh On-Demand Private Proxy Server model. It is used to support the configuration of the advertising with Private Network Identity type functionality of a node."
 category: "Bluetooth Mesh|Stack|Models|Core"
 quality: "production"

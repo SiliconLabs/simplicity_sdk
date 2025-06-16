@@ -1652,34 +1652,6 @@ void EMU_EnterEM4S(void)
 
 /***************************************************************************//**
  * @brief
- *   Power down memory block.
- *
- * @param[in] blocks
- *   Specifies a logical OR of bits indicating memory blocks to power down.
- *   Bit 0 selects block 1, bit 1 selects block 2, and so on. Memory block 0 cannot
- *   be disabled. See the reference manual for available
- *   memory blocks for a device.
- *
- * @note
- *   Only a POR reset can power up the specified memory block(s) after power down.
- *
- * @deprecated
- *   This function is deprecated, use @ref EMU_RamPowerDown() instead which
- *   maps a user provided memory range into RAM blocks to power down.
- ******************************************************************************/
-void EMU_MemPwrDown(uint32_t blocks)
-{
-#if defined(_EMU_MEMCTRL_MASK)
-  EMU->MEMCTRL = blocks & _EMU_MEMCTRL_MASK;
-#elif defined(_EMU_RAM0CTRL_MASK)
-  EMU->RAM0CTRL = blocks & _EMU_RAM0CTRL_MASK;
-#else
-  (void)blocks;
-#endif
-}
-
-/***************************************************************************//**
- * @brief
  *   Power down RAM memory blocks.
  *
  * @details
@@ -1848,20 +1820,6 @@ void EMU_PeripheralRetention(EMU_PeripheralRetention_TypeDef periMask, bool enab
 }
 #endif
 
-/***************************************************************************//**
- * @brief
- *   Update EMU module with CMU oscillator selection/enable status.
- *
- * @deprecated
- *   Oscillator status is saved in @ref EMU_EnterEM2() and @ref EMU_EnterEM3().
- ******************************************************************************/
-void EMU_UpdateOscConfig(void)
-{
-#if (_SILICON_LABS_32B_SERIES < 2)
-  emState(emState_Save);
-#endif
-}
-
 #if defined(_SILICON_LABS_32B_SERIES_2) && defined(EMU_VSCALE_EM01_PRESENT)
 /***************************************************************************//**
  * @brief
@@ -1942,7 +1900,8 @@ void EMU_VScaleEM01ByClock(uint32_t clockFrequency, bool wait)
  * @note
  *   This function is useful for upscaling before programming Flash from @ref msc
  *   and downscaling after programming is done. Flash programming is only supported
- *   at @ref emuVScaleEM01_HighPerformance.
+ *   at @ref emuVScaleEM01_HighPerformance. At least 200uS delay is required before
+ *   voltage scaling for Lion only.
  *
  * @note
  *  This function ignores vScaleEM01LowPowerVoltageEnable set from @ref
@@ -1977,6 +1936,16 @@ void EMU_VScaleEM01(EMU_VScaleEM01_TypeDef voltage, bool wait)
     /* Update wait states before scaling down voltage. */
     CMU_UpdateWaitStates(hfFreq, VSCALE_EM01_LOW_POWER);
   }
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_240)
+  // The waiting loop should take 3 cycles by loop minimally (Compiler dependent).
+  // We would then wait for (cyclesPerMicrosecond * microsecond) / 3 clock cycles.
+  uint32_t cyclesPerMicrosecond = hfSrcClockFrequency / 1000000UL;
+  uint32_t loops = (cyclesPerMicrosecond * 200) / 3;
+  for (uint32_t i = 0; i < loops; i++) {
+    __NOP();
+  }
+#endif
 
   CORE_ENTER_CRITICAL();
   EMU->IF_CLR = EMU_IF_VSCALEDONE;
@@ -2866,7 +2835,11 @@ bool EMU_DCDCInit(const EMU_DCDCInit_TypeDef *dcdcInit)
 #if defined(_EMU_PWRCTRL_REGPWRSEL_MASK)
   /* Select DVDD as input to the digital regulator. The switch to DVDD will take
      effect once the DCDC output is stable. */
+  #if defined (EMU_HAS_SET_CLEAR)
+  EMU->PWRCTRL_SET = EMU_PWRCTRL_REGPWRSEL_DVDD;
+  #else
   EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD;
+  #endif
 #endif
 
   /* Set EM0 DCDC operating mode. Output voltage set in
@@ -3015,9 +2988,17 @@ bool EMU_DCDCPowerOff(void)
 
   /* Select DVDD as input to the digital regulator. */
 #if defined(EMU_PWRCTRL_IMMEDIATEPWRSWITCH)
+ #if defined (EMU_HAS_SET_CLEAR)
+  EMU->PWRCTRL_SET = EMU_PWRCTRL_REGPWRSEL_DVDD | EMU_PWRCTRL_IMMEDIATEPWRSWITCH;
+  #else
   EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD | EMU_PWRCTRL_IMMEDIATEPWRSWITCH;
+  #endif
 #elif defined(EMU_PWRCTRL_REGPWRSEL_DVDD)
+  #if defined (EMU_HAS_SET_CLEAR)
+  EMU->PWRCTRL_SET = EMU_PWRCTRL_REGPWRSEL_DVDD;
+  #else
   EMU->PWRCTRL |= EMU_PWRCTRL_REGPWRSEL_DVDD;
+  #endif
 #endif
 
   /* Set DCDC to OFF and disable LP in EM2/3/4. Verify that the required

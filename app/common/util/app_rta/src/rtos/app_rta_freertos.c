@@ -29,6 +29,7 @@
  ******************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "sl_status.h"
 #include "app_rta_internal.h"
 #include "app_rta_list.h"
@@ -178,16 +179,16 @@ sl_status_t app_rta_runtime_init(app_rta_runtime_t *runtime)
 
   runtime_data_t *rt_data = (runtime_data_t *)runtime->runtime_data;
 
+  // Calculate stack size
+  const configSTACK_DEPTH_TYPE stack_size
+    = (configSTACK_DEPTH_TYPE)(runtime->stack_size / sizeof(configSTACK_DEPTH_TYPE));
+
   // Create common semaphore
   rt_data->common_semaphore = xSemaphoreCreateCounting(UINT16_MAX, 0);
   if (rt_data->common_semaphore == NULL) {
     sc = SL_STATUS_ALLOCATION_FAILED;
     goto cleanup;
   }
-
-  // Calculate stack size
-  const configSTACK_DEPTH_TYPE stack_size
-    = (configSTACK_DEPTH_TYPE)(runtime->stack_size / sizeof(configSTACK_DEPTH_TYPE));
 
   // Create task for runtime with the required stack size and priority
   ret = xTaskCreate(runtime_function,

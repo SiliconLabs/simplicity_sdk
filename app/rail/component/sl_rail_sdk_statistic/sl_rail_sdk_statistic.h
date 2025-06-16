@@ -36,7 +36,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -130,7 +130,7 @@ void clear_statistic(void);
  * @param[in] rail_handle: not used
  * @param[in] events: the events what happened
  ******************************************************************************/
-void sl_rail_sdk_statistic_event(RAIL_Handle_t rail_handle, RAIL_Events_t events);
+void sl_rail_sdk_statistic_event(sl_rail_handle_t rail_handle, sl_rail_events_t events);
 
 #if defined(SL_CATALOG_CLI_PRESENT)
 /*******************************************************************************

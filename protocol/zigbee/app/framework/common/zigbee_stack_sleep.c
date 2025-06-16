@@ -49,6 +49,8 @@ bool ncp_ok_to_sleep (void);
 #include "force-sleep-wakeup.h"
 #endif // SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
 
+#include "zigbee_device_config.h"
+
 extern uint32_t sli_zigbee_stack_ms_to_next_stack_event(void);
 
 //------------------------------------------------------------------------------
@@ -59,7 +61,9 @@ extern uint32_t sli_zigbee_stack_ms_to_next_stack_event(void);
 // Also note that indiscriminately adding EM1 requirement will cause overflow and make the
 // microcontroller go into EM2 if EFM_ASSERT is not enabled. This results in a multitude of
 // problems that may manifest as "BLE connection dies, Rx turns off etc"!!!
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
 static bool zigbee_stack_em1_requirement_set = false;
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
 static sl_power_manager_em_transition_event_handle_t stack_pm_handle;
 static void stack_energy_mode_transition_callback(sl_power_manager_em_t from, sl_power_manager_em_t to);
 static sl_power_manager_em_transition_event_info_t stack_pm_event_info =
@@ -73,10 +77,11 @@ static sl_sleeptimer_timer_handle_t zigbee_stack_wakeup_timer_id;
 uint32_t sli_zigbee_stack_get_ms_to_next_wakeup(void);
 void sli_zigbee_stack_sleep_init(void)
 {
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
   zigbee_stack_em1_requirement_set = true;
 
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
-  sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
   sl_power_manager_subscribe_em_transition_event(&stack_pm_handle, &stack_pm_event_info);
 }
 
@@ -91,10 +96,12 @@ bool sli_zigbee_stack_is_force_sleep(void)
 {
   if (sli_zigbee_app_framework_get_force_sleep_flag()) {
     // We NEED to go to EM2. Remove EM1 requirement if set and allow power manager to sleep
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
     if (zigbee_stack_em1_requirement_set) {
       sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
       zigbee_stack_em1_requirement_set = false;
     }
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
     return true;
   }
   return false;
@@ -177,7 +184,11 @@ uint32_t sli_zigbee_stack_get_ms_to_next_wakeup(void)
   // Note that for about 5 seconds after initialization and before radio is on,
   // this function returns that it is okay to sleep
   // to keep CLI functional, we have added a check for device type as well
-  bool stack_is_ok_to_nap = sli_zigbee_stack_ok_to_nap() && (sli_zigbee_node_type >= SL_ZIGBEE_SLEEPY_END_DEVICE);
+  bool stack_is_ok_to_nap = sli_zigbee_stack_ok_to_nap() && ((sl_zigbee_network_state() == SL_ZIGBEE_JOINED_NETWORK)
+                                                             ? (sli_zigbee_node_type >= SL_ZIGBEE_SLEEPY_END_DEVICE)
+                                                             : (SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE == SLI_ZIGBEE_NETWORK_DEVICE_TYPE_SLEEPY_END_DEVICE \
+                                                                || (SLI_ZIGBEE_SECONDARY_NETWORK_ENABLED == 1                                              \
+                                                                    && SLI_ZIGBEE_SECONDARY_NETWORK_DEVICE_TYPE == SLI_ZIGBEE_NETWORK_DEVICE_TYPE_SLEEPY_END_DEVICE)));
 
 #ifdef SL_ZIGBEE_AF_NCP
   stack_is_ok_to_nap = stack_is_ok_to_nap && ncp_ok_to_sleep();
@@ -196,16 +207,20 @@ uint32_t sli_zigbee_stack_get_ms_to_next_wakeup(void)
   // If durations_ms is 0 it means we could not enter em2, so we see how long we
   // can enter em1 instead. Ensure application permits EM1
   if (duration_ms == 0) {
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
     if (!zigbee_stack_em1_requirement_set) {
       zigbee_stack_em1_requirement_set = true;
       sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
     }
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
     duration_ms = sli_zigbee_stack_ms_to_next_stack_event();
   } else {
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
     if (zigbee_stack_em1_requirement_set) {
       zigbee_stack_em1_requirement_set = false;
       sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
     }
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
   }
 
   return (duration_ms);
@@ -272,19 +287,23 @@ static void sleep_tick(uint32_t *ms_to_next_event, bool *enter_em2)
 
   if ((sleepMode == EZSP_FRAME_CONTROL_DEEP_SLEEP)
       || (sleepMode == EZSP_FRAME_CONTROL_POWER_DOWN)) {
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
     if (zigbee_stack_em1_requirement_set) {
       // Allow the system to enter em2
       sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
       zigbee_stack_em1_requirement_set = false;
     }
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
     *enter_em2 = true;
   } else {
+#if (!defined(_SILICON_LABS_32B_SERIES_3))
     // The NCP always idles its processor whenever possible
     if (!zigbee_stack_em1_requirement_set) {
       // Prevent the system from entering em2
       sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
       zigbee_stack_em1_requirement_set = true;
     }
+#endif //!defined(_SILICON_LABS_32B_SERIES_3)
   }
 
   return;
@@ -356,4 +375,4 @@ uint8_t sli_zigbee_stack_sleep_on_isr_exit(void)
 {
   return (1UL << 0UL);
 }
-#endif //SL_CATALOG_POWER_MANAGER_PRESENT && !defined(SL_CATALOG_ZIGBEE_PRO_COMPLIANCE_PRESENT)
+#endif //(SL_CATALOG_POWER_MANAGER_PRESENT && !defined(SL_CATALOG_ZIGBEE_PRO_COMPLIANCE_PRESENT) || defined(SL_CATALOG_KERNEL_PRESENT))

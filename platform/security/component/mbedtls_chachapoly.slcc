@@ -1,5 +1,5 @@
 id: mbedtls_chachapoly
-package: platform
+package: security_mbedtls
 label: ChaChaPoly
 description: >-
   This component provides support for authenticated encryption and decryption with

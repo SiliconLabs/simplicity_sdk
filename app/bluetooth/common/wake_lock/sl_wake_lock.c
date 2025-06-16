@@ -134,7 +134,7 @@ void sl_wake_lock_clear_remote_req(void)
   }
 }
 #else // SL_WAKE_LOCK_ENABLE_REMOTE
-// unused dummy functions without wake-up functionality enabled
+// unused placeholder functions without wake-up functionality enabled
 void sl_wake_lock_set_remote_req(void)
 {
 }
@@ -146,7 +146,7 @@ void sl_wake_lock_clear_remote_req(void)
 /**************************************************************************//**
  * Wake-up signal arrived from remote controller.
  *
- * @note Dummy function.
+ * @note Placeholder function.
  *****************************************************************************/
 SL_WEAK void sl_wake_lock_set_req_rx_cb(void)
 {
@@ -155,7 +155,7 @@ SL_WEAK void sl_wake_lock_set_req_rx_cb(void)
 /**************************************************************************//**
  * Go to sleep (lock) signal arrived from remote controller.
  *
- * @note Dummy function.
+ * @note Placeholder function.
  *****************************************************************************/
 SL_WEAK void sl_wake_lock_clear_req_rx_cb(void)
 {
@@ -219,7 +219,7 @@ static void wake_lock_cb(uint8_t irq_idx, void *ctx)
   }
 }
 #else //SL_WAKE_LOCK_ENABLE_LOCAL
-// unused dummy without deep sleep function enabled
+// unused placeholder without deep sleep function enabled
 void sl_wake_lock_set_local(void)
 {
 }

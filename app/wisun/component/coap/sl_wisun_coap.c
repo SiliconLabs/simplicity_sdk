@@ -66,7 +66,7 @@
  * @brief Default CoAP TX implementation
  * @details Empty function, for coap lib
  * @param[in,out] packet_data Packet data
- * @param[out] packet_data_size Packaet size
+ * @param[out] packet_data_size Packet size
  * @param[out] addr Address
  * @param[in,out] param Param
  * @return uint8_t res
@@ -594,10 +594,12 @@ char * sl_wisun_coap_get_uri_path_str(const sl_wisun_coap_packet_t * const packe
 /* Wi-SUN CoAP destroy packet */
 void sl_wisun_coap_destroy_packet(sl_wisun_coap_packet_t *packet)
 {
-  if (packet != NULL && packet->payload_ptr != NULL) {
-    sl_wisun_coap_free(packet->payload_ptr);
+  if (packet != NULL) {
+    if (packet->payload_ptr != NULL) {
+      sl_wisun_coap_free(packet->payload_ptr);
+    }
+    sn_coap_parser_release_allocated_coap_msg_mem(_coap.handler, packet);
   }
-  sn_coap_parser_release_allocated_coap_msg_mem(_coap.handler, packet);
 }
 
 /* Wi-SUN CoAP get lib handler */

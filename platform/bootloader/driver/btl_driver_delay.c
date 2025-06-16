@@ -17,7 +17,11 @@
 
 #include "btl_driver_delay.h"
 #include "btl_driver_util.h"
+#if defined(_SILICON_LABS_32B_SERIES_3)
+#include "sl_hal_timer.h"
+#else
 #include "em_timer.h"
+#endif
 
 // Cycles used for one loop in sli_delay_loop().
 // The Cortex-M33 has a faster execution of the hw loop
@@ -58,9 +62,20 @@ void delay_init(void)
   ticksPerMillisecond = (util_getClockFreq() / 1000UL) / 1024UL;
 
   // Initialize timer
+#if defined(_SILICON_LABS_32B_SERIES_3)
+  sl_hal_timer_config_t init = SL_HAL_TIMER_CONFIG_DEFAULT;
+  init.prescaler = _TIMER_CFG_PRESC_DIV1024;
+  sl_hal_timer_init(TIMER0, &init);
+  sl_hal_timer_enable(TIMER0);
+  sl_hal_timer_wait_sync(TIMER0);
+
+  sl_hal_timer_start(TIMER0);
+  sl_hal_timer_wait_sync(TIMER0);
+#else
   TIMER_Init_TypeDef init = TIMER_INIT_DEFAULT;
   init.prescale = timerPrescale1024;
   TIMER_Init(TIMER0, &init);
+#endif
 }
 
 void delay_milliseconds(uint32_t msecs, bool blocking)

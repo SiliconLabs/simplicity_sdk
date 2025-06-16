@@ -53,11 +53,10 @@ void rtl_log_init(void)
 
   ret = snprintf(config_params.sdk_version,
                  SL_RTL_LOG_SDK_VERSION_CHAR_ARRAY_MAX_SIZE,
-                 "%u.%u.%u.%u-%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                 "%u.%u.%u-%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
                  SL_BT_VERSION_MAJOR,
                  SL_BT_VERSION_MINOR,
                  SL_BT_VERSION_PATCH,
-                 SL_BT_VERSION_BUILD,
                  hash[0], hash[1], hash[2], hash[3], hash[4],
                  hash[5], hash[6], hash[7], hash[8], hash[9],
                  hash[10], hash[11], hash[12], hash[13], hash[14],

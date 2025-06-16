@@ -1,5 +1,5 @@
 id: esl_tag_user_display_driver
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag User Defined Display Driver
 description: >
   This component provides skeleton code for a user defined display driver - to

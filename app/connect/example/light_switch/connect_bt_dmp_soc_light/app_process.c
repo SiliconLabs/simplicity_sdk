@@ -48,7 +48,7 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define SL_EXPECTED_SWITCH_PAYLOAD_LENGHT_BYTE (9)
+#define SL_EXPECTED_SWITCH_PAYLOAD_LENGTH_BYTE (9)
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -104,7 +104,7 @@ static EmberStatus stack_status;
 /// Data buffer for the incoming messages
 static EmberIncomingMessage incoming_message;
 /// message from the connected switch device
-static uint8_t message_from_connect[SL_EXPECTED_SWITCH_PAYLOAD_LENGHT_BYTE] = { 0 };
+static uint8_t message_from_connect[SL_EXPECTED_SWITCH_PAYLOAD_LENGTH_BYTE] = { 0 };
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -330,7 +330,7 @@ static void handle_network_form(void)
   } else {
     app_log_error("network form unsuccessful, error code: 0x%02X\n", status);
   }
-  emberPermitJoining(UNLIMETED_CONNECTION_TIME);
+  emberPermitJoining(UNLIMITED_CONNECTION_TIME);
 }
 
 /**************************************************************************//**
@@ -343,7 +343,7 @@ static void process_message(void)
     uint8_t switch_endianness_switch_id[8] = { 0 };
 
     // change the endianness of the received switch connect id
-    for (uint8_t i = 0; i < (SL_EXPECTED_SWITCH_PAYLOAD_LENGHT_BYTE - 1); i++ ) {
+    for (uint8_t i = 0; i < (SL_EXPECTED_SWITCH_PAYLOAD_LENGTH_BYTE - 1); i++ ) {
       switch_endianness_switch_id[i] = ((message_from_connect[i + 1] >> 4) & 0x0F) | ((message_from_connect[i + 1] << 4) & 0xF0);
     }
     notify_connected_ble_device(SL_DIRECTION_PROPRIETARY, &switch_endianness_switch_id[0]);

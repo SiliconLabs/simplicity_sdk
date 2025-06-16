@@ -489,6 +489,21 @@ uint8_t sl_zigbee_ezsp_get_source_route_overhead(sl_802154_short_addr_t destinat
   return value;
 }
 
+uint32_t sl_zigbee_ezsp_get_memory_usage_data(uint32_t type)
+{
+  uint8_t valueLength = 4;
+  uint8_t value[valueLength];
+  sl_zigbee_ezsp_get_extended_value(SL_ZIGBEE_EZSP_EXTENDED_VALUE_MEMORY_USAGE_DATA,
+                                    type,   // characteristics
+                                    &valueLength,
+                                    value);
+  uint32_t memory_usage_value = ((uint32_t)value[0])
+                                + ((uint32_t)(value[1] << 8))
+                                + ((uint32_t)(value[2] << 16))
+                                + ((uint32_t)(value[3] << 24));
+  return memory_usage_value;
+}
+
 sl_status_t sl_zigbee_set_preinstalled_cbke_data_283k1(sl_zigbee_public_key_283k1_data_t * caPublic,
                                                        sl_zigbee_certificate_283k1_data_t * myCert,
                                                        sl_zigbee_private_key_283k1_data_t * myKey)

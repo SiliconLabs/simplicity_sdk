@@ -1,6 +1,6 @@
 id: zigbee_direct_tunneling
 label: Zigbee Direct Tunneling Functionality
-package: Zigbee
+package: multiprotocol
 category: Zigbee|Zigbee Direct ZDD
 quality: evaluation
 description: Zigbee Direct Tunneling functionality

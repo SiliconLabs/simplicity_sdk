@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 id: zigbee_green_power_combo_zap_config
 label: Green Power Combo Zap Config
 category: Zigbee|Green Power

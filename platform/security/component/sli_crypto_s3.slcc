@@ -1,0 +1,27 @@
+id: sli_crypto_s3
+label: Accelerated Crypto Primitives for Series-3 devices
+package: security_mbedtls
+description: >-
+    This component provides hardware accelerated cryptographic primitives for Series-3 devices.
+category: Platform|Security|SLI Crypto
+quality: production
+ui_hints:
+    visibility: never
+source:
+  - path: platform/security/sl_component/sli_crypto/src/sl_crypto_s3.c
+include:
+  - path: platform/security/sl_component/sli_crypto/inc
+    file_list:
+      - path: sli_crypto.h
+      - path: sli_crypto_s3.h
+provides:
+  - name: sli_crypto_s3
+requires:
+  - name: device
+  - name: device_series_3
+  - name: status
+  - name: sl_assert
+  - name: sxsymcrypt
+metadata:
+    sbom:
+        license: Zlib

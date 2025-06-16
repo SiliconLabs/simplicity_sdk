@@ -102,6 +102,8 @@ typedef bool (*DMADRV_Callback_t)(unsigned int channel,
 
 Ecode_t DMADRV_AllocateChannel(unsigned int *channelId,
                                void         *capabilities);
+Ecode_t DMADRV_AllocateChannelById(unsigned int channelId,
+                                   void         *capabilities);
 Ecode_t DMADRV_DeInit(void);
 Ecode_t DMADRV_FreeChannel(unsigned int channelId);
 Ecode_t DMADRV_Init(void);

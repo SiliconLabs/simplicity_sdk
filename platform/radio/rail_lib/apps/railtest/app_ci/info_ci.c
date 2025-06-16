@@ -36,6 +36,13 @@
 #include "rail_features.h"
 #include "rail_ieee802154.h"
 #include "app_common.h"
+#include "sl_rail_util_rssi.h"
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif
+#ifdef SL_CATALOG_NVM3_DEFAULT_PRESENT
+#include "nvm3_default.h"
+#endif
 
 uint16_t getLikelyChannel(void)
 {
@@ -79,13 +86,13 @@ const char *getStatusMessage(RAIL_Status_t status)
     case RAIL_STATUS_NO_ERROR:
       return "Success";
     case RAIL_STATUS_INVALID_PARAMETER:
-      return "InvalidParameter";
+      return "Invalid Parameter";
     case RAIL_STATUS_INVALID_STATE:
-      return "InvalidState";
+      return "Invalid State";
     case RAIL_STATUS_INVALID_CALL:
-      return "InvalidCall";
+      return "Invalid Call";
     default:
-      return "Unknown";
+      return "Failure";
   }
 }
 
@@ -341,6 +348,7 @@ void startAvgRssi(sl_cli_command_arg_t *args)
   }
   responsePrint(sl_cli_get_command_string(args, 0), "Time:%d", startTime);
 }
+
 void getAvgRssi(sl_cli_command_arg_t *args)
 {
   CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));
@@ -353,37 +361,108 @@ void getAvgRssi(sl_cli_command_arg_t *args)
   sprintfFloat(bufRssi, sizeof(bufRssi), ((float) rssi / 4), 2);
   responsePrint(sl_cli_get_command_string(args, 0), "rssi:%s", bufRssi);
 }
-void setRssiOffset(sl_cli_command_arg_t *args)
-{
-  if (!inRadioState(RAIL_RF_STATE_IDLE, sl_cli_get_command_string(args, 0))) {
-    return;
-  }
-  int8_t rssiOffset = sl_cli_get_argument_int8(args, 0);
-  CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));
-  if (RAIL_STATUS_NO_ERROR != RAIL_SetRssiOffset(railHandle, rssiOffset)) {
-    responsePrint(sl_cli_get_command_string(args, 0), "Error setting the rssiOffset");
-  } else {
-    rssiOffset = RAIL_GetRssiOffset(railHandle);
-    responsePrint(sl_cli_get_command_string(args, 0), "rssiOffset:%d", rssiOffset);
-  }
-}
+
 void getRssiOffset(sl_cli_command_arg_t *args)
 {
+  // Protocol specific RSSI offset
+  int8_t protocolRssiOffset = ((railHandle == NULL)
+                               ? 0 : RAIL_GetRssiOffset(railHandle));
   // Radio specific RSSI offset
   int8_t radioRssiOffset = RAIL_GetRssiOffset(RAIL_EFR32_HANDLE);
-  if ((sl_cli_get_argument_count(args) >= 1)
-      && !!sl_cli_get_argument_uint8(args, 0)) {
-    responsePrint(sl_cli_get_command_string(args, 0), "radioRssiOffset:%d", radioRssiOffset);
+  // NVM RSSI offset
+  int8_t nvmRssiOffset = sl_rail_util_read_nvm_rssi();
+  char *nvmToken;
+#ifdef SL_CATALOG_NVM3_DEFAULT_PRESENT
+  char nvmTokenContent[sizeof("invalid_0xffffffff\0")];
+  uint32_t obj_type;
+  size_t obj_size;
+  sl_status_t status = nvm3_getObjectInfo(nvm3_defaultHandle,
+                                          SL_RAIL_UTIL_RSSI_NVM_DATA_TAG,
+                                          &obj_type, &obj_size);
+  if (status != SL_STATUS_OK) {
+    nvmToken = "nonexistent";
+  } else if ((obj_type != NVM3_OBJECTTYPE_DATA)
+             || (obj_size != sizeof(uint16_t))) {
+    nvmToken = "invalid_size";
   } else {
-    CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));
-    // Protocol specific RSSI offset
-    int8_t protocolRssiOffset = RAIL_GetRssiOffset(railHandle);
-    responsePrint(sl_cli_get_command_string(args, 0), "rssiOffset:%d,radioRssiOffset:%d,totalRssiOffset:%d", \
-                  protocolRssiOffset,
-                  radioRssiOffset,
-                  (protocolRssiOffset + radioRssiOffset));
+    uint16_t readNvmRssiOffset;
+    status = nvm3_readData(nvm3_defaultHandle,
+                           SL_RAIL_UTIL_RSSI_NVM_DATA_TAG,
+                           &readNvmRssiOffset,
+                           sizeof(readNvmRssiOffset));
+    if (status != SL_STATUS_OK) {
+      nvmToken = "read_failed";
+    } else {
+      (void)snprintf(nvmTokenContent, sizeof(nvmTokenContent),
+                     "%svalid_0x%04x",
+                     (((~(readNvmRssiOffset) & 0xFFU) == ((readNvmRssiOffset >> 8U) & 0xFFU))
+                      ? "" : "in"),
+                     readNvmRssiOffset);
+      nvmToken = nvmTokenContent;
+    }
+  }
+#else
+  nvmToken = "no_nvm";
+#endif
+  responsePrint(sl_cli_get_command_string(args, 0), "rssiOffset:%d,radioRssiOffset:%d,totalRssiOffset:%d,nvmRssiOffset:%d,nvmToken:%s", \
+                protocolRssiOffset,
+                radioRssiOffset,
+                (protocolRssiOffset + radioRssiOffset),
+                nvmRssiOffset, nvmToken);
+}
+
+void setRssiOffset(sl_cli_command_arg_t *args)
+{
+  int8_t rssiOffset = sl_cli_get_argument_int8(args, 0);
+  char *which = "protocol"; // Assume protocol
+  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  if (sl_cli_get_argument_count(args) > 1) {
+    which = sl_cli_get_argument_string(args, 1);
+  }
+  switch (which[0]) {
+    case 'r': // radio
+      status = RAIL_SetRssiOffset(RAIL_EFR32_HANDLE, rssiOffset);
+      break;
+    case 'p': // protocol
+      CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));
+      if (!inRadioState(RAIL_RF_STATE_IDLE, sl_cli_get_command_string(args, 0))) {
+        return;
+      }
+      status = RAIL_SetRssiOffset(railHandle, rssiOffset);
+      break;
+    case 'n': // nvm
+      if (rssiOffset == -128) { // erase the token
+#ifdef SL_CATALOG_NVM3_DEFAULT_PRESENT
+        // No API for this, so use native NVM3 APIs
+        status = (RAIL_Status_t)nvm3_deleteObject(nvm3_defaultHandle,
+                                                  SL_RAIL_UTIL_RSSI_NVM_DATA_TAG);
+        if ((sl_status_t)status != SL_STATUS_OK) {
+          responsePrint(sl_cli_get_command_string(args, 0), "nvmTag:0x%x,deleteNvmStatus:0x%04X",
+                        SL_RAIL_UTIL_RSSI_NVM_DATA_TAG, status);
+          return;
+        }
+        // getRssiOffset below should show the token as nonexistent now
+#else
+        // getRssiOffset below should show the token as no_nvm
+#endif
+      } else {
+        status = (RAIL_Status_t)sl_rail_util_write_nvm_rssi(rssiOffset);
+      }
+      break;
+    default:
+      responsePrintError(sl_cli_get_command_string(args, 0), 0x11,
+                         "Unrecognized location %s, expected 'protocol', 'radio', or 'nvm'",
+                         which);
+      return;
+      break;
+  }
+  if (status != RAIL_STATUS_NO_ERROR) {
+    responsePrintError(sl_cli_get_command_string(args, 0), status, "Error setting the rssiOffset");
+  } else {
+    getRssiOffset(args);
   }
 }
+
 void getRssiDetectThreshold(sl_cli_command_arg_t *args)
 {
   int8_t rssiDetectThresholdDbm = RAIL_GetRssiDetectThreshold(railHandle);
@@ -391,6 +470,7 @@ void getRssiDetectThreshold(sl_cli_command_arg_t *args)
                 rssiDetectThresholdDbm,
                 rssiDetectThresholdDbm == RAIL_RSSI_INVALID_DBM ? "Disabled" : "Enabled");
 }
+
 void setRssiDetectThreshold(sl_cli_command_arg_t *args)
 {
   int8_t rssiDetectThresholdDbm = sl_cli_get_argument_int8(args, 0);
@@ -405,6 +485,7 @@ void setRssiDetectThreshold(sl_cli_command_arg_t *args)
     }
   }
 }
+
 void sweepPower(sl_cli_command_arg_t *args)
 {
   CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));

@@ -1,7 +1,7 @@
 !!omap
 - id: xg28_pk6025a
 - label: XG28-PK6025A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG28 20 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

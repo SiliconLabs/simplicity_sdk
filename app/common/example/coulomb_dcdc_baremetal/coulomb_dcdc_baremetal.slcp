@@ -14,7 +14,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: coulomb_app.c
 include:
   - path: .
@@ -22,7 +21,7 @@ include:
     - path: app.h
     - path: coulomb_app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: coulomb_counter
   - id: coulomb_counter_dcdc
   - id: device_init

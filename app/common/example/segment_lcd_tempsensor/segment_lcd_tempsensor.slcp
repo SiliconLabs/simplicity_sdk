@@ -14,7 +14,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: segment_lcd_app.c
 include:
   - path: .
@@ -23,7 +22,7 @@ include:
     - path: segment_lcd_app.h
 component:
   - id: emlib_lcd
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: segment_lcd_driver
@@ -36,7 +35,6 @@ ui_hints:
   highlight: readme.md
 tag:
   - hardware:component:segment_lcd_driver:cl010-1087-04
-  - hardware:component:sensor:si7021
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: 1

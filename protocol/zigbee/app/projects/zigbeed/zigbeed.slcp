@@ -1,11 +1,12 @@
 project_name: zigbeed
 label: Zigbee - Host zigbeed
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: production
 description: Zigbeed is a Zigbee Stack daemon that runs on a Linux host processor. It communicates with an 802.15.4 RCP via CPCd, and exposes an EZSP interface to a Zigbee host app. See docs.silabs.com Multiprotocol section- Multiprotocol on Linux Solution for more information.
 
 component:
+  - id: sl_main
   - id: mbedtls_platform_dynamic_memory_allocation_config_init_runtime
   - id: zigbee_pro_stack
   - id: lower_mac_spinel
@@ -53,7 +54,8 @@ configuration:
     value: 128
   - name: SL_ZIGBEE_APS_UNICAST_MESSAGE_COUNT
     value: 32
-
+  - name: SL_ZIGBEE_ADDRESS_TABLE_SIZE
+    value: 128
 
 include:
   - path: ./
@@ -64,6 +66,7 @@ include:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
   - path: zigbeed_custom_ezsp_commands.c
 
@@ -85,17 +88,15 @@ define:
     value: 254
   - name: SL_ZIGBEE_DISCOVERY_TABLE_SIZE
     value: 64
-  - name: SL_ZIGBEE_ADDRESS_TABLE_SIZE
-    value: 128
   - name: SL_ZIGBEE_CHILD_TABLE_SIZE
     value: 64
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

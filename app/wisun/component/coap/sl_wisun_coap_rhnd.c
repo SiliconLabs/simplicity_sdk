@@ -82,7 +82,7 @@
 __STATIC_INLINE void _coap_resource_mutex_check_acquire(void);
 
 /**************************************************************************//**
- * @brief Resouce mutex unlock and return
+ * @brief Resource mutex unlock and return
  * @return none
  *****************************************************************************/
 __STATIC_INLINE void _coap_resource_mutex_check_release(void);
@@ -456,7 +456,7 @@ static void _rhnd_thr_fnc(void * args)
   int32_t r                                     = SOCKET_INVALID_ID;
   socklen_t sock_len                            = 0UL;
   size_t resp_len                               = 0UL;
-  uint16_t discovery_paylod_len                 = 0U;
+  uint16_t discovery_payload_len                = 0U;
   static sockaddr_in6_t srv_addr                = { 0U };
   static sockaddr_in6_t clnt_addr               = { 0U };
 #if SL_WISUN_COAP_RD_SOCKET_REQUIRED
@@ -468,17 +468,17 @@ static void _rhnd_thr_fnc(void * args)
 #define __cleanup_service()                 \
   do {                                      \
     sl_wisun_coap_destroy_packet(req_pkt);  \
+    req_pkt = NULL;                         \
     sl_wisun_coap_destroy_packet(resp_pkt); \
+    resp_pkt = NULL;                        \
     sl_wisun_coap_free(discovery_payload);  \
   } while (0)
 
   (void) args;
 
   SL_COAP_SERVICE_LOOP() {
-    
     // waiting for network connected state
-    (void) sl_wisun_app_core_wait_state((1UL << SL_WISUN_APP_CORE_STATE_NETWORK_CONNECTED), 
-                                         osWaitForever);
+    sl_wisun_app_core_util_wait_for_connection();
 
     // creating socket
     sockid = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
@@ -552,10 +552,10 @@ static void _rhnd_thr_fnc(void * args)
 
         // Process the request based on the uri path
         resource = sl_wisun_coap_rhnd_get_resources();
-        discovery_payload = sli_wisun_coap_rd_parser(resource, req_pkt, &discovery_paylod_len);
+        discovery_payload = sli_wisun_coap_rd_parser(resource, req_pkt, &discovery_payload_len);
         if (discovery_payload != NULL) {
           // Build response to resource discovery request
-          resp_pkt = sli_wisun_coap_rd_build_response(discovery_payload, discovery_paylod_len, req_pkt);
+          resp_pkt = sli_wisun_coap_rd_build_response(discovery_payload, discovery_payload_len, req_pkt);
           if (resp_pkt == NULL) {
             __cleanup_service();
             continue;

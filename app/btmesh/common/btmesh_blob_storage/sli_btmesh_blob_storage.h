@@ -325,7 +325,7 @@ sl_status_t sli_blob_storage_invalidate_slot(uint32_t slot_id,
  * @param[in] length Length of the byte array
  * @return The number of bits set to 1 in the data
  ******************************************************************************/
-uint32_t sli_blob_storage_count_bits(uint8_t *data, uint16_t length);
+uint32_t sli_blob_storage_count_bits(const uint8_t *data, uint16_t length);
 
 #ifdef __cplusplus
 }

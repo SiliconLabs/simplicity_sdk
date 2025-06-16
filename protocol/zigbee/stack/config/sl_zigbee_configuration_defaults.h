@@ -425,12 +425,12 @@
   #define SL_ZIGBEE_BINDING_TABLE_SIZE 0
 #endif
 /** @brief The maximum number of EUI64<->network address associations
- * that the stack can maintain.  The default value is 8.
+ * that the stack can maintain.  The default value is 12.
  *
  * Address table entries are 10 bytes in size.
  */
 #ifndef SL_ZIGBEE_ADDRESS_TABLE_SIZE
-  #define SL_ZIGBEE_ADDRESS_TABLE_SIZE 8
+  #define SL_ZIGBEE_ADDRESS_TABLE_SIZE 12
 #endif
 /** @brief The maximum number of destinations to which a node can
  * route messages. This include both messages originating at this node
@@ -775,7 +775,7 @@
 #endif
 
 /** @brief The 802.15.4 CCA mode that should be used at startup. The default
- * value is RAIL_IEEE802154_CCA_MODE_RSSI.
+ * value is SL_RAIL_IEEE802154_CCA_MODE_RSSI.
  * This value is configured in the radio during initialization. The user may
  * override this value at runtime using ::sli_zigbee_stack_set_radio_ieee802154_cca_mode.
  *
@@ -784,9 +784,9 @@
  * set the CCA mode at startup by default.
  */
 #ifdef SL_CATALOG_RAIL_LIB_PRESENT
-  #include "rail_ieee802154.h"
+  #include "sl_rail_ieee802154.h"
   #ifndef SL_ZIGBEE_RADIO_802154_CCA_MODE
-    #define SL_ZIGBEE_RADIO_802154_CCA_MODE RAIL_IEEE802154_CCA_MODE_RSSI
+    #define SL_ZIGBEE_RADIO_802154_CCA_MODE SL_RAIL_IEEE802154_CCA_MODE_RSSI
   #endif // SL_ZIGBEE_RADIO_802154_CCA_MODE
 #endif // SL_CATALOG_RAIL_LIB_PRESENT
 

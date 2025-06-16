@@ -1,18 +1,18 @@
 id: memlcd_custom
-package: platform
+package: board_drivers
 label: Custom Memory LCD Driver
 description: >
-  This component contains functions that can be redefined to implement a
-  custom memory LCD interface manually. The "Custom Memory LCD Display"
-  component is required and automatically installed with this component.
-  This component replaces the "Memory LCD  with usart SPI driver" and "Memory
-  LCD with eusart SPI driver" components that are already fully implemented
-  and functionnal.
+    This component contains functions that can be redefined to implement a
+    custom memory LCD interface manually. The "Custom Memory LCD Display"
+    component is required and automatically installed with this component.
+    This component replaces the "Memory LCD  with usart SPI driver" and "Memory
+    LCD with eusart SPI driver" components that are already fully implemented
+    and functionnal.
 category: Platform|Board Drivers|Memory LCD|Peripheral Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/memlcd
 include:
   - path: inc

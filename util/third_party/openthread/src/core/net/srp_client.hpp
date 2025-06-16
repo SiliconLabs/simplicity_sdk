@@ -749,10 +749,6 @@ private:
     // Number of fast data polls after SRP Update tx (11x 188ms = ~2 seconds)
     static constexpr uint8_t kFastPollsAfterUpdateTx = 11;
 
-#if OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
-    static constexpr uint32_t kSrpEcdsaKeyRef = Crypto::Storage::kEcdsaRef;
-#endif
-
 #if OPENTHREAD_CONFIG_SRP_CLIENT_SWITCH_SERVER_ON_FAILURE
     static constexpr uint8_t kMaxTimeoutFailuresToSwitchServer =
         OPENTHREAD_CONFIG_SRP_CLIENT_MAX_TIMEOUT_FAILURES_TO_SWITCH_SERVER;
@@ -1032,7 +1028,6 @@ private:
     Error        AppendAaaaRecord(const Ip6::Address &aAddress, MsgInfo &aInfo) const;
     Error        AppendUpdateLeaseOptRecord(MsgInfo &aInfo);
     Error        AppendSignature(MsgInfo &aInfo);
-    void         UpdateRecordLengthInMessage(Dns::ResourceRecord &aRecord, uint16_t aOffset, Message &aMessage) const;
     void         HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo);
     void         ProcessResponse(Message &aMessage);
     bool         IsResponseMessageIdValid(uint16_t aId) const;

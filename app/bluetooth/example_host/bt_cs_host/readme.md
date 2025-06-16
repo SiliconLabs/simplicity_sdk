@@ -96,13 +96,13 @@ in the project's root directory. This will build your executable, and place it i
   1 : Dual antenna initiator & single antenna reflector
   4 : Single antenna initiator & dual antenna reflector
   7 : Dual antennas on both sides
-  Note: considered only with CS mode: PBR!
+  Note: considered only with CS main mode: PBR!
 * -q <cs_sync_antenna>
   Antenna usage for CS SYNC packets, default: 0xFE
   1 : use antenna ID1 only
   2 : use antenna ID2 only
   0xFE : Switching between antennas for each channel
-  Note: considered only with CS mode: RTT!
+  Note: considered only with CS main mode: RTT!
 * -T <trace>
   Enable RTT trace including BGAPI messages and RTL log
   Note that the RTT blocks the target if no client is connected

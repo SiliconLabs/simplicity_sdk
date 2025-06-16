@@ -36,24 +36,24 @@ int32_t communication_main(void)
 {
   int32_t ret = BOOTLOADER_OK;
 
-static ImageProperties_t imageProps = {
-  .contents = 0U,
-  .instructions = 0U,
-  .imageCompleted = false,
-  .imageVerified = false,
-  .bootloaderVersion = 0,
-  .application = { 0 },
+  ImageProperties_t imageProps = {
+    .contents = 0U,
+    .instructions = 0U,
+    .imageCompleted = false,
+    .imageVerified = false,
+    .bootloaderVersion = 0,
+    .application = { 0 },
 #if defined(SEMAILBOX_PRESENT) || defined(CRYPTOACC_PRESENT)
-  .seUpgradeVersion = 0
+    .seUpgradeVersion = 0
 #endif
-};
+  };
 
-static const BootloaderParserCallbacks_t parseCb = {
-  .context = NULL,
-  .applicationCallback = bootload_applicationCallback,
-  .metadataCallback = NULL,
-  .bootloaderCallback = bootload_bootloaderCallback
-};
+  const BootloaderParserCallbacks_t parseCb = {
+    .context = NULL,
+    .applicationCallback = bootload_applicationCallback,
+    .metadataCallback = NULL,
+    .bootloaderCallback = bootload_bootloaderCallback
+  };
 
   ret = bootloader_xmodem_communication_main(&imageProps,
                                              &parseCb);

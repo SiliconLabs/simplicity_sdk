@@ -42,8 +42,7 @@ extern "C" {
 /**
  * @brief Defines the different areas of NVM storage.
  */
-typedef enum
-{
+typedef enum {
   ZPAL_NVM_AREA_APPLICATION,          ///< Reserved for application data.
   ZPAL_NVM_AREA_ZAF,                  ///< Reserved for ZAF data.
   ZPAL_NVM_AREA_STACK,                ///< Reserved for stack data.

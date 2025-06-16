@@ -39,7 +39,8 @@
 
 #include "sl_wisun_led_driver.h"
 
-#if !defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+#if !defined(SL_CATALOG_POWER_MANAGER_PRESENT) \
+  || defined(SL_CATALOG_WISUN_BLE_DMP_ADVERTISE_CONTROLLER_PRESENT)
 #include "cmsis_os2.h"
 #include "sl_status.h"
 #include "sl_cmsis_os2_common.h"
@@ -72,7 +73,7 @@ static void _led_task(void *arg);
  * @brief Get next LED state
  * @details Use a modifiable LED signal, decrement the values,
  *          and set the H and L values at the end of the period
- * @param[in,out] led_signal Modifyable LED signal
+ * @param[in,out] led_signal Modifiable LED signal
  * @param[in] ref_signal Reference signal
  * @return true LED turn on
  * @return false LED turn off
@@ -235,7 +236,7 @@ sl_status_t sl_wisun_led_toggle(const sl_wisun_led_id_t led_id)
     .id = led_id,
     .high_ms = 0,
     .low_ms = 0,
-    .period = SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL
+    .period = SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL
   };
 
   led = _get_led_signal_ptr(led_id);
@@ -293,8 +294,8 @@ static bool _get_next_led_state(sl_wisun_led_signal_t *led_signal,
       led_signal->low_ms = (led_signal->low_ms < SL_WISUN_LED_DRIVER_UPDATE_STATE_MS)
                            ? 0UL : (led_signal->low_ms - SL_WISUN_LED_DRIVER_UPDATE_STATE_MS);
     } else {
-      // -1: infinit repeat
-      if (led_signal->period != SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL) {
+      // -1: infinite repeat
+      if (led_signal->period != SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL) {
         --led_signal->period;
       }
       // reset low and high values
@@ -310,7 +311,7 @@ static bool _get_next_led_state(sl_wisun_led_signal_t *led_signal,
 /* LED task */
 static void _led_task(void *arg)
 {
-  static sl_wisun_led_signal_t led_msg  = { 0 }; // incomming led message
+  static sl_wisun_led_signal_t led_msg  = { 0 }; // incoming led message
   static sl_wisun_led_signal_t led0_ref = { 0 }; // LED0 reference storage
   static sl_wisun_led_signal_t led1_ref = { 0 }; // LED1 reference storage
   uint8_t msg_prio = 0;
@@ -328,7 +329,7 @@ static void _led_task(void *arg)
 
     if (stat == osOK) {
       // invalid period count ( < -1 )
-      if (led_msg.period < SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL) {
+      if (led_msg.period < SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL) {
         continue;
       }
       // set leds
@@ -349,7 +350,7 @@ static void _led_task(void *arg)
     led0_state = _get_next_led_state(&_led0, &led0_ref);
     led1_state = _get_next_led_state(&_led1, &led1_ref);
 
-    //handle leds
+    // handle leds
     _set_led_instance(led0_state, &sl_led_led0);
     _set_led_instance(led1_state, &sl_led_led1);
 

@@ -21,14 +21,11 @@
  * @brief API and Callbacks for the Network Creator Security Component
  *
  * This component performs the necessary security initialization to form a
- * Zigbee 3.0-compliant network. To enable
- * "Allow Trust Center rejoin with well known key", the
- * "sl_zigbee_xncp_security_trust_center_join_cb()" function (on the NCP side)
- * may need to be implemented. For more details about this callback function,
- * see
- * "https://www.silabs.com/community/wireless/zigbee-and-thread/knowledge-base.entry.html/2018/12/26/how_to_allow_unsecur-sa3C".
- * If the link does not work, go to our community website and search
- * "How to allow unsecure rejoins on the Ember ZNet stack".
+ * Zigbee 3.0-compliant network. Its main responsibilities include:
+ * 1. Initializing security for network formation (centralized or distributed security).
+ * 2. Managing the process of opening and closing the network for device joining.
+ * 3. Handling link keys, including support for install code-based joining (for enhanced security).
+ * 4. Optionally allowing Trust Center rejoins with a well-known key, if configured.
  *
  */
 
@@ -52,6 +49,9 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Globals
 
+/** @brief Setting to allow Home Automation devices to remain on the network after joining (non-compliant)
+ * Set by SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_ALLOW_HA_DEVICES_TO_STAY.
+ */
 extern bool allowHaDevices;
 
 /**
@@ -63,28 +63,38 @@ extern bool allowHaDevices;
 // API
 
 /** @brief Initialize the security needed for forming and then operating on
- * a network.
+ * a network. This should be called before forming a network to ensure the
+ * correct security settings are applied.
  *
  * The centralizedNetwork parameter allows the caller to specify
  * whether or not the network that they plan to form will use centralized or
  * distributed security.
  *
- * @param centralizedNetwork Whether or not the network that the caller plans
+ * @param[in] centralizedNetwork Whether or not the network that the caller plans
  * to form will use centralized or distributed security.
  *
  * @return Status of the commencement of the network creator process.
+ * - ::SL_STATUS_INVALID_STATE If the device does not support creating a centralized network or is already in a network.
+ * - ::SL_STATUS_ZIGBEE_INSUFFICIENT_RANDOM_DATA if a random key could not be generated.
+ * - ::SL_STATUS_INVALID_KEY if the bitmask specifies a key is present but is NULL.
+ * - ::SL_STATUS_INVALID_CONFIGURATION for an invalid configuration (i.e. hashed Link Keys used in Distributed Trust Center Mode).
+ * - ::SL_STATUS_OK if successful.
+ *
  */
 sl_status_t sl_zigbee_af_network_creator_security_start(bool centralizedNetwork);
 
 /** @brief Open a network for joining.
  *
- * This API broadcasts a permit join to
- * the network and adds a transient link key of ZigBeeAlliance09
- * if this device is a trust center.
+ * This API broadcasts a permit join to the network and adds a transient link key of ZigBeeAlliance09
+ * if this device is a trust center. The network will remain open for SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_NETWORK_OPEN_TIME_S seconds.
  *
  * @return An ::sl_status_t value describing the success or failure of the
- * network opening procedure. If this node is not currently on a network,
- * this will return ::SL_STATUS_FAIL.
+ * network opening procedure.
+ * - ::SL_STATUS_FAIL if this node is not currently in a network.
+ * - ::SL_STATUS_INVALID_STATE if install code joins are required.
+ * - ::SL_STATUS_ALLOCATION_FAILED if no buffers are free in the system.
+ * - ::SL_STATUS_OK if successful.
+ *
  */
 sl_status_t sl_zigbee_af_network_creator_security_open_network(void);
 
@@ -97,7 +107,7 @@ sl_status_t sl_zigbee_af_network_creator_security_open_network(void);
  * @return An ::sl_status_t value describing closing the network. If this node
  * is not currently on a network, this will return ::SL_STATUS_FAIL. This
  * API will also return an error code based on the success or failure of the
- * broadcast permit join.
+ * broadcast permit join. See sl_status.h for more information.
  */
 sl_status_t sl_zigbee_af_network_creator_security_close_network(void);
 
@@ -108,13 +118,15 @@ sl_status_t sl_zigbee_af_network_creator_security_close_network(void);
  * device is a trust center. Only the node that matches the specified key pair
  * is allowed to join the network.
  *
- * @param eui64 EUI 64 of the joining node.
+ * @param[in] eui64 EUI 64 of the joining node. A value of all FFs configures a key to be used by all joining or rejoining devices, as long as a key does not exist that matches the joiner's specific EUI.
+ * @param[in] keyData the link key to be used by the joining node.
  *
- * @param keyData the link key to be used by the joining node.
  *
  * @return An ::sl_status_t value describing the success or failure of the
- * network opening procedure. If this node is not currently on a network,
- * this will return ::SL_STATUS_FAIL.
+ * network opening procedure.
+ * - ::SL_STATUS_FAIL if this node is not currently in a network.
+ * - ::SL_STATUS_INVALID_PARAMETER if either parameter is NULL.
+ * - ::SL_STATUS_OK if successful.
  */
 sl_status_t sl_zigbee_af_network_creator_security_open_network_with_key_pair(sl_802154_long_addr_t eui64,
                                                                              sl_zigbee_key_data_t keyData);
@@ -128,9 +140,12 @@ sl_status_t sl_zigbee_af_network_creator_security_open_network_with_key_pair(sl_
  * will allow the rejoins for a period of
  * sli_zigbee_allow_tc_rejoins_using_well_known_key_timeout_sec seconds.
  *
+ * @param[in] allow Whether to allow a device to rejoin with the well-known key or not
+ *
  * @return An ::sl_status_t value describing the success or failure of the
- * policy change. If this node is not currently on a network,
- * this will return ::SL_STATUS_FAIL.
+ * policy change.
+ * - ::SL_STATUS_FAIL if this node is not currently in a network.
+ * - ::SL_STATUS_OK if successful.
  */
 sl_status_t sl_zigbee_af_network_creator_security_set_allow_rejoins_with_well_known_key(bool allow);
 

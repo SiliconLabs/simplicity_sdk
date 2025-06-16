@@ -1,6 +1,6 @@
 id: lwip_port_freertos
 label: "LwIP FreeRTOS port "
-package: platform
+package: lwip
 description: >
   The LwIP FreeRTOS port component can be used for LwIP port contribution for FreeRTOS.
 category: Third Party|LwIP|OS

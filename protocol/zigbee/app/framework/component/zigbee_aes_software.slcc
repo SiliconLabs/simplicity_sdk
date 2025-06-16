@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Software AES wrapper using the mbed TLS.
 label: AES (Software)
 quality: production

@@ -38,6 +38,7 @@
 #include "cs_initiator_display_config.h"
 #include "cs_initiator_display_core.h"
 #include "cs_initiator_display.h"
+#include "cs_initiator_config.h"
 
 // -----------------------------------------------------------------------------
 // Macros
@@ -45,108 +46,125 @@
 #define FONT_TYPE                                ((GLIB_Font_t *)&GLIB_FontNarrow6x8)
 #define STRING_LEN                               40
 
-extern cs_initiator_display_content_t lcd_content, prev_lcd_content;
+extern cs_initiator_display_instance_t lcd_instance[CS_INITIATOR_MAX_CONNECTIONS];
 
 static sl_status_t cs_initiator_display_measurement_modes(sl_bt_cs_mode_t mode,
-                                                          uint8_t algo_mode,
-                                                          uint8_t row);
+                                                          uint8_t algo_mode);
+static sl_status_t cs_initiator_display_get_instance(uint8_t conn_handle,
+                                                     uint8_t *instance_num);
 
-static void cs_initiator_display_distance_measurement(float value,
-                                                      uint8_t percentage,
-                                                      uint8_t row);
+static void cs_initiator_display_get_status_text(char* text,
+                                                 cs_initiator_display_status_t status);
 
 // -----------------------------------------------------------------------------
 // Public function definitions
 
 /******************************************************************************
- * Set distance value to display
+ * CS Initiator display show state.
  *****************************************************************************/
-void cs_initiator_display_set_distance(float distance)
+void cs_initiator_display_start_scanning()
 {
-  if (distance != lcd_content.distance) {
-    lcd_content.distance = distance;
+  for (uint8_t i = 0; i < CS_INITIATOR_MAX_CONNECTIONS; i++) {
+    if (lcd_instance[i].status == CS_INITIATOR_DISPLAY_STATUS_UNINITIALIZED) {
+      lcd_instance[i].status = CS_INITIATOR_DISPLAY_STATUS_SCANNING;
+      cs_initiator_display_write_text_to_instance(CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT,
+                                                  ROW_STATUS_VALUE,
+                                                  i);
+    }
   }
-  cs_initiator_display_distance_measurement(lcd_content.distance,
-                                            100u,
-                                            ROW_DISTANCE_VALUE);
-  cs_initiator_display_update();
 }
 
 /******************************************************************************
- * Set distance progress percentage to display
+ * CS Initiator display clear every row of specified instance.
  *****************************************************************************/
-void cs_initiator_display_set_distance_progress(float progress_percentage)
+sl_status_t cs_initiator_display_create_instance(uint8_t conn_handle)
 {
-  if (progress_percentage != lcd_content.progress_percentage) {
-    lcd_content.progress_percentage = progress_percentage;
+  for (int i = 0; i < CS_INITIATOR_MAX_CONNECTIONS; i++) {
+    if (lcd_instance[i].connection_id == SL_BT_INVALID_CONNECTION_HANDLE) {
+      lcd_instance[i].connection_id = conn_handle;
+      lcd_instance[i].status = CS_INITIATOR_DISPLAY_STATUS_UNINITIALIZED;
+      memset(&lcd_instance[i].content, 0, sizeof(cs_initiator_display_content_t));
+      lcd_instance[i].content.progress_percentage = 100;
+      lcd_instance[i].content.bit_error_rate = NAN;
+      return SL_STATUS_OK;
+    }
   }
-  cs_initiator_display_distance_measurement(lcd_content.distance,
-                                            (uint8_t)lcd_content.progress_percentage,
-                                            ROW_DISTANCE_VALUE);
-  cs_initiator_display_update();
+  return SL_STATUS_FAIL;
 }
 
 /******************************************************************************
- * Set RSSI based distance value to display
+ * CS Initiator display update display data.
  *****************************************************************************/
-void cs_initiator_display_set_rssi_distance(float distance)
+void cs_initiator_display_update_data(uint8_t instance_num,
+                                      uint8_t conn_handle,
+                                      uint8_t status,
+                                      float distance,
+                                      float rssi_distance,
+                                      float likeliness,
+                                      float bit_error_rate,
+                                      float raw_distance,
+                                      float progress_percentage,
+                                      uint8_t algo_mode,
+                                      sl_bt_cs_mode_t
+                                      cs_mode)
 {
-  if (distance != lcd_content.rssi_distance) {
-    lcd_content.rssi_distance = distance;
-  }
-
-  cs_initiator_display_distance_measurement(lcd_content.rssi_distance,
-                                            100u,
-                                            ROW_RSSI_DISTANCE_VALUE);
-
-  cs_initiator_display_update();
+  lcd_instance[instance_num].connection_id = conn_handle;
+  lcd_instance[instance_num].status = status;
+  lcd_instance[instance_num].content.distance = distance;
+  lcd_instance[instance_num].content.rssi_distance = rssi_distance;
+  lcd_instance[instance_num].content.likeliness = likeliness;
+  lcd_instance[instance_num].content.bit_error_rate = bit_error_rate;
+  lcd_instance[instance_num].content.raw_distance = raw_distance;
+  lcd_instance[instance_num].content.progress_percentage = progress_percentage;
+  lcd_instance[instance_num].content.mode = cs_mode;
+  lcd_instance[instance_num].content.algo_mode = algo_mode;
 }
 
 /******************************************************************************
- * Set the likeliness parameter to display
+ * Create new display instance
  *****************************************************************************/
-void cs_initiator_display_set_likeliness(float likeliness)
+sl_status_t cs_initiator_display_delete_instance(uint8_t conn_handle)
 {
-  if (likeliness != lcd_content.likeliness) {
-    lcd_content.likeliness = likeliness * 100;
+  uint8_t instance_num;
+  sl_status_t status = cs_initiator_display_get_instance(conn_handle, &instance_num);
+  if (status != SL_STATUS_OK) {
+    return status;
   }
-
-  cs_initiator_display_print_float_value(lcd_content.likeliness,
-                                         ROW_LIKELINESS_VALUE,
-                                         "%");
-
-  cs_initiator_display_update();
+  cs_initiator_display_clear_instance(instance_num);
+  cs_initiator_display_write_text_to_instance(CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT,
+                                              ROW_STATUS_VALUE,
+                                              instance_num);
+  memset(&lcd_instance[instance_num].content, 0, sizeof(cs_initiator_display_content_t));
+  lcd_instance[instance_num].connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+  lcd_instance[instance_num].content.progress_percentage = 100;
+  lcd_instance[instance_num].content.bit_error_rate = NAN;
+  return SL_STATUS_OK;
 }
 
 /******************************************************************************
- * Set the Bit Error Rate (BER) value to display
+ * CS initiator display write text to a specified row.
  *****************************************************************************/
-void cs_initiator_display_set_bit_error_rate(float ber)
+void cs_initiator_display_update_instance(uint8_t instance_num)
 {
-  if (ber != lcd_content.bit_error_rate) {
-    lcd_content.bit_error_rate = ber * 100;
+  char text[6] = "\0";
+  cs_initiator_display_get_status_text(text, lcd_instance[instance_num].status);
+  cs_initiator_display_write_text_to_instance(text, ROW_STATUS_VALUE, instance_num);
+  // do not display numbers if the instance is not in connected state
+  if (lcd_instance[instance_num].status != CS_INITIATOR_DISPLAY_STATUS_CONNECTED) {
+    return;
   }
-
-  cs_initiator_display_print_float_value(lcd_content.bit_error_rate,
-                                         ROW_BIT_ERROR_RATE_VALUE,
-                                         "%");
-  cs_initiator_display_update();
-}
-
-/******************************************************************************
- * CS Initiator display print value with a specified unit.
- *****************************************************************************/
-void cs_initiator_display_print_float_value(float value, uint8_t row, char *unit)
-{
-  char *unit_str = "";
-  if (unit != NULL) {
-    unit_str = unit;
+  cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.distance, ROW_DISTANCE_VALUE, instance_num);
+  if (lcd_instance[instance_num].content.algo_mode == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
+    cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.progress_percentage, ROW_RAW_DISTANCE_VALUE, instance_num);
+  } else {
+    cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.raw_distance, ROW_RAW_DISTANCE_VALUE, instance_num);
   }
-  char buffer[STRING_LEN];
-  uint32_t base = truncf(value);
-  uint32_t ext = (value - (float)base) * 100;
-  sprintf(buffer, "%02lu.%02lu %s", base, ext, unit_str);
-  cs_initiator_display_write_text(buffer, row);
+  cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.likeliness, ROW_LIKELINESS_VALUE, instance_num);
+  cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.rssi_distance, ROW_RSSI_DISTANCE_VALUE, instance_num);
+  // BER is not supported in PBR mode
+  if (lcd_instance[instance_num].content.mode != sl_bt_cs_mode_pbr) {
+    cs_initiator_display_write_float_to_instance(lcd_instance[instance_num].content.bit_error_rate, ROW_BIT_ERROR_RATE_VALUE, instance_num);
+  }
 }
 
 /******************************************************************************
@@ -157,18 +175,18 @@ void cs_initiator_display_set_measurement_mode(sl_bt_cs_mode_t mode,
 {
   sl_status_t sc = SL_STATUS_OK;
 
-  if (mode != lcd_content.mode) {
-    lcd_content.mode = mode;
+  for (int i = 0; i < CS_INITIATOR_MAX_CONNECTIONS; i++) {
+    lcd_instance[i].content.mode = mode;
+    lcd_instance[i].content.algo_mode = algo_mode;
   }
-  if (algo_mode != lcd_content.algo_mode) {
-    lcd_content.algo_mode = algo_mode;
+  if (algo_mode == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
+    cs_initiator_display_write_text_to_instance("               ", ROW_RAW_DISTANCE_TEXT, 0);
+    cs_initiator_display_write_text_to_instance(CS_INITIATOR_DISPLAY_PERCENTAGE_TEXT, ROW_RAW_DISTANCE_TEXT, 0);
   }
-  sc = cs_initiator_display_measurement_modes(mode, algo_mode, ROW_MODE);
+  sc = cs_initiator_display_measurement_modes(mode, algo_mode);
   if (sc != SL_STATUS_OK) {
     display_log_error("Error during showing measurement mode and "
                       "algo mode on LCD! [E: 0x%x]" NL, sc);
-  } else {
-    cs_initiator_display_update();
   }
 }
 
@@ -176,14 +194,65 @@ void cs_initiator_display_set_measurement_mode(sl_bt_cs_mode_t mode,
 // Private function definitions
 
 /******************************************************************************
+ * Get instance number
+ *****************************************************************************/
+static sl_status_t cs_initiator_display_get_instance(uint8_t conn_handle,
+                                                     uint8_t *instance_num)
+{
+  for (uint8_t i = 0; i < CS_INITIATOR_MAX_CONNECTIONS; i++) {
+    if (lcd_instance[i].connection_id == conn_handle) {
+      *instance_num = i;
+      return SL_STATUS_OK;
+    }
+  }
+  return SL_STATUS_NOT_FOUND;
+}
+
+/******************************************************************************
+ * Get display status text based on the status
+ *****************************************************************************/
+static void cs_initiator_display_get_status_text(char* text,
+                                                 cs_initiator_display_status_t status)
+{
+  switch (status) {
+    case CS_INITIATOR_DISPLAY_STATUS_CONNECTED:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_CONNECTED_TEXT);
+      break;
+    case CS_INITIATOR_DISPLAY_STATUS_SCANNING:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_SCANNING_TEXT);
+      break;
+    case CS_INITIATOR_DISPLAY_STATUS_ESTIMATE:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_ESTIMATE_TEXT);
+      break;
+    case CS_INITIATOR_DISPLAY_STATUS_INITIALIZED:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_INITIALIZED_TEXT);
+      break;
+    case CS_INITIATOR_DISPLAY_STATUS_SPOOFED:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_SPOOFED_TEXT);
+      break;
+    case CS_INITIATOR_DISPLAY_STATUS_UNINITIALIZED:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_UNINITIALIZED_TEXT);
+      break;
+    default:
+      strcpy(text, CS_INITIATOR_DISPLAY_STATE_UNINITIALIZED_TEXT);
+      break;
+  }
+}
+
+/******************************************************************************
  * CS initiator display measurement mode and object tracking mode.
  *****************************************************************************/
 static sl_status_t cs_initiator_display_measurement_modes(sl_bt_cs_mode_t mode,
-                                                          uint8_t algo_mode,
-                                                          uint8_t row)
+                                                          uint8_t algo_mode)
 {
   sl_status_t sc = SL_STATUS_OK;
   char string[STRING_LEN] = "\0";
+
+  if (strncat(string, CS_INITIATOR_DISPLAY_MODE_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+    display_log_error("Failed to concat \'%s\' string!" NL,
+                      CS_INITIATOR_DISPLAY_MODE_TEXT);
+    sc = SL_STATUS_FAIL;
+  }
 
   if (mode == sl_bt_cs_mode_rtt) {
     if (strncat(string, CS_INITIATOR_DISPLAY_MODE_RTT_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
@@ -197,45 +266,29 @@ static sl_status_t cs_initiator_display_measurement_modes(sl_bt_cs_mode_t mode,
                         CS_INITIATOR_DISPLAY_MODE_PBR_TEXT);
       sc = SL_STATUS_FAIL;
     }
+    cs_initiator_display_clear_row(ROW_BIT_ERROR_RATE_TEXT);
+    cs_initiator_display_clear_row(ROW_BIT_ERROR_RATE_VALUE);
   }
 
   if (algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC) {
     if (strncat(string, CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
       display_log_error("Failed to concat \'%s\' string!" NL,
-                        CS_INITIATOR_DISPLAY_ALGO_MODE_MOVING_OBJ_TEXT);
+                        CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_TEXT);
+      sc = SL_STATUS_FAIL;
+    }
+  } else if (algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST) {
+    if (strncat(string, CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_FAST_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
+      display_log_error("Failed to concat \'%s\' string!" NL,
+                        CS_INITIATOR_DISPLAY_AMODE_MOVING_OBJ_FAST_TEXT);
       sc = SL_STATUS_FAIL;
     }
   } else {
     if (strncat(string, CS_INITIATOR_DISPLAY_AMODE_STATIONARY_OBJ_TEXT, (sizeof(string) - strlen(string) - 1u)) == NULL) {
       display_log_error("Failed to concat \'%s\' string!" NL,
-                        CS_INITIATOR_DISPLAY_ALGO_MODE_STATIONARY_OBJ_TEXT);
+                        CS_INITIATOR_DISPLAY_AMODE_STATIONARY_OBJ_TEXT);
       sc = SL_STATUS_FAIL;
     }
   }
-
-  cs_initiator_display_write_text(string, row);
+  cs_initiator_display_write_text_to_instance(string, ROW_MODE, 0);
   return sc;
-}
-
-/******************************************************************************
- * CS initiator display distance measurement percentage in case of measuring is
- * still in progress. Otherwise display measured distance only.
- *****************************************************************************/
-static void cs_initiator_display_distance_measurement(float value,
-                                                      uint8_t percentage,
-                                                      uint8_t row)
-{
-  char buffer[STRING_LEN];
-
-  if (percentage == 100) {
-    cs_initiator_display_print_float_value(value, row, "m");
-  } else {
-    uint32_t base = truncf(value);
-    uint32_t ext = (value - (float)base) * 100;
-    sprintf(buffer, "%02lu.%02lu m (%02u%%)",
-            (unsigned long)base,
-            (unsigned long)ext,
-            (unsigned int)percentage);
-    cs_initiator_display_write_text(buffer, row);
-  }
 }

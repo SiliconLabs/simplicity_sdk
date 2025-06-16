@@ -1,6 +1,6 @@
 id: ot_coex
 label: Coexistence
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides support for Wi-Fi coexistence with OpenThread
@@ -10,7 +10,7 @@ requires:
   - name: ot_platform_abstraction
   - name: rail_util_coex
   - name: rail_util_ieee802154_stack_event
-  - name: rail_util_ieee802154_phy_select
+  - name: sl_rail_util_ieee802154_phy_select
   - name: sl_ot_custom_cli
     condition: [ot_cli]
   - name: ot_ncp_vendor_extension

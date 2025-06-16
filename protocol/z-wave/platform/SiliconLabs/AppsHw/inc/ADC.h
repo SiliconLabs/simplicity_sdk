@@ -6,7 +6,6 @@
  * @copyright 2018 Silicon Laboratories Inc.
  */
 
-
 #ifndef _ADC_H_
 #define _ADC_H_
 

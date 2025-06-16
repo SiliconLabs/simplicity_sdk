@@ -58,7 +58,7 @@ __STATIC_INLINE void _set_log_buff(sl_iperf_log_t * const log,
 
 /**************************************************************************//**
  * @brief Default log printer
- * @details Default log printer with varadic args. Both of buffer and stdout printer implemented.
+ * @details Default log printer with variadic args. Both buffer and stdout printer implemented.
  * @param[in,out] log Log instance
  * @param[in] format Format string
  * @param[in] ... args

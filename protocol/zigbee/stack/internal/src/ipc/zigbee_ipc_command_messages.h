@@ -3,7 +3,7 @@
  * @brief struct definitions for zigbee ipc command messages
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -29,7 +29,7 @@
 #include "stack/internal/src/ipc/cbke-crypto-engine-ipc-command-messages.h"
 #endif
 #include "stack/internal/src/ipc/child_ipc_command_messages.h"
-#ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_WAKEUP_PRESENT
+#ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
 #include "stack/internal/src/ipc/force_sleep_wakeup_stack_interface_ipc_command_messages.h"
 #endif
 #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_PRESENT
@@ -66,6 +66,9 @@
 #include "stack/internal/src/ipc/sl_zigbee_duty_cycle_ipc_command_messages.h"
 #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_dynamic_commissioning_ipc_command_messages.h"
+#endif
+#ifdef SL_CATALOG_ZIGBEE_MEMORY_USAGE_API_PRESENT
+#include "stack/internal/src/ipc/sl_zigbee_memory_usage_ipc_command_messages.h"
 #endif
 #include "stack/internal/src/ipc/sl_zigbee_random_api_ipc_command_messages.h"
 #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
@@ -165,13 +168,14 @@ typedef struct {
     sli_zigbee_stack_set_max_end_device_children_ipc_msg_t set_max_end_device_children;
     sli_zigbee_stack_set_message_flag_ipc_msg_t set_message_flag;
     sli_zigbee_stack_set_parent_incoming_nwk_frame_counter_ipc_msg_t set_parent_incoming_nwk_frame_counter;
-    #ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_WAKEUP_PRESENT
+    #ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
     sli_mac_stack_lower_mac_force_sleep_ipc_msg_t lower_mac_force_sleep;
     #endif
     #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_PRESENT
     sli_zigbee_stack_gp_proxy_table_get_entry_ipc_msg_t gp_proxy_table_get_entry;
     sli_zigbee_stack_gp_proxy_table_lookup_ipc_msg_t gp_proxy_table_lookup;
     sli_zigbee_stack_gp_proxy_table_process_gp_pairing_ipc_msg_t gp_proxy_table_process_gp_pairing;
+    sli_zigbee_stack_gp_proxy_table_remove_entry_ipc_msg_t gp_proxy_table_remove_entry;
     #endif
     #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_PRESENT
     sli_zigbee_stack_gp_sink_table_add_group_ipc_msg_t gp_sink_table_add_group;
@@ -259,6 +263,7 @@ typedef struct {
     sli_zigbee_stack_find_unused_pan_id_ipc_msg_t find_unused_pan_id;
     sli_zigbee_stack_form_network_ipc_msg_t form_network;
     sli_zigbee_stack_get_beacon_classification_params_ipc_msg_t get_beacon_classification_params;
+    sli_zigbee_stack_get_join_uses_install_code_ipc_msg_t get_join_uses_install_code;
     sli_zigbee_stack_get_last_leave_reason_ipc_msg_t get_last_leave_reason;
     sli_zigbee_stack_get_last_rejoin_reason_ipc_msg_t get_last_rejoin_reason;
     sli_zigbee_stack_get_network_key_timeout_ipc_msg_t get_network_key_timeout;
@@ -277,6 +282,7 @@ typedef struct {
     sli_zigbee_stack_send_zigbee_leave_ipc_msg_t send_zigbee_leave;
     sli_zigbee_stack_set_beacon_classification_params_ipc_msg_t set_beacon_classification_params;
     sli_zigbee_stack_set_beacon_jitter_duration_ipc_msg_t set_beacon_jitter_duration;
+    sli_zigbee_stack_set_join_uses_install_code_ipc_msg_t set_join_uses_install_code;
     sli_zigbee_stack_set_num_beacons_to_store_ipc_msg_t set_num_beacons_to_store;
     sli_zigbee_stack_set_nwk_update_id_ipc_msg_t set_nwk_update_id;
     sli_zigbee_stack_set_pending_network_update_pan_id_ipc_msg_t set_pending_network_update_pan_id;
@@ -303,10 +309,17 @@ typedef struct {
     sli_mac_stack_test_set_nwk_radio_params_channel_ipc_msg_t test_set_nwk_radio_params_channel;
     sli_mac_stack_test_set_nwk_radio_params_eui_ipc_msg_t test_set_nwk_radio_params_eui;
     sli_mac_stack_test_set_tx_power_ipc_msg_t test_set_tx_power;
+    sli_zigbee_stack_bdb_tclk_max_exchange_attempts_ipc_msg_t bdb_tclk_max_exchange_attempts;
+    sli_zigbee_stack_gu_zdo_toggle_dlk_ipc_msg_t gu_zdo_toggle_dlk;
+    sli_zigbee_stack_request_link_key_with_option_encrypt_ipc_msg_t request_link_key_with_option_encrypt;
     sli_zigbee_stack_set_end_device_poll_timeout_ipc_msg_t set_end_device_poll_timeout;
+    sli_zigbee_stack_set_eui64_ipc_msg_t set_eui64;
+    sli_zigbee_stack_set_ignore_aps_acks_ipc_msg_t set_ignore_aps_acks;
     sli_zigbee_stack_set_packet_validate_library_state_ipc_msg_t set_packet_validate_library_state;
     sli_zigbee_stack_set_pan_id_ipc_msg_t set_pan_id;
     sli_zigbee_stack_set_pan_id_conflict_report_ipc_msg_t set_pan_id_conflict_report;
+    sli_zigbee_stack_set_stack_compliance_revision_ipc_msg_t set_stack_compliance_revision;
+    sli_zigbee_stack_set_zdo_dlk_save_derived_key_ipc_msg_t set_zdo_dlk_save_derived_key;
     sli_zigbee_stack_test_aps_key_in_sync_ipc_msg_t test_aps_key_in_sync;
     sli_zigbee_stack_test_aps_key_set_sync_status_ipc_msg_t test_aps_key_set_sync_status;
     sli_zigbee_stack_test_custom_send_security_challenge_request_ipc_msg_t test_custom_send_security_challenge_request;
@@ -325,6 +338,7 @@ typedef struct {
     sli_zigbee_stack_test_send_report_or_update_ipc_msg_t test_send_report_or_update;
     sli_zigbee_stack_test_send_route_error_payload_ipc_msg_t test_send_route_error_payload;
     sli_zigbee_stack_test_send_route_error_payload_no_network_encryption_ipc_msg_t test_send_route_error_payload_no_network_encryption;
+    sli_zigbee_stack_test_send_route_request_with_tlv_ipc_msg_t test_send_route_request_with_tlv;
     sli_zigbee_stack_test_set_network_tokens_ipc_msg_t test_set_network_tokens;
     sli_zigbee_stack_test_spoof_device_announcement_ipc_msg_t test_spoof_device_announcement;
     sli_zigbee_stack_test_zdo_generate_clear_all_bindings_req_ipc_msg_t test_zdo_generate_clear_all_bindings_req;
@@ -335,6 +349,7 @@ typedef struct {
     sli_zigbee_stack_get_embernet_passthrough_source_address_ipc_msg_t get_embernet_passthrough_source_address;
     sli_zigbee_stack_get_mac_passthrough_flags_ipc_msg_t get_mac_passthrough_flags;
     sli_zigbee_stack_send_raw_message_ipc_msg_t send_raw_message;
+    sli_zigbee_stack_send_raw_message_with_tag_ipc_msg_t send_raw_message_with_tag;
     sli_zigbee_stack_set_embernet_passthrough_source_address_ipc_msg_t set_embernet_passthrough_source_address;
     sli_zigbee_stack_set_mac_filter_match_list_ipc_msg_t set_mac_filter_match_list;
     sli_zigbee_stack_set_mac_passthrough_flags_ipc_msg_t set_mac_passthrough_flags;
@@ -383,6 +398,9 @@ typedef struct {
     sli_zigbee_stack_device_interview_status_update_ipc_msg_t device_interview_status_update;
     sli_zigbee_stack_dynamic_commissioning_is_open_for_interview_ipc_msg_t dynamic_commissioning_is_open_for_interview;
     sli_zigbee_stack_dynamic_commissioning_set_open_for_interview_ipc_msg_t dynamic_commissioning_set_open_for_interview;
+    #endif
+    #ifdef SL_CATALOG_ZIGBEE_MEMORY_USAGE_API_PRESENT
+    sli_zigbee_stack_get_memory_usage_data_ipc_msg_t get_memory_usage_data;
     #endif
     sli_zigbee_stack_get_pseudo_random_number_ipc_msg_t get_pseudo_random_number;
     sli_zigbee_stack_get_strong_random_entropy_source_ipc_msg_t get_strong_random_entropy_source;

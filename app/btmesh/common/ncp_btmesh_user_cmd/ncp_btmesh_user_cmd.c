@@ -36,7 +36,7 @@
 #include "ncp_btmesh_user_cmd.h"
 #include "sl_common.h"
 
-/***************************************************************************//**
+/*******************************************************************************
  * User command (message_to_target) handler callback.
  *
  * Handles user defined commands received from NCP host.

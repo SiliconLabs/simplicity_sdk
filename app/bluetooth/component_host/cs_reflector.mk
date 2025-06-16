@@ -7,5 +7,3 @@ override CFLAGS += \
 
 override INCLUDEPATHS += \
 $(SDK_DIR)/app/bluetooth/common/cs_reflector
-
-GATT_XML_FILES += $(SDK_DIR)/app/bluetooth/common/cs_reflector/config/cs_reflector.xml

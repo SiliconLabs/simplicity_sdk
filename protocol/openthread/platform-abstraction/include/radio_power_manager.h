@@ -97,7 +97,7 @@ void sli_set_tx_power_in_rail(int8_t tx_power);
  * @param[in]   tx_power           Desired tx power in dbm.
  *
  */
-void sli_update_tx_power_after_config_update(const RAIL_TxPowerConfig_t *tx_power_config, int8_t tx_power);
+void sli_update_tx_power_after_config_update(const sl_rail_tx_power_config_t *tx_power_config, int8_t tx_power);
 
 /**
  * Initialize the power manager.

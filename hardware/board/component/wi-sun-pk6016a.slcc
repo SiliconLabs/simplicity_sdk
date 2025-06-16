@@ -1,7 +1,7 @@
 !!omap
 - id: wi_sun_pk6016a
 - label: WI-SUN-PK6016A
-- package: platform
+- package: boards
 - description: Kit BSP support for the Wi-SUN FAN US/Japan Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

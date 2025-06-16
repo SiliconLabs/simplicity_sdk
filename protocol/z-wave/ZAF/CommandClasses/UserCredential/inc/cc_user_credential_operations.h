@@ -33,10 +33,6 @@
  */
 
 /****************************************************************************/
-/*                      EXPORTED TYPES and DEFINITIONS                      */
-/****************************************************************************/
-
-/****************************************************************************/
 /*                              API FUNCTIONS                               */
 /****************************************************************************/
 
@@ -49,7 +45,7 @@
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_add_user_and_report(
-  u3c_user * p_user,
+  u3c_user_t * p_user,
   uint8_t * p_name,
   RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
@@ -63,7 +59,7 @@ u3c_db_operation_result CC_UserCredential_add_user_and_report(
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_modify_user_and_report(
-  u3c_user * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  u3c_user_t * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
 
 /**
@@ -85,7 +81,7 @@ u3c_db_operation_result CC_UserCredential_delete_user_and_report(
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_add_credential_and_report(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
 
 /**
@@ -96,7 +92,7 @@ u3c_db_operation_result CC_UserCredential_add_credential_and_report(
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_modify_credential_and_report(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
 
 /**
@@ -115,19 +111,18 @@ u3c_db_operation_result CC_UserCredential_delete_credential_and_report(
   );
 
 /**
- * @brief Tries to assign a credential to a different slot or user
+ * @brief Assigns a credential to a different user
  *
  * @param[in] credential_type Type of the credential
- * @param[in] source_credential_slot Slot of the original credential
+ * @param[in] credential_slot Slot of the credential
  * @param[in] destination_uuid New desired UUID to assign the credential to
- * @param[in] destination_credential_slot New desired slot number for the credential
  * @param[in] p_rx_options Pointer to the details of the received frame
  * @return The result of the operation
  */
 u3c_db_operation_result CC_UserCredential_move_credential_and_report(
   u3c_credential_type credential_type,
-  uint16_t source_credential_slot, uint16_t destination_uuid,
-  uint16_t destination_credential_slot, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  uint16_t credential_slot, uint16_t destination_uuid,
+  RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
 
 /**
@@ -142,8 +137,8 @@ u3c_db_operation_result CC_UserCredential_move_credential_and_report(
  * @return true if the frame was enqueued succesfully.
  */
 bool CC_UserCredential_send_association_report(
-  u3c_credential_metadata const * const p_source_metadata,
-  u3c_credential_metadata const * const p_destination_metadata,
+  u3c_credential_metadata_t const * const p_source_metadata,
+  u3c_credential_metadata_t const * const p_destination_metadata,
   u3c_user_credential_association_report_status_t const status,
   RECEIVE_OPTIONS_TYPE_EX * const p_rx_options
   );

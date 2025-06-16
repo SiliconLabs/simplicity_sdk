@@ -89,6 +89,7 @@
 #define CORTEX_M4        0x04
 #define CORTEX_M7        0x07
 #define CORTEX_M33        33u
+#define CORTEX_M55        55u
 
 /********************************************************************************************************
  *                                   CPU, INTERRUPT & TOOLCHAIN NAMES
@@ -103,7 +104,7 @@
   || (__CORTEX_M == CORTEX_M4)       \
   || (__CORTEX_M == CORTEX_M7))
         #define  RTOS_CPU_PORT_NAME         RTOS_CPU_SEL_ARM_V7_M
-    #elif (__CORTEX_M == CORTEX_M33)
+    #elif ((__CORTEX_M == CORTEX_M33) || (__CORTEX_M == CORTEX_M55))
         #define  RTOS_CPU_PORT_NAME         RTOS_CPU_SEL_ARM_V8_M
     #else
         #define  RTOS_CPU_PORT_NAME         RTOS_CPU_SEL_NONE

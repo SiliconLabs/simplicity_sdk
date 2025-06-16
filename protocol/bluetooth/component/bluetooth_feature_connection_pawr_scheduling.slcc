@@ -1,6 +1,6 @@
 id: "bluetooth_feature_connection_pawr_scheduling"
 label:  "PAwR-aware Connection Scheduling Algorithm"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   The component provides a connection scheduling algorithm which has been
   designed to be used especially with applications that use several concurrent
@@ -20,7 +20,7 @@ quality: "production"
 root_path: "protocol/bluetooth"
 requires:
   - name: "bluetooth_feature_pawr_advertiser"
-  - name: "bluetooth_feature_connection"
+  - name: "bluetooth_feature_connection_role_central"
 provides:
   - name: "bluetooth_feature_connection_pawr_scheduling"
 conflicts:
@@ -28,12 +28,6 @@ conflicts:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_connection_pawr_scheduling
-  - name: bluetooth_controller_init
-    value:
-      function: "sl_btctrl_enable_pawr_connsch()"
-    # note: priority of this component needs to be lower than
-    # bluetooth_feature_connection to ensure it's enabled before
-    priority: 4
 metadata:
   sbom:
     license: MSLA

@@ -47,7 +47,7 @@ extern "C" {
 
 /**
  * Set this flag in the configuration if the UART must be configured as a blocking UART.
- * 
+ *
  * Example of use:
  * @code{.c}
  * zpal_uart_config_t config = {
@@ -60,8 +60,7 @@ extern "C" {
 /**
  * @brief IDs for each of the UARTs.
  */
-typedef enum
-{
+typedef enum {
   ZPAL_UART0,
   ZPAL_UART1,
 } zpal_uart_id_t;
@@ -69,8 +68,7 @@ typedef enum
 /**
  * @brief IDs for each of the parity mode.
  */
-typedef enum
-{
+typedef enum {
   ZPAL_UART_NO_PARITY,      ///< No parity.
   ZPAL_UART_EVEN_PARITY,    ///< Even parity.
   ZPAL_UART_ODD_PARITY,     ///< Odd parity.
@@ -79,8 +77,7 @@ typedef enum
 /**
  * @brief IDs for each of the stop bits configuration.
  */
-typedef enum
-{
+typedef enum {
   ZPAL_UART_STOP_BITS_0P5,  ///< 0.5 stop bits.
   ZPAL_UART_STOP_BITS_1,    ///< 1 stop bits.
   ZPAL_UART_STOP_BITS_1P5,  ///< 1.5 stop bits.

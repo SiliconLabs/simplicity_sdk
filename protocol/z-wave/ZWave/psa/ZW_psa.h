@@ -35,18 +35,17 @@
 #define ZWAVE_ECC_KEY_SIZE                  32
 #define ECC_PUBLIC_KEY_LENGTH               64
 
-extern uint8_t public_key_buffer[ECC_PUBLIC_KEY_LENGTH+1];
+extern uint8_t public_key_buffer[ECC_PUBLIC_KEY_LENGTH + 1];
 
 typedef struct zwave_ecdh_shared_secret zwave_ecdh_shared_secret_t;
 
-typedef struct zwave_s2_ecc_keypair_t
-{
+typedef struct zwave_s2_ecc_keypair_t{
   psa_key_handle_t zwave_ecc_key_handle;
   uint8_t zwave_s2_ecc_public_key[ZWAVE_ECC_KEY_SIZE];
 } zwave_s2_ecc_keypair_t;
 
 void zw_psa_compute_sha1(const uint8_t *input, size_t in_len,
-                                uint8_t *hash, size_t *hash_length);
+                         uint8_t *hash, size_t *hash_length);
 
 psa_status_t zw_psa_gen_ecc_keypair(psa_key_handle_t *key_id);
 psa_status_t zw_psa_gen_dynamic_ecc_keypair(zwave_s2_ecc_keypair_t *ecc_keypair);

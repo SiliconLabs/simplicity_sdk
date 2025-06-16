@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_chacha20
-package: platform
+package: security_mbedtls
 label: Chacha20 Stream Cipher
 description: >-
   This component provides support for the ChaCha20 stream cipher in PSA Crypto.

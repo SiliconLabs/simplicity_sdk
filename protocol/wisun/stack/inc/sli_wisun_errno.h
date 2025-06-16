@@ -14,7 +14,12 @@
 #define SLI_WISUN_ERRNO_H
 #include "errno.h"
 
-// IAR's errno.h apparently doesn't define EAGAIN, EINVAL, EWOULDBLOCK, EINTR, EAFNOSUPPORT, ENOSPC.
+#define sli_wisun_set_errno(err)     \
+  do {                               \
+    errno = (err);                   \
+  } while (0)
+
+// IAR's errno.h apparently doesn't define errno code values.
 
 #ifndef EINTR
 #define EINTR 4
@@ -50,6 +55,70 @@
 
 #ifndef EMFILE
 #define EMFILE 24 /* Too many open file descriptors */
+#endif
+
+#ifndef EOVERFLOW
+#define EOVERFLOW 75
+#endif
+
+#ifndef EIO
+#define EIO 5
+#endif
+
+#ifndef EMSGSIZE
+#define EMSGSIZE 90
+#endif
+
+#ifndef ENETDOWN
+#define ENETDOWN 100
+#endif
+
+#ifndef ENOBUFS
+#define ENOBUFS 105
+#endif
+
+#ifndef EADDRNOTAVAIL
+#define EADDRNOTAVAIL 99
+#endif
+
+#ifndef EDESTADDRREQ
+#define EDESTADDRREQ 89
+#endif
+
+#ifndef EOPNOTSUPP
+#define EOPNOTSUPP 95
+#endif
+
+#ifndef EADDRINUSE
+#define EADDRINUSE 98
+#endif
+
+#ifndef EPROTOTYPE
+#define EPROTOTYPE 91
+#endif
+
+#ifndef EPROTONOSUPPORT
+#define EPROTONOSUPPORT 93
+#endif
+
+#ifndef ENFILE
+#define ENFILE 23
+#endif
+
+#ifndef ENOMEM
+#define ENOMEM 12
+#endif
+
+#ifndef ENOPROTOOPT
+#define ENOPROTOOPT 92
+#endif
+
+#ifndef EISCONN
+#define EISCONN 106
+#endif
+
+#ifndef EALREADY
+#define EALREADY 114
 #endif
 
 #endif

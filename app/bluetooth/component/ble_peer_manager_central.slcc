@@ -1,5 +1,5 @@
 id: ble_peer_manager_central
-package: Bluetooth
+package: bluetooth_le_middleware
 label: BLE Peer Manager Central
 description: >
   Peer Manager for Bluetooth Low Energy. Responsible for scanning and
@@ -23,7 +23,7 @@ requires:
   - name: app_timer
   - name: bluetooth_stack
   - name: bluetooth_feature_system
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_central
   - name: bluetooth_feature_legacy_scanner
   - name: bluetooth_feature_extended_scanner
   - name: ble_peer_manager_common

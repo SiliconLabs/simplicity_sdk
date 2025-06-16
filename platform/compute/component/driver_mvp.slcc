@@ -1,17 +1,17 @@
 id: driver_mvp
 label: MVP Driver
-package: platform
+package: compute
 description: >
-  This component provides a driver for using the MVP hardware capable of
-  accelerating mathematical operations. This component can be used to accelerate
-  machine learning kernel operations as well as other general math operations.
+    This component provides a driver for using the MVP hardware capable of
+    accelerating mathematical operations. This component can be used to accelerate
+    machine learning kernel operations as well as other general math operations.
 
-  The API of this component is marked as internal.
+    The API of this component is marked as internal.
 category: Platform|Compute
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/compute/driver/mvp
 config_file:
   - path: config/sl_driver_mvp_config.h
@@ -44,6 +44,6 @@ template_contribution:
     value: mvp
   - name: event_handler
     value:
-      event: driver_init
-      include: sl_mvp.h
-      handler: sli_mvp_init
+        event: driver_init
+        include: sl_mvp.h
+        handler: sli_mvp_init

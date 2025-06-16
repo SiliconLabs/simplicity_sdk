@@ -1,7 +1,7 @@
 !!omap
 - id: brd4263b
 - label: BRD4263B
-- package: platform
+- package: boards
 - description: Board support for BRD4263B.
 - category: Platform|Board|Radio Board
 - quality: production

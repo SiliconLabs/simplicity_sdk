@@ -40,6 +40,7 @@
 #include "sl_simple_button_instances.h"
 #include "sl_sleeptimer.h"
 #include "app_assert.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_SEGMENT_LCD_DRIVER_PRESENT)
 #include "sl_segmentlcd.h"
@@ -242,7 +243,7 @@ uint16_t sl_rail_sdk_wmbus_sensor_core_process(uint8_t* tx_buffer, uint8_t* acce
 /*******************************************************************************
  * Wireless M-Bus sensor core button callback implementation.
  ******************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
     #if defined(SL_CATALOG_SIMPLE_BUTTON_BTN1_PRESENT)

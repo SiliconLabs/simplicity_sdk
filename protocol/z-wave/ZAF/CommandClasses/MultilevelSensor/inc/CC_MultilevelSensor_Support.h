@@ -32,8 +32,8 @@
 // -----------------------------------------------------------------------------
 //                Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_SEC (MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_MIN*60)
-#define MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_MS  (MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_SEC*1000)
+#define MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_SEC (MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_MIN * 60)
+#define MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_MS  (MULTILEVEL_SENSOR_DEFAULT_AUTOREPORT_PEDIOD_SEC * 1000)
 // -----------------------------------------------------------------------------
 //                Global Variables
 // -----------------------------------------------------------------------------
@@ -51,6 +51,6 @@ void cc_multilevel_sensor_send_sensor_data(void);
 /**
  * @}
  * @}
- */ 
+ */
 
-#endif  // CC_MULTILEVELSENSOR_SUPPORT_H
+#endif // CC_MULTILEVELSENSOR_SUPPORT_H

@@ -1,7 +1,7 @@
 !!omap
 - id: xg21_pk6026a
 - label: XG21-PK6026A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG21 2.4 GHz 10 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

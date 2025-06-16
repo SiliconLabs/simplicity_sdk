@@ -43,7 +43,7 @@
 // The execution modes feature on SIXG301 changes the SYSCLK clock source.
 // For SIXG301 devices, those clock sources are prefined to the below values.
 #define EXECUTION_MODE_STANDARD_CLOCK_SOURCE     SL_OSCILLATOR_HFRCODPLL
-#define EXECUTION_MODE_PERFORMANCE_CLOCK_SOURCE  SL_OSCILLATOR_SOCPLL
+#define EXECUTION_MODE_PERFORMANCE_CLOCK_SOURCE  SL_OSCILLATOR_SOCPLL0
 
 /*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
@@ -66,7 +66,7 @@ void sli_power_manager_hal_apply_performance_mode(void)
     // Force-enable HFXO.
     HFXO0->CTRL_SET = HFXO_CTRL_FORCEEN;
   } else {
-    sl_status_t status = sli_clock_manager_set_sysclk_source(EXECUTION_MODE_PERFORMANCE_CLOCK_SOURCE);
+    sl_status_t status = slx_clock_manager_set_sysclk_source(EXECUTION_MODE_PERFORMANCE_CLOCK_SOURCE);
     EFM_ASSERT(status == SL_STATUS_OK);
   }
 }
@@ -76,7 +76,7 @@ void sli_power_manager_hal_apply_performance_mode(void)
  ******************************************************************************/
 void sli_power_manager_hal_apply_standard_mode(void)
 {
-  sl_status_t status = sli_clock_manager_set_sysclk_source(EXECUTION_MODE_STANDARD_CLOCK_SOURCE);
+  sl_status_t status = slx_clock_manager_set_sysclk_source(EXECUTION_MODE_STANDARD_CLOCK_SOURCE);
   EFM_ASSERT(status == SL_STATUS_OK);
 }
 #endif // SL_POWER_MANAGER_EXECUTION_MODES_FEATURE_EN

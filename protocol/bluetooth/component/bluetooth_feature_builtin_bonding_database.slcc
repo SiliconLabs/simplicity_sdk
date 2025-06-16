@@ -1,6 +1,6 @@
 id: "bluetooth_feature_builtin_bonding_database"
 label: "Built-in Bluetooth bonding database"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Configures the Bluetooth stack to include a built-in bonding database. In this
   configuration the Bluetooth stack stores the bonding data in the local

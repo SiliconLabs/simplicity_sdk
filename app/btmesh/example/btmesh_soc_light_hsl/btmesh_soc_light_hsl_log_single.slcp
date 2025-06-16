@@ -33,6 +33,7 @@ component:
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
   - id: btmesh_target_node
   - id: btmesh_iv_update
   - id: cli
@@ -40,7 +41,7 @@ component:
     - example
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: iostream_recommended_stream
   - id: mpu
   - id: pwm
@@ -48,7 +49,7 @@ component:
       - led0
   - id: rail_util_pti
   - id: simple_button_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
@@ -56,7 +57,6 @@ source:
   - path: app_led.c
   - path: app_out_log.c
   - path: local_cli_commands.c
-  - path: main.c
 
 include:
   - path: .
@@ -91,6 +91,8 @@ other_file:
   - path: ../../documentation/example/btmesh_soc_light_hsl/readme_img8.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
   - name: SL_BOARD_ENABLE_DISPLAY
@@ -124,6 +126,10 @@ template_contribution:
       help: "Prints info about BT address and mesh UUID"
     condition:
       - cli
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

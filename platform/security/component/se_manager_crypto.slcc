@@ -1,6 +1,6 @@
 id: se_manager_crypto
 label: Crypto
-package: platform
+package: security_se_manager
 description: >-
   Driver implementations for interacting with the SE or Root Code on Series 2 devices.
 category: Platform|Security|SE Manager

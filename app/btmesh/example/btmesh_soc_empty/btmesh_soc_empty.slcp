@@ -29,12 +29,11 @@ component:
   - id: device_init
   - id: mpu
   - id: rail_util_pti
-  - id: sl_system
+  - id: sl_main
 
 source:
   - path: app.c
   - path: app_bm.c
-  - path: main.c
 
 include:
   - path: .
@@ -60,6 +59,8 @@ other_file:
   - path: ../../documentation/example/btmesh_soc_empty/readme_img5.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: NVM3_DEFAULT_NVM_SIZE
     value: "0x6000"
   - name: SL_BTMESH_CONFIG_MAX_PROV_BEARERS
@@ -70,6 +71,10 @@ configuration:
       - psa_crypto
   - name: SL_STACK_SIZE
     value: "0x1200"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:flash:512

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_high_power"
 label:  "Unrestricted High Power Feature"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   The Bluetooth high power component allows the device to use a high transmission power
   when the frequency adaptivity or the current channel mapping allows to do so.

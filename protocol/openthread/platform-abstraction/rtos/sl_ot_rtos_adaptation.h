@@ -45,6 +45,13 @@ typedef enum sl_ot_rtos_event_t
 } sl_ot_rtos_event_t;
 
 /**
+ * API to initialize RTOS permanent allocation.
+ *
+ *
+ */
+void sl_ot_rtos_perm_allocation(void);
+
+/**
  * API to initialize RTOS 'OT Stack' and 'OT Serial' Tasks.
  *
  * Calling this API results in the 'OT Stack' and 'OT Serial' tasks being

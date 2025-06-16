@@ -4135,6 +4135,28 @@ uint8_t sl_zigbee_ezsp_gp_proxy_table_lookup(
   return 255;
 }
 
+void sl_zigbee_ezsp_gp_proxy_table_remove_entry(
+  uint8_t proxyIndex)
+{
+  startCommand(SL_ZIGBEE_EZSP_GP_PROXY_TABLE_REMOVE_ENTRY);
+  appendInt8u(proxyIndex);
+  sl_zigbee_ezsp_status_t sendStatus = sendCommand();
+  sli_zigbee_ezsp_set_last_status(sendStatus);
+  if (sendStatus == SL_ZIGBEE_EZSP_SUCCESS) {
+    EZSP_ASH_TRACE("%s(): sendCommand() error: 0x%02X", __func__, sendStatus);
+  }
+}
+
+void sl_zigbee_ezsp_gp_clear_proxy_table(void)
+{
+  startCommand(SL_ZIGBEE_EZSP_GP_CLEAR_PROXY_TABLE);
+  sl_zigbee_ezsp_status_t sendStatus = sendCommand();
+  sli_zigbee_ezsp_set_last_status(sendStatus);
+  if (sendStatus == SL_ZIGBEE_EZSP_SUCCESS) {
+    EZSP_ASH_TRACE("%s(): sendCommand() error: 0x%02X", __func__, sendStatus);
+  }
+}
+
 sl_status_t sl_zigbee_ezsp_gp_sink_table_get_entry(
   uint8_t sinkIndex,
   sl_zigbee_gp_sink_table_entry_t *entry)
@@ -4867,37 +4889,9 @@ static void callbackDispatch(void)
     }
 
     case SL_ZIGBEE_EZSP_GPEP_INCOMING_MESSAGE_HANDLER: {
-      sl_zigbee_gp_status_t gp_status;
-      uint8_t gpdLink;
-      uint8_t sequenceNumber;
-      sl_zigbee_gp_address_t addr;
-      sl_zigbee_gp_security_level_t gpdfSecurityLevel;
-      sl_zigbee_gp_key_type_t gpdfSecurityKeyType;
-      bool autoCommissioning;
-      uint8_t bidirectionalInfo;
-      uint32_t gpdSecurityFrameCounter;
-      uint8_t gpdCommandId;
-      uint32_t mic;
-      uint8_t proxyTableIndex;
-      uint8_t gpdCommandPayloadLength;
-      uint8_t *gpdCommandPayload;
-      sl_zigbee_rx_packet_info_t packetInfo;
-      gp_status = fetchInt8u();
-      gpdLink = fetchInt8u();
-      sequenceNumber = fetchInt8u();
-      fetch_sl_zigbee_gp_address_t(&addr);
-      gpdfSecurityLevel = fetchInt8u();
-      gpdfSecurityKeyType = fetchInt8u();
-      autoCommissioning = fetchInt8u();
-      bidirectionalInfo = fetchInt8u();
-      gpdSecurityFrameCounter = fetchInt32u();
-      gpdCommandId = fetchInt8u();
-      mic = fetchInt32u();
-      proxyTableIndex = fetchInt8u();
-      gpdCommandPayloadLength = fetchInt8u();
-      gpdCommandPayload = (uint8_t *)fetchInt8uPointer(gpdCommandPayloadLength);
-      fetch_sl_zigbee_rx_packet_info_t(&packetInfo);
-      sl_zigbee_ezsp_gpep_incoming_message_handler(gp_status, gpdLink, sequenceNumber, &addr, gpdfSecurityLevel, gpdfSecurityKeyType, autoCommissioning, bidirectionalInfo, gpdSecurityFrameCounter, gpdCommandId, mic, proxyTableIndex, gpdCommandPayloadLength, gpdCommandPayload, &packetInfo);
+      sl_zigbee_gp_params_t param;
+      fetch_sl_zigbee_gp_params_t(&param);
+      sl_zigbee_ezsp_gpep_incoming_message_handler(&param);
       break;
     }
 

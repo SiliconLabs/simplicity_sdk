@@ -42,8 +42,8 @@
 #include <openthread/link.h>
 
 #include "dbus/server/dbus_object.hpp"
+#include "host/ncp_host.hpp"
 #include "mdns/mdns.hpp"
-#include "ncp/ncp_host.hpp"
 
 namespace otbr {
 namespace DBus {
@@ -65,9 +65,11 @@ public:
      *
      * @param[in] aConnection     The dbus connection.
      * @param[in] aInterfaceName  The dbus interface name.
-     * @param[in] aHost           The Thread controller.
+     * @param[in] aDeps           The dependent components.
      */
-    DBusThreadObjectNcp(DBusConnection &aConnection, const std::string &aInterfaceName, otbr::Ncp::NcpHost &aHost);
+    DBusThreadObjectNcp(DBusConnection            &aConnection,
+                        const std::string         &aInterfaceName,
+                        const DependentComponents &aDeps);
 
     /**
      * This method initializes the dbus thread object.
@@ -85,7 +87,7 @@ private:
     void LeaveHandler(DBusRequest &aRequest);
     void ScheduleMigrationHandler(DBusRequest &aRequest);
 
-    otbr::Ncp::NcpHost &mHost;
+    otbr::Host::NcpHost &mHost;
 };
 
 /**

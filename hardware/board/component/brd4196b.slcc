@@ -1,7 +1,7 @@
 !!omap
 - id: brd4196b
 - label: BRD4196B
-- package: platform
+- package: boards
 - description: Board support for BRD4196B.
 - category: Platform|Board|Radio Board
 - quality: production

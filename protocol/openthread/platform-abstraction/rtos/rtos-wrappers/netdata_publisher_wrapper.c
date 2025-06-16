@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -56,12 +56,17 @@ extern otError OT_API_REAL_NAME(otNetDataReplacePublishedExternalRoute)(otInstan
                                                                         const otIp6Prefix           *aPrefix,
                                                                         const otExternalRouteConfig *aConfig);
 extern otError OT_API_REAL_NAME(otNetDataUnpublishPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix);
-extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance, uint8_t aSequenceNUmber);
+extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance,
+                                                                   uint8_t     aSequenceNUmber,
+                                                                   uint8_t     aVersion);
 extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance         *aInstance,
                                                                    const otIp6Address *aAddress,
-                                                                   uint16_t            aPort);
-extern void OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance, uint16_t aPort);
-extern void OT_API_REAL_NAME(otNetDataSetDnsSrpServicePublisherCallback)(
+                                                                   uint16_t            aPort,
+                                                                   uint8_t             aVersion);
+extern void    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance,
+                                                                               uint16_t    aPort,
+                                                                               uint8_t     aVersion);
+extern void    OT_API_REAL_NAME(otNetDataSetDnsSrpServicePublisherCallback)(
     otInstance                             *aInstance,
     otNetDataDnsSrpServicePublisherCallback aCallback,
     void                                   *aContext);
@@ -120,26 +125,31 @@ otError OT_API_WRAPPER_NAME(otNetDataUnpublishPrefix)(otInstance *aInstance, con
     return ret;
 }
 
-void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance, uint8_t aSequenceNUmber)
+void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceAnycast)(otInstance *aInstance,
+                                                               uint8_t     aSequenceNUmber,
+                                                               uint8_t     aVersion)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(aInstance, aSequenceNUmber);
+    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceAnycast)(aInstance, aSequenceNUmber, aVersion);
     sl_ot_rtos_release_stack_mutex();
 }
 
 void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicast)(otInstance         *aInstance,
                                                                const otIp6Address *aAddress,
-                                                               uint16_t            aPort)
+                                                               uint16_t            aPort,
+                                                               uint8_t             aVersion)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(aInstance, aAddress, aPort);
+    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicast)(aInstance, aAddress, aPort, aVersion);
     sl_ot_rtos_release_stack_mutex();
 }
 
-void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance, uint16_t aPort)
+void OT_API_WRAPPER_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(otInstance *aInstance,
+                                                                           uint16_t    aPort,
+                                                                           uint8_t     aVersion)
 {
     sl_ot_rtos_acquire_stack_mutex();
-    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(aInstance, aPort);
+    OT_API_REAL_NAME(otNetDataPublishDnsSrpServiceUnicastMeshLocalEid)(aInstance, aPort, aVersion);
     sl_ot_rtos_release_stack_mutex();
 }
 

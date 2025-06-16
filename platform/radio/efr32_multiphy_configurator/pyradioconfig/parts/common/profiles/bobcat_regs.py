@@ -74,8 +74,8 @@ def build_modem_regs_bobcat_only(model, profile):
         profile.outputs.append(ModelOutput(model.vars.MODEM_ADPC10_ADBBSSCHANGEEN, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.ADPC10.ADBBSSCHANGEEN'))
         profile.outputs.append(ModelOutput(model.vars.MODEM_ADPC10_ADBBSSCHGUPTHR, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.ADPC10.ADBBSSCHGUPTHR'))
         profile.outputs.append(ModelOutput(model.vars.MODEM_ADPC10_ADBBSSCHGDNTHR, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.ADPC10.ADBBSSCHGDNTHR'))
-    if model.part_family.lower() not in []:
-        profile.outputs.append(ModelOutput(model.vars.MODEM_CHFCTRL_CHFSWSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CHFCTRL.CHFSWSEL'))
+
+    profile.outputs.append(ModelOutput(model.vars.MODEM_CHFCTRL_CHFSWSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CHFCTRL.CHFSWSEL'))
     profile.outputs.append(ModelOutput(model.vars.MODEM_COCURRMODE_CONCURRENT, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.COCURRMODE.CONCURRENT' ))
     profile.outputs.append(ModelOutput(model.vars.MODEM_LONGRANGE_LRBLE, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.LONGRANGE.LRBLE' ))
     profile.outputs.append(ModelOutput(model.vars.MODEM_LONGRANGE_LRBLEDSA, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.LONGRANGE.LRBLEDSA' ))

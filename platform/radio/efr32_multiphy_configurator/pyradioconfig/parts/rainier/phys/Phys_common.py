@@ -1,6 +1,4 @@
-def fast_hopping_agc(phy, model):
-    # AGC Mode
-    phy.profile_outputs.AGC_CTRL0_MODE.override = 2  # Freeze AGC at frame detect
+def fast_detection_agc_settings(phy, model):
 
     # PKD Settings
     phy.profile_outputs.AGC_GAINRANGE_PNGAINSTEP.override = 3  # 6dB adjustments

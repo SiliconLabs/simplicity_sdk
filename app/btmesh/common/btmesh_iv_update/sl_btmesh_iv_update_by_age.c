@@ -46,11 +46,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup iv_update
- * @{
- ******************************************************************************/
-
 #define NORMAL_OPERATION 0
 #define IV_UPDATE_IN_PROGRESS 1
 
@@ -61,20 +56,30 @@ static void age_timer_start(uint32_t timeout_s);
 static void age_timer_stop(void);
 static void handle_iv_update_age(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Handling of mesh iv_update_by_age related events.
  *  @param[in] evt  Pointer to incoming event.
  ******************************************************************************/
 void sl_btmesh_iv_update_by_age_on_event(sl_btmesh_msg_t* evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         handle_iv_update_age();
+        booted = true;
       }
       break;
-    case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
+      if (booted) {
+        break;
+      }
+    // Intentional fallthrough
+    case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_changed_ivupdate_state_id:
       handle_iv_update_age();
       break;
@@ -83,7 +88,7 @@ void sl_btmesh_iv_update_by_age_on_event(sl_btmesh_msg_t* evt)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Start or stop automatic IV update timer based on IV update state
  ******************************************************************************/
 static void handle_iv_update_age(void)
@@ -104,7 +109,7 @@ static void handle_iv_update_age(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Request IV Update on timer callback
  ******************************************************************************/
 static void on_age_timer(app_timer_t *handle, void *data)
@@ -112,10 +117,15 @@ static void on_age_timer(app_timer_t *handle, void *data)
   (void)data;
   (void)handle;
   sl_status_t sc = sl_btmesh_node_request_ivupdate();
-  app_assert_status_f(sc, "Failed to request IV Update");
+  // Does not exist error can occur after a firmware update
+  // but before DCD update if the elements change.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Failed to request IV Update");
+  }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Start age timer
  ******************************************************************************/
 static void age_timer_start(uint32_t timeout_s)
@@ -128,7 +138,7 @@ static void age_timer_start(uint32_t timeout_s)
   app_assert_status_f(sc, "Failed to start timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Stop age timer
  ******************************************************************************/
 static void age_timer_stop(void)
@@ -141,5 +151,3 @@ SL_WEAK uint32_t get_iv_update_age(void)
 {
   return 0;
 }
-
-/** @} (end addtogroup iv_update) */

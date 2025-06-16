@@ -1,7 +1,7 @@
 !!omap
 - id: brd4270a_a04
 - label: BRD4270A rev A04
-- package: platform
+- package: boards
 - description: Board support for BRD4270A.
 - category: Platform|Board|Radio Board
 - quality: production

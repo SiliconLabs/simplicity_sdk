@@ -21,14 +21,14 @@
 #include "sl_core.h"
 #include "sl_gpio.h"
 #include "em_cmu.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 #include "coexistence-ble-ll.h"
 
 #include "coexistence-ble.h"
 #include "coexistence-hal.h"
 
-#include "rail_ble.h"
+#include "sl_rail_ble.h"
 
 #if !defined(SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED)
   #define SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED  0
@@ -49,8 +49,8 @@ struct {
   bool enablePriority : 1;
   bool pullResistor : 1;
   sl_bt_ll_coex_config_t config;
-  RAIL_MultiTimer_t timer;
-  RAIL_Handle_t handle;
+  sl_rail_multi_timer_t timer;
+  sl_rail_handle_t handle;
   sl_bt_coex_abort_tx_callback abortTx;
   sl_bt_coex_fast_random_callback fastRandom;
   uint16_t requestWindowCalibration;
@@ -109,19 +109,19 @@ static void coexRequest(bool request, uint8_t priority);
 // Update grant signal state
 static void coexUpdateGrant(bool abortTx);
 // Timer event handler to set delayed COEX request
-static void coexHandleTimerEvent(struct RAIL_MultiTimer *tmr,
-                                 RAIL_Time_t expectedTimeOfEvent,
+static void coexHandleTimerEvent(sl_rail_multi_timer_t *tmr,
+                                 sl_rail_time_t expectedTimeOfEvent,
                                  void *cbArg);
 // Timer event handler for SCANPWM
-static void coexHandlePwmTimerEvent(struct RAIL_MultiTimer *tmr,
-                                    RAIL_Time_t expectedTimeOfEvent,
+static void coexHandlePwmTimerEvent(sl_rail_multi_timer_t *tmr,
+                                    sl_rail_time_t expectedTimeOfEvent,
                                     void *cbArg);
 
 /**
  * @brief Initialize coex from Link Layer side
  *
  */
-void sl_bt_ll_coex_set_context(RAIL_Handle_t handle, sl_bt_coex_abort_tx_callback abortTx, sl_bt_coex_fast_random_callback fastRandom)
+void sl_bt_ll_coex_set_context(sl_rail_handle_t handle, sl_bt_coex_abort_tx_callback abortTx, sl_bt_coex_fast_random_callback fastRandom)
 {
   memset(&ll_coex, 0, sizeof(ll_coex));
 
@@ -164,7 +164,7 @@ static void startRequest(bool request, uint8_t priority)
 
   //Get phase
   uint32_t period = ll_coex.config.coex_pwm_period * 1000UL;
-  uint32_t phase = RAIL_GetTime() % period;
+  uint32_t phase = sl_rail_get_time(SL_RAIL_EFR32_HANDLE) % period;
   uint32_t ontime;
   if (phase * 100 < period * ll_coex.config.coex_pwm_dutycycle) {
     ll_coex.scanPwmOn = true;
@@ -182,15 +182,16 @@ static void startRequest(bool request, uint8_t priority)
   //Toggle scanPwm line
   scanPwmRequest(ll_coex.scanPwmOn);
 
-  RAIL_SetMultiTimer(&ll_coex.timer,
-                     ontime,
-                     RAIL_TIME_DELAY,
-                     &coexHandlePwmTimerEvent,
-                     NULL);
+  sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE,
+                          &ll_coex.timer,
+                          ontime,
+                          SL_RAIL_TIME_DELAY,
+                          &coexHandlePwmTimerEvent,
+                          NULL);
 }
 
-static void coexHandlePwmTimerEvent(struct RAIL_MultiTimer *tmr,
-                                    RAIL_Time_t expectedTimeOfEvent,
+static void coexHandlePwmTimerEvent(sl_rail_multi_timer_t *tmr,
+                                    sl_rail_time_t expectedTimeOfEvent,
                                     void *cbArg)
 {
   (void)tmr;
@@ -224,16 +225,17 @@ void sl_bt_ll_coex_request_delayed(uint32_t time, bool request, bool scanPwmActi
   if (ll_coex.scheduled || ll_coex.scanPwmToggling) {
     ll_coex.scheduled = false;
     ll_coex.scanPwmToggling = false;
-    RAIL_CancelMultiTimer(&ll_coex.timer);
+    sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &ll_coex.timer);
     scanPwmRequest(false);
   }
   ll_coex.scanPwmActive = scanPwmActive;
 
-  int ret = RAIL_SetMultiTimer(&ll_coex.timer,
-                               time - ll_coex.requestWindow,
-                               RAIL_TIME_ABSOLUTE,
-                               &coexHandleTimerEvent,
-                               NULL);
+  int ret = sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE,
+                                    &ll_coex.timer,
+                                    time - ll_coex.requestWindow,
+                                    SL_RAIL_TIME_ABSOLUTE,
+                                    &coexHandleTimerEvent,
+                                    NULL);
   if (ret) {
     // timer setting failed, request immediately
     coexRequest(request, priority);
@@ -269,7 +271,7 @@ void sl_bt_ll_coex_request(bool request, bool scanPwmActive, uint8_t priority)
   if ((ll_coex.scheduled  || ll_coex.scanPwmToggling) && request == false && scanPwmActive == false) {
     ll_coex.scheduled = false;
     ll_coex.scanPwmToggling = false;
-    RAIL_CancelMultiTimer(&ll_coex.timer);
+    sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &ll_coex.timer);
   }
 
   //cache priority for scanPwm
@@ -293,8 +295,8 @@ void sl_bt_ll_coex_request(bool request, bool scanPwmActive, uint8_t priority)
   CORE_EXIT_ATOMIC();
 }
 
-static void coexHandleTimerEvent(struct RAIL_MultiTimer *tmr,
-                                 RAIL_Time_t expectedTimeOfEvent,
+static void coexHandleTimerEvent(sl_rail_multi_timer_t *tmr,
+                                 sl_rail_time_t expectedTimeOfEvent,
                                  void *cbArg)
 {
   (void)tmr;
@@ -312,10 +314,10 @@ static void coexHandleTimerEvent(struct RAIL_MultiTimer *tmr,
 static void coexUpdateGrant(bool abortTx)
 {
   bool grant = sl_bt_coex_tx_allowed();
-  (void) RAIL_EnableTxHoldOff(ll_coex.handle, !grant);
+  (void) sl_rail_enable_tx_hold_off(ll_coex.handle, !grant);
 
   if (abortTx && !grant) {
-    if (RAIL_GetRadioState(ll_coex.handle) == RAIL_RF_STATE_TX_ACTIVE) {
+    if (sl_rail_get_radio_state(ll_coex.handle) == SL_RAIL_RF_STATE_TX_ACTIVE) {
       sli_bt_coex_counter_tx_aborted();
     }
     EFM_ASSERT(ll_coex.abortTx);
@@ -372,7 +374,7 @@ static void setBleRequest(COEX_ReqState_t * coexReqState,
 static void scanPwmRequest(bool request)
 {
 #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-  RAIL_BLE_EnableSignalDetection(ll_coex.handle, request);
+  sl_rail_ble_enable_signal_detection(ll_coex.handle, request);
 #else
   COEX_SetRequest(&ll_coex.scanPwmState, (request ? COEX_REQ_PWM : COEX_REQ_OFF) | (ll_coex.pwmPriority ? COEX_REQ_HIPRI : COEX_REQ_OFF), NULL);
 #endif
@@ -430,21 +432,21 @@ void sl_bt_init_coex(const sl_bt_coex_init_t *coexInit)
                          coexInit->options);
   sli_bt_coex_radio_callback(COEX_EVENT_HOLDOFF_CHANGED);
   //Enable signal for early packet reception
-  RAIL_ConfigEvents(ll_coex.handle, RAIL_EVENT_RX_SYNC1_DETECT, RAIL_EVENT_RX_SYNC1_DETECT);
+  sl_rail_config_events(ll_coex.handle, SL_RAIL_EVENT_RX_SYNC_0_DETECT, SL_RAIL_EVENT_RX_SYNC_0_DETECT);
 
 #if SL_RAIL_UTIL_COEX_RHO_ENABLED
   setCoexPowerState(true);
 #endif //SL_RAIL_UTIL_COEX_RHO_ENABLED
 #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-  RAIL_BLE_ConfigSignalIdentifier(ll_coex.handle,
-                                  (RAIL_BLE_SignalIdentifierMode_t)SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_MODE);
+  sl_rail_ble_config_signal_identifier(ll_coex.handle,
+                                       (sl_rail_ble_signal_identifier_mode_t)SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_MODE);
 #endif
 }
 
-RAIL_Events_t ll_radioFilterEvents(RAIL_Handle_t ll_radioHandle, RAIL_Events_t events)
+sl_rail_events_t ll_radioFilterEvents(sl_rail_handle_t ll_radioHandle, sl_rail_events_t events)
 {
   (void)ll_radioHandle;
-  if (events & RAIL_EVENT_RX_SYNC1_DETECT) {
+  if (events & SL_RAIL_EVENT_RX_SYNC_0_DETECT) {
     COEX_Req_t request;
     uint8_t priority = ll_coex.scheduledPriority;
     bool priorityState = ll_coex.enablePriority && (priority <= ll_coex.config.threshold_coex_pri);
@@ -458,11 +460,11 @@ RAIL_Events_t ll_radioFilterEvents(RAIL_Handle_t ll_radioHandle, RAIL_Events_t e
                     request,
                     NULL);
   }
-  if (events & (RAIL_EVENT_RX_PACKET_RECEIVED
-                | RAIL_EVENT_RX_TIMEOUT
-                | RAIL_EVENT_RX_SCHEDULED_RX_END
-                | RAIL_EVENT_RSSI_AVERAGE_DONE
-                | RAIL_EVENT_RX_PACKET_ABORTED)) {
+  if (events & (SL_RAIL_EVENT_RX_PACKET_RECEIVED
+                | SL_RAIL_EVENT_RX_TIMEOUT
+                | SL_RAIL_EVENT_RX_SCHEDULED_RX_END
+                | SL_RAIL_EVENT_RSSI_AVERAGE_DONE
+                | SL_RAIL_EVENT_RX_PACKET_ABORTED)) {
     COEX_SetRequest(&ll_coex.syncDetectReqState,
                     COEX_REQ_OFF,
                     NULL);
@@ -517,25 +519,25 @@ bool sl_bt_set_coex_options(uint32_t mask, uint32_t options)
   return true;
 }
 
-RAIL_Events_t sl_bt_ll_coex_get_events(void)
+sl_rail_events_t sl_bt_ll_coex_get_events(void)
 {
 #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-  RAIL_Events_t events = (RAIL_EVENT_RX_SYNC1_DETECT
-                          | RAIL_EVENT_RX_SYNC2_DETECT
-                          | RAIL_EVENT_SIGNAL_DETECTED);
+  sl_rail_events_t events = (SL_RAIL_EVENT_RX_SYNC_0_DETECT
+                             | SL_RAIL_EVENT_RX_SYNC_1_DETECT
+                             | SL_RAIL_EVENT_SIGNAL_DETECTED);
   return events;
 #else
-  return RAIL_EVENTS_NONE;
+  return SL_RAIL_EVENTS_NONE;
 #endif
 }
 
 #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-static RAIL_MultiTimer_t channelSwitchTimer;
+static sl_rail_multi_timer_t channelSwitchTimer;
 #define RAIL_UTIL_COEX_BLE_CHANNEL_SWITCH_TIME 30U
 extern void ll_scanHopToNextChannel(uint32_t minTimeToHop);
 
-static void channelSwitchTimerCb(RAIL_MultiTimer_t *tmr,
-                                 RAIL_Time_t expectedTimeOfEvent,
+static void channelSwitchTimerCb(sl_rail_multi_timer_t *tmr,
+                                 sl_rail_time_t expectedTimeOfEvent,
                                  void *cbArg)
 {
   (void)tmr;
@@ -546,33 +548,33 @@ static void channelSwitchTimerCb(RAIL_MultiTimer_t *tmr,
 }
 #endif
 
-void sl_bt_ll_coex_handle_events(RAIL_Events_t events)
+void sl_bt_ll_coex_handle_events(sl_rail_events_t events)
 {
   if (!isCoexEnabled()) {
     return;
   }
   switch (events) {
-    case RAIL_EVENT_RX_PACKET_RECEIVED:
+    case SL_RAIL_EVENT_RX_PACKET_RECEIVED:
       sl_bt_ll_coex_update_grant(false);
     #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
       setBleRequest(&ll_coex.signalIdentifierReqState, COEX_REQ_OFF, NULL);
     #endif
       break;
-    case RAIL_EVENT_RX_SYNC1_DETECT:
-    case RAIL_EVENT_RX_SYNC2_DETECT:
+    case SL_RAIL_EVENT_RX_SYNC_0_DETECT:
+    case SL_RAIL_EVENT_RX_SYNC_1_DETECT:
     #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-      RAIL_CancelMultiTimer(&channelSwitchTimer);
+      sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &channelSwitchTimer);
       setBleRequest(&ll_coex.signalIdentifierReqState, COEX_REQ_ON, NULL);
     #endif
       break;
-    case RAIL_EVENT_SIGNAL_DETECTED:
+    case SL_RAIL_EVENT_SIGNAL_DETECTED:
     #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
-      RAIL_SetMultiTimer(&channelSwitchTimer, RAIL_UTIL_COEX_BLE_CHANNEL_SWITCH_TIME, RAIL_TIME_DELAY, &channelSwitchTimerCb, NULL);
+      sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE, &channelSwitchTimer, RAIL_UTIL_COEX_BLE_CHANNEL_SWITCH_TIME, SL_RAIL_TIME_DELAY, &channelSwitchTimerCb, NULL);
     #endif
       break;
-    case RAIL_EVENT_RX_TIMEOUT:
-    case RAIL_EVENT_RX_SCHEDULED_RX_END:
-    case RAIL_EVENT_RX_PACKET_ABORTED:
+    case SL_RAIL_EVENT_RX_TIMEOUT:
+    case SL_RAIL_EVENT_RX_SCHEDULED_RX_END:
+    case SL_RAIL_EVENT_RX_PACKET_ABORTED:
     #if SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED
       setBleRequest(&ll_coex.signalIdentifierReqState, COEX_REQ_OFF, NULL);
     #endif

@@ -31,8 +31,6 @@
 #ifndef SL_RAIL_UTIL_PTI_CONFIG_H
 #define SL_RAIL_UTIL_PTI_CONFIG_H
 
-#include "rail_types.h"
-
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h> PTI Configuration
 

@@ -67,7 +67,7 @@
 /// Max regulatory domain count
 #define MAX_REG_DOMAIN_COUNT      (16U)
 
-/// Max networ size count
+/// Max network size count
 #define MAX_NETWORK_SIZE_COUNT    (6U)
 
 /// Print Statistic format string
@@ -236,7 +236,7 @@ __STATIC_INLINE void _add_meas_type_opt(const app_enum_t *opt);
 static void _start_test_form(void *args);
 
 /**************************************************************************//**
- * @brief Renderer test forrm
+ * @brief Renderer test form
  * @details Helper function to execute in the display renderer thread
  *          instead of GUI event thread
  * @param[in] args Arguments
@@ -252,7 +252,7 @@ static void _renderer_test_form(void *args);
 __STATIC_INLINE uint8_t _calc_packet_loss_percent(const sl_wisun_nwm_node_stat_t *stat);
 
 /**************************************************************************//**
- * @brief Set reult textbox
+ * @brief Set result textbox
  * @details Form renderer
  * @param[in] args Arguments
  *****************************************************************************/

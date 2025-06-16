@@ -1,5 +1,5 @@
 id: mbedtls_slcrypto
-package: platform
+package: security_mbedtls
 label: Silicon Labs Mbed TLS support
 description: >-
   This component provides Silicon Labs specific support for Mbed TLS.

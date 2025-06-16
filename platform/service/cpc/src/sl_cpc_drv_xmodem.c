@@ -64,6 +64,11 @@
 /*******************************************************************************
  *********************************   DEFINES   *********************************
  ******************************************************************************/
+#if defined(_SILICON_LABS_32B_SERIES_2)
+typedef LDMA_Descriptor_t cpc_ldma_descriptor_t;
+#else   // Series 3
+typedef sl_hal_ldma_descriptor_t cpc_ldma_descriptor_t;
+#endif // Series 2
 
 #define BTL_MENU_PROMPT "BL > "
 
@@ -117,7 +122,7 @@ static void fwu_send_input_char_and_receive_prompt(char input)
     // stack and not being a global variable. This is because the DMADRV_LdmaStartTransfer function takes the
     // field of the first descriptor in a chain and manually load the values in the LDMA when it starts a transfer,
     // so this descriptor can disappear after this function return and there will be no problem.
-    LDMA_Descriptor_t fwu_receive_prompt_descriptor = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(
+    cpc_ldma_descriptor_t fwu_receive_prompt_descriptor = (cpc_ldma_descriptor_t) LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(
       &(SL_CPC_DRV_UART_PERIPHERAL->RXDATA),
       frame.data,
       sizeof(frame.data) - 1);  // Leave space for a trailing \0
@@ -214,7 +219,7 @@ static sl_status_t btl_send_frame_step(void)
   frame.crc = __REVSH(sli_cpc_get_crc_sw(frame.data, sizeof(frame.data)));
 
   {
-    LDMA_Descriptor_t fwu_frame_descriptor = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(
+    cpc_ldma_descriptor_t fwu_frame_descriptor = (cpc_ldma_descriptor_t) LDMA_DESCRIPTOR_SINGLE_M2P_BYTE(
       &frame,
       &(SL_CPC_DRV_UART_PERIPHERAL->TXDATA),
       sizeof(frame));
@@ -423,7 +428,7 @@ bool sli_cpc_is_bootloader_running(void)
   // stack and not being a global variable. This is because the DMADRV_LdmaStartTransfer function takes the
   // field of the first descriptor in a chain and manually load the values in the LDMA when it starts a transfer,
   // so this descriptor can disappear after this function return and there will be no problem.
-  LDMA_Descriptor_t fwu_receive_prompt_descriptor = (LDMA_Descriptor_t) LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(
+  cpc_ldma_descriptor_t fwu_receive_prompt_descriptor = (cpc_ldma_descriptor_t) LDMA_DESCRIPTOR_SINGLE_P2M_BYTE(
     &(SL_CPC_DRV_UART_PERIPHERAL->RXDATA),
     &frame.data[0],
     XMODEM_DATA_SIZE - 1); // Leave space for a trailing \0

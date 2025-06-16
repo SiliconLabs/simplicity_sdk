@@ -21,17 +21,25 @@ component:
   - id: freertos
   - id: ncp
   - id: ncp_sec
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
   - id: bootloader_interface
+    condition:
+      - device_series_2
   - id: uartdrv_usart
     instance:
       - vcom
+    condition:
+      - device_series_2
+  - id: iostream_eusart
+    instance:
+      - vcom
+    condition:
+      - device_series_3
   - id: mpu
-  - id: bluetooth_feature_nvm
   - id: app_assert
-  - id: sl_common
 
 requires:
   - name: bluetooth_stack
@@ -40,14 +48,14 @@ requires:
   - name: bluetooth_feature_gatt
   - name: bluetooth_feature_l2cap
   - name: bluetooth_feature_system
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_central
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_accept_list
   - name: bluetooth_feature_gatt_server
   - name: bluetooth_feature_dynamic_gattdb
   - name: bluetooth_feature_legacy_scanner
   - name: bluetooth_feature_advertiser_past
   - name: bluetooth_feature_pawr_advertiser
-  - name: bluetooth_feature_extended_scanner
   - name: bluetooth_feature_legacy_advertiser
   - name: bluetooth_feature_extended_advertiser
   - name: bluetooth_feature_periodic_advertiser
@@ -57,9 +65,7 @@ requires:
   - name: bluetooth_feature_use_accurate_api_address_types
 
 source:
-  - path: main.c
   - path: app.c
-  - path: app_freertos.c
 
 include:
   - path: .
@@ -113,6 +119,8 @@ configuration:
     value: "74"
   - name: SL_BT_CONFIG_MAX_PAWR_ADVERTISERS
     value: "2"
+  - name: SL_BT_CONFIG_EXTERNAL_LOCAL_IRK 
+    value: "1"
   - name: SL_CLOCK_MANAGER_LFRCO_PRECISION
     value: "cmuPrecisionHigh"
   - name: SL_CLOCK_MANAGER_LFXO_PRECISION
@@ -138,8 +146,14 @@ configuration:
     condition:
       - brd4001c
   - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
+    value: uartdrvFlowControlHw
+    condition:
+      # Does not work out of the box with uartdrvFlowControlHwUart because of the adapter FW VCOM default config.
+      - brd2710a
+  - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
     value: uartdrvFlowControlHwUart
     unless:
+      - brd2710a
       - brd4002a
       - brd4001c
   - name: SL_PSA_KEY_USER_SLOT_COUNT
@@ -154,8 +168,6 @@ configuration:
     value: "0"
   - name: SL_BT_GATTDB_ENABLE_GATT_CACHING
     value: "0"
-  - name: NVM3_DEFAULT_NVM_SIZE
-    value: "32768"
   - name: SL_NCP_EMIT_SYSTEM_ERROR_EVT
     value: "1"
 

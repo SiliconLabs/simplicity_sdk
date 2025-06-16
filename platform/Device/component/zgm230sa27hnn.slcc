@@ -1,6 +1,6 @@
 !!omap
 - id: ZGM230SA27HNN
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for ZGM230SA27HNN.
 - category: Platform|Device|ZGM23
 - quality: production

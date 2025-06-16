@@ -577,11 +577,11 @@ otError otPlatRadioExtensionSetRadioHoldoff(bool aEnabled);
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 /**
- * Get the PTI (Packet Trace Information) radio config.
+ * Get the IEEE802.15.4 PHY identifier
  *
  * Requires the `ot_test_custom_cli` component.
  *
- * @sa  RAIL API: **RAIL_IEEE802154_GetPtiRadioConfig()**
+ * @sa  RAIL API: **sl_rail_ieee802154_get_phy_id()**
  *
  * @param[out]  aRadioConfig  A pointer to the location where the PTI radio
  *                            config will be returned.  The value is defined
@@ -603,10 +603,10 @@ otError otPlatRadioExtensionGetPtiRadioConfig(uint16_t *aRadioConfig);
  *
  * Requires the `ot_test_custom_cli` component.
  *
- * @sa  RAIL API: **RAIL_IEEE802154_ConfigCcaMode()**
+ * @sa  RAIL API: **sl_rail_ieee802154_config_cca_mode()**
  *
  * @param[in]  aMode  The CCA mode to set. Modes are defined by the RAIL
- *                    `RAIL_IEEE802154_CcaMode_t` enumeration.
+ *                    `sl_rail_ieee802154_cca_mode_t` enumeration.
  *
  * @return Error code indicating success of the function call.
  *

@@ -16,22 +16,23 @@ component:
   - id: "wisun_default_phy"
   - id: "wisun_configuration"
   - id: "wisun_stack_debug"
-  - id: "sl_system"
-  - id: "device_init"
+  - id: "sl_main"
+  - id: "clock_manager"
+  - id: "board_control"
+    condition: [hardware_board]
   - id: "slist"
   - id: "freertos"
   - id: "sleeptimer"
   - id: "nvm3_default"
   - id: "iostream_retarget_stdio"
   - id: "iostream_stdlib_config"
-  - id: "silabs_core_sl_malloc"
+  - id: "memory_manager"
   - id: "wisun_cli_util"
   - id: "wisun_default_radioconf"
   - id: "cli"
     instance:
       - vcom
   - id: "iostream_recommended_stream"
-  - id: "rail_util_pa"
   - id: "wisun_keychain"
   - id: "wisun_silabs_certificates"
   - id: "wisun_br_dhcpv6_server"
@@ -39,18 +40,14 @@ component:
   - id: "wisun_select"
 
 requires:
-  - name: freertos_heap_3
-    condition: [freertos]
   - name: wisun_br_dhcpv6
 
 source:
   - path: "app.c"
   - path: "app_settings.c"
-  - path: "main.c"
 include:
   - path: "."
     file_list:
-    - path: "app.h"
     - path: "app_settings.h"
   - path: "lwip"
     file_list:
@@ -81,7 +78,7 @@ configuration:
                  # interrupted by chip interrupts.
     condition: [iostream_eusart]
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlCtsAndRts"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition: [iostream_eusart]
   - name: CPU_CFG_TS_32_EN
     value: "1"
@@ -115,6 +112,9 @@ configuration:
     value: "3200000"
   - name: SL_CLI_VCOM_TASK_STACK_SIZE
     value: 600
+  - name: SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION
+    value: "SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM"
+    condition: [device_sdid_220]
 
 template_contribution:
   - name: "cli_command"
@@ -457,6 +457,17 @@ template_contribution:
   - name: "cli_command"
     value:
       group: "wisun"
+      name: "concurrent_detection"
+      handler: "app_concurrent_detection"
+      help: "configure concurrent detection: w cd"
+      shortcuts:
+        - name: "cd"
+      argument:
+        - type: uint8
+          help: "enable_tx: 0=disabled, 1=enabled"
+  - name: "cli_command"
+    value:
+      group: "wisun"
       name: "trigger"
       handler: "app_trigger_frame"
       help: "Trigger the transmission of a frame"
@@ -494,6 +505,22 @@ template_contribution:
           help: "PHY mode ID"
         - type: int16
           help: "Sensitivity in dBm"
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "trigger_global_repair"
+      shortcuts:
+        - name: "tgr"
+      handler: "app_trigger_global_repair"
+      help: "Increments the DODAG version to trigger a global repair"
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "routing_table"
+      handler: "app_get_routing_table"
+      help: "Display the routing table"
+      shortcuts:
+        - name: "rt"
 # -------------------------------
   - name: cli_group
     value:
@@ -525,9 +552,6 @@ ui_hints:
   highlight:
     - path: doc/readme.md
       focus: true
-
-tag:
-  - prebuilt_demo
 
 filter:
   - name: "Wireless Technology"

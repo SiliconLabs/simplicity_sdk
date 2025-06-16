@@ -114,11 +114,11 @@ int uart_tx(struct sl_wsrcp_uart *uart_ctxt, const void *buf, int buf_len)
     LDMA_TransferCfg_t ldma_cfg = LDMA_TRANSFER_CFG_PERIPHERAL(UART_LDMA_SIGNAL_TX);
     LDMA_Descriptor_t *dma_descr;
     const uint8_t *buf8 = buf;
-    uint16_t buf_offset = 0;
-    uint16_t buf_cpy_len;
-    uint16_t buf_remaining;
-    uint16_t dma_buf_offset;
-    uint16_t dma_buf_remaining;
+    int buf_offset = 0;
+    int buf_cpy_len;
+    int buf_remaining;
+    int dma_buf_offset;
+    int dma_buf_remaining;
     uint8_t *dma_buf;
 
     BUG_ON(buf_len > FIELD_MAX(MASK_PAYLOAD_LEN));

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component implements software for support of non-standard test-harness behavior to induce failure conditions and verify certified device behavior. This handles negative key establishment test cases for timeout and sending bad messages, mangling OTA upgrade images, starting/stopping the trust center keepalive, initiating network key updates, and testing ZCL attributes.
 label: Test Harness
 quality: production

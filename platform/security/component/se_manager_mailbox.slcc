@@ -1,6 +1,6 @@
 id: se_manager_mailbox
 label: SE mailbox utilities
-package: platform
+package: security_se_manager
 description: >-
   Provides SE mailbox APIs to be used by the SE Manager
 category: Platform|Security|SE Manager

@@ -6,7 +6,6 @@
 
 #include "unity.h"
 #include <stddef.h>
-#include <stdio.h>
 
 #ifdef AVR
 #include <avr/pgmspace.h>
@@ -1855,12 +1854,6 @@ void UnitySetTestFile(const char* filename)
 /*-----------------------------------------------*/
 void UnityBegin(const char* filename)
 {
-#if defined(SL_RAM_LINKER)
-    // Delay start of tests when executing from RAM.
-    for(int i = 0 ; i < 10000000 ; i++) {
-      __asm__("nop");
-    }
-#endif
     Unity.TestFile = filename;
     Unity.CurrentTestName = NULL;
     Unity.CurrentTestLineNumber = 0;

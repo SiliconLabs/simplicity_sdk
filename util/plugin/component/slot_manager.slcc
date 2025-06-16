@@ -1,5 +1,5 @@
 id: slot_manager
-package: Zigbee
+package: zigbee
 label: Slot Manager
 description: |-
   The Slot Manager utility manages storage slots in flash (internal or external SPI flash). This feature is used with the Gecko Bootloader. A bootloader built with storage slots is necessary for Slot Manager to function. The Zigbee over-the-air bootloading feature uses Slot Manager to save to and boot from storage slots.
@@ -20,6 +20,8 @@ include:
 source:
   - path: util/plugin/slot-manager/slot-manager.c
   - path: util/plugin/slot-manager/slot-manager-cli.c
+    condition:
+      - cli
 template_contribution:
   - name: component_catalog
     value: slot_manager

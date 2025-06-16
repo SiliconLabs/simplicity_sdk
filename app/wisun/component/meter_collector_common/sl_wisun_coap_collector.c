@@ -569,7 +569,7 @@ void sl_wisun_coap_rhnd_service_resp_received_ext_hnd(const sockaddr_in6_t * con
   // mutex lock
   _mutex_acquire();
 
-  // Retreive meter address (based on async or register request)
+  // Retrieve meter address (based on async or register request)
   meter = _get_meter_entry_by_address_from_mempool(src_addr, _async_meters_mempool.blocks);
 
   if (meter == NULL) {
@@ -863,7 +863,7 @@ static sl_wisun_coap_packet_t * _response_received_cb(const sockaddr_in6_t * con
     return NULL;
   }
 
-  // Retreive registered meter
+  // Retrieve registered meter
   _mutex_acquire();
   meter = _get_meter_entry_by_address_from_mempool(src_addr, _reg_meters_mempool.blocks);
   _mutex_release();

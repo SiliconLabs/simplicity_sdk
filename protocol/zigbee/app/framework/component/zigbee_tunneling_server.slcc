@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Tunneling server cluster.  This component requires extending to integrate the software that processes the tunneled data.  Note if the maximum transfer size requires fragmentation, manually include the Fragmentation component and configure it to support the tunnel data size.  Additionally, the component uses the address table to communicate with clients, so you must manually configure the address table size so that it accommodates active tunnels managed by this component as well as any other entries created during normal operation. The Tunneling cluster test specification suggests that implementations support the test protocol (protocol id 199, manufacturer code 0xFFFF). If you do not support it, you need some other means of proving two-way communications works and is verifiable. If test protocol support is enabled, the component automatically handles requests for the test protocol and these messages will not fall through to the application.
 label: Tunneling Server Cluster
 quality: evaluation

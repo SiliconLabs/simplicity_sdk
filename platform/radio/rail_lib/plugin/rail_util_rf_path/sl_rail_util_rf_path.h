@@ -31,8 +31,6 @@
 #ifndef SL_RAIL_UTIL_RF_PATH_H
 #define SL_RAIL_UTIL_RF_PATH_H
 
-#include "rail.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

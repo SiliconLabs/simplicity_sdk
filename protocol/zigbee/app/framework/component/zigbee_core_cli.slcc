@@ -1,6 +1,6 @@
 id: zigbee_core_cli
 label: Zigbee Core CLI
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component provides CLI commands for basic operations such as printing node information and messaging
@@ -135,7 +135,7 @@ template_contribution:
       handler: sli_get_pti_radio_config
       help: Returns PTI radio config information to determine the PHY type being used by RAIL. return value is enum RAIL_IEEE802154_PtiRadioConfig_t e.g  RAIL_IEEE802154_PTI_RADIO_CONFIG_2P4GHZ = 0x00U RAIL_IEEE802154_PTI_RADIO_CONFIG_2P4GHZ_ANTDIV = 0x01U RAIL_IEEE802154_PTI_RADIO_CONFIG_2P4GHZ_COEX = 0x02U RAIL_IEEE802154_PTI_RADIO_CONFIG_2P4GHZ_ANTDIV_COEX = 0x03U
     condition:
-      - rail_util_ieee802154_phy_select
+      - sl_rail_util_ieee802154_phy_select
   - name: cli_command
     value:
       name: config-cca-mode

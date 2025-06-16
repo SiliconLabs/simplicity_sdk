@@ -1,14 +1,16 @@
 project_name: zigbee_unified_test_harness
 label: Zigbee - UnifiedTestHarness
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 description: This is a Zigbee 3.0 Zigbee Unified Test Harness (ZUTH) dongle application.
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
-  - id: iostream_recommended_stream
+  - id: iostream_recommended_console
+  - id: zigbee_debug_basic
   - id: zigbee_address_table
   - id: zigbee_debug_print
   - id: zigbee_pro_stack
@@ -56,8 +58,8 @@ component:
   - id: zigbee_zll_on_off_server
   - id: bootloader_interface
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_CLI_PROMPT_STRING
@@ -100,6 +102,8 @@ configuration:
     value: 3
   - name: SL_ZIGBEE_ZLL_GROUP_ADDRESSES
     value: 10
+  - name: SL_ZIGBEE_AF_PLUGIN_IDENTIFY_FEEDBACK_LED_FEEDBACK
+    value: 0
   - name: SL_ZIGBEE_AF_PLUGIN_ZLL_COMMISSIONING_COMMON_SCAN_SECONDARY_CHANNELS
     value: 0
   - name: SL_ZIGBEE_AF_PLUGIN_INTERPAN_ALLOW_REQUIRED_SMART_ENERGY_MESSAGES
@@ -120,9 +124,27 @@ configuration:
     value: 600
     condition:
       - cmsis_rtos2
+  # On series 3, the bootloader requires more stack to do context parsing of OTA images
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS
+    value: 2000
+    condition:
+      - device_series_3
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 config_file:
   - path: config/zcl/zcl_config.zap
@@ -166,11 +188,11 @@ tag:
   - prebuilt_demo
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

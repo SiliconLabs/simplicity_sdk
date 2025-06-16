@@ -41,7 +41,6 @@
 #ifdef SL_CATALOG_APP_LOG_PRESENT
 #include "app_log.h"
 #endif
-#include "sl_sleeptimer.h"
 #include "FreeRTOSConfig.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -84,8 +83,12 @@ static StaticTask_t proprietary_app_task_buffer;
 static StackType_t  proprietary_app_task_stack[PROPRIETARY_APP_TASK_STACK_SIZE];
 // Proprietary Application task max blocking time
 static const TickType_t xMaxBlockTime = pdMS_TO_TICKS(1000);
-/// A static handle of a RAIL instance
-static RAIL_Handle_t rail_handle;
+
+#if defined(__SL_UNIT_TEST)
+bool prop_task_running = false;
+#else
+static bool prop_task_running = false;
+#endif
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -124,7 +127,7 @@ void app_task_init(void)
  ******************************************************************************/
 void app_task_notify(void)
 {
-  if (proprietary_task_notify != NULL) {
+  if (proprietary_task_notify != NULL && prop_task_running) {
     vTaskNotifyGiveFromISR(proprietary_task_notify, false);
   }
 }
@@ -152,18 +155,12 @@ void print_sample_app_name(const char* app_name)
 static void proprietary_app_task(void *p_arg)
 {
   (void)p_arg;
-  rail_handle = app_init();
-
-#ifdef SL_CATALOG_APP_ASSERT_PRESENT
-  app_assert(rail_handle != NULL, "Failed to get RAIL handle!\n");
-#else
-  while (rail_handle == NULL) {
-  }
-#endif
+  prop_task_running = true;
+  rail_app_init();
 
   while (DEF_TRUE) {
     uint32_t ulNotificationValue;
-    app_process_action(rail_handle);
+    app_process_action();
     ulNotificationValue = ulTaskNotifyTake(pdFALSE,
                                            xMaxBlockTime);
     if ( ulNotificationValue == 1 ) {

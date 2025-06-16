@@ -18,10 +18,10 @@ import argparse
 def get_input_output_path():
     """It gets the input and output location of configuration file and of autogen location
     where the generated source files of configuration born.
-    Other input file(s) read, the restriction file(s) to controll which settings are used during
+    Other input file(s) read, the restriction file(s) to control which settings are used during
     the generation.
 
-    :return: configuration file location with file name, output folder path, 
+    :return: configuration file location with file name, output folder path,
              array of restriction file(s) and their path(es).
     :rtype: string, string, string[]
     """
@@ -126,9 +126,9 @@ def get_wisun_restrictions(paths):
         with open(path) as file:
             restriction = json.load(file)
 
-            visible_tabs.extend(field.get("value") 
+            visible_tabs.extend(field.get("value")
                                 for field in restriction if field.get("name") == "visibleTabs")
-            denied_properties.extend(field.get("value") 
+            denied_properties.extend(field.get("value")
                                      for field in restriction if field.get("name") == "deniedProperties")
 
     return visible_tabs, denied_properties
@@ -155,8 +155,8 @@ def get_allowed_channels(allowed_channels_config: list()) -> list():
     bit_mask = 255
 
     if len(allowed_channels_config) == 0:
-        return 
-    
+        return
+
     for chan in allowed_channels_config:
         allowed_channel_mask = allowed_channel_mask | get_allowed_channel_mask(chan)
 
@@ -171,9 +171,9 @@ def set_ch_mask_range(dest_lst: list, num_a:int, num_b:int):
     num_b_byte_bit:tuple = bit_pos_to_byte_bit(int(num_b))
     for i in range(num_b_byte_bit[0] - num_a_byte_bit[0] + 1):
         offset = i + num_a_byte_bit[0]
-        
+
         if offset == num_a_byte_bit[0]:
-            msk_val = 0xff & (0xff << num_a_byte_bit[1])  
+            msk_val = 0xff & (0xff << num_a_byte_bit[1])
         elif offset == (num_b_byte_bit[0]):
             msk_val = 0xff & (0xff >> (7 - num_b_byte_bit[1]))
         else:
@@ -183,7 +183,7 @@ def set_ch_mask_range(dest_lst: list, num_a:int, num_b:int):
 
 def set_ch_mask_single(dest_lst: list, num:int):
     num_byte_bit:tuple = bit_pos_to_byte_bit(int(num))
-    msk_val = 0xff & (0x01 << num_byte_bit[1])  
+    msk_val = 0xff & (0x01 << num_byte_bit[1])
     dest_lst[num_byte_bit[0]] = (dest_lst[num_byte_bit[0]] | msk_val)
 
 def calculate_channel_mask(dest_lst: list, allowed_channels: list):
@@ -233,13 +233,13 @@ if __name__ == "__main__":
 
         merged_visible_tabs = [element for innerList in visible_tabs for element in innerList]
         merged_denied_properties = [element for innerList in denied_properties for element in innerList]
-        
+
         if merged_visible_tabs:
             hidden_tabs = [tab for tab in config_struct.keys() if tab not in merged_visible_tabs]
 
         for prop in merged_denied_properties:
             wisunconf[prop] = None
-            
+
         for tab in hidden_tabs:
             for prop in config_struct[tab]:
                 wisunconf[prop] = None

@@ -1,12 +1,19 @@
 id: zigbee_high_datarate_phy
 label: zigbee_high_datarate_phy
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: Provides transmit API and receive callback for high-datarate phy and limited CLI to aid testing of the rail_util_ieee802154_high_speed feature
 
+config_file:
+  - path: protocol/zigbee/app/framework/plugin-soc/high_datarate_phy/config/high_datarate_phy_config.h
+
+validation_helper:
+  - path: protocol/zigbee/app/framework/component/scripts/zigbee_hdr_tasks_stack_size.lua
+
 requires:
   - name: rail_util_ieee802154_high_speed_phy
+  - name: sl_rail_util_ieee802154_phy_select
 provides:
   - name: zigbee_high_datarate_phy
 
@@ -59,6 +66,14 @@ template_contribution:
     value:
       callback_type: init_done
       function_name: sli_high_datarate_phy_init
+
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: sl_zigbee_system_common.h
+      handler: sli_mac_hdr_phy_rx_fifo_initialize
+    priority: -8999
+    condition: [sl_main, device_series_3]
 
 # CLI Commands < high_datarate_phy  >
   - name: cli_group
@@ -121,6 +136,18 @@ template_contribution:
           help: enable_flag
       handler: sl_high_datarate_phy_set_rx_enable_command
       help: Enable or disable reception of high datarate packets
+    condition:
+      - cli
+
+  - name: cli_command
+    value:
+      group: high_datarate_phy
+      name: switch_phy
+      argument:
+        - type: uint8
+          help: switch_phy args 1 (for 1 mbps) and 2 (for 2mbps)
+      handler: sl_high_datarate_phy_set_phy_command
+      help: Switch high datarate phy rate betwen 1 Mbps and 2 Mbps for images built with SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC_SUPPORTED set to 1
     condition:
       - cli
 metadata:

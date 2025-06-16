@@ -32,6 +32,11 @@
 #define SL_BTMESH_CTL_CLIENT_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_ctl_client
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * This function changes the temperature and send it to the server.
  *
  * @param[in] temperature_percent Defines new color temperature value as percentage
@@ -47,4 +52,5 @@ void sl_btmesh_ctl_client_set_temperature(uint8_t temperature_percent);
  ******************************************************************************/
 void sl_btmesh_ctl_client_set_lightness(uint8_t lightness_percent);
 
+/** @} (end addtogroup btmesh_ctl_client) */
 #endif // SL_BTMESH_CTL_CLIENT_H

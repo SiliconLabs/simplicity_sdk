@@ -1,5 +1,5 @@
 id: throughput_ui
-package: Bluetooth
+package: bluetooth_le_middleware
 label: Throughput User Interface API
 description: |-
   API for drawing throughput test state and results to LCD

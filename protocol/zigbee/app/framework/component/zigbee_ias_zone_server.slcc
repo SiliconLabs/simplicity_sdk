@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: An IAS Server implementation that reports notifications to the client that has configured it.  This requires extending to trigger alarms. The component must store the client IEEE address attribute to flash. This means, for the IAS CIE address attribute (0x0010) of the IAS Zone cluster (0x500), the user must select the checkbox that stores that attribute to flash.
 label: IAS Zone Server
 quality: evaluation

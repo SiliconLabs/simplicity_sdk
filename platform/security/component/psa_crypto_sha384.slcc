@@ -1,5 +1,5 @@
 id: psa_crypto_sha384
-package: platform
+package: security_mbedtls
 label: SHA-384
 description: >-
   This component provides support for the SHA-384 hash algorithm in PSA Crypto.

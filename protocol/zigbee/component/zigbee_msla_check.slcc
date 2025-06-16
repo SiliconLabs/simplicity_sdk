@@ -1,6 +1,6 @@
 id: zigbee_msla_check
 label: Zigbee MSLA Check
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

@@ -2,7 +2,7 @@
 #run "sled lib export <FILENAME> to generate
 id: zigbee_pro_leaf_stack_mac_test_cmds_library
 label: Zigbee PRO Leaf Mac test commands (Library)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

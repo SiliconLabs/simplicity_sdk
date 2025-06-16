@@ -95,7 +95,7 @@ PACKSTRUCT(struct {
   storage_t * storage;
 }) dfu = { .storage_len = 0, .storage = NULL }; // Initialize values to 0
 
-/***************************************************************************//**
+/*******************************************************************************
  * (Re)allocates storage based on the index of the FW
  *
  * @param idx Index of the firmware for which reallocate storage if needed

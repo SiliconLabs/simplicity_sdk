@@ -3,7 +3,7 @@
  * @brief Header file for RAIL error rate functionality
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -31,16 +31,19 @@
 #include "rail.h"
 #include "sl_core.h"
 
+#include "sl_railapp_malloc_config.h"
+
+const uint32_t sl_railapp_heap_size = SL_RAILAPP_MALLOC_HEAP_SIZE;
+
 static volatile bool mallocLock = false;
-#define RAIL_HEAP_SIZE 0x1400
-__ALIGNED(4) uint8_t railMallocBuffer[RAIL_HEAP_SIZE];
+__ALIGNED(4) uint8_t railMallocBuffer[SL_RAILAPP_MALLOC_HEAP_SIZE]; // Size defined in sl_railapp_malloc_config.h or overridden in SLCP
 
 void *RAILAPP_Malloc(uint32_t size)
 {
   CORE_DECLARE_IRQ_STATE;
   void *buffer;
   CORE_ENTER_CRITICAL();
-  if (mallocLock || size > sizeof(railMallocBuffer)) {
+  if (mallocLock || size > sl_railapp_heap_size) {
     buffer = NULL;
   } else {
     mallocLock = true;

@@ -1,5 +1,5 @@
 id: esl_tag_sensor
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag Sensor
 description: >
   Extends the Bluetooth Electronic Shelf Label example design with ESL Sensor
@@ -32,9 +32,7 @@ include:
   - path: ./inc
     file_list:
       - path: esl_tag_sensor.h
-  - path: ../../../../protocol/bluetooth/ble_mesh/include
-    file_list:
-      - path: sl_btmesh_device_properties.h  # to re-use Mesh Property IDs
+      - path: esl_tag_sensor_properties.h
 source:
   - path: src/esl_tag_sensor.c
 provides:

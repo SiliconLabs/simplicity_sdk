@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Universal asynchronous receiver/transmitter (EUSART) peripheral API
+ * @brief System API
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -32,14 +32,17 @@
 #include "sl_hal_syscfg.h"
 #include "em_device.h"
 #include <stdbool.h>
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(_SILICON_LABS_32B_SERIES_3)
 #include "sl_se_manager.h"
 #include "sli_se_manager_device_data.h"
 #endif
 #include "sl_status.h"
 #include "sl_assert.h"
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_240)
+#include "em_cmu.h"
+#endif
 /***************************************************************************//**
- * @addtogroup system
+ * @addtogroup system SYSTEM - System Utils
  * @{
  ******************************************************************************/
 
@@ -60,11 +63,15 @@
 
 #define DEVINFO_TEMPERATURE_CALTEMP_INTEGER_SHIFT  4
 
+#if defined(_SILICON_LABS_32B_SERIES_3)
+#define HAL_SYSTEM_CALIBRATION_SUPPORT
+#endif
+
 /*******************************************************************************
  *******************************   TYPEDEF   ***********************************
  ******************************************************************************/
 
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(HAL_SYSTEM_CALIBRATION_SUPPORT)
 typedef struct hfrco_dpll_cal_element {
   uint32_t min_freq;
   uint32_t max_freq;
@@ -93,7 +100,7 @@ const sl_hal_system_devinfo_temperature_t SL_HAL_SYSTEM_DEVINFO_TEMPERATURE_RESE
   .cal_temp = 0
 };
 
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(HAL_SYSTEM_CALIBRATION_SUPPORT)
 static const hfrco_dpll_cal_element_t HFRCO_DPLL_FREQUENCY_TABLE[HFRCO_DPLL_FREQUENCY_TABLE_SIZE] = {
   { .min_freq = 16000000, .max_freq = 20000000 }, // 18MHz calibration central frequency
   { .min_freq = 20000000, .max_freq = 24500000 }, // 22MHz calibration central frequency
@@ -172,8 +179,149 @@ uint8_t sli_hex_ascii_to_value(char character)
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
+#if defined(_SYSCFG_DMEM0RAMCTRL_RAMWSEN_MASK)
+extern __INLINE void sl_hal_syscfg_set_dmem0ramctrl_ramwsen_bit(void);
+extern __INLINE void sl_hal_syscfg_clear_dmem0ramctrl_ramwsen_bit(void);
+extern __INLINE uint32_t sl_hal_syscfg_get_dmem0ramctrl_ramwsen_bit(void);
+#endif
+#if defined(_SYSCFG_DMEM0RETNCTRL_MASK)
+extern __INLINE uint32_t sl_hal_syscfg_read_dmem0retnctrl(void);
+extern __INLINE void sl_hal_syscfg_mask_dmem0retnctrl(uint32_t mask);
+extern __INLINE void sl_hal_syscfg_zero_dmem0retnctrl(void);
+#endif
+
+/**************************************************************************//**
+ * @brief
+ *   Chip initialization routine for revision errata workarounds.
+ *****************************************************************************/
+void sl_hal_system_init(void)
+{
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
+  sl_hal_system_chip_revision_t chipRev;
+  sl_hal_system_get_chip_revision(&chipRev);
+
+  if (chipRev.major == 0x01 && (HFXO0->STATUS & HFXO_STATUS_ENS) == 0U) {
+    /* Change HFXO default peak detector settings. */
+    *(volatile uint32_t*)(HFXO0_BASE + 0x34U) =
+      (*(volatile uint32_t*)(HFXO0_BASE + 0x34U) & 0xFF8000FFU)
+      | 0x00178500U;
+    /* Change HFXO low power control settings. */
+    *(volatile uint32_t*)(HFXO0_BASE + 0x30U) =
+      (*(volatile uint32_t*)(HFXO0_BASE + 0x30U) & 0xFFFF0FFFU)
+      | 0x0000C000U;
+    /* Change default SQBUF bias current. */
+    *(volatile uint32_t*)(HFXO0_BASE + 0x30U) |= 0x700;
+  }
+
+  if (chipRev.major == 0x01 && chipRev.minor == 0x0) {
+    /* Trigger RAM read for each RAM instance */
+    volatile uint32_t *dmem = (volatile uint32_t *) DMEM_RAM0_RAM_MEM_BASE;
+    for (uint32_t i = 0U; i < DMEM_NUM_BANK; i++) {
+      // Force memory read
+      *dmem;
+      dmem += (DMEM_BANK0_SIZE / 4U);
+    }
+  }
+
+  /* Set TRACE clock to intended reset value. */
+  CMU->TRACECLKCTRL = (CMU->TRACECLKCTRL & ~_CMU_TRACECLKCTRL_CLKSEL_MASK)
+                      | CMU_TRACECLKCTRL_CLKSEL_HFRCOEM23;
+#endif
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_205)
+#if defined(SL_TRUSTZONE_SECURE)
+#define HFRCO_CLK_CFG_CLR_ADDR (0x40012020UL)
+#else
+#define HFRCO_CLK_CFG_CLR_ADDR (0x50012020UL)
+#endif
+#define HFRCO_CLK_CFG_CLKOUTDIS0 (0x4UL)
+  if (sl_hal_system_get_prod_rev() == 1) {
+    bool hfrcoClkIsOff = (CMU->CLKEN0 & CMU_CLKEN0_HFRCO0) == 0;
+    CMU->CLKEN0_SET = CMU_CLKEN0_HFRCO0;
+    /* Enable HFRCO CLKOUT0. */
+    *(volatile uint32_t*)(HFRCO_CLK_CFG_CLR_ADDR) = HFRCO_CLK_CFG_CLKOUTDIS0;
+    if (hfrcoClkIsOff) {
+      CMU->CLKEN0_CLR = CMU_CLKEN0_HFRCO0;
+    }
+  }
+#endif
+
+/* PM-3503 */
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_210)
+  {
+    bool syscfgClkIsOff = ((CMU->CLKEN0 & CMU_CLKEN0_SYSCFG) == 0);
+    CMU->CLKEN0_SET = CMU_CLKEN0_SYSCFG;
+
+    bool dcdcClkIsOff = ((CMU->CLKEN0 & CMU_CLKEN0_DCDC) == 0);
+    CMU->CLKEN0_SET = CMU_CLKEN0_DCDC;
+
+    bool dcdcIsLock = ((DCDC->LOCKSTATUS & DCDC_LOCKSTATUS_LOCK_LOCKED) != 0);
+    DCDC->LOCK = DCDC_LOCK_LOCKKEY_UNLOCKKEY;
+
+    while (DCDC->SYNCBUSY & DCDC_SYNCBUSY_CTRL) {
+      /* Wait for previous synchronization to finish */
+    }
+
+    DCDC->CTRL_CLR = DCDC_CTRL_MODE;
+    while ((DCDC->STATUS & DCDC_STATUS_BYPSW) == 0U) {
+      /* Wait for BYPASS switch enable. */
+    }
+
+    if (dcdcIsLock) {
+      DCDC->LOCK = ~DCDC_LOCK_LOCKKEY_UNLOCKKEY;
+    }
+
+    if (dcdcClkIsOff) {
+      CMU->CLKEN0_CLR = CMU_CLKEN0_DCDC;
+    }
+
+    if (syscfgClkIsOff) {
+      CMU->CLKEN0_CLR = CMU_CLKEN0_SYSCFG;
+    }
+  }
+#endif
+
+/* PM-5163 */
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_215)    \
+  && defined(_SILICON_LABS_EFR32_2G4HZ_HP_PA_PRESENT) \
+  && (_SILICON_LABS_EFR32_2G4HZ_HP_PA_MAX_OUTPUT_DBM == 20)
+  sl_hal_system_chip_revision_t chipRev;
+  sl_hal_system_get_chip_revision(&chipRev);
+
+  if (chipRev.major == 0x01 && chipRev.minor == 0x00) {
+    bool hfxo0ClkIsOff = (CMU->CLKEN0 & CMU_CLKEN0_HFXO0) == 0;
+    CMU->CLKEN0_SET = CMU_CLKEN0_HFXO0;
+
+    *(volatile uint32_t*)(HFXO0_BASE + 0x0034UL) =
+      (*(volatile uint32_t*)(HFXO0_BASE + 0x0034UL) & 0xE3FFFFFFUL)
+      | 0x0C000000UL;
+
+    if (hfxo0ClkIsOff) {
+      CMU->CLKEN0_CLR = CMU_CLKEN0_HFXO0;
+    }
+  }
+#endif
+
+#if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_240)
+
+  // Enable ICache out of reset.
+  CMU->CLKEN1_SET = _CMU_CLKEN1_ICACHE0_MASK;
+  ICACHE0->CTRL_CLR = _ICACHE_CTRL_CACHEDIS_MASK;
+  CMU->CLKEN1_CLR = _CMU_CLKEN1_ICACHE0_MASK;
+
+  CMU->CLKEN0_SET = _CMU_CLKEN0_HFRCO0_MASK;
+
+  if (((HFRCO0->CAL & _HFRCO_CAL_TUNING_MASK) >> _HFRCO_CAL_TUNING_SHIFT) == _HFRCO_CAL_TUNING_MASK) {
+    // temporary call CMU here, will be fixed when the cmu peripheral available.
+    CMU_HFRCODPLLBandSet(cmuHFRCODPLLFreq_19M0Hz);
+  }
+
+  CMU->CLKEN0_CLR = _CMU_CLKEN0_HFRCO0_MASK;
+
+#endif
+}
 /*******************************************************************************
- * @brief Get CHIPREV register.
+ * @brief Get the chip revision.
  ******************************************************************************/
 void sl_hal_system_get_chip_revision(sl_hal_system_chip_revision_t *rev)
 {
@@ -256,7 +404,7 @@ uint32_t sl_hal_system_get_hfrco_speed_calibration(void)
  ******************************************************************************/
 uint32_t sl_hal_system_get_hfrcodpll_band_calibration(uint32_t frequency)
 {
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(HAL_SYSTEM_CALIBRATION_SUPPORT)
   sl_status_t status;
   uint8_t band_index = 0xFF;
   sl_se_command_context_t se_command_ctx;
@@ -292,6 +440,88 @@ uint32_t sl_hal_system_get_hfrcodpll_band_calibration(uint32_t frequency)
   }
 
   return calibration_value;
+#elif defined(_SILICON_LABS_32B_SERIES_2)
+  uint32_t calibration_value = 0;
+  switch (frequency) {
+    // 1, 2 and 4MHz share the same calibration word
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_1M0Hz:
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_2M0Hz:
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_4M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[0].HFRCODPLLCAL;
+      break;
+
+  #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_4) \
+      || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7)  || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_5M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[1].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_10M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[4].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_20M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[9].HFRCODPLLCAL;
+      break;
+  #endif
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_7M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[3].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_13M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[6].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_16M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[7].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_19M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[8].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_26M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[10].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_32M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[11].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_38M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[12].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_48M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[13].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_56M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[14].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_64M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[15].HFRCODPLLCAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_80M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[16].HFRCODPLLCAL;
+      break;
+
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5)
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_100M0Hz:
+      calibration_value = DEVINFO->HFRCODPLLCAL[17].HFRCODPLLCAL;
+      break;
+#endif
+
+    case SL_HAL_SYSTEM_HFRCODPLL_FREQ_USER_DEFINED:
+      break;
+
+    default:
+      return 0;
+  }
+  return calibration_value;
 #else
   (void)frequency;
   return 0;
@@ -303,7 +533,7 @@ uint32_t sl_hal_system_get_hfrcodpll_band_calibration(uint32_t frequency)
  ******************************************************************************/
 uint32_t sl_hal_system_get_hfrcoem23_calibration(uint32_t frequency)
 {
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(HAL_SYSTEM_CALIBRATION_SUPPORT)
   sl_status_t status;
   sl_se_command_context_t se_command_ctx;
   sli_se_device_data_t otp_section_id = (sli_se_device_data_t)(SLI_SE_DEVICE_DATA_DI0 + DEVINFO_GP_FRAGMENT_INDEX);
@@ -335,6 +565,65 @@ uint32_t sl_hal_system_get_hfrcoem23_calibration(uint32_t frequency)
   }
 
   return calibration_value;
+#elif defined(_SILICON_LABS_32B_SERIES_2) && defined(HFRCOEM23_PRESENT)
+  uint32_t calibration_value = 0;
+  switch (frequency) {
+    // 1, 2 and 4MHz share the same calibration word
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_1M0Hz:
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_2M0Hz:
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_4M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[0].HFRCOEM23CAL;
+      break;
+
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_3) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) \
+      || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_8)
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_5M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[1].HFRCOEM23CAL;
+      break;
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_10M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[4].HFRCOEM23CAL;
+      break;
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_20M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[9].HFRCOEM23CAL;
+      break;
+  #endif
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_7M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[3].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_13M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[6].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_16M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[7].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_19M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[8].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_26M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[10].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_32M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[11].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_40M0Hz:
+      calibration_value = DEVINFO->HFRCOEM23CAL[12].HFRCOEM23CAL;
+      break;
+
+    case SL_HAL_SYSTEM_HFRCOEM23_FREQ_USER_DEFINED:
+      break;
+
+    default:
+      return 0;
+  }
+  return calibration_value;
+
 #else
   (void)frequency;
   return 0;
@@ -455,7 +744,7 @@ uint16_t sl_hal_system_get_flash_size(void)
     // Defined in linker script for external flash provided by customers.
     extern uint32_t __flash_size__;
     // Get flash size in kB.
-    stacked_flach_size = (uint16_t)(uintptr_t)&__flash_size__ / 1024;
+    stacked_flach_size = (uint16_t)((uintptr_t)&__flash_size__ / 1024);
   }
 
   return stacked_flach_size;
@@ -552,7 +841,7 @@ void sl_hal_system_get_temperature_info(sl_hal_system_devinfo_temperature_t *inf
 #else
   info->emu_temp_room = 0;
 #endif
-#elif defined (_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#elif defined(_SILICON_LABS_32B_SERIES_3)
   sl_status_t status;
   sl_se_command_context_t se_command_ctx;
   sli_se_device_data_t otp_section_id = (sli_se_device_data_t)(SLI_SE_DEVICE_DATA_DI0 + DEVINFO_GP_FRAGMENT_INDEX);
@@ -592,7 +881,7 @@ uint32_t sl_hal_syscfg_read_chip_rev(void)
 }
 
 /*******************************************************************************
- * @brief Set SYSTICEXTCLKEN bit in CFGSYSTIC to one.
+ * @brief Enables the external clock for the SysTick timer.
  ******************************************************************************/
 void sl_hal_syscfg_set_systicextclken_cfgsystic(void)
 {
@@ -604,7 +893,7 @@ void sl_hal_syscfg_set_systicextclken_cfgsystic(void)
 }
 
 /*******************************************************************************
- * @brief Clear SYSTICEXTCLKEN bit in CFGSYSTIC to zero.
+ * @brief Disable the external clock source for the SysTick timer.
  ******************************************************************************/
 void sl_hal_syscfg_clear_systicextclken_cfgsystic(void)
 {
@@ -630,7 +919,7 @@ void sl_hal_system_fpu_set_access_mode(sl_hal_system_fpu_access_t access_mode)
  ******************************************************************************/
 void sl_hal_system_get_adc_calibration_info(sl_hal_system_devinfo_adc_t *info)
 {
-#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+#if defined(HAL_SYSTEM_CALIBRATION_SUPPORT)
   sl_status_t status;
   sl_se_command_context_t se_command_ctx;
   sli_se_device_data_t otp_section_id = (sli_se_device_data_t)(SLI_SE_DEVICE_DATA_DI0 + DEVINFO_GP_FRAGMENT_INDEX);
@@ -648,7 +937,7 @@ void sl_hal_system_get_adc_calibration_info(sl_hal_system_devinfo_adc_t *info)
   status = sli_se_device_data_read_chunk(&se_command_ctx,
                                          otp_section_id,
                                          offset,
-                                         sizeof(sl_hal_system_devinfo_adc_offset_t),
+                                         sizeof(sl_hal_system_devinfo_adc_t),
                                          info);
   if (status != SL_STATUS_OK) {
     *info = SL_HAL_SYSTEM_DEVINFO_ADC_RESET_VALUES;
@@ -657,6 +946,14 @@ void sl_hal_system_get_adc_calibration_info(sl_hal_system_devinfo_adc_t *info)
 #else
   *info = SL_HAL_SYSTEM_DEVINFO_ADC_RESET_VALUES;
 #endif
+}
+
+/***************************************************************************//**
+ * @brief Check if a debugger is connected (and debug session activated).
+ ******************************************************************************/
+bool sl_hal_system_is_debugger_connected(void)
+{
+  return (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) ? true : false;
 }
 
 /** @} (end addtogroup system) */

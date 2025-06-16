@@ -1,6 +1,6 @@
 id: lwip_addons_netconn
 label: "Netconn"
-package: platform
+package: lwip
 description: >
   The netconn component can be used for getting the host by name. It implements the dnssd for
   embedded devices, the Domain Name System (DNS) is a system for associating various types of

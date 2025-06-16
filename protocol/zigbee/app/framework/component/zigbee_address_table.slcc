@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component supports managing the address table. On the SoC, all action are directly performed on the stack address table. The host maintains a copy of the address table and ensures that it is always in sync with the NCP's address table. When building the HOST, make sure that the NCP can support the address table size in the component configuration. This optimal size varies based on platform architecture and size of other dynamically- allocated data for this application. If errors occur upon resetting the NCP, the NCP may not have enough room to store a large address table size. If this is not the case, the NCP may not be able to dynamically increase the address table size based on the host's request. To work around this issue, statically allocate the desired address table size on the Zigbee Pro Stack\Pro Leaf Stack components on the NCP.
 label: Address Table
 quality: production
@@ -8,6 +8,8 @@ provides:
   - name: zigbee_address_table
 config_file:
   - path: protocol/zigbee/app/framework/plugin/address-table/config/address-table-config.h
+validation_helper:
+  - path: protocol/zigbee/app/framework/component/scripts/zigbee_address_table.lua
 source:
   - path: protocol/zigbee/app/framework/plugin/address-table/address-table.c
   - path: protocol/zigbee/app/framework/plugin/address-table/address-table-cli.c

@@ -1,7 +1,7 @@
 !!omap
 - id: fg23_dk2600a
 - label: FG23-DK2600A
-- package: platform
+- package: boards
 - description: Kit BSP support for the FG23 Dev Kit.
 - category: Platform|Board|Kit|Development Kit
 - quality: production

@@ -1,0 +1,18 @@
+id: sl_rail_util_rf_path
+label: SL RAIL Utility, RF Path
+description: Utility to aid with RAIL RF Path Support (e.g., device-internal RF path, device-external antenna diversity)
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_rf_path
+        name: SL RAIL Utility, RF Path
+        license: Zlib
+provides:
+  - name: sl_rail_util_rf_path
+requires:
+  - name: rail_util_rf_path
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

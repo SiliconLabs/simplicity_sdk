@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_security_manager_dlk_ecc_test_vectors' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -78,7 +78,7 @@ sl_status_t sl_zigbee_sec_man_ecc_init_with_test_vector(sl_zigbee_sec_man_dlk_ec
   }
 
   if (psk != NULL) {
-    memmove(msg.data.sec_man_ecc_init_with_test_vector.request.psk, psk, sizeof(uint8_t) * (16));
+    memmove(msg.data.sec_man_ecc_init_with_test_vector.request.psk, psk, sizeof(uint8_t) * 16);
   }
 
   if (vector_data != NULL) {
@@ -96,7 +96,7 @@ sl_status_t sl_zigbee_sec_man_ecc_init_with_test_vector(sl_zigbee_sec_man_dlk_ec
   }
 
   if (psk != NULL) {
-    memmove(psk, msg.data.sec_man_ecc_init_with_test_vector.request.psk, sizeof(uint8_t) * (16));
+    memmove(psk, msg.data.sec_man_ecc_init_with_test_vector.request.psk, sizeof(uint8_t) * 16);
   }
 
   if (vector_data != NULL) {

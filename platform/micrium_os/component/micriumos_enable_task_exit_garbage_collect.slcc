@@ -1,14 +1,14 @@
 id: micriumos_enable_task_exit_garbage_collect
 label: Micrium OS garbage collect task
-package: micrium-krnx
+package: micriumos
 description: Micrium OS garbage collect
 category: RTOS|Micrium OS|Common
 quality: production
 metadata:
-  sbom:
-    license: MSLA
+    sbom:
+        license: MSLA
 ui_hints:
-  visibility: never
+    visibility: never
 component_root_path: platform/micrium_os
 provides:
   - name: micriumos_enable_task_exit_garbage_collect

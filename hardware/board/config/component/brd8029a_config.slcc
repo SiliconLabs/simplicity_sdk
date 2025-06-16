@@ -2,7 +2,7 @@
 - id: brd8029a_config
 - label: brd8029a config
 - description: Configuration files for BRD8029A
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: production
 - metadata:

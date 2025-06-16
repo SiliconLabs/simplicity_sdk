@@ -436,6 +436,10 @@ static Ecode_t get_file_metadata(nvm3_ObjectKey_t key,
       return info_status;
     }
 
+    if (*its_file_size < *its_file_offset) {
+      return SL_STATUS_INVALID_STATE;
+    }
+
     *its_file_size = *its_file_size - *its_file_offset;
   }
 
@@ -1932,6 +1936,10 @@ static Ecode_t get_file_metadata(nvm3_ObjectKey_t key,
                                              its_file_size);
     if (info_status != ECODE_NVM3_OK) {
       return info_status;
+    }
+
+    if (*its_file_size < *its_file_offset) {
+      return SL_STATUS_INVALID_STATE;
     }
 
     *its_file_size = *its_file_size - *its_file_offset;

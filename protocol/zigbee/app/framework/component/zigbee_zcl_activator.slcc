@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is a placeholder component that activates the ZCL advanced configurator.
 id: zcl_activator
 label: ZCL Activator

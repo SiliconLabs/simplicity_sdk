@@ -1,6 +1,6 @@
 id: ot_up_cli
 label: OpenThread CLI using Silabs unified platform and CMSIS RTOS2
-package: Zigbee
+package: multiprotocol
 category: Zigbee|Zigbee 3.0
 quality: production
 description: OpenThread CLI using Silabs unified platform and CMSIS RTOS2

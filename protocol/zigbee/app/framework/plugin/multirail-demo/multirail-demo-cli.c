@@ -83,8 +83,8 @@ void sl_zigbee_af_multirail_demo_(sl_cli_command_arg_t *arguments)
     dataLength = sizeof(buff);
   }
 
-  RAIL_Status_t status = sl_zigbee_af_multirail_demo_send(data, dataLength, channel, NULL, NULL);
-  if (status == RAIL_STATUS_NO_ERROR) {
+  sl_rail_status_t status = sl_zigbee_af_multirail_demo_send(data, dataLength, channel, NULL, NULL);
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
     sl_zigbee_af_core_println("OK");
   } else {
     sl_zigbee_af_core_println("Error %d", status);

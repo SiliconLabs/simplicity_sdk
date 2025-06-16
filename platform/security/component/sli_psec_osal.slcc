@@ -1,6 +1,6 @@
 id: sli_psec_osal
 label: OS Abstraction Layer
-package: platform
+package: security_se_manager
 description: >-
   OS abstraction layer for platform security components.
 category: Platform|Security

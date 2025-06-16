@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Common functionality for Unix hosts.
 label: Unix Library
 quality: production
@@ -29,7 +29,7 @@ source:
   - path: platform/service/legacy_hal/src/system-timer.c
   - path: platform/service/legacy_hal/src/micro_host.c
   - path: platform/service/legacy_host/src/token.c
-  - path: platform/service/token_manager/src/sl_token_def.c
+  - path: platform/service/token_manager/legacy/src/sl_token_def.c
 
 include:
   - path: platform/service/legacy_hal/inc/

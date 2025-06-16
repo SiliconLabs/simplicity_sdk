@@ -1,5 +1,5 @@
 id: psa_crypto_source
-package: platform
+package: security_mbedtls
 label: Source Code
 description: >-
   This component includes the PSA Crypto library source code files.

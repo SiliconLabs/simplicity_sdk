@@ -2,7 +2,7 @@
     This script validates that the correct PTI pins are defined based on the PTI mode.
 --]]
 if slc.config("SL_RAIL_UTIL_PTI_MODE") ~= nil then
-    if slc.config("SL_RAIL_UTIL_PTI_MODE").value ~= "RAIL_PTI_MODE_DISABLED" then
+    if slc.config("SL_RAIL_UTIL_PTI_MODE").value ~= "SL_RAIL_PTI_MODE_DISABLED" and slc.config("SL_RAIL_UTIL_PTI_MODE").value ~= "RAIL_PTI_MODE_DISABLED" then
         local pti_mode = slc.config("SL_RAIL_UTIL_PTI_MODE").value
         local pti_dout = slc.config("SL_RAIL_UTIL_PTI_DOUT_PORT")
         local pti_dframe = slc.config("SL_RAIL_UTIL_PTI_DFRAME_PORT")
@@ -16,7 +16,7 @@ if slc.config("SL_RAIL_UTIL_PTI_MODE") ~= nil then
                              nil)
         end
     
-        if pti_mode == "RAIL_PTI_MODE_UART" then
+        if pti_mode == "SL_RAIL_PTI_MODE_UART" or pti_mode == "RAIL_PTI_MODE_UART" then
             if pti_dframe == nil then
                 validation.error("DFRAME is not defined",
                                  validation.target_for_defines({"SL_RAIL_UTIL_PTI_DFRAME_PORT",
@@ -32,7 +32,7 @@ if slc.config("SL_RAIL_UTIL_PTI_MODE") ~= nil then
                                  nil)
             end
     
-        elseif pti_mode == "RAIL_PTI_MODE_SPI" then
+        elseif pti_mode == "SL_RAIL_PTI_MODE_SPI" or pti_mode == "RAIL_PTI_MODE_SPI" then
             if pti_dframe == nil then
                 validation.error("DFRAME is not defined",
                                  validation.target_for_defines({"SL_RAIL_UTIL_PTI_DFRAME_PORT",
@@ -48,7 +48,7 @@ if slc.config("SL_RAIL_UTIL_PTI_MODE") ~= nil then
                                  nil)
             end
     
-        elseif pti_mode == "RAIL_PTI_MODE_UART_ONEWIRE" then
+        elseif pti_mode == "SL_RAIL_PTI_MODE_UART_ONEWIRE" or pti_mode == "RAIL_PTI_MODE_UART_ONEWIRE" then
             if pti_dframe ~= nil then
                 validation.error("DFRAME is defined",
                                  validation.target_for_defines({"SL_RAIL_UTIL_PTI_DFRAME_PORT",

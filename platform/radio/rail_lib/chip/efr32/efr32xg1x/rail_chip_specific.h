@@ -59,7 +59,7 @@ extern "C" {
  * @brief Types specific to the EFR32xG1x for general configuration.
  */
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * @def RAIL_EFR32XG1_STATE_BUFFER_BYTES
@@ -108,9 +108,9 @@ extern "C" {
 #error "Unsupported platform!"
 #endif
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * @def RAIL_SEQ_IMAGE_1
@@ -182,6 +182,8 @@ typedef uint32_t RAIL_TimerTick_t;
  */
 #define RAIL_GetTimerTick(channel) (*RAIL_TimerTick)
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * A global pointer to the memory address of the internal RAIL hardware timer
  * that drives the RAIL timebase.
@@ -192,7 +194,7 @@ typedef uint32_t RAIL_TimerTick_t;
  *   wrap in about 17 minutes, since it does not use the full 32-bit range.
  *   For more details, check the documentation for \ref RAIL_TimerTick_t.
  */
-extern const volatile uint32_t *RAIL_TimerTick;
+extern volatile uint32_t * const RAIL_TimerTick;
 
 /**
  * A global pointer to the memory address of the internal RAIL hardware timer
@@ -204,7 +206,7 @@ extern const volatile uint32_t *RAIL_TimerTick;
  *   \ref RAIL_RxPacketDetails_t::timeReceived which reflects the actual
  *   on-air time that the packet finished.
  */
-extern const volatile uint32_t *RAIL_RxPacketTimestamp;
+extern volatile uint32_t * const RAIL_RxPacketTimestamp;
 
 /**
  * Get elapsed time, in microseconds, between two \ref RAIL_TimerTick_t ticks.
@@ -225,7 +227,9 @@ RAIL_Time_t RAIL_TimerTicksToUs(RAIL_TimerTick_t startTick,
  */
 RAIL_TimerTick_t RAIL_UsToTimerTicks(RAIL_Time_t microseconds);
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//SLI_LIBRAIL_ALIAS
+
+#endif//DOXYGEN_UNDOCUMENTED
 
 /** @} */ // end of group General_EFR32XG1X
 
@@ -384,14 +388,14 @@ struct RAIL_ChannelConfigEntryAttr {
  */
 
 /// Default PRS channel to use when configuring sleep
-#define RAIL_TIMER_SYNC_PRS_CHANNEL_DEFAULT  (7U)
+#define RAILINT_TIMER_SYNC_PRS_CHANNEL_DEFAULT  (7U)
 
 #if _SILICON_LABS_32B_SERIES_1_CONFIG >= 3
 /// Default RTCC channel to use when configuring sleep
-#define RAIL_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (1U)
+#define RAILINT_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (1U)
 #else
 /// Default RTCC channel to use when configuring sleep
-#define RAIL_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (0U)
+#define RAILINT_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (0U)
 #endif
 
 /** @} */ // end of group Sleep_EFR32XG1X
@@ -424,10 +428,12 @@ struct RAIL_ChannelConfigEntryAttr {
 #define RAIL_MAXIMUM_TRANSITION_US (1000000U)
 #endif//(_SILICON_LABS_32B_SERIES_1_CONFIG == 1)
 
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Internal Radio State type mapping for EFR32 chips.
  */
 typedef RAIL_RadioStateEfr32_t RAIL_RacRadioState_t;
+#endif//DOXYGEN_UNDOCUMENTED
 
 /** @} */ // end of group State_Transitions_EFR32XG1X
 

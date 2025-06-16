@@ -1,6 +1,6 @@
 id: ot_platform_abstraction_source
 label: Platform Abstraction (Source)
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides the source files for the platform abstraction layer between the OpenThread stack and Silicon Labs platform

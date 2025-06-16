@@ -19,19 +19,19 @@ provides:
   - name: sl_rail_sdk_802154_support
   - name: sl_rail_sdk_protocol
     allow_multiple: false
-  - name: rail_util_init
+  - name: sl_rail_util_init
     allow_multiple: false
 
 requires:
   - name: sl_rail_sdk_packet_asm
   - name: device_has_radio
   - name: rail_lib
-  - name: rail_util_callbacks
-  - name: rail_util_dma
+  - name: sl_rail_util_callbacks
+  - name: sl_rail_util_dma
   - name: rail_util_pa
-  - name: rail_util_pti
-  - name: rail_util_rf_path
-  - name: rail_util_rssi
+  - name: sl_rail_util_pti
+  - name: sl_rail_util_rf_path
+  - name: sl_rail_util_rssi
   - name: app_log
   - name: app_assert
   - name: iostream_transport

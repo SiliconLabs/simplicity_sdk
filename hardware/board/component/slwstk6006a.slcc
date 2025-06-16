@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6006a
 - label: SLWSTK6006A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG21 2.4 GHz Mesh Networking Kit.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

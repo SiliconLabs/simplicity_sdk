@@ -1,3 +1,4 @@
+from pycalcmodel.core.model import ModelRoot
 from pyradioconfig.calculator_model_framework.interfaces.icalculator import ICalculator
 from pycalcmodel.core.variable import ModelVariableFormat, CreateModelVariableEnum
 from enum import Enum
@@ -89,10 +90,35 @@ class CALC_WiSUN_Jumbo(ICalculator):
             member_data
         )
 
+        self._addModelVariable(model, 'meta_mcs_restriction', int, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN MCS Restriction', is_array=True)
 
+        self._addModelVariable(model, 'meta_bitrates', int, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN Bitrates', is_array=True)
 
+        self._addModelVariable(model, 'meta_min_frequency', int, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN Freq Band Start')
 
+        self._addModelVariable(model, 'meta_max_frequency', int, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN Freq Band End')
 
+        var = self._addModelVariable(model, 'meta_modulation_type', Enum, ModelVariableFormat.DECIMAL,
+                                     desc='WiSUN Modulation')
+        member_data = [
+            ['FSK', 0x00, 'FSK'],
+            ['OFDM', 0x01, 'OFDM'],
+        ]
+        var.var_enum = CreateModelVariableEnum(
+            'WiSUNModulationdEnum',
+            'List of modulation types defined in WiSUN FAN 1v1',
+            member_data
+        )
+
+        self._addModelVariable(model, 'meta_modulation_index', float, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN Modulation Index')
+
+        self._addModelVariable(model, 'meta_fec', bool, ModelVariableFormat.DECIMAL,
+                               desc='WiSUN FEC')
 
         # Retrieve info and create enums from profile table
         var = self._addModelVariable(model, 'wisun_channel_plan_id', Enum, ModelVariableFormat.DECIMAL,
@@ -105,6 +131,36 @@ class CALC_WiSUN_Jumbo(ICalculator):
         var.var_enum = CreateModelVariableEnum(
             'WiSUNChPlanEnum',
             'List of channel plan IDs defined in WiSUN FAN 1v1',
+            member_data
+        )
+
+        var = self._addModelVariable(model, 'meta_group', Enum, ModelVariableFormat.DECIMAL,
+                                     desc='WiSUN Grouping')
+        member_data = [
+            ["AU_NZ", 0x00, "Group AU_NZ"],
+            ["BZ", 0x01, "Group BZ"],
+            ["CN1", 0x02, "Group CN1"],
+            ["CN2", 0x03, "Group CN2"],
+            ["EU1", 0x04, "Group EU1"],
+            ["EU2", 0x05, "Group EU2"],
+            ["EU3", 0x06, "Group EU3"],
+            ["HK", 0x07, "Group HK"],
+            ["IN", 0x08, "Group IN"],
+            ["JP", 0x09, "Group JP"],
+            ["KR", 0x0a, "Group KR"],
+            ["MX", 0x0b, "Group MX"],
+            ["MY", 0x0c, "Group MY"],
+            ["NA", 0x0d, "Group NA"],
+            ["PH", 0x0e, "Group PH"],
+            ["SG1", 0x0f, "Group SG1"],
+            ["SG2", 0x10, "Group SG2"],
+            ["TH", 0x11, "Group TH"],
+            ["VN", 0x12, "Group VN"],
+            ["WW", 0x13, "Group WW"],
+        ]
+        var.var_enum = CreateModelVariableEnum(
+            'WiSUNGroupingEnum',
+            'List of groups defined in WiSUN FAN 1v1',
             member_data
         )
 
@@ -357,14 +413,13 @@ class CALC_WiSUN_Jumbo(ICalculator):
         elif profile_name in ["wisun_fan_1_1"]:
             wisun_phy_mode_id_select = model.vars.wisun_phy_mode_id_select.value.value
             wisun_phy_mode_id = [0]
-            if wisun_phy_mode_id_select >= 16:
+            if wisun_phy_mode_id_select >= 0x10:
                 #FEC is enabled
-                wisun_phy_mode_id[0] = wisun_phy_mode_id_select - 16
+                wisun_phy_mode_id[0] = wisun_phy_mode_id_select - 0x10
                 wisun_phy_mode_id.append(wisun_phy_mode_id_select)
             else:
                 #No FEC
                 wisun_phy_mode_id[0] = wisun_phy_mode_id_select
-
         if wisun_phy_mode_id is not None:
             # Write the variable
             model.vars.wisun_phy_mode_id.value = wisun_phy_mode_id
@@ -384,6 +439,7 @@ class CALC_WiSUN_Jumbo(ICalculator):
 
             #Write the variable
             model.vars.wisun_mode_switch_phr.value = wisun_mode_switch_phr
+
 
     def _make_phr(self, phy_mode_id):
 

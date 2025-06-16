@@ -1,6 +1,6 @@
 id: test_framework_unity_iostream
 label: Unity test framework with IOStream
-package: platform
+package: unity_test_framework
 description: Unity test framework with IOStream
 category: Third Party|Unity
 quality: production

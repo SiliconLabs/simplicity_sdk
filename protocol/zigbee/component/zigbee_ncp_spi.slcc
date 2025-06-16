@@ -1,6 +1,6 @@
 id: zigbee_ncp_spi
 label: NCP SPI
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 description: Provides the functionality for a network coprocessor (NCP) application to communicate with a host over SPI.

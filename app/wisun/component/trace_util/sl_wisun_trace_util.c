@@ -740,7 +740,7 @@ sl_status_t app_wisun_trace_util_evt_notify_unsubscribe_ch(app_wisun_trace_util_
   return SL_STATUS_OK;
 }
 
-sl_status_t app_wisun_trace_util_evt_notfiy_chs(const app_wisun_trace_util_evt_notify_t * const evt_notify)
+sl_status_t app_wisun_trace_util_evt_notify_chs(const app_wisun_trace_util_evt_notify_t * const evt_notify)
 {
   uint32_t flags = 0UL;
 

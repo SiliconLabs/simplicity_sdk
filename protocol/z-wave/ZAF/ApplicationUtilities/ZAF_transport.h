@@ -27,5 +27,4 @@ ZAF_transportSendDataAbort(void);
  * @} // ZAF
  */
 
-
 #endif /* ZAF_APPLICATIONUTILITIES_ZAF_TRANSPORT_H_ */

@@ -1,12 +1,12 @@
 id: toolchain_variant_arm
 label: Toolchain for ARM
-package: platform
+package: platform_core
 description: Toolchain support for ARM devices
 category: Platform|Toolchain
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 tag:
   - toolchain:variant:arm
 provides:
@@ -21,6 +21,5 @@ toolchain_settings:
   - option: device_type
     value: embedded
   - option: gcc_assembler_option
-    value: "-x assembler-with-cpp"
-  - option: gcc_linker_option
-    value: "-Wl,--no-warn-rwx-segments"
+    value: -x assembler-with-cpp
+

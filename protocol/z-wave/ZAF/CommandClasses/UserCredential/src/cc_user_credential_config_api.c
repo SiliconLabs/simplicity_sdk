@@ -8,6 +8,10 @@
 /*                           STATIC PARAMETER CHECK                         */
 /****************************************************************************/
 
+// Ensure that User Name fits into the designated buffer
+_Static_assert(CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME <= U3C_BUFFER_SIZE_USER_NAME,
+               "STATIC_ASSERT_FAILED_Maximum_length_User_Name_does_not_fit_in_buffer");
+
 // Ensure that the Credential Data fits into the designated buffer
 _Static_assert(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE <= U3C_BUFFER_SIZE_CREDENTIAL_DATA,
                "STATIC_ASSERT_FAILED_Maximum_length_PIN_Code_data_does_not_fit_in_buffer");
@@ -230,7 +234,7 @@ bool is_credential_type_in_range(u3c_credential_type credential_type)
 /*                             PUBLIC FUNCTIONS                             */
 /****************************************************************************/
 
-bool cc_user_credential_is_user_type_supported(u3c_user_type user_type)
+ZW_WEAK bool cc_user_credential_is_user_type_supported(u3c_user_type user_type)
 {
   if (user_type <= USER_TYPE_REMOTE_ONLY) {
     return (user_type_support >> user_type) & 0x01;
@@ -238,17 +242,17 @@ bool cc_user_credential_is_user_type_supported(u3c_user_type user_type)
   return false;
 }
 
-uint16_t cc_user_credential_get_max_user_unique_idenfitiers(void)
+ZW_WEAK uint16_t cc_user_credential_get_max_user_unique_idenfitiers(void)
 {
   return CC_USER_CREDENTIAL_MAX_USER_UNIQUE_IDENTIFIERS;
 }
 
-uint8_t cc_user_credential_get_max_length_of_user_name(void)
+ZW_WEAK uint8_t cc_user_credential_get_max_length_of_user_name(void)
 {
   return CC_USER_CREDENTIAL_MAX_LENGTH_USER_NAME;
 }
 
-uint16_t cc_user_credential_get_max_credential_slots(u3c_credential_type credential_type)
+ZW_WEAK uint16_t cc_user_credential_get_max_credential_slots(u3c_credential_type credential_type)
 {
   uint16_t max_slots = 0;
   if (is_credential_type_in_range(credential_type)) {
@@ -257,17 +261,17 @@ uint16_t cc_user_credential_get_max_credential_slots(u3c_credential_type credent
   return max_slots;
 }
 
-bool cc_user_credential_is_credential_type_supported(u3c_credential_type credential_type)
+ZW_WEAK bool cc_user_credential_is_credential_type_supported(u3c_credential_type credential_type)
 {
   return cc_user_credential_get_max_credential_slots(credential_type) > 0;
 }
 
-bool cc_user_credential_is_credential_rule_supported(u3c_credential_rule credential_rule)
+ZW_WEAK bool cc_user_credential_is_credential_rule_supported(u3c_credential_rule credential_rule)
 {
   return (credential_rule_support >> credential_rule) & 0x01;
 }
 
-uint8_t cc_user_credential_get_number_of_supported_credential_types(void)
+ZW_WEAK uint8_t cc_user_credential_get_number_of_supported_credential_types(void)
 {
   uint8_t number_of_supported_credential_types = 0;
   for (u3c_credential_type i = CREDENTIAL_TYPE_PIN_CODE; i <= n_credential_types; ++i) {
@@ -278,12 +282,12 @@ uint8_t cc_user_credential_get_number_of_supported_credential_types(void)
   return number_of_supported_credential_types;
 }
 
-bool cc_user_credential_is_credential_learn_supported(u3c_credential_type credential_type)
+ZW_WEAK bool cc_user_credential_is_credential_learn_supported(u3c_credential_type credential_type)
 {
   return (credential_learn_support >> credential_type) & 0x01;
 }
 
-uint8_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type)
+ZW_WEAK uint8_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential_type)
 {
   uint8_t min_length = 0;
   if (is_credential_type_in_range(credential_type)) {
@@ -292,7 +296,7 @@ uint8_t cc_user_credential_get_min_length_of_data(u3c_credential_type credential
   return min_length;
 }
 
-uint8_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type)
+ZW_WEAK uint8_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential_type)
 {
   uint8_t max_length = 0;
   if (is_credential_type_in_range(credential_type)) {
@@ -301,7 +305,7 @@ uint8_t cc_user_credential_get_max_length_of_data(u3c_credential_type credential
   return max_length;
 }
 
-uint8_t cc_user_credential_get_max_hash_length(u3c_credential_type type)
+ZW_WEAK uint8_t cc_user_credential_get_max_hash_length(u3c_credential_type type)
 {
   uint8_t max_hash_length = 0;
   if (is_credential_type_in_range(type)) {
@@ -310,7 +314,7 @@ uint8_t cc_user_credential_get_max_hash_length(u3c_credential_type type)
   return max_hash_length;
 }
 
-uint8_t cc_user_credential_get_cl_recommended_timeout(u3c_credential_type credential_type)
+ZW_WEAK uint8_t cc_user_credential_get_cl_recommended_timeout(u3c_credential_type credential_type)
 {
   uint8_t cl_recommended_timeout = 0;
   if (is_credential_type_in_range(credential_type)
@@ -320,7 +324,7 @@ uint8_t cc_user_credential_get_cl_recommended_timeout(u3c_credential_type creden
   return cl_recommended_timeout;
 }
 
-uint8_t cc_user_credential_get_cl_number_of_steps(u3c_credential_type credential_type)
+ZW_WEAK uint8_t cc_user_credential_get_cl_number_of_steps(u3c_credential_type credential_type)
 {
   uint8_t cl_number_of_steps = 0;
   if (is_credential_type_in_range(credential_type)
@@ -330,29 +334,29 @@ uint8_t cc_user_credential_get_cl_number_of_steps(u3c_credential_type credential
   return cl_number_of_steps;
 }
 
-bool cc_user_credential_is_all_users_checksum_supported(void)
+ZW_WEAK bool cc_user_credential_is_all_users_checksum_supported(void)
 {
   return CC_USER_CREDENTIAL_ALL_USERS_CHECKSUM_SUPPORTED;
 }
 
-bool cc_user_credential_is_user_checksum_supported(void)
+ZW_WEAK bool cc_user_credential_is_user_checksum_supported(void)
 {
   return CC_USER_CREDENTIAL_USER_CHECKSUM_SUPPORTED;
 }
 
-bool cc_user_credential_is_credential_checksum_supported(void)
+ZW_WEAK bool cc_user_credential_is_credential_checksum_supported(void)
 {
   return CC_USER_CREDENTIAL_CREDENTIAL_CHECKSUM_SUPPORTED;
 }
 
 ZW_WEAK bool cc_user_credential_get_admin_code_supported(void)
 {
-  return (CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED == 1) &&
-          (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0); // Shorthand for pin code support. 
+  return (CC_USER_CREDENTIAL_ADMIN_CODE_SUPPORTED == 1)
+         && (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0); // Shorthand for pin code support.
 }
 
 ZW_WEAK bool cc_user_credential_get_admin_code_deactivate_supported(void)
 {
-  return (CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED == 1) &&
-          (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0); 
+  return (CC_USER_CREDENTIAL_ADMIN_CODE_DEACTIVATE_SUPPORTED == 1)
+         && (CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE > 0);
 }

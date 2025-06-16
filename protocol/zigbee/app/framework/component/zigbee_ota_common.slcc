@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Common code for Silicon Labs implementation of the Zigbee Over-the-air Bootload Cluster Client and Server components (a multi-hop, application bootloader).
 id: zigbee_ota_common
 label: OTA Bootload Cluster Common Code

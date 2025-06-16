@@ -112,6 +112,9 @@ typedef enum {
   SL_WISUN_MSG_SET_PHY_SENSITIVITY_REQ_ID                 = 0x48,
   SL_WISUN_MSG_SET_DIRECT_CONNECT_PMK_ID_REQ_ID           = 0x49,
   SL_WISUN_MSG_SET_PREFERRED_PAN_REQ_ID                   = 0x4A,
+  SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_REQ_ID          = 0x4B,
+  SL_WISUN_MSG_SET_LFN_TIMINGS_REQ_ID                     = 0x4C,
+  SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_REQ_ID         = 0x4D,
 } sl_wisun_msg_req_id_t;
 
 /// Wi-SUN Message API confirmation IDs
@@ -186,6 +189,9 @@ typedef enum {
   SL_WISUN_MSG_SET_PHY_SENSITIVITY_CNF_ID                 = 0x48,
   SL_WISUN_MSG_SET_DIRECT_CONNECT_PMK_ID_CNF_ID           = 0x49,
   SL_WISUN_MSG_SET_PREFERRED_PAN_CNF_ID                   = 0x4A,
+  SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_CNF_ID          = 0x4B,
+  SL_WISUN_MSG_SET_LFN_TIMINGS_CNF_ID                     = 0x4C,
+  SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_CNF_ID         = 0x4D,
 } sl_wisun_msg_cnf_id_t;
 
 /**************************************************************************//**
@@ -334,6 +340,8 @@ typedef struct {
   uint32_t status;
   /// ID of the opened socket
   int32_t socket_id;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_open_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -377,6 +385,8 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_close_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -428,6 +438,11 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Amount of data sent in bytes
+  /// equal to SOCKET_RETVAL_ERROR in case of failure
+  int32_t data_length;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_sendto_on_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -473,8 +488,11 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
-  /// Number of sent bytes
+  /// Amount of data sent in bytes
+  /// equal to SOCKET_RETVAL_ERROR in case of failure
   int32_t data_length;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_socket_sendmsg_cnf_body_t;
 SL_PACK_END()
 
@@ -518,6 +536,8 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_listen_on_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -569,6 +589,8 @@ typedef struct {
   uint16_t remote_port;
   /// Reserved, set to zero
   uint16_t reserved;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_accept_on_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -618,6 +640,8 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_connect_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -667,6 +691,8 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_bind_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -716,6 +742,11 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Amount of data sent in bytes
+  /// Equal to SOCKET_RETVAL_ERROR in case of failure
+  int32_t data_length;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_send_on_socket_cnf_body_t;
 SL_PACK_END()
 
@@ -771,6 +802,8 @@ typedef struct {
   uint16_t remote_port;
   /// Amount of data read
   int16_t data_length;
+  /// Error code
+  int32_t error_code;
   /// Data read
   uint8_t data[];
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_receive_on_socket_cnf_body_t;
@@ -820,6 +853,10 @@ typedef struct {
   sl_status_t status;
   /// Number of bytes received;
   int16_t data_length;
+  /// reserved, set to zero
+  uint16_t reserved;
+  /// code of the error
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_socket_recvmsg_cnf_body_t;
 SL_PACK_END()
 
@@ -869,6 +906,8 @@ typedef struct {
   in6_addr_t local_address;
   /// Local port
   int32_t local_port;
+  /// error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_socket_getsockname_cnf_body_t;
 SL_PACK_END()
 
@@ -918,6 +957,8 @@ typedef struct {
   in6_addr_t remote_address;
   /// Remote port
   int32_t remote_port;
+  /// error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_socket_getpeername_cnf_body_t;
 SL_PACK_END()
 
@@ -1197,6 +1238,8 @@ SL_PACK_START(1)
 typedef struct {
   /// Status of the request
   uint32_t status;
+  /// Error code
+  int32_t error_code;
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_set_socket_option_cnf_body_t;
 SL_PACK_END()
 
@@ -1422,6 +1465,10 @@ typedef struct {
   uint32_t status;
   /// Socket option length
   uint16_t option_length;
+  /// reserved, set to zero
+  uint16_t reserved;
+  /// Error code
+  int32_t error_code;
   /// option value
   uint8_t data[];
 } SL_ATTRIBUTE_PACKED sl_wisun_msg_get_socket_option_cnf_body_t;
@@ -2943,6 +2990,53 @@ SL_PACK_END()
 /** @} (end SL_WISUN_MSG_SET_NEIGHBOR_TABLE_SIZE) */
 
 /**************************************************************************//**
+ * @defgroup SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE sl_wisun_msg_config_neighbor_table_size
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// Maximum number of RPL children
+  uint8_t max_child_count;
+  /// Maximum number of neighbors including children, parent, and temporary neighbors
+  uint8_t max_neighbor_count;
+  /// Maximum number of neighbors in the security table
+  uint16_t max_security_neighbor_count;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_neighbor_table_size_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_config_neighbor_table_size_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_neighbor_table_size_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_neighbor_table_size_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_config_neighbor_table_size_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_neighbor_table_size_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE) */
+
+/**************************************************************************//**
  * @defgroup SL_WISUN_MSG_ENABLE_NEIGHBOUR_SOLICITATIONS sl_wisun_msg_enable_neighbour_solicitations
  * @{
  ******************************************************************************/
@@ -3325,6 +3419,98 @@ typedef struct {
 SL_PACK_END()
 
 /** @} (end SL_WISUN_MSG_SET_PREFERRED_PAN) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_MSG_SET_LFN_TIMINGS sl_wisun_msg_set_lfn_timings
+ * @{
+ *****************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// LFN's EUI-64
+  sl_wisun_mac_address_t mac_address;
+    /// The listening interval desired to be used by the LFN in milliseconds
+  uint32_t listening_interval_ms;
+  /// Time to advance the beginning of the LFN’s Unicast Listening Interval in milliseconds
+  uint32_t listening_offset_ms;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_lfn_timings_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_set_lfn_timings_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_lfn_timings_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_lfn_timings_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_set_lfn_timings_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_lfn_timings_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_SET_LFN_TIMINGS) */
+
+/**************************************************************************//**
+ * @defgroup SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION sl_wisun_msg_config_concurrent_detection
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// True to select alternate PHY for transmissions
+  uint8_t enable_tx;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_concurrent_detection_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_config_concurrent_detection_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_concurrent_detection_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_concurrent_detection_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_config_concurrent_detection_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_config_concurrent_detection_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION) */
 
 /** @} (end SL_WISUN_MSG_API) */
 

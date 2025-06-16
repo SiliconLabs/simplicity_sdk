@@ -6,7 +6,6 @@
 #ifndef _TRANSPORT_SEC_PROTOCOL_H_
 #define _TRANSPORT_SEC_PROTOCOL_H_
 
-
 #include <ZW_basis_api.h>
 #include <ZW_transport_api.h>
 #include <ZW_TransportEndpoint.h>
@@ -26,7 +25,6 @@
  */
 #define APPL_NODEPARM_MAX 35
 
-
 /**
  * Called when the frame is received
  * @param pCmd  Payload from the received frame, the command is the very first byte
@@ -35,10 +33,9 @@
  */
 extern void
 Transport_ApplicationCommandHandler(
-    ZW_APPLICATION_TX_BUFFER *pCmd,
-    uint8_t cmdLength,
-    RECEIVE_OPTIONS_TYPE *rxOpt);
-
+  ZW_APPLICATION_TX_BUFFER *pCmd,
+  uint8_t cmdLength,
+  RECEIVE_OPTIONS_TYPE *rxOpt);
 
 /**
  * Callback function triggered by Cmd Publisher when the frame is received from protocol
@@ -66,7 +63,7 @@ uint8_t Transport_OnApplicationInitSW(void);
  *
  * @param nodeID The newly assigned node id.
  * @return true on success.
-*/
+ */
 uint8_t
 Transport_OnLearnCompleted(node_id_t nodeID);
 
@@ -97,7 +94,7 @@ TransportCmdClassSupported(uint8_t commandClass,
  */
 enum SECURITY_KEY
 GetHighestSecureLevel(
-    uint8_t protocolSecBits);
+  uint8_t protocolSecBits);
 
 /**
  * @brief Get command class list from device
@@ -107,9 +104,9 @@ GetHighestSecureLevel(
  */
 zaf_cc_list_t*
 GetCommandClassList(
-    bool included,
-    security_key_t eKey,
-    uint8_t endpoint);
+  bool included,
+  security_key_t eKey,
+  uint8_t endpoint);
 
 /**
  * @} // ZAF_Transport_Security

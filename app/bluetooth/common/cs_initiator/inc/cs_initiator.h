@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief CS Initiator API.
+ * @brief CS initiator API
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -31,19 +31,20 @@
 #ifndef CS_INITIATOR_H
 #define CS_INITIATOR_H
 
-/***********************************************************************************************//**
+/***************************************************************************//**
  * @addtogroup cs_initiator
  * @{
- **************************************************************************************************/
+ ******************************************************************************/
 
 // -----------------------------------------------------------------------------
 // Includes
 
+#include <stdint.h>
 #include <stdbool.h>
+#include "sl_status.h"
 #include "sl_bt_api.h"
 #include "sl_rtl_clib_api.h"
-
-#include "cs_initiator_config.h"
+#include "cs_result.h"
 #include "cs_initiator_client.h"
 
 #ifdef __cplusplus
@@ -51,22 +52,32 @@ extern "C" {
 #endif
 
 // -----------------------------------------------------------------------------
-// Type definitions
+// Definitions
 
-/// RTL library calculation result type
-typedef struct {
-  uint8_t connection;                   ///< Connection handle
-  float distance;                       ///< Calculated distance
-  float likeliness;                     ///< Calculated distance likeliness
-  float rssi_distance;                  ///< Distance calculated with RSSI values
-  float bit_error_rate;                 ///< CS bit error rate in RTT mode, NAN otherwise
-} cs_result_t;
+/// Maximum number of steps
+#define CS_MAX_STEP_COUNT 256
 
 /// RTL library intermediate result type
 typedef struct {
   uint8_t connection;                   ///< Connection handle
   float progress_percentage;            ///< Progress in percentages
 } cs_intermediate_result_t;
+
+/// Ranging data array type
+typedef struct {
+  uint32_t ranging_data_size; ///< Size of the ranging data array
+  uint8_t *ranging_data;      ///< Ranging data array
+} cs_ranging_data_array_t;
+
+/// Unified ranging data
+typedef struct {
+  uint8_t num_steps;                 ///< Number of steps reported
+  uint8_t *step_channels;            ///< Step channel array
+  cs_ranging_data_array_t initiator; ///< Initiator ranging data
+  cs_ranging_data_array_t reflector; ///< Reflector ranging data
+} cs_ranging_data_t;
+
+// CS Initiator callback function pointer types
 
 /***************************************************************************//**
  * Initiator error callback type
@@ -84,12 +95,18 @@ typedef void (*cs_error_cb_t)(uint8_t conn_handle, cs_error_event_t evt, sl_stat
  * extracted data a distance measurement by the RTL library has been successfully
  * performed.
  *
- * @param[in] result pointer to the result structure.
- * @param[in] cs_procedure procedure data that the result was calculated from.
+ * @param[in] conn_handle connection handle
+ * @param[in] ranging_counter Ranging counter value.
+ * @param[in] result pointer to the result array.
+ * @param[in] result_data pointer to the result session data.
+ * @param[in] ranging_data ranging data that the result was calculated from.
  * @param[in] user_data pointer to additional user data.
  ******************************************************************************/
-typedef void (*cs_result_cb_t)(const cs_result_t *result,
-                               const sl_rtl_cs_procedure *cs_procedure,
+typedef void (*cs_result_cb_t)(const uint8_t conn_handle,
+                               const uint16_t ranging_counter,
+                               const uint8_t *result,
+                               const cs_result_session_data_t *result_data,
+                               const cs_ranging_data_t *ranging_data,
                                const void *user_data);
 
 /***************************************************************************//**
@@ -103,64 +120,13 @@ typedef void (*cs_result_cb_t)(const cs_result_t *result,
  * @param[in] result pointer to the intermediate result structure.
  * @param[in] user_data pointer to additional user data.
  ******************************************************************************/
-typedef void (*cs_intermediate_result_cb_t)(const cs_intermediate_result_t *result, const void *user_data);
-
-// cs procedure triggering
-typedef enum {
-  CS_PROCEDURE_ACTION_CONTINUE = 0u,
-  CS_PROCEDURE_ACTION_TRIGGER_RESET,
-  CS_PROCEDURE_ACTION_TRIGGER_START,
-  CS_PROCEDURE_ACTION_TRIGGER_STOP
-} cs_procedure_action_t;
-
-typedef union {
-  sl_bt_evt_cs_result_t cs_result_raw;
-  sl_bt_evt_cs_result_continue_t cs_result_continue_raw;
-} cs_result_event_t;
-
-typedef struct {
-  cs_result_event_t *cs_result_data;
-  int16_t frequency_compensation;
-  uint16_t procedure_counter;
-  int8_t reference_power_level;
-  uint8_t num_antenna_paths;
-  uint8_t num_steps;
-  uint8_t abort_reason;
-  uint8_t subevent_done_status;
-  uint8_t procedure_done_status;
-  bool first_cs_result;
-  bool initiator_part;
-  uint16_t start_acl_conn_event;
-} cs_result_data_t;
-
-typedef union {
-  struct {
-    cs_error_event_t error_type;
-    sl_status_t sc;
-  } evt_error;
-  cs_result_data_t evt_content;
-  bool evt_init_completed;
-  bool evt_procedure_enable_starting;
-  sl_bt_evt_cs_procedure_enable_complete_t *evt_procedure_enable_completed;
-} state_machine_event_data_t;
-
-typedef enum {
-  INITIATOR_EVT_INIT_STARTED = 0U,
-  INITIATOR_EVT_INIT_COMPLETED,
-  INITIATOR_EVT_START_PROCEDURE,
-  INITIATOR_EVT_PROCEDURE_ENABLE_STARTING,
-  INITIATOR_EVT_PROCEDURE_ENABLE_COMPLETED,
-  INITIATOR_EVT_PROCEDURE_DISABLE_COMPLETED,
-  INITIATOR_EVT_CS_RESULT,
-  INITIATOR_EVT_CS_RESULT_CONTINUE,
-  INITIATOR_EVT_DELETE_INSTANCE,
-  INITIATOR_EVT_ERROR
-} state_machine_event_t;
+typedef void (*cs_intermediate_result_cb_t)(const cs_intermediate_result_t *result,
+                                            const void *user_data);
 
 // -----------------------------------------------------------------------------
 // Function declarations
 
-/**************************************************************************//**
+/***************************************************************************//**
  * Create CS Initiator instance for the given connection handle.
  * @param[in] conn_handle connection handle
  * @param[in] initiator_config pointer to the initiator config
@@ -171,7 +137,7 @@ typedef enum {
  * @param[out] instance_id RTL library instance ID (optional)
  *
  * @return status of the operation.
- *****************************************************************************/
+ ******************************************************************************/
 sl_status_t cs_initiator_create(const uint8_t               conn_handle,
                                 cs_initiator_config_t       *initiator_config,
                                 const rtl_config_t          *rtl_config,
@@ -180,32 +146,32 @@ sl_status_t cs_initiator_create(const uint8_t               conn_handle,
                                 cs_error_cb_t               error_cb,
                                 uint8_t                     *instance_id);
 
-/**************************************************************************//**
+/***************************************************************************//**
  * Create and configure initiator instances.
- *****************************************************************************/
+ ******************************************************************************/
 void cs_initiator_init(void);
 
-/**************************************************************************//**
+/***************************************************************************//**
  * Delete CS Initiator instance associated with the given connection handle.
  * @param[in] conn_handle connection handle
  *
  * @return status of the operation.
- *****************************************************************************/
+ ******************************************************************************/
 sl_status_t cs_initiator_delete(const uint8_t conn_handle);
 
-/**************************************************************************//**
+/***************************************************************************//**
  * Deinitialization function of CS Initiator component.
- *****************************************************************************/
+ ******************************************************************************/
 void cs_initiator_deinit(void);
 
 // -----------------------------------------------------------------------------
 // Event / callback declarations
 
-/**************************************************************************//**
+/***************************************************************************//**
  * Bluetooth stack event handler of the initiator events.
  * @param[in] evt Event coming from the Bluetooth stack.
  * @return true to send the event to the host in NCP case.
- *****************************************************************************/
+ ******************************************************************************/
 bool cs_initiator_on_event(sl_bt_msg_t *evt);
 
 #ifdef __cplusplus

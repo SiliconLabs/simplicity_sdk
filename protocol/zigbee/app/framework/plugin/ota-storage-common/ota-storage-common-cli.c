@@ -24,6 +24,9 @@
 
 #include "app/framework/plugin/ota-common/ota.h"
 #include "app/framework/plugin/ota-common/ota-cli.h"
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif  // SL_COMPONENT_CATALOG_PRESENT
 
 // client and server use same storage interface
 #include "app/framework/plugin/ota-storage-common/ota-storage.h"
@@ -134,9 +137,9 @@ void sli_zigbee_af_ota_image_delete(sl_cli_command_arg_t *arguments)
 
 void sli_zigbee_af_ota_reload_storage_device(sl_cli_command_arg_t *arguments)
 {
-#if defined (EMBER_AF_PLUGIN_OTA_STORAGE_POSIX_FILESYSTEM)
+#if defined (SL_CATALOG_ZIGBEE_OTA_STORAGE_POSIX_FILESYSTEM_PRESENT)
   sli_zigbee_af_ota_storage_close();
-#endif
+#endif  // SL_CATALOG_ZIGBEE_OTA_STORAGE_POSIX_FILESYSTEM_PRESENT
 
   sl_zigbee_af_ota_storage_init_cb();
 }
@@ -171,4 +174,10 @@ void sli_zigbee_af_ota_storage_data_print(sl_cli_command_arg_t *arguments)
                             extraLength,
                             true); // with whitespace?
   sl_zigbee_af_print_text_line("");
+}
+
+void sli_zigbee_af_ota_storage_info_print_command(sl_cli_command_arg_t *arguments)
+{
+  (void)arguments;
+  sli_zigbee_af_ota_storage_info_print();
 }

@@ -40,11 +40,6 @@
 #include "sl_btmesh_sar_config_server.h"
 #include "sl_btmesh_sar_config_server_config.h"
 
-/***************************************************************************//**
- * @addtogroup sar_config_server BT Mesh SAR Configuration Server
- * @{
- ******************************************************************************/
-
 // -----------------------------------------------------------------------------
 // Macros
 
@@ -56,7 +51,7 @@
 // -----------------------------------------------------------------------------
 // Enums, structs, typedefs
 
-/***************************************************************************//**
+/*******************************************************************************
  * Segmentation and Reassembly Transmitter Configuration State
  *
  * The structure members are in the descending order of alignment requirement and
@@ -99,7 +94,7 @@ typedef struct {
   uint8_t multicast_retrans_count;
 } sl_btmesh_sar_config_server_transmitter_t;
 
-/***************************************************************************//**
+/*******************************************************************************
  * Segmentation and Reassembly Receiver Configuration State
  *
  * The structure members are in the descending order of alignment requirement and
@@ -258,23 +253,25 @@ void sl_btmesh_sar_config_server_on_event(const sl_btmesh_msg_t *const evt)
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_initialized_id: {
       sc = sl_btmesh_sar_config_server_init();
-      app_assert_status_f(sc, "Failed to init SAR Config Server");
+      // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+      // Allow continuing, the error shall disappear after DCD update.
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init SAR Config Server");
+      }
 
       #if SL_BTMESH_SAR_CONFIG_SERVER_CUSTOM_DEFAULT
-      if (sc == SL_STATUS_OK) {
-        if (event_id == sl_btmesh_evt_node_initialized_id
-            && !evt->data.evt_node_initialized.provisioned) {
-          // The SAR Transmitter and Receiver states shall be overridden with
-          // custom default values only when the device is unprovisioned to
-          // avoid modifying SAR states which were set by SAR Configuration
-          // Client explicitly.
-          sl_btmesh_sar_config_server_override_defaults();
-        }
+      if (sc == SL_STATUS_OK && event_id == sl_btmesh_evt_node_initialized_id
+          && !evt->data.evt_node_initialized.provisioned) {
+        // The SAR Transmitter and Receiver states shall be overridden with
+        // custom default values only when the device is unprovisioned to
+        // avoid modifying SAR states which were set by SAR Configuration
+        // Client explicitly.
+        sl_btmesh_sar_config_server_override_defaults();
       }
       #endif // SL_BTMESH_SAR_CONFIG_SERVER_CUSTOM_DEFAULT
-      break;
     }
+    break;
+    default:
+      break;
   }
 }
-
-/** @} end sar_config_server */

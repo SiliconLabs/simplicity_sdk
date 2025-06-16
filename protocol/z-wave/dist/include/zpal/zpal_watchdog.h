@@ -38,6 +38,12 @@ extern "C" {
  */
 
 /**
+ * @brief Initialize watchdog before use,
+ * typically the next call will be zpal_enable_watchdog
+ */
+void zpal_watchdog_init(void);
+
+/**
  * @brief Returns whether the watchdog is enabled.
  *
  * @return True if watchdog is enabled, false if not.

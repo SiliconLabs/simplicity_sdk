@@ -34,7 +34,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_rail_util_init.h"
-
+#include "sl_rail.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -46,15 +46,19 @@
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
+/*******************************************************************************
+ * Wrapper function to help with baremetal and RTOS compatibility.
+ ******************************************************************************/
+void app_init(void);
+
 /**************************************************************************//**
  * The function is used for some basic initialization related to the app.
- * @return RAIL_Handle_t RAIL handle
  *
  * It ensures the followings:
  * - Turn OFF LEDs
- * - Manage power manager restrictions
+ * - Start RAIL reception
  * - Printf start message
  *****************************************************************************/
-RAIL_Handle_t app_init(void);
+void rail_app_init(void);
 
 #endif // APP_INIT_H

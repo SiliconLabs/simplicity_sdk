@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_stack_specific_tlv' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -128,11 +128,11 @@ sl_status_t sl_zigbee_global_tlv_add_configurations(sli_buffer_manager_buffer_t 
   msg.data.global_tlv_add_configurations.request.index = index;
   msg.data.global_tlv_add_configurations.request.tag_c = tag_c;
 
-  if ((tag_c) > (10)) {
+  if (tag_c > 10) {
     assert(false); // "vector tag_v length exceeds expected maximum
   }
 
-  memmove(msg.data.global_tlv_add_configurations.request.tag_v, tag_v, sizeof(uint8_t) * (tag_c));
+  memmove(msg.data.global_tlv_add_configurations.request.tag_v, tag_v, sizeof(uint8_t) * tag_c);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_global_tlv_add_configurations_process_ipc_command, &msg);
 
   if (buffer != NULL) {
@@ -209,11 +209,11 @@ sli_buffer_manager_buffer_t sl_zigbee_global_tlv_get_configurations(uint8_t tag_
   sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.global_tlv_get_configurations.request.tag_c = tag_c;
 
-  if ((tag_c) > (10)) {
+  if (tag_c > 10) {
     assert(false); // "vector tag_v length exceeds expected maximum
   }
 
-  memmove(msg.data.global_tlv_get_configurations.request.tag_v, tag_v, sizeof(uint8_t) * (tag_c));
+  memmove(msg.data.global_tlv_get_configurations.request.tag_v, tag_v, sizeof(uint8_t) * tag_c);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_global_tlv_get_configurations_process_ipc_command, &msg);
 
   return msg.data.global_tlv_get_configurations.response.result;

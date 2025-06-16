@@ -1,6 +1,6 @@
 id: lwip_addons_tcp_md5
 label: "TCP MD5"
-package: platform
+package: lwip
 description: >
   The TCP md5 component can be used for adding custom TCP header options and custom socket options.
   It does this by implementing the (seldom used) tcp md5 signature, sockets application, enable md5 signature

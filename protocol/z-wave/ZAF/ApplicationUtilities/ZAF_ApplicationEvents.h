@@ -18,8 +18,7 @@
  */
 
 /// Prioritized events that can wakeup protocol thread.
-typedef enum EApplicationEvent
-{
+typedef enum EApplicationEvent{
   EAPPLICATIONEVENT_TIMER = 0,
   EAPPLICATIONEVENT_ZWRX,
   EAPPLICATIONEVENT_ZWCOMMANDSTATUS,

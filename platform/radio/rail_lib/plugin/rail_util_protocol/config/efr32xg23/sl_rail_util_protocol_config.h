@@ -31,7 +31,6 @@
 #ifndef SL_RAIL_UTIL_PROTOCOL_CONFIG_H
 #define SL_RAIL_UTIL_PROTOCOL_CONFIG_H
 
-#include "sl_rail_util_protocol_types.h"
 #ifdef RAIL_INTERNAL_BUILD
 #include "sl_rail_util_protocol_config_internal.h"
 #endif

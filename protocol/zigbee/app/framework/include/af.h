@@ -58,7 +58,6 @@ extern "C" {
 #include "hal/hal.h"
 #include "event_queue/event-queue.h"
 #include "app/framework/include/af-types.h"
-#include "app/framework/util/print.h"
 #include "app/framework/util/time-util.h"
 
 #ifdef SL_COMPONENT_CATALOG_PRESENT
@@ -82,6 +81,14 @@ extern void sl_zigbee_af_test_harness_z3_reset_event_handler(sl_zigbee_af_event_
 #endif //SL_CATALOG_ZIGBEE_TEST_HARNESS_Z3_PRESENT
 
 #endif // SL_COMPONENT_CATALOG_PRESENT
+
+#if defined(SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT) \
+  || defined(SL_ZIGBEE_SCRIPTED_TEST) || defined(SL_CATALOG_ZIGBEE_SIMULATION_PRESENT)
+#include "app/framework/util/print.h"
+#include "app/framework/util/zcl-debug-print.h"
+#elif defined(SL_CATALOG_ZIGBEE_GREEN_POWER_ADAPTER_PRESENT)
+#include "green-power-print-wrapper.h"
+#endif // SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT || SL_ZIGBEE_SCRIPTED_TEST || SL_CATALOG_ZIGBEE_SIMULATION_PRESENT
 
 #ifdef SL_CATALOG_CLI_PRESENT
 #include "sl_cli.h"
@@ -112,13 +119,15 @@ extern void sl_zigbee_af_test_harness_z3_reset_event_handler(sl_zigbee_af_event_
 #include "app/framework/util/global-other-callback.h"
 #include "app/framework/service-function/sl_service_function.h"
 
-#include "app/framework/util/zcl-debug-print.h"
-
 #include "app/framework/util/client-api.h"
 
 #ifdef SL_CATALOG_ZIGBEE_CLI_PRESENT
 #include "app/util/serial/sl_zigbee_command_interpreter.h"
 #endif // SL_CATALOG_ZIGBEE_CLI_PRESENT
+
+#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
+extern const sl_zigbee_matter_af_multi_protocol_attribute_metadata_t multiProtocolAttributeMap[];
+#endif
 
 extern uint8_t ascii_lut[];
 /**
@@ -316,6 +325,26 @@ sl_zigbee_af_status_t sl_zigbee_af_write_server_attribute(uint8_t endpoint,
                                                           sl_zigbee_af_attribute_id_t attributeID,
                                                           uint8_t* dataPtr,
                                                           sl_zigbee_af_attribute_type_t dataType);
+
+/**
+ * @brief Write a cluster server attribute without calling calling potential multiprotocol datamodel synchronization call.
+ *
+ * This function is the same as sl_zigbee_af_write_server_attribute
+ * but disregard any multiprotocol synchronization.
+ * This can be used from other protocol datamodel counterpart
+ * to avoid synchronization recursivity
+ *
+ * @param endpoint Zigbee endpoint number.
+ * @param cluster Cluster ID of the sought cluster.
+ * @param attributeID Attribute ID of the sought attribute.
+ * @param dataPtr Pointer to the ZCL attribute.
+ * @param dataType ZCL attribute type.
+ */
+sl_zigbee_af_status_t sl_zigbee_af_write_server_attribute_without_sync(uint8_t endpoint,
+                                                                       sl_zigbee_af_cluster_id_t cluster,
+                                                                       sl_zigbee_af_attribute_id_t attributeID,
+                                                                       uint8_t* dataPtr,
+                                                                       sl_zigbee_af_attribute_type_t dataType);
 
 /**
  * @brief Write a cluster client attribute.

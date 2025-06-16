@@ -64,22 +64,9 @@ WEAK(sl_zigbee_join_decision_t sl_zigbee_xncp_security_trust_center_join_cb(sl_8
  * true indicate the user handled the message and false allows the
  * stack to handle it.
  *
- * @param status                     Ver.: always
- * @param gpdLink                    Ver.: always
- * @param sequenceNumber             Ver.: always
- * @param *addr                      Ver.: always
- * @param gpdfSecurityLevel          Ver.: always
- * @param gpdfSecurityKeyType        Ver.: always
- * @param autoCommissioning          Ver.: always
- * @param rxAfterTx                  Ver.: always
- * @param gpdSecurityFrameCounter    Ver.: always
- * @param gpdCommandId               Ver.: always
- * @param mic                        Ver.: always
- * @param proxyTableIndex            Ver.: always
- * @param gpdCommandPayloadLength    Ver.: always
- * @param *gpdCommandPayload         Ver.: always
+ * @param *param                     Ver.: always
  */
-WEAK(bool sl_zigbee_af_ncp_gpep_incoming_message_handler(GP_PARAMS))
+WEAK(bool sl_zigbee_af_ncp_gpep_incoming_message_handler(sl_zigbee_gp_params_t *param))
 {
   // return false so that stack will handle it, return true
   // if the message has been handled by user.

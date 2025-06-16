@@ -227,7 +227,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC) */
 
 /**
- * Minimum length of PIN Code data. This MUST NOT be less than 4. <4..255:1>
+ * Minimum length of PIN Code data <4..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE)
@@ -315,7 +315,7 @@
 #endif /* !defined(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UNSPECIFIED_BIOMETRIC) */
 
 /**
- * Maximum length of PIN Code data. If the end device also supports CC User Code, this MUST NOT be greater than 10. <4..255:1>
+ * Maximum length of PIN Code data <4..255:1>
  *
  */
 #if !defined(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE)

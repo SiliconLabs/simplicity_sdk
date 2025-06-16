@@ -1,6 +1,6 @@
 id: psa_crypto
 label: PSA Crypto
-package: platform
+package: security_mbedtls
 quality: production
 
 component_root_path: platform/security
@@ -114,6 +114,15 @@ template_contribution:
     priority: 1
     condition: [trustzone_unaware, mbedtls_entropy_nvseed]
     unless: [rail_lib, native]
+  # PLATFORM_HYD-5151
+  - name: event_handler
+    value:
+      event: service_init
+      include: psa/crypto.h
+      handler: psa_crypto_init
+    priority: 1
+    condition: [trustzone_unaware, mbedtls_entropy_dummy_nvseed]
+    unless: [rail_lib, zigbee_classic_key_storage, native]
 
   - name: mbedtls_config
     value: MBEDTLS_PSA_CRYPTO_C

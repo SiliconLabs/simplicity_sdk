@@ -15,7 +15,6 @@
  *
  ******************************************************************************/
 
-#include <rail.h>
 #include <string.h>
 #include "coexistence-ble.h"
 #include "coexistence-ble-ll.h"

@@ -31,6 +31,7 @@ void sli_zigbee_af_cli_service_discovery_callback(const sl_zigbee_af_service_dis
     // Do nothing
   } else if (result->zdoRequestClusterId == MATCH_DESCRIPTORS_REQUEST) {
     const sl_zigbee_af_endpoint_list_t* epList = (const sl_zigbee_af_endpoint_list_t*)result->responseData;
+    UNUSED_VAR(epList);
     sl_zigbee_app_debug_println("Match %sy from 0x%04X, ep %d",
                                 "discover",
                                 result->matchAddress,

@@ -1,6 +1,6 @@
 id: zigbee_ncp_cpc
 label: NCP CPC
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 description: This component provides Co-Processor Communication (CPC) support for the Zigbee stack.

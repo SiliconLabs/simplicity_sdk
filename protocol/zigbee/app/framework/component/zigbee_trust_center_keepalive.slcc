@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: "Silicon Labs implementation of Trust Center Keepalive for SE 1.2b. The component periodically sends keepalive signals to the trust center to verify that it is accessible. If the trust center fails to acknowledge a series of keepalive signals, the component searches for another instance of the trust center on a different channel or short PAN ID. The frequency with which the component sends the keepalive signals has a default, but is ultimately determined by the attributes on the Trust Center. This component periodically reads the \"TC Keep-Alive Base\" and \"TC Keep-Alive Jitter\" to determine the rate that it will send future keepalives. Trust Center Keepalive is part of the optional Trust Center Swap-Out feature of Smart Energy 1.1. Devices are not required to implement this functionality. The trust center does not send keepalives, so this component should be disabled if the device is acting as the trust center."
 label: Trust Center Keepalive
 quality: production
@@ -12,6 +12,9 @@ config_file:
 source:
   - path: protocol/zigbee/app/framework/plugin/trust-center-keepalive/trust-center-keepalive.c
   - path: protocol/zigbee/app/framework/plugin/trust-center-keepalive/trust-center-keepalive-cb.c
+  - path: protocol/zigbee/app/framework/plugin/trust-center-keepalive/trust-center-keepalive-cli.c
+    condition:
+      - cli
 include:
   - path: protocol/zigbee/app/framework/plugin/trust-center-keepalive
     file_list:
@@ -37,6 +40,17 @@ template_contribution:
       cluster_id: 0x0025
       cluster_type: client
       default_response_function: sl_zigbee_af_keepalive_cluster_client_default_response_cb
+  - name: cli_group
+    value:
+      group: plugin
+      name: tc-keepalive
+      help: tc-keepalive related commands
+  - name: cli_command
+    value:
+      group: tc-keepalive
+      name: now
+      handler: sl_zigbee_af_send_keepalive_now_command
+      help: Send a TC Keepalive now. If the TC Keepalive server hasn't been discovered yet, a Match Descriptor is sent first
 
 documentation:
   docset: zigbee

@@ -364,3 +364,11 @@ class CalcAgcRainier(Calc_AGC_Bobcat):
     def calc_agc_pwr_mode(self, model):
         #High performance by default, allow override
         model.vars.agc_power_mode.value = model.vars.agc_power_mode.var_enum.HP
+
+    def calc_agc_lock_mode(self, model):
+        demod_select = model.vars.demod_select.value
+
+        if demod_select == model.vars.demod_select.var_enum.ENHANCED_DSSS:
+            model.vars.agc_lock_mode.value = model.vars.agc_lock_mode.var_enum.FRAME_DETECTION
+        else:
+            super().calc_agc_lock_mode(model)

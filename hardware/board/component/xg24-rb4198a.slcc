@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_rb4198a
 - label: XG24-RB4198A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG24 Channel Sounding Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

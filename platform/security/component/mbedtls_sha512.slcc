@@ -1,5 +1,5 @@
 id: mbedtls_sha512
-package: platform
+package: security_mbedtls
 label: SHA-384 and SHA-512
 description: >-
   This component provides support for SHA-384 and SHA-512 hash functions using Mbed TLS.

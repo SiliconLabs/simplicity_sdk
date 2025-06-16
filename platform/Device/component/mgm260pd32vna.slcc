@@ -1,6 +1,6 @@
 !!omap
 - id: MGM260PD32VNA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM260PD32VNA.
 - category: Platform|Device|MGM26
 - quality: production

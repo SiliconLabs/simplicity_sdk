@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Secure NCP host program
  *******************************************************************************
@@ -31,6 +31,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <openssl/conf.h>
+#include <openssl/core_names.h>
+#include <openssl/param_build.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <openssl/ec.h>
@@ -80,133 +82,109 @@ SL_WEAK int sl_bgapi_user_cmd_increase_security(uint8_t *public_key,
 
 static sl_status_t ec_ephemeral_key(ec_keypair_t *key)
 {
-  // NOTE: OpenSSL random number generator is not thread safe
-  EC_KEY *ec_key = NULL;
-  EC_GROUP *group = NULL;
   sl_status_t e = SL_STATUS_ALLOCATION_FAILED;
+  EVP_PKEY *pkey = NULL;
+  BIGNUM *bn_priv = NULL;
 
   do {
-    const BIGNUM *priv_bn = NULL;
-    const EC_POINT *pub_point = NULL;
-    size_t s;
-    uint8_t priv_buf[ECDH_PRIVATE_KEY_SIZE] = { 0 };
     uint8_t pub_buf[1 + PUBLIC_KEYPAIR_SIZE] = { 0 };
+    size_t len;
 
-    group = EC_GROUP_new_by_curve_name(NID_X9_62_prime256v1);
-    if (!group) {
+    pkey = EVP_EC_gen(SN_X9_62_prime256v1);
+
+    if (!pkey) {
       break;
     }
 
-    ec_key = EC_KEY_new();
-    if (!ec_key) {
+    if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &bn_priv)) {
+      e = SL_STATUS_INVALID_SIGNATURE;
       break;
     }
 
-    if (EC_KEY_set_group(ec_key, group) < 1
-        || EC_KEY_generate_key(ec_key) < 1) {
-      e = SL_STATUS_INITIALIZATION;
+    e = SL_STATUS_INVALID_COUNT;
+    if (!bn_priv || BN_num_bytes(bn_priv) != sizeof(key->priv)) {
       break;
     }
+    BN_bn2bin(bn_priv, key->priv);
 
-    priv_bn = EC_KEY_get0_private_key(ec_key);
-    if (!priv_bn || BN_num_bytes(priv_bn) != ECDH_PRIVATE_KEY_SIZE) {
-      e = SL_STATUS_INVALID_KEY;
-      break;
-    }
-    BN_bn2bin(priv_bn, priv_buf);
-
-    pub_point = EC_KEY_get0_public_key(ec_key);
-    if (!pub_point) {
+    if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY,
+                                         pub_buf, sizeof(pub_buf), &len)) {
       e = SL_STATUS_INVALID_KEY;
       break;
     }
 
-    e = SL_STATUS_FAIL;
-    s = EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED,
-                           NULL, 0, NULL);
-    if (s == sizeof(pub_buf)) {
-      s = EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED,
-                             pub_buf, sizeof(pub_buf), NULL);
-
-      if (s != 0) {
-        memcpy(key->priv, priv_buf, ECDH_PRIVATE_KEY_SIZE);
-        memcpy(key->pub, pub_buf + 1, PUBLIC_KEYPAIR_SIZE);
-        e = SL_STATUS_OK;
-      }
+    if (len == sizeof(pub_buf)) {
+      memcpy(key->pub, pub_buf + 1, sizeof(key->pub)); // Skip prefix byte - the UNCOMPRESSED flag
+      e = SL_STATUS_OK;
     }
   } while (0);
 
-  (void)EC_KEY_free(ec_key);
-  (void)EC_GROUP_free(group);
+  EVP_PKEY_free(pkey);
+  BN_clear_free(bn_priv);
+
+  if (e != SL_STATUS_OK) {
+    // Get rid of the remains of a broken key
+    memset(key->priv, 0, sizeof(key->priv));
+    memset(key->pub, 0, sizeof(key->pub));
+  }
+
   return e;
 }
 
 static EVP_PKEY *ec_key(const ec_keypair_t *key,
                         int both_parts)
 {
-  uint8_t tmp[1 + PUBLIC_KEYPAIR_SIZE];
   EVP_PKEY *result = NULL;
-  EVP_PKEY *evp_key = NULL;
-  BIGNUM *priv_bn = NULL;
-  EC_POINT *pub_point = NULL;
-  EC_KEY *ec_key = NULL;
-  EC_GROUP *group = NULL;
+  EVP_PKEY_CTX *ctx;
+  EVP_PKEY *pkey = NULL;
+  BIGNUM *priv;
+  OSSL_PARAM_BLD *param_bld;
+  OSSL_PARAM *params = NULL;
 
-  tmp[0] = POINT_CONVERSION_UNCOMPRESSED;
-  memcpy(tmp + 1, key->pub, PUBLIC_KEYPAIR_SIZE);
   do {
-    group = EC_GROUP_new_by_curve_name(NID_X9_62_prime256v1);
-    if (!group) {
+    unsigned char pub_data[PUBLIC_KEYPAIR_SIZE + 1];
+    const int selection = both_parts ? EVP_PKEY_KEYPAIR : EVP_PKEY_PUBLIC_KEY;
+
+    pub_data[0] = POINT_CONVERSION_UNCOMPRESSED;
+    memcpy(pub_data + 1, key->pub, sizeof(key->pub));
+    param_bld = OSSL_PARAM_BLD_new();
+
+    if (param_bld == NULL) {
       break;
     }
 
-    ec_key = EC_KEY_new();
-    if (!ec_key) {
-      break;
-    }
-    if (EC_KEY_set_group(ec_key, group) < 1) {
+    priv = BN_bin2bn(key->priv, sizeof(key->priv), NULL);
+    if (priv == NULL || !OSSL_PARAM_BLD_push_BN(param_bld, "priv", priv)) {
       break;
     }
 
-    if (both_parts) {
-      priv_bn = BN_bin2bn(key->priv, ECDH_PRIVATE_KEY_SIZE, NULL);
-      if (!priv_bn) {
-        break;
-      }
-      if (EC_KEY_set_private_key(ec_key, priv_bn) != 1) {
-        break;
-      }
-    }
-
-    pub_point = EC_POINT_new(group);
-    if (!pub_point) {
-      break;
-    }
-    if (EC_POINT_oct2point(group, pub_point, tmp, sizeof(tmp), NULL) < 1) {
-      break;
-    }
-    if (EC_KEY_set_public_key(ec_key, pub_point) != 1) {
+    if (OSSL_PARAM_BLD_push_utf8_string(param_bld, "group",
+                                        SN_X9_62_prime256v1, 0)
+        && OSSL_PARAM_BLD_push_octet_string(param_bld, "pub",
+                                            pub_data, sizeof(pub_data))) {
+      params = OSSL_PARAM_BLD_to_param(param_bld);
+    } else {
       break;
     }
 
-    evp_key = EVP_PKEY_new();
-    if (!evp_key) {
-      break;
-    }
+    ctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
 
-    if (EVP_PKEY_set1_EC_KEY(evp_key, ec_key) != 1) {
+    if (ctx == NULL
+        || params == NULL
+        || EVP_PKEY_fromdata_init(ctx) <= 0
+        || EVP_PKEY_fromdata(ctx, &pkey, selection, params) <= 0) {
       break;
+    } else {
+      result = pkey;
+      pkey = NULL; // Avoid freeing it as it will be in use from now on
     }
-
-    result = evp_key;
-    evp_key = NULL;
   } while (0);
 
-  (void)EVP_PKEY_free(evp_key);
-  (void)EC_KEY_free(ec_key);
-  (void)BN_free(priv_bn);
-  (void)EC_POINT_free(pub_point);
-  (void)EC_GROUP_free(group);
+  EVP_PKEY_free(pkey);
+  EVP_PKEY_CTX_free(ctx);
+  OSSL_PARAM_free(params);
+  OSSL_PARAM_BLD_free(param_bld);
+  BN_free(priv);
 
   return result;
 }
@@ -326,8 +304,8 @@ static sl_status_t aes_ccm_encrypt(const uint8_t *key, const uint8_t *nonce,
       break;
     }
 
-    /* Provide the message to be encrypted, and obtain the encrypted output.
-       EVP_EncryptUpdate can only be called once for this */
+    // Provide the message to be encrypted, and obtain the encrypted output.
+    // EVP_EncryptUpdate can only be called once for this
     if (EVP_EncryptUpdate(ccm,
                           cipher_text, &len,
                           plain_text, text_len) != 1) {
@@ -403,8 +381,8 @@ static sl_status_t aes_ccm_decrypt(const uint8_t *key, const uint8_t *nonce,
       break;
     }
 
-    /* Provide the message to be decrypted, and obtain the decrypted output.
-       EVP_DecryptUpdate can be called multiple times if necessary */
+    // Provide the message to be decrypted, and obtain the decrypted output.
+    //   EVP_DecryptUpdate can be called multiple times if necessary
     if (EVP_DecryptUpdate(ccm,
                           plain_text, &len,
                           cipher_text, text_len) != 1) {
@@ -460,7 +438,7 @@ void security_start()
 {
   switch (security_state) {
     case SECURITY_STATE_UNENCRYPTED: {
-      app_log_info("Start encryption" APP_LOG_NL);
+      app_log_info("Start encryption using OpenSSL 3.0" APP_LOG_NL);
       sec_counter_in.counter = 0;
       sec_counter_in.counter_hi = 0;
       sec_counter_out.counter = 0;
@@ -496,7 +474,7 @@ void security_start()
   }
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Callback which is called when security state changes.
  *
  * @note Weak implementation

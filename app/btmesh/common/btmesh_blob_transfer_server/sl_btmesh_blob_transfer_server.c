@@ -57,11 +57,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup mesh_blob_transfer_server
- * @{
- ******************************************************************************/
-
 // In high throughput mode the LPN node polls the friend node more frequently
 // to increase the throughput at the expense of power consumption
 // Note: LPN high throughput mode can be active only in LPN mode
@@ -190,18 +185,28 @@ sl_status_t sl_btmesh_blob_transfer_server_set_pull_mode_parameters(uint16_t ele
 
 void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   sli_btmesh_blob_transfer_server_t *self = NULL;
 
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_blob_transfer_server_init();
-      break;
-    case sl_btmesh_evt_node_initialized_id:
-      if (evt->data.evt_node_initialized.provisioned) {
+      if (!booted) {
         sl_btmesh_blob_transfer_server_init();
+        booted = true;
       }
       break;
+    case sl_btmesh_evt_node_initialized_id: {
+      if (evt->data.evt_node_initialized.provisioned) {
+        sl_btmesh_blob_transfer_server_init();
+        booted = true;
+      }
+      break;
+    }
     case sl_btmesh_evt_mbt_server_transfer_start_req_id: {
       sl_btmesh_evt_mbt_server_transfer_start_req_t const *msg =
         &evt->data.evt_mbt_server_transfer_start_req;
@@ -490,20 +495,20 @@ static void blob_transfer_server_state_change(sli_btmesh_blob_transfer_server_t 
           break;
       }
       break;
-      case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING:
-      case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_INVALID:
-        self->state.active = 1;
-        self->state.erasing = 1;
-        self->state.erasing_invalid = 1;
-        sl_btmesh_blob_storage_delete_invalid_slots_start();
-        break;
-      case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_UNMANAGED:
-        self->state.active = 1;
-        self->state.erasing = 1;
-        self->state.erasing_unmanaged = 1;
-        sl_btmesh_blob_storage_delete_unmanaged_slots_start();
-        break;
     }
+    case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING:
+    case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_INVALID:
+      self->state.active = 1;
+      self->state.erasing = 1;
+      self->state.erasing_invalid = 1;
+      sl_btmesh_blob_storage_delete_invalid_slots_start();
+      break;
+    case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_UNMANAGED:
+      self->state.active = 1;
+      self->state.erasing = 1;
+      self->state.erasing_unmanaged = 1;
+      sl_btmesh_blob_storage_delete_unmanaged_slots_start();
+      break;
   }
 }
 
@@ -545,29 +550,28 @@ void sl_btmesh_blob_transfer_server_step_handle(void)
       sli_btmesh_blob_transfer_server_get_by_inst_index(inst_idx);
     assert_not_null(self);
 
-    if (1 == self->state.erasing) {
-      switch (sl_btmesh_blob_storage_get_erase_error_code()) {
-        case SL_BTMESH_BLOB_STORAGE_DELETE_SUCCESS:
-          blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_TRANSFER);
-          break;
-        case SL_BTMESH_BLOB_STORAGE_DELETE_FAILED:
-        case SL_BTMESH_BLOB_STORAGE_DELETE_INACTIVE:
-          // If the delete failed or the last delete operation didn't find any
-          // invalid or unmanaged slot to delete
-          if (self->state.erasing_invalid == 1) {
-            blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_UNMANAGED);
-          } else if (self->state.erasing_unmanaged == 1) {
-            sl_btmesh_mbt_server_transfer_start_rsp(self->config->elem_index,
-                                                    sl_btmesh_mbt_server_status_storage_limit);
-            blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_IDLE_INACTIVE);
-          }
-          break;
-        default:
-          // empty
-          break;
-      }
+    if (1 != self->state.erasing) {
+      return;
+    }
+    switch (sl_btmesh_blob_storage_get_erase_error_code()) {
+      case SL_BTMESH_BLOB_STORAGE_DELETE_SUCCESS:
+        blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_TRANSFER);
+        break;
+      case SL_BTMESH_BLOB_STORAGE_DELETE_FAILED:
+      case SL_BTMESH_BLOB_STORAGE_DELETE_INACTIVE:
+        // If the delete failed or the last delete operation didn't find any
+        // invalid or unmanaged slot to delete
+        if (self->state.erasing_invalid == 1) {
+          blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE_ERASING_UNMANAGED);
+        } else if (self->state.erasing_unmanaged == 1) {
+          sl_btmesh_mbt_server_transfer_start_rsp(self->config->elem_index,
+                                                  sl_btmesh_mbt_server_status_storage_limit);
+          blob_transfer_server_state_change(self, SLI_BTMESH_BLOB_TRANSFER_SERVER_IDLE_INACTIVE);
+        }
+        break;
+      default:
+        // empty
+        break;
     }
   }
 }
-
-/** @} end mesh_blob_transfer_server */

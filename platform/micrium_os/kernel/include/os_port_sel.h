@@ -34,8 +34,18 @@
 #include  <common/include/rtos_path.h>
 
 #ifndef OS_PORT_PATH
-    #if ((RTOS_CPU_PORT_NAME == RTOS_CPU_SEL_ARM_V7_M) \
-  || (RTOS_CPU_PORT_NAME == RTOS_CPU_SEL_ARM_V8_M))
+    #if (RTOS_CPU_PORT_NAME == RTOS_CPU_SEL_ARM_V8_M)
+        #if   (RTOS_TOOLCHAIN_NAME == RTOS_TOOLCHAIN_ARMCC)
+            #include  <ports/source/armcc/armv8m_os_cpu.h>
+        #elif (RTOS_TOOLCHAIN_NAME == RTOS_TOOLCHAIN_GNU)
+            #include  <ports/source/gnu/armv8m_os_cpu.h>
+        #elif (RTOS_TOOLCHAIN_NAME == RTOS_TOOLCHAIN_IAR)
+            #include  <ports/source/iar/armv8m_os_cpu.h>
+        #else
+            #warning  Unknown toolchain
+        #endif
+
+    #elif (RTOS_CPU_PORT_NAME == RTOS_CPU_SEL_ARM_V7_M)
         #if   (RTOS_TOOLCHAIN_NAME == RTOS_TOOLCHAIN_ARMCC)
             #include  <ports/source/armcc/armv7m_os_cpu.h>
         #elif (RTOS_TOOLCHAIN_NAME == RTOS_TOOLCHAIN_GNU)

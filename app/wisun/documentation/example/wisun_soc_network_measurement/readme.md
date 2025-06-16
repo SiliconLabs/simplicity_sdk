@@ -21,7 +21,7 @@ To get started with the example, follow the steps below:
 * Use either the LCD screen and push buttons or the CLI to interact with the ping test tool.
 * Use either the LCD screen and push buttons or the CLI to execute iPerf tests.
 * Use CoAP remote CLI interface to trigger ping and iPerf tests, or get neighbor information.
-* Use either the LCD and pushbuttons or the CLI to change PHY (both FAN 1.0 and FAN1.1 are supported)
+* Use either the LCD and push buttons or the CLI to change PHY (both FAN 1.0 and FAN1.1 are supported)
 
 For additional information and guidelines, refer to the dedicated application note: [AN1364: Wi-SUN Network Performance Measurement Application](https://www.silabs.com/documents/public/application-notes/an1364-wi-sun-network-performance-measurement-app.pdf).
 

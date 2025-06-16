@@ -46,7 +46,7 @@ extern "C" {
 #include "em_emu.h"
 
 /***************************************************************************//**
- * @addtogroup dcdccoulombcounter
+ * @addtogroup dcdccoulombcounter DCDC Coulomb Counter
  * @{
  ******************************************************************************/
 
@@ -54,13 +54,13 @@ extern "C" {
  *********************************   ENUM   ************************************
  ******************************************************************************/
 
-/** DCDC_COULOMB_COUNTER supported energy mode. */
+/// DCDC_COULOMB_COUNTER supported energy mode.
 SL_ENUM(sl_hal_dcdc_coulomb_counter_emode_t) {
   SL_HAL_DCDC_COULOMB_COUNTER_EM0 = 0, /**< EM0/1 energy mode. */
   SL_HAL_DCDC_COULOMB_COUNTER_EM2 = 1, /**< EM2/3 energy mode. */
 };
 
-/** DCDC_COULOMB_COUNTER Calibration Load Current Level setting. */
+/// DCDC_COULOMB_COUNTER Calibration Load Current Level setting.
 SL_ENUM(sl_hal_dcdc_coulomb_counter_calibration_load_level_t) {
   SL_HAL_DCDC_COULOMB_COUNTER_CAL_LOAD0 = _DCDC_CCCALCTRL_CCLVL_LOAD0, /**< Nominal Load 0.25mA. */
   SL_HAL_DCDC_COULOMB_COUNTER_CAL_LOAD1 = _DCDC_CCCALCTRL_CCLVL_LOAD1, /**< Nominal Load 0.50mA. */
@@ -111,15 +111,18 @@ typedef struct {
  ******************************************************************************/
 
 /***************************************************************************//**
- * Initializes DCDC_COULOMB_COUNTER module.
+ * @brief
+ *   Initializes DCDC_COULOMB_COUNTER module.
  *
- * @param[in] p_config  A pointer to the DCDC_COULOMB_COUNTER initialization
- *                      structure variable.
+ * @param[in] p_config
+ *   A pointer to the DCDC_COULOMB_COUNTER initialization
+ *   structure variable.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_config_t *p_config);
 
 /***************************************************************************//**
- * Enables DCDC_COULOMB_COUNTER module.
+ * @brief
+ *   Enables DCDC_COULOMB_COUNTER module.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_enable(void)
 {
@@ -128,12 +131,14 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_enable(void)
 }
 
 /***************************************************************************//**
- * Disables DCDC_COULOMB_COUNTER module.
+ * @brief
+ *   Disables DCDC_COULOMB_COUNTER module.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_disable(void);
 
 /***************************************************************************//**
- * Waits for the DCDC_COULOMB_COUNTER to complete START command.
+ * @brief
+ *   Waits for the DCDC_COULOMB_COUNTER to complete START command.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_start(void)
 {
@@ -144,7 +149,8 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_start(void)
 }
 
 /***************************************************************************//**
- * Waits for the DCDC_COULOMB_COUNTER to complete STOP command.
+ * @brief
+ *   Waits for the DCDC_COULOMB_COUNTER to complete STOP command.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_stop(void)
 {
@@ -155,7 +161,8 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_stop(void)
 }
 
 /***************************************************************************//**
- * Waits for the DCDC_COULOMB_COUNTER to complete CLR command.
+ * @brief
+ *   Waits for the DCDC_COULOMB_COUNTER to complete CLR command.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_clear_counters(void)
 {
@@ -166,13 +173,16 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_wait_clear_counters(void)
 }
 
 /***************************************************************************//**
- * Starts DCDC_COULOMB_COUNTER operation.
+ * @brief
+ *   Starts DCDC_COULOMB_COUNTER operation.
  *
- * @note This function will send a start command to the DCDC_COULOMB_COUNTER peripheral.
- *       The sl_hal_dcdc_coulomb_counter_wait_start() function can be used to wait for the start
- *       command to be executed.
+ * @note
+ *   This function will send a start command to the DCDC_COULOMB_COUNTER peripheral.
+ *   The sl_hal_dcdc_coulomb_counter_wait_start() function can be used to wait for the start
+ *   command to be executed.
  *
- * @note This function requires the DCDC_COULOMB_COUNTER to be enabled.
+ * @note
+ *   This function requires the DCDC_COULOMB_COUNTER to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_start(void)
 {
@@ -181,13 +191,16 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_start(void)
 }
 
 /***************************************************************************//**
- * Stops the DCDC_COULOMB_COUNTER operation.
+ * @brief
+ *   Stops the DCDC_COULOMB_COUNTER operation.
  *
- * @note This function will send a stop command to the DCDC_COULOMB_COUNTER peripheral.
- *       The sl_hal_dcdc_coulomb_counter_wait_stop() function can be used to wait for the stop
- *       command to be executed.
+ * @note
+ *   This function will send a stop command to the DCDC_COULOMB_COUNTER peripheral.
+ *   The sl_hal_dcdc_coulomb_counter_wait_stop() function can be used to wait for the stop
+ *   command to be executed.
  *
- * @note This function requires the DCDC_COULOMB_COUNTER to be enabled.
+ * @note
+ *   This function requires the DCDC_COULOMB_COUNTER to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_stop(void)
 {
@@ -196,13 +209,16 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_stop(void)
 }
 
 /***************************************************************************//**
- * Clears the DCDC_COULOMB_COUNTER counters.
+ * @brief
+ *   Clears the DCDC_COULOMB_COUNTER counters.
  *
- * @note This function will send a clear command to the DCDC_COULOMB_COUNTER peripheral.
- *       The sl_hal_dcdc_coulomb_counter_wait_clear_counters() function can be used
- *       to wait for the clear command to be executed.
+ * @note
+ *   This function will send a clear command to the DCDC_COULOMB_COUNTER peripheral.
+ *   The sl_hal_dcdc_coulomb_counter_wait_clear_counters() function can be used
+ *   to wait for the clear command to be executed.
  *
- * @note This function requires the DCDC_COULOMB_COUNTER to be enabled.
+ * @note
+ *   This function requires the DCDC_COULOMB_COUNTER to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_clear_counters(void)
 {
@@ -211,18 +227,23 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_clear_counters(void)
 }
 
 /***************************************************************************//**
- * Gets the DCDC_COULOMB_COUNTER count for the selected energy mode.
+ * @brief
+ *   Gets the DCDC_COULOMB_COUNTER count for the selected energy mode.
  *
- * @param[in] emode  The energy mode requested will select the appropriate counter.
+ * @param[in] emode
+ *   The energy mode requested will select the appropriate counter.
  *
- * @return Coulomb Counter Count Value.
+ * @return
+ *   Coulomb Counter Count Value.
  ******************************************************************************/
 uint32_t sl_hal_dcdc_coulomb_counter_get_count(sl_hal_dcdc_coulomb_counter_emode_t emode);
 
 /***************************************************************************//**
- * Gets DCDC_COULOMB_COUNTER STATUS register value.
+ * @brief
+ *   Gets DCDC_COULOMB_COUNTER STATUS register value.
  *
- * @return  Current STATUS register value.
+ * @return
+ *   Current STATUS register value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_status(void)
 {
@@ -230,15 +251,18 @@ __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_status(void)
 }
 
 /***************************************************************************//**
- * Enables one or more DCDC_COULOMB_COUNTER interrupts.
+ * @brief
+ *   Enables one or more DCDC_COULOMB_COUNTER interrupts.
  *
- * @note  Depending on the use, a pending interrupt may already be set prior to
- *        enabling the interrupt. To ignore a pending interrupt, consider using
- *        sl_hal_dcdc_coulomb_counter_clear_interrupts() prior to enabling the interrupt.
+ * @note
+ *   Depending on the use, a pending interrupt may already be set prior to
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   sl_hal_dcdc_coulomb_counter_clear_interrupts() prior to enabling the interrupt.
  *
- * @param[in] flags   DCDC_COULOMB_COUNTER interrupt sources to enable.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   DCDC_COULOMB_COUNTER interrupt sources to enable.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_enable_interrupts(uint32_t flags)
 {
@@ -246,11 +270,13 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_enable_interrupts(uint32_t flag
 }
 
 /***************************************************************************//**
- * Disables one or more DCDC_COULOMB_COUNTER interrupts.
+ * @brief
+ *   Disables one or more DCDC_COULOMB_COUNTER interrupts.
  *
- * @param[in] flags   DCDC_COULOMB_COUNTER interrupt sources to disable.
- *                    Use a set of interrupt flags OR-ed together to disable
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   DCDC_COULOMB_COUNTER interrupt sources to disable.
+ *   Use a set of interrupt flags OR-ed together to disable
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_disable_interrupts(uint32_t flags)
 {
@@ -258,11 +284,13 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_disable_interrupts(uint32_t fla
 }
 
 /***************************************************************************//**
- * Clears one or more pending DCDC_COULOMB_COUNTER interrupts.
+ * @brief
+ *   Clears one or more pending DCDC_COULOMB_COUNTER interrupts.
  *
- * @param[in] flags   DCDC_COULOMB_COUNTER interrupt sources to clear.
- *                    Use a set of interrupt flags OR-ed together to clear
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   DCDC_COULOMB_COUNTER interrupt sources to clear.
+ *   Use a set of interrupt flags OR-ed together to clear
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_clear_interrupts(uint32_t flags)
 {
@@ -270,13 +298,16 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_clear_interrupts(uint32_t flags
 }
 
 /***************************************************************************//**
- * Gets pending DCDC_COULOMB_COUNTER interrupt flags.
+ * @brief
+ *   Gets pending DCDC_COULOMB_COUNTER interrupt flags.
  *
- * @note  Event bits are not cleared by using this function.
+ * @note
+ *   Event bits are not cleared by using this function.
  *
- * @return  Pending DCDC_COULOMB_COUNTER interrupt sources.
- *          Returns a set of interrupt flags OR-ed together for multiple
- *          interrupt sources.
+ * @return
+ *   Pending DCDC_COULOMB_COUNTER interrupt sources.
+ *   Returns a set of interrupt flags OR-ed together for multiple
+ *   interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_interrupts(void)
 {
@@ -284,15 +315,18 @@ __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_interrupts(void)
 }
 
 /***************************************************************************//**
- * Gets enabled and pending DCDC_COULOMB_COUNTER interrupt flags.
- * Useful for handling more interrupt sources in the same interrupt handler.
+ * @brief
+ *   Gets enabled and pending DCDC_COULOMB_COUNTER interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
  *
- * @note  Interrupt flags are not cleared by using this function.
+ * @note
+ *   Interrupt flags are not cleared by using this function.
  *
- * @return  Pending and enabled DCDC_COULOMB_COUNTER interrupt sources.
- *          The return value is the bitwise AND of
- *          - the enabled interrupt sources in DCDC_COULOMB_COUNTER_IEN and
- *          - the pending interrupt flags DCDC_COULOMB_COUNTER_IF.
+ * @return
+ *   Pending and enabled DCDC_COULOMB_COUNTER interrupt sources.
+ *   The return value is the bitwise AND of
+ *    - the enabled interrupt sources in DCDC_COULOMB_COUNTER_IEN and
+ *    - the pending interrupt flags DCDC_COULOMB_COUNTER_IF.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_enabled_interrupts(void)
 {
@@ -303,11 +337,13 @@ __STATIC_INLINE uint32_t sl_hal_dcdc_coulomb_counter_get_enabled_interrupts(void
 }
 
 /***************************************************************************//**
- * Sets one or more pending DCDC_COULOMB_COUNTER interrupts from Software.
+ * @brief
+ *   Sets one or more pending DCDC_COULOMB_COUNTER interrupts from Software.
  *
- * @param[in] flags   DCDC_COULOMB_COUNTER interrupt sources to set to pending.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   DCDC_COULOMB_COUNTER interrupt sources to set to pending.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_set_interrupts(uint32_t flags)
 {
@@ -315,71 +351,91 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_set_interrupts(uint32_t flags)
 }
 
 /***************************************************************************//**
- * Initializes the calibration of the DCDC Coulomb Counter.
+ * @brief
+ *   Initializes the calibration of the DCDC Coulomb Counter.
  *
- * @param[in] config  DCDC_COULOMB_COUNTER calibration configuration structure.
+ * @param[in] config
+ *   DCDC_COULOMB_COUNTER calibration configuration structure.
  *
- * @note The charge per pulse is measured using known on-chip calibration
- *       loads, a PRS channel, and the CMU RC oscillator calibration circuitry.
+ * @note
+ *   The charge per pulse is measured using known on-chip calibration
+ *   loads, a PRS channel, and the CMU RC oscillator calibration circuitry.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibration_config_t config);
 
 /***************************************************************************//**
- * Starts DCDC_COULOMB_COUNTER calibration sequence.
+ * @brief
+ *   Starts DCDC_COULOMB_COUNTER calibration sequence.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_cal_start(void);
 
 /***************************************************************************//**
- * Stops DCDC_COULOMB_COUNTER calibration sequence.
+ * @brief
+ *   Stops DCDC_COULOMB_COUNTER calibration sequence.
  *
- * @note The Calibration Load will be disabled.
+ * @note
+ *   The Calibration Load will be disabled.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_cal_stop(void);
 
 /***************************************************************************//**
- * Enables the Calibration Load.
+ * @brief
+ *   Enables the Calibration Load.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_enable_cal_load(void);
 
 /***************************************************************************//**
- * Disables the Calibration Load.
+ * @brief
+ *   Disables the Calibration Load.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_disable_cal_load(void);
 
 /***************************************************************************//**
- * Sets the Calibration Load level.
+ * @brief
+ *   Sets the Calibration Load level.
  *
- * @param[in] emode       The energy mode requested will adjust the compensation circuit.
- * @param[in] load_level  The load level to adjust the load current.
+ * @param[in] emode
+ *   The energy mode requested will adjust the compensation circuit.
+ *
+ * @param[in] load_level
+ *   The load level to adjust the load current.
  ******************************************************************************/
 void sl_hal_dcdc_coulomb_counter_set_cal_load_level(sl_hal_dcdc_coulomb_counter_emode_t emode,
                                                     sl_hal_dcdc_coulomb_counter_calibration_load_level_t load_level);
 
 /***************************************************************************//**
- * Gets the calibration load current from the stored value
- * in DEVINFO as measured during production testing.
+ * @brief
+ *   Gets the calibration load current from the stored value
+ *   in DEVINFO as measured during production testing.
  *
- * @param[in] load_level  The load level requested.
+ * @param[in]
+ *   load_level The load level requested.
  *
- * @return The calibration load current.
+ * @note
+ *   The returned value can be converted into uA by dividing by 5.
  *
- * @note The returned value can be converted into uA by dividing by 5.
+ * @note
+ *   Each calibration load setting is a 16-bit value
+ *   with each LSB representing 200 nA.
  *
- * @note Each calibration load setting is a 16-bit value
- *       with each LSB representing 200 nA.
+ * @return
+ *   The calibration load current.
  ******************************************************************************/
 uint16_t sl_hal_dcdc_coulomb_counter_get_cal_load_current(sl_hal_dcdc_coulomb_counter_calibration_load_level_t load_level);
 
 /***************************************************************************//**
- * Gets the frequency (in Hz) of the CMU Calibration Up-Counter source.
+ * @brief
+ *   Gets the frequency (in Hz) of the CMU Calibration Up-Counter source.
  *
- * @return The frequency (in Hz) of the currently selected CMU Up-Counter clock
- *         source.
+ * @return
+ *   The frequency (in Hz) of the currently selected CMU Up-Counter clock
+ *   source.
  ******************************************************************************/
 uint32_t sl_hal_dcdc_coulomb_counter_get_cal_reference_freq(void);
 
 /***************************************************************************//**
- * Sets the calibration Halt Flag.
+ * @brief
+ *   Sets the calibration Halt Flag.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_set_calhalt(void)
 {
@@ -387,9 +443,11 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_set_calhalt(void)
 }
 
 /***************************************************************************//**
- * Gets the calibration Halt Flag.
+ * @brief
+ *   Gets the calibration Halt Flag.
  *
- * @return true if Halt Flag is set.
+ * @return
+ *   true if Halt Flag is set.
  ******************************************************************************/
 __STATIC_INLINE bool sl_hal_dcdc_coulomb_counter_calhalt_is_set(void)
 {
@@ -401,6 +459,63 @@ __STATIC_INLINE bool sl_hal_dcdc_coulomb_counter_calhalt_is_set(void)
 #ifdef __cplusplus
 }
 #endif
+
+/* *INDENT-OFF* */
+/***************************************************************************//**
+ * @addtogroup dcdccoulombcounter DCDC Coulomb Counter
+ * @{
+ * @n @section dcdccoulombcounter_intro Introduction
+ *  The DCDC Coulomb Counter measures the charge drawn from a power source,
+ *  which is useful for battery life estimation and power consumption monitoring.
+ *
+ * @n @section dcdccoulombcounter_example Example
+ *  @code{.c}
+ *  {
+ *    // Initialize with default configuration
+ *    sl_hal_dcdc_coulomb_counter_config_t config = DCDC_COULOMB_COUNTER_CONFIG_DEFAULT;
+ *
+ *    // Initialize the coulomb counter
+ *    sl_hal_dcdc_coulomb_counter_init(&config);
+ *
+ *    // Enable the counter
+ *    sl_hal_dcdc_coulomb_counter_enable();
+ *
+ *    // Clear the counters before starting
+ *    sl_hal_dcdc_coulomb_counter_clear_counters();
+ *    sl_hal_dcdc_coulomb_counter_wait_clear_counters();
+ *
+ *    // Start counting
+ *    sl_hal_dcdc_coulomb_counter_start();
+ *    sl_hal_dcdc_coulomb_counter_wait_start();
+ *
+ *    // Wait for some time to measure energy consumption
+ *    // ...
+ *
+ *    // Read the counter value for EM0
+ *    uint32_t count = sl_hal_dcdc_coulomb_counter_get_count(SL_HAL_DCDC_COULOMB_COUNTER_EM0);
+ *
+ *    // Stop counting
+ *    sl_hal_dcdc_coulomb_counter_stop();
+ *    sl_hal_dcdc_coulomb_counter_wait_stop();
+ *
+ *    // Disable when no longer needed
+ *    sl_hal_dcdc_coulomb_counter_disable();
+ *
+ *    // To calibrate the counter before use:
+ *    sl_hal_dcdc_coulomb_counter_calibration_config_t cal_config =
+ *      DCDC_COULOMB_COUNTER_CALIBRATION_CONFIG_DEFAULT;
+ *
+ *    sl_hal_dcdc_coulomb_counter_cal_init(cal_config);
+ *    sl_hal_dcdc_coulomb_counter_cal_start();
+ *
+ *    // After calibration is complete
+ *    sl_hal_dcdc_coulomb_counter_cal_stop();
+ *  }
+ *  @endcode
+ *
+ * @} (end addtogroup dcdccoulombcounter)
+ ******************************************************************************/
+/* *INDENT-ON* */
 
 #endif /* defined(DCDC_COULOMB_COUNTER_COUNT) && (DCDC_COULOMB_COUNTER_COUNT > 0) && defined(DCDC_CCCTRL_CCEN) */
 #endif /* SL_HAL_DCDC_COULOMB_COUNTER_H */

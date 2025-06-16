@@ -1,9 +1,9 @@
 !!omap
 - id: EFR32MG29B230F1024CM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32MG29B230F1024CM40.
 - category: Platform|Device|EFR32MG29
-- quality: evaluation
+- quality: production
 - define:
   - name: EFR32MG29B230F1024CM40
     unless:

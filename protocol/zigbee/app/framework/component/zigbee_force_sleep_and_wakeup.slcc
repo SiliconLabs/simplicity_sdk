@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Component to force device to sleep and wake up
 id: zigbee_force_sleep_and_wakeup
 label: Force sleep and wake up

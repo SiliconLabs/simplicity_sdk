@@ -1,6 +1,6 @@
 id: "bluetooth_feature_cis"
 label: Bluetooth Feature CIS CIG
-package: Bluetooth
+package: bluetooth_le_controller
 description: >
   Provide CIS and CIG feature
 
@@ -18,16 +18,13 @@ requires:
   - name: bluetooth_hci
   - name: bluetooth_controller
 template_contribution:
+  - name: component_catalog
+    value: bluetooth_feature_cis
   - name: event_handler
     value:
       event: internal_app_init
       include: sl_btctrl_hci.h
       handler: sl_btctrl_hci_parser_init_iso
-    priority: 20
-  - name: bluetooth_controller_init
-    value:
-      include: "sl_btctrl_iso.h"
-      function: sl_btctrl_init_cis()
     priority: 20
 metadata:
   sbom:

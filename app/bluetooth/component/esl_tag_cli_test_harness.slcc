@@ -1,5 +1,5 @@
 id: esl_tag_cli_test_harness
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CLI Test Harness for ESL Tag application
 description: >
   CLI Test Harness is an optional component for the ESL Tag example application,

@@ -6,6 +6,8 @@ import os
 import re
 import sys
 from jinja2 import Environment, FileSystemLoader
+import subprocess
+import inspect
 from host_py_rm_studio_internal import RM_Factory, factory
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
@@ -67,6 +69,14 @@ class Sequences(object):
 
         self.rm = rm_factory()
 
+        rail_scripts_path = os.path.split(os.path.dirname(os.path.abspath(__file__)))[0]
+        self.rail_scripts_dir, self.rail_scripts_branch, self.rail_scripts_commit = \
+            self.get_git_dir_branch_and_commit(rail_scripts_path)
+
+        rm_path = os.path.dirname(inspect.getfile(RM_Factory(self.part)))
+        self.rm_dir, self.rm_branch, self.rm_commit = \
+            self.get_git_dir_branch_and_commit(rm_path)
+
     def handler(self):
         for sequenceName, sequenceValue in self.dataYml['Sequences'].items():
             print("\n")
@@ -91,8 +101,36 @@ class Sequences(object):
 
     def getRender(self):
         return {'RegBases': self.regBases, 'Sequences': self.sequences, 'internal': self.isInternal,
-                'FileName': self.fileName, 'FileIncludes': self.fileInclude}
+                'FileName': self.fileName, 'FileIncludes': self.fileInclude,
+                'RailScriptsDir' : self.rail_scripts_dir, 'RailScriptsCommit' : self.rail_scripts_commit,
+                'RmDir' : self.rm_dir, 'RmCommit' : self.rm_commit}
 
+    def get_git_dir_branch_and_commit(self, path):
+        if 'rail_scripts' in path:
+            root_dir = 'rail_scripts'
+        elif 'host_py_rm_studio_internal' in path:
+            root_dir = 'host_py_rm_studio_internal'
+        else:
+            raise Exception("Path {} cannot be handled".format(path))
+
+        git_dir = path.split(os.sep)
+        git_dir = git_dir[git_dir.index(root_dir):]
+        git_dir = os.path.join(*git_dir)
+
+        git_branch = None
+        git_commit = None
+        try:
+            git_commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=path)
+            git_commit = git_commit.strip()
+            git_commit = str(git_commit.decode('utf-8')).replace('\n', '')
+
+            git_branch = subprocess.check_output(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], cwd=path)
+            git_branch = git_branch.strip()
+            git_branch = str(git_branch.decode('utf-8')).replace('\n', '')
+        except Exception as ex:
+            pass
+
+        return git_dir, git_branch, git_commit
 
 class Sequence(Sequences):
     def __init__(self, chip, regBaseYml, dataYml, name, seqData, isInternal=False):
@@ -941,7 +979,7 @@ class SequenceGenerator(object):
 
     @staticmethod
     def printBaseAddr(baseAddr):
-        return '0x{0:04X}U,'.format(baseAddr >> 16)
+        return '0x{0:04X}U'.format(baseAddr >> 16)
 
 
 def main(argv=None):

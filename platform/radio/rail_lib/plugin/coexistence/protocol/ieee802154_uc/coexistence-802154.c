@@ -14,11 +14,11 @@
  * sections of the MSLA applicable to Source Code.
  *
  ******************************************************************************/
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_status.h"
 #include "coexistence/protocol/ieee802154_uc/coexistence-802154.h"
 #include "coexistence/protocol/ieee802154_uc/coexistence-common-802154.h"
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
 
 #ifdef RTOS
   #include "rtos/rtos.h"
@@ -218,7 +218,7 @@
   #define SL_RAIL_UTIL_COEX_IEEE802154_SIGNAL_IDENTIFIER_ENABLED 0
 #endif // SL_RAIL_UTIL_COEX_IEEE802154_SIGNAL_IDENTIFIER_ENABLED
 
-extern RAIL_Handle_t emPhyRailHandle;
+extern sl_rail_handle_t emPhyRailHandle;
 
 void halStackRadioHoldOffPowerDown(void); // fwd ref
 void halStackRadioHoldOffPowerUp(void);   // fwd ref
@@ -236,8 +236,6 @@ static uint8_t phySelectTimeoutMs = SL_RAIL_UTIL_COEX_PHY_SELECT_TIMEOUT_MAX;
 #else //!SL_RAIL_UTIL_COEX_PHY_ENABLED
 static uint8_t phySelectTimeoutMs = 0U;
 #endif //SL_RAIL_UTIL_COEX_PHY_ENABLED
-
-#include "rail_types.h"
 
 COEX_Events_t sli_rail_util_ieee802154_coex_event_filter = ~COEX_EVENT_REQUEST_EVENTS;
 
@@ -395,7 +393,7 @@ static COEX_ReqState_t rxReq;
 
 static bool cancelTransmit(void)
 {
-  return RAIL_StopTx(emPhyRailHandle, RAIL_STOP_MODE_ACTIVE) == RAIL_STATUS_NO_ERROR;
+  return sl_rail_stop_tx(emPhyRailHandle, SL_RAIL_STOP_MODE_ACTIVE) == SL_RAIL_STATUS_NO_ERROR;
 }
 
 static void coexEventsCb(COEX_Events_t events)
@@ -482,31 +480,32 @@ static void deescalatePriority(void)
 #define SL_RAIL_UTIL_COEX_RX_TIMEOUT_US 10000u
 #define SL_RAIL_UTIL_COEX_RX_RETRY_US (1000u * sl_rail_util_coex_get_option_mask(SL_RAIL_UTIL_COEX_OPT_RX_RETRY_TIMEOUT_MS, \
                                                                                  SL_RAIL_UTIL_COEX_OPT_SHIFT_RX_RETRY_TIMEOUT_MS))
-static void setTimer(RAIL_MultiTimer_t * timer,
+static void setTimer(sl_rail_multi_timer_t * timer,
                      uint32_t time,
-                     RAIL_MultiTimerCallback_t cb)
+                     sl_rail_multi_timer_callback_t cb)
 {
-  if (!RAIL_IsMultiTimerRunning(timer)) {
-    RAIL_SetMultiTimer(timer,
-                       time,
-                       RAIL_TIME_DELAY,
-                       cb,
-                       NULL);
+  if (!sl_rail_is_multi_timer_running(SL_RAIL_EFR32_HANDLE, timer)) {
+    sl_rail_set_multi_timer(SL_RAIL_EFR32_HANDLE,
+                            timer,
+                            time,
+                            SL_RAIL_TIME_DELAY,
+                            cb,
+                            NULL);
   }
 }
 
-static void cancelTimer(RAIL_MultiTimer_t * timer)
+static void cancelTimer(sl_rail_multi_timer_t * timer)
 {
-  (void) RAIL_CancelMultiTimer(timer);
+  (void) sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, timer);
 }
 
-static RAIL_MultiTimer_t ptaRxTimer;
-static RAIL_MultiTimer_t ptaRxRetryTimer;
+static sl_rail_multi_timer_t ptaRxTimer;
+static sl_rail_multi_timer_t ptaRxRetryTimer;
 
 #if SL_RAIL_UTIL_COEX_RUNTIME_PHY_SELECT
-static RAIL_MultiTimer_t ptaPhySelectTimer;
-static void ptaPhySelectTimerCb(RAIL_MultiTimer_t * tmr,
-                                RAIL_Time_t expectedTimeOfEvent,
+static sl_rail_multi_timer_t ptaPhySelectTimer;
+static void ptaPhySelectTimerCb(sl_rail_multi_timer_t *tmr,
+                                sl_rail_time_t expectedTimeOfEvent,
                                 void *cbArg)
 {
   UNUSED_VAR(tmr);
@@ -517,7 +516,9 @@ static void ptaPhySelectTimerCb(RAIL_MultiTimer_t * tmr,
 
 static void phySelectTick(void)
 {
-  if (phySelectTimeoutMs != SL_RAIL_UTIL_COEX_PHY_SELECT_TIMEOUT_MAX && phySelectTimeoutMs != 0U && !RAIL_IsMultiTimerRunning(&ptaPhySelectTimer)) {
+  if (phySelectTimeoutMs != SL_RAIL_UTIL_COEX_PHY_SELECT_TIMEOUT_MAX
+      && phySelectTimeoutMs != 0
+      && !sl_rail_is_multi_timer_running(SL_RAIL_EFR32_HANDLE, &ptaPhySelectTimer)) {
     coexNewPhySelectedCoex = false;
     COEX_EnablePhySelectIsr(true);
   }
@@ -535,8 +536,8 @@ static void phySelectIsr(void)
 }
 #endif //SL_RAIL_UTIL_COEX_RUNTIME_PHY_SELECT
 
-static void ptaRxTimerCb(RAIL_MultiTimer_t * tmr,
-                         RAIL_Time_t expectedTimeOfEvent,
+static void ptaRxTimerCb(sl_rail_multi_timer_t *tmr,
+                         sl_rail_time_t expectedTimeOfEvent,
                          void *cbArg)
 {
   UNUSED_VAR(tmr);
@@ -563,7 +564,7 @@ static void stackEventTickInit(void)
                                       SL_RAIL_UTIL_COEX_PWM_REQ_PERIOD);
 #endif
 #if SL_RAIL_UTIL_COEX_IEEE802154_SIGNAL_IDENTIFIER_ENABLED
-    RAIL_IEEE802154_ConfigSignalIdentifier(emPhyRailHandle, RAIL_IEEE802154_SIGNAL_IDENTIFIER_MODE_154);
+    sl_rail_ieee802154_config_signal_identifier(emPhyRailHandle, SL_RAIL_IEEE802154_SIGNAL_IDENTIFIER_MODE_154);
 #endif
     stackEventTickInitialized = true;
   }
@@ -823,7 +824,7 @@ sl_status_t sl_rail_util_coex_set_rx_request(COEX_Req_t coexReq, COEX_ReqCb_t co
   if (emPhyRailHandle != NULL) {
     // Restart signal detection when request deasserts and vice-versa.
     bool enable = ((coexReq & SL_RAIL_UTIL_COEX_REQ_ON) == SL_RAIL_UTIL_COEX_REQ_ON) ? false : true;
-    (void) RAIL_IEEE802154_EnableSignalDetection(emPhyRailHandle, enable);
+    (void) sl_rail_ieee802154_enable_signal_detection(emPhyRailHandle, enable);
   }
 #endif
   txrxReq = COEX_EVENT_RX_STATE;
@@ -1001,10 +1002,10 @@ sl_status_t sl_rail_util_coex_set_phy_select_timeout(uint8_t timeoutMs)
   if (phySelectTimeoutMs != timeoutMs) {
     phySelectTimeoutMs = timeoutMs;
     if (timeoutMs == 0U) {
-      RAIL_CancelMultiTimer(&ptaPhySelectTimer);
+      sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &ptaPhySelectTimer);
       coexNewPhySelectedCoex = false;
     } else if (timeoutMs == SL_RAIL_UTIL_COEX_PHY_SELECT_TIMEOUT_MAX) {
-      RAIL_CancelMultiTimer(&ptaPhySelectTimer);
+      sl_rail_cancel_multi_timer(SL_RAIL_EFR32_HANDLE, &ptaPhySelectTimer);
       coexNewPhySelectedCoex = true;
     } else {
 #ifdef SL_RAIL_UTIL_COEX_PHY_SELECT_PORT

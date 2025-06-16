@@ -1,14 +1,14 @@
 id: rail_util_ieee802154_fast_channel_switching
 label: RAIL Utility, IEEE802.15.4 Fast Channel Switching Configuration
 description: Utility to aid with IEEE802.15.4 Fast Channel Switching Configuration
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: evaluation
 metadata:
-  sbom:
-    id: rail_util_ieee802154_fast_channel_switching
-    name: RAIL Utility, IEEE802.15.4 Fast Channel Switching Configuration
-    license: Zlib
+    sbom:
+        id: rail_util_ieee802154_fast_channel_switching
+        name: RAIL Utility, IEEE802.15.4 Fast Channel Switching Configuration
+        license: Zlib
 requires:
   - name: rail_util_ieee802154_phy_select
 provides:

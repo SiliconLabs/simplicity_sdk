@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component demonstrates the capabilities of multi-network support.  The component acts as a Price cluster client on one network and a Price cluster server on another network.  As a client, it periodically polls a remote server for pricing information and then stores the data locally.  As a server, it makes that pricing information available to clients, thereby proxying the data between networks.
 label: Multi-Network Price Passthrough
 quality: production

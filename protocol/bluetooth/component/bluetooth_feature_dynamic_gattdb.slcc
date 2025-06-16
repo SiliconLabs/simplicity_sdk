@@ -1,6 +1,6 @@
 id: "bluetooth_feature_dynamic_gattdb"
 label:  "Dynamic GATT Database"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth dynamic GATT database feature
 

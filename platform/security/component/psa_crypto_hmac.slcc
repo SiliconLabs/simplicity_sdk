@@ -1,5 +1,5 @@
 id: psa_crypto_hmac
-package: platform
+package: security_mbedtls
 label: HMAC
 description: >-
   This component provides support for hash-based message authentication codes

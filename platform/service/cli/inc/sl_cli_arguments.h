@@ -38,6 +38,10 @@
 #include "sl_cli_config.h"
 #include "sl_cli_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /***************************************************************************//**
  * @addtogroup cli
  * @{
@@ -113,5 +117,9 @@ typedef enum sl_cli_arg{
 //****************************************************************************
 
 /** @} (end addtogroup cli) */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // SL_CLI_ARGUMENTS_H

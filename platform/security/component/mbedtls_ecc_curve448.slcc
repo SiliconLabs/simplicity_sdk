@@ -1,5 +1,5 @@
 id: mbedtls_ecc_curve448
-package: platform
+package: security_mbedtls
 label: Curve448
 description: >-
   This component enables support for usage of the Curve448 elliptic curve with Mbed TLS.

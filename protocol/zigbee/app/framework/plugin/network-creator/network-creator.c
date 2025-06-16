@@ -92,6 +92,8 @@ static uint8_t stateFlags = 0;
 #define STATE_FLAGS_MASK_IS_SECONDARY (0x02)
 #define maskIsSecondary() (stateFlags & STATE_FLAGS_MASK_IS_SECONDARY)
 
+#define FINAL_SCAN_TYPE SL_ZIGBEE_ACTIVE_SCAN
+
 // -----------------------------------------------------------------------------
 // Declarations
 
@@ -267,26 +269,26 @@ static void handleScanComplete(sl_zigbee_af_plugin_scan_dispatch_scan_results_t 
     // network-creator will disregard this channel in the network
     // formation process.
     CLEARBIT(currentChannelMask, results->channel);
-  } else {
-    // If the scan was energy, then we have all of our scan data, so try
-    // to form.
-    if (scanType == SL_ZIGBEE_ENERGY_SCAN) {
-      results->status = tryToFormNetwork();
-      // If we were not successful...
-      if (results->status != SL_STATUS_OK) {
-        // ...then try the secondary mask if we were on the primary...
-        // ...else fail because we tried both masks.
-        if (!maskIsSecondary()) {
-          currentChannelMask = sli_zigbee_af_network_creator_secondary_channel_mask;
-          SETBITS(stateFlags, STATE_FLAGS_MASK_IS_SECONDARY);
-          scheduleScans();
-        } else {
-          cleanupAndStop(results->status);
-        }
+    return;
+  }
+
+  // If we're done, try to form
+  if (scanType == FINAL_SCAN_TYPE) {
+    results->status = tryToFormNetwork();
+    // If we were not successful...
+    if (results->status != SL_STATUS_OK) {
+      // ...then try the secondary mask if we were on the primary...
+      // ...else fail because we tried both masks.
+      if (!maskIsSecondary()) {
+        currentChannelMask = sli_zigbee_af_network_creator_secondary_channel_mask;
+        SETBITS(stateFlags, STATE_FLAGS_MASK_IS_SECONDARY);
+        scheduleScans();
       } else {
-        // If we were successful, then all done!
         cleanupAndStop(results->status);
       }
+    } else {
+      // If we were successful, then all done!
+      cleanupAndStop(results->status);
     }
   }
 }
@@ -347,12 +349,12 @@ static sl_status_t scheduleScans()
   // tx power level is configurable using the plugin radio power value
   (void)sl_zigbee_set_radio_power(SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_RADIO_POWER);
 
-  // Active first.
-  data.scanType = SL_ZIGBEE_ACTIVE_SCAN;
+  // Energy first
+  data.scanType = SL_ZIGBEE_ENERGY_SCAN;
   status = sl_zigbee_af_scan_dispatch_schedule_scan(&data);
 
-  // Energy second.
-  data.scanType = SL_ZIGBEE_ENERGY_SCAN;
+  // Active second
+  data.scanType = SL_ZIGBEE_ACTIVE_SCAN;
   if (status == SL_STATUS_OK) {
     status = sl_zigbee_af_scan_dispatch_schedule_scan(&data);
   }

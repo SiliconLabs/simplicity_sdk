@@ -35,6 +35,7 @@
 #include "app_button.h"
 #include "sl_simple_button_instances.h"
 #include "sl_sleeptimer.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
@@ -113,7 +114,7 @@ bool get_and_clear_button_state(uint8_t button_number)
 /*******************************************************************************
  * Button callback, called if any button is pressed or released.
  ******************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
     if (handle == &sl_button_btn0) {

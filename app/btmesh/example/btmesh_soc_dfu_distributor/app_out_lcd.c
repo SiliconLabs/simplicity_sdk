@@ -97,7 +97,7 @@ static void lcd_print_dist_node_list(uint16_t num_active_nodes,
  *
  * @param[in] state State of the distribution
  ******************************************************************************/
-static void lcd_print_dist_state(uint8_t state);
+static void lcd_print_dist_state(sl_btmesh_fw_dist_server_dist_step_t state);
 
 /***************************************************************************//**
  * Display FW update progress in precentage.
@@ -278,12 +278,12 @@ static void lcd_print_dist_node_list(uint16_t num_active_nodes,
   app_log_status_error_f(status, "LCD write failed" APP_LOG_NL);
 }
 
-static void lcd_print_dist_state(uint8_t state)
+static void lcd_print_dist_state(sl_btmesh_fw_dist_server_dist_step_t state)
 {
   char tmp_str[LCD_ROW_LEN];
 
   const char *state_string =
-    sl_btmesh_fw_distribution_server_distribution_state_to_string((sl_btmesh_fw_dist_server_dist_step_t) state);
+    sl_btmesh_fw_distribution_server_distribution_state_to_string(state);
 
   strncpy(tmp_str, state_string, LCD_ROW_LEN);
   // Null termination is necessary if the string is truncated
@@ -315,8 +315,8 @@ static void lcd_print_dist_fw_update_progress(float progress,
                 decimal);
         sl_status_t status =
           sl_btmesh_LCD_write_paged(buffer,
-                                    i % NODES_PER_PAGE + FIRST_DIST_LINE,
-                                    i / NODES_PER_PAGE + FIRST_DIST_PAGE);
+                                    (uint8_t)(i % NODES_PER_PAGE + FIRST_DIST_LINE),
+                                    (uint8_t)(i / NODES_PER_PAGE + FIRST_DIST_PAGE));
         app_log_status_error_f(status, "LCD write failed" APP_LOG_NL);
         break;
     }
@@ -343,17 +343,17 @@ void sl_btmesh_fw_distribution_server_on_node_added(uint16_t elem_index,
   status =
     sl_btmesh_LCD_write_paged("Distribution",
                               1,
-                              (node_count / NODES_PER_PAGE) + FIRST_DIST_PAGE);
+                              (uint8_t)((node_count / NODES_PER_PAGE) + FIRST_DIST_PAGE));
   app_log_status_error_f(status, "LCD write failed" APP_LOG_NL);
   sprintf(buffer,
           "x%04X :         -----",
           dist_status[node_count - 1].addr);
   status =
     sl_btmesh_LCD_write_paged(buffer,
-                              (node_count - 1)
-                              % NODES_PER_PAGE + FIRST_DIST_LINE,
-                              (node_count - 1)
-                              / NODES_PER_PAGE + FIRST_DIST_PAGE);
+                              (uint8_t)((node_count - 1)
+                                        % NODES_PER_PAGE + FIRST_DIST_LINE),
+                              (uint8_t)((node_count - 1)
+                                        / NODES_PER_PAGE + FIRST_DIST_PAGE));
   app_log_status_error_f(status, "LCD write failed" APP_LOG_NL);
   lcd_print_dist_node_list(node_count, node_count);
 }
@@ -425,8 +425,8 @@ void sl_btmesh_fw_distribution_server_on_distribution_node_failed(uint16_t elem_
                   dist_status[i].addr);
       }
       sl_btmesh_LCD_write_paged(buffer,
-                                i % NODES_PER_PAGE + FIRST_DIST_LINE,
-                                i / NODES_PER_PAGE + FIRST_DIST_PAGE);
+                                (uint8_t)(i % NODES_PER_PAGE + FIRST_DIST_LINE),
+                                (uint8_t)(i / NODES_PER_PAGE + FIRST_DIST_PAGE));
     }
   }
   lcd_print_dist_node_list(num_active_nodes, node_count);

@@ -4,16 +4,16 @@ package: "wisun"
 description: >
   The Application Core component is designed to offer essential utilities
   commonly used in Wi-SUN applications.
-  The sl_wisun_app_core_util_connect_and_wait() function configures the network size setting, the TX output power, the certificates and keys. 
-  The function is waiting for the connected state. Its final action is to initiate the Wi-SUN connection process. 
-  The sl_wisun_app_core_network_connect() and sl_wisun_app_core_util_network_is_connected() functions also provide 
+  The sl_wisun_app_core_util_connect_and_wait() function configures the network size setting, the TX output power, the certificates and keys.
+  The function is waiting for the connected state. Its final action is to initiate the Wi-SUN connection process.
+  The sl_wisun_app_core_network_connect() and sl_wisun_app_core_util_network_is_connected() functions also provide
   an easy way to establish a connection and wait for it to be ready.
   Event handlers for basic Wi-SUN network events include the basic event handler implementations.
   The sl_wisun_app_core_get_current_addresses() function retrieves known IPv6 addresses.
-  Use sl_wisun_app_core_get_state() function to get the status of the Stack API calls. 
-  The sl_wisun_app_core_get_time_stat() function retrives the connection time, disconnection time stamps and total elapsed time in those states.
-  Use sl_wisun_app_core_get_device_type() to get the selected device type for the project. 
-  The device type can be changed in the Wi-SUN configurator interface. 
+  Use sl_wisun_app_core_get_state() function to get the status of the Stack API calls.
+  The sl_wisun_app_core_get_time_stat() function retrieves the connection time, disconnection time stamps and total elapsed time in those states.
+  Use sl_wisun_app_core_get_device_type() to get the selected device type for the project.
+  The device type can be changed in the Wi-SUN configurator interface.
   sl_wisun_app_core_get_lfn_profile() and sl_wisun_app_core_get_lfn_params() provide an interface to access the selected LFN profile and its parameters.
 category: "Wi-SUN|Wi-SUN Services"
 quality: "production"

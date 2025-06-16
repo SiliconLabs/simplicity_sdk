@@ -1,0 +1,18 @@
+id: sl_rail_util_ant_div
+label: SL RAIL Utility, Antenna Diversity Configuration
+description: Utility to aid with antenna diversity configuration
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_ant_div
+        name: SL RAIL Utility, Antenna Diversity Configuration
+        license: MSLA
+provides:
+  - name: sl_rail_util_ant_div
+requires:
+  - name: rail_util_ant_div
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

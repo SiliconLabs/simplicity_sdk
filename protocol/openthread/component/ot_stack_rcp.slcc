@@ -1,6 +1,6 @@
 id: ot_stack_rcp
 label: Stack (RCP)
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides OpenThread Radio Co-Processor support
@@ -33,6 +33,9 @@ define:
     value: 0
   - name: OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
     value: 0
+template_contribution:
+  - name: component_catalog
+    value: openthread_stack_rcp
 metadata:
   sbom:
     license: Zlib

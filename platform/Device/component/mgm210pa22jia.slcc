@@ -1,6 +1,6 @@
 !!omap
 - id: MGM210PA22JIA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM210PA22JIA.
 - category: Platform|Device|MGM21
 - quality: production

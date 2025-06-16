@@ -2,7 +2,7 @@ id: bluetooth_controller_libraries
 label: Bluetooth Low Energy Controller Library
 ui_hints:
   visibility: never
-package: Bluetooth
+package: bluetooth_le_controller
 description: |-
   BLE controller libraries to be used by a Bluetooth stack
 
@@ -12,7 +12,7 @@ root_path: protocol/bluetooth/bgstack/ll
 provides:
   - name: bluetooth_controller_libraries
 requires:
-  - name: bluetooth_common_release
+  - name: bluetooth_common
   - name: bluetooth_controller_crypto
   - name: device_supports_bluetooth
   - name: emlib_system

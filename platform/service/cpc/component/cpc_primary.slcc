@@ -1,21 +1,21 @@
 id: cpc_primary
 label: Primary Device (Host)
-package: platform
+package: cpc
 description: >
-  Co-Processor Communication (CPC) allows for communication between a Primary
-  and a secondary device using a single physical link. Both devices can have
-  multiple endpoints that both produce and consume data and CPC will handle
-  the multiplexing/demultiplexing of the data to the target endpoint. CPC
-  also allows for data encryption, mitigating the risks of transmitting data
-  on an unsecured physical data link.
+    Co-Processor Communication (CPC) allows for communication between a Primary
+    and a secondary device using a single physical link. Both devices can have
+    multiple endpoints that both produce and consume data and CPC will handle
+    the multiplexing/demultiplexing of the data to the target endpoint. CPC
+    also allows for data encryption, mitigating the risks of transmitting data
+    on an unsecured physical data link.
 
-  This component implements the CPC Primary on an embedded device, allowing
-  it to communicate to a single secondary CPC device connected to it.
+    This component implements the CPC Primary on an embedded device, allowing
+    it to communicate to a single secondary CPC device connected to it.
 category: Services|Co-Processor Communication|Primary Device
 quality: experimental
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/cpc
 
 config_file:

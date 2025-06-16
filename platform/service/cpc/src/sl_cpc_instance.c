@@ -48,7 +48,7 @@
  * @retval  SL_STATUS_OK    Resources allocated successfully.
  * @retval  Other sl_status_t if error occurred.
  ******************************************************************************/
-static sl_status_t instance_kernel_init(sli_cpc_instance_t *inst)
+sl_status_t sli_cpc_instance_kernel_init(sli_cpc_instance_t *inst)
 {
 #if defined(SL_CATALOG_KERNEL_PRESENT)
   sl_status_t status = SL_STATUS_OK;
@@ -181,11 +181,6 @@ static sl_status_t instance_hw_init(sli_cpc_instance_t *inst)
 static sl_status_t sli_cpc_instance_early_init(sli_cpc_instance_t *inst)
 {
   sl_status_t status;
-
-  status = instance_kernel_init(inst);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
 
   SLI_CPC_DEBUG_CORE_INIT(inst);
 

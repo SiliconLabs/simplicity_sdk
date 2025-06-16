@@ -36,7 +36,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup sar_config_client BT Mesh SAR Configuration Client
+ * @addtogroup btmesh_sar_config_client
  * @{
  ******************************************************************************/
 
@@ -50,7 +50,7 @@ extern "C" {
  ******************************************************************************/
 void sl_btmesh_sar_config_client_on_event(const sl_btmesh_msg_t *const evt);
 
-/** @} end sar_config_client */
+/** @} end btmesh_sar_config_client */
 
 #ifdef __cplusplus
 }

@@ -58,7 +58,7 @@ extern bool ota_resume_start_counter_reset;
 // -----------------------------------------------------------------------------
 /**************************************************************************//**
  * This function initiates a bootload, meaning it will make the bootloader
- * reset and replace the appication firmware with the one received from the
+ * reset and replace the application firmware with the one received from the
  * server in the designated image storage space.
  *****************************************************************************/
 void bootloader_flash_image(void);

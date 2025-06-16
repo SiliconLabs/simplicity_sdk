@@ -61,7 +61,7 @@
 #define UUID_SIZE 16
 
 uint32_t sl_zigbee_direct_anonymous_join_timeout_sec;
-uint8_t sl_zigbee_direct_interface_state = 0x01;
+uint8_t sli_zigbee_direct_interface_state = 0x01;
 uint32_t outgoing_counter = 1;
 uint32_t incoming_counter = 0;
 static mbedtls_ccm_context ccm_zigbee_direct_Ctx;
@@ -89,7 +89,7 @@ void sli_zigbee_direct_anonymous_join_event_handler(sl_zigbee_af_event_t *event)
   }
 }
 
-sl_status_t sl_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* basic_key)
+sl_status_t sli_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* basic_key)
 {
   sl_zigbee_sec_man_key_t hash;
   sl_zigbee_sec_man_context_t context;
@@ -129,7 +129,7 @@ sl_status_t sl_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE,
   return SL_STATUS_OK;
 }
 
-sl_status_t sl_zigbee_direct_calculate_admin_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* admin_key)
+sl_status_t sli_zigbee_direct_calculate_admin_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* admin_key)
 {
   sl_zigbee_sec_man_key_t hash;
   sl_zigbee_sec_man_context_t context;
@@ -233,7 +233,7 @@ sl_status_t sli_zigbee_direct_security_init()
   return status;
 }
 
-sl_status_t sl_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *encryptData, uint16_t dataLen, uint16_t handle)
+sl_status_t sli_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *encryptData, uint16_t dataLen, uint16_t handle)
 {
   sl_status_t status;
   uint8_t nonce[ZIGBEE_DIRECT_NONCE_LENGTH];
@@ -274,7 +274,7 @@ sl_status_t sl_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourc
   return SL_STATUS_OK;
 }
 
-bool sl_zigbee_direct_security_decrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *decryptData, uint16_t dataLen, uint16_t handle)
+bool sli_zigbee_direct_security_decrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *decryptData, uint16_t dataLen, uint16_t handle)
 {
   sl_status_t status;
   uint8_t nonce[ZIGBEE_DIRECT_NONCE_LENGTH];
@@ -497,7 +497,7 @@ static void sli_zigbee_direct_send_mac_tag(uint8_t connection, uint16_t characte
   sli_zigbee_direct_security_init();
 }
 
-void sl_zigbee_direct_handle_authenticate_write(uint8_t connection, uint8array *writeValue, uint16_t characteristic)
+void sli_zigbee_direct_handle_authenticate_write(uint8_t connection, byte_array *writeValue, uint16_t characteristic)
 {
   sl_status_t status;
   sl_wildcard_tlv_t sl_tlv_pointer1;// max possible value
@@ -548,7 +548,7 @@ void sl_zigbee_direct_handle_authenticate_write(uint8_t connection, uint8array *
 
       sl_my_connection = connection;
 
-      status = sli_zigbee_handle_incoming_dlk_negotiation_request(buffer_len, buffer_ptr, (uint16_t)0, sl_zvd_node_id, characteristic);
+      status = sli_zigbee_direct_handle_incoming_dlk_negotiation_request(buffer_len, buffer_ptr, (uint16_t)0, sl_zvd_node_id, characteristic);
       if (status != SL_STATUS_OK) {
         sl_zigbee_app_debug_println("Error handling incoming negotiation Request");
       } else {

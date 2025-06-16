@@ -1,7 +1,7 @@
 !!omap
 - id: wi_sun_pk6015a
 - label: WI-SUN-PK6015A
-- package: platform
+- package: boards
 - description: Kit BSP support for the Wi-SUN FAN RoW Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

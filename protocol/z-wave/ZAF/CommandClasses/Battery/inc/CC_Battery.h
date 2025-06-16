@@ -2,18 +2,18 @@
  * @file
  * Handler for Command Class Battery.
  * @copyright 2019 Silicon Laboratories Inc.
- * 
+ *
  * @addtogroup CC Command Classes
  * @{
  * @addtogroup Battery
  * @{
- * 
+ *
  * This command class can be used for reporting the device's battery level with additional features.
  * Additional functionality may be added to the application, if needed. See CC_Battery_BatteryGet_handler() in zwave_soc_sensor_pir's app.c source file as an example.
- * 
+ *
  * @}
  * @}
- * 
+ *
  */
 
 #ifndef _CC_BATTERY_H_
@@ -36,8 +36,7 @@
  * The value 255 (0xFF) is used to indicate low-battery warning.
  * All other values are reserved and SHALL be ignored by the receiving device.
  */
-typedef enum
-{
+typedef enum {
   CMD_CLASS_BATTERY_LEVEL_LOW      = 0x00, /**< battery level low */
   CMD_CLASS_BATTERY_LEVEL_HIGH     = 0x10, /**< battery level high */
   CMD_CLASS_BATTERY_LEVEL_FULL     = 0x64, /**< battery level full */
@@ -48,8 +47,7 @@ cc_battery_level_t;
 /**
  * Used to store the last reported battery level
  */
-typedef struct SBatteryData
-{
+typedef struct SBatteryData{
   uint8_t lastReportedBatteryLevel;
 } SBatteryData;
 
@@ -61,7 +59,7 @@ typedef struct SBatteryData
  * @return true if a Battery Report was succesfully enqueued for transmission, false otherwise.
  */
 bool CC_Battery_LevelReport_tx(
-  const AGI_PROFILE* pProfile,
+  const AGI_PROFILE * pProfile,
   uint8_t sourceEndpoint,
   VOID_CALLBACKFUNC(pCbFunc)(TRANSMISSION_RESULT * pTransmissionResult));
 
@@ -79,7 +77,7 @@ uint8_t CC_Battery_BatteryGet_handler(uint8_t endpoint);
 /**
  * Function for periodically checking if the battery level differs from what was last reported.
  *
- * @return true if the battery level has changed since last reported 
+ * @return true if the battery level has changed since last reported
  * @return false if the battery level hasn't changed
  */
 bool cc_battery_check_level_changed(void);

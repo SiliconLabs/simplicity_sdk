@@ -365,7 +365,7 @@ __STATIC_INLINE sl_status_t sl_tftp_clnt_put(sl_tftp_clnt_t * const clnt,
 
 /***************************************************************************//**
  * @brief TFTP Client is finished operation
- * @details Check read or write operations wheither is in progress
+ * @details Check read or write operations whether is in progress
  * @param[in] clnt Client
  * @return true Is finished
  * @return false Is in progress
@@ -395,6 +395,14 @@ bool sl_tftp_clnt_is_op_put(const sl_tftp_clnt_t * const clnt);
  * @return true Is failed otherwise false
  ******************************************************************************/
 bool sl_tftp_clnt_is_op_rrq_wrq_failed(const sl_tftp_clnt_t * const clnt);
+
+/***************************************************************************//**
+ * @brief TFTP Client wait operation finished
+ * @details Wait for operation to finish
+ * @param[in] clnt Client
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
+ ******************************************************************************/
+sl_status_t sl_tftp_clnt_wait_op_finished(const sl_tftp_clnt_t * const clnt);
 
 /** @}*/
 

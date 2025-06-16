@@ -1,15 +1,15 @@
 id: cpc_security_secondary
 label: CPC SECURITY
-package: platform
+package: cpc
 description: >
-  Enable Co-Processor Communication (CPC) security endpoint. The security endpoint
-  is used to encrypt and decrypt the data exchanged between the Primary and Secondary
-  device.
+    Enable Co-Processor Communication (CPC) security endpoint. The security endpoint
+    is used to encrypt and decrypt the data exchanged between the Primary and Secondary
+    device.
 category: Services|Co-Processor Communication|Secondary Device
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/cpc
 config_file:
   - path: config/sl_cpc_security_config.h

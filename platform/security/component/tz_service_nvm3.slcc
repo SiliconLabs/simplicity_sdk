@@ -1,5 +1,5 @@
 id: tz_service_nvm3
-package: platform
+package: security_trustzone
 label: NVM3 Service for TrustZone Secure Key Library
 description: >-
   This component includes the NVM3 support for TrustZone secure library.

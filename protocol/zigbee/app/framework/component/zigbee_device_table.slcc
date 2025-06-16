@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Simple C-based rules engine for demonstrating automatic control through a gateway.
 label: Device Table
 quality: evaluation

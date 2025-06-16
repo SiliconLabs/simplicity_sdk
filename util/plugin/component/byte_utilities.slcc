@@ -1,5 +1,5 @@
 id: byte_utilities
-package: Zigbee
+package: zigbee
 label: Byte Utilities
 description: |-
   Data store and fetch routines

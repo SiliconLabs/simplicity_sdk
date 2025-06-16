@@ -1,7 +1,7 @@
 !!omap
 - id: brd2601b
 - label: BRD2601B
-- package: platform
+- package: boards
 - description: Board support for BRD2601B.
 - category: Platform|Board|Starter Kit
 - quality: production

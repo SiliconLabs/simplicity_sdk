@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Server-side implementation of the Zigbee 3.0 Touchlink commissioning mechanism.
 label: ZLL Commissioning Server
 quality: production

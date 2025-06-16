@@ -1,6 +1,6 @@
 id: btmesh_blob_transfer_server_recommended_instance_target
 label: BLOB Transfer Server Recommended Instance for Target Role
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides recommended instance of BT Mesh BLOB (Binary Large OBject) Transfer
   Server component when BT Mesh DFU Target Node role is implemented by the node.
@@ -37,3 +37,6 @@ recommends:
       - dfu_target
 ui_hints:
   visibility: advanced
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-transfer-server-recommended-instance-target

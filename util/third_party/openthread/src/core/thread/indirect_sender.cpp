@@ -33,21 +33,21 @@
 
 #include "indirect_sender.hpp"
 
-#if OPENTHREAD_FTD
-
 #include "instance/instance.hpp"
 
 namespace ot {
 
-const Mac::Address &IndirectSender::ChildInfo::GetMacAddress(Mac::Address &aMacAddress) const
+#if OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+
+const Mac::Address &IndirectSender::NeighborInfo::GetMacAddress(Mac::Address &aMacAddress) const
 {
     if (mUseShortAddress)
     {
-        aMacAddress.SetShort(static_cast<const Child *>(this)->GetRloc16());
+        aMacAddress.SetShort(static_cast<const CslNeighbor *>(this)->GetRloc16());
     }
     else
     {
-        aMacAddress.SetExtended(static_cast<const Child *>(this)->GetExtAddress());
+        aMacAddress.SetExtended(static_cast<const CslNeighbor *>(this)->GetExtAddress());
     }
 
     return aMacAddress;
@@ -56,8 +56,10 @@ const Mac::Address &IndirectSender::ChildInfo::GetMacAddress(Mac::Address &aMacA
 IndirectSender::IndirectSender(Instance &aInstance)
     : InstanceLocator(aInstance)
     , mEnabled(false)
+#if OPENTHREAD_FTD
     , mSourceMatchController(aInstance)
     , mDataPollHandler(aInstance)
+#endif
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     , mCslTxScheduler(aInstance)
 #endif
@@ -68,6 +70,7 @@ void IndirectSender::Stop(void)
 {
     VerifyOrExit(mEnabled);
 
+#if OPENTHREAD_FTD
     for (Child &child : Get<ChildTable>().Iterate(Child::kInStateAnyExceptInvalid))
     {
         child.SetIndirectMessage(nullptr);
@@ -75,6 +78,8 @@ void IndirectSender::Stop(void)
     }
 
     mDataPollHandler.Clear();
+#endif
+
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     mCslTxScheduler.Clear();
 #endif
@@ -82,6 +87,8 @@ void IndirectSender::Stop(void)
 exit:
     mEnabled = false;
 }
+
+#if OPENTHREAD_FTD
 
 void IndirectSender::AddMessageForSleepyChild(Message &aMessage, Child &aChild)
 {
@@ -198,6 +205,7 @@ void IndirectSender::HandleChildModeChange(Child &aChild, Mle::DeviceMode aOldMo
             {
                 message.GetIndirectTxChildMask().Remove(childIndex);
                 message.SetDirectTransmission();
+                message.SetTimestampToNow();
             }
         }
 
@@ -310,8 +318,6 @@ void IndirectSender::UpdateIndirectMessage(Child &aChild)
     {
         Mac::Address childAddress;
 
-        mDataPollHandler.HandleNewFrame(aChild);
-
         aChild.GetMacAddress(childAddress);
         Get<MeshForwarder>().LogMessage(MeshForwarder::kMessagePrepareIndirect, *message, kErrorNone, &childAddress);
     }
@@ -365,7 +371,7 @@ uint16_t IndirectSender::PrepareDataFrame(Mac::TxFrame &aFrame, Child &aChild, M
 
     if (ip6Header.GetDestination().IsLinkLocalUnicast())
     {
-        Get<MeshForwarder>().GetMacDestinationAddress(ip6Header.GetDestination(), macAddrs.mDestination);
+        macAddrs.mDestination.SetExtendedFromIid(ip6Header.GetDestination().GetIid());
     }
     else
     {
@@ -460,7 +466,6 @@ void IndirectSender::HandleSentFrameToChild(const Mac::TxFrame &aFrame,
     if ((message != nullptr) && (nextOffset < message->GetLength()))
     {
         aChild.SetIndirectFragmentOffset(nextOffset);
-        mDataPollHandler.HandleNewFrame(aChild);
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
         mCslTxScheduler.Update();
 #endif
@@ -511,17 +516,7 @@ void IndirectSender::HandleSentFrameToChild(const Mac::TxFrame &aFrame,
             Get<MeshForwarder>().LogMessage(MeshForwarder::kMessageTransmit, *message, txError, &macDest);
         }
 
-        if (message->GetType() == Message::kTypeIp6)
-        {
-            if (aChild.GetIndirectTxSuccess())
-            {
-                Get<MeshForwarder>().mIpCounters.mTxSuccess++;
-            }
-            else
-            {
-                Get<MeshForwarder>().mIpCounters.mTxFailure++;
-            }
-        }
+        Get<MeshForwarder>().mCounters.UpdateOnTxDone(*message, aChild.GetIndirectTxSuccess());
 
         if (message->GetIndirectTxChildMask().Has(childIndex))
         {
@@ -566,6 +561,45 @@ bool IndirectSender::AcceptSupervisionMessage(const Message &aMessage)
     return aMessage.GetType() == Message::kTypeSupervision;
 }
 
-} // namespace ot
+#endif // OPENTHREAD_FTD
 
-#endif // #if OPENTHREAD_FTD
+#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+
+Error IndirectSender::PrepareFrameForCslNeighbor(Mac::TxFrame &aFrame,
+                                                 FrameContext &aContext,
+                                                 CslNeighbor  &aCslNeighbor)
+{
+    Error error = kErrorNotFound;
+
+#if OPENTHREAD_FTD
+    // `CslNeighbor` can only be a `Child` for now, but can be changed later.
+    error = PrepareFrameForChild(aFrame, aContext, static_cast<Child &>(aCslNeighbor));
+#else
+    OT_UNUSED_VARIABLE(aFrame);
+    OT_UNUSED_VARIABLE(aContext);
+    OT_UNUSED_VARIABLE(aCslNeighbor);
+#endif
+
+    return error;
+}
+
+void IndirectSender::HandleSentFrameToCslNeighbor(const Mac::TxFrame &aFrame,
+                                                  const FrameContext &aContext,
+                                                  Error               aError,
+                                                  CslNeighbor        &aCslNeighbor)
+{
+#if OPENTHREAD_FTD
+    HandleSentFrameToChild(aFrame, aContext, aError, static_cast<Child &>(aCslNeighbor));
+#else
+    OT_UNUSED_VARIABLE(aFrame);
+    OT_UNUSED_VARIABLE(aContext);
+    OT_UNUSED_VARIABLE(aError);
+    OT_UNUSED_VARIABLE(aCslNeighbor);
+#endif
+}
+
+#endif // OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+
+#endif // OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+
+} // namespace ot

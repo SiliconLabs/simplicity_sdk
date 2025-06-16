@@ -34,7 +34,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,11 +47,11 @@ extern "C" {
  * @param[out] len A pointer to a length field corresponding to the byte array
  *   in flash. If the len pointer is NULL, no length value is returned.
  * @return The status of the flash read operation.
- *   RAIL_STATUS_INVALID_PARAMETER if an invalid data pointer is provided.
- *   RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
- *   RAIL_STATUS_NO_ERROR on successful read of flash.
+ *   SL_RAIL_STATUS_INVALID_PARAMETER if an invalid data pointer is provided.
+ *   SL_RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
+ *   SL_RAIL_STATUS_NO_ERROR on successful read of flash.
  */
-RAIL_Status_t FD_ReadData(uint8_t **data, uint32_t *len);
+sl_rail_status_t FD_ReadData(uint8_t **data, uint32_t *len);
 
 /**
  * Write a valid byte array to flash.
@@ -59,24 +59,24 @@ RAIL_Status_t FD_ReadData(uint8_t **data, uint32_t *len);
  * @param[in] data A pointer to a byte array to be written to flash.
  * @param[in] len The length of the byte array to be written to flash.
  * @return The status of the flash read operation.
- *   RAIL_STATUS_INVALID_PARAMETER if data is a NULL pointer or if the
+ *   SL_RAIL_STATUS_INVALID_PARAMETER if data is a NULL pointer or if the
  *   length of bytes to write is larger than the flash space available.
- *   RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
- *   RAIL_STATUS_NO_ERROR on successful write of flash.
+ *   SL_RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
+ *   SL_RAIL_STATUS_NO_ERROR on successful write of flash.
  */
-RAIL_Status_t FD_WriteData(uint8_t *data, uint32_t len);
+sl_rail_status_t FD_WriteData(uint8_t *data, uint32_t len);
 
 /**
  * Erase the entire flash page.
  *
  * @return The status of the flash clear operation.
- *   RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
- *   RAIL_STATUS_NO_ERROR on successful erase of flash.
+ *   SL_RAIL_STATUS_INVALID_CALL if no valid byte array exists in flash.
+ *   SL_RAIL_STATUS_NO_ERROR on successful erase of flash.
  *
  * @note This results in all bits in the entire flash page being set to 1,
  *   so all words on the page would read as 0xFFFFFFFF.
  */
-RAIL_Status_t FD_ClearData(void);
+sl_rail_status_t FD_ClearData(void);
 
 /**
  * Return the array length in bytes of data previously saved in flash.

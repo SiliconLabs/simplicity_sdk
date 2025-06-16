@@ -33,9 +33,9 @@
 #include "sl_bt_api.h"
 #include "sl_rail_util_cs_antenna_offset_config.h"
 
-static const int16_t cs_antenna_offset_wireless_cm[SL_RAIL_UTIL_CS_ANTENNA_COUNT] =
+static const int16_t cs_antenna_offset_wireless_cm[] =
   SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRELESS_CM;
-static const int16_t cs_antenna_offset_wired_cm[SL_RAIL_UTIL_CS_ANTENNA_COUNT] =
+static const int16_t cs_antenna_offset_wired_cm[] =
   SL_RAIL_UTIL_CS_ANTENNA_OFFSET_WIRED_CM;
 
 sl_status_t cs_antenna_configure(bool wired)

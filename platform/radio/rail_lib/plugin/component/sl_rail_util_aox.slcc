@@ -1,0 +1,18 @@
+id: sl_rail_util_aox
+label: SL RAIL Utility, AoX
+description: Utility to aid with Angle of Arrival/Departure (AoX) Configuration
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_aox
+        name: SL RAIL Utility, AoX
+        license: Zlib
+provides:
+  - name: sl_rail_util_aox
+requires:
+  - name: rail_util_aox
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

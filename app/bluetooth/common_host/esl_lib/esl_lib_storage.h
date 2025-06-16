@@ -61,12 +61,14 @@ sl_status_t esl_lib_storage_create(esl_lib_storage_handle_t *handle_out);
  * Append to a storage.
  *
  * @param[in] handle Storage handle.
+ * @param[in] len    Input bytes count.
  * @param[in] data   Pointer to data input.
  *
  * @return Status code.
  *****************************************************************************/
 sl_status_t esl_lib_storage_append(esl_lib_storage_handle_t handle,
-                                   uint8array               *data);
+                                   uint16_t                 len,
+                                   void                     *data);
 
 /**************************************************************************//**
  * Get the size of the storage.

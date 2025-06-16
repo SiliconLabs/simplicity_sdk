@@ -1,0 +1,15 @@
+id: zigbee_memory_usage
+label: Memory Usage
+package: zigbee
+category: Zigbee|Utility
+quality: evaluation
+description: Provides memory usage CLI commands for accessing flash and ram usage metrics on apps.
+provides:
+  - name: zigbee_memory_usage
+requires:
+  # for Host and SoC apps
+  - name: zigbee_memory_usage_cli
+    condition: [zigbee_zcl_framework_core]
+  # for NCP and SoC apps
+  - name: zigbee_memory_usage_api
+    condition: [zigbee_stack_common]

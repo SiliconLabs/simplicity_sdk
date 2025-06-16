@@ -74,8 +74,7 @@
  * Enum type is used in CC SUPERVISION_REPORT to allow a receiving node to advertise
  * application status updates in future Supervision Report Commands
  */
-typedef enum
-{
+typedef enum {
   CC_SUPERVISION_MORE_STATUS_UPDATES_THIS_IS_LAST,    ///< CC_SUPERVISION_MORE_STATUS_UPDATES_THIS_IS_LAST
   CC_SUPERVISION_MORE_STATUS_UPDATES_REPORTS_TO_FOLLOW///< CC_SUPERVISION_MORE_STATUS_UPDATES_REPORTS_TO_FOLLOW
 } cc_supervision_more_status_updates_t;
@@ -83,8 +82,7 @@ typedef enum
 /**
  * Status of Supervision.
  */
-typedef enum _SUPERVISION_STATUS_
-{
+typedef enum _SUPERVISION_STATUS_{
   CC_SUPERVISION_STATUS_NOT_SUPPORTED,/**< SUPERVISION_STATUS_NOT_SUPPORTED */
   CC_SUPERVISION_STATUS_WORKING,      /**< SUPERVISION_STATUS_WORKING */
   CC_SUPERVISION_STATUS_FAIL,         /**< SUPERVISION_STATUS_FAIL */
@@ -98,12 +96,11 @@ typedef enum _SUPERVISION_STATUS_
  * This struct is used for the arguments in cc_supervision_get_receive_handler function
  * pointer in init_and_reset.
  */
-typedef struct
-{
+typedef struct {
   uint8_t cmdClass; /**< Input */
   uint8_t cmd; /**< Input */
   uint8_t properties1; /**< Input: bit[0..5] session id, bit[7] status update disable/enable.
-                         Output: bit[0..5] session id, bit[7] more status updates of type cc_supervision_more_status_updates_t */
+                          Output: bit[0..5] session id, bit[7] more status updates of type cc_supervision_more_status_updates_t */
   cc_supervision_status_t status; /**< Output */
   uint8_t duration; /**< Output */
   RECEIVE_OPTIONS_TYPE_EX * rxOpt; /**< Input */
@@ -145,7 +142,6 @@ CmdClassSupervisionReportSend(
   cc_supervision_status_t status,
   uint8_t duration);
 
-
 /**
  * Creates payload for Supervision Get command by calling
  * \ref CommandClassSupervisionGetWrite and updates supervision session ID.
@@ -154,7 +150,6 @@ CmdClassSupervisionReportSend(
  * @param[in,out] pPayload pointer to supervision get payload
  */
 void CommandClassSupervisionGetAdd(ZW_SUPERVISION_GET_FRAME* pPayload);
-
 
 /**
  * Generates payload for Supervision Get command.
@@ -174,7 +169,6 @@ CommandClassSupervisionGetWrite(ZW_SUPERVISION_GET_FRAME* pbuf);
  */
 void CommandClassSupervisionGetSetPayloadLength(ZW_SUPERVISION_GET_FRAME* pbuf, uint8_t payLoadlen);
 
-
 /**
  * Gets the length of encapsulated payload from the frame.
  * Used by framework to calculate the length of the payload in supervision-encapsulated frames.
@@ -187,4 +181,3 @@ uint8_t CommandClassSupervisionGetGetPayloadLength(ZW_SUPERVISION_GET_FRAME* pbu
 /// @}
 
 #endif /*_COMMAND_CLASS_SUPERVISION_H_*/
-

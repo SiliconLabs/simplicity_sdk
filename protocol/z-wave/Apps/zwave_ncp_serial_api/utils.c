@@ -16,24 +16,17 @@ uint8_t GetCommandResponse(SZwaveCommandStatusPackage *pCmdStatus, EZwaveCommand
   const SApplicationHandles * m_pAppHandles = ZAF_getAppHandle();
   TaskHandle_t m_pAppTaskHandle = GetTaskHandle();
   QueueHandle_t Queue = m_pAppHandles->ZwCommandStatusQueue;
-  for (uint8_t delayCount = 0; delayCount < 100; delayCount++)
-  {
-    for (UBaseType_t QueueElmCount = uxQueueMessagesWaiting(Queue);  QueueElmCount > 0; QueueElmCount--)
-    {
-      if (xQueueReceive(Queue, (uint8_t*)pCmdStatus, 0))
-      {
-        if (pCmdStatus->eStatusType == cmdType)
-        {
-          if (m_pAppTaskHandle  && (0 < uxQueueMessagesWaiting(Queue)))
-          {
+  for (uint8_t delayCount = 0; delayCount < 100; delayCount++) {
+    for (UBaseType_t QueueElmCount = uxQueueMessagesWaiting(Queue); QueueElmCount > 0; QueueElmCount--) {
+      if (xQueueReceive(Queue, (uint8_t*)pCmdStatus, 0)) {
+        if (pCmdStatus->eStatusType == cmdType) {
+          if (m_pAppTaskHandle  && (0 < uxQueueMessagesWaiting(Queue))) {
             /* More elements in queue call xTaskNotify */
             __attribute__((unused)) BaseType_t Status = xTaskNotify(m_pAppTaskHandle, 1 << EAPPLICATIONEVENT_ZWCOMMANDSTATUS, eSetBits);
             assert(Status == pdPASS); // We probably received a bad Task handle
           }
           return true;
-        }
-        else
-        {
+        } else {
           /* Re-insert none-matching message into Queue */
           __attribute__((unused)) BaseType_t result = xQueueSendToBack(Queue, (uint8_t*)pCmdStatus, 0);
           assert(pdTRUE == result);
@@ -42,8 +35,7 @@ uint8_t GetCommandResponse(SZwaveCommandStatusPackage *pCmdStatus, EZwaveCommand
     }
     vTaskDelay(10);
   }
-  if (m_pAppTaskHandle && (0 < uxQueueMessagesWaiting(Queue)))
-  {
+  if (m_pAppTaskHandle && (0 < uxQueueMessagesWaiting(Queue))) {
     /* Only call xTaskNotify if still elements in queue */
     __attribute__((unused)) BaseType_t Status = xTaskNotify(m_pAppTaskHandle, 1 << EAPPLICATIONEVENT_ZWCOMMANDSTATUS, eSetBits);
     assert(Status == pdPASS); // We probably received a bad Task handle
@@ -60,8 +52,7 @@ uint8_t IsPrimaryController(void)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&cmdPackage, 500);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   SZwaveCommandStatusPackage cmdStatus = { 0 };
-  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_IS_PRIMARY_CTRL))
-  {
+  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_IS_PRIMARY_CTRL)) {
     return cmdStatus.Content.IsPrimaryCtrlStatus.result;
   }
   assert(false);
@@ -77,8 +68,7 @@ uint8_t GetControllerCapabilities(void)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&cmdPackage, 500);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   SZwaveCommandStatusPackage cmdStatus = { .eStatusType = EZWAVECOMMANDSTATUS_GET_CONTROLLER_CAPABILITIES };
-  if (GetCommandResponse(&cmdStatus, cmdStatus.eStatusType))
-  {
+  if (GetCommandResponse(&cmdStatus, cmdStatus.eStatusType)) {
     return cmdStatus.Content.GetControllerCapabilitiesStatus.result;
   }
   assert(false);
@@ -93,15 +83,15 @@ uint8_t QueueProtocolCommand(uint8_t *pCommand)
 }
 
 /**
-* Aquire node information from protocol
-*
-* Method requires CommandStatus queue from protocol to be empty.
-* Method requires CommandQueue to protocol to be empty.
-* Method will cause assert on failure.
-*
-* @param[in]     NodeId       ID of node to get information about.
-* @param[out]    pNodeInfo    Pointer to t_extNodeInfo struct where aquired node info can be stored.
-*/
+ * Aquire node information from protocol
+ *
+ * Method requires CommandStatus queue from protocol to be empty.
+ * Method requires CommandQueue to protocol to be empty.
+ * Method will cause assert on failure.
+ *
+ * @param[in]     NodeId       ID of node to get information about.
+ * @param[out]    pNodeInfo    Pointer to t_extNodeInfo struct where aquired node info can be stored.
+ */
 void GetNodeInfo(uint16_t NodeId, t_ExtNodeInfo* pNodeInfo)
 {
   const SApplicationHandles *m_pAppHandles = ZAF_getAppHandle();
@@ -114,11 +104,9 @@ void GetNodeInfo(uint16_t NodeId, t_ExtNodeInfo* pNodeInfo)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&GetNodeInfoCommand, 0);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   // Wait for protocol to handle command (it shouldnt take long)
-  SZwaveCommandStatusPackage NodeInfo = { .eStatusType = EZWAVECOMMANDSTATUS_NODE_INFO};
-  if (GetCommandResponse(&NodeInfo, NodeInfo.eStatusType))
-  {
-    if (NodeInfo.Content.NodeInfoStatus.NodeId == NodeId)
-    {
+  SZwaveCommandStatusPackage NodeInfo = { .eStatusType = EZWAVECOMMANDSTATUS_NODE_INFO };
+  if (GetCommandResponse(&NodeInfo, NodeInfo.eStatusType)) {
+    if (NodeInfo.Content.NodeInfoStatus.NodeId == NodeId) {
       memcpy(pNodeInfo, (uint8_t*)&NodeInfo.Content.NodeInfoStatus.extNodeInfo, sizeof(NodeInfo.Content.NodeInfoStatus.extNodeInfo));
       return;
     }
@@ -127,48 +115,47 @@ void GetNodeInfo(uint16_t NodeId, t_ExtNodeInfo* pNodeInfo)
 }
 
 /**
-* Aquire a list of included nodes IDS in the network from protocol
-*
-* Method requires CommandStatus queue from protocol to be empty.
-* Method requires CommandQueue to protocol to be empty.
-* Method will cause assert on failure.
-*
-* @param[out]    node_id_list    Pointer to bitmask list where aquired included nodes IDs saved
-*/
+ * Aquire a list of included nodes IDS in the network from protocol
+ *
+ * Method requires CommandStatus queue from protocol to be empty.
+ * Method requires CommandQueue to protocol to be empty.
+ * Method will cause assert on failure.
+ *
+ * @param[out]    node_id_list    Pointer to bitmask list where aquired included nodes IDs saved
+ */
 void Get_included_nodes(uint8_t* node_id_list)
 {
   const SApplicationHandles *m_pAppHandles = ZAF_getAppHandle();
   SZwaveCommandPackage GetIncludedNodesCommand = {
-      .eCommandType = EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_NODES};
+    .eCommandType = EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_NODES
+  };
 
   // Put the Command on queue (and dont wait for it, queue must be empty)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&GetIncludedNodesCommand, 0);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   // Wait for protocol to handle command (it shouldnt take long)
   SZwaveCommandStatusPackage includedNodes = { .eStatusType = EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_NODES };
-  if (GetCommandResponse(&includedNodes, includedNodes.eStatusType))
-  {
+  if (GetCommandResponse(&includedNodes, includedNodes.eStatusType)) {
     memcpy(node_id_list, (uint8_t*)includedNodes.Content.GetIncludedNodes.node_id_list, sizeof(NODE_MASK_TYPE));
     return;
   }
   assert(false);
 }
 
-
 /**
-* Acquire a list of included long range nodes IDS in the network from protocol.
-*
-* Method requires CommandStatus queue from protocol to be empty.
-* Method requires CommandQueue to protocol to be empty.
-* Method will cause assert on failure.
-*
-* @param[out]    node_id_list    Pointer to bitmask list where aquired included nodes IDs saved
-*/
-void Get_included_lr_nodes(uint8_t* node_id_list)
+ * Acquire a list of included NLS nodes IDS in the network from protocol.
+ *
+ * @param[out] node_id_list      Pointer to bitmask list where aquired included nodes IDs saved
+ * @param[in]  bitmask_offset    Nodes ID offset represented in multiples of 128 bytes
+ * @param[out] more_nodes        Flag indicating that there still exist nodes to be queried
+ * @param[out] output_length     Pointer to output length of the nodes ID list
+ */
+void Get_included_NLS_nodes(uint8_t * const node_id_list, uint8_t bitmask_offset, bool * const more_nodes, uint8_t * const output_length)
 {
   const SApplicationHandles * m_pAppHandles = ZAF_getAppHandle();
   SZwaveCommandPackage GetIncludedNodesCommand = {
-      .eCommandType = EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_LR_NODES
+    .eCommandType = EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_NLS_NODES,
+    .uCommandParams.GetNLSNodes.bitmaskOffset = bitmask_offset
   };
 
   // Put the Command on queue (and don't wait for it, queue is most likely empty)
@@ -176,34 +163,62 @@ void Get_included_lr_nodes(uint8_t* node_id_list)
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   // Wait for protocol to handle command (it shouldn't take long)
   SZwaveCommandStatusPackage includedNodes = { 0 };
-  if (GetCommandResponse(&includedNodes, EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_LR_NODES))
-  {
+  *more_nodes = false;
+  *output_length = 0;
+  if (GetCommandResponse(&includedNodes, EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_NLS_NODES)) {
+    memcpy((void *)node_id_list, (uint8_t*)includedNodes.Content.GetIncludedNodesNLS.node_id_list, GET_NLS_NODES_LIST_LENGTH_MAX);
+    *more_nodes = includedNodes.Content.GetIncludedNodesNLS.more_nodes;
+    *output_length = includedNodes.Content.GetIncludedNodesNLS.output_length;
+    return;
+  }
+  assert(false);
+}
+
+/**
+ * Acquire a list of included long range nodes IDS in the network from protocol.
+ *
+ * Method requires CommandStatus queue from protocol to be empty.
+ * Method requires CommandQueue to protocol to be empty.
+ * Method will cause assert on failure.
+ *
+ * @param[out]    node_id_list    Pointer to bitmask list where aquired included nodes IDs saved
+ */
+void Get_included_lr_nodes(uint8_t* node_id_list)
+{
+  const SApplicationHandles * m_pAppHandles = ZAF_getAppHandle();
+  SZwaveCommandPackage GetIncludedNodesCommand = {
+    .eCommandType = EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_LR_NODES
+  };
+
+  // Put the Command on queue (and don't wait for it, queue is most likely empty)
+  __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&GetIncludedNodesCommand, 0);
+  assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
+  // Wait for protocol to handle command (it shouldn't take long)
+  SZwaveCommandStatusPackage includedNodes = { 0 };
+  if (GetCommandResponse(&includedNodes, EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_LR_NODES)) {
     memcpy(node_id_list, (uint8_t*)includedNodes.Content.GetIncludedNodesLR.node_id_list, sizeof(LR_NODE_MASK_TYPE));
     return;
   }
   assert(false);
 }
 
-
 void TriggerNotification(EApplicationEvent event)
 {
   TaskHandle_t m_pAppTaskHandle = GetTaskHandle();
-  if (m_pAppTaskHandle)
-  {
+  if (m_pAppTaskHandle) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     xTaskNotifyFromISR(m_pAppTaskHandle,
-                1 << event,
-                eSetBits,
-                &xHigherPriorityTaskWoken
-    );
+                       1 << event,
+                       eSetBits,
+                       &xHigherPriorityTaskWoken
+                       );
     /* If xHigherPriorityTaskWoken is now set to pdTRUE then a context switch
-    should be performed to ensure the interrupt returns directly to the highest
-    priority task.  The macro used for this purpose is dependent on the port in
-    use and may be called portEND_SWITCHING_ISR(). */
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
+       should be performed to ensure the interrupt returns directly to the highest
+       priority task.  The macro used for this purpose is dependent on the port in
+       use and may be called portEND_SWITCHING_ISR(). */
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
   }
-
 }
 
 #define LR_AUTO_CHANNEL_CONFIG_MASK       0xF0
@@ -220,8 +235,7 @@ void GetLongRangeChannel(uint8_t * channel_n, uint8_t *auto_channel_config)
   SZwaveCommandStatusPackage cmdStatus = { 0 };
   *auto_channel_config = 0;
   *channel_n = 0;
-  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_ZW_GET_LR_CHANNEL))
-  {
+  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_ZW_GET_LR_CHANNEL)) {
     *channel_n = cmdStatus.Content.GetLRChannel.result & LR_CURRENT_ACTIVE_CHANNEL_MASK;
     *auto_channel_config = cmdStatus.Content.GetLRChannel.result & LR_AUTO_CHANNEL_CONFIG_MASK;
     return;
@@ -239,13 +253,11 @@ bool SetLongRangeChannel(uint8_t channel)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&cmdPackage, 500);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   SZwaveCommandStatusPackage cmdStatus = { 0 };
-  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_ZW_SET_LR_CHANNEL))
-  {
+  if (GetCommandResponse(&cmdStatus, EZWAVECOMMANDSTATUS_ZW_SET_LR_CHANNEL)) {
     return cmdStatus.Content.SetLRChannel.result;
   }
   assert(false);
   return 0;
-
 }
 
 void SetLongRangeVirtualNodes(uint8_t bitmask)
@@ -268,8 +280,7 @@ uint8_t GetPTIConfig(void)
   __attribute__((unused)) EQueueNotifyingStatus QueueStatus = QueueNotifyingSendToBack(m_pAppHandles->pZwCommandQueue, (uint8_t *)&cmdPackage, 500);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == QueueStatus);
   SZwaveCommandStatusPackage cmdStatus = { .eStatusType = EZWAVECOMMANDSTATUS_ZW_GET_PTI_CONFIG };
-  if (GetCommandResponse(&cmdStatus, cmdStatus.eStatusType))
-  {
+  if (GetCommandResponse(&cmdStatus, cmdStatus.eStatusType)) {
     return cmdStatus.Content.GetPTIconfig.result;
   }
   assert(false);

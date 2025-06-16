@@ -31,11 +31,9 @@
 #ifndef SL_RAIL_UTIL_PA_CONFIG_H
 #define SL_RAIL_UTIL_PA_CONFIG_H
 
-#include "rail_types.h"
-
 // <<< Use Configuration Wizard in Context Menu >>>
-// <h>PA configuration
 
+// <h> PA Configuration
 // <o SL_RAIL_UTIL_PA_POWER_DECI_DBM> Initial PA Power (deci-dBm, 100 = 10.0 dBm)
 // <i> Default: 100
 #define SL_RAIL_UTIL_PA_POWER_DECI_DBM      100
@@ -58,11 +56,13 @@
 // <i> Default: RAIL_TX_POWER_MODE_2P4GIG_HIGHEST
 #define SL_RAIL_UTIL_PA_SELECTION_2P4GHZ    RAIL_TX_POWER_MODE_2P4GIG_HIGHEST
 
-// <o SL_RAIL_UTIL_PA_SELECTION_SUBGHZ> Sub-1 GHz PA Selection
+// <o SL_RAIL_UTIL_PA_SELECTION_SUBGHZ> Sub-GHz PA Selection
 // <RAIL_TX_POWER_MODE_NONE=> Disable
 // <i> Default: RAIL_TX_POWER_MODE_NONE
 #define SL_RAIL_UTIL_PA_SELECTION_SUBGHZ    RAIL_TX_POWER_MODE_NONE
+// </h>
 
+// <h> PA Curve Configuration
 // <s.50 SL_RAIL_UTIL_PA_CURVE_HEADER> Header file containing custom PA curves
 // <i> Default: "pa_curves_efr32.h"
 #define SL_RAIL_UTIL_PA_CURVE_HEADER        "pa_curves_efr32.h"
@@ -70,12 +70,14 @@
 // <s.50 SL_RAIL_UTIL_PA_CURVE_TYPES> Header file containing PA curve types
 // <i> Default: "pa_curve_types_efr32.h"
 #define SL_RAIL_UTIL_PA_CURVE_TYPES         "pa_curve_types_efr32.h"
+// </h>
 
+// <h> PA Calibration Configuration
 // <q SL_RAIL_UTIL_PA_CALIBRATION_ENABLE> Enable PA Calibration
 // <i> Default: 1
 #define SL_RAIL_UTIL_PA_CALIBRATION_ENABLE  1
-
 // </h>
+
 // <<< end of configuration section >>>
 
 #endif // SL_RAIL_UTIL_PA_CONFIG_H

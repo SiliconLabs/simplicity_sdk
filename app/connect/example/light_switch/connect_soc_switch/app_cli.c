@@ -41,6 +41,7 @@
 #include "app_process.h"
 #include "sl_light_switch.h"
 #include "psa/crypto.h"
+#include "stack-info.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs

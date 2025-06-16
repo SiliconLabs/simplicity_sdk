@@ -21,7 +21,7 @@
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
 #include "sl_bluetooth_periodic_sync_config.h"
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, sync, sli_bt_sync_config_t) = {
+const sli_bt_sync_config_t sli_bt_sync_config = {
   .max_periodic_syncs = SL_BT_CONFIG_MAX_PERIODIC_ADVERTISING_SYNC
 };
 

@@ -1,6 +1,6 @@
 id: lwip_app_lwiperf
 label: "LWIP lightweight iPerf High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP lightweight iperf high layer application specifically programmed with the lwIP low-level raw API,
     this is a simple performance measuring client/server to check your bandwidth using iPerf2 on a PC as

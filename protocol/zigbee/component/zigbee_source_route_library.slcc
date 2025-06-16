@@ -2,7 +2,7 @@
 #run "sled lib export <FILENAME> to generate
 id: zigbee_source_route_library
 label: Source Routing (Library)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

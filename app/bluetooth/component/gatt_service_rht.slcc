@@ -1,6 +1,6 @@
 id: gatt_service_rht
 label: Environment Sensing - Relative Humidity and Temperature GATT Service
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides relative humidity and temperature sensor data in GATT characteristics.
   Designed for the Thunderboard smartphone app.

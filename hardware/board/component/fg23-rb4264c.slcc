@@ -1,7 +1,7 @@
 !!omap
 - id: fg23_rb4264c
 - label: FG23-RB4264C
-- package: platform
+- package: boards
 - description: Kit BSP support for the FG23B 868-915 MHz 20 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

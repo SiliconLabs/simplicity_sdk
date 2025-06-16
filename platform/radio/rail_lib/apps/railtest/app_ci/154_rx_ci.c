@@ -1331,18 +1331,14 @@ void enable802154SignalIdentifier(sl_cli_command_arg_t *args)
     RAIL_IEEE802154_ConfigSignalIdentifier(railHandle, RAIL_IEEE802154_SIGNAL_IDENTIFIER_MODE_DISABLE);
     status = RAIL_STATUS_INVALID_CALL;
   }
-  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s",
-                ((status == RAIL_STATUS_NO_ERROR) ? "Success"
-                 : (status == RAIL_STATUS_INVALID_CALL) ? "Invalid Call"
-                 : "Failure"
-                ));
+  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s", getStatusMessage(status));
 #else
   responsePrint(sl_cli_get_command_string(args, 0),
                 "Signal identifier unsupported");
 #endif
 }
 
-#if RAIL_IEEE802154_SUPPORTS_RX_CHANNEL_SWITCHING
+#if RAIL_IEEE802154_SUPPORTS_RX_CHANNEL_SWITCHING && !defined(_SILICON_LABS_32B_SERIES_3)
 static RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT_TYPE rxChannelSwitchingBuf[RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES
                                                                                      / RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT];
 #endif
@@ -1351,7 +1347,11 @@ void ieee802154ConfigRxChannelSwitching(sl_cli_command_arg_t *args)
 {
 #if RAIL_IEEE802154_SUPPORTS_RX_CHANNEL_SWITCHING
   RAIL_IEEE802154_RxChannelSwitchingCfg_t config = {
+  #ifdef _SILICON_LABS_32B_SERIES_3
+    .buffer = NULL,
+  #else
     .buffer = rxChannelSwitchingBuf,
+  #endif
     .bufferBytes = RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES,
   };
 

@@ -31,25 +31,23 @@
 #ifndef SL_RAIL_UTIL_VDET_CONFIG_H
 #define SL_RAIL_UTIL_VDET_CONFIG_H
 
-#include "sl_gpio.h"
-
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <h> VDET Configuration
 
 // <o SL_RAIL_UTIL_VDET_MODE> Select VDET mode
-// <RAIL_VDET_MODE_DISABLED=> Disable VDET.
-// <RAIL_VDET_MODE_AUTOMATIC=> VDET measurements are taken every Tx packet at the specified time.
-// <RAIL_VDET_MODE_IMMEDIATE=> VDET measurements are taken immediately when requested.
-// <i> Default: RAIL_VDET_MODE_DISABLED
-#define SL_RAIL_UTIL_VDET_MODE RAIL_VDET_MODE_DISABLED
+// <SL_RAIL_VDET_MODE_DISABLED=> Disable VDET.
+// <SL_RAIL_VDET_MODE_AUTOMATIC=> VDET measurements are taken every Tx packet at the specified time.
+// <SL_RAIL_VDET_MODE_IMMEDIATE=> VDET measurements are taken immediately when requested.
+// <i> Default: SL_RAIL_VDET_MODE_DISABLED
+#define SL_RAIL_UTIL_VDET_MODE SL_RAIL_VDET_MODE_DISABLED
 
 // <o SL_RAIL_UTIL_VDET_RESOLUTION> Select VDET resolution
-// <RAIL_VDET_RESOLUTION_10_BIT=> ~10 bit resolution
-// <RAIL_VDET_RESOLUTION_11_BIT=> ~11 bit resolution
-// <RAIL_VDET_RESOLUTION_12_BIT=> ~12 bit resolution
-// <i> Default: RAIL_VDET_RESOLUTION_10_BIT
-#define SL_RAIL_UTIL_VDET_RESOLUTION RAIL_VDET_RESOLUTION_10_BIT
+// <SL_RAIL_VDET_RESOLUTION_10_BIT=> ~10 bit resolution
+// <SL_RAIL_VDET_RESOLUTION_11_BIT=> ~11 bit resolution
+// <SL_RAIL_VDET_RESOLUTION_12_BIT=> ~12 bit resolution
+// <i> Default: SL_RAIL_VDET_RESOLUTION_10_BIT
+#define SL_RAIL_UTIL_VDET_RESOLUTION SL_RAIL_VDET_RESOLUTION_10_BIT
 
 // <o SL_RAIL_UTIL_VDET_DELAY_US> Select VDET measurement delay in microseconds when in RAIL_VDET_MODE_AUTOMATIC
 // <1..150000:1>

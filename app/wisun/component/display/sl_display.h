@@ -394,7 +394,7 @@ sl_status_t sl_display_draw_polygon_filled(uint32_t numPoints, const int32_t *po
  * @param y Y coordinate
  * @param red Read value
  * @param green Green Value
- * @param blue Blue Vlaue
+ * @param blue Blue Value
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_display_draw_pixel_rgb(int32_t x, int32_t y, uint8_t red, uint8_t green, uint8_t blue);

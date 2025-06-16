@@ -187,11 +187,13 @@ static uint8_t confirmationMask = 0;
 // Callbacks
 extern bool sli_zigbee_test_harness_z3_ignore_rejoin_commands;
 // Provided by the packet-handoff component
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void *data)
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void *data,
+                                                                  uint8_t size_d)
 {
+  UNUSED_VAR(size_d);
   #if !defined(ESZP_HOST)
   sl_zigbee_packet_action_t act = SL_ZIGBEE_ACCEPT_PACKET;
   uint8_t commandId, packetLength;
@@ -383,7 +385,7 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
       }
       break;
     }
-    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN:
+    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN_ZLL:
     case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_ZCL: {
       if (printingMask & PRINTING_MASK_ZCL) {
         // Incoming ZLL Packet requires a senderEui64 attached
@@ -422,11 +424,13 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
 }
 
 // Provided by the packet-handoff component
-sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void *data)
+sl_zigbee_packet_action_t sl_zigbee_pre_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void *data,
+                                                                  uint8_t size_d)
 {
+  UNUSED_VAR(size_d);
   #if !defined(ESZP_HOST)
   sl_zigbee_packet_action_t act = SL_ZIGBEE_ACCEPT_PACKET;
   uint8_t packetLength = *size_p;

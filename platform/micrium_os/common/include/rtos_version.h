@@ -3,7 +3,7 @@
  * @brief Common - Version Info
  *******************************************************************************
  * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc.  Your use of this
@@ -31,7 +31,7 @@
  *******************************************************************************************************/
 
 //                                                                 Version number of Micrium OS (Vx.yy.zz) times 10000.
-#define  RTOS_VERSION                           51700u
+#define  RTOS_VERSION                           51800u
 
 /********************************************************************************************************
  ********************************************************************************************************

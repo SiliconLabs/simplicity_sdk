@@ -1,6 +1,6 @@
 id: se_manager
 label: SE Manager
-package: platform
+package: security_se_manager
 description: >-
   Driver for interacting with the SE or Root Code on Series 2 devices. The
   available functionality varies accross parts: device management utilities
@@ -23,6 +23,10 @@ include:
       - path: sl_se_manager_defines.h
       - path: sl_se_manager_types.h
       - path: sl_se_manager_util.h
+      - path: sl_se_manager_key_handling.h
+        condition: [trustzone_nonsecure]
+      - path: sl_se_manager_key_derivation.h
+        condition: [trustzone_nonsecure]
 
   # Internals.
   - path: inc

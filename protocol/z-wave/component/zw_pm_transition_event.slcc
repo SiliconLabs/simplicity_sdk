@@ -1,0 +1,33 @@
+id: zw_pm_transition_event
+label: Z-Wave Power Manager Transition event handler
+category: Z-Wave
+description: >
+  Applications can get notified when the system transitions from a power level to another power level.
+  This allows you to do some operations depending on which level the system goes to, such as saving/restoring context
+  and to customize and optimize power consumption of your application.
+
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+
+source:
+  - path: "protocol/z-wave/platform/SiliconLabs/components/zw_pm_transition_event/src/app_pm_transition_event.c"
+    project:
+      transfer_ownership: true
+
+include:
+  - path: "protocol/z-wave/platform/SiliconLabs/components/zw_pm_transition_event/inc"
+    file_list:
+      - path: "app_pm_transition_event.h"
+
+define:
+  - name: SL_CATALOG_ZW_PM_TRANSITION_EVENT_PRESENT
+
+provides:
+  - name: zw_pm_transition_event
+
+# Dependency
+requires:
+  - name: zw_dcdc_override

@@ -31,7 +31,6 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "sl_rail_util_init.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -55,17 +54,21 @@
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
-  // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-
   /////////////////////////////////////////////////////////////////////////////
   // Put your application init code here!                                    //
   // This is called once during start-up.                                    //
   /////////////////////////////////////////////////////////////////////////////
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

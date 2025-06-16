@@ -88,8 +88,8 @@ typedef struct {
 // Forward declaration of private functions
 
 static sl_status_t send_event(esl_lib_ap_control_evt_type_t evt_type,
-                              uint8_t                       len,
-                              uint8_t                       *data);
+                              size_t                        len,
+                              void                          *data);
 static sl_status_t send_event_from_storage(esl_lib_ap_control_evt_type_t evt_type,
                                            esl_lib_storage_handle_t      storage);
 
@@ -487,19 +487,21 @@ void esl_lib_ap_control_on_bt_event(sl_bt_msg_t *evt)
             == sl_bt_gatt_prepare_write_request) {
           // Write prepare requested, just append to internal storage
           (void)esl_lib_storage_append(ap_control.cp_storage,
-                                       &evt->data.evt_gatt_server_user_write_request.value);
+                                       evt->data.evt_gatt_server_user_write_request.value.len,
+                                       evt->data.evt_gatt_server_user_write_request.value.data);
           // Send out response for prepare request
           (void)sl_bt_gatt_server_send_user_prepare_write_response(evt->data.evt_gatt_server_user_write_request.connection,
                                                                    evt->data.evt_gatt_server_user_write_request.characteristic,
                                                                    0,
                                                                    evt->data.evt_gatt_server_user_write_request.offset,
                                                                    evt->data.evt_gatt_server_user_write_request.value.len,
-                                                                   evt->data.evt_gatt_server_user_write_request.value.data);
+                                                                   (uint8_t *)evt->data.evt_gatt_server_user_write_request.value.data);
         } else if (evt->data.evt_gatt_server_user_write_request.att_opcode
                    == sl_bt_gatt_execute_write_request) {
           // Execute write requested, append residue to internal storage first
           (void)esl_lib_storage_append(ap_control.cp_storage,
-                                       &evt->data.evt_gatt_server_user_write_request.value);
+                                       evt->data.evt_gatt_server_user_write_request.value.len,
+                                       evt->data.evt_gatt_server_user_write_request.value.data);
           // Emit event using the data in the storage with the event code
           (void)send_event_from_storage(evt_code, ap_control.cp_storage);
           // Clear the control point storage
@@ -597,8 +599,8 @@ void esl_lib_ap_control_on_bt_event(sl_bt_msg_t *evt)
 // Private functions
 
 static sl_status_t send_event(esl_lib_ap_control_evt_type_t evt_type,
-                              uint8_t                       len,
-                              uint8_t                       *data)
+                              size_t                        len,
+                              void                          *data)
 {
   sl_status_t   sc;
   esl_lib_evt_t *lib_event  = NULL;

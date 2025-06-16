@@ -33,21 +33,26 @@ component:
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
+    condition: [device_sdid_200] #xG21
+  - id: btmesh_remote_provisioning_server
+    condition: [device_sdid_215] #xG24
+  - id: btmesh_remote_provisioning_server
+    condition: [device_sdid_230] #xG27
   - id: btmesh_target_node
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
   - path: app.c
   - path: app_bm.c
-  - path: main.c
 
 include:
   - path: .
@@ -67,20 +72,22 @@ config_file:
     directory: btmeshconf
 
 readme:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_low_power.md
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_low_power.md
 
 other_file:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img0.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img1.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img2.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img3.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img4.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img5.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img6.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img7.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img8.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img0.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img1.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img2.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img3.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img4.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img5.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img6.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img7.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img8.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: SL_BTMESH_LPN_POLL_TIMEOUT_CFG_VAL
     value: 120000
   - name: NVM3_DEFAULT_CACHE_SIZE
@@ -116,6 +123,10 @@ configuration:
     value: "1"
   - name: SL_STACK_SIZE
     value: "0x1200"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

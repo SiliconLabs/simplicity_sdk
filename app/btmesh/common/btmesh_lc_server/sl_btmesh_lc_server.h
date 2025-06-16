@@ -35,12 +35,7 @@
 #include "sl_btmesh_generic_model_capi_types.h"
 
 /***************************************************************************//**
- * @defgroup LC Light Controller Module
- * @brief LC Module Implementation
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LC
+ * @addtogroup btmesh_lc_server
  * @{
  ******************************************************************************/
 
@@ -48,8 +43,6 @@
  * LC initialization.
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
- *
- * @param[in] element  Index of the element where LC model is initialized.
  *
  * @return Status of the initialization operation.
  *         Returns SL_STATUS_OK (0) if succeed, non-zero otherwise.
@@ -72,7 +65,7 @@ uint8_t sl_btmesh_lc_get_mode(void);
  ******************************************************************************/
 void sl_btmesh_lc_server_on_event(sl_btmesh_msg_t *evt);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Component node reset handler.
  * Clearing component specific nvm content during node reset.
  * This function is called automatically by Universal Configurator after
@@ -80,6 +73,6 @@ void sl_btmesh_lc_server_on_event(sl_btmesh_msg_t *evt);
  ******************************************************************************/
 void sl_btmesh_lc_server_on_node_reset(void);
 
-/** @} (end addtogroup LC) */
+/** @} (end btmesh_lc_server LC) */
 
 #endif /* SL_BTMESH_LC_SERVER_H */

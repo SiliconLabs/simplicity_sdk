@@ -68,7 +68,6 @@ extern "C" {
 #define SL_WISUN_OTA_DFU_SERVICE_LOOP()                     while (1)
 #endif
 
-
 /**************************************************************************//**
  * @defgroup SL_WISUN_OTA_DFU_TYPES Type definitions
  * @ingroup SL_WISUN_OTA_DFU_API

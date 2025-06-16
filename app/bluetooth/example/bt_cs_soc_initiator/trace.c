@@ -3,7 +3,7 @@
  * @brief Debug trace.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -29,93 +29,53 @@
  ******************************************************************************/
 
 #include "sl_component_catalog.h"
-#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && defined(SL_CATALOG_BGAPI_TRACE_PRESENT)
-#include "sl_simple_button.h"
-#include "sl_simple_button_instances.h"
 
+#ifdef SL_CATALOG_BGAPI_TRACE_PRESENT
+#include "app_config.h"
 #include <stdbool.h>
 #include "sli_bgapi_trace.h"
-#include "app_config.h"
 #include "rtl_log.h"
-
 #include "app_log.h"
 #include "iostream_bgapi_trace.h"
 
+// Trace feedback LED
 #ifdef SL_CATALOG_SIMPLE_LED_PRESENT
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
 #define led_on()  sl_led_turn_on(SL_SIMPLE_LED_INSTANCE(0))
-#define led_off() sl_led_turn_off(SL_SIMPLE_LED_INSTANCE(0))
-#else
+#else // SL_CATALOG_SIMPLE_LED_PRESENT
 #define led_on()
-#define led_off()
 #endif // SL_CATALOG_SIMPLE_LED_PRESENT
 
-static bool trace_enabled = false;
-static bool button_pressed = false;
-
-static void enable_trace(void);
-static void disable_trace(void);
-
-void sl_button_on_change(const sl_button_t *handle)
-{
-  if (handle != SL_SIMPLE_BUTTON_INSTANCE(0)) {
-    return;
-  }
-  if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
-    button_pressed = true;
-  }
-}
+// Trace enable mechanism
+#ifdef SL_CATALOG_SIMPLE_BUTTON_PRESENT
+#include "sl_simple_button.h"
+#include "sl_simple_button_instances.h"
+// Check button state.
+#define is_trace_requested() \
+  (sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(0)) == SL_SIMPLE_BUTTON_PRESSED)
+#else
+// Implement your own solution here
+#define is_trace_requested() false
+#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
 
 void trace_init(void)
 {
   app_log_iostream_set(iostream_bgapi_trace_handle);
-#if ALWAYS_INIT_TRACE == 0
-  if (sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(0)) != SL_SIMPLE_BUTTON_PRESSED) {
+#if (ALWAYS_INIT_TRACE == 0)
+  if (!is_trace_requested()) {
     return;
   }
-#endif
-  enable_trace();
-  sli_bgapi_trace_sync();
-}
-
-void trace_step(void)
-{
-  if (!button_pressed) {
-    return;
-  }
-  button_pressed = false;
-  if (trace_enabled) {
-    disable_trace();
-  } else {
-    enable_trace();
-  }
-}
-
-static void enable_trace(void)
-{
+#endif // (ALWAYS_INIT_TRACE == 0)
   sli_bgapi_trace_start();
   rtl_log_init();
   led_on();
-  trace_enabled = true;
+  sli_bgapi_trace_sync();
 }
 
-static void disable_trace(void)
-{
-  trace_enabled = false;
-  led_off();
-  rtl_log_deinit();
-  sli_bgapi_trace_stop();
-}
-
-#else // SL_CATALOG_SIMPLE_BUTTON_PRESENT && SL_CATALOG_BGAPI_TRACE_PRESENT
+#else
 void trace_init(void)
 {
   // Trace is inactive
 }
-
-void trace_step(void)
-{
-  // Trace is inactive
-}
-#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT && SL_CATALOG_BGAPI_TRACE_PRESENT
+#endif

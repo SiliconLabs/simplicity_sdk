@@ -31,7 +31,12 @@
 #ifndef SL_BTMESH_GENERIC_LEVEL_CLIENT_EXT_H
 #define SL_BTMESH_GENERIC_LEVEL_CLIENT_EXT_H
 
-/****************************************************************************//*
+/***************************************************************************//**
+ * @addtogroup btmesh_generic_level_client_ext
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Generic Level Client state initialization
  *
  * This is called at each boot if provisioning is already done,
@@ -59,13 +64,14 @@ void sl_btmesh_generic_level_client_ext_delta_set_unack(int32_t delta);
 /***************************************************************************//**
  * Send Generic Level Move Set Unacknowledged message
  *
- * @param[in] delta_level The Delta Level step to calculate Move speed for the Generic Level state
+ * @param[in] delta_level_step The Delta Level step to calculate Move speed for the Generic Level state
  ******************************************************************************/
-void sl_btmesh_generic_level_client_ext_move_set_unack(int16_t delta_level);
+void sl_btmesh_generic_level_client_ext_move_set_unack(int16_t delta_level_step);
 
 /***************************************************************************//**
  * Halt previous Generic Level Move command
  ******************************************************************************/
 void sl_btmesh_generic_level_client_ext_halt(void);
 
+/** @} (end addtogroup btmesh_generic_level_client_ext) */
 #endif // SL_BTMESH_GENERIC_LEVEL_CLIENT_EXT_H

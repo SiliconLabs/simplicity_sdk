@@ -106,7 +106,7 @@ sl_status_t sl_mic_init(uint32_t sample_rate, uint8_t n_channels)
   sl_gpio_set_pin_mode(&mic_pdm_clk_gpio, SL_GPIO_MODE_PUSH_PULL, 0);
 
   // Set fast slew rate on PDM mic CLK and DATA pins
-  sl_hal_gpio_set_slew_rate(SL_MIC_PDM_DAT0_PORT, 0x7);
+  sl_hal_gpio_set_slew_rate(&mic_pdm_dat0_gpio, 0x7);
   sl_hal_gpio_set_slew_rate_alternate(SL_MIC_PDM_DAT0_PORT, 0x7);
 
   /* Configure and enable clock and data routing locations */

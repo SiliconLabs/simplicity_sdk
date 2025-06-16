@@ -1,21 +1,21 @@
 /**
-* @file
-* @brief Application Timer module - Ensures timer callbacks are performed in the Application task.
-* @details The module wraps a SwTimerLiaison and presents it as a "singleton", easing its
-* availability among the Application modules.
-*
-* The modules basically wraps a SwTimerLiaison, owning the required objects
-* as static data.
-*
-* The iTaskNotificationBitNumber (given at AppTimerInit) bit will be set as
-* TaskNotification to the ReceiverTask (given at AppTimerInit) when a registered
-* timer expires. When such a notification is set, the notification bit must be
-* cleared and AppTimerNotificationHandler called.
-*
-* For detailed documentation see SwTimerLiaison.h
-*
-* @copyright 2018 Silicon Laboratories Inc.
-*/
+ * @file
+ * @brief Application Timer module - Ensures timer callbacks are performed in the Application task.
+ * @details The module wraps a SwTimerLiaison and presents it as a "singleton", easing its
+ * availability among the Application modules.
+ *
+ * The modules basically wraps a SwTimerLiaison, owning the required objects
+ * as static data.
+ *
+ * The iTaskNotificationBitNumber (given at AppTimerInit) bit will be set as
+ * TaskNotification to the ReceiverTask (given at AppTimerInit) when a registered
+ * timer expires. When such a notification is set, the notification bit must be
+ * cleared and AppTimerNotificationHandler called.
+ *
+ * For detailed documentation see SwTimerLiaison.h
+ *
+ * @copyright 2018 Silicon Laboratories Inc.
+ */
 
 #ifndef _APPTIMER_H_
 #define _APPTIMER_H_
@@ -40,10 +40,9 @@
 #define APP_TIMER_RETENTION_REGISTER_RESERVED_COUNT (MAX_NUM_PERSISTENT_APP_TIMERS + 2) // Number of reserved retention registers.
 
 /**
-* AppTimer object
-*/
-typedef struct  SAppTimer
-{
+ * AppTimer object
+ */
+typedef struct  SAppTimer{
   SSwTimerLiaison TimerLiaison;                     /**<  TimerLiaison object for Application task */
   SSwTimer* aTimerPointerArray[MAX_NUM_APP_TIMERS]; /**<  Array for TimerLiaison - for keeping registered timers */
   bool DeepSleepPersistent[MAX_NUM_APP_TIMERS];           /**<  Is timer persistent (persistent timers will be save/reloaded to/from retention registers during Deep Sleep hibernate) */
@@ -51,51 +50,48 @@ typedef struct  SAppTimer
 } SAppTimer;
 
 /**
-* Initialize AppTimer
-*
-* @param[in]     iTaskNotificationBitNumber Number defines which bit to use when notifying
-*                                           receiver task of pending timer event (range 0 - 31)
-* @param[in]     ReceiverTask               Handle to the Application task
-*/
+ * Initialize AppTimer
+ *
+ * @param[in]     iTaskNotificationBitNumber Number defines which bit to use when notifying
+ *                                           receiver task of pending timer event (range 0 - 31)
+ * @param[in]     ReceiverTask               Handle to the Application task
+ */
 void AppTimerInit(uint8_t iTaskNotificationBitNumber, void * ReceiverTask);
 
-
 /**
-* Configures the Receiver task of callbacks.
-*
-* Provided as the AppTimer may be needed for registering SwTimers before
-* the receiver task is created, meaning AppTimerInit is called prior to
-* the Receiver task handle being available.
-* Though not the intention, the receiver task can be changed at run time.
-*
-* @param[in]     ReceiverTask             Handle to the Application task
-*/
+ * Configures the Receiver task of callbacks.
+ *
+ * Provided as the AppTimer may be needed for registering SwTimers before
+ * the receiver task is created, meaning AppTimerInit is called prior to
+ * the Receiver task handle being available.
+ * Though not the intention, the receiver task can be changed at run time.
+ *
+ * @param[in]     ReceiverTask             Handle to the Application task
+ */
 void AppTimerSetReceiverTask(void * ReceiverTask);
 
-
 /**
-* Register a SwTimer to a TimerLiaison.
-* Initial SwTimer configuration is also performed.
-*
-* Method creates a static FreeRTOS timer from the SwTimer object passed as argument,
-* and registers it as requiring callbacks in the Receiver task.
-* If calling method AppTimerRegister on the same SwTimer object multiple times,
-* all but the first call will be ignored.
-*
-* @param[in]    pTimer        Pointer to the SwTimer object to register
-* @param[in]    bAutoReload   Enable timer auto reload on timeout. Configuration of
-*                             AutoReload cannot be changed after registration.
-* @param[in]    pCallback     Callback method of type void Callback(SSwTimer* pTimer).
-*                             Argument may be NULL, in which case no callback is performed.
-* @retval       true          Timer successfully registered to AppTimer TimerLiaison.
-* @retval       false         AppTimer is full and cannot register any more SwTimers.
-*/
+ * Register a SwTimer to a TimerLiaison.
+ * Initial SwTimer configuration is also performed.
+ *
+ * Method creates a static FreeRTOS timer from the SwTimer object passed as argument,
+ * and registers it as requiring callbacks in the Receiver task.
+ * If calling method AppTimerRegister on the same SwTimer object multiple times,
+ * all but the first call will be ignored.
+ *
+ * @param[in]    pTimer        Pointer to the SwTimer object to register
+ * @param[in]    bAutoReload   Enable timer auto reload on timeout. Configuration of
+ *                             AutoReload cannot be changed after registration.
+ * @param[in]    pCallback     Callback method of type void Callback(SSwTimer* pTimer).
+ *                             Argument may be NULL, in which case no callback is performed.
+ * @retval       true          Timer successfully registered to AppTimer TimerLiaison.
+ * @retval       false         AppTimer is full and cannot register any more SwTimers.
+ */
 bool AppTimerRegister(
   SSwTimer* pTimer,
   bool bAutoReload,
   void(*pCallback)(SSwTimer* pTimer)
   );
-
 
 /**
  * Wrapper for AppTimerRegister to register timers that should be re-loaded
@@ -107,9 +103,8 @@ bool AppTimerRegister(
  * For parameter descriptions @see AppTimerRegister.
  */
 bool AppTimerDeepSleepPersistentRegister(SSwTimer *pTimer,
-                                   bool bAutoReload,
-                                   void (*pCallback)(SSwTimer *pTimer));
-
+                                         bool bAutoReload,
+                                         void (*pCallback)(SSwTimer *pTimer));
 
 /**
  * Wrapper for TimerStart() that ensures the timer value is saved so it
@@ -119,7 +114,6 @@ bool AppTimerDeepSleepPersistentRegister(SSwTimer *pTimer,
  */
 ESwTimerStatus AppTimerDeepSleepPersistentStart(SSwTimer *pTimer, uint32_t iTimeout);
 
-
 /**
  * Wrapper for TimerRestart() that ensures the timer status is saved so it
  * can be re-loaded after deep sleep hibernate.
@@ -127,7 +121,6 @@ ESwTimerStatus AppTimerDeepSleepPersistentStart(SSwTimer *pTimer, uint32_t iTime
  * For parameter descriptions @see TimerRestart.
  */
 ESwTimerStatus AppTimerDeepSleepPersistentRestart(SSwTimer *pTimer);
-
 
 /**
  * Wrapper for TimerStop() that ensures the timer status is saved so it
@@ -137,22 +130,19 @@ ESwTimerStatus AppTimerDeepSleepPersistentRestart(SSwTimer *pTimer);
  */
 ESwTimerStatus AppTimerDeepSleepPersistentStop(SSwTimer *pTimer);
 
-
 /**
-* Must be called from application task when the task notification bit
-* assigned to AppTimer is set.
-*
-* Method will perform pending callbacks. There is no side effects from calling
-* method when assigned task notification bit was not set.
-*/
+ * Must be called from application task when the task notification bit
+ * assigned to AppTimer is set.
+ *
+ * Method will perform pending callbacks. There is no side effects from calling
+ * method when assigned task notification bit was not set.
+ */
 void AppTimerNotificationHandler(void);
-
 
 /**
  * Clear storage used for persisting application timers during deep sleep hibernate
  */
 void AppTimerDeepSleepPersistentResetStorage(void);
-
 
 /**
  * Save SSwTimers that should survive deep sleep Hibernate
@@ -162,7 +152,6 @@ void AppTimerDeepSleepPersistentResetStorage(void);
  * registered to be persisted during Deep Sleep.
  */
 void AppTimerDeepSleepPersistentSaveAll(void);
-
 
 /**
  * Load SSwTimers after deep sleep hibernate wakeup
@@ -175,14 +164,12 @@ void AppTimerDeepSleepPersistentSaveAll(void);
  */
 void AppTimerDeepSleepPersistentLoadAll(zpal_reset_reason_t resetReason);
 
-
 /**
  * Get index of first retention register used for saving Deep Sleep persistent app timers.
  *
  * The retention registers are manipulated with the zpal_retention_register_xx() API.
  */
 uint32_t AppTimerDeepSleepGetFirstRetentionRegister(void);
-
 
 /**
  * Get index of last retention register used for saving Deep Sleep persistent app timers.
@@ -200,7 +187,7 @@ uint32_t AppTimerDeepSleepGetLastRetentionRegister(void);
 /**
  * Stops all the running applications timers.
  *
- */ 
+ */
 void AppTimerStopAll (void);
 /**
  * @} // APPTIMER

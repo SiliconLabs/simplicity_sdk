@@ -36,23 +36,20 @@
 #include "app_button_press.h"
 #include "app_button_press_config.h"
 #include "sl_component_catalog.h"
+#include "sl_simple_button_instances.h"
+#include "sl_power_manager.h"
 #include <events.h>
-
-#ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-#include <zpal_power_manager.h>
-#endif
+#include "zpal_log.h"
+#include "SwTimer.h"
+#include "AppTimer.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
-#ifdef SL_CATALOG_SIMPLE_BUTTON_PRESENT
-#define SL_AWAKE_DURATION_MS LONG_BUTTON_PRESS_DURATION
-#else
-#define SL_AWAKE_DURATION_MS 1000
-#endif
+#define BUTTON_HOLD_POWER_LOCK (SL_POWER_MANAGER_EM1)
+#define BUTTON_POWER_LOCK_RELEASE_DELAY_MS (100)
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -64,8 +61,10 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
+
 #ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-static zpal_pm_handle_t radio_power_lock = NULL;
+static bool button_power_locked = false;
+static SSwTimer button_power_lock_timer = { 0 };
 #endif
 
 // -----------------------------------------------------------------------------
@@ -115,22 +114,48 @@ bool app_cc_event_enqueue(uint16_t command_class, uint8_t cc_event, void *cc_dat
 }
 
 #ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
+static bool are_all_buttons_released()
+{
+  for (uint8_t i = 0; i < SL_SIMPLE_BUTTON_COUNT; i++) {
+    if (sl_simple_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(i)) != SL_SIMPLE_BUTTON_RELEASED) {
+      // At least one button is in a pressed state
+      return false;
+    }
+  }
+  return true;
+}
+
+// Checks if button power lock can be removed.
+// This is to add some delay to the power lock removal after the button release.
+static void button_power_lock_timer_cb(__attribute__((unused)) SSwTimer* timer)
+{
+  if (!button_power_locked) {
+    // Power lock is already removed, exit
+    return;
+  }
+  if (are_all_buttons_released()) {
+    button_power_locked = false;
+    sl_power_manager_remove_em_requirement(BUTTON_HOLD_POWER_LOCK);
+  }
+}
+
 /**
  * @brief Keeps the device awake until the button is released.
  *
  * This function sets a power lock to keep the device awake for the duration of the
- * longest possible button press event. If the button press event is shorter, the lock
- * will be canceled, allowing the MCU to sleep.
+ * button hold.
  */
 void app_button_press_stay_awake_until_release(void)
 {
-  if (radio_power_lock == NULL) {
-    radio_power_lock = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-  }
-  /* We set a power lock to stay awake for the duration of the longest possible button press event.
-     In case it is a shorter event the lock will be canceled and MCU will sleep
+  /* If any of the buttons are pressed down, keep the device awake.
+   * This check is necessary, because if the button is released before this point
+   * (which can happen for very short presses), the button release won't be detected,
+   * and we stay awake indefinitely.
    */
-  zpal_pm_stay_awake(radio_power_lock, SL_AWAKE_DURATION_MS);
+  if (!are_all_buttons_released() && !button_power_locked) {
+    sl_power_manager_add_em_requirement(BUTTON_HOLD_POWER_LOCK);
+    button_power_locked = true;
+  }
 }
 #endif
 
@@ -145,7 +170,7 @@ void app_button_press_stay_awake_until_release(void)
 void app_button_press_error(sl_status_t status)
 {
   (void)status;
-  DPRINTF("App button press error happened, status: %d\n", status);
+  ZPAL_LOG_ERROR(ZPAL_LOG_HW, "App button press error happened, status: %d\n", status);
 }
 
 /**
@@ -160,6 +185,7 @@ void app_button_press_error(sl_status_t status)
  */
 void app_button_press_cb(uint8_t button, uint8_t duration)
 {
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Button %u pressed for duration ENUM %u\n", button, duration);
   switch (button) {
     case 0:
       app_button_press_btn_0_handler(duration);
@@ -170,9 +196,16 @@ void app_button_press_cb(uint8_t button, uint8_t duration)
     default:
       break;
   }
-#ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-  zpal_pm_cancel(radio_power_lock);
-#endif
+  #ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
+  AppTimerRegister(&button_power_lock_timer, false, button_power_lock_timer_cb);
+  TimerStop(&button_power_lock_timer);
+  if (!button_power_locked && duration == APP_BUTTON_PRESS_PRESSED_DOWN) {
+    button_power_locked = true;
+    sl_power_manager_add_em_requirement(BUTTON_HOLD_POWER_LOCK);
+  } else if (button_power_locked && duration != APP_BUTTON_PRESS_PRESSED_DOWN && are_all_buttons_released()) {
+    TimerStart(&button_power_lock_timer, BUTTON_POWER_LOCK_RELEASE_DELAY_MS);
+  }
+  #endif
 }
 
 /**
@@ -187,7 +220,7 @@ void app_button_press_cb(uint8_t button, uint8_t duration)
 ZW_WEAK void app_button_press_btn_0_handler(uint8_t duration)
 {
   (void)duration;
-  DPRINT("Button 0 pressed, default handler called\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_HW, "Button 0 pressed, default handler called\n");
 }
 
 /**
@@ -202,5 +235,5 @@ ZW_WEAK void app_button_press_btn_0_handler(uint8_t duration)
 ZW_WEAK void app_button_press_btn_1_handler(uint8_t duration)
 {
   (void)duration;
-  DPRINT("Button 1 pressed, default handler called\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_HW, "Button 1 pressed, default handler called\n");
 }

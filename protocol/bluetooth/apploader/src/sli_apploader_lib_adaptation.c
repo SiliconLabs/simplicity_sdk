@@ -17,7 +17,7 @@
 #include "sli_apploader_lib_adaptation.h"
 #include <em_device.h>
 #include <em_cmu.h>
-#include <pa_conversions_efr32.h>
+#include <sl_rail_util_pa_conversions_efr32.h>
 
 void sli_apploader_set_interrupt_priorities()
 {
@@ -30,7 +30,7 @@ void sli_apploader_set_interrupt_priorities()
   NVIC_SetPriority(PROTIMER_IRQn, 1);
 }
 
-RAIL_TxPowerConfig_t *sli_apploader_get_tx_power_config()
+sl_rail_tx_power_config_t *sli_apploader_get_tx_power_config()
 {
   return sl_rail_util_pa_get_tx_power_config_2p4ghz();
 }

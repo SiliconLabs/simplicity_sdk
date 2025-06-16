@@ -288,6 +288,8 @@ void sl_set_device_capability_extension_field_for_zigbee_virtual_device(boolean 
 /// @endcode
 #define NODE_DESCRIPTOR_REQUEST 0x0002u
 #define NODE_DESCRIPTOR_RESPONSE 0x8002u
+#define NODE_DESCRIPTOR_RESPONSE_LENGTH_WITH_NWK_ADDRESS 4 // <sequence:1> <status:1> <node ID:2>
+#define NODE_DESCRIPTOR_RESPONSE_MINIMUM_LENGTH 17 // <sequence:1> <status:1> <node ID:2> <node descr:13>
 /// @}
 
 /// @name Power Descriptor Request / Response
@@ -358,6 +360,8 @@ void sl_set_device_capability_extension_field_for_zigbee_virtual_device(boolean 
 /// @endcode
 #define END_DEVICE_ANNOUNCE 0x0013u
 #define END_DEVICE_ANNOUNCE_RESPONSE 0x8013u
+#define END_DEVICE_ANNOUNCE_LENGTH_WITH_NWK_ADDRESS 3 // <sequence:1> <nwk addr:2>
+#define END_DEVICE_ANNOUNCE_MINIMUM_LENGTH 12 // <sequence:1> <nwk addr:2> <ieee addr:8> <capability:1>
 /// @}
 
 /// @name System Server Discovery Request / Response

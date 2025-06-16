@@ -1,4 +1,7 @@
+from pycalcmodel.core.model import ModelRoot
+from pycalcmodel.core.phy import ModelPhy
 from pyradioconfig.calculator_model_framework.interfaces.iphy import IPhy
+from pyradioconfig.parts.jumbo.look_up_tables.lut_wisun_fan1v1 import LutWisunFan1v1
 
 
 class WisunFan1v1ChannelParamsJumbo():
@@ -28,6 +31,7 @@ class PhysStudioWisunFan1v1Jumbo(IPhy):
 
         # Default xtal frequency of 38.4MHz
         self._set_xtal_frequency(model, phy)
+        PhysStudioWisunFan1v1Jumbo._give_metadata_default_values(phy, model, wisun_fan_channel_params)
 
         # Temporary redundant inputs for base frequency and channel spacing (required due to Studio UI limitations)
         phy.profile_inputs.base_frequency_hz.value = wisun_fan_channel_params.base_frequency_hz
@@ -37,6 +41,150 @@ class PhysStudioWisunFan1v1Jumbo(IPhy):
 
     def _set_xtal_frequency(self, model, phy):
         phy.profile_inputs.xtal_frequency_hz.value = 38400000
+
+    @staticmethod
+    def _give_metadata_default_values(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        PhysStudioWisunFan1v1Jumbo._calc_meta_modulation_type(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_modulation_index(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_fec(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_bitrates(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_mcs_restriction(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_min_frequency(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_meta_max_frequency(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_wisun_channel_number_start(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_wisun_channel_number_end(phy, model, params)
+        PhysStudioWisunFan1v1Jumbo._calc_wisun_group(phy, model, params)
+
+    @staticmethod
+    def _calc_meta_modulation_type(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        mode_id = params.wisun_phy_mode_id_select
+        modulation_type = LutWisunFan1v1.get_modulation(mode_id)
+
+        if modulation_type is None:
+            return
+
+        if modulation_type == 'FSK':
+            modulation_type = model.vars.meta_modulation_type.var_enum.FSK
+        else:
+            modulation_type = model.vars.meta_modulation_type.var_enum.OFDM
+
+        model.vars.meta_modulation_type.value_forced = modulation_type
+        phy.profile_inputs.meta_modulation_type.value = modulation_type
+
+    @staticmethod
+    def _calc_meta_modulation_index(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        mode_id = params.wisun_phy_mode_id_select
+        modulation_index = LutWisunFan1v1.get_modulation_index(mode_id)
+
+        if modulation_index is None:
+            return
+
+        model.vars.meta_modulation_index.value_forced = modulation_index
+        phy.profile_inputs.meta_modulation_index.value = modulation_index
+
+    @staticmethod
+    def _calc_meta_fec(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+
+        modulation_type = model.vars.meta_modulation_type.value
+        mode_id = params.wisun_phy_mode_id_select
+
+        if modulation_type == model.vars.meta_modulation_type.var_enum.OFDM.value:
+            return
+
+        if mode_id > 0x10:
+            meta_fec = True
+        else:
+            meta_fec = False
+
+        model.vars.meta_fec.value_forced = meta_fec
+        phy.profile_inputs.meta_fec.value = meta_fec
+
+    @staticmethod
+    def _calc_meta_bitrates(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        mode_id = params.wisun_phy_mode_id_select
+
+        bitrates = LutWisunFan1v1.get_bitrates(mode_id)
+        if bitrates is None:
+            return
+
+        model.vars.meta_bitrates.value_forced = list(bitrates)
+        phy.profile_inputs.meta_bitrates.value = list(bitrates)
+
+    @staticmethod
+    def _calc_meta_mcs_restriction(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        mode_id = params.wisun_phy_mode_id_select
+
+        restriction = LutWisunFan1v1.get_mcs_restrictions(mode_id)
+        if restriction is None:
+            return
+
+        model.vars.meta_mcs_restriction.value_forced = restriction
+        phy.profile_inputs.meta_mcs_restriction.value = restriction
+
+    @staticmethod
+    def _calc_meta_min_frequency(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        reg_domain = params.wisun_reg_domain
+        channel_plan_id = params.wisun_channnel_plan_id
+
+        min_frequency = LutWisunFan1v1.get_freq_band_start(reg_domain, channel_plan_id)
+        if min_frequency is None:
+            return
+
+        model.vars.meta_min_frequency.value_forced = min_frequency
+        phy.profile_inputs.meta_min_frequency.value = min_frequency
+
+    @staticmethod
+    def _calc_meta_max_frequency(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        reg_domain = params.wisun_reg_domain
+        channel_plan_id = params.wisun_channnel_plan_id
+
+        max_frequency = LutWisunFan1v1.get_freq_band_end(reg_domain, channel_plan_id)
+        if max_frequency is None:
+            return
+
+        model.vars.meta_max_frequency.value_forced = max_frequency
+        phy.profile_inputs.meta_max_frequency.value = max_frequency
+
+    @staticmethod
+    def _calc_wisun_channel_number_start(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        reg_domain = params.wisun_reg_domain
+        channel_plan_id = params.wisun_channnel_plan_id
+        phy_mode_id = params.wisun_phy_mode_id_select
+
+        start_channel_number = LutWisunFan1v1.get_start_channel_number(reg_domain, channel_plan_id, phy_mode_id)
+        if start_channel_number is None:
+            return
+
+        model.vars.chcfg_channel_number_start.value_forced = start_channel_number
+        phy.profile_inputs.chcfg_channel_number_start.value = start_channel_number
+
+    @staticmethod
+    def _calc_wisun_channel_number_end(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        reg_domain = params.wisun_reg_domain
+        channel_plan_id = params.wisun_channnel_plan_id
+        phy_mode_id = params.wisun_phy_mode_id_select
+
+        end_channel_number = LutWisunFan1v1.get_end_channel_number(reg_domain, channel_plan_id, phy_mode_id)
+        if end_channel_number is None:
+            return
+
+        model.vars.chcfg_channel_number_end.value_forced = end_channel_number
+        phy.profile_inputs.chcfg_channel_number_end.value = end_channel_number
+
+
+    @staticmethod
+    def _calc_wisun_group(phy: ModelPhy, model: ModelRoot, params: WisunFan1v1ChannelParamsJumbo) -> None:
+        reg_domain = params.wisun_reg_domain
+        channel_plan_id = params.wisun_channnel_plan_id
+
+
+        group = LutWisunFan1v1.get_group(reg_domain, channel_plan_id, model)
+        if group is None:
+            return
+
+        model.vars.meta_group.value_forced = group
+        phy.profile_inputs.meta_group.value = group
+
 
     ### EU Region PHYs From Wi-SUN FAN 1.1 Spec###
 

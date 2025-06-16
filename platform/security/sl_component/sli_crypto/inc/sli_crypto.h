@@ -49,6 +49,13 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
+ * @brief                seeds the AES countermeasures for the first time
+ * @return               SL_STATUS_OK if successful
+ *                       or relevant status code on other error
+ ******************************************************************************/
+sl_status_t sli_crypto_init(void);
+
+/***************************************************************************//**
  * @brief                CCM buffer authenticated decryption optimized for BLE
  *
  * @param key_descriptor AES key descriptor

@@ -1,6 +1,6 @@
 id: ot_subghz_board_support
 label: OT Sub-GHz Board Support
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: evaluation
 description: This component filters hardware boards that support (proprietary) Sub-GHz PHY in 915 MHz band with OpenThread.

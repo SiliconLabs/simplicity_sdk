@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_coap_notify.h
- * @brief Wi-SUN CoAP notfication service
+ * @brief Wi-SUN CoAP notification service
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -107,7 +107,7 @@ sl_status_t sl_wisun_coap_notify_init_default_inst(sl_wisun_coap_notify_t * cons
 /**************************************************************************//**
  * @brief Register a new notification.
  * @details Notification is added to the internal storage.
- * @param[in] src_notify the new notifcation's descriptor to add
+ * @param[in] src_notify the new notification's descriptor to add
  * @return sl_status_t SL_STATUS_OK if the notification is added successfully,
  *         otherwise SL_STATUS_FAIL
  *****************************************************************************/

@@ -1,6 +1,6 @@
 id: ots_server_core
 label: Object Server Core
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   The Object Transfer Service (OTS) Object Server Core provides an API for
   managing the Object Server instances.

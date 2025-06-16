@@ -31,7 +31,7 @@ sli_802154mac_frame_info_element_parse_result sli_802154mac_parse_info_elements_
 {
   (void)infoElementsArray;
   (void)maxInfoElementCount;
-  uint8_t* macPacket;
+  const uint8_t* macPacket;
   uint16_t frameControl;
 
   macPacket = sli_mac_payload_pointer(header);

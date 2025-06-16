@@ -1,6 +1,6 @@
 id: sensor_lux
 label: Ambient light sensor
-package: Bluetooth
+package: bluetooth_le_middleware
 description: Ambient light sensor driver abstraction designed for development boards with VEML6035 sensor, i.e. Thunderboard and Dev Kit. Not suitable for other applications.
 category: Bluetooth|Application|Miscellaneous
 metadata:

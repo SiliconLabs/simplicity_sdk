@@ -48,7 +48,11 @@ int32_t communication_main(void)
 
   ImageProperties_t imageProps = {
     .contents = 0U,
+  #if defined(_SILICON_LABS_32B_SERIES_3)
+    .instructions = 0xFFFFFFFFFFFFFFFFU,
+  #else
     .instructions = 0xFFU,
+  #endif
     .imageCompleted = false,
     .imageVerified = false,
     .bootloaderVersion = 0,
@@ -60,16 +64,24 @@ int32_t communication_main(void)
 
   ParserContext_t parserContext = { 0 };
   DecryptContext_t decryptContext = { 0 };
-  AuthContext_t authContext = { 0 };
-
+  AuthContext_t primaryAuthContext = { 0 };
+#if defined (_SILICON_LABS_32B_SERIES_3)
+  AuthContext_t secondaryAuthContext = { 0 };
   parser_init(&parserContext,
               &decryptContext,
-              &authContext,
+              &primaryAuthContext,
+              &secondaryAuthContext,
               PARSER_FLAG_PARSE_CUSTOM_TAGS);
+#else
+  parser_init(&parserContext,
+              &decryptContext,
+              &primaryAuthContext,
+              PARSER_FLAG_PARSE_CUSTOM_TAGS);
+#endif
   ret = bootloader_bgapi_communication_main(&imageProps,
                                             &parserContext,
                                             &parseCb);
- return ret;
+  return ret;
 }
 
 void communication_shutdown(void)

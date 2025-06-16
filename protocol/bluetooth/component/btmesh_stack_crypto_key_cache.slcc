@@ -1,6 +1,6 @@
 id: "btmesh_stack_crypto_key_cache"
 label: "RAM cache for cryptographic keys"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides an internal RAM cache to speed up cryptographic key access for application keys and device keys on Series 2 devices. The key cache cannot be used in TrustZone applications."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

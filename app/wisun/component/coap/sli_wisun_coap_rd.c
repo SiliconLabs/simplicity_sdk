@@ -40,31 +40,31 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-/// CoAP RD CT attribte label
+/// CoAP RD CT attribute label
 #define COAP_RD_ATTR_CT_LABEL             "ct"
 
-/// CoAP RD CT attribte default value
+/// CoAP RD CT attribute default value
 #define COAP_RD_ATTR_CT_DEF_VAL           "40"
 
-/// CoAP RD RT attribte label
+/// CoAP RD RT attribute label
 #define COAP_RD_ATTR_RT_LABEL             "rt"
 
-/// CoAP RD IF attribte label
+/// CoAP RD IF attribute label
 #define COAP_RD_ATTR_IF_LABEL             "if"
 
-/// CoAP RD CT attribte query
+/// CoAP RD CT attribute query
 #define COAP_RD_ATTR_CT_QUERY             "ct="
 
-/// CoAP RD RT attribte query
+/// CoAP RD RT attribute query
 #define COAP_RD_ATTR_RT_QUERY             "rt="
 
-/// CoAP RD IF attribte query
+/// CoAP RD IF attribute query
 #define COAP_RD_ATTR_IF_QUERY             "if="
 
 /// Resource delimiter char
 #define COAP_RD_RESOURCE_DELIMITER_CHAR   ','
 
-/// Resourc URI str chars
+/// Resource URI str chars
 #define COAP_RD_RESOURCE_URI_STR_CHARS    "<>;\"\";\"\""
 
 /// Resource dir str chars
@@ -74,7 +74,7 @@
 #define COAP_RD_RESOURCE_TEMPLATE_STR_FORMAT \
   "<%s>;" COAP_RD_ATTR_RT_QUERY "\"%s\";" COAP_RD_ATTR_IF_QUERY "\"%s\""
 
-/// Resource dir tempalte str format
+/// Resource dir template str format
 #define COAP_RD_DIR_TEMPLATE_STR_FORMAT \
   "<%s>;" COAP_RD_ATTR_CT_QUERY COAP_RD_ATTR_CT_DEF_VAL
 
@@ -314,34 +314,34 @@ static void _parse_resource_dir(const sl_wisun_coap_rhnd_resource_t * const reso
  * @details Helper function
  * @param[in] buf Payload buffer
  * @param[in] dir Directory string
- * @param[in,out] remaind_str_size Remained string size
+ * @param[in,out] remained_str_size Remained string size
  * @return char* Pointer to next free char
  *****************************************************************************/
 static char *_print_dir_to_buff(char * const buf,
                                 const str_cache_t * const dir,
-                                size_t * const remaind_str_size);
+                                size_t * const remained_str_size);
 
 /**************************************************************************//**
  * @brief Print resource to payload buff
  * @details Helper function
  * @param[in] buf Payload buffer
  * @param[in] dir Directory string
- * @param[in,out] remaind_str_size Remained string size
+ * @param[in,out] remained_str_size Remained string size
  * @return char* Pointer to next free char
  *****************************************************************************/
 static char *_print_resource_to_buff(char * const buf,
                                      const sl_wisun_coap_rhnd_resource_t * const resource,
-                                     size_t * const remaind_str_size);
+                                     size_t * const remained_str_size);
 
 /**************************************************************************//**
  * @brief Print delimiter char to payload buff
  * @details Helper function
  * @param[in] buf Payload buffer
- * @param[in,out] remaind_str_size Remained string size
+ * @param[in,out] remained_str_size Remained string size
  * @return char* Pointer to next free char
  *****************************************************************************/
 static char *_print_delimiter_to_buff(char * const buf,
-                                      size_t * const remaind_str_size);
+                                      size_t * const remained_str_size);
 
 /**************************************************************************//**
  * @brief Build response payload string
@@ -766,7 +766,7 @@ static size_t _calc_rd_response_str_size(const coap_rd_query_parse_t * const par
     return 0UL;
   }
 
-  // calc direcory list length if it's required
+  // calc directory list length if it's required
   if (calc_dir) {
     d_iter = parsed->dir;
 
@@ -909,7 +909,7 @@ static void _parse_resource_dir(const sl_wisun_coap_rhnd_resource_t * const reso
 
 static char *_print_dir_to_buff(char * const buf,
                                 const str_cache_t * const dir,
-                                size_t * const remaind_str_size)
+                                size_t * const remained_str_size)
 {
   char *str = buf;
   char *tmp = NULL;
@@ -920,13 +920,13 @@ static char *_print_dir_to_buff(char * const buf,
     return NULL;
   }
 
-  r = snprintf(str, *remaind_str_size + 1U, COAP_RD_DIR_TEMPLATE_STR_FORMAT, tmp);
+  r = snprintf(str, *remained_str_size + 1U, COAP_RD_DIR_TEMPLATE_STR_FORMAT, tmp);
 
   _destroy_str(tmp);
 
-  if (r >= 0L && (size_t)r <= *remaind_str_size) {
+  if (r >= 0L && (size_t)r <= *remained_str_size) {
     str += r;
-    *remaind_str_size -= r;
+    *remained_str_size -= r;
     return str;
   }
 
@@ -935,20 +935,20 @@ static char *_print_dir_to_buff(char * const buf,
 
 static char *_print_resource_to_buff(char * const buf,
                                      const sl_wisun_coap_rhnd_resource_t * const resource,
-                                     size_t * const remaind_str_size)
+                                     size_t * const remained_str_size)
 {
   char *str = buf;
   int32_t r  = 0L;
 
-  r = snprintf(str, *remaind_str_size + 1U,
+  r = snprintf(str, *remained_str_size + 1U,
                COAP_RD_RESOURCE_TEMPLATE_STR_FORMAT,
                resource->data.uri_path,
                resource->data.resource_type,
                resource->data.interface);
 
-  if (r >= 0L && (size_t)r <= *remaind_str_size) {
+  if (r >= 0L && (size_t)r <= *remained_str_size) {
     str += r;
-    *remaind_str_size -= r;
+    *remained_str_size -= r;
     return str;
   }
 
@@ -956,15 +956,15 @@ static char *_print_resource_to_buff(char * const buf,
 }
 
 static char *_print_delimiter_to_buff(char * const buf,
-                                      size_t * const remaind_str_size)
+                                      size_t * const remained_str_size)
 {
   char *str = buf;
   int32_t r  = 0L;
 
-  r = snprintf(str, *remaind_str_size + 1U, "%c", COAP_RD_RESOURCE_DELIMITER_CHAR);
-  if (r >= 0L && (size_t)r <= *remaind_str_size) {
+  r = snprintf(str, *remained_str_size + 1U, "%c", COAP_RD_RESOURCE_DELIMITER_CHAR);
+  if (r >= 0L && (size_t)r <= *remained_str_size) {
     str += r;
-    *remaind_str_size -= r;
+    *remained_str_size -= r;
     return str;
   }
   return NULL;
@@ -978,10 +978,10 @@ static char *_build_resp_payload_str(const coap_rd_query_parse_t * const parse,
   char *p                               = NULL;
   sl_wisun_coap_rhnd_resource_t *r_iter = NULL;
   str_cache_t *d_iter                   = NULL;
-  size_t remaind_str_size               = 0UL;
+  size_t remained_str_size               = 0UL;
 
   str = (char *) sl_wisun_coap_malloc(max_str_length + 1U);
-  remaind_str_size = max_str_length;
+  remained_str_size = max_str_length;
   if (str == NULL) {
     return NULL;
   }
@@ -992,8 +992,8 @@ static char *_build_resp_payload_str(const coap_rd_query_parse_t * const parse,
     d_iter = parse->dir;
 
     while (d_iter != NULL) {
-      p = _print_dir_to_buff(p, d_iter, &remaind_str_size);
-      p = _print_delimiter_to_buff(p, &remaind_str_size);
+      p = _print_dir_to_buff(p, d_iter, &remained_str_size);
+      p = _print_delimiter_to_buff(p, &remained_str_size);
       d_iter = d_iter->next;
     }
   }
@@ -1002,9 +1002,9 @@ static char *_build_resp_payload_str(const coap_rd_query_parse_t * const parse,
   r_iter = parse->resources;
 
   while (r_iter != NULL) {
-    p = _print_resource_to_buff(p, r_iter, &remaind_str_size);
+    p = _print_resource_to_buff(p, r_iter, &remained_str_size);
     if (r_iter->next != NULL) {
-      p = _print_delimiter_to_buff(p, &remaind_str_size);
+      p = _print_delimiter_to_buff(p, &remained_str_size);
     }
     r_iter = r_iter->next;
   }

@@ -1,6 +1,6 @@
 id: mbedtls_hmac
 label: HMAC
-package: platform
+package: security_mbedtls
 quality: production
 category: Platform|Security|Mbed TLS|Message Authentication Codes
 description: >-

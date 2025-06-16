@@ -1,7 +1,7 @@
 !!omap
 - id: xg23_pk6067a
 - label: XG23-PK6067A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG23 868-915 MHz +14 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

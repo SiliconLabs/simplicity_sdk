@@ -26,9 +26,9 @@
 #include "zaf_protocol_config.h"
 #include "zaf_transport_tx.h"
 #include "ZAF_AppName.h"
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_power_manager.h"
+#include "zpal_log.h"
+#include "zw_power_manager_ids.h"
 
 static TaskHandle_t m_AppTaskHandle;
 static SCommandClassSet_t m_CCSet;
@@ -45,8 +45,7 @@ static void ZAF_FLiRS_StayAwake(void);
 
 static bool invoke_init(CC_handler_map_latest_t const * const p_cc_entry, __attribute__((unused)) zaf_cc_context_t context)
 {
-  if (NULL != p_cc_entry->init)
-  {
+  if (NULL != p_cc_entry->init) {
     p_cc_entry->init();
   }
   return false;
@@ -58,7 +57,10 @@ void ZAF_Init(TaskHandle_t AppTaskHandle, SApplicationHandles *pAppHandles)
   zaf_cc_list_t *secure_included_unsecure_cc;
   zaf_cc_list_t *secure_included_secure_cc;
 
-  DPRINT("* ZAF_Init *\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_COMMON, "* ZAF_Init *\r\n");
+
+  // Init and register power manager APP domain
+  zw_power_manager_init();
 
   // Set ZAF variables as soon as possible
   ZAF_setAppHandle(pAppHandles);
@@ -102,9 +104,8 @@ void ZAF_Init(TaskHandle_t AppTaskHandle, SApplicationHandles *pAppHandles)
 
   static ZAF_CP_STORAGE(content, CP_MAX_SUBSCRIBERS);
   ZAF_SetCPHandle(ZAF_CP_Init((void*) &content, CP_MAX_SUBSCRIBERS));
-  if (false == ZAF_CP_SubscribeToAll(ZAF_getCPHandle(), NULL, (zaf_cp_subscriberFunction_t)ApplicationCommandHandler))
-  {
-    DPRINT("Subscription to Command Publisher failed!\r\n");
+  if (false == ZAF_CP_SubscribeToAll(ZAF_getCPHandle(), NULL, (zaf_cp_subscriberFunction_t)ApplicationCommandHandler)) {
+    ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_COMMON, "Subscription to Command Publisher failed!\r\n");
     assert(false);
   }
 
@@ -120,11 +121,6 @@ void ZAF_Init(TaskHandle_t AppTaskHandle, SApplicationHandles *pAppHandles)
     // The wake up callback was NOT set. Hence, CC Wake Up is not linked. Now check the role type.
 
     uint8_t role_type = zaf_config_get_role_type();
-
-    if ((ZWAVEPLUS_INFO_REPORT_ROLE_TYPE_END_NODE_SLEEPING_LISTENING == role_type)) {
-      zpal_pm_handle_t power_lock = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-      ZAF_setPowerLock(power_lock);
-    }
 
     if (ZWAVEPLUS_INFO_REPORT_ROLE_TYPE_END_NODE_SLEEPING_LISTENING == role_type) {
       // Role type is "sleeping listening" (FLiRS) - set the stay awake callback.
@@ -145,8 +141,7 @@ void ZAF_Init(TaskHandle_t AppTaskHandle, SApplicationHandles *pAppHandles)
 
 static bool invoke_reset(CC_handler_map_latest_t const * const p_cc_entry, __attribute__((unused)) zaf_cc_context_t context)
 {
-  if (NULL != p_cc_entry->reset)
-  {
+  if (NULL != p_cc_entry->reset) {
     p_cc_entry->reset();
   }
   return false;
@@ -165,8 +160,8 @@ void ZAF_Reset(void)
  */
 static void ZAF_FLiRS_StayAwake(void)
 {
-  DPRINT("\r\nZAF_FLiRS_StayAwake\r\n");
-  zpal_pm_stay_awake(ZAF_getPowerLock(), 2000);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_COMMON, "\r\nZAF_FLiRS_StayAwake\r\n");
+  zpal_pm_relock(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, 2000, ZPAL_PM_APP_RADIO_ZAF_COMMON_HELPER_ID);
 }
 
 TaskHandle_t ZAF_getAppTaskHandle(void)
@@ -175,7 +170,8 @@ TaskHandle_t ZAF_getAppTaskHandle(void)
   return m_AppTaskHandle;
 }
 
-void zaf_stay_awake(void) {
+void zaf_stay_awake(void)
+{
   zaf_wake_up_callback_t callback = zaf_get_stay_awake_callback();
 
   if (NULL != callback) {
@@ -186,5 +182,4 @@ void zaf_stay_awake(void) {
 ZW_WEAK void
 zaf_learn_mode_finished(void)
 {
-
 }

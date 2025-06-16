@@ -35,7 +35,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup blob_storage BLOB Storage
+ * @addtogroup btmesh_blob_storage BLOB Storage
  * @{
  ******************************************************************************/
 
@@ -129,7 +129,7 @@ sl_status_t sl_btmesh_blob_storage_write_start(sl_bt_uuid_64_t const *blob_id,
  *
  * @pre @ref sl_btmesh_blob_storage_write_start must be called first.
  * @param[in] offset Offset of the data inside the BLOB. Must be
- *                   @ref SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL aligned.
+ *                   @p SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL aligned.
  * @param[in] len Length of the data
  * @param[in] data Pointer to the data
  *
@@ -145,8 +145,8 @@ sl_status_t sl_btmesh_blob_storage_write(uint32_t offset,
 /***************************************************************************//**
  * Retrieves a pointer to the cache
  *
- * @param cache[out] Pointer to the buffer of a pointer for cache start
- * @param len[out] Pointer to the length cache
+ * @param[out] cache Pointer to the buffer of a pointer for cache start
+ * @param[out] len Pointer to the length cache
  ******************************************************************************/
 void sl_btmesh_blob_storage_get_cache(sl_btmesh_blob_storage_slot_metadata_cache_t const **cache,
                                       uint32_t *len);
@@ -353,7 +353,7 @@ sl_status_t sl_btmesh_blob_storage_set_delete_separation_time(uint16_t separatio
 /***************************************************************************//**
  * Checks whether BLOB identified is present in storage
  *
- * @param[in] blob_id
+ * @param[in] blob_id Identifier of the BLOB inquired about
  *
  * @return Boolean value
  * @retval true BLOB is present
@@ -654,11 +654,11 @@ bool sl_btmesh_blob_storage_is_ok_to_sleep();
  * @param[in] initial_value Initial value for checksum calculation
  * @return Checksum calculated from app footer data
  ******************************************************************************/
-uint32_t sl_btmesh_blob_storage_calculate_checksum(uint8_t *data,
+uint32_t sl_btmesh_blob_storage_calculate_checksum(const uint8_t *data,
                                                    uint16_t length,
                                                    uint32_t initial_value);
 
-/** @} end blob_storage */
+/** @} end btmesh_blob_storage */
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 !!omap
 - id: MGM211LA02JNF
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM211LA02JNF.
 - category: Platform|Device|MGM21
 - quality: production

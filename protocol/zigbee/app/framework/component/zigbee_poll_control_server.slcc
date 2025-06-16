@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Poll Control server cluster.  The component periodically checks in with Poll Control clients to see if any client wants to manage the poll period of the server. Any device listed in the binding table for the Poll Control cluster is assumed to be a client. At startup, this component sets the long and short poll intervals of the device to the values of the long and short poll interval attributes.
 label: Poll Control Server Cluster
 quality: production

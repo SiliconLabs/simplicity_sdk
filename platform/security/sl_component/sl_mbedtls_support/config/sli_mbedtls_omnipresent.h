@@ -48,10 +48,14 @@
 // for them.
 
 #include <stddef.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 int sli_nv_seed_read(unsigned char *buf, size_t buf_len);
 int sli_nv_seed_write(unsigned char *buf, size_t buf_len);
-
+#ifdef __cplusplus
+}
+#endif
 #endif // MBEDTLS_PLATFORM_NV_SEED_ALT
 
 // -----------------------------------------------------------------------------
@@ -68,10 +72,14 @@ int sli_nv_seed_write(unsigned char *buf, size_t buf_len);
 // selecting mbedtls_platform_dynamic_memory_allocation_config_init_runtime.
 
 #include <stddef.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern void *MBEDTLS_PLATFORM_CALLOC_MACRO(size_t n, size_t size);
 extern void MBEDTLS_PLATFORM_FREE_MACRO(void *ptr);
-
+#ifdef __cplusplus
+}
+#endif
 #endif // MBEDTLS_PLATFORM_CALLOC_MACRO && MBEDTLS_PLATFORM_FREE_MACRO
 
 // -----------------------------------------------------------------------------
@@ -150,6 +158,15 @@ extern void MBEDTLS_PLATFORM_FREE_MACRO(void *ptr);
 
 #elif defined(SLI_CRYPTOACC_PRESENT_SI91X)
   #define SLI_MBEDTLS_DEVICE_SI91X
-#endif
 
+// PLATFORM_HYD-5151
+#elif defined(SYMCRYPTO_PRESENT) && defined(_SILICON_LABS_32B_SERIES_3_CONFIG_353)
+  #define SLI_MBEDTLS_DEVICE_S3
+  #define SLI_MBEDTLS_DEVICE_HC
+
+#elif defined(SYMCRYPTO_PRESENT) && defined(SIXG300XIWIFI74000XFULL_FPGA)
+  #define SLI_MBEDTLS_DEVICE_S3
+  #define SLI_MBEDTLS_DEVICE_HC
+
+#endif
 #endif // SLI_MBEDTLS_OMIPRESENT_H

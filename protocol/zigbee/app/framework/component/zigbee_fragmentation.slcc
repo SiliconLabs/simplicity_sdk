@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component supports sending long packets through fragmentation and reassembly.
 label: Fragmentation
 quality: production

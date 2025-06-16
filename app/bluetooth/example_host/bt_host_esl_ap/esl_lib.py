@@ -868,7 +868,7 @@ class Lib:
 
     def close_connection(self, connection_handle):
         """Public wrapper for esl_lib_close_connection"""
-        self._serialize_command("_close_connection", (connection_handle,))
+        return self._serialize_command("_close_connection", (connection_handle,))[0]
 
     def _close_connection(self, connection_handle):
         """Internal wrapper for esl_lib_close_connection"""

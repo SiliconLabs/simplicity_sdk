@@ -1,6 +1,6 @@
 id: lwip_addons_ip6_static_routing
 label: "IPv6 Static Routing"
-package: platform
+package: lwip
 description: >
   The IPv6 static routing component can be used for simple routing table implementation for addition,
   deletion and lookup of IPv6 routes. For route lookup from the table, The LWIP_HOOK_IP6_ROUTE hook in

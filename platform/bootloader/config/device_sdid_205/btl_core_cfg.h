@@ -59,6 +59,11 @@
 // <i> Element configured to perform full page lock.
 #define BOOTLOADER_ROLLBACK_PROTECTION                    0
 
+// <o BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY> Number of application upgrades
+// <i> Default: 6
+// <i> Number of application upgrades allowed by bootloader.
+#define BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY                    6
+
 // <o BOOTLOADER_ROLLBACK_PROTECTION_MINIMUM_VERSION> Minimum application version allowed
 // <i> Default: 0
 // <i> The minimum version of the applications allowed for boot and upgrade. Prevent applications from being downgraded
@@ -114,7 +119,7 @@
 // <o BOOTLOADER_VERSION_MAIN_CUSTOMER> Bootloader Version Main Customer
 // <i> Default: 0
 // <i> Bootloader Version Main Customer
-#define BOOTLOADER_VERSION_MAIN_CUSTOMER                    2
+#define BOOTLOADER_VERSION_MAIN_CUSTOMER                    0
 
 // <e USE_CUSTOM_APP_SIZE> Use custom Bootloader Application Size
 // <i> Default: 0

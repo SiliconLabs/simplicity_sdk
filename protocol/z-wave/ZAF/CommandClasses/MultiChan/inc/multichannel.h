@@ -44,6 +44,6 @@ void CmdClassMultiChannelEncapsulate(
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* ZAF_CC_MULTICHAN_HELPER_H_ */

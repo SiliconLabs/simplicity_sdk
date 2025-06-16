@@ -60,9 +60,11 @@ extern "C" {
 #include "efr32xg21/config/sl_rail_util_pa_config.h"
 #elif (_SILICON_LABS_32B_SERIES_3_CONFIG == 301)
 #include "sixg301/config/sl_rail_util_pa_config.h"
-#else
+#else // #ifdef _SILICON_LABS_32B_SERIES_1
+#ifndef RISCVSEQUENCER
 #error "Unsupported platform!"
-#endif
+#endif //#ifndef RISCVSEQUENCER
+#endif //#ifdef _SILICON_LABS_32B_SERIES_1
 
 #ifdef __cplusplus
 }

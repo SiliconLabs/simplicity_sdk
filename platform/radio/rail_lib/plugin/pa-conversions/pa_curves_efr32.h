@@ -110,7 +110,12 @@ extern "C" {
 #include "efr32xg27/sl_rail_util_pa_curves_QFN.h"
 #endif
 #elif (_SILICON_LABS_32B_SERIES_2_CONFIG == 9)
-#include "efr32xg29/sl_rail_util_pa_curves.h"
+// Same variants as XG27
+#if (_SILICON_LABS_EFR32_2G4HZ_HP_PA_MAX_OUTPUT_DBM < 6)
+#include "efr32xg29/sl_rail_util_pa_curves_csp.h"
+#else
+#include "efr32xg29/sl_rail_util_pa_curves_qfn.h"
+#endif
 #elif defined(_SILICON_LABS_32B_SERIES_3)
 #include "sixg301/sl_rail_util_pa_dbm_powersetting_mapping_table.h"
 #include "sixg301/sl_rail_util_pa_curves.h"

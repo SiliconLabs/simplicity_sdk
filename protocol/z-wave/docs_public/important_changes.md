@@ -3,7 +3,16 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
-# 7.23.2 {#section-7-23-2}
+# 7.24.0 {#section-7-24-0}
+
+## Improve Clear Channel Assessment
+Change the clear channel assessment configuration to improve performance.
+
+## S2V2 covered commands update according to specification
+
+The following Z-Wave protocol command classes are removed from the NLS coverage list:
+- `0x22 ZWAVE_CMD_SET_NWI_MODE`
+- `0x23 ZWAVE_CMD_EXCLUDE_REQUEST`
 
 ## Restore NVM migration script
 Fix the issue about missing NVM migration script in the controller.
@@ -15,23 +24,93 @@ The SAPI command NVM backup close now send an answer with the result of the oper
 *Breaking change*
 zpal_nvm_backup_close return a zpal_status_t instead of void.
 
-## Exclusion from foreign network
-After an exclusion from a foreign network, the controller sent nops. However, nops were sent on the controller's network instead of the foreign network.
-So according to the network specification (NWK:01C8.1 & LR-NWK:0078.1), the controller no longer sends nops in case of foreign exclusion.
+## Power Manager new implementation
 
-# 7.23.1 {#section-7-23-1}
+### APIs update
+*Breaking change*  
+- Changes at the application level
+  - Power Manager operations are now divided into three domains: STACK, PAL, and APP.
+  - New APIs (zw_power_manager_(lock/relock/is_active/lock_cancel)) have been introduced to manage power operations within the APP domain, serving as a wrapper to PAL code.
+  **Important**: we strongly recommend any application code to use this wrappper instead of calling ZPAL APIs.
+  - Each power lock is now identified by a unique ID. These lock IDs are defined in the zw_power_manager_ids.h header file through enums. For the APP domain, ZPAL_PM_APP_RADIO_APPLICATION_ID is used for radio locks and ZPAL_PM_APP_DEEP_SLEEP_APPLICATION_ID is used for DeepSleep locks. If additional locks are needed at the application level, new IDs must be defined in zw_power_manager_ids.h.
+- Changes in the ZPAL
+zpal_pm_register API have been deprecated and zpal_pm_register_domain introduced
+zpal_pm_stay_awake has been deprecated for zpal_pm_lock (change in behavior, see zpal_power_manager.h for more details).
+zpal_pm_cancel has been moved to zpal_pm_lock_cancel
+zpal_pm_relock, zpal_get_max_timeout and zpal_pm_lock_is_active, zpal_pm_lock_type_is_active API has been introduced
 
-## S2V2 specification update
+Notable changes:
+- *locks are now registered  per domain: APP, STACK and PAL*
+- possible operations on those power locks are defined as follows:
+- a power lock can be acquired initially with a lock operation (zpal_pm_lock) with timeout_ms being of value 0 (permanent) or non-zero (timer).
+  - if already acquired (!= INACTIVE state) a lock operation on that given power lock will fail.
+- relock operation does the same as lock but enforces the acquisition of a given lock from any state.
+- lock_cancel will cancel the last operation on a given lock resulting in a INACTIVE state.
+- zpal_get_max_timeout has been introduced for one to check maximum allowed value for timeout_ms.
+- zpal_pm_lock_is_active has been introduced for one to check current state of individual power lock. This represents the current state (ACTIVE_PERMANENT, ACTIVE_TIMER, or INACTIVE) of a lock.
+- zpal_pm_lock_type_is_active has been introduced for one to check global current state of power lock type: RADIO or DEEP_SLEEP.
 
-The following Z-Wave protocol command classes are removed from the NLS coverage list:
-- `0x22 ZWAVE_CMD_SET_NWI_MODE`
-- `0x23 ZWAVE_CMD_EXCLUDE_REQUEST`
+## Introduce firmware update migration callback for Command Classes
+
+New macro `REGISTER_CC_V6()` has been created and can be used to initialize Command Classes. This macro extends `REGISTER_CC_V5()` in two ways:
+  - Introduced `migrate()` callback function similar to `init()` or `reset()`. `migrate()` can be used to execute any migration that is necessary for a command class during firmware upgrade. `migrate()` is called by Firmware Update Command Class, after the new firmware is loaded, but before the Firmware Update Status Report is transmitted.
+  - V6 allows the command class to choose the `cc_api_handler_version`. This allows command classes to update its registration to `REGISTER_CC_V6()` without the need to change the CC handlers. For example:
+    - `REGISTER_CC_V5(...)` is equivalent to `REGISTER_CC_V6(CC_API_HANDLER_V3, ..., NULL)`
+    - `REGISTER_CC_V4(...)` is equivalent to `REGISTER_CC_V6(CC_API_HANDLER_V2, ..., NULL)`
+
+## New ZAF File ID for User Code CC
+
+`ZAF_FILE_ID_CC_USER_CODE_HEADER` has been created to store a new database for the User Code Command Class. The database stores flags about the validity of the corresponding User Code, which makes the NVM initialization significantly faster when many user codes are used. This removes the limitation of `CC_USER_CODE_MAX_IDS`, increasing its range to 255.
+
+## Controller's NVM application version
+In controller's NVM, application's datas have their own version number (instead of the application version).
+ZAF_FILE_ID_APP_VERSION store the app version and an integer with the data version (like FILE_ID_ZW_VERSION).
+From Z-Wave Alliance https://github.com/Z-Wave-Alliance/z-wave-stack/issues/441
+
+
+## Door Lock Keypad default bolt state
+The default bolt state of the Door Lock Keypad application was changed to unlocked.  
+Unlocking the door bolt is no longer possible when the device is not included into a network.
+
+## CLI change in DoorLockKeypad
+For the Door Lock Keypad application, the CLI command `sleeping <enable|disable>` was removed, because the CLI can now be invoked even when the device is in the EM2 sleep state. If the CLI is used from Simplicity Commander, no modifications are required. If the CLI is used from a serial terminal, make sure that the chosen baud rate is 9600 bps.
+
+On Development Kits, if the board was flashed with an application whose baud rate is not 9600 bps, the CLI will fail. To fix this, press the reset button on the development kit. This will reset the WSTK/WPK firmware as well, and the automatic baud rate will be recognized automatically.
+Remotely, the reset can be triggered by the Simplicity Commander command `commander device reset -s <jlink_serial>`. Alternatively, the baud rate can be set through the development kit's admin port. The admin port can be accessed via Silink, via the Simplicity Commander over ethernet, or via Simplicity Studio (right click on the board and `Launch Console`). To set the baud rate, use the command `serial vcom config speed <baud_rate>`.
+
+## ZPAL Watchdog
+New module initialization function, zpal_watchdog_init(), added to zpal WDT module.
+- The user needs to call this function before enable the watchdog.
 
 ## Implement new EU_LR frequency
 Shifted EU_LR frequency from 864.4/866.4 Mhz to 864.0/866.0 Mhz to comply with ETSI regulation rules.
 
-## Door Lock Keypad default bolt state
-The default bolt state of the Door Lock Keypad application was changed to unlocked.
+
+## Exclusion from foreign network
+After an exclusion from a foreign network, the controller sent nops. However, nops were sent on the controller's network instead of the foreign network.
+So according to the network specification (NWK:01C8.1 & LR-NWK:0078.1), the controller no longer sends nops in case of foreign exclusion.
+
+## Logging System
+*Breaking change*  
+The macros `DPRINT` and `DPRINTF` have been replaced by `ZPAL_LOG` which has two additional parameters:
+the originating component and the log level severity.
+Logs can now be enabled selectively per component and messages can be routed to different channels based on the log level (debug, info, warning, error).
+To configure log messages, use the *Configure* button of the *Z-Wave Log* component in Simplicity Studio
+or edit `zw_log_config.h` directly in the project's `config` directory.
+
+## Removal of main.c from Sample Applications
+`main.c` was removed from all sample applications and is now generated automatically by the *System Setup (sl_main)* component during project generation.
+For more information, refer to the documentation for *System Initialization and Action Processing*.
+
+## User Credential Command Class
+*Breaking change*  
+The specification for the *User Credential Association Set* and
+*User Credential Association Report* commands was updated in the 2025A certification program:
+the option to move a credential to a different slot was removed.  
+The end device implementation was aligned to the new specification.
+As a result, the API for `CC_UserCredential_move_credential_and_report` changed.  
+Moving a credential to a different slot is still possible via the CLI;
+however, the lifeline group can no longer be notified about a credential slot change.
 
 # 7.23.0 {#section-7-23-0}
 
@@ -119,7 +198,7 @@ The CC Configurator has been moved from the `ZAF/tool/cc_configurator`. The new 
 ## Multilevel sensor
 Multilevel sensor can now be assigned to an endpoint, also, multiple multilevel sensors can be used in a single end device. The cc_config file has been changed to follow this format. Endpoint is now part of the "ID" of a given sensor. The sensor structure changed to include information about the assigned endpoint.
 
-## Workspace usage
+## Workspace usage
 The workspace solutions are now signing the bootloader and application binaries with the same key, which is stored by the `application` post build configuration.
 The signing keys can be freely set by the developer in the SLPB files. The solution will generate three gbl files with the same keys, one for the bootloader, one for the application and one for the combined bootloader and application.
 
@@ -147,9 +226,18 @@ Custom values for LBT Threshold level are now cancelled during region switch. It
 The EResetReason_t enum has been removed. You can now use directly zpal_reset_reason_t. Values are aligned with old EResetReason_t.
 
 ## Z-Wave specific section
-Some variables are placed in specific section by Z-Wave stack and application. Name of these section is now prefixed by "zw_".
-These sections are now placed in rodata section through slc configuration.
-!!! GSDK require that all sections are placed in the linkerscript. !!!
+Simplicity SDK require that all sections are
+placed in the linkerscript. If using software components, they are contributed by the Z-Wave software components. For developers not using the software component mechanism, they should contribute the following sections to their linker file.
+* Contributed by the zw_core.slcc software component:
+  - zw_protocol_cmd_handlers_lr
+  - zw_protocol_cmd_handlers
+* Contributed by the zw_apputilities.slcc software component:
+  - zw_cc_handlers_v3
+  - zw_zaf_cc_config
+* Contributed by the zaf_event_distributor_soc.slcc software component:
+  - zw_zaf_event_distributor_cc_event_handler
+* Contributed by the zwave_ncp_serial_api_controller.slcp software component:
+  - zw_cmd_handlers
 
 ## Extended NVM backup and restore
 New command is implemented in the serial API: Extended NVM backup and restore. Basically, it is the same command as NVM backup and

@@ -51,3 +51,23 @@ upgrade:
           - hal_sysrtc
         remove:
           - peripheral_sysrtc
+  - sdk:
+      id: simplicity_sdk
+      version: "2025.6.0"
+    component:
+      - trigger: cpc_secondary_recommended_interface
+        description: >
+          In sisdk-2025.6.0 the cpc_secondary_recommended_interface component was renamed cpc_secondary_recommended_uart_interface. Remove the cpc_secondary_recommended_interface component from your project.
+        add:
+          - cpc_secondary_recommended_uart_interface
+        remove:
+          - cpc_secondary_recommended_interface
+      - trigger: silabs_core_sl_malloc
+        description: >
+          In simplicity_sdk 2025.6.0 the silabs_core_sl_malloc component was removed and replaced by memory_manager. Remove the silabs_core_sl_malloc component from your project.
+        add:
+          - memory_manager
+        remove:
+          - silabs_core_sl_malloc
+    configuration:
+      - script: platform/scripts/upgrade_iostream_eusart_fc.lua

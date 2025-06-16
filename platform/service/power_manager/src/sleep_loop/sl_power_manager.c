@@ -74,13 +74,8 @@ static bool is_initialized = false;
 // Current active energy mode.
 static sl_power_manager_em_t current_em = SL_POWER_MANAGER_EM0;
 
-// Table of energy modes counters. Each counter indicates the presence (not zero)
-// or absence (zero) of requirements on a given energy mode. The table doesn't
-// contain requirement on EM0.
-static uint8_t requirement_em_table[SLI_POWER_MANAGER_EM_TABLE_SIZE] = {
-  0,  // EM1 requirement counter
-  0,  // EM2 requirement counter
-};
+// Counter indicating the presence (not zero) or absence (zero) of requirements on EM1.
+static uint8_t requirement_em1 = 0;
 
 #if !defined(SL_CATALOG_POWER_MANAGER_NO_DEEPSLEEP_PRESENT)
 // Store the sleeptimer module clock frequency for conversion calculation
@@ -242,9 +237,18 @@ sl_status_t sl_power_manager_init(void)
 }
 
 /***************************************************************************//**
+ * Updates the clocks information used by the Power Manager to evaluate the
+ * EM2/3 wake-up time.
+ ******************************************************************************/
+void slx_power_manager_update_clock_info(void)
+{
+  sli_power_manager_save_oscillators_usage();
+}
+
+/***************************************************************************//**
  * Sleep at the lowest allowed energy mode.
  ******************************************************************************/
-void sl_power_manager_sleep(void)
+__NO_INLINE void sl_power_manager_sleep(void)
 {
   CORE_irqState_t primask_state;
   sl_power_manager_em_t lowest_em;
@@ -412,7 +416,6 @@ void sl_power_manager_sleep(void)
  *
  * @param   em    Energy mode. Possible values are:
  *                SL_POWER_MANAGER_EM1
- *                SL_POWER_MANAGER_EM2
  *
  * @param   add   Flag indicating if requirement is added (true) or removed
  *                (false).
@@ -426,21 +429,26 @@ void sl_power_manager_sleep(void)
 void sli_power_manager_update_em_requirement(sl_power_manager_em_t em,
                                              bool add)
 {
-  // EM0 is not allowed
+  // EM0 and EM3 aren't allowed.
   EFM_ASSERT((em > SL_POWER_MANAGER_EM0) && (em < SL_POWER_MANAGER_EM3));
 
+  if (em == SL_POWER_MANAGER_EM2) {
+    // Do nothing when adding a requirement on EM2.
+    return;
+  }
+
   // Cannot increment above 255 (wraparound not allowed)
-  EFM_ASSERT(!((requirement_em_table[em - 1] == UINT8_MAX) && (add == true)));
-  if ((requirement_em_table[em - 1] == UINT8_MAX) && (add == true)) {
+  EFM_ASSERT(!((requirement_em1 == UINT8_MAX) && (add == true)));
+  if ((requirement_em1 == UINT8_MAX) && (add == true)) {
     return;
   }
   // Cannot decrement below 0 (wraparound not allowed)
-  EFM_ASSERT(!((requirement_em_table[em - 1] == 0) && (add == false)));
-  if ((requirement_em_table[em - 1] == 0) && (add == false)) {
+  EFM_ASSERT(!((requirement_em1 == 0) && (add == false)));
+  if ((requirement_em1 == 0) && (add == false)) {
     return;
   }
   // Increment (add) or decrement (remove) energy mode counter.
-  requirement_em_table[em - 1] += add ? 1 : -1;
+  requirement_em1 += add ? 1 : -1;
 
 #if !defined(SL_CATALOG_POWER_MANAGER_NO_DEEPSLEEP_PRESENT)
   if (add == true
@@ -455,10 +463,6 @@ void sli_power_manager_update_em_requirement(sl_power_manager_em_t em,
       // Restore clock; Everything is restored (HF and LF Clocks), the sleep loop will
       // shutdown the clocks when returning sleeping
       clock_restore_and_wait();
-    } else if (current_em == SL_POWER_MANAGER_EM3
-               && lowest_em == SL_POWER_MANAGER_EM2) {
-      // Restore LF clocks if we are transitioning from EM3 to EM2
-      sli_power_manager_low_frequency_restore();
     }
 
     if (current_em != lowest_em) {
@@ -756,23 +760,19 @@ bool sl_power_manager_is_latest_wakeup_internal(void)
  * Get lowest energy mode to apply given the requirements on the different
  * energy modes.
  *
- * @return  Lowest energy mode: EM1, EM2 or EM3.
+ * @return  Lowest energy mode: EM1, or EM2
  *
  * @note If no requirement for any energy mode (EM1 and EM2), lowest energy mode
  * is EM3.
  ******************************************************************************/
 static sl_power_manager_em_t get_lowest_em(void)
 {
-  uint32_t em_ix;
-  sl_power_manager_em_t em;
+  sl_power_manager_em_t em = SL_POWER_MANAGER_EM2;
 
-  // Retrieve lowest Energy mode allowed given the requirements
-  em_ix = 1;
-  while ((em_ix < 3) && (requirement_em_table[em_ix - 1] == 0)) {
-    em_ix++;
+  // Verify if there's requirements on EM1.
+  if (requirement_em1 != 0) {
+    em = SL_POWER_MANAGER_EM1;
   }
-
-  em = (sl_power_manager_em_t)em_ix;
 
   return em;
 }
@@ -909,13 +909,13 @@ static void evaluate_wakeup(sl_power_manager_em_t to)
 static void update_em1_requirement(bool add)
 {
   // Cannot increment above 255 (wraparound not allowed)
-  EFM_ASSERT(!((requirement_em_table[SL_POWER_MANAGER_EM1 - 1] == UINT8_MAX) && (add == true)));
-  if ((requirement_em_table[SL_POWER_MANAGER_EM1 - 1] == UINT8_MAX) && (add == true)) {
+  EFM_ASSERT(!((requirement_em1 == UINT8_MAX) && (add == true)));
+  if ((requirement_em1 == UINT8_MAX) && (add == true)) {
     return;
   }
   // Cannot decrement below 0 (wraparound not allowed)
-  EFM_ASSERT(!((requirement_em_table[SL_POWER_MANAGER_EM1 - 1] == 0) && (add == false)));
-  if ((requirement_em_table[SL_POWER_MANAGER_EM1 - 1] == 0) && (add == false)) {
+  EFM_ASSERT(!((requirement_em1 == 0) && (add == false)));
+  if ((requirement_em1 == 0) && (add == false)) {
     return;
   }
 #if (SL_POWER_MANAGER_DEBUG == 1)
@@ -923,7 +923,7 @@ static void update_em1_requirement(bool add)
 #endif
 
   // Increment (add) or decrement (remove) energy mode counter.
-  requirement_em_table[SL_POWER_MANAGER_EM1 - 1] += add ? 1 : -1;
+  requirement_em1 += add ? 1 : -1;
 
   // In rare occasions a clock restore must be started here:
   // - An asynchronous event wake-up the system from deepsleep very near the early wake-up event,

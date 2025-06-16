@@ -2,7 +2,7 @@
 #run "sled lib export <FILENAME> to generate
 id: zigbee_r22_support_mac_test_cmds_library
 label: Zigbee R22 Support with Mac Test Commands (Library)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

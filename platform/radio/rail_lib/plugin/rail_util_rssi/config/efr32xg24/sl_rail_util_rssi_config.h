@@ -39,6 +39,10 @@
 // <i> Default: 0
 #define SL_RAIL_UTIL_RSSI_OFFSET 0
 
+// <o SL_RAIL_UTIL_RSSI_SUPPORTS_NVM_DATA> Define to store in and provide RSSI offset from NVM3
+// <i> Default: 0
+#define SL_RAIL_UTIL_RSSI_SUPPORTS_NVM_DATA 0
+
 // </h>
 // <<< end of configuration section >>>
 #endif // SL_RAIL_UTIL_RSSI_CONFIG_H

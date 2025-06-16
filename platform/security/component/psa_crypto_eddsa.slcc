@@ -1,5 +1,5 @@
 id: psa_crypto_eddsa
-package: platform
+package: security_mbedtls
 label: EdDSA
 description: >-
   This component provides support for signature generation and verification

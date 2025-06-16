@@ -1,6 +1,6 @@
 !!omap
 - id: BGM210PA32JIA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for BGM210PA32JIA.
 - category: Platform|Device|BGM21
 - quality: production

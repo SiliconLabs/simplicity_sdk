@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Smart Energy Key Establishment cluster. The key establishment cluster is used by the Smart Energy profile to perform certificate- based key establishment (CBKE), which performs mutual authentication and establishes a symmetric APS link key. Direct CBKE between any two non-Trust Center devices is supported once the two devices have completed partner link key exchange via Trust Center. This component defaults to using CBKE functions with the 163k ECC curve support, but users can also choose the 283k1 ECC curve by selecting 'CBKE 283k1' component.
 label: Key Establishment
 quality: production

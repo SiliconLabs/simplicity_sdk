@@ -69,6 +69,11 @@
 #define NCP_REBOOT_RETRY_COUNT 3
 #endif
 
+// Wait for system boot event after init.
+#ifndef WAIT_FOR_SYSTEM_BOOT
+#define WAIT_FOR_SYSTEM_BOOT          1
+#endif
+
 // </h> End Reboot Configuration
 
 // <<< end of configuration section >>>

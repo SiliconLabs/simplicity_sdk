@@ -1,12 +1,12 @@
 id: enum
-label: "Enumerations"
-package: platform
+label: Enumerations
+package: platform_common
 description: A wrapper for enum generation that ensures consistent sizing and doxygen stylization.
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common/inc/
 include:
   - path: ./
@@ -15,5 +15,5 @@ include:
 provides:
   - name: enum
 documentation:
-  docset: gecko-platform
-  document: platform-common/enum
+    docset: gecko-platform
+    document: platform-common/enum

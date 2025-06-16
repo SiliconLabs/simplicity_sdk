@@ -53,8 +53,7 @@ extern "C" {
 /**
  * @brief Type of bootloader
  */
-typedef enum
-{
+typedef enum {
   ZPAL_BOOTLOADER_NOT_PRESENT = 0,  ///< No bootloader present.
   ZPAL_BOOTLOADER_PRESENT     = 1,  ///< Bootloader present.
 } zpal_bootloader_type_t;
@@ -74,7 +73,7 @@ typedef struct {
  */
 #define ZPAL_BOOTLOADER_CAPABILITY_STORAGE                     (1 << 0)
 
-/** \addtogroup zpal-bootloader-info-version 
+/** \addtogroup zpal-bootloader-info-version
  * Defines a platform abstraction layer for the Z-Wave bootloader.
  * @{
  */
@@ -152,7 +151,7 @@ zpal_status_t zpal_bootloader_write_data(uint32_t offset, uint8_t * data, uint16
 
 /**
  * @brief Returns whether the software is running on the first boot after a new firmware image was written.
- * @param[in] updated_successfully Set to true if update was successful, false otherwise. Valid only when 
+ * @param[in] updated_successfully Set to true if update was successful, false otherwise. Valid only when
  *                                it's the first boot.
  * @return True if it's the first boot, false otherwise.
  */

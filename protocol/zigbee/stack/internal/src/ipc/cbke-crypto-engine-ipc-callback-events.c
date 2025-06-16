@@ -77,7 +77,7 @@ void sli_zigbee_stack_dsa_sign_handler(sl_status_t status,
   cb_event->data.dsa_sign_handler.messageLength = messageLength;
 
   if (messageContents != NULL) {
-    memmove(cb_event->data.dsa_sign_handler.messageContents, messageContents, sizeof(uint8_t) * (messageLength));
+    memmove(cb_event->data.dsa_sign_handler.messageContents, messageContents, sizeof(uint8_t) * messageLength);
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_DSA_SIGN_HANDLER_IPC_EVENT_TYPE;

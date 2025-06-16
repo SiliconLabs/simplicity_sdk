@@ -1,0 +1,20 @@
+id: sl_rail_util_ieee802154_stack_event
+label: SL RAIL Utility, IEEE802.15.4 stack event configuration
+description: Utility to aid with IEEE802.15.4 stack event Configuration
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_ieee802154_stack_event
+        name: SL RAIL Utility, IEEE802.15.4 stack event configuration
+        license: Zlib
+ui_hints:
+    visibility: never
+provides:
+  - name: sl_rail_util_ieee802154_stack_event
+requires:
+  - name: rail_util_ieee802154_stack_event
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

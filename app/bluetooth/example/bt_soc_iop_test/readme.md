@@ -33,7 +33,7 @@ The IOP embedded software is available for virtually any Silicon Labs kit that s
 
 ### Software Requirements
 
-The IOP example application is available beginning with Bluetooth SDK 3.3.0. Install Simplicity Studio 5 and the Bluetooth SDK that is part of the GSDK. For more information about installing Simplicity Studio 5, see the [Simplicity Studio 5 documentation](https://docs.silabs.com/simplicity-studio-5-users-guide/5.2.1/ss-5-users-guide-getting-started/install-ss-5-and-software).
+The presence of Simplicity Studio 5 and Simplicity SDK. For more information about installing Simplicity Studio 5, see the [Simplicity Studio 5 documentation](https://docs.silabs.com/simplicity-studio-5-users-guide/5.2.1/ss-5-users-guide-getting-started/install-ss-5-and-software).
 
 ### Mobile App Requirements
 
@@ -49,13 +49,18 @@ The minimum OS versions supported by the Simplicity Connect mobile app are Andro
 
 The IOP test consists of a sequence of BLE operations executed between a mobile device and an EFR32 SoC running the interoperability test embedded software (the embedded device).
 
-To flash the embedded software into one of the supported boards, create the example **Bluetooth - SoC Interoperability Test**, build it, and flash it to the target. 
+To flash the embedded software into one of the supported boards, create the example **Bluetooth - SoC Interoperability Test**, build it, and flash it to the target.
 
 Then run the script *iop_create_bl_files.sh* (for MacOS/Linux) or *iop_create_bl_files.ps1* (for Windows powershell). The script generates two files into the *output_gbl* folder that is inside the project folder: *ota-dfu_ack.gbl* and *ota-dfu_non_ack.gbl*.
 
 These files must be provided to the IOP Test on Simplicity Connect mobile app when prompted to do so. Copy them to the mobile phone's local storage or a cloud drive that is accessible from the mobile phone. The file *ota-dfu_ack.gbl* is used for the first OTA test and *ota-dfu_non_ack.gbl* for the second OTA test.
 
-Note that you must have a bootloader flashed to the board as well, otherwise the firmware will not run. See below under **Troubleshooting** for instructions on various ways to flash a bootloader. 
+Note that you must have a bootloader flashed onto the board as well, otherwise the firmware will not run. Bootloader features are also required because of the OTA DFU (over-the-air device firmware update) test cases.
+
+While OTA DFU is handled by the *In-Place OTA DFU* component for Series 2 devices, for Series 3 devices the *Application OTA DFU* component is used.
+With *In-Place OTA* (Series 2), the *Bluetooth Apploader OTA DFU* bootloader type shall be pre-flashed. For *Application OTA DFU* (Series 3), an *Internal Storage* bootloader shall be pre-flashed (in case there are more variants, choose one with at least 368k bootloader slot storage). For more information see the **Troubleshooting** section below.
+
+(Note that while for Series 3 devices only the *Application OTA DFU* is supported, Series 2 devices with at least 768k FLASH support both scenarios. I you wish to test it, just switch the *In-Place OTA DFU* component to *Application OTA DFU* under the *Software Components* tab and flash the other bootloader.)
 
 Once the example and bootloader are flashed to the target you should see the information on the mainboard display shown below. If you are using a mainboard without display (e.g., Explorer Kit) then you will see information being sent out through the UART, which can be captured by a terminal on the PC (more information [here](#collecting-additional-data-from-the-embedded-device)).
 
@@ -73,9 +78,9 @@ After the IOP test sequence starts running, the mobile app scrolls through the t
 ![Start IOP test](image/readme_img3a.png)
 ![During IOP test](image/readme_img3b.png)
 
-Most tests do not require user intervention, except for the OTA and security tests. 
+Most tests do not require user intervention, except for the OTA and security tests.
 
-During OTA tests you are prompted to upload the gbl file. The file can be retrieved from local or cloud storage, using OS standard methods. For the first OTA test the *ota-dfu_ack.gbl* must be used, and for the second OTA test *ota-dfu_non_ack.gbl*. 
+During OTA tests you are prompted to upload the gbl file. The file can be retrieved from local or cloud storage, using OS standard methods. For the first OTA test the *ota-dfu_ack.gbl* must be used, and for the second OTA test *ota-dfu_non_ack.gbl*.
 
 ![Chose a file for OTA test](image/readme_img11a.png)
 ![OTA upload in progress](image/readme_img11b.png)
@@ -119,22 +124,22 @@ While UART logs have multiple COMPort emulators such as tera term, you can also 
 
 ### Bootloader Issues
 
-Note that Example Projects do not include a bootloader. However, Bluetooth-based Example Projects expect a bootloader to be present on the device in order to support device firmware upgrade (DFU). To get your application to work, you should either 
+Note that Example Projects do not include a bootloader. However, Bluetooth-based Example Projects expect a bootloader to be present on the device in order to support device firmware upgrade (DFU). To get your application to work, you should either
 - flash the proper bootloader or
 - remove the DFU functionality from the project.
 
 **If you do not wish to add a bootloader**, then remove the DFU functionality by uninstalling the *Bootloader Application Interface* software component -- and all of its dependants. This will automatically put your application code to the start address of the flash, which means that a bootloader is no longer needed, but also that you will not be able to upgrade your firmware.
 
-**If you want to add a bootloader**, then either 
+**If you want to add a bootloader**, then either
 - Create a bootloader project, build it and flash it to your device. Note that different projects expect different bootloaders:
   - for NCP and RCP projects create a *BGAPI UART DFU* type bootloader
   - for SoC projects on Series 2 devices create a *Bluetooth Apploader OTA DFU* type bootloader
 
-- or run a precompiled Demo on your device from the Launcher view before flashing your application. Precompiled demos flash both bootloader and application images to the device. Flashing your own application image after the demo will overwrite the demo application but leave the bootloader in place. 
+- or run a precompiled Demo on your device from the Launcher view before flashing your application. Precompiled demos flash both bootloader and application images to the device. Flashing your own application image after the demo will overwrite the demo application but leave the bootloader in place.
   - For NCP and RCP projects, flash the *Bluetooth - NCP* demo.
   - For SoC projects, flash the *Bluetooth - SoC Thermometer* demo.
 
-**Important Notes:** 
+**Important Notes:**
 - when you flash your application image to the device, use the *.hex* or *.s37* output file. Flashing *.bin* files may overwrite (erase) the bootloader.
 
 - On Series 2 devices SoC example projects require a *Bluetooth Apploader OTA DFU* type bootloader by default. This bootloader needs a lot of flash space and does not fit into the regular bootloader area, hence the application start address must be shifted. This shift is automatically done by the *Apploader Support for Applications* software component, which is installed by default. If you want to use any other bootloader type, you should remove this software component in order to shift the application start address back to the end of the regular bootloader area. Note, that in this case you cannot do OTA DFU with Apploader, but you can still implement application-level OTA DFU by installing the *Application OTA DFU* software component instead of *In-place OTA DFU*.

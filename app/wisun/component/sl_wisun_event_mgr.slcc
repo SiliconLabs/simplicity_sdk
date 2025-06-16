@@ -24,6 +24,7 @@ include:
 
 requires:
   - name: "sl_wisun_trace_util"
+  - name: "sl_mempool"
 
 ui_hints:
   visibility: never

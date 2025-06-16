@@ -6,7 +6,7 @@ description: >
   It provides an API for static allocation of fixed-size elements. The implementation
   is based on a circular buffer of fixed-size items. A buffer overflow callback can be
   passed to the queue in order to handle overflow events as requested.
-package: platform
+package: platform_common_apps
 quality: production
 metadata:
   sbom:

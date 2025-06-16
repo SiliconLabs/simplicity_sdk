@@ -1,0 +1,42 @@
+id: zw_log
+label: Z-Wave Log
+category: Z-Wave
+description: >
+  This component implements logging via the ZPAL Log API.
+
+  Logging can be enabled or disabled per software component and log level
+  (Debug, Info, Warning, Error).
+  Each log level can be directed to a different output channel via the iostream
+  driver (e.g. UART, RTT, SWO, etc.).
+
+  A generic macro, ZPAL_LOG_PRINT, is available for ad-hoc debugging.
+  This has the same syntax as printf and its output is directed to the Debug
+  channel.
+
+  Most pre-defined log messages belonging to software components are disabled by
+  default to conserve flash space.
+package: Z-Wave
+quality: production
+metadata:
+  sbom:
+    reference: zw_sbom_license
+requires:
+  - name: iostream_eusart
+    condition: [zaf_soc]
+  - name: iostream_swo
+    condition: [zaf_ncp]
+provides:
+- name: zw_log
+include:
+  - path: protocol/z-wave/ZAF/ApplicationUtilities
+    file_list:
+      - path: ZAF_PrintAppInfo.h
+source:
+  - path: protocol/z-wave/platform/SiliconLabs/components/zw_log/zw_log.c
+  - path: protocol/z-wave/ZAF/ApplicationUtilities/ZAF_PrintAppInfo.c
+config_file:
+  - path: protocol/z-wave/platform/SiliconLabs/PAL/config/zw_log/zw_log_config.h
+    file_id: zw_log_config
+template_contribution:
+  - name: component_catalog
+    value: zw_log

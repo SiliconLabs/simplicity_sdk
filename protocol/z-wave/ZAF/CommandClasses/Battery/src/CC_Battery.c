@@ -1,9 +1,9 @@
 /**
-*
-* @brief Battery Command Class source file
-* @copyright 2019 Silicon Laboratories Inc.
-*
-*/
+ *
+ * @brief Battery Command Class source file
+ * @copyright 2019 Silicon Laboratories Inc.
+ *
+ */
 
 /****************************************************************************/
 /*                              INCLUDE FILES                               */
@@ -16,9 +16,7 @@
 #include <string.h>
 #include <ZAF_Common_interface.h>
 #include <ZAF_file_ids.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
@@ -46,10 +44,8 @@ CC_Battery_handler(
   ZW_APPLICATION_TX_BUFFER *pFrameOut,
   uint8_t * pFrameOutLength)
 {
-  if (pCmd->ZW_Common.cmd == BATTERY_GET)
-  {
-    if (true == Check_not_legal_response_job(rxOpt))
-    {
+  if (pCmd->ZW_Common.cmd == BATTERY_GET) {
+    if (true == Check_not_legal_response_job(rxOpt)) {
       // None of the following commands support endpoint bit addressing.
       return RECEIVED_FRAME_STATUS_FAIL;
     }
@@ -72,13 +68,15 @@ static uint8_t lifeline_reporting(ccc_pair_t * p_ccc_pair)
   return 1;
 }
 
-static void reset(void) {
+static void reset(void)
+{
   BatteryData.lastReportedBatteryLevel = BATTERY_DATA_UNASSIGNED_VALUE;
   cc_battery_write(&BatteryData);
 }
 
-static void init(void) {
-  if(!cc_battery_read(&BatteryData)) {
+static void init(void)
+{
+  if (!cc_battery_read(&BatteryData)) {
     reset();
   }
 }
@@ -91,19 +89,17 @@ bool cc_battery_check_level_changed(void)
 {
   uint8_t currentBatteryLevel;
 
-  if (EINCLUSIONSTATE_EXCLUDED == ZAF_GetInclusionState())
-  {
+  if (EINCLUSIONSTATE_EXCLUDED == ZAF_GetInclusionState()) {
     // We are not network included. Nothing to do.
-    DPRINTF("\r\n%s: Not included\r\n", __func__);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_BATTERY, "\r\n%s: Not included\r\n", __func__);
     return false;
   }
 
   currentBatteryLevel = CC_Battery_BatteryGet_handler(ENDPOINT_ROOT);
-  DPRINTF("\r\n%s: Current Level=%d, Last reported level=%d\r\n", __func__, currentBatteryLevel, BatteryData.lastReportedBatteryLevel);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_BATTERY, "\r\n%s: Current Level=%d, Last reported level=%d\r\n", __func__, currentBatteryLevel, BatteryData.lastReportedBatteryLevel);
 
-  if ((currentBatteryLevel == BatteryData.lastReportedBatteryLevel) ||
-      (currentBatteryLevel == BatteryData.lastReportedBatteryLevel + cc_battery_config_get_reporting_decrements())) // Hysteresis
-  {
+  if ((currentBatteryLevel == BatteryData.lastReportedBatteryLevel)
+      || (currentBatteryLevel == BatteryData.lastReportedBatteryLevel + cc_battery_config_get_reporting_decrements())) { // Hysteresis
     // Battery level hasn't changed (significantly) since last reported. Do nothing
     return false;
   }
@@ -118,12 +114,12 @@ CC_Battery_LevelReport_tx(
   VOID_CALLBACKFUNC(pCbFunc)(TRANSMISSION_RESULT * pTransmissionResult))
 {
   CMD_CLASS_GRP cmdGrp = {
-    .cmdClass=COMMAND_CLASS_BATTERY,
-    .cmd=BATTERY_REPORT
+    .cmdClass = COMMAND_CLASS_BATTERY,
+    .cmd = BATTERY_REPORT
   };
   uint8_t battLevel = CC_Battery_BatteryGet_handler(sourceEndpoint);
 
-  if(JOB_STATUS_SUCCESS == cc_engine_multicast_request(pProfile, sourceEndpoint, &cmdGrp, &battLevel, 1, false, pCbFunc)) {
+  if (JOB_STATUS_SUCCESS == cc_engine_multicast_request(pProfile, sourceEndpoint, &cmdGrp, &battLevel, 1, false, pCbFunc)) {
     BatteryData.lastReportedBatteryLevel = battLevel;
     cc_battery_write(&BatteryData);
     return true;

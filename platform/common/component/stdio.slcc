@@ -1,12 +1,12 @@
 id: stdio
-label: "Standard I/O"
-package: platform
+label: Standard I/O
+package: platform_core
 description: Component that provides stdio compatibility.
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 include:
   - path: inc
@@ -20,5 +20,5 @@ requires:
   - name: iostream
   - name: status
 documentation:
-  docset: gecko-platform
-  document: platform-common/stdio
+    docset: gecko-platform
+    document: platform-common/stdio

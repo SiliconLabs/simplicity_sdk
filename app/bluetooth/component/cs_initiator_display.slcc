@@ -1,5 +1,5 @@
 id: cs_initiator_display
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CS Initiator Display
 description: >
   Prints Channel Sounding (CS) Initiator status information to the LCD of the WSTK.

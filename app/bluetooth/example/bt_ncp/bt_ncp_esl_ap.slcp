@@ -20,7 +20,8 @@ filter:
 component:
   - id: ncp
   - id: ncp_sec
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
   - id: bootloader_interface
@@ -28,8 +29,6 @@ component:
     instance:
       - vcom
   - id: mpu
-  - id: bluetooth_feature_nvm
-  - id: sl_common
   - id: app_assert
 
 requires:
@@ -39,7 +38,8 @@ requires:
   - name: bluetooth_feature_gatt
   - name: bluetooth_feature_l2cap
   - name: bluetooth_feature_system
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_central
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_accept_list
   - name: bluetooth_feature_gatt_server
   - name: bluetooth_feature_dynamic_gattdb
@@ -55,9 +55,7 @@ requires:
   - name: bluetooth_feature_use_accurate_api_address_types
 
 source:
-  - path: main.c
   - path: app.c
-  - path: app_bm.c
 
 include:
   - path: .
@@ -107,6 +105,8 @@ configuration:
     value: "74"
   - name: SL_BT_CONFIG_MAX_PAWR_ADVERTISERS
     value: "2"
+  - name: SL_BT_CONFIG_EXTERNAL_LOCAL_IRK 
+    value: "1"
   - name: SL_CLOCK_MANAGER_LFRCO_PRECISION
     value: "cmuPrecisionHigh"
   - name: SL_CLOCK_MANAGER_LFXO_PRECISION
@@ -154,8 +154,6 @@ configuration:
     value: "0"
   - name: SL_BT_GATTDB_ENABLE_GATT_CACHING
     value: "0"
-  - name: NVM3_DEFAULT_NVM_SIZE
-    value: "32768"
   - name: SL_NCP_EMIT_SYSTEM_ERROR_EVT
     value: "1"
 

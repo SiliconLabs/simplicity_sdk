@@ -1,5 +1,5 @@
 id: zigbee_ble_event_handler
-package: Zigbee
+package: multiprotocol
 label: BLE Event handler sample implementation
 category: Zigbee|Zigbee 3.0
 quality: production

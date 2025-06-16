@@ -1,7 +1,7 @@
 !!omap
 - id: fg23_rb4263b
 - label: FG23-RB4263B
-- package: platform
+- package: boards
 - description: Kit BSP support for the FG23 868-915 MHz 14 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

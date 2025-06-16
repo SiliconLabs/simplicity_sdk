@@ -623,7 +623,9 @@ sl_status_t sli_cpc_free_buffer_handle(sl_cpc_buffer_handle_t *handle)
 #endif
       break;
     case SL_CPC_TX_REJECT_BUFFER_HANDLE:
-      free_object(&inst->mempool_hdlc_reject, handle->data);
+      if (handle->data) {
+        free_object(&inst->mempool_hdlc_reject, handle->data);
+      }
       SL_FALLTHROUGH
     case SL_CPC_TX_SFRAME_BUFFER_HANDLE:
     case SL_CPC_TX_DATA_BUFFER_HANDLE:

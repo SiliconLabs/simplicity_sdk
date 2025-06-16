@@ -1,6 +1,6 @@
 id: zigbee_ncp_pro_stack
 label: Pro Stack NCP commands
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The main NCP commands for Zigbee PRO Stack component for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.

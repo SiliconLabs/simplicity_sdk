@@ -1,5 +1,5 @@
 id: "printf"
-package: platform
+package: printf
 label: "Tiny printf"
 description: >
   Tiny printf, sprintf and (v)snprintf implementation, optimized for speed on

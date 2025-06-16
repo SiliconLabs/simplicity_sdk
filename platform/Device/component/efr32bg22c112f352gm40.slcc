@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32BG22C112F352GM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32BG22C112F352GM40.
 - category: Platform|Device|EFR32BG22
 - quality: production

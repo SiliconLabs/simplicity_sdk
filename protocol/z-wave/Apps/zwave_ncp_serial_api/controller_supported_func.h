@@ -47,6 +47,8 @@
 #define SUPPORT_ZW_REQUEST_PROTOCOL_CC_ENCRYPTION       1
 #define SUPPORT_ENABLE_NODE_NLS                         1
 #define SUPPORT_GET_NODE_NLS_STATE                      1
+#define SUPPORT_SERIAL_GET_NLS_NODES                    1
+
 /* */
 
 /**************************************************************************/
@@ -54,15 +56,12 @@
 /* SerialAPI functionality support definitions */
 #define SUPPORT_ZW_APPLICATION_CONTROLLER_UPDATE        1
 
-
 /**************************************************************************/
 /* Controller */
 /* Specific SerialAPI functionality support definitions */
 /**************************************************************************/
 
 #define SUPPORT_ZW_SEND_SLAVE_NODE_INFORMATION          1
-
-
 
 /**************************************************************************/
 /* Bridge Controller */
@@ -82,4 +81,4 @@
 #define SUPPORT_ZW_SEND_DATA_MULTI_BRIDGE               0 /* ZW_SendDataMulti_Bridge */
 #define SUPPORT_ZW_SET_SLAVE_LEARN_MODE                 0 /* ZW_SetSlaveLearnMode */
 #define SUPPORT_SERIAL_API_APPL_SLAVE_NODE_INFORMATION  0
-#endif  /* ZW_CONTROLLER_BRIDGE */
+#endif /* ZW_CONTROLLER_BRIDGE */

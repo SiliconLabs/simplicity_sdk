@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Groups server cluster. This component supports receiving commands to add, retrieve, or modify the APS multicast group membership. Each group requires a binding table entry, so the binding table should be large enough to accommodate groups as well as any other bindings created during normal operation.
 label: Groups Server Cluster
 quality: production

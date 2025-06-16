@@ -104,7 +104,7 @@ static app_setting_notif_dsc_t *_get_notification_entry(app_setting_notification
 
 /**************************************************************************//**
  * @brief App setting notify
- * @details Notify subsribed channels about settings calls
+ * @details Notify subscribed channels about settings calls
  * @param[in] notif Notification type
  * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  *****************************************************************************/
@@ -251,7 +251,7 @@ sl_status_t app_wisun_setting_get(app_setting_wisun_t *const wisun_setting)
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  // create a deepcopy of setting
+  // create a deep copy of setting
   _app_wisun_mutex_acquire();
   memcpy(wisun_setting, &_wisun_app_settings, sizeof(app_setting_wisun_t));
   _app_wisun_mutex_release();
@@ -337,7 +337,7 @@ sl_status_t app_wisun_setting_set_phy(const sl_wisun_phy_config_t *const phy)
   _wisun_app_settings.is_default_phy = false;
   memcpy(&_wisun_app_settings.phy, phy, sizeof(sl_wisun_phy_config_t));
 
-  // Set notifiication
+  // Set notification
   stat = _setting_notify(APP_SETTING_NOTIFICATION_SET_PHY_CFG);
 
   _app_wisun_mutex_release();
@@ -420,7 +420,7 @@ sl_status_t app_wisun_setting_init_phy_cfg(void)
     memcpy(&_wisun_app_settings.phy, &wisun_app_settings_default.phy, sizeof(sl_wisun_phy_config_t));
   }
 
-  // Set notifiications
+  // Set notifications
   stat = _setting_notify(APP_SETTING_NOTIFICATION_SET_PHY_CFG);
 
   return stat;

@@ -1,6 +1,6 @@
 id: "btmesh_generic_level_client_ext"
 label: "Generic Level Client Extension"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Generic Level extension that supports Generic Move and Generic Delta messages.
 
@@ -47,3 +47,6 @@ template_contribution:
     priority: -10
   - name: component_catalog
     value: btmesh_generic_level_client_ext
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-generic-level-client-ext

@@ -52,7 +52,7 @@
 
 /**************************************************************************//**
  * @brief iPerf UDP FINACK packet send
- * @details Assembling and sending final ack packate
+ * @details Assembling and sending final ack packet
  * @param[in,out] test Test
  *****************************************************************************/
 static void _iperf_udp_finack(sl_iperf_test_t * const test);
@@ -75,7 +75,7 @@ static uint32_t _calc_jitter_abs_delta(const sl_iperf_test_t * const test);
 
 /**************************************************************************//**
  * @brief Jitter calculation
- * @details Calculate interarrival estimated jitter based on RFC 1889
+ * @details Calculate inter arrival estimated jitter based on RFC 1889
  * @param[in,out] test Test
  *****************************************************************************/
 static void _iperf_calc_jitter(sl_iperf_test_t * const test);

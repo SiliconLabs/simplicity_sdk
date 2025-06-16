@@ -14,13 +14,12 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
 include:
   - path: .
     file_list:
     - path: app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: math_mvp

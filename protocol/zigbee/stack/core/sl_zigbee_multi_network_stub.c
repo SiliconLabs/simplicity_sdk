@@ -26,6 +26,10 @@
 #include "stack/internal/inc/internal-defs-patch.h"
 #include "sl_code_classification.h"
 
+#ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+#include "stack/core/multi-pan.h"
+#endif // SL_ZIGBEE_MULTI_NETWORK_STRIPPED
+
 extern sl_mac_tx_options_bitmask_t sli_802154mac_prepare_tx_handler(sli_zigbee_packet_header_t packet,
                                                                     uint8_t *flat_packet_buffer,
                                                                     uint8_t mac_payload_offset,
@@ -35,7 +39,7 @@ extern sl_mac_tx_options_bitmask_t sli_802154mac_prepare_tx_handler(sli_zigbee_p
 extern bool sli_802154mac_passthrough_handler(uint8_t* macHeader, uint8_t macPayloadLength);
 extern void sli_802154mac_packet_send_complete_callback(uint8_t mac_index, sl_status_t status, sli_zigbee_packet_header_t packet, uint8_t tag);
 extern bool sli_zigbee_make_stack_jit_message(void);
-extern bool sli_zigbee_packet_handoff_incoming_callback(sli_buffer_manager_buffer_t rawPacket, uint8_t index, void *data);
+extern bool sli_zigbee_packet_handoff_incoming_callback(sli_buffer_manager_buffer_t rawPacket, uint8_t index, void *data, uint8_t data_len);
 extern bool sli_zigbee_process_network_header(sli_zigbee_packet_header_t macHeaderOnly,
                                               const uint8_t* networkHeader);
 extern void sli_zigbee_note_successful_poll_received(uint8_t childIndex, uint8_t nwk_index);
@@ -48,7 +52,6 @@ const sl_zigbee_library_status_t sli_zigbee_multi_network_library_status = SL_ZI
 extern sl_zigbee_neighbor_table_entry_info_t sli_zigbee_neighbor_data[];
 extern uint8_t sli_zigbee_router_neighbor_table_size;
 extern uint32_t sli_zigbee_frame_counters_table[];
-#include "stack/core/multi-pan.h"
 #endif // SL_ZIGBEE_MULTI_NETWORK_STRIPPED
 
 //------------------------------------------------------------------------------
@@ -236,6 +239,7 @@ uint8_t sli_zigbee_get_active_always_on_network_index(void)
 
 bool sli_zigbee_is_network_joined(uint8_t nwkIndex)
 {
+  (void)nwkIndex;
   return (sli_zigbee_state == NETWORK_JOINED
           || sli_zigbee_state == NETWORK_JOINED_UNAUTHENTICATED
           || sli_zigbee_state == NETWORK_REJOINED_UNAUTHENTICATED
@@ -245,6 +249,7 @@ bool sli_zigbee_is_network_joined(uint8_t nwkIndex)
 
 bool sli_zigbee_is_network_always_on(uint8_t nwkIndex)
 {
+  (void)nwkIndex;
   return (sli_zigbee_node_type == SL_ZIGBEE_COORDINATOR
           || sli_zigbee_node_type == SL_ZIGBEE_ROUTER
           || sli_zigbee_node_type == SL_ZIGBEE_END_DEVICE);
@@ -264,6 +269,7 @@ uint8_t sli_zigbee_stack_get_current_network(void)
 }
 sl_status_t sli_zigbee_stack_set_current_network(uint8_t index)
 {
+  (void)index;
   return SL_STATUS_INVALID_STATE;
 }
 
@@ -277,9 +283,11 @@ uint8_t sli_zigbee_stack_get_callback_network(void)
 // Public multi-network APIs.
 void sli_zigbee_set_zigbee_event_network_index(uint8_t offset)
 {
+  (void)offset;
 }
 uint8_t sli_zigbee_get_zigbee_event_network_index(uint8_t offset)
 {
+  (void)offset;
   return 0;
 }
 bool sli_zigbee_is_current_network_stack_empty(void)
@@ -288,6 +296,7 @@ bool sli_zigbee_is_current_network_stack_empty(void)
 }
 void sli_zigbee_enable_application_current_network(void)
 {
+  // stub function
 }
 uint8_t sli_zigbee_get_current_network_index(void)
 {
@@ -295,9 +304,11 @@ uint8_t sli_zigbee_get_current_network_index(void)
 }
 void sli_zigbee_set_current_network_internal(uint8_t nwkIndex)
 {
+  (void)nwkIndex;
 }
 void sli_zigbee_restore_current_network_internal(void)
 {
+  // stub function
 }
 bool sli_zigbee_association_in_progress(void)
 {
@@ -375,12 +386,14 @@ sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_incoming_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data)
+  void *data,
+  uint8_t data_len)
 {
   return sl_zigbee_internal_packet_handoff_incoming_handler(packetType,
                                                             packetBuffer,
                                                             index,
-                                                            data);
+                                                            data,
+                                                            data_len);
 }
 
 sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_outgoing_handler(
@@ -388,12 +401,14 @@ sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_outgoing_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data)
+  void *data,
+  uint8_t data_len)
 {
   return sl_zigbee_internal_packet_handoff_outgoing_handler(packetType,
                                                             packetBuffer,
                                                             index,
-                                                            data);
+                                                            data,
+                                                            data_len);
 }
 #endif // !defined(SL_ZIGBEE_MULTI_NETWORK_STRIPPED)
 

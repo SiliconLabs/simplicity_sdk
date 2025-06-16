@@ -1,5 +1,5 @@
 id: tz_service_msc
-package: platform
+package: security_trustzone
 label: MSC Service for TrustZone Secure Key Library
 description: >-
   This component provides an interface for the TZ Non-Secure application to

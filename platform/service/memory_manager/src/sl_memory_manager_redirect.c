@@ -30,11 +30,18 @@
  *
  ******************************************************************************/
 
-#include "sl_memory_manager.h"
-#include "sl_status.h"
-#include "sl_core.h"
-
 #include <stdlib.h>
+
+#include "sl_memory_manager.h"
+
+#include "sl_core.h"
+#include "sl_status.h"
+
+/*******************************************************************************
+ ****************************   GLOBAL VARIABLES   *****************************
+ ******************************************************************************/
+
+sl_memory_heap_t sli_general_purpose_heap;
 
 /***************************************************************************//**
  * Initializes the memory manager.
@@ -111,6 +118,20 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
 }
 
 /***************************************************************************//**
+ * Allocates a memory block from a specific heap instance.
+ * Advanced version that allows to specify alignment.
+ ******************************************************************************/
+sl_status_t sl_memory_heap_alloc_advanced(sl_memory_heap_t *heap,
+                                          size_t size,
+                                          size_t align,
+                                          sl_memory_block_type_t type,
+                                          void **block)
+{
+  (void) heap;
+  return sl_memory_alloc_advanced(size, align, type, block);
+}
+
+/***************************************************************************//**
  * Dynamically allocates a block of memory.
  *
  * This function simplifies memory allocation by calling 'sl_memory_alloc_advanced()'
@@ -121,6 +142,18 @@ sl_status_t sl_memory_alloc(size_t size,
                             void **block)
 {
   return sl_memory_alloc_advanced(size, SL_MEMORY_BLOCK_ALIGN_DEFAULT, type, block);
+}
+
+/***************************************************************************//**
+ * Allocates a memory block from a specific heap instance.
+ ******************************************************************************/
+sl_status_t sl_memory_heap_alloc(sl_memory_heap_t *heap,
+                                 size_t size,
+                                 sl_memory_block_type_t type,
+                                 void **block)
+{
+  (void) heap;
+  return sl_memory_alloc(size, type, block);
 }
 
 /***************************************************************************//**
@@ -176,6 +209,19 @@ sl_status_t sl_memory_calloc(size_t item_count,
 }
 
 /***************************************************************************//**
+ * Allocates a memory block cleared to 0 from a specific heap instance.
+ ******************************************************************************/
+sl_status_t sl_memory_heap_calloc(sl_memory_heap_t *heap,
+                                  size_t item_count,
+                                  size_t size,
+                                  sl_memory_block_type_t type,
+                                  void **block)
+{
+  (void) heap;
+  return sl_memory_calloc(item_count, size, type, block);
+}
+
+/***************************************************************************//**
  * Resizes a previously allocated memory block. Simple version.
  *
  * This function will be redirected to the standard 'realloc()' function.
@@ -226,6 +272,18 @@ sl_status_t sl_memory_realloc(void *ptr,
 }
 
 /***************************************************************************//**
+ * Resizes a previously allocated memory block from a specific heap instance.
+ ******************************************************************************/
+sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
+                                   void *ptr,
+                                   size_t size,
+                                   void **block)
+{
+  (void) heap;
+  return sl_memory_realloc(ptr, size, block);
+}
+
+/***************************************************************************//**
  * Frees a dynamically allocated block of memory.
  *
  * This function will be redirected to the standard 'free()' function.
@@ -248,6 +306,16 @@ sl_status_t sl_memory_free(void *ptr)
 }
 
 /***************************************************************************//**
+ * Frees a previously allocated block from a specific heap instance.
+ ******************************************************************************/
+sl_status_t sl_memory_heap_free(sl_memory_heap_t *heap,
+                                void *block)
+{
+  (void) heap;
+  return sl_memory_free(block);
+}
+
+/***************************************************************************//**
  * Frees a previously allocated block back into the heap. Simple version.
  *
  * This function will be redirected to the 'free()' function.
@@ -255,4 +323,85 @@ sl_status_t sl_memory_free(void *ptr)
 void sl_free(void *ptr)
 {
   (void)sl_memory_free(ptr);
+}
+
+/***************************************************************************//**
+ * Populates an sl_memory_heap_info_t{} structure with the current status of
+ * the heap.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
+{
+  if (heap_info == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Stub implementation: Set all fields to zero.
+  heap_info->base_addr = 0;
+  heap_info->used_size = 0;
+  heap_info->free_size = 0;
+  heap_info->total_size = 0;
+  heap_info->free_block_count = 0;
+  heap_info->free_block_largest_size = 0;
+  heap_info->free_block_smallest_size = 0;
+  heap_info->used_block_count = 0;
+  heap_info->used_block_largest_size = 0;
+  heap_info->used_block_smallest_size = 0;
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************//**
+ * Gets the total size of the heap.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+size_t sl_memory_get_total_heap_size(void)
+{
+  // Stub implementation: Return zero.
+  return 0;
+}
+
+/***************************************************************************//**
+ * Gets the current free heap size.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+size_t sl_memory_get_free_heap_size(void)
+{
+  // Stub implementation: Return zero.
+  return 0;
+}
+
+/***************************************************************************//**
+ * Gets the current used heap size.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+size_t sl_memory_get_used_heap_size(void)
+{
+  // Stub implementation: Return zero.
+  return 0;
+}
+
+/***************************************************************************//**
+ * Gets heap high watermark.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+size_t sl_memory_get_heap_high_watermark(void)
+{
+  // Stub implementation: Return zero.
+  return 0;
+}
+
+/***************************************************************************//**
+ * Reset heap high watermark to the current heap used.
+ *
+ * This function is a stub for the memory manager redirect component.
+ ******************************************************************************/
+void sl_memory_reset_heap_high_watermark(void)
+{
+  // Stub implementation: No operation performed.
 }

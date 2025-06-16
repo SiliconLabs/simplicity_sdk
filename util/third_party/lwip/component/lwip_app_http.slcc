@@ -1,6 +1,6 @@
 id: lwip_app_http
 label: "LWIP http High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP http high layer application component can be used for LWIP http high layer application specifically
     programmed with the lwIP low-level raw API, this httpd supports for a rudimentary server-side-include

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component implements the legacy Ember over-the-air, 1-hop, bootload protocol. This can bootload a target node that has a standalone bootloader client running on it. It first scans for neighboring devices supporting the protocol. Once a client target has been identified, it sends the request to bootload, answers the challenge using the configured encryption key, and then transfers a new EBL file via Xmodem using 802.15.4 MAC data frames. It utilizes the OTA Storage code to retrieve the EBL file for sending to the target node. This is not a Zigbee-certifiable protocol.
 label: Standalone Bootloader Server
 quality: production

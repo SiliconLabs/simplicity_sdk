@@ -105,7 +105,7 @@ bool sli_sleeptimer_is_power_manager_timer_next_to_expire(void);
  *
  * @note If power_manager_no_deepsleep component is included in a project, the
  *       lowest possible energy mode is EM1, else lowest energy mode is
- *       determined by clock source.
+ *       determined by peripheral used.
  ******************************************************************************/
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SLEEPTIMER, SL_CODE_CLASS_TIME_CRITICAL)

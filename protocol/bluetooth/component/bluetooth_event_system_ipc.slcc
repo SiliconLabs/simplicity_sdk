@@ -1,6 +1,6 @@
 id: "bluetooth_event_system_ipc"
 label: "Bluetooth Event System IPC"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Use Event System IPC to deliver Bluetooth events in an application that uses
   an RTOS. When this component is included, the Bluetooth stack will not deliver

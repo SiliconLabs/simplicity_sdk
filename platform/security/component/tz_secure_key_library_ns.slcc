@@ -1,5 +1,5 @@
 id: tz_secure_key_library_ns
-package: platform
+package: security_trustzone
 description: >-
   This component provides the NS interface files of the Secure Key library.
 category: Platform|Security|TrustZone

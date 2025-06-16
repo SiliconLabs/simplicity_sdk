@@ -24,6 +24,7 @@ define:
 provides:
   - name: zw_role_type_central_static_controller
   - name: zw_role_type
+  - name: zw_role_type_sleeping
 requires:
   - name: psa_crypto
     condition: [device_series_2]

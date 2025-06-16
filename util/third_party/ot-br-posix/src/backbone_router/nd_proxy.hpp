@@ -31,8 +31,8 @@
  *   This file includes definition for ICMPv6 Neighbor Advertisement (ND) proxy management.
  */
 
-#ifndef ND_PROXY_HPP_
-#define ND_PROXY_HPP_
+#ifndef BACKBONE_ROUTER_ND_PROXY_HPP_
+#define BACKBONE_ROUTER_ND_PROXY_HPP_
 
 #include "openthread-br/config.h"
 
@@ -55,7 +55,7 @@
 #include "common/code_utils.hpp"
 #include "common/mainloop.hpp"
 #include "common/types.hpp"
-#include "ncp/rcp_host.hpp"
+#include "host/rcp_host.hpp"
 
 namespace otbr {
 namespace BackboneRouter {
@@ -78,7 +78,7 @@ public:
     /**
      * This constructor initializes a NdProxyManager instance.
      */
-    explicit NdProxyManager(otbr::Ncp::RcpHost &aHost, std::string aBackboneInterfaceName)
+    explicit NdProxyManager(otbr::Host::RcpHost &aHost, std::string aBackboneInterfaceName)
         : mHost(aHost)
         , mBackboneInterfaceName(std::move(aBackboneInterfaceName))
         , mIcmp6RawSock(-1)
@@ -146,7 +146,7 @@ private:
                                     void                *aContext);
     int HandleNetfilterQueue(struct nfq_q_handle *aNfQueueHandler, struct nfgenmsg *aNfMsg, struct nfq_data *aNfData);
 
-    otbr::Ncp::RcpHost  &mHost;
+    otbr::Host::RcpHost &mHost;
     std::string          mBackboneInterfaceName;
     std::set<Ip6Address> mNdProxySet;
     uint32_t             mBackboneIfIndex;
@@ -166,4 +166,4 @@ private:
 } // namespace otbr
 
 #endif // OTBR_ENABLE_DUA_ROUTING
-#endif // ND_PROXY_HPP_
+#endif // BACKBONE_ROUTER_ND_PROXY_HPP_

@@ -1,15 +1,15 @@
 id: cli_threaded_host
-label: "CLI for Hosts"
-package: platform
+label: CLI for Hosts
+package: platform_core
 description: >
-  Provides threading of the CLI for Hosts so the hosts CLI doesn't block lower level communication.
+    Provides threading of the CLI for Hosts so the hosts CLI doesn't block lower level communication.
 category: Services|Command Line Interface|Extensions
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never  #loaded by dependance
+    visibility: never #loaded by dependance
 root_path: platform/service/cli
 include:
   - path: inc
@@ -27,9 +27,9 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: service_init
-      include: sl_cli_threaded_host.h
-      handler: sli_cli_threaded_host_init
+        event: service_init
+        include: sl_cli_threaded_host.h
+        handler: sli_cli_threaded_host_init
     # Remember: sli_cli_threaded_host_init must be called after
     # sli_zigbee_app_framework_init_callback() and service_init handler
     # is called before stack_init handler but sli_cli_threaded_host_init

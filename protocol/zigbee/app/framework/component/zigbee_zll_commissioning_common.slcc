@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Common code for the Zigbee 3.0 Touchlink commissioning mechanism. This component is required for both server and client side implementations.
 label: ZLL Commissioning Common
 quality: production

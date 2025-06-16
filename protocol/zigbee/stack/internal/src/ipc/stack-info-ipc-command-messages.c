@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'stack-info' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -54,6 +54,7 @@ void sli_802154_stack_set_tx_power_mode_process_ipc_command(sli_zigbee_ipc_cmd_t
 
 void sli_mac_stack_calibrate_current_channel_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_mac_stack_calibrate_current_channel();
 }
 
@@ -652,13 +653,13 @@ void sl_zigbee_get_extended_pan_id(uint8_t *resultLocation)
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (resultLocation != NULL) {
-    memmove(msg.data.get_extended_pan_id.request.resultLocation, resultLocation, sizeof(uint8_t) * (16));
+    memmove(msg.data.get_extended_pan_id.request.resultLocation, resultLocation, sizeof(uint8_t) * 16);
   }
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_extended_pan_id_process_ipc_command, &msg);
 
   if (resultLocation != NULL) {
-    memmove(resultLocation, msg.data.get_extended_pan_id.request.resultLocation, sizeof(uint8_t) * (16));
+    memmove(resultLocation, msg.data.get_extended_pan_id.request.resultLocation, sizeof(uint8_t) * 16);
   }
 }
 
@@ -1066,19 +1067,19 @@ void sl_zigbee_read_and_clear_counters(uint16_t *counter_array,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((len) > (SL_ZIGBEE_COUNTER_TYPE_COUNT)) {
+  if (len > SL_ZIGBEE_COUNTER_TYPE_COUNT) {
     assert(false); // "vector counter_array length exceeds expected maximum
   }
 
-  memmove(msg.data.read_and_clear_counters.request.counter_array, counter_array, sizeof(uint16_t) * (len));
+  memmove(msg.data.read_and_clear_counters.request.counter_array, counter_array, sizeof(uint16_t) * len);
   msg.data.read_and_clear_counters.request.len = len;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_read_and_clear_counters_process_ipc_command, &msg);
 
-  if ((len) > (SL_ZIGBEE_COUNTER_TYPE_COUNT)) {
+  if (len > SL_ZIGBEE_COUNTER_TYPE_COUNT) {
     assert(false); // "vector counter_array length exceeds expected maximum
   }
 
-  memmove(counter_array, msg.data.read_and_clear_counters.request.counter_array, sizeof(uint16_t) * (len));
+  memmove(counter_array, msg.data.read_and_clear_counters.request.counter_array, sizeof(uint16_t) * len);
 }
 
 void sl_zigbee_read_counters(uint16_t *counter_array,
@@ -1086,19 +1087,19 @@ void sl_zigbee_read_counters(uint16_t *counter_array,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((len) > (SL_ZIGBEE_COUNTER_TYPE_COUNT)) {
+  if (len > SL_ZIGBEE_COUNTER_TYPE_COUNT) {
     assert(false); // "vector counter_array length exceeds expected maximum
   }
 
-  memmove(msg.data.read_counters.request.counter_array, counter_array, sizeof(uint16_t) * (len));
+  memmove(msg.data.read_counters.request.counter_array, counter_array, sizeof(uint16_t) * len);
   msg.data.read_counters.request.len = len;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_read_counters_process_ipc_command, &msg);
 
-  if ((len) > (SL_ZIGBEE_COUNTER_TYPE_COUNT)) {
+  if (len > SL_ZIGBEE_COUNTER_TYPE_COUNT) {
     assert(false); // "vector counter_array length exceeds expected maximum
   }
 
-  memmove(counter_array, msg.data.read_counters.request.counter_array, sizeof(uint16_t) * (len));
+  memmove(counter_array, msg.data.read_counters.request.counter_array, sizeof(uint16_t) * len);
 }
 
 sl_status_t sl_zigbee_reset_counters_thresholds(void)

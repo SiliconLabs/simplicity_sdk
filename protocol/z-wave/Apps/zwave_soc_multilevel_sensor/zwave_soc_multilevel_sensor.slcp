@@ -36,14 +36,14 @@ component:
   - id: zw_cc_configuration
   - id: zw_cc_multilevel_sensor
   - id: zw_appshw
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   # Unlatch pin retention
   - id: app_em4h_reset
   - id: ZW_MIGRATION_TO_7_19
   - id: zw_cli_common
-    condition: [zw_production]
+    condition: [zw_stack_release_libraries]
   - id: app_button_press
   - id: app_assert
   - id: simple_button
@@ -55,22 +55,22 @@ component:
   - id: veml6035_driver
   - id: imu_driver
     condition: [brd2603a]
-  
+  - id: clock_manager
+
 source:
   - path: app.c
-  - path: main.c
   - path: app_cli.c
     condition: [zw_cli_common]
   - path: app_btn_handler.c
     condition: [simple_button]
   - path: app_sleep_callbacks.c
-  - path: app_cc_battery_callbacks.c
   - path: "MultilevelSensor_interface_sensor.c"
     unless: [brd2705a]
   - path: "MultilevelSensor_interface_icm20689.c"
     condition: [brd2603a]
   - path: "MultilevelSensor_interface_nosensor.c"
     condition: [brd2705a]
+  - path: ../../platform/SiliconLabs/AppsHw/src/common/app_cc_battery_callbacks.c
 
 include:
   - path: .
@@ -82,6 +82,8 @@ configuration:
     value: (400)
   - name: MEDIUM_BUTTON_PRESS_DURATION
     value: (1500)
+  - name: APP_BUTTON_PRESS_DETECTION
+    value: APP_BUTTON_PRESS_DETECT_PRESS_AND_RELEASE
   - name: ZAF_CONFIG_REQUEST_KEY_S2_UNAUTHENTICATED
     value: 1
   - name: ZAF_CONFIG_REQUEST_KEY_S2_AUTHENTICATED
@@ -162,8 +164,14 @@ configuration:
     value: 1
   - name: ZAF_APP_NAME
     value: '"multilevel_sensor"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
+  - name: SL_CLOCK_MANAGER_WDOG0CLK_SOURCE
+    value: CMU_WDOG0CLKCTRL_CLKSEL_LFRCO
+  - name: APP_BUTTON_PRESS_WAKEUP_DELAY
+    value: 46 # Average time for Sleep Timer to start after a reset when built in ocelot
+    condition: [device_sdid_210]
+  - name: APP_BUTTON_PRESS_WAKEUP_DELAY
+    value: 285 # Average time for Sleep Timer to start after a reset when built in margay
+    condition: [device_sdid_235]
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -179,6 +187,10 @@ config_file:
     directory: sample_keys
   - path: ../../platform/SiliconLabs/PAL/BootLoader/sample-keys/sample_sign.key
     directory: sample_keys
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_soc_multilevel_sensor
 
 template_contribution:
 #------------------ CLI commands ---------------------

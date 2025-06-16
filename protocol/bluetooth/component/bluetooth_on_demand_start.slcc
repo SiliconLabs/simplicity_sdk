@@ -1,6 +1,6 @@
 id: "bluetooth_on_demand_start"
 label: "Bluetooth on-demand start"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Allows the application to start or stop the Bluetooth stack on demand. If this
   component is not included in the build, the Bluetooth stack is automatically

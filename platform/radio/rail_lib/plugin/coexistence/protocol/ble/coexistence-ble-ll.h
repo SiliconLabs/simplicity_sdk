@@ -19,7 +19,7 @@
 #define SL_BT_COEX_LL_H
 
 #include <stdbool.h>
-#include <rail_types.h>
+#include "sl_rail_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,7 +59,7 @@ typedef uint16_t(* sl_bt_coex_fast_random_callback)(void);
  * Set RAIL handle and callbacks for coex to use
  *
  */
-void sl_bt_ll_coex_set_context(RAIL_Handle_t railHandle, sl_bt_coex_abort_tx_callback abortTx, sl_bt_coex_fast_random_callback fastRandom);
+void sl_bt_ll_coex_set_context(sl_rail_handle_t railHandle, sl_bt_coex_abort_tx_callback abortTx, sl_bt_coex_fast_random_callback fastRandom);
 
 /**
  * Get random number quickly
@@ -71,12 +71,12 @@ bool sl_bt_coex_tx_allowed(void);
 /**
  * Get coex events that need to be enabled by the link layer.
  */
-RAIL_Events_t sl_bt_ll_coex_get_events(void);
+sl_rail_events_t sl_bt_ll_coex_get_events(void);
 
 /**
  * Handle the coex events passed down by the link layer.
  */
-void sl_bt_ll_coex_handle_events(RAIL_Events_t events);
+void sl_bt_ll_coex_handle_events(sl_rail_events_t events);
 
 #ifdef __cplusplus
 }

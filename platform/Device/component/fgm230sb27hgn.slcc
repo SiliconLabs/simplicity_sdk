@@ -1,6 +1,6 @@
 !!omap
 - id: FGM230SB27HGN
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for FGM230SB27HGN.
 - category: Platform|Device|FGM23
 - quality: production

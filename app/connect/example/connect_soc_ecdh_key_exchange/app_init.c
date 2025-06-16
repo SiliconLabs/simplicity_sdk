@@ -37,7 +37,7 @@
 #include "app_process.h"
 
 #include "sl_connect_ecdh_key_exchange.h"
-// Ensure that psa is initialized corretly
+// Ensure that psa is initialized correctly
 #include "psa/crypto.h"
 
 // -----------------------------------------------------------------------------
@@ -65,7 +65,7 @@ extern EmberKeyData connect_network_key;
  *****************************************************************************/
 void emberAfInitCallback(void)
 {
-  // Ensure that psa is initialized corretly
+  // Ensure that psa is initialized correctly
   psa_crypto_init();
   // set the default PAN ID, it can be changed with CLI
   sl_connect_ecdh_key_exchange_set_pan_id(SL_CONNECT_ECDH_KEY_EXCHANGE_DEFAULT_PAN_ID);

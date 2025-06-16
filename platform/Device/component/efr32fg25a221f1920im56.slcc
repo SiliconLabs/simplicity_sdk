@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32FG25A221F1920IM56
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32FG25A221F1920IM56.
 - category: Platform|Device|EFR32FG25
 - quality: production

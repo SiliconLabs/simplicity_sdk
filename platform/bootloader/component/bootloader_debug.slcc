@@ -8,6 +8,10 @@ description: >
   2) Defining SL_DEBUG_PRINT enables debug prints at strategic points in the code
 category: Platform|Bootloader|Utils
 quality: production
+define:
+  - name: SYSTEM_NO_STATIC_MEMORY
+    value: 1
+    condition: [device_series_2]
 source:
   - path: platform/bootloader/debug/btl_debug.c
   - path: platform/bootloader/debug/btl_debug_swo.c

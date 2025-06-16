@@ -1,6 +1,6 @@
 project_name: rail_soc_mode_switch
 label: "RAIL - SoC Mode Switch"
-package: "Rail"
+package: "rail_sdk_sample_applications"
 description: >
   This embedded application showcases the radio chip's Mode Switch feature,
   transitioning seamlessly between FSK-OFDM modes at 915MHz and 868MHz, and
@@ -11,15 +11,15 @@ quality: production
 
 #---------------- UC/UP components -------------------
 component:
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: board_control
     condition: [hardware_board]
-  - id: rail_util_init
+  - id: sl_rail_util_init
     instance:
       - inst0
-  - id: rail_util_recommended
+  - id: rail_util_pa
   - id: radio_config_simple_rail_singlephy
   - id: sl_rail_sdk_sleep
   - id: power_manager
@@ -50,6 +50,8 @@ component:
 #-----------------Series 3 OS-------------------------
   - id: micriumos_kernel
     condition: [device_series_3]
+#---------------Code Classification------------------
+  - id: code_classification
 #----------------- Require list ----------------------
 requires:
   - name: a_radio_config
@@ -72,7 +74,6 @@ include:
     - path: app_process.h
 
 source:
-  - path: ../common/main/main.c
   - path: app_init.c
   - path: app_process.c
   - path: app_cli.c
@@ -132,6 +133,11 @@ configuration:
 #------------- RAIL init, Configuration --------------
   - name: SL_RAIL_SDK_TX_FIFO_SIZE
     value: "128"
+#------------- RAIL init, FIFOs ---------------
+  - name: SL_RAIL_UTIL_INIT_RX_FIFO_INST0_BYTES
+    value: "256"
+  - name: SL_RAIL_UTIL_INIT_TX_FIFO_INST0_BYTES
+    value: "256"
 #------------- RAIL init, Project --------------------
   - name: SL_RAIL_UTIL_INIT_INIT_COMPLETE_CALLBACK_INST0_ENABLE
     value: "1"
@@ -242,15 +248,15 @@ configuration:
   - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_2
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_3
   - name: APP_LOG_PREFIX_ENABLE

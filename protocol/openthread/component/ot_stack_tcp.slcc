@@ -1,6 +1,6 @@
 id: ot_stack_tcp
 label: TCPlp implementation for OpenThread TCP API
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides the TCPlp implementation
@@ -27,6 +27,7 @@ source:
   - path: lib/bitmap.c
   - path: lib/cbuf.c
   - path: lib/lbuf.c
+
 toolchain_settings:
   - option: gcc_compiler_option
     value: "-Wno-sign-compare"

@@ -6,7 +6,7 @@
  *            upon project regeneration.
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -31,13 +31,20 @@
  *
  ******************************************************************************/
  
+#include <inttypes.h>
+#if     SL_RAIL_3_API
+#include "sl_rail.h"
+#else//!SL_RAIL_3_API
 #include "rail.h"
+#endif//SL_RAIL_3_API
+#ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
+#endif
 #ifdef SL_CATALOG_APP_ASSERT_PRESENT
 #include "app_assert.h"
 #define APP_ASSERT(expr, ...) app_assert(expr,__VA_ARGS__)
 #else
- #define APP_ASSERT(expr, string ,rail_handle, error_code) \
+ #define APP_ASSERT(expr, ...) \
   do {                         \
     if (!(expr)) {             \
       while (1) ;              \
@@ -54,41 +61,74 @@
 
 // Provide weak function called by callback RAILCb_AssertFailed.
 __WEAK
+#if     SL_RAIL_3_API
+void sl_rail_util_on_assert_failed(sl_rail_handle_t rail_handle,
+                                   sl_rail_assert_error_codes_t error_code,
+                                   int line)
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_assert_failed(RAIL_Handle_t rail_handle,
                                    RAIL_AssertErrorCodes_t error_code)
+#endif//SL_RAIL_3_API
 {
   (void) rail_handle;
   (void) error_code;
-  APP_ASSERT(false,
-             "rail_handle: 0x%X, error_code: %d",
-             rail_handle,
-             error_code);
+#if     SL_RAIL_3_API
+  (void) line;
+  APP_ASSERT(false, "rail_handle: 0x%lX, error_code: %" PRIu32 ", line: %d",
+             (unsigned long)rail_handle, error_code, line);
+#else//!SL_RAIL_3_API
+  APP_ASSERT(false, "rail_handle: 0x%lX, error_code: %" PRIu32,
+             (unsigned long)rail_handle, error_code);
+#endif//SL_RAIL_3_API
 }
 
 #if SL_RAIL_UTIL_CALLBACKS_ASSERT_FAILED_OVERRIDE
 // Note: RAILCb_AssertFailed is called directly by the RAIL library when
 // needed, so maintain this exact function signature.
+#if     SL_RAIL_3_API
+void sl_railcb_assert_failed(sl_rail_handle_t rail_handle,
+                             sl_rail_assert_error_codes_t error_code,
+                             int line)
+#else//!SL_RAIL_3_API
 void RAILCb_AssertFailed(RAIL_Handle_t rail_handle,
                          RAIL_AssertErrorCodes_t error_code)
+#endif//SL_RAIL_3_API
 {
 {%- for entry in rail_util_callbacks %}
 {%- if entry["event"] == "assert_failed" %}
+#if     SL_RAIL_3_API
+  {{ entry["handler"] }}(rail_handle, error_code, line);
+#else//!SL_RAIL_3_API
   {{ entry["handler"] }}(rail_handle, error_code);
+#endif//SL_RAIL_3_API
 {%- endif %}
 {%- endfor %}
+#if     SL_RAIL_3_API
+  sl_rail_util_on_assert_failed(rail_handle, error_code, line);
+#else//!SL_RAIL_3_API
   sl_rail_util_on_assert_failed(rail_handle, error_code);
+#endif//SL_RAIL_3_API
 }
 #endif
 
 // Provide weak function called by callback sli_rail_util_on_rf_ready.
 __WEAK
+#if     SL_RAIL_3_API
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle)
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle)
+#endif//SL_RAIL_3_API
 {
   (void) rail_handle;
 }
 
+#if     SL_RAIL_3_API
+// Internal-only callback set up through call to sl_rail_init().
+void sli_rail_util_on_rf_ready(sl_rail_handle_t rail_handle)
+#else//!SL_RAIL_3_API
 // Internal-only callback set up through call to RAIL_Init().
 void sli_rail_util_on_rf_ready(RAIL_Handle_t rail_handle)
+#endif//SL_RAIL_3_API
 {
 {%- for entry in rail_util_callbacks %}
 {%- if entry["event"] == "rf_ready" %}
@@ -101,37 +141,59 @@ void sli_rail_util_on_rf_ready(RAIL_Handle_t rail_handle)
 // Provide weak function called by callback
 // sli_rail_util_on_channel_config_change.
 __WEAK
+#if     SL_RAIL_3_API
+void sl_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                           const sl_rail_channel_config_entry_t *p_entry)
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                           const RAIL_ChannelConfigEntry_t *entry)
+                                           const RAIL_ChannelConfigEntry_t *p_entry)
+#endif//SL_RAIL_3_API
 {
   (void) rail_handle;
-  (void) entry;
+  (void) p_entry;
 }
 
+#if     SL_RAIL_3_API
+// Internal-only callback set up through call to sl_rail_config_channels().
+void sli_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                            const sl_rail_channel_config_entry_t *p_entry)
+#else//!SL_RAIL_3_API
 // Internal-only callback set up through call to RAIL_ConfigChannels().
 void sli_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                            const RAIL_ChannelConfigEntry_t *entry)
+                                            const RAIL_ChannelConfigEntry_t *p_entry)
+#endif//SL_RAIL_3_API
 {
 {%- for entry in rail_util_callbacks %}
 {%- if entry["event"] == "channel_config_change" %}
-  {{ entry["handler"] }}(rail_handle, entry);
+  {{ entry["handler"] }}(rail_handle, p_entry);
 {%- endif %}
 {%- endfor %}
-  sl_rail_util_on_channel_config_change(rail_handle, entry);
+  sl_rail_util_on_channel_config_change(rail_handle, p_entry);
 }
 
 // Provide weak function called by callback sli_rail_util_on_event.
 __WEAK
+#if     SL_RAIL_3_API
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
                            RAIL_Events_t events)
+#endif//SL_RAIL_3_API
 {
   (void) rail_handle;
   (void) events;
 }
 
+#if     SL_RAIL_3_API
+// Internal-only callback set up through call to sl_rail_init().
+void sli_rail_util_on_event(sl_rail_handle_t rail_handle,
+                            sl_rail_events_t events)
+#else//!SL_RAIL_3_API
 // Internal-only callback set up through call to RAIL_Init().
 void sli_rail_util_on_event(RAIL_Handle_t rail_handle,
                             RAIL_Events_t events)
+#endif//SL_RAIL_3_API
 {
 {%- for entry in rail_util_callbacks %}
 {%- if entry["event"] == "rail_event" %}

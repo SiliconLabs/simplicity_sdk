@@ -135,7 +135,7 @@ void app_deinit(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/

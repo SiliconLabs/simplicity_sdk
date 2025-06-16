@@ -1,5 +1,5 @@
 id: tz_service_nvm3_common
-package: platform
+package: security_trustzone
 label: NVM3 and ITS service helper component for TrustZone secure library
 description: >-
   This component provides the common files required for the NVM3 and ITS services

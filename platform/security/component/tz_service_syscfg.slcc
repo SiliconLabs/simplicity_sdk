@@ -1,5 +1,5 @@
 id: tz_service_syscfg
-package: platform
+package: security_trustzone
 label: SYSCFG Service for TrustZone Secure Key Library
 description: >-
   This component includes API that provides access to SYSCFG registers.

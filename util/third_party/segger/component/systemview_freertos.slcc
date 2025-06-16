@@ -1,6 +1,6 @@
 id: segger_systemview_freertos
 label: SEGGER SystemView for FreeRTOS
-package: platform
+package: segger
 description: SEGGER SystemView sample for FreeRTOS
 category: Third Party|Segger|System View
 quality: production

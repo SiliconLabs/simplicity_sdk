@@ -1,6 +1,6 @@
 id: mbedtls_core
 label: Mbed TLS
-package: platform
+package: security_mbedtls
 quality: production
 category: Platform|Security|Mbed TLS
 

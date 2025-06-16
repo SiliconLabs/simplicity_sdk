@@ -1,5 +1,5 @@
 id: tz_secure_config
-package: platform
+package: security_trustzone
 description: >-
   This component includes the TZ secure configuration file.
 category: Platform|Security|TrustZone

@@ -331,7 +331,7 @@ typedef int_fast32_t int_fast24_t;
  *                 -------------                  -------------
  *                 inline int my_func(int);       int my_func(int);
  *
- *                 // inline definition
+ *                 inline definition
  *                 inline int my_func(int a)
  *                 {
  *                     definition;
@@ -341,8 +341,8 @@ typedef int_fast32_t int_fast24_t;
  *                 -------------                  -------------
  *    (from .h)    inline int my_func(int);       int my_func(int);
  *
- *                 // external definition
- *                 // because of no "inline"      // normal external definition
+ *                 external definition
+ *                 because of no "inline"         normal external definition
  *                 extern int my_func(int a)      extern int my_func(int a)
  *                 {                              {
  *                     definition;                    definition;

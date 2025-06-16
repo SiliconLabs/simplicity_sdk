@@ -1,6 +1,6 @@
 id: "btmesh_sar_config_server"
 label: "SAR Configuration Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   SAR Configuration Server component enables the local and remote configuration of the segmentation and
   reassembly behavior of a node.
@@ -46,3 +46,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-sar-config-server

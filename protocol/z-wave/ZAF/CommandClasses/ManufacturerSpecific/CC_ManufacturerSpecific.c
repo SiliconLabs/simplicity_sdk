@@ -38,21 +38,19 @@
 
 static received_frame_status_t
 CC_ManufacturerSpecific_handler(
-    RECEIVE_OPTIONS_TYPE_EX *rxOpt,
-    ZW_APPLICATION_TX_BUFFER *pFrameIn,
-    __attribute__((unused)) uint8_t cmdLength,
-    ZW_APPLICATION_TX_BUFFER * pFrameOut,
-    uint8_t * pLengthOut
-)
+  RECEIVE_OPTIONS_TYPE_EX *rxOpt,
+  ZW_APPLICATION_TX_BUFFER *pFrameIn,
+  __attribute__((unused)) uint8_t cmdLength,
+  ZW_APPLICATION_TX_BUFFER * pFrameOut,
+  uint8_t * pLengthOut
+  )
 {
-  if (true == Check_not_legal_response_job(rxOpt))
-  {
+  if (true == Check_not_legal_response_job(rxOpt)) {
     // None of the following commands support endpoint bit addressing.
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
-  switch(pFrameIn->ZW_Common.cmd)
-  {
+  switch (pFrameIn->ZW_Common.cmd) {
     case MANUFACTURER_SPECIFIC_GET_V2:
       pFrameOut->ZW_ManufacturerSpecificReportV2Frame.cmdClass = COMMAND_CLASS_MANUFACTURER_SPECIFIC_V2;
       pFrameOut->ZW_ManufacturerSpecificReportV2Frame.cmd      = MANUFACTURER_SPECIFIC_REPORT_V2;

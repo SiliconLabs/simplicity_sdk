@@ -1,5 +1,5 @@
 id: psa_crypto_rsa_2048
-package: platform
+package: security_mbedtls
 label: RSA-2048
 description: >-
   This component adds support for 2048-bit RSA operations.

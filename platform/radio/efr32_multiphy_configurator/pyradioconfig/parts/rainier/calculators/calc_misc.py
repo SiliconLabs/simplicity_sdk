@@ -3,6 +3,10 @@ from pyradioconfig.parts.bobcat.calculators.calc_misc import Calc_Misc_Bobcat
 
 class CalcMiscRainier(Calc_Misc_Bobcat):
 
+    def calc_misc_synth_lockbwgear01(self, model):
+        self._reg_write(model.vars.SYNTH_DLFCTRL_LOCKLPFBWGEAR0, 15)
+        self._reg_write(model.vars.SYNTH_DLFCTRL_LOCKLPFBWGEAR1, 15)
+
     def calc_misc_Rainier(self, model):
         """
         These aren't really calculating right now.  Just using defaults or forced values.
@@ -11,20 +15,14 @@ class CalcMiscRainier(Calc_Misc_Bobcat):
              model (ModelRoot) : Data model to read and write variables from
         """
 
-        self._reg_write(model.vars.SYNTH_DLFCTRL_LOCKLPFBWGEAR0, 15)
-        self._reg_write(model.vars.SYNTH_DLFCTRL_LOCKLPFBWGEAR1, 15)
-
-        self._reg_write(model.vars.MODEM_EHDSSSCTRL_EHDSSSEN, 0)
         self._reg_write(model.vars.MODEM_EHDSSSCTRL_DSSSTIMEACQUTHD, 16)
         self._reg_write(model.vars.MODEM_EHDSSSCTRL_FOEBIAS, 1)
         self._reg_write(model.vars.MODEM_EHDSSSCTRL_FREQCORREN, 1)
         self._reg_write(model.vars.MODEM_EHDSSSCTRL_DSSSFRQLIM, 16)
-        self._reg_write(model.vars.MODEM_EHDSSSCFG0_DSSSPATT, 122)
         self._reg_write(model.vars.MODEM_EHDSSSCFG1_DSSSEXPSYNCLEN, 128)
         self._reg_write(model.vars.MODEM_EHDSSSCFG1_DSSSCORRTHD, 400)
         self._reg_write(model.vars.MODEM_EHDSSSCFG1_DSSSDSAQTHD, 700)
         self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSTIMCORRTHD, 600)
-        self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSFRTCORRTHD, 700)
         self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSTRACKINGWIN, 5)
         self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSCORRSCHWIN, 8)
         self._reg_write(model.vars.MODEM_EHDSSSCFG2_ONESYMBOLMBDD, 1)
@@ -43,15 +41,6 @@ class CalcMiscRainier(Calc_Misc_Bobcat):
         self._reg_write_default(model.vars.SYNTH_LMSOVERRIDE_GLMSOVERRIDEEN)
         self._reg_write_default(model.vars.SYNTH_LMSOVERRIDE_PLMSOVERRIDEEN)
         self._reg_write_default(model.vars.MODEM_EXPECTPATTDUAL_EXPECTPATTDUAL)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCTRL_DSSSDSATHD)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCTRL_DUALDSA)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG2_MAXSCHMODE)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG2_DSSSDSAQUALEN)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG3_DSSSDASMAXTHD)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG3_DSSSFOETRACKGEAR)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG3_OPMODE)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG3_DSSSINITIMLEN)
-        self._reg_write_default(model.vars.MODEM_EHDSSSCFG3_LQIAVGWIN)
         self._reg_write_default(model.vars.MODEM_DUALTIM_DUALTIMEN)
         self._reg_write_default(model.vars.MODEM_DUALTIM_MINCOSTTHD2)
         self._reg_write_default(model.vars.MODEM_DUALTIM_SYNCACQWIN2)
@@ -59,7 +48,6 @@ class CalcMiscRainier(Calc_Misc_Bobcat):
         self._reg_write_default(model.vars.MODEM_CTRL3_ANTDIVMODE)
         self._reg_write_default(model.vars.MODEM_DIGMIXCTRL_BLEORZB)
         self._reg_write_default(model.vars.MODEM_DIGMIXCTRL_MULTIPHYHOP)
-        self._reg_write_default(model.vars.MODEM_DIGMIXCTRL_HOPPINGSRC)
         self._reg_write_default(model.vars.MODEM_DIGMIXCTRL_RXBRINTSHIFT)
         self._reg_write_default(model.vars.MODEM_DIGMIXCTRL_DSSSCFECOMBO)
         self._reg_write_default(model.vars.MODEM_SYNC3_SYNC3)

@@ -219,7 +219,7 @@ skip_list_p skip_list_create_list(size_t max_height, node_compare_fp cmp)
   if (list != NULL) {
     // Do lazy init on WELL PRNG for first instance
     well512_init();
-    // We need a dummy head node with max height
+    // We need a head node with max height
     list->head = skip_list_create_node(NULL, max_height);
     // The head node doesn't count for size
     list->size = 0;
@@ -334,7 +334,7 @@ skip_node_p skip_list_find_node(skip_list_p list,
   if (list != NULL && list->size != 0 && data != NULL) {
     current = list->head;
 
-    // Search method needs an update array for the forward pointer updates, create a dummy
+    // Search method needs an update array for the forward pointer updates, create a temporary one
     skip_node_t *update[current->level + 1];
 
     // The internal search function will prepare the pointer update array

@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_app_status_config.h
- * @brief Wi-SUN Application Status CoAP notfication configuration
+ * @brief Wi-SUN Application Status CoAP notification configuration
  *******************************************************************************
  * # License
  * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
@@ -50,12 +50,12 @@
 #define SL_WISUN_APP_STATUS_DEFAULT_REMOTE_ADDR        "2001:db8::1" ///< Default remote address to send status report
 
 // <s SL_WISUN_APP_STATUS_DEFAULT_URI_PATH> Default URI Path to use in status report packet
-// <i> Default: app/status
-#define SL_WISUN_APP_STATUS_DEFAULT_URI_PATH           "app/status" ///< Default URI Path to use in status report packet
+// <i> Default: /app/status
+#define SL_WISUN_APP_STATUS_DEFAULT_URI_PATH           "/app/status" ///< Default URI Path to use in status report packet
 
-// <s SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID> Default notification ID string
+// <s SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID> Default notification ID string
 // <i> Default: app-status
-#define SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID     "app-status" ///< Default notification ID string
+#define SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID     "app-status" ///< Default notification ID string
 
 // <o SL_WISUN_APP_STATUS_DEFAULT_SCHEDULE_TIME_MS> Default schedule time to send status report
 // <i> Default: 10000
@@ -72,6 +72,10 @@
 // <q SL_WISUN_APP_STATUS_DEVICE_INFO_ENABLE> Enable execution time
 // <i> Default: 1
 #define SL_WISUN_APP_STATUS_DEVICE_INFO_ENABLE         1U ///< Enable execution time
+
+// <q SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE> Enable CoAP resource
+// <i> Default: 1
+#define SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE       1U ///< Enable CoAP resource
 
 // </h>
 

@@ -128,16 +128,16 @@ static void esl_debug_led_control_parameters(esl_led_control_t *control_data)
                       duration);
       }
       sl_bt_esl_log(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_NOHEADER,
-                    ESL_LOG_LEVEL_INFO, "    Pattern: 0x");
+                    ESL_LOG_LEVEL_DEBUG, "    Pattern: 0x");
       for (uint32_t i = sizeof(control_data->pattern.data); i; ) {
-        sl_bt_esl_log(ESL_LOG_COMPONENT_LED | ESL_LOG_FLAG_APPEND,
-                      ESL_LOG_LEVEL_INFO,
+        sl_bt_esl_log(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_APPEND,
+                      ESL_LOG_LEVEL_DEBUG,
                       "%02X",
                       (uint8_t) control_data->pattern.data[--i]);
       }
       sl_bt_esl_log(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_NOHEADER,
                     ESL_LOG_LEVEL_INFO,
-                    "    On period %u ms, off period %u ms.",
+                    "    On/off period %u / %u [ms].",
                     2 * control_data->pattern.bit_on_period,
                     2 * control_data->pattern.bit_off_period);
     } break;
@@ -667,8 +667,9 @@ sl_status_t esl_core_parse_all_opcodes(void *data, uint8_t len)
   }
 
   if (!has_notifications && response_slot >= 0) {
+    const uint8_t response_size_limit = (uint8_t)esl_core_get_response_payload_limit();
     uint8_t responses[ESL_PAYLOAD_OVERHEAD + ESL_PAYLOAD_MAX_LENGTH];
-    uint8_t length = esl_core_get_responses(sizeof(responses) - ESL_PAYLOAD_OVERHEAD,
+    uint8_t length = esl_core_get_responses(response_size_limit,
                                             &responses[ESL_PAYLOAD_OVERHEAD]);
 
     if (length && esl_core_get_sync_handle() != SL_BT_INVALID_SYNC_HANDLE) {
@@ -681,21 +682,14 @@ sl_status_t esl_core_parse_all_opcodes(void *data, uint8_t len)
 
       length++; // set length properly for the whole frame to be encrypted
       sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
-                    ESL_LOG_LEVEL_INFO,
-                    "PAwR response(s): ");
-      sl_bt_esl_log_hexdump(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_APPEND,
-                            ESL_LOG_LEVEL_INFO,
-                            responses,
-                            length);
-      msg = esl_core_encrypt_message(responses, &length);
-
-      sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                     ESL_LOG_LEVEL_DEBUG,
-                    "Encrypted: ");
+                    "PAwR response(s): ");
       sl_bt_esl_log_hexdump(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_APPEND,
                             ESL_LOG_LEVEL_DEBUG,
                             responses,
                             length);
+      msg = esl_core_encrypt_message(responses, &length);
+
       if (msg != NULL) {
         // send periodic advertisement responses
         sc = sl_bt_pawr_sync_set_response_data(esl_core_get_sync_handle(),
@@ -705,6 +699,13 @@ sl_status_t esl_core_parse_all_opcodes(void *data, uint8_t len)
                                                (uint8_t)response_slot,
                                                length,
                                                msg);
+        sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
+                      ESL_LOG_LEVEL_DEBUG,
+                      "Encrypted: ");
+        sl_bt_esl_log_hexdump(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_APPEND,
+                              ESL_LOG_LEVEL_DEBUG,
+                              responses,
+                              length);
         sl_bt_esl_log(ESL_LOG_COMPONENT_CORE | ESL_LOG_FLAG_APPEND,
                       ESL_LOG_LEVEL_INFO,
                       ", result: 0x%04lx on slot %d",
@@ -712,7 +713,7 @@ sl_status_t esl_core_parse_all_opcodes(void *data, uint8_t len)
                       response_slot);
       }
     }
-    esl_core_purge_responses();
+    esl_core_purge_responses(response_size_limit);
   }
 
   return result;
@@ -736,8 +737,8 @@ sl_status_t esl_core_process_opcode(esl_id_t self_id,
 #ifdef ESL_TAG_VENDOR_OPCODES_ENABLED
     // check for vendor opcodes first - let them processed by the vendor callback
     if ((opcode & ESL_TLV_OPCODE_VENDOR_SPECIFIC) == ESL_TLV_OPCODE_VENDOR_SPECIFIC) {
-      uint8_t *data_p  = *(uint8_t **)data;
-      uint8_t data_len = esl_core_get_tlv_len(opcode);
+      uint8_t *data_p  = *(uint8_t **)data; // data must already point to the extra parameter after the mandatory ID
+      uint8_t data_len = esl_core_get_tlv_len(opcode) - sizeof(esl_id_t); // exclude ID param. - result may be zero!
 
       result = esl_core_process_vendor_opcode(opcode, data_len, data_p);
 
@@ -751,7 +752,7 @@ sl_status_t esl_core_process_opcode(esl_id_t self_id,
         (void)esl_core_build_response(ESL_TLV_RESPONSE_ERROR, &error_code);
       }
       // adjust data pointer properly - custom implementation shall not care
-      *data = (void *)(data_p + data_len - sizeof(opcode));
+      *data = (void *)(data_p + data_len);
       return SL_STATUS_OK;
     }
 #endif // ESL_TAG_VENDOR_OPCODES_ENABLED
@@ -775,8 +776,6 @@ sl_status_t esl_core_process_opcode(esl_id_t self_id,
           esl_basic_state_t basic_state = esl_core_get_basic_state();
           result = esl_core_build_response(ESL_TLV_RESPONSE_BASIC_STATE,
                                            &basic_state);
-        } else {
-          result = SL_STATUS_OK;
         }
         break;
 
@@ -975,12 +974,8 @@ sl_status_t esl_core_process_opcode(esl_id_t self_id,
       } break;
 
       case ESL_TLV_OPCODE_FACTORY_RST:
-        if (esl_core_get_status() == esl_state_synchronized) {
-          result = SL_STATUS_INVALID_STATE;
-          esl_core_set_last_error(ESL_ERROR_INVALID_STATE);
-        } else {
-          sl_status_t result;
-
+        // Just ignore in synchronized state, as per ESLP v1.0.1
+        if (esl_core_get_status() != esl_state_synchronized) {
           // remove any pending delayed command immediately
           esl_core_purge_delayed_commands();
           // Invalidate config to avoid processing any further commands according to ESLS 3.9.2.4
@@ -1005,11 +1000,7 @@ sl_status_t esl_core_process_opcode(esl_id_t self_id,
         break;
 
       case ESL_TLV_OPCODE_UPDATE_COMPLETE:
-        result = esl_core_update_complete();
-        // Check result
-        if (result == SL_STATUS_INVALID_STATE) {
-          esl_core_set_last_error(ESL_ERROR_INVALID_STATE);
-        }
+        (void)esl_core_update_complete(); // Does not solicit any response!
         break;
 
       case ESL_TLV_OPCODE_READ_SENSOR: {

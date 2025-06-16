@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_zdo_management' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -41,18 +41,18 @@ sl_status_t sl_zigbee_request_beacon_survey(sl_802154_short_addr_t dest,
   msg.data.request_beacon_survey.request.dest = dest;
   msg.data.request_beacon_survey.request.channel_page_count = channel_page_count;
 
-  if ((channel_page_count) > (5)) {
+  if (channel_page_count > 5) {
     assert(false); // "vector channel_masks length exceeds expected maximum
   }
 
-  memmove(msg.data.request_beacon_survey.request.channel_masks, channel_masks, sizeof(uint32_t) * (channel_page_count));
+  memmove(msg.data.request_beacon_survey.request.channel_masks, channel_masks, sizeof(uint32_t) * channel_page_count);
   msg.data.request_beacon_survey.request.scan_config_mask = scan_config_mask;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_request_beacon_survey_process_ipc_command, &msg);
 
-  if ((channel_page_count) > (5)) {
+  if (channel_page_count > 5) {
     assert(false); // "vector channel_masks length exceeds expected maximum
   }
 
-  memmove(channel_masks, msg.data.request_beacon_survey.request.channel_masks, sizeof(uint32_t) * (channel_page_count));
+  memmove(channel_masks, msg.data.request_beacon_survey.request.channel_masks, sizeof(uint32_t) * channel_page_count);
   return msg.data.request_beacon_survey.response.result;
 }

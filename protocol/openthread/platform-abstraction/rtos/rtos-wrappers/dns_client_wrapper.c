@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -74,6 +74,13 @@ extern otError OT_API_REAL_NAME(otDnsClientBrowse)(otInstance             *aInst
                                                    otDnsBrowseCallback     aCallback,
                                                    void                   *aContext,
                                                    const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsClientQueryRecord)(otInstance             *aInstance,
+                                                        uint16_t                aRecordType,
+                                                        const char             *aFirstLabel,
+                                                        const char             *aNextLabels,
+                                                        otDnsRecordCallback     aCallback,
+                                                        void                   *aContext,
+                                                        const otDnsQueryConfig *aConfig);
 extern otError OT_API_REAL_NAME(otDnsClientResolveAddress)(otInstance             *aInstance,
                                                            const char             *aHostName,
                                                            otDnsAddressCallback    aCallback,
@@ -96,6 +103,12 @@ extern otError OT_API_REAL_NAME(otDnsClientResolveServiceAndHostAddress)(otInsta
                                                                          otDnsServiceCallback    aCallback,
                                                                          void                   *aContext,
                                                                          const otDnsQueryConfig *aConfig);
+extern otError OT_API_REAL_NAME(otDnsRecordResponseGetQueryName)(const otDnsRecordResponse *aResponse,
+                                                                 char                      *aNameBuffer,
+                                                                 uint16_t                   aNameBufferSize);
+extern otError OT_API_REAL_NAME(otDnsRecordResponseGetRecordInfo)(const otDnsRecordResponse *aResponse,
+                                                                  uint16_t                   aIndex,
+                                                                  otDnsRecordInfo           *aRecordInfo);
 extern otError OT_API_REAL_NAME(otDnsServiceResponseGetHostAddress)(const otDnsServiceResponse *aResponse,
                                                                     const char                 *aHostName,
                                                                     uint16_t                    aIndex,
@@ -195,6 +208,21 @@ otError OT_API_WRAPPER_NAME(otDnsClientBrowse)(otInstance             *aInstance
     return ret;
 }
 
+otError OT_API_WRAPPER_NAME(otDnsClientQueryRecord)(otInstance             *aInstance,
+                                                    uint16_t                aRecordType,
+                                                    const char             *aFirstLabel,
+                                                    const char             *aNextLabels,
+                                                    otDnsRecordCallback     aCallback,
+                                                    void                   *aContext,
+                                                    const otDnsQueryConfig *aConfig)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(
+        otDnsClientQueryRecord)(aInstance, aRecordType, aFirstLabel, aNextLabels, aCallback, aContext, aConfig);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
 otError OT_API_WRAPPER_NAME(otDnsClientResolveAddress)(otInstance             *aInstance,
                                                        const char             *aHostName,
                                                        otDnsAddressCallback    aCallback,
@@ -243,6 +271,26 @@ otError OT_API_WRAPPER_NAME(otDnsClientResolveServiceAndHostAddress)(otInstance 
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(
         otDnsClientResolveServiceAndHostAddress)(aInstance, aInstanceLabel, aServiceName, aCallback, aContext, aConfig);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otDnsRecordResponseGetQueryName)(const otDnsRecordResponse *aResponse,
+                                                             char                      *aNameBuffer,
+                                                             uint16_t                   aNameBufferSize)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otDnsRecordResponseGetQueryName)(aResponse, aNameBuffer, aNameBufferSize);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otDnsRecordResponseGetRecordInfo)(const otDnsRecordResponse *aResponse,
+                                                              uint16_t                   aIndex,
+                                                              otDnsRecordInfo           *aRecordInfo)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otDnsRecordResponseGetRecordInfo)(aResponse, aIndex, aRecordInfo);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

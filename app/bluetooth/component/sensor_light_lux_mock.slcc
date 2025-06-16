@@ -1,6 +1,6 @@
 id: sensor_light_lux_mock
 label: Ambient light and UV index sensor (Mock)
-package: Bluetooth
+package: bluetooth_le_middleware
 description: Ambient light and UV index sensor (Mock) driver abstraction.
 category: Bluetooth|Application|Miscellaneous
 metadata:

@@ -1,7 +1,7 @@
 !!omap
 - id: slwrb4179b
 - label: SLWRB4179B
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32MG21 2.4 GHz 10 dBm with EFP Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

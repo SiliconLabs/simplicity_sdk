@@ -37,7 +37,7 @@ extern "C" {
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @addtogroup mesh_blob_transfer_server BT Mesh BLOB Transfer Server
+ * @addtogroup btmesh_blob_transfer_server
  * @{
  ******************************************************************************/
 
@@ -61,13 +61,14 @@ extern void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt);
  *
  * @note Firmware Update Server automatically handles this operation when it
  * receives a firmware update start message
- * (@ref sl_btmesh_evt_fw_update_server_update_start_req_id).
+ * ( @p sl_btmesh_evt_fw_update_server_update_start_req_id ).
  *
- * @param blob_id Identifier of BLOB to be received
- * @param timeout_10s Timeout of reception in 10 seconds. If no data is received
+ * @param[in] elem_index The server model element index.
+ * @param[in] blob_id Identifier of BLOB to be received
+ * @param[in] timeout_10s Timeout of reception in 10 seconds. If no data is received
  *                    for this time, the transfer will be suspended. The actual
  *                    timeout is calculated as (1 + @p timeout_10s) × 10 s
- * @param ttl The TTL used for communicating with the client
+ * @param[in] ttl The TTL used for communicating with the client
  *
  * @return Status code
  * @retval SL_STATUS_OK In case of success
@@ -84,8 +85,9 @@ extern sl_status_t sl_btmesh_blob_transfer_server_start(uint16_t elem_index,
  * The new values will take effect at the next transfer start. The command does
  * not modify parameters of the ongoing transfer.
  *
- * @param pull_mode_retry_interval_ms Retry interval in milliseconds
- * @param pull_mode_retry_count Number of times to retry
+ * @param[in] elem_index The server model element index.
+ * @param[in] pull_mode_retry_interval_ms Retry interval in milliseconds
+ * @param[in] pull_mode_retry_count Number of times to retry
  *
  * @return Status code
  * @retval SL_STATUS_OK In case of success
@@ -102,7 +104,7 @@ extern sl_status_t sl_btmesh_blob_transfer_server_set_pull_mode_parameters(uint1
  ******************************************************************************/
 void sl_btmesh_blob_transfer_server_step_handle(void);
 
-/** @} end mesh_blob_transfer_server */
+/** @} end btmesh_blob_transfer_server */
 
 #ifdef __cplusplus
 }

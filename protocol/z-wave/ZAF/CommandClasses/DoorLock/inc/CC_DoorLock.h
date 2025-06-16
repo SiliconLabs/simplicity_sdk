@@ -35,16 +35,15 @@
  * 2) Timeout mode. Fallback to secured mode after timeout has expired (set by Door Lock Configuration Set).
  * 3) This is Read Only State, i.e. Bolt is not fully retracted/engaged
  */
-typedef enum
-{
-  DOOR_MODE_UNSECURE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_V2,	/**< Door Unsecured 1)*/                                                                                            //!< DOOR_MODE_UNSECURE
-  DOOR_MODE_UNSECURE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_WITH_TIMEOUT_V2,	/**< Door Unsecured with timeout 2)*/                                                          //!< DOOR_MODE_UNSECURE_TIMEOUT
-  DOOR_MODE_UNSECURE_INSIDE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_INSIDE_DOOR_HANDLES_V2,	/**< Door Unsecured for inside Door Handles 1)*/                                     //!< DOOR_MODE_UNSECURE_INSIDE
-  DOOR_MODE_UNSECURE_INSIDE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_INSIDE_DOOR_HANDLES_WITH_TIMEOUT_V2,	/**< Door Unsecured for inside Door Handles with timeout 2)*/   //!< DOOR_MODE_UNSECURE_INSIDE_TIMEOUT
-  DOOR_MODE_UNSECURE_OUTSIDE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_OUTSIDE_DOOR_HANDLES_V2,	/**< Door Unsecured for outside Door Handles 1)*/                                  //!< DOOR_MODE_UNSECURE_OUTSIDE
-  DOOR_MODE_UNSECURE_OUTSIDE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_OUTSIDE_DOOR_HANDLES_WITH_TIMEOUT_V2,	/**< Door Unsecured for outside Door Handles with timeout 2)*///!< DOOR_MODE_UNSECURE_OUTSIDE_TIMEOUT
+typedef enum {
+  DOOR_MODE_UNSECURE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_V2, /**< Door Unsecured 1)*/                                                                                            //!< DOOR_MODE_UNSECURE
+  DOOR_MODE_UNSECURE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_WITH_TIMEOUT_V2, /**< Door Unsecured with timeout 2)*/                                                           //!< DOOR_MODE_UNSECURE_TIMEOUT
+  DOOR_MODE_UNSECURE_INSIDE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_INSIDE_DOOR_HANDLES_V2, /**< Door Unsecured for inside Door Handles 1)*/                                      //!< DOOR_MODE_UNSECURE_INSIDE
+  DOOR_MODE_UNSECURE_INSIDE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_INSIDE_DOOR_HANDLES_WITH_TIMEOUT_V2, /**< Door Unsecured for inside Door Handles with timeout 2)*/   //!< DOOR_MODE_UNSECURE_INSIDE_TIMEOUT
+  DOOR_MODE_UNSECURE_OUTSIDE = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_OUTSIDE_DOOR_HANDLES_V2, /**< Door Unsecured for outside Door Handles 1)*/                                   //!< DOOR_MODE_UNSECURE_OUTSIDE
+  DOOR_MODE_UNSECURE_OUTSIDE_TIMEOUT = DOOR_LOCK_OPERATION_SET_DOOR_UNSECURED_FOR_OUTSIDE_DOOR_HANDLES_WITH_TIMEOUT_V2, /**< Door Unsecured for outside Door Handles with timeout 2)*///!< DOOR_MODE_UNSECURE_OUTSIDE_TIMEOUT
   DOOR_MODE_UNKNOWN = DOOR_LOCK_OPERATION_REPORT_DOOR_MODE_UNKNOWN_V4, /**< Door/Lock State Unknown (Version 4) this is an invalid set value*/ //!< DOOR_MODE_UNKNOWN
-  DOOR_MODE_SECURED = DOOR_LOCK_OPERATION_SET_DOOR_SECURED_V2	/**< Door Secured*/                                                                                                  //!< DOOR_MODE_SECURED
+  DOOR_MODE_SECURED = DOOR_LOCK_OPERATION_SET_DOOR_SECURED_V2 /**< Door Secured*/                                                                                                  //!< DOOR_MODE_SECURED
 } door_lock_mode_t;
 
 /**
@@ -53,8 +52,7 @@ typedef enum
  * timed operation is set, the Lock Timer Minutes and Lock Timer Seconds fields
  * MUST be set to valid values.
  */
-typedef enum
-{
+typedef enum {
   DOOR_OPERATION_CONST = 0x01,   /**< Constant operation*/
   DOOR_OPERATION_TIMED = 0x02,   /**< Timed operation*/
   DOOR_OPERATION_RESERVED = 0x03 /**< 0X03..0XFF  Reserved*/
@@ -65,8 +63,7 @@ cc_door_lock_operation_type_t;
  * Supported Door Components
  * Bitmask of supported door components. Set to 1 if corresponding component is supported.
  */
-typedef enum
-{
+typedef enum {
   DOOR_COMPONENT_DOOR = 0x01,
   DOOR_COMPONENT_BOLT = 0x02,
   DOOR_COMPONENT_LATCH = 0x04
@@ -76,8 +73,7 @@ typedef enum
  * Supported Door Handles
  * Bitmask of supported door handles. Set to 1 if corresponding handle is supported.
  */
-typedef enum
-{
+typedef enum {
   DOOR_HANDLE_DISABLED = 0x00,
   DOOR_HANDLE_1 = 0x01,
   DOOR_HANDLE_2 = 0x02,
@@ -140,8 +136,7 @@ typedef enum
  * Block To Block Support
  * The \ref blockToBlockSupport flag indicates if the Door Lock Supports Block To Block (1=supported, 0=not supported),
  */
-typedef struct
-{
+typedef struct {
   uint8_t reserved : 3; /**< Reserved (2 bits)*/
   uint8_t lengthSupportedOperationType : 5; /**< Length of Supported Operation Type Bitmask (5 bits)*/
   uint8_t supportedOperationTypeBitmask; /**< Supported Operation Types. Max. length fixed to 1 byte. Enough to hold both defined types defined in SDS13781. */
@@ -174,8 +169,7 @@ typedef struct
  * - 0: disabled
  * - 1: enabled
  */
-typedef struct
-{
+typedef struct {
   uint8_t type; /** Operation mode - \ref cc_door_lock_operation_type_t */
   uint8_t insideDoorHandleMode : 4; /**< Inside Door Handles Mode (4 bits)*/
   uint8_t outsideDoorHandleMode : 4; /**< Outside Door Handles Mode (4 bits)*/
@@ -236,8 +230,7 @@ typedef struct
  *   - 1: Closed
  * - Bit 3-7: Reserved
  */
-typedef struct
-{
+typedef struct {
   door_lock_mode_t mode;
   cc_door_lock_operation_type_t type;
   uint8_t insideDoorHandleMode : 4; /**< Inside Door Handles Mode (4 bits)*/
@@ -254,8 +247,7 @@ typedef struct
  * Structure follows but it's not limited to requirement CC:0062.04.03.11.006
  * Structure can be expanded with additional HW components.
  */
-typedef struct _door_lock_hw_data_t
-{
+typedef struct _door_lock_hw_data_t{
   // bool door_closed;   /// true for Closed, false for Open
   bool bolt_unlocked;  /// True for unlocked, false for locked
   bool latch_closed;   /// True for Closed, false for Open
@@ -283,7 +275,6 @@ typedef struct _door_lock_hw_data_t
 /*                              EXPORTED DATA                               */
 /****************************************************************************/
 
-
 /****************************************************************************/
 /*                           EXPORTED FUNCTIONS                             */
 /****************************************************************************/
@@ -310,14 +301,14 @@ void cc_door_lock_bolt_set(bool locked);
 
 /**
  * Sets the Outside Door Handle State for a specific handle
- * 
+ *
  * @param handle handle to be set
  */
 void CC_DoorLock_SetOutsideDoorHandleState(cc_door_lock_handle_t handle);
 
 /**
  * Clears the Outside Door Handle State for a specific handle
- * 
+ *
  * @param handle handle to be cleared
  */
 void CC_DoorLock_ClearOutsideDoorHandleState(cc_door_lock_handle_t handle);
@@ -354,7 +345,6 @@ extern bool door_lock_hw_handle_is_pressed(void);
 /**
  * @}
  * @}
- */ 
-
+ */
 
 #endif /* _CC_DOORLOCK_H_ */

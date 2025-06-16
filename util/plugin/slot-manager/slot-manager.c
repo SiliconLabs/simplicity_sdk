@@ -22,8 +22,9 @@ static int32_t  gSlotsToBoot[SLOT_MANAGER_NUM_SLOTS];
 // Prototypes
 bool    initializeBootloader(void);
 
-void sl_util_af_slot_manager_init_cb(void)
+void sl_util_af_slot_manager_init_cb(uint8_t init_level)
 {
+  (void)init_level;
   (void)initializeBootloader();
 }
 

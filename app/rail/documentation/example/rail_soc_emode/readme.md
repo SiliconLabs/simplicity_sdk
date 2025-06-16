@@ -50,13 +50,13 @@ help
                                 [uint8] Available energy mode: 0 - empty loop; 1 - EM1
   periodic_tx                   Transmits packet periodically with delay, using selected energy mode
                                 [uint32] Delay in us
-                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2
+                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2 or EM3 depending on hardware
   periodic_rx                   Receives for rxTime periodically with delay, using selected energy mode
                                 [uint32] Delay in us
                                 [uint32] rxTime in us
-                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2
+                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2 or EM3 depending on hardware
   idle                          Set radio to Idle mode in the selected energy mode
-                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2; 3 - EM3
+                                [uint8] Available energy mode: 0 - empty loop; 1 - EM1; 2 - EM2 or EM3 depending on hardware
   set_power                     Set the current transmit power in deci-dBm
                                 [int16] Power in deci-dBm
   set_power_raw                 Set the current transmit power in raw units

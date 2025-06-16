@@ -409,6 +409,9 @@ class calc_softmodem_sol(ICalculator):
             coarsefreq_field = 1 #Coarse freq enabled
             extcoarsefreq_field = 1  # Ext coarse freq enabled
             girecomb_field = 0 #Disabled
+            PSDU_CE_MODE_field = 0
+            PHR_CE_MODE_field = 0
+            FRCMAXSPEED_field = 0
 
         else:
             extfreqlower_field = 0
@@ -417,6 +420,9 @@ class calc_softmodem_sol(ICalculator):
             coarsefreq_field = 0
             extcoarsefreq_field = 0
             girecomb_field = 0
+            PSDU_CE_MODE_field = 0
+            PHR_CE_MODE_field = 0
+            FRCMAXSPEED_field = 0
 
         self._reg_write(model.vars.SUNOFDM_RXCFG1_EXTFREQLOWER, int(extfreqlower_field), allow_neg=True, check_saturation=True)
         self._reg_write(model.vars.SUNOFDM_RXCFG1_EXTFREQUPPER, int(extfrequpper_field), check_saturation=True)
@@ -424,6 +430,9 @@ class calc_softmodem_sol(ICalculator):
         self._reg_write(model.vars.SUNOFDM_RXCFG1_COARSEFREQ, int(coarsefreq_field))
         self._reg_write(model.vars.SUNOFDM_RXCFG1_EXTCOARSEFREQ, int(extcoarsefreq_field))
         self._reg_write(model.vars.SUNOFDM_RXCFG1_GIRECOMB, int(girecomb_field))
+        self._reg_write(model.vars.SUNOFDM_RXCFG1_PSDU_CE_MODE, int(PSDU_CE_MODE_field))
+        self._reg_write(model.vars.SUNOFDM_RXCFG1_PHR_CE_MODE, int(PHR_CE_MODE_field))
+        self._reg_write(model.vars.SUNOFDM_RXCFG1_FRCMAXSPEED, int(FRCMAXSPEED_field))
 
     def calc_softmodem_sunofdm_rxcfg2_regs(self, model):
         self._reg_write(model.vars.SUNOFDM_RXCFG2_RSSISETPOINT, 20000)

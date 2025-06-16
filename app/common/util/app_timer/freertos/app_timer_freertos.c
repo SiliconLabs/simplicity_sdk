@@ -54,10 +54,11 @@ sl_status_t app_timer_start(app_timer_t *timer,
 {
   BaseType_t err;
   TickType_t tick_rate;
-  TickType_t delay, period;
+  TickType_t period;
   UBaseType_t opt;
   TimerHandle_t handle;
   sl_status_t sc;
+  uint64_t required_tick_count;
 
   // Check input parameters.
   if ( (timeout_ms == 0) && is_periodic ) {
@@ -69,12 +70,15 @@ sl_status_t app_timer_start(app_timer_t *timer,
 
   // Calculate timer period.
   tick_rate = configTICK_RATE_HZ;
-  delay = (timeout_ms * tick_rate + 999) / (1000);
-  if ( delay == 0 ) {
+  required_tick_count = (((uint64_t)timeout_ms) * tick_rate + 999) / (1000);
+  if ( required_tick_count == 0 ) {
     // The timer resolution is too small for the requested timeout.
     return SL_STATUS_INVALID_PARAMETER;
+  } else if (required_tick_count > UINT32_MAX) {
+    // The timer can not provide the required delay, because it is too large.
+    return SL_STATUS_INVALID_PARAMETER;
   }
-  period = delay;
+  period = (TickType_t)(required_tick_count);
   opt = is_periodic ? pdTRUE : pdFALSE;
 
   // Make sure that timer is stopped, also check for NULL.

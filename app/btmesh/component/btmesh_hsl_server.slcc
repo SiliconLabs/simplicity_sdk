@@ -1,6 +1,6 @@
 id: "btmesh_hsl_server"
 label: "HSL Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Hue, Saturation and Lightness (HSL) Server model. Used to support the control
   and reporting functionality of a node with a light source that is dimmable and
@@ -72,3 +72,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-hsl-server

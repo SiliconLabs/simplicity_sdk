@@ -230,7 +230,7 @@ void KeyManager::ResetFrameCounters(void)
     Router *parent;
 
     // reset parent frame counters
-    parent = &Get<Mle::MleRouter>().GetParent();
+    parent = &Get<Mle::Mle>().GetParent();
     parent->SetKeySequence(0);
     parent->GetLinkFrameCounters().Reset();
     parent->SetLinkAckFrameCounter(0);
@@ -371,11 +371,36 @@ void KeyManager::SetCurrentKeySequence(uint32_t aKeySequence, KeySeqUpdateFlags 
         VerifyOrExit(mKeySwitchGuardTimer == 0);
     }
 
-    mKeySequence = aKeySequence;
-    UpdateKeyMaterial();
+    // MAC frame counters are reset before updating keys. This order
+    // safeguards against issues that can arise when the radio
+    // platform handles TX security and counter assignment.  The
+    // radio platform might prepare an enhanced ACK to a received
+    // frame from an parallel (e.g., ISR) context, which consumes
+    // a MAC frame counter value.
+    //
+    // Ideally, a call to `otPlatRadioSetMacKey()`, which sets the MAC
+    // keys on the radio, should also reset the frame counter tracked
+    // by the radio. However, if this is not implemented by the radio
+    // platform, resetting the counter first ensures new keys always
+    // start with a zero counter and avoids potential issue below.
+    //
+    // If the MAC key is updated before the frame counter is cleared,
+    // the radio could receive and send an enhanced ACK between these
+    // two actions, possibly using the new MAC key with a larger
+    // (current) frame counter value. This could then prevent the
+    // receiver from accepting subsequent transmissions after the
+    // frame counter reset for a long time.
+    //
+    // While resetting counters first might briefly cause an enhanced
+    // ACK to be sent with the old key and a zero counter (which might
+    // be rejected by the receiver), this is a transient issue that
+    // quickly resolves itself.
 
     SetAllMacFrameCounters(0, /* aSetIfLarger */ false);
     mMleFrameCounter = 0;
+
+    mKeySequence = aKeySequence;
+    UpdateKeyMaterial();
 
     ResetKeyRotationTimer();
 
@@ -448,7 +473,7 @@ void KeyManager::MacFrameCounterUsed(uint32_t aMacFrameCounter)
 
     if (mMacFrameCounters.Get154() >= mStoredMacFrameCounter)
     {
-        IgnoreError(Get<Mle::MleRouter>().Store());
+        IgnoreError(Get<Mle::Mle>().Store());
     }
 
 exit:
@@ -465,7 +490,7 @@ void KeyManager::IncrementTrelMacFrameCounter(void)
 
     if (mMacFrameCounters.GetTrel() >= mStoredMacFrameCounter)
     {
-        IgnoreError(Get<Mle::MleRouter>().Store());
+        IgnoreError(Get<Mle::Mle>().Store());
     }
 }
 #endif
@@ -476,7 +501,7 @@ void KeyManager::IncrementMleFrameCounter(void)
 
     if (mMleFrameCounter >= mStoredMleFrameCounter)
     {
-        IgnoreError(Get<Mle::MleRouter>().Store());
+        IgnoreError(Get<Mle::Mle>().Store());
     }
 }
 
@@ -586,7 +611,7 @@ void KeyManager::StoreNetworkKey(const NetworkKey &aNetworkKey, bool aOverWriteE
 {
     NetworkKeyRef keyRef;
 
-    keyRef = Crypto::Storage::kNetworkKeyRef;
+    keyRef = Get<Crypto::Storage::KeyRefManager>().KeyRefFor(Crypto::Storage::KeyRefManager::kNetworkKey);
 
     if (!aOverWriteExisting)
     {
@@ -617,7 +642,7 @@ exit:
 
 void KeyManager::StorePskc(const Pskc &aPskc)
 {
-    PskcRef keyRef = Crypto::Storage::kPskcRef;
+    PskcRef keyRef = Get<Crypto::Storage::KeyRefManager>().KeyRefFor(Crypto::Storage::KeyRefManager::kPskc);
 
     Crypto::Storage::DestroyKey(keyRef);
 
@@ -671,7 +696,8 @@ void KeyManager::DestroyTemporaryKeys(void)
     Get<Mac::Mac>().ClearMode2Key();
 }
 
-void KeyManager::DestroyPersistentKeys(void) { Crypto::Storage::DestroyPersistentKeys(); }
+void KeyManager::DestroyPersistentKeys(void) { Get<Crypto::Storage::KeyRefManager>().DestroyPersistentKeys(); }
+
 #endif // OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
 
 } // namespace ot

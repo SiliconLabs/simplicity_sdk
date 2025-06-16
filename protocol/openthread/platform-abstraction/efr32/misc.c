@@ -222,19 +222,19 @@ OT_TOOL_WEAK void efr32UartProcess(void)
     // do nothing
 }
 
-otError railStatusToOtError(RAIL_Status_t status)
+otError railStatusToOtError(sl_rail_status_t status)
 {
     switch (status)
     {
-    case RAIL_STATUS_NO_ERROR:
+    case SL_RAIL_STATUS_NO_ERROR:
         return OT_ERROR_NONE;
-    case RAIL_STATUS_INVALID_PARAMETER:
+    case SL_RAIL_STATUS_INVALID_PARAMETER:
         return OT_ERROR_INVALID_ARGS;
-    case RAIL_STATUS_INVALID_STATE:
+    case SL_RAIL_STATUS_INVALID_STATE:
         return OT_ERROR_INVALID_STATE;
-    case RAIL_STATUS_INVALID_CALL:
-    case RAIL_STATUS_SUSPENDED:
-    case RAIL_STATUS_SCHED_ERROR:
+    case SL_RAIL_STATUS_INVALID_CALL:
+    case SL_RAIL_STATUS_SUSPENDED:
+    case SL_RAIL_STATUS_SCHED_ERROR:
     default:
         return OT_ERROR_FAILED;
     }

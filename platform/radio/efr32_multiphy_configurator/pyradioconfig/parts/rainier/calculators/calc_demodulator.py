@@ -19,43 +19,32 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
            model (ModelRoot) : Builds the variables specific to this calculator
         """
         super().buildVariables(model)
-
+        self._build_rxdc_variables(model)
         self._addModelVariable(model, 'synchronous_ifadc_clk', bool, ModelVariableFormat.DECIMAL,
                                desc='Flag used treat ifadc_clk as synchronous to clk_demod and bypass afifo')
 
-        member_data = [
-            ['NONE', 0, 'None'],
-            ['STANDARD', 1, 'Standard'],
-            ['LEGACY', 2, 'Legacy Demod'],
-            ['COHERENT', 3, 'Coherent Demod'],
-            ['ANTDIV', 4, 'Antenna Diversity'],
-            ['FEM', 5, 'External LNA'],
-            ['ANTDIV_FEM', 6, 'Antenna Diversity with External LNA'],
-            ['FCS', 7, 'Fast channel switch'],
-            ['ENHANCED', 8, 'Enhanced Demod'],
-        ]
-        model.vars.zigbee_feature.var_enum = CreateModelVariableEnum(
-            'ZigbeeFeatureEnum',
-            'List of supported zigbee PHY features',
-            member_data)
+    def _build_rxdc_variables(self, model):
+        """Build Rx Duty Cycle variables:
 
+        rxdc_power_save_mode --> controls which blocks (Demod, RF, Synth) are duty cycled (default: DISABLED).
+        rxdc_power_save_time_us --> controls the duration of power saving time.
+        rxdc_on_time_us --> Calculated RxDC ON time. During this period, the duty cycled blocks are ON.
+        rxdc_off_time_us --> Calculated RxDC OFF time. During this period, the duty cycled blocks are OFF."""
+
+        self._addModelVariable(model, 'rxdc_power_save_mode', Enum, ModelVariableFormat.DECIMAL, 'Rx Duty Cycle mode')
         member_data = [
-            ['NONE', 0, 'None'],
-            ['LE_1M', 1, 'Bluetooth LE 1Mbps'],
-            ['LE_2M', 2, 'Bluetooth LE 2Mbps'],
-            ['CODED_500K', 3, 'Bluetooth LE Coded 500Kbps'],
-            ['CODED_125K', 4, 'Bluetooth LE Coded 125Kbps'],
-            ['AOX_1M', 5, 'Bluetooth LE AoX 1Mbps'],
-            ['AOX_2M', 6, 'Bluetooth LE AoX 2Mbps'],
-            ['CONCURRENT', 7, 'Bluetooth Concurrent'],
-            ['HADM_1M', 8, 'Bluetooth LE AoX 1Mbps'],
-            ['HADM_2M', 9, 'Bluetooth LE AoX 2Mbps'],
-            ['HADM_2M_2BT', 10, 'Bluetooth LE AoX 2Mbps 2BT'],
+            ['DISABLED', 0, 'Rx Duty Cycle is disabled (default)'],
+            ['DEMOD', 1, 'Demod block is duty-cycled'],
+            ['RF', 2, 'Demod and RF blocks are duty-cycled'],
+            ['SYNTH', 3, 'Demod, RF and Synth blocks are duty-cycled'],
         ]
-        model.vars.ble_feature.var_enum = CreateModelVariableEnum(
-            'BleFeatureEnum',
-            'List of supported Bluetooth LE PHY features',
+        model.vars.rxdc_power_save_mode.var_enum = CreateModelVariableEnum(
+            'RxDutyCycleEnum',
+            'List of supported duty cycle modes',
             member_data)
+        self._addModelVariable(model, 'rxdc_power_save_time_us', int, ModelVariableFormat.DECIMAL, 'RxDC power save time in us')
+        self._addModelVariable(model, 'rxdc_on_time_us_actual', int, ModelVariableFormat.DECIMAL, 'Calculated RxDC ON time in us')
+        self._addModelVariable(model, 'rxdc_off_time_us_actual', int, ModelVariableFormat.DECIMAL, 'Calculated RxDC OFF time in us')
 
     def _add_demod_select_variable(self, model):
 
@@ -294,10 +283,28 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         model.vars.log2x4_actual.value = log2x4_actual
 
     def calc_modeminfo_reg(self, model):
+        # See https://jira.silabs.com/browse/RAIL_LIB-11922
         coherent_used = model.vars.MODEM_CTRL1_PHASEDEMOD.value == 2
         trecs_used = model.vars.MODEM_VITERBIDEMOD_VTDEMODEN.value
         longrange_used = model.vars.MODEM_LONGRANGE_LRBLE.value
         enhdsss_used = model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value
+        hop_enable = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
+        rxdc_enable = model.vars.rxdc_power_save_mode.value != model.vars.rxdc_power_save_mode.var_enum.DISABLED
+        protocol_is_zb = (model.vars.protocol_id.value == model.vars.protocol_id.var_enum.Zigbee) and \
+                         (model.vars.ble_feature.value == model.vars.ble_feature.var_enum.NONE) # check if 2ZB and not BLE2ZB
+
+        rxdc2ch_used = 0
+        rxdc1ch_used = 0
+        fsw_used = 0
+        if hop_enable and rxdc_enable:  # Dual channel duty Cycle
+            rxdc2ch_used = 1
+        elif hop_enable and protocol_is_zb:     # 2ZB uses same algorithm as 2ZBDC
+            rxdc2ch_used = 1
+        elif rxdc_enable:  # Single channel duty Cycle
+            rxdc1ch_used = 1
+        elif hop_enable:  # Dual channel no duty cycle
+            fsw_used = 1
+
         if trecs_used or coherent_used or longrange_used or enhdsss_used:
             legacy_used = 0
         else:
@@ -306,17 +313,29 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         # Unused in Rainier
         bcr_used = 0
         soft_modem_used = 0
+        btc_used = 0
 
-        self._reg_write(model.vars.SEQ_MODEMINFO_LEGACY_EN, legacy_used)
-        self._reg_write(model.vars.SEQ_MODEMINFO_SPARE0, 0)
-        self._reg_write(model.vars.SEQ_MODEMINFO_TRECS_EN, trecs_used)
-        self._reg_write(model.vars.SEQ_MODEMINFO_BCR_EN, bcr_used)
+        self._reg_write(model.vars.SEQ_MODEMINFO_LEGACY_EN, int(legacy_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_RXDC1CH_EN, int(rxdc1ch_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_TRECS_EN, int(trecs_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_BCR_EN, int(bcr_used))
         self._reg_write(model.vars.SEQ_MODEMINFO_COHERENT_EN, int(coherent_used))
-        self._reg_write(model.vars.SEQ_MODEMINFO_LONGRANGE_EN, longrange_used)
-        self._reg_write(model.vars.SEQ_MODEMINFO_ENHDSSS_EN, enhdsss_used)
-        self._reg_write(model.vars.SEQ_MODEMINFO_SPARE1, 0)
-        self._reg_write(model.vars.SEQ_MODEMINFO_SOFTMODEM_EN, soft_modem_used)
-        self._reg_write(model.vars.SEQ_MODEMINFO_SPARE2, 0)
+        self._reg_write(model.vars.SEQ_MODEMINFO_LONGRANGE_EN, int(longrange_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_ENHDSSS_EN, int(enhdsss_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_FSW_EN, int(fsw_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_SOFTMODEM_EN, int(soft_modem_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_BTC_EN, int(btc_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_RXDC2CH_EN, int(rxdc2ch_used))
+        self._reg_write(model.vars.SEQ_MODEMINFO_SPARE0, 0)
+
+    def calc_fswcoreinfo_reg(self, model):
+        # See https://jira.silabs.com/browse/RAIL_LIB-11922
+        rxdc_power_save_mode = model.vars.rxdc_power_save_mode.value
+        rxdc_power_save_time = model.vars.rxdc_power_save_time_us.value
+
+        reg = rxdc_power_save_time | rxdc_power_save_mode << 16
+
+        self._reg_write(model.vars.SEQ_FSWCOREINFO_CONFIG, reg)
 
     def return_ksi2_ksi3_calc(self, model, ksi1):
         # get parameters
@@ -424,7 +443,6 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
 
         return best_ksi2, best_ksi3, best_ksi3wb
 
-
     def calc_rssi_rf_adjust_db(self, model):
         model.vars.rssi_rf_adjust_db.value = -15.8
 
@@ -462,9 +480,12 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         self._reg_write(model.vars.SEQ_MODINDEX_CALC_MODINDEXE_DOUBLED_FREQGAINE, freqgain_e)
 
     def calc_chmutetimer_reg(self, model):
-        hop_enable = True if model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED else False
+        hop_enable = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
+        duty_cycled = model.vars.rxdc_power_save_mode.value != model.vars.rxdc_power_save_mode.var_enum.DISABLED
 
-        if hop_enable:
+        if duty_cycled:
+            chmutetimer = 280  # For BLE: 280 - For ZB: 170
+        elif hop_enable:
             chmutetimer = 195           # Default value for 2ZB hopping
         else:
             chmutetimer = 0
@@ -474,13 +495,14 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
     def calc_fast_switching_regs(self, model):
         hop_enable = True if model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED else False
         protocol_id = model.vars.protocol_id.value
+        ble2zb_hop = model.vars.MODEM_COCURRMODE_DSSSCONCURRENT.value
 
-        # Enable DTIMLOSS feature for fast switching PHYs
+        # Enable DTIMLOSS feature for BLE2ZB fast switching PHYs
         # See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2525
-        if hop_enable and protocol_id == model.vars.protocol_id.var_enum.Zigbee:
+        if hop_enable and ble2zb_hop and protocol_id == model.vars.protocol_id.var_enum.Zigbee:
             self._reg_write(model.vars.MODEM_TRECSCFG_DTIMLOSSEN, 1)
             self._reg_write(model.vars.MODEM_TRECSCFG_DTIMLOSSTHD, 200)
-        elif hop_enable and protocol_id == model.vars.protocol_id.var_enum.BLE:
+        elif hop_enable and ble2zb_hop and protocol_id == model.vars.protocol_id.var_enum.BLE:
             self._reg_write(model.vars.MODEM_TRECSCFG_DTIMLOSSEN, 1)
             self._reg_write(model.vars.MODEM_TRECSCFG_DTIMLOSSTHD, 1000)
         else:
@@ -507,3 +529,38 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         reg_val = dsss_dsa_unqualified_sel
 
         self._reg_write(model.vars.MODEM_SPARE_SPARE, reg_val)
+
+    def calc_rx_duty_cycle_vars(self, model):
+        model.vars.rxdc_power_save_time_us.value = 0
+        model.vars.rxdc_power_save_mode.value = model.vars.rxdc_power_save_mode.var_enum.DISABLED
+        model.vars.rxdc_on_time_us_actual.value = 0
+        model.vars.rxdc_off_time_us_actual.value = 0
+
+    def calc_fasthopping_regs(self, model):
+        duty_cycled = model.vars.rxdc_power_save_mode.value is not model.vars.rxdc_power_save_mode.var_enum.DISABLED
+        hop_enabled = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
+        noise_det_en = model.vars.MODEM_SICTRL0_SIMODE.value != 0
+
+        fasthoppingen = 0       # FASTHOPPINGEN should be controlled by firmware - we should remove this bit
+
+        if hop_enabled:
+            fwhopping = 0
+
+            if noise_det_en:
+                hoppingsrc = 0
+            else:
+                hoppingsrc = 2
+
+        else:
+            hoppingsrc = 0
+
+            if noise_det_en and duty_cycled:
+                fwhopping = 1  # Required for NOISEDET IF to trigger ISR for duty-cycle + noise detector
+            else:
+                fwhopping = 0
+
+        self._reg_write(model.vars.MODEM_PHDMODCTRL_FASTHOPPINGEN, fasthoppingen)
+        self._reg_write(model.vars.MODEM_DIGMIXCTRL_HOPPINGSRC, hoppingsrc)
+        self._reg_write(model.vars.MODEM_DIGMIXCTRL_FWHOPPING, fwhopping)
+
+

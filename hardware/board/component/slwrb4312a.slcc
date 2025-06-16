@@ -1,7 +1,7 @@
 !!omap
 - id: slwrb4312a
 - label: SLWRB4312A
-- package: platform
+- package: boards
 - description: Kit BSP support for the BGM220SC22 Wireless Gecko Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

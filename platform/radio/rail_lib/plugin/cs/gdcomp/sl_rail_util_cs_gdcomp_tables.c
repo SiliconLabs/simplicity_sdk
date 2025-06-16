@@ -28,10 +28,10 @@
  *
  ******************************************************************************/
 
-#include "rail.h"
-#include "rail_ble.h"
+#include "sl_rail.h"
+#include "sl_rail_ble.h"
 
-#if RAIL_BLE_SUPPORTS_CS
+#if SL_RAIL_BLE_SUPPORTS_CS
 #include "sl_rail_util_cs_gdcomp_config.h"
 
 // 0dBm PA LUTs
@@ -42,11 +42,12 @@ static const int16_t gdcompRttSlope0Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
 static const int16_t gdcompRttOffset0Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
   SL_RAIL_UTIL_CS_GDCOMP_RTT_OFFSET_0DBM_PA;
 
-const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_0dbm_tables = {
-  .pPbrPhaseLsb = gdcompPbrPhaseLsb0Dbm,
-  .pRttSlope = gdcompRttSlope0Dbm,
-  .pRttOffset = gdcompRttOffset0Dbm,
-  .length = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
+SLI_LIBRAIL_WEAK
+const sl_rail_ble_cs_gd_comp_tables_t sl_rail_ble_cs_gd_comp_0_dbm_tables = {
+  .p_pbr_phase_lsb = gdcompPbrPhaseLsb0Dbm,
+  .p_rtt_slope = gdcompRttSlope0Dbm,
+  .p_rtt_offset = gdcompRttOffset0Dbm,
+  .table_length_halfwords = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
 };
 
 // 10dBm PA LUTs
@@ -57,11 +58,12 @@ static const int16_t gdcompRttSlope10Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
 static const int16_t gdcompRttOffset10Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
   SL_RAIL_UTIL_CS_GDCOMP_RTT_OFFSET_10DBM_PA;
 
-const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_10dbm_tables = {
-  .pPbrPhaseLsb = gdcompPbrPhaseLsb10Dbm,
-  .pRttSlope = gdcompRttSlope10Dbm,
-  .pRttOffset = gdcompRttOffset10Dbm,
-  .length = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
+SLI_LIBRAIL_WEAK
+const sl_rail_ble_cs_gd_comp_tables_t sl_rail_ble_cs_gd_comp_10_dbm_tables = {
+  .p_pbr_phase_lsb = gdcompPbrPhaseLsb10Dbm,
+  .p_rtt_slope = gdcompRttSlope10Dbm,
+  .p_rtt_offset = gdcompRttOffset10Dbm,
+  .table_length_halfwords = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
 };
 
 // 20dBm PA LUTs
@@ -72,11 +74,12 @@ static const int16_t gdcompRttSlope20Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
 static const int16_t gdcompRttOffset20Dbm[SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH] =
   SL_RAIL_UTIL_CS_GDCOMP_RTT_OFFSET_20DBM_PA;
 
-const RAIL_BLE_CsGdCompTables_t sl_rail_util_cs_gdcomp_20dbm_tables = {
-  .pPbrPhaseLsb = gdcompPbrPhaseLsb20Dbm,
-  .pRttSlope = gdcompRttSlope20Dbm,
-  .pRttOffset = gdcompRttOffset20Dbm,
-  .length = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
+SLI_LIBRAIL_WEAK
+const sl_rail_ble_cs_gd_comp_tables_t sl_rail_ble_cs_gd_comp_20_dbm_tables = {
+  .p_pbr_phase_lsb = gdcompPbrPhaseLsb20Dbm,
+  .p_rtt_slope = gdcompRttSlope20Dbm,
+  .p_rtt_offset = gdcompRttOffset20Dbm,
+  .table_length_halfwords = SL_RAIL_UTIL_CS_GDCOMP_TABLE_LENGTH,
 };
 
-#endif // RAIL_BLE_SUPPORTS_CS
+#endif // SL_RAIL_BLE_SUPPORTS_CS

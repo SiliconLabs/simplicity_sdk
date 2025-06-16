@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS Initiator configuration
+ * @brief CS initiator - configuration header
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -27,7 +27,6 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-
 #ifndef CS_INITIATOR_CONFIG_H
 #define CS_INITIATOR_CONFIG_H
 
@@ -41,31 +40,20 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> CS Initiator configuration
+// <h> Logging
 
-// <o CS_INITIATOR_MAX_CONNECTIONS> Specify maximum initiator connections <1..4>
+// <e CS_INITIATOR_LOG> Initiator component
 // <i> Default: 1
-#ifndef CS_INITIATOR_MAX_CONNECTIONS
-#define CS_INITIATOR_MAX_CONNECTIONS                  (1)
-#endif
-
-// <o CS_INITIATOR_MAX_SUBEVENT_PER_PROC> Specify maximum subevents per procedure <1..6>
-// <i> Default: 6
-#ifndef CS_INITIATOR_MAX_SUBEVENT_PER_PROC
-#define CS_INITIATOR_MAX_SUBEVENT_PER_PROC            (6)
-#endif
-
-// <o CS_INITIATOR_MAX_STEP_DATA_LEN> Specify maximum step data length <32..2048>
-// <i> Default: 2048
-#ifndef CS_INITIATOR_MAX_STEP_DATA_LEN
-#define CS_INITIATOR_MAX_STEP_DATA_LEN                (2048)
-#endif
-
-// <e CS_INITIATOR_LOG> Enable initiator log
-// <i> Default: 1
-// <i> Enable Initiator component logger
+// <i> Enable Initiator component logging
 #ifndef CS_INITIATOR_LOG
 #define CS_INITIATOR_LOG                              (1)
+#endif
+
+// <q CS_INITIATOR_CONFIG_LOG_DATA> Data logging
+// <i> Default: 1
+// <i> Enable Initiator component data logging
+#ifndef CS_INITIATOR_CONFIG_LOG_DATA
+#define CS_INITIATOR_CONFIG_LOG_DATA                  (0)
 #endif
 
 // <s CS_INITIATOR_LOG_PREFIX> Log prefix
@@ -76,39 +64,27 @@
 
 // </e>
 
-// <q CS_INITIATOR_RTL_LOG> Enable RTL log
+// <q CS_INITIATOR_RTL_LOG> RTL logging
 // <i> Default: 1
 #ifndef CS_INITIATOR_RTL_LOG
 #define CS_INITIATOR_RTL_LOG                          (1)
 #endif
 
-// <o CS_INITIATOR_CS_EVENT_BUF_SIZE> Size of the Channel Sounding event buffer [elements] <1..255>
-// <i> Default: 16
-// <i> Size of the Channel Sounding event buffer
-#ifndef CS_INITIATOR_CS_EVENT_BUF_SIZE
-#define CS_INITIATOR_CS_EVENT_BUF_SIZE                (16)
+// </h>
+
+// <h> General
+
+// <o CS_INITIATOR_MAX_CONNECTIONS> Maximum initiator connections <1..4>
+// <i> If less than 4 initiator instances are created SL_BT_CONFIG_BUFFER_SIZE can be reduced.
+// <i> Default: 4
+#ifndef CS_INITIATOR_MAX_CONNECTIONS
+#define CS_INITIATOR_MAX_CONNECTIONS                  (4)
 #endif
 
-// <o CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL> Minimum delay between CS measurements [connection events] <1..255>
-// <i> Default: 30
-// <i> Minimum duration in number of connection events between consecutive CS measurement procedures
-#ifndef CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL
-#define CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL                     (30)
-#endif
-
-// <o CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL> Maximum delay between CS measurements [connection events] <1..255>
-// <i> Default: 30
-// <i> Maximum duration in number of connection events between consecutive CS measurement procedures
-#ifndef CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL
-#define CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL                     (30)
-#endif
-
-// <o CS_INITIATOR_ANTENNA_OFFSET> Specify antenna offset
-// <0=> Wireless antenna offset
-// <1=> Wired antenna offset
-// <i> Default: 0
-#ifndef CS_INITIATOR_ANTENNA_OFFSET
-#define CS_INITIATOR_ANTENNA_OFFSET                   0
+// <o CS_INITIATOR_MAX_RANGING_DATA_SIZE> Maximum ranging data size <32..2500>
+// <i> Default: 2500
+#ifndef CS_INITIATOR_MAX_RANGING_DATA_SIZE
+#define CS_INITIATOR_MAX_RANGING_DATA_SIZE            (2500)
 #endif
 
 // <o CS_INITIATOR_ERROR_TIMEOUT_MS> Error timeout [msec] <100..5000>
@@ -125,28 +101,117 @@
 // <i> Default: 3000
 #define CS_INITIATOR_PROCEDURE_TIMEOUT_MS            3000
 
-// <a.10 CS_CUSTOM_CHANNEL_MAP> Custom channel map <0..255> <f.h>
-// <i> Default: { 0xFC, 0xFF, 0x7F, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F }
-#define CS_CUSTOM_CHANNEL_MAP                        { 0xFC, 0xFF, 0x7F, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F }
+// <o CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY> Connection peripheral latency
+// <i> Peripheral latency, which defines how many connection
+// <i> intervals the peripheral can skip if it has no data to send
+// <i> Default: 0
+#define CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY  0
 
-// <o CS_INITIATOR_DEFAULT_CS_MODE> Main mode
-// <1=> RTT
-// <2=> PBR
-#define CS_INITIATOR_DEFAULT_CS_MODE                 2
+// <o CS_INITIATOR_DEFAULT_TIMEOUT> Supervision timeout [msec]
+// <i> Default: 200
+#define CS_INITIATOR_DEFAULT_TIMEOUT 200
+
+// <o CS_INITIATOR_DEFAULT_MIN_CE_LENGTH> Minimum length of the connection event <1..65535>
+// <i> Value in units of 0.625 ms
+// <i> Default: 0
+#define CS_INITIATOR_DEFAULT_MIN_CE_LENGTH 0
+
+// <o CS_INITIATOR_DEFAULT_MAX_CE_LENGTH> Maximum length of the connection event <1..65535>
+// <i> Value in units of 0.625 ms
+// <i> Default: 65535
+#define CS_INITIATOR_DEFAULT_MAX_CE_LENGTH        65535
+
+// </h>
+
+// <h> Distance estimation
+
+// <o CS_INITIATOR_DEFAULT_ALGO_MODE> Object tracking mode
+// <SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC=> Real-time basic
+// <SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY=> Static high accuracy
+// <SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST=> Real-time fast
+// <i> Default: SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST
+#define CS_INITIATOR_DEFAULT_ALGO_MODE           SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST
+
+// </h>
+
+// <h> Channel Sounding
+
+// <h> Modes
+
+// <o CS_INITIATOR_DEFAULT_CS_MAIN_MODE> Main mode
+// <sl_bt_cs_mode_rtt=> RTT
+// <sl_bt_cs_mode_pbr=> PBR
+#define CS_INITIATOR_DEFAULT_CS_MAIN_MODE            sl_bt_cs_mode_pbr
+
+// <o CS_INITIATOR_DEFAULT_CS_SUB_MODE> Submode
+// <sl_bt_cs_mode_rtt=> RTT
+// <sl_bt_cs_submode_disabled=> No submode
+// <i> Default: sl_bt_cs_submode_disabled
+#define CS_INITIATOR_DEFAULT_CS_SUB_MODE             sl_bt_cs_submode_disabled
+
+// </h>
+
+// <h> Scheduling
+
+// <o CS_INITIATOR_DEFAULT_MAX_PROCEDURE_COUNT> Procedure execution
+// <0=> Free-running
+// <1=> Synchronized
+// <i> Default: 0
+#define CS_INITIATOR_DEFAULT_MAX_PROCEDURE_COUNT         0
+
+// <o CS_INITIATOR_DEFAULT_PROCEDURE_SCHEDULING> Procedure scheduling
+// <CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY=> Optimized for frequency update
+// <CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_ENERGY=> Optimized for energy consumption
+// <CS_PROCEDURE_SCHEDULING_CUSTOM=> Use custom procedure scheduling
+// <i> Set your custom connection and procedure intervals in the 'Custom Scheduling' section when selecting 'Use custom procedure scheduling' (CS_PROCEDURE_SCHEDULING_CUSTOM).
+// <i> Default: CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY
+#define CS_INITIATOR_DEFAULT_PROCEDURE_SCHEDULING CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY
+
+// </h>
+
+// <h> Custom scheduling
 
 // <o CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL> Minimum connection interval (in 1.25 ms steps) <6..3200>
 // <i> Default: 6
 #define CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL         6
 
-// <o CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL> Maximum connection interval (in 1.25 ms steps) <6..3200>
+// <o CS_INITIATOR_DEFAULT_MAX_CONNECTION_INTERVAL> Maximum connection interval (in 1.25 ms steps) <6..3200>
 // <i> Default: 6
 #define CS_INITIATOR_DEFAULT_MAX_CONNECTION_INTERVAL         6
 
-// <o CS_INITIATOR_DEFAULT_MAX_PROCEDURE_COUNT> Procedure execution number
-// <0=> Free running
-// <1=> Start new procedure after one finished
-// <i> Default: 1
-#define CS_INITIATOR_DEFAULT_MAX_PROCEDURE_COUNT         1
+// <o CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL> Minimum delay between CS measurements [connection events] <1..255>
+// <i> Default: 38
+// <i> Minimum duration in number of connection events between consecutive CS measurement procedures
+#ifndef CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL
+#define CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL                     (38)
+#endif
+
+// <o CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL> Maximum delay between CS measurements [connection events] <1..255>
+// <i> Default: 38
+// <i> Maximum duration in number of connection events between consecutive CS measurement procedures
+#ifndef CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL
+#define CS_INITIATOR_DEFAULT_MAX_PROCEDURE_INTERVAL                     (38)
+#endif
+
+// </h>
+
+// <h> Channels
+
+// <o CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET> Channel map preset
+// <CS_CHANNEL_MAP_PRESET_LOW=> Low
+// <CS_CHANNEL_MAP_PRESET_MEDIUM=> Medium
+// <CS_CHANNEL_MAP_PRESET_HIGH=> High
+// <CS_CHANNEL_MAP_PRESET_CUSTOM=> Custom
+// <i> Default: CS_CHANNEL_MAP_PRESET_HIGH
+#define CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET           CS_CHANNEL_MAP_PRESET_HIGH
+
+// <a.10 CS_CUSTOM_CHANNEL_MAP> Custom channel map <0..255> <f.h>
+// <i> Default: { 0xFC, 0xFF, 0x7F, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F }
+#define CS_CUSTOM_CHANNEL_MAP                        { 0xFC, 0xFF, 0x7F, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F }
+
+// </h>
+
+// <h> PHYs
 
 // <o CS_INITIATOR_DEFAULT_CONN_PHY> Connection PHY
 // <sl_bt_gap_phy_1m=> 1M
@@ -160,10 +225,9 @@
 // <i> Default: sl_bt_gap_phy_1m
 #define CS_INITIATOR_DEFAULT_CS_SYNC_PHY       sl_bt_gap_phy_1m
 
-// <o CS_INITIATOR_DEFAULT_MODE0_STEPS> Mode 0 steps
-// <i> Number of Mode 0 steps to be included at the beginning of the test CS subevent
-// <i> Default: 3
-#define CS_INITIATOR_DEFAULT_MODE0_STEPS      3
+// </h>
+
+// <h> Antenna configuration
 
 // <o CS_INITIATOR_DEFAULT_CS_TONE_ANTENNA_CONFIG_IDX_REQ> CS tone antenna configuration requested
 // <i> Use all the available antennas that can be supported
@@ -196,9 +260,30 @@
 // <i> Default: 1
 #define CS_INITIATOR_DEFAULT_PREFERRED_PEER_ANTENNA  1
 
-// <o CS_INITIATOR_DEFAULT_MAX_TX_POWER> Maximum transmit power level to be used in all CS transmissions <-127..20>
-// <i> Default: 20
-#define CS_INITIATOR_DEFAULT_MAX_TX_POWER  20
+// <o CS_INITIATOR_ANTENNA_OFFSET> Specify antenna offset
+// <0=> Wireless antenna offset
+// <1=> Wired antenna offset
+// <i> Default: 0
+#ifndef CS_INITIATOR_ANTENNA_OFFSET
+#define CS_INITIATOR_ANTENNA_OFFSET                  0
+#endif
+
+// </h>
+
+// <h> TX power
+
+// <o CS_INITIATOR_DEFAULT_MAX_TX_POWER> Maximum transmit power level to be used in all CS transmissions <-127..10>
+// <i> Default: 10
+#define CS_INITIATOR_DEFAULT_MAX_TX_POWER  10
+
+// <o CS_INITIATOR_DEFAULT_RSSI_REF_TX_POWER> RSSI reference TX power <-110..30>
+// <i> Reference RSSI value of the remote Reflector device at 1.0 m distance in dBm
+// <i> Default: -40.0F
+#define CS_INITIATOR_DEFAULT_RSSI_REF_TX_POWER  -40.0F
+
+// </h>
+
+// <h> Details
 
 // <o CS_INITIATOR_DEFAULT_CREATE_CONTEXT> Create context
 // <i> Write CS configuration in the local controller only
@@ -208,30 +293,21 @@
 // <i> Default: 1
 #define CS_INITIATOR_DEFAULT_CREATE_CONTEXT  1
 
-// <o CS_INITIATOR_DEFAULT_RSSI_REF_TX_POWER> RSSI reference TX power <-110..30>
-// <i> Reference RSSI value of the remote Reflector device at 1.0 m distance in dBm
-// <i> Default: -40.0F
-#define CS_INITIATOR_DEFAULT_RSSI_REF_TX_POWER  -40.0F
+// <o CS_INITIATOR_DEFAULT_MODE0_STEPS> Mode 0 steps
+// <i> Number of Mode 0 steps to be included at the beginning of the test CS subevent
+// <i> Default: 3
+#define CS_INITIATOR_DEFAULT_MODE0_STEPS      3
 
-// <o CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY> Connection peripheral latency
-// <i> Peripheral latency, which defines how many connection
-// <i> intervals the peripheral can skip if it has no data to send
-// <i> Default: 0
-#define CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY  0
-
-// <o CS_INITIATOR_DEFAULT_TIMEOUT> Supervision timeout [msec]
-// <i> Default: 200
-#define CS_INITIATOR_DEFAULT_TIMEOUT 200
-
-// <o CS_INITIATOR_DEFAULT_MIN_CE_LENGTH> Minimum length of the connection event <1..65535>
-// <i> Value in units of 0.625 ms
-// <i> Default: 0
-#define CS_INITIATOR_DEFAULT_MIN_CE_LENGTH 0
-
-// <o CS_INITIATOR_DEFAULT_MAX_CE_LENGTH> Maximum length of the connection event <1..65535>
-// <i> Value in units of 0.625 ms
-// <i> Default: 65535
-#define CS_INITIATOR_DEFAULT_MAX_CE_LENGTH        65535
+// <o CS_INITIATOR_DEFAULT_RTT_TYPE> RTT Type
+// <sl_bt_cs_rtt_type_aa_only=> RTT Access Address (AA) only
+// <sl_bt_cs_rtt_type_fractional_32_bit_sounding=> RTT Fractional with 32-bit Sounding Sequence
+// <sl_bt_cs_rtt_type_fractional_96_bit_sounding=> RTT Fractional with 96-bit Sounding Sequence
+// <sl_bt_cs_rtt_type_fractional_32_bit_random=> RTT Fractional with 32-bit Random Sequence
+// <sl_bt_cs_rtt_type_fractional_64_bit_random=> RTT Fractional with 64-bit Random Sequence
+// <sl_bt_cs_rtt_type_fractional_96_bit_random=> RTT Fractional with 96-bit Random Sequence
+// <sl_bt_cs_rtt_type_fractional_128_bit_random=> RTT Fractional with 128-bit Random Sequence
+// <i> Default: sl_bt_cs_rtt_type_fractional_96_bit_sounding
+#define CS_INITIATOR_DEFAULT_RTT_TYPE         sl_bt_cs_rtt_type_fractional_96_bit_sounding
 
 // <o CS_INITIATOR_DEFAULT_CHANNEL_SELECTION_TYPE> Channel selection type
 // <sl_bt_cs_channel_selection_algorithm_3b=> Algorithm 3b
@@ -246,19 +322,43 @@
 // <i> Default: sl_bt_cs_ch3c_shape_hat
 #define CS_INITIATOR_DEFAULT_CH3C_SHAPE             sl_bt_cs_ch3c_shape_hat
 
-// <o CS_INITIATOR_DEFAULT_ALGO_MODE> Object tracking mode
-// <SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC=> Real time basic
-// <SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY=> Static high accuracy
-// <i> Default: SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
-#define CS_INITIATOR_DEFAULT_ALGO_MODE           SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
+// </h>
 
-// <o CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET> Channel map preset
-// <CS_CHANNEL_MAP_PRESET_LOW=> Low
-// <CS_CHANNEL_MAP_PRESET_MEDIUM=> Medium
-// <CS_CHANNEL_MAP_PRESET_HIGH=> High
-// <CS_CHANNEL_MAP_PRESET_CUSTOM=> Custom
-// <i> Default: CS_CHANNEL_MAP_PRESET_HIGH
-#define CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET           CS_CHANNEL_MAP_PRESET_HIGH
+// </h>
+
+// <h> Ranging Service
+
+// <q CS_INITIATOR_RAS_MODE_USE_REAL_TIME_MODE> Use Real-Time RAS mode
+// <i> Default: 1
+#ifndef CS_INITIATOR_RAS_MODE_USE_REAL_TIME_MODE
+#define CS_INITIATOR_RAS_MODE_USE_REAL_TIME_MODE                        1
+#endif
+
+// <q CS_INITIATOR_RAS_REAL_TIME_INDICATION> Use real-time ranging data indication
+// <i> Default: 0
+#ifndef CS_INITIATOR_RAS_REAL_TIME_INDICATION
+#define CS_INITIATOR_RAS_REAL_TIME_INDICATION        (0)
+#endif
+
+// <q CS_INITIATOR_RAS_ON_DEMAND_INDICATION> Use on-demand ranging data indication
+// <i> Default: 0
+#ifndef CS_INITIATOR_RAS_ON_DEMAND_INDICATION
+#define CS_INITIATOR_RAS_ON_DEMAND_INDICATION        (0)
+#endif
+
+// <q CS_INITIATOR_RAS_DATA_READY_NOTIFICATION> Use ranging data ready notification
+// <i> This is only applicable for On-Demand Ranging Data mode
+// <i> Default: 1
+#ifndef CS_INITIATOR_RAS_DATA_READY_NOTIFICATION
+#define CS_INITIATOR_RAS_DATA_READY_NOTIFICATION     (1)
+#endif
+
+// <q CS_INITIATOR_RAS_DATA_OVERWRITTEN_NOTIFICATION> Use ranging data overwritten notification
+// <i> This is only applicable for On-Demand Ranging Data mode
+// <i> Default: 1
+#ifndef CS_INITIATOR_RAS_DATA_OVERWRITTEN_NOTIFICATION
+#define CS_INITIATOR_RAS_DATA_OVERWRITTEN_NOTIFICATION     (1)
+#endif
 
 // </h>
 

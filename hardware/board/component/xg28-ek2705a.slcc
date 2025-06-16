@@ -1,7 +1,7 @@
 !!omap
 - id: xg28_ek2705a
 - label: XG28-EK2705A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG28 Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

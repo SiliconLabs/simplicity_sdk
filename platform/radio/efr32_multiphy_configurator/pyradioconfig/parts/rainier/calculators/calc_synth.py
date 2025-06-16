@@ -451,10 +451,6 @@ class CalcSynthRainier(Calc_Synth_Bobcat):
     def calc_sylodivrloadcclk_reg(self, model):
         # RAC_SYLOEN2_SYENLODIVADCCLK (new register in Rainier) has txrx label, is controlled by RAIL
         pass
-    def calc_fasthopping_regs(self, model):
-        # Disable by default, probably remove these for RAIL control at some point
-        self._reg_write(model.vars.MODEM_PHDMODCTRL_FASTHOPPINGEN, 0)
-        self._reg_write(model.vars.MODEM_DIGMIXCTRL_FWHOPPING, 0)
 
     def calc_adc_rate_mode_actual(self, model):
         # This function calculates the actual value of the adc rate mode based on the reg value used

@@ -13,7 +13,6 @@ provides:
 
 requires:
   - name: sleeptimer
-  - name: segger_systemview
     condition:
       - "micriumos"
       - "device_series_2"

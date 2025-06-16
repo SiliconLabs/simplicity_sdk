@@ -1,5 +1,5 @@
 id: cs_antenna
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CS Antenna
 description: >
   Channel Sounding (CS) Antenna manages CS antenna offset settings.

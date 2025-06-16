@@ -1,6 +1,6 @@
 id: ot_sbom_openthread
 label: OpenThread SBOM
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component defines the upstream openthread SBOM metadata.
@@ -14,8 +14,8 @@ metadata:
     license: BSD-3-Clause
     upstream:
       name: OpenThread
-      version: "7f6723ffb"
+      version: "fb0446f53"
       supplier: Google
       url: https://openthread.io/
-      package_url: pkg:github/openthread/openthread@7f6723ffb
+      package_url: pkg:github/openthread/openthread@fb0446f53
       comment: OpenThread released by Google is an open-source implementation of the Thread networking protocol.

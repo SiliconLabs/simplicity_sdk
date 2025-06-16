@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: (NOTE This component is deprecated as it is not compliant with Zigbee 3.0 requirements. See Network Creator and Network Steering components instead for Zigbee 3.0-compliant implementations of this behavior.) Provides legacy Zigbee Light Link 1.0 implementation of routines for finding and joining any viable network via scanning, rather than joining a specific network.
 label: ZLL Commissioning Network
 quality: production

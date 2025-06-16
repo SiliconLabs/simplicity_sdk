@@ -33,12 +33,13 @@
 #include "sl_wisun_cli_util.h"
 #include "sl_wisun_version.h"
 #include "sl_wisun_keychain.h"
-#include "rail_features.h"
+#include "sl_rail_features.h"
 #include "socket/socket.h"
 #include "arpa/inet.h"
 #include "sl_wisun_ip6string.h"
 #include "sl_select_util.h"
 #include "select.h"
+#include "sl_main_init.h"
 
 #if defined(SL_CATALOG_MICRIUMOS_KERNEL_PRESENT)
 #include "os.h"
@@ -575,6 +576,17 @@ static void app_handle_br_stopped_ind(sl_wisun_evt_t *evt)
   }
 }
 
+static void app_handle_br_routing_table_update_ind(sl_wisun_evt_t *evt)
+{
+  switch (evt->evt.br_routing_table_update.event) {
+    case SL_WISUN_ROUTING_TABLE_UPDATE_ROUTE_CHANGED:
+      printf("[Routing table update: route changed]\r\n");
+      break;
+    default:
+      printf("[Routing table update: unknown flag %lu]\r\n", evt->evt.br_routing_table_update.event);
+  }
+}
+
 static sl_status_t channel_spacing_khz_to_id(uint32_t channel_spacing_khz, uint8_t *channel_spacing_id)
 {
   sl_status_t result = SL_STATUS_OK;
@@ -707,7 +719,7 @@ cleanup:
 
 static void app_start(sl_wisun_phy_config_type_t phy_config_type)
 {
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
   bool set_pom_ie = false;
 #endif
   sl_wisun_channel_mask_t channel_mask;
@@ -743,9 +755,8 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
   for (key_index = 0; key_index < 4; key_index++) {
     if (app_settings_wisun.gtk_set & (1 << key_index)) {
       status = sl_wisun_br_set_gtk(app_settings_wisun.gtks[key_index], key_index);
-      if (status != SL_STATUS_OK) {
+      if (status != SL_STATUS_OK && status != SL_STATUS_ALREADY_EXISTS) {
         printf("[Failed: unable to set GTK%"PRIu16" (%"PRIu32")]\r\n", key_index + 1, status);
-        goto cleanup;
       }
     }
   }
@@ -753,9 +764,8 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
   for (key_index = 0; key_index < 3; key_index++) {
     if (app_settings_wisun.gtk_set & (1 << (key_index + 4))) {
       status = sl_wisun_br_set_gtk(app_settings_wisun.lgtks[key_index], key_index + 4);
-      if (status != SL_STATUS_OK) {
+      if (status != SL_STATUS_OK && status != SL_STATUS_ALREADY_EXISTS) {
         printf("[Failed: unable to set LGTK%"PRIu16" (%"PRIu32")]\r\n", key_index + 1, status);
-        goto cleanup;
       }
     }
   }
@@ -790,13 +800,16 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
       status = SL_STATUS_INVALID_CONFIGURATION;
       goto cleanup;
   }
+  params.traffic.lowpan_mtu = app_settings_wisun.lowpan_mtu;
+  params.traffic.ipv6_mru = app_settings_wisun.ipv6_mru;
+  params.traffic.max_edfe_fragment_count = app_settings_wisun.max_edfe_fragment_count;
   status = sl_wisun_br_set_connection_parameters(&params);
   if (status != SL_STATUS_OK) {
     printf("[Failed: unable to set parameters (%"PRIu32")]\r\n", status);
     goto cleanup;
   }
 
-  status = sl_wisun_set_neighbor_table_size(app_settings_wisun.neighbor_table_size);
+  status = sl_wisun_config_neighbor_table(app_settings_wisun.max_child_count, app_settings_wisun.max_neighbor_count, app_settings_wisun.max_security_neighbor_count);
   if (status != SL_STATUS_OK) {
     printf("[Failed: unable to set neighbor table size (%"PRIu32")]\r\n", status);
     goto cleanup;
@@ -875,6 +888,11 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
       status = SL_STATUS_INVALID_CONFIGURATION;
       goto cleanup;
     }
+    if (trustedca->keychain == SL_WISUN_KEYCHAIN_NVM) {
+      printf("[Using NVM trusted CA #%u]\r\n", idx);
+    } else if (trustedca->keychain == SL_WISUN_KEYCHAIN_BUILTIN) {
+      printf("[Using built-in trusted CA #%u]\r\n", idx);
+    }
 
     status = sl_wisun_set_trusted_certificate(certificate_options,
                                               trustedca->data_length,
@@ -894,6 +912,11 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
     printf("[Failed: unable to load credential]\r\n");
     status = SL_STATUS_INVALID_CONFIGURATION;
     goto cleanup;
+  }
+  if (credential->certificate.keychain == SL_WISUN_KEYCHAIN_NVM) {
+    printf("[Using NVM device credentials]\r\n");
+  } else if (credential->certificate.keychain == SL_WISUN_KEYCHAIN_BUILTIN) {
+    printf("[Using built-in device credentials]\r\n");
   }
 
   status = sl_wisun_set_br_device_certificate(SL_WISUN_CERTIFICATE_OPTION_IS_REF | SL_WISUN_CERTIFICATE_OPTION_HAS_KEY,
@@ -1037,7 +1060,7 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
   // Configure POM-IE
   // If PhyModeIds are set by user, send them to the stack, otherwise
   // retrieve the default PhyModeIds from the stack first
@@ -1423,6 +1446,8 @@ void app_set_lfn_support(sl_cli_command_arg_t *arguments)
   ret = sl_wisun_br_set_lfn_support(lfn_limit, lfn_support_pan);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set LFN support: %lu]\r\n", ret);
+  } else {
+    printf("[LFN support set]\r\n");
   }
 
   app_wisun_cli_mutex_unlock();
@@ -1445,6 +1470,8 @@ void app_set_dhcp_vendor_data(sl_cli_command_arg_t *arguments)
   ret = sl_wisun_br_dhcpv6_set_vendor_data(enterprise_number, (uint16_t)data_length, data);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set DHCP Vendor data: %lu]\r\n", ret);
+  } else {
+    printf("[DHCP Vendor data set]\r\n");
   }
 
   app_wisun_cli_mutex_unlock();
@@ -1474,6 +1501,8 @@ void app_pan_defect_advertise(sl_cli_command_arg_t *arguments)
                                          max_scan_duration_s);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set PAN Defect: %lu]\r\n", ret);
+  } else {
+    printf("[PAN Defect advertisement started]\r\n");
   }
 cleanup:
   app_wisun_cli_mutex_unlock();
@@ -1525,6 +1554,32 @@ cleanup:
 
   app_wisun_cli_mutex_unlock();
 }
+
+/* CLI app concurrent detection */
+void app_concurrent_detection(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  bool enable;
+  uint8_t reserved = 0;
+
+  app_wisun_cli_mutex_lock();
+
+  enable = sl_cli_get_argument_uint8(arguments, 0);
+
+  status = sl_wisun_config_concurrent_detection(enable, reserved);
+  switch (status) {
+    case SL_STATUS_OK:
+      printf("[Concurrent detection succeeded]\r\n");
+      break;
+    case SL_STATUS_NOT_SUPPORTED:
+      printf("[Concurrent detection feature not supported on this chip]\r\n");
+      break;
+    default:
+      printf("[Concurrent detection failure %"PRIu32"]\r\n", status);
+  }
+  app_wisun_cli_mutex_unlock();
+}
+
 
 #ifdef SL_CATALOG_WISUN_BR_WIFI_PRESENT
 
@@ -1693,6 +1748,9 @@ void sl_wisun_on_event(sl_wisun_evt_t *evt)
     case SL_WISUN_BR_MSG_STOPPED_IND_ID:
       app_handle_br_stopped_ind(evt);
       break;
+    case SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID:
+      app_handle_br_routing_table_update_ind(evt);
+      break;
     default:
       printf("[Unknown event: %d]\r\n", evt->header.id);
   }
@@ -1748,14 +1806,40 @@ void app_ping(sl_cli_command_arg_t *arguments)
                              &socket_option_value,
                              sizeof(uint32_t));
   if (socket_retval == SOCKET_RETVAL_ERROR) {
-    printf("[Failed: unable to set socket option]\r\n");
+    printf("[Failed: unable to set SOCKET_EVENT_MODE socket option]\r\n");
     goto error_handler;
   }
+
 
   if (sl_cli_get_argument_count(arguments) == 2) {
     packet_data_length = sl_cli_get_argument_uint16(arguments, 1);
   } else {
     packet_data_length = app_settings_ping.packet_length;
+  }
+
+  if (packet_data_length > 2048) {
+    // Larger than default socket size
+    socket_option_value = packet_data_length;
+    socket_retval = setsockopt(app_ping_socket_id,
+                               SOL_SOCKET,
+                               SO_SNDBUF,
+                               &socket_option_value,
+                               sizeof(uint32_t));
+    if (socket_retval == SOCKET_RETVAL_ERROR) {
+      printf("[Failed: unable to set SO_SNDBUF socket option]\r\n");
+      goto error_handler;
+    }
+  }
+
+  socket_option_value = app_settings_wisun.socket_rx_buffer_size;
+  socket_retval = setsockopt(app_ping_socket_id,
+                             SOL_SOCKET,
+                             SO_RCVBUF,
+                             &socket_option_value,
+                             sizeof(uint32_t));
+  if (socket_retval == SOCKET_RETVAL_ERROR) {
+    printf("[Failed: unable to set SO_RCVBUF socket option]\r\n");
+    goto error_handler;
   }
 
   payload_data_length = packet_data_length - sizeof(app_icmpv6_echo_request_t);
@@ -2878,6 +2962,76 @@ void app_set_phy_sensitivity(sl_cli_command_arg_t *arguments)
     printf("[PHY sensitivity set]\r\n");
   } else {
     printf("[Failed: unable to set PHY sensitivity: %lu]\r\n", ret);
+  }
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_trigger_global_repair(sl_cli_command_arg_t *arguments)
+{
+  (void)arguments;
+  sl_status_t ret;
+  app_wisun_cli_mutex_lock();
+  ret = sl_wisun_br_trigger_global_repair();
+  if (ret == SL_STATUS_OK) {
+    printf("[Global repair triggered]\r\n");
+  } else {
+    printf("[Failed: unable to trigger global repair: %lu]\r\n", ret);
+  }
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_get_routing_table(sl_cli_command_arg_t *arguments)
+{
+  (void)arguments;
+  sl_status_t ret;
+  sl_wisun_br_routing_table_entry_t *routing_table = NULL;
+  uint16_t routing_table_size = 0;
+
+  app_wisun_cli_mutex_lock();
+
+  ret = sl_wisun_br_get_routing_table_entry_count(&routing_table_size);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to get routing table entries count: %lu]\r\n", ret);
+    goto cleanup;
+  }
+
+  if (routing_table_size != 0) {
+    routing_table = sl_malloc(routing_table_size * sizeof(sl_wisun_br_routing_table_entry_t));
+    if (!routing_table) {
+      printf("[Failed: unable to allocate routing table]\r\n");
+      goto cleanup;
+    }
+
+    memset(routing_table, 0, routing_table_size * sizeof(sl_wisun_br_routing_table_entry_t));
+
+    ret = sl_wisun_br_get_routing_table(&routing_table_size, routing_table);
+    if (ret != SL_STATUS_OK) {
+      printf("[Failed: unable to get routing table: %lu]\r\n", ret);
+      goto cleanup;
+    }
+  }
+
+  printf("{  ##  %-39s  Parent\r\n", "Node");
+  for (uint16_t i = 0; i < routing_table_size; i++) {
+    printf("#%-4d  ", i);
+    printf("%-39s", app_get_ip_address_str(&routing_table[i].target));
+    printf("  %s", app_get_ip_address_str(&routing_table[i].preferred));
+
+    if (memcmp(&routing_table[i].backup, &APP_IN6ADDR_ANY, sizeof(routing_table[i].backup)) != 0) {
+      printf("\r\n");
+      printf("#%-4d  ", i);
+      printf("%-39s", app_get_ip_address_str(&routing_table[i].target));
+      printf("  %s", app_get_ip_address_str(&routing_table[i].backup));
+    }
+    printf("\r\n");
+  }
+  printf("}\r\n");
+
+cleanup:
+
+  if (routing_table) {
+    sl_free(routing_table);
   }
 
   app_wisun_cli_mutex_unlock();

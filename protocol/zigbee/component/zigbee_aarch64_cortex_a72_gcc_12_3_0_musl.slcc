@@ -1,6 +1,6 @@
 id: zigbee_aarch64_cortex_a72_gcc_12_3_0_musl
 label: Zigbee ARM64
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines to build Zigbee apps against ARM64.

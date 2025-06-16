@@ -14,6 +14,10 @@ class IPCalculator(ICalculator):
     def __init__(self, peripheral_name):
         self._peripheral_name = peripheral_name
 
+    def buildVariables(self, modem_model):
+        # All IP calculators automatically add regs from the _reg_field_list to model vars
+        self._add_registers_to_model_variable(modem_model, self._reg_field_list)
+
     def _add_registers_to_model_variable(self, model, reg_field_list):
         for reg_field in reg_field_list:
             reg_field_name = self._peripheral_name + "." + reg_field

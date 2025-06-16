@@ -17,7 +17,7 @@ typedef struct {
 } SlotManagerSlotInfo_t;
 
 // Prototypes
-void      sl_util_af_slot_manager_init_cb(void);
+void      sl_util_af_slot_manager_init_cb(uint8_t init_level);
 
 /***************************************************************************//**
  * Print information about the external flash, if applicable.

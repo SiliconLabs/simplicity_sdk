@@ -75,7 +75,7 @@ static uint32_t test_count = 0;
  * custom one.
  * @param[in] data Data received from NCP host.
  *
- * @note This overrides the dummy weak implementation.
+ * @note This overrides the default weak implementation.
  ******************************************************************************/
 void sl_ncp_user_cmd_message_to_target_cb(void *data)
 {

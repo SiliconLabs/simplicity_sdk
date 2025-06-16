@@ -37,7 +37,7 @@
 #include "app_process.h"
 #include "app_init.h"
 #include "app_framework_common.h"
-// Ensure that psa is initialized corretly
+// Ensure that psa is initialized correctly
 #include "psa/crypto.h"
 #include "mbedtls/build_info.h"
 
@@ -71,7 +71,7 @@ void emberAfInitCallback(void)
 {
   EmberStatus em_status = EMBER_ERR_FATAL;
 
-  // Ensure that psa is initialized corretly
+  // Ensure that psa is initialized correctly
   psa_crypto_init();
 
   // CLI info message

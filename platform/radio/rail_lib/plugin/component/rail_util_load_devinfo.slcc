@@ -1,14 +1,14 @@
 id: rail_util_load_devinfo
 label: RAIL Utility, Load Devinfo
 description: Utility to aid with copying DEVINFO register values onto RAM
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_load_devinfo
-    name: RAIL Utility, Load Devinfo
-    license: Zlib
+    sbom:
+        id: rail_util_load_devinfo
+        name: RAIL Utility, Load Devinfo
+        license: Zlib
 requires:
   - name: rail_lib
 provides:
@@ -22,7 +22,7 @@ source:
 template_contribution:
   - name: event_handler
     value:
-      event: stack_init
-      include: sl_rail_util_load_devinfo.h
-      handler: sl_rail_util_load_devinfo
+        event: stack_init
+        include: sl_rail_util_load_devinfo.h
+        handler: sl_rail_util_load_devinfo
     priority: -9010 # Must be called before sl_rail_util_init

@@ -1,20 +1,20 @@
 id: emlib_acmp
 label: ACMP
-package: platform
+package: platform_core
 description: >
-  Analog comparator (ACMP) Peripheral API
-category: Platform|Peripheral
+  Analog comparator (ACMP) Peripheral API.
+category: Platform|Peripheral|EMLIB
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-component_root_path: "platform/emlib"
+    sbom:
+        license: Zlib
+component_root_path: platform/emlib
 source:
-  - path: "src/em_acmp.c"
+  - path: src/em_acmp.c
 include:
-  - path: "inc"
+  - path: inc
     file_list:
-    - path: "em_acmp.h"
+      - path: em_acmp.h
 provides:
   - name: emlib_acmp
   - name: hal_generic_acmp
@@ -44,3 +44,5 @@ documentation:
       condition: [device_sdid_230]
     - page: platform-emlib-efr32xg28/acmp
       condition: [device_sdid_235]
+    - page: platform-emlib-efr32xg29/acmp
+      condition: [device_sdid_240]

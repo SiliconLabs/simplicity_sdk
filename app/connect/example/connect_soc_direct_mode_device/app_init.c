@@ -35,7 +35,7 @@
 #include "app_log.h"
 #include "ember.h"
 #include "app_framework_common.h"
-// Ensure that psa is initialized corretly
+// Ensure that psa is initialized correctly
 #include "psa/crypto.h"
 
 // -----------------------------------------------------------------------------
@@ -62,7 +62,7 @@
 ******************************************************************************/
 void emberAfInitCallback(void)
 {
-  // Ensure that psa is initialized corretly
+  // Ensure that psa is initialized correctly
   psa_crypto_init();
 
   // CLI info message

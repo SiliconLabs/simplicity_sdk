@@ -1,14 +1,13 @@
 id: device_init_hfrco
-label: "High Frequency RC Oscillator (HFRCO)"
-package: platform
+label: High Frequency RC Oscillator (HFRCO)
+package: platform_core
 description: >
-  Instantiate the component for High Frequency RC Oscillator (HFRCO) 
-  initialization based on the provided frequency band.
+    Instantiate the component for High Frequency RC Oscillator (HFRCO)  initialization based on the provided frequency band.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 config_file:
   - path: config/s2/sl_device_init_hfrco_config.h
@@ -28,15 +27,15 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_hfrco.h
-      handler: sl_device_init_hfrco
+        event: platform_init
+        include: sl_device_init_hfrco.h
+        handler: sl_device_init_hfrco
     priority: -9700
-    condition: [sl_system]
+    condition: [sl_system, kernel]
   - name: device_init_clocks_present
     value: hfrco
   - name: component_catalog
     value: device_init_hfrco
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-hfrco
+    docset: gecko-platform
+    document: platform-service/device-init-hfrco

@@ -1,7 +1,7 @@
 !!omap
 - id: brd4276a
 - label: BRD4276A
-- package: platform
+- package: boards
 - description: Board support for BRD4276A.
 - category: Platform|Board|Radio Board
 - quality: production

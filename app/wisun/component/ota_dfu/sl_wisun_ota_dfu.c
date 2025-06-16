@@ -39,6 +39,7 @@
 #include "sl_cmsis_os2_common.h"
 #include "sl_status.h"
 #include "btl_interface.h"
+#include "btl_reset_info.h"
 #include "sl_tftp_clnt.h"
 #include "sl_ftp_config.h"
 #include "sl_wisun_app_core_util.h"
@@ -245,7 +246,7 @@ typedef struct sl_wisun_ota_dfu_settings {
   uint16_t notify_host_port;
   /// Notify coap uri path
   char notify_coap_uri_path[SL_WISUN_OTA_DFU_COAP_URI_PATH_STR_BUF_LEN];
-  /// Download chunck count for notification
+  /// Download chunk count for notification
   uint32_t notify_dwnld_chunk_cnt;
 #endif
 } sl_wisun_ota_dfu_settings_t;
@@ -372,9 +373,9 @@ static const char *_get_status_json_string(void);
 /**************************************************************************//**
 * @brief Change Status
 * @details Change status flags and notify host
-* @param[in] statu_mask Status flags to update
+* @param[in] status_mask Status flags to update
 ******************************************************************************/
-static void _change_status(const uint32_t statu_mask);
+static void _change_status(const uint32_t status_mask);
 
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
 /**************************************************************************//**
@@ -1320,10 +1321,10 @@ static void _tftp_data_hnd(sl_tftp_clnt_t * const clnt,
   }
 #endif
 
-  error_ctx.download.ret_val = bootloader_eraseWriteStorage(SL_WISUN_OTA_DFU_STORAGE_SLOT_ID,
-                                                            offset,
-                                                            (uint8_t *)data_ptr,
-                                                            data_size);
+  error_ctx.download.ret_val = bootloader_writeStorage(SL_WISUN_OTA_DFU_STORAGE_SLOT_ID,
+                                                       offset,
+                                                       (uint8_t *)data_ptr,
+                                                       data_size);
 
   if (error_ctx.download.ret_val != BOOTLOADER_OK) {
     _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
@@ -1360,6 +1361,11 @@ static void _ota_dfu_thr_fnc(void * args)
 
   (void) args;
 
+  // Fetch reset reason at startup for debug purposes
+  sl_wisun_ota_dfu_log("Reset cause debug info - {reason: 0x%.4x, signature: 0x%.4x}\n",
+                       bootloader_getResetReason().reason,
+                       bootloader_getResetReason().signature);
+
   // Get bootloader storage and slot info
   bootloader_getStorageInfo(&storage_info);
   assert(storage_info.numStorageSlots >= 1);
@@ -1383,15 +1389,20 @@ static void _ota_dfu_thr_fnc(void * args)
                       SL_WISUN_OTA_DFU_EVT_FLAG_ALL_MSK
                       ^ SL_WISUN_OTA_DFU_EVT_FLAG_START_FW_UPDATE_MSK);
 
+    // Erase storage slot before firmware download (necessary for delta ota dfu)
+    if (bootloader_eraseStorageSlot(SL_WISUN_OTA_DFU_STORAGE_SLOT_ID) != BOOTLOADER_OK) {
+      sl_wisun_ota_dfu_log("Warning: erase storage slot failed\n");
+    }
+
     // Start tick count
     _start_tick_cnt = sl_sleeptimer_get_tick_count();
+
     sl_wisun_ota_dfu_log("Storage info: version: %lu, capabilities: %lu, storageType: %lu, numStorageSlots: %lu\n",
                          storage_info.version,
                          storage_info.capabilities,
                          (uint32_t)storage_info.storageType,
                          storage_info.numStorageSlots);
     sl_wisun_ota_dfu_log("Storage slot info: address: 0x%lx, size: %lu\n", slot_info.address, slot_info.length);
-
     sl_wisun_ota_dfu_log("Firmware upgrade started\n");
 
     // Check stop request
@@ -1403,6 +1414,7 @@ static void _ota_dfu_thr_fnc(void * args)
       sl_wisun_ota_dfu_log("Firmware update stopped\n");
       continue;
     }
+
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
     _notify_host();
 #endif
@@ -1443,7 +1455,7 @@ static void _ota_dfu_thr_fnc(void * args)
                                 SL_WISUN_OTA_DFU_TFTP_TIMEOUT_SEC) != SL_STATUS_OK) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
       sl_wisun_ota_dfu_log("TFTP set 'timeout' option failed\n");
-      continue;;
+      continue;
     }
 
     // Send RRQ request
@@ -1456,12 +1468,11 @@ static void _ota_dfu_thr_fnc(void * args)
       continue;
     }
 
-    // waiting for finish firmware download
-    SL_WISUN_OTA_DFU_SERVICE_LOOP() {
-      if (sl_tftp_clnt_is_op_finished(&tftp_clnt)) {
-        break;
-      }
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
+    // Wait for firmware download to finish
+    if (sl_tftp_clnt_wait_op_finished(&tftp_clnt) != SL_STATUS_OK) {
+      _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_ERROR_MSK);
+      sl_wisun_ota_dfu_log("TFTP wait for firmware download to finish failed\n");
+      continue;
     }
 
     // Check download error
@@ -1469,7 +1480,6 @@ static void _ota_dfu_thr_fnc(void * args)
         || sl_wisun_ota_dfu_get_fw_update_status_flag(SL_WISUN_OTA_DFU_STATUS_FW_DOWNLOAD_ERROR)) {
       _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_DOWNLOAD_ERROR_MSK);
       sl_wisun_ota_dfu_log("TFTP download failed\n");
-      osDelay(SL_WISUN_OTA_DFU_DELAY_MS);
       continue;
     }
 
@@ -1508,7 +1518,6 @@ static void _ota_dfu_thr_fnc(void * args)
     }
     _change_status(SL_WISUN_OTA_DFU_EVT_FLAG_FW_SET_MSK);
     sl_wisun_ota_dfu_log("Set image finished\n");
-
     osDelay(SL_WISUN_OTA_DFU_SHUTDOWN_DELAY_MS);
 
     // Check stop request

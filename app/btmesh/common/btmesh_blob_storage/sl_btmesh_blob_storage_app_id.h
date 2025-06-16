@@ -38,7 +38,7 @@
 #define SL_BTMESH_BLOB_STORAGE_APP_ID_H
 
 /***************************************************************************//**
- * @addtogroup blob_storage
+ * @addtogroup btmesh_blob_storage
  * @{
  ******************************************************************************/
 
@@ -54,6 +54,6 @@
 /// Reserved BLOB Storage app ID of managed flag
 #define BLOB_STORAGE_APP_ID_MANAGED_FLAG      0x8000
 
-/** @} end blob_storage */
+/** @} end btmesh_blob_storage */
 
 #endif // SL_BTMESH_BLOB_STORAGE_APP_ID_H

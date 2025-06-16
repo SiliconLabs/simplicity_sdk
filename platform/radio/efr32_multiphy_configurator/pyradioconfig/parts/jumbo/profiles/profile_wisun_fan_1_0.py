@@ -1,3 +1,5 @@
+from pycalcmodel.core.model import ModelRoot
+from pycalcmodel.core.profile import ModelProfile
 from pyradioconfig.calculator_model_framework.interfaces.iprofile import IProfile
 from pyradioconfig.parts.common.utils.units_multiplier import UnitsMultiplier
 from pyradioconfig.parts.common.profiles.jumbo_regs import build_modem_regs_jumbo
@@ -32,6 +34,7 @@ class ProfileWisunFanJumbo(IProfile):
         self.build_optional_profile_inputs(model, profile)
         self.build_advanced_profile_inputs(model, profile)
         self.build_hidden_profile_inputs(model, profile)
+        self.build_metadata_profile_inputs(model, profile)
         self.build_deprecated_profile_inputs(model, profile)
 
         # Build outputs
@@ -114,6 +117,43 @@ class ProfileWisunFanJumbo(IProfile):
         IProfile.make_hidden_input(profile, model.vars.if_frequency_hz, 'Advanced',
                                    readable_name="IF Frequency", value_limit_min=70000, value_limit_max=1900000,
                                    units_multiplier=UnitsMultiplier.KILO)
+
+
+    def build_metadata_profile_inputs(self, model: ModelRoot, profile: ModelProfile):
+        self.make_metadata_input(profile, model.vars.meta_bitrates, "metadata",
+                                 readable_name="WiSUN Bitrates", value_limit_min=[],
+                                 value_limit_max=[2_500_000_000], units_multiplier=UnitsMultiplier.KILO)
+
+        self.make_metadata_input(profile, model.vars.meta_mcs_restriction, "metadata",
+                                 readable_name="WiSUN MCS Restriction", value_limit_min=[],
+                                 value_limit_max=[100])
+
+        self.make_metadata_input(profile, model.vars.meta_modulation_type, "metadata",
+                                 readable_name="WiSUN Modulation")
+
+        self.make_metadata_input(profile, model.vars.meta_modulation_index, "metadata",
+                                 readable_name="WiSUN Modulation Index",
+                                 value_limit_min=0.4, value_limit_max=1.1)
+
+        self.make_metadata_input(profile, model.vars.meta_fec, "metadata",
+                                 readable_name="WiSUN FEC")
+
+        self.make_metadata_input(profile, model.vars.meta_min_frequency, "metadata",
+                                 readable_name="WiSUN Freq Band Start", value_limit_min=0,
+                                 value_limit_max=2_500_000_000,
+                                 units_multiplier=UnitsMultiplier.MEGA)
+
+        self.make_metadata_input(profile, model.vars.meta_max_frequency, "metadata",
+                                 readable_name="WiSUN Freq Band End", value_limit_min=0,
+                                 value_limit_max=2_500_000_000,
+                                 units_multiplier=UnitsMultiplier.MEGA)
+
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_start, 'metadata',
+                                 readable_name='Channel Config Start channel index',
+                                 value_limit_min=0, value_limit_max=25_000)
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_end, 'metadata',
+                                 readable_name='Channel Config Last channel index',
+                                 value_limit_min=0, value_limit_max=25_000)
 
     def build_deprecated_profile_inputs(self, model, profile):
         #No deprecated Profile Inputs on Jumbo

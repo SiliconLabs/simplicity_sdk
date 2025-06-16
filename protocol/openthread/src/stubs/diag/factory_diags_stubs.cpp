@@ -205,20 +205,40 @@ Error Diags::GetPowerSettings(uint8_t aChannel, PowerSettings &aPowerSettings)
     return ot::kErrorNotImplemented;
 }
 
-Error Diags::ParseLong(char *aString, long &aLong)
+Error Diags::ParseReceiveConfigFormat(const char *aFormat, ReceiveConfig &aConfig)
 {
-    OT_UNUSED_VARIABLE(aString);
-    OT_UNUSED_VARIABLE(aLong);
+    OT_UNUSED_VARIABLE(aFormat);
+    OT_UNUSED_VARIABLE(aConfig);
 
     return ot::kErrorNotImplemented;
 }
 
-Error Diags::ParseBool(char *aString, bool &aBool)
+Error Diags::RadioReceive(void)
 {
-    OT_UNUSED_VARIABLE(aString);
-    OT_UNUSED_VARIABLE(aBool);
-
     return ot::kErrorNotImplemented;
+}
+
+Error Diags::TransmitPacket(void)
+{
+    return ot::kErrorNotImplemented;
+}
+
+void Diags::OutputReceivedFrame(const otRadioFrame *aFrame)
+{
+    OT_UNUSED_VARIABLE(aFrame);
+}
+
+bool Diags::ShouldHandleReceivedFrame(const otRadioFrame &aFrame) const
+{
+    OT_UNUSED_VARIABLE(aFrame);
+
+    return false;
+}
+
+bool Diags::IsChannelValid(uint8_t aChannel)
+{
+    OT_UNUSED_VARIABLE(aChannel);
+    return false;
 }
 
 void Diags::ReceiveDone(otRadioFrame *aFrame, Error aError)

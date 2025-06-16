@@ -1,8 +1,8 @@
 !!omap
 - id: xg26_dk2608a
 - label: XG26-DK2608A
-- package: platform
-- description: Kit BSP support for the xG26 Dev Kit.
+- package: boards
+- description: Kit BSP support for the EFR32xG26 Dev Kit.
 - category: Platform|Board|Kit|Development Kit
 - quality: production
 - metadata:

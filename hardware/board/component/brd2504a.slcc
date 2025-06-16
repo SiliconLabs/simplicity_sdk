@@ -1,7 +1,7 @@
 !!omap
 - id: brd2504a
 - label: BRD2504A
-- package: platform
+- package: boards
 - description: Board support for BRD2504A.
 - category: Platform|Board|Starter Kit
 - quality: production

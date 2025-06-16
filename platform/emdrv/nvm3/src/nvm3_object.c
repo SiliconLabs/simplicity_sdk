@@ -54,12 +54,12 @@
 
 __STATIC_INLINE uint32_t hdrSmallGetBergerCode(nvm3_ObjHdrSmall_t *oh)
 {
-  return (((oh)->oh1 >> NVM3_OBJ_BCCB_OFFSET) & NVM3_OBJ_BCCB_MASK);
+  return ((oh->oh1 >> NVM3_OBJ_BCCB_OFFSET) & NVM3_OBJ_BCCB_MASK);
 }
 
 __STATIC_INLINE uint32_t hdrLargeGetBergerCode(nvm3_ObjHdrLarge_t *oh)
 {
-  return (((oh)->oh2 >> NVM3_OBJ_LBCCB_OFFSET) & NVM3_OBJ_LBCCB_MASK);
+  return ((oh->oh2 >> NVM3_OBJ_LBCCB_OFFSET) & NVM3_OBJ_LBCCB_MASK);
 }
 
 __STATIC_INLINE nvm3_ObjType_t toObjType(uint32_t value)

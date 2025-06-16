@@ -1,5 +1,5 @@
 id: psa_crypto_rsa_sign_legacy
-package: platform
+package: security_mbedtls
 label: Legacy RSA Signatures
 description: >-
   This component adds support for signatures using the legacy RSA scheme as

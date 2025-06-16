@@ -176,7 +176,6 @@ void SystemInit(void)
  * as SMU is used to configure the trustzone state of the system. */
 #if !defined(SL_TRUSTZONE_SECURE) && !defined(SL_TRUSTZONE_NONSECURE) \
   && defined(__TZ_PRESENT)
-
   // config SMU to Secure and other peripherals to Non-Secure.
   SMU->PPUSATD0_CLR = _SMU_PPUSATD0_MASK;
 #if defined (SEMAILBOX_PRESENT)
@@ -219,6 +218,30 @@ uint32_t SystemHFRCODPLLClockGet(void)
   return SystemHFRCODPLLClock;
 #else
   uint32_t ret = 0UL;
+  uint32_t mdiv = 0UL, ndiv = 0UL;
+  uint32_t dpll_ref_clk = 0UL;
+
+  if (DPLL0->STATUS & DPLL_STATUS_RDY) {
+    switch ((CMU->DPLLREFCLKCTRL & _CMU_DPLLREFCLKCTRL_MASK)) {
+      case _CMU_DPLLREFCLKCTRL_CLKSEL_HFXO:
+        dpll_ref_clk = HFXO_FREQ;
+        break;
+      case _CMU_DPLLREFCLKCTRL_CLKSEL_LFXO:
+        dpll_ref_clk = LFXO_FREQ;
+        break;
+      case _CMU_DPLLREFCLKCTRL_CLKSEL_CLKIN0:
+        dpll_ref_clk = CLKIN0_FREQ;
+        break;
+      default:
+        return 0UL;
+    }
+
+    mdiv = DPLL0->CFG1 & _DPLL_CFG1_M_MASK;
+    ndiv = (DPLL0->CFG1 & _DPLL_CFG1_N_MASK) >> _DPLL_CFG1_N_SHIFT;
+    ret  = (dpll_ref_clk / mdiv) * ndiv;
+    return ret;
+  }
+
   // Get oscillator frequency band
   switch ((HFRCO0->CAL & _HFRCO_CAL_FREQRANGE_MASK)
           >> _HFRCO_CAL_FREQRANGE_SHIFT) {
@@ -359,8 +382,8 @@ uint32_t SystemSYSCLKGet(void)
       break;
 
     default:
-      // Unknown clock source.
       while (1) {
+        // Unknown clock source.
       }
   }
   return ret;
@@ -386,7 +409,8 @@ uint32_t SystemSYSCLKGet(void)
  ******************************************************************************/
 uint32_t SystemHCLKGet(void)
 {
-  uint32_t presc, ret;
+  uint32_t presc;
+  uint32_t ret;
 
   ret = SystemSYSCLKGet();
 

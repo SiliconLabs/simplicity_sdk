@@ -186,7 +186,11 @@ bool sl_zigbee_af_trust_center_keepalive_serverless_is_enabled_cb(void);
 
 bool sli_zigbee_af_trust_center_keepalive_tc_has_server_cluster(void);
 
+// Sends a Read Attribute Request on demand. Assumes the TC Keepalive server has already been discovered.
 void sli_zigbee_af_send_keepalive_signal(void);
+
+// Discovers the TC Keepalive server if it hasn't been yet. Else, sends a Read Attributes Request.
+void sli_zigbee_af_send_keepalive_now(void);
 
 uint8_t sli_zigbee_af_trust_center_keepalive_get_base_time_minutes(void);
 

@@ -73,22 +73,22 @@ bool sl_zigbee_af_price_add_tariff_table_entry(uint8_t endpoint,
   return false;
 }
 
-bool sl_zigbee_af_price_cluster_get_tariff_information_cb(uint32_t earliestStartTime,
-                                                          uint32_t minIssuerEventId,
-                                                          uint8_t numberOfCommands,
-                                                          uint8_t tariffType)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_price_cluster_get_tariff_information_cb(sl_zigbee_af_cluster_command_t *cmd)
 {
-  return false;
+  (void)cmd;
+  return SL_ZIGBEE_ZCL_STATUS_UNSUP_COMMAND;
 }
 
-bool sl_zigbee_af_price_cluster_get_price_matrix_cb(uint32_t issuerTariffId)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_price_cluster_get_price_matrix_cb(sl_zigbee_af_cluster_command_t *cmd)
 {
-  return false;
+  (void)cmd;
+  return SL_ZIGBEE_ZCL_STATUS_UNSUP_COMMAND;
 }
 
-bool sl_zigbee_af_price_cluster_get_block_thresholds_cb(uint32_t issuerTariffId)
+sl_zigbee_af_zcl_request_status_t sl_zigbee_af_price_cluster_get_block_thresholds_cb(sl_zigbee_af_cluster_command_t *cmd)
 {
-  return false;
+  (void)cmd;
+  return SL_ZIGBEE_ZCL_STATUS_UNSUP_COMMAND;
 }
 
 bool sl_zigbee_af_price_get_price_matrix(uint8_t endpoint,

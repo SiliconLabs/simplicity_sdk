@@ -42,11 +42,6 @@ extern "C"
 void rgb_led_init(void);
 
 /***************************************************************************//**
- * De-initialize all LEDs by disabling them.
- ******************************************************************************/
-void rgb_led_deinit(void);
-
-/***************************************************************************//**
  * Set LED color based on RGB components.
  *
  * @param[in] mask         LED instance mask

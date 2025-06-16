@@ -36,6 +36,7 @@
 #include "app_log.h"
 #include "app_framework_common.h"
 #include "string.h"
+#include "stack-info.h"
 #include "psa/crypto.h"
 
 #include "app.h"

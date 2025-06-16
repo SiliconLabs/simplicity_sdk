@@ -38,6 +38,7 @@
 #include "sl_simple_button_instances.h"
 #include "sl_sleeptimer.h"
 #include "app_assert.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_SEGMENT_LCD_DRIVER_PRESENT)
 #include "sl_segmentlcd.h"
@@ -83,7 +84,7 @@ static sl_sleeptimer_timer_handle_t timer_handle;
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
 
-static void sl_rail_sdk_wmbus_sensor_pulse_counter_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void sl_rail_sdk_wmbus_sensor_pulse_counter_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;

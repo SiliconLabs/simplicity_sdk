@@ -98,17 +98,23 @@
 // <i> LCD on WSTKs have 9 rows. Out of these the People Count will be printed in the row specified here.
 #define SL_BTMESH_WSTK_LCD_ROW_PEOPLE_COUNT_CFG_VAL   (5)
 
-// <o SL_BTMESH_WSTK_LCD_ROW_TEMPERATURE_CFG_VAL> Row for Server Temperature
+// <o SL_BTMESH_WSTK_LCD_ROW_POWER_CONSUMPTION_CFG_VAL> Row for Power Consumption
 // <i> Default: 6
 // <1-9:1>
-// <i> LCD on WSTKs have 9 rows. Out of these the Server Temperature will be printed in the row specified here.
-#define SL_BTMESH_WSTK_LCD_ROW_TEMPERATURE_CFG_VAL   (6)
+// <i> LCD on WSTKs have 9 rows. Out of these the Power Consumption will be printed in the row specified here.
+#define SL_BTMESH_WSTK_LCD_ROW_POWER_CONSUMPTION_CFG_VAL   (6)
 
-// <o SL_BTMESH_WSTK_LCD_ROW_ILLUMINANCE_CFG_VAL> Row for Illuminance
+// <o SL_BTMESH_WSTK_LCD_ROW_TEMPERATURE_CFG_VAL> Row for Server Temperature
 // <i> Default: 7
 // <1-9:1>
+// <i> LCD on WSTKs have 9 rows. Out of these the Server Temperature will be printed in the row specified here.
+#define SL_BTMESH_WSTK_LCD_ROW_TEMPERATURE_CFG_VAL   (7)
+
+// <o SL_BTMESH_WSTK_LCD_ROW_ILLUMINANCE_CFG_VAL> Row for Illuminance
+// <i> Default: 8
+// <1-9:1>
 // <i> LCD on WSTKs have 9 rows. Out of these the Illuminance will be printed in the row specified here.
-#define SL_BTMESH_WSTK_LCD_ROW_ILLUMINANCE_CFG_VAL   (7)
+#define SL_BTMESH_WSTK_LCD_ROW_ILLUMINANCE_CFG_VAL   (8)
 
 // </h>
 

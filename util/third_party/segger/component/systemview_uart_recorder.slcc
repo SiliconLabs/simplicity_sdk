@@ -1,6 +1,6 @@
 id: segger_systemview_uart_recorder
 label: SEGGER SystemView UART Recorder
-package: platform
+package: segger_internal
 description: SEGGER SystemView UART Recorder. Allows to record events via UART when RTT cannot be used (that is when an application sleeps to EM2 or EM3 energy mode).
 category: Third Party|Segger|System View
 quality: internal

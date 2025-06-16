@@ -36,7 +36,7 @@
 #include "sl_component_catalog.h"
 #include "sl_common.h"
 #include "sl_rail_sdk_simple_assistance.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_process.h"
 #include "sl_rail_sdk_channel_selector.h"
@@ -75,26 +75,31 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-
-  set_up_tx_fifo(rail_handle);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Turn OFF LEDs
   clear_receive_led();
   clear_send_led();
   // Start reception
-  RAIL_Status_t status = RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("After initialization RAIL_StartRx() result: %lu\n ", status);
+  sl_rail_status_t status = sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("After initialization sl_rail_start_rx() result: %lu\n ", status);
   }
 
   // CLI info message
   print_sample_app_name("Simple TRX");
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

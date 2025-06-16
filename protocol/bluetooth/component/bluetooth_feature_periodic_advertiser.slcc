@@ -1,6 +1,6 @@
 id: "bluetooth_feature_periodic_advertiser"
 label: "Periodic Advertising"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component, corresponding to the "periodic_advertiser" class in Bluetooth APIs,
   provides the periodic advertising feature. Common advertising functionalities, e.g.,
@@ -19,12 +19,6 @@ provides:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_periodic_advertiser
-  - name: bluetooth_controller_init
-    value:
-      include: "sl_bt_periodic_advertiser_config.h"
-      function: "sl_btctrl_alloc_periodic_adv(SL_BT_CONFIG_MAX_PERIODIC_ADVERTISERS);sl_btctrl_init_periodic_adv()"
-      deinit: "sl_btctrl_alloc_periodic_adv(0)"
-    priority: 10
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-periodic-advertiser

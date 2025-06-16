@@ -1,7 +1,8 @@
 from pyradioconfig.parts.lynx.profiles.Profile_Base import Profile_Base_Lynx
 from pyradioconfig.parts.common.utils.units_multiplier import UnitsMultiplier
 from pyradioconfig.parts.common.profiles.profile_common import buildCrcInputs, buildFecInputs, buildWhiteInputs, \
-    buildFrameInputs, buildFrameOutputs, buildCrcOutputs, buildWhiteOutputs, buildFecOutputs, build_ircal_sw_vars
+    buildFrameInputs, buildFrameOutputs, buildCrcOutputs, buildWhiteOutputs, buildFecOutputs, build_ircal_sw_vars, \
+    buildStudioLogOutput
 from pyradioconfig.parts.common.profiles.profile_modem import buildModemAdvancedInputs, buildModemInfoOutputs, \
     buildRailOutputs
 from pyradioconfig.parts.common.profiles.leopard_regs import build_modem_regs_leopard
@@ -48,6 +49,7 @@ class profile_base_leopard(Profile_Base_Lynx):
         buildCrcOutputs(model, profile)
         buildWhiteOutputs(model, profile)
         buildFecOutputs(model, profile)
+        buildStudioLogOutput(model, profile)
 
         self.buildRegisterOutputs(model, profile)
 

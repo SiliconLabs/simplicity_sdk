@@ -35,7 +35,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
 #include "app_log.h"
 #endif

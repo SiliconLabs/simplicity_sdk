@@ -16,14 +16,14 @@
  ******************************************************************************/
 
 #include PLATFORM_HEADER
-#include "rail.h"
+#include "sl_rail.h"
 /** @brief A callback called whenever a secondary instance RAIL event occurs.
  *
  * @param[in] handle A handle for a RAIL instance.
  * @param[in] events A bit mask of RAIL events (full list in rail_types.h)
  */
-WEAK(void sl_zigbee_af_multirail_demo_rail_event_cb(RAIL_Handle_t handle,
-                                                    RAIL_Events_t events))
+WEAK(void sl_zigbee_af_multirail_demo_rail_event_cb(sl_rail_handle_t handle,
+                                                    sl_rail_events_t events))
 {
   (void)handle; // unreferenced parameter
   (void)events; // unreferenced parameter

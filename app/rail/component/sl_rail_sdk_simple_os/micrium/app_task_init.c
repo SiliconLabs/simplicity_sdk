@@ -38,7 +38,6 @@
 #ifdef SL_CATALOG_APP_LOG_PRESENT
 #include "app_log.h"
 #endif
-#include "sl_sleeptimer.h"
 #include "os_cfg.h"
 #include "os.h"
 
@@ -77,8 +76,8 @@ OS_FLAG_GRP  proprietary_event_flags;
 // Proprietary Application task buffer and stack allocation
 static CPU_STK proprietary_app_task_stack[PROPRIETARY_APP_TASK_STACK_SIZE];
 static OS_TCB  proprietary_app_task_TCB;
-/// A static handle of a RAIL instance
-static RAIL_Handle_t rail_handle;
+/// TODO
+static bool prop_task_running = false;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -114,7 +113,9 @@ void app_task_init(void)
 void app_task_notify(void)
 {
   RTOS_ERR err;
-  OSFlagPost(&proprietary_event_flags, PROPRIETARY_FLAG, OS_OPT_POST_FLAG_SET, &err);
+  if (prop_task_running) {
+    OSFlagPost(&proprietary_event_flags, PROPRIETARY_FLAG, OS_OPT_POST_FLAG_SET, &err);
+  }
 }
 
 /*******************************************************************************
@@ -141,10 +142,11 @@ static void proprietary_app_task(void *p_arg)
 {
   PP_UNUSED_PARAM(p_arg);
   RTOS_ERR err;
-  rail_handle = app_init();
+  prop_task_running = true;
+  rail_app_init();
 
   while (DEF_TRUE) {
-    app_process_action(rail_handle);
+    app_process_action();
     OSFlagPend(&proprietary_event_flags,
                PROPRIETARY_FLAG,
                (OS_TICK) 0,

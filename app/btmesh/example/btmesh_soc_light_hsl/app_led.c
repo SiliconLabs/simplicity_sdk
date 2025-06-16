@@ -65,9 +65,9 @@ void app_led_set_level(uint16_t level)
   if (pwm_duty_cycle > PWM_MAX_DUTY_CYCLE) {
     pwm_duty_cycle = PWM_MAX_DUTY_CYCLE;
   }
-  sl_pwm_set_duty_cycle(&sl_pwm_led0, pwm_duty_cycle);
+  sl_pwm_set_duty_cycle(&sl_pwm_led0, (uint8_t)pwm_duty_cycle);
 #ifndef SINGLE_LED
-  sl_pwm_set_duty_cycle(&sl_pwm_led1, pwm_duty_cycle);
+  sl_pwm_set_duty_cycle(&sl_pwm_led1, (uint8_t)pwm_duty_cycle);
 #endif // SINGLE_LED
 }
 

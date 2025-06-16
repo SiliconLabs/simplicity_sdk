@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32FG22E121F512IM32
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32FG22E121F512IM32.
 - category: Platform|Device|EFR32FG22
 - quality: production

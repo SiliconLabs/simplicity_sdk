@@ -36,5 +36,4 @@
 ZW_WEAK void
 CC_DeviceResetLocally_notification_tx(void)
 {
-
 }

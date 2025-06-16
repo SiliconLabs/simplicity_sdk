@@ -1,5 +1,5 @@
 id: throughput_central
-package: Bluetooth
+package: bluetooth_le_middleware
 label: Throughput Test Receiver (Central) Role API
 description: >
   Throughput Test Receiver (Central) Role API opens connection to Throughput
@@ -24,19 +24,24 @@ include:
   - path: platform
     file_list:
       - path: throughput_central_system.h
+  - path: rta
+    file_list:
+      - path: throughput_central_rta.h
 config_file:
   - path: config/throughput_central_config.h
 source:
   - path: throughput_central.c
   - path: platform/throughput_central_interface.c
+  - path: rta/throughput_central_rta.c
 requires:
   - name: app_log
   - name: app_assert
+  - name: app_rta
   - name: memory_manager
   - name: bluetooth_stack
   - name: bluetooth_feature_system
   - name: bluetooth_feature_power_control
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_central
   - name: bluetooth_feature_legacy_scanner
   - name: bluetooth_feature_extended_scanner
   - name: bluetooth_feature_gatt
@@ -51,6 +56,14 @@ recommends:
 provides:
   - name: throughput_central
 template_contribution:
+  - name: app_rta_init
+    value:
+      include: throughput_central_rta.h
+      handler: throughput_central_rta_init
+  - name: app_rta_ready
+    value:
+      include: throughput_central_rta.h
+      handler: throughput_central_rta_ready
   - name: bluetooth_on_event
     value:
       include: throughput_central.h

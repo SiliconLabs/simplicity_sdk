@@ -1,6 +1,6 @@
 id: "bluetooth_stack"
 label: "Bluetooth Core"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth Low Energy stack and configurations
 
@@ -15,15 +15,11 @@ include:
     file_list:
       - path: "sl_bt_stack_config.h"
       - path: "sl_bt_ll_config.h"
-      - path: "sl_bgapi.h"
-      - path: "sli_bgapi.h"
       - path: "sl_bt_api.h"
       - path: "sl_bt_api_compatibility.h"
+      - path: "sli_bt_api.h"
       - path: "sl_bt_stack_init.h"
       - path: "sl_bt_types.h"
-  - path: "bgstack/ll/inc/"
-    file_list:
-      - path: sl_btctrl_linklayer.h
 source:
   - path: "src/sl_bt_stack_init.c"
 template_file:
@@ -53,17 +49,22 @@ template_contribution:
       event: stack_init
       include: "sl_bluetooth.h"
       handler: "sl_bt_init"
-    unless:
-      - "kernel"
     priority: 0
+    unless: [sl_main]
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: "sl_bluetooth.h"
+      handler: "sli_bt_stack_permanent_allocation"
+    priority: 0
+    condition: [sl_main]
   - name: event_handler
     value:
       event: stack_init
-      include: "sl_bt_rtos_adaptation.h"
-      handler: "sl_bt_rtos_init"
-    condition:
-      - "kernel"
-    priority: -1000
+      include: "sl_bluetooth.h"
+      handler: "sli_bt_stack_functional_init"
+    priority: 0
+    condition: [sl_main]
   - name: event_handler
     value:
       event: stack_process_action
@@ -73,16 +74,18 @@ template_contribution:
   - name: application_type
     value: "APPLICATION_TYPE_BLUETOOTH_APP"
 requires:
+  - name: "bluetooth_controller"
   - name: "bluetooth_version"
   - name: "bluetooth_configuration"
   - name: "bluetooth_host_adaptation"
   - name: "bluetooth_host_libraries"
   - name: "bluetooth_gattdb_definition"
+  - name: "bgapi_protocol"
   - name: "hal_system"
   - name: "sleeptimer"
   - name: "rail_lib"
   - name: "rail_util_pa"
-  - name: "rail_util_built_in_phys"
+  - name: "sl_rail_util_built_in_phys"
   - name: "device_supports_bluetooth"
   - name: "component_catalog"
   - name: "power_manager"
@@ -95,18 +98,18 @@ requires:
   - name: "cmsis_rtos2"
     condition:
       - "kernel"
-  - name: "sl_system"
   - name: "sl_assert"
   - name: "memory_manager"
   - name: "memory_profiler_api"
   - name: "bluetooth_device_compatibility"
+  - name: "bluetooth_controller"
 recommends:
-  - id: "librail_singleprotocol"
+  - id: "rail_lib_singleprotocol"
   - id: "bluetooth_host_release_libraries"
+  - id: "bluetooth_controller"
 provides:
   - name: "bluetooth_api"
   - name: "bluetooth_stack"
-  - name: "bluetooth_controller"
   - name: "wireless_stack"
     allow_multiple: true
 metadata:

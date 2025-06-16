@@ -32,12 +32,23 @@
 #include "sl_storage_config.h"
 #include "em_device.h"
 
+#define SERIES_3_BOOTLOADER_SIZE 0x8000UL
+#define SERIES_2_BOOTLOADER_SIZE 0x4000UL
+
 // Handle the case where the user wants to use default storage size.
 #if SL_BOOTLOADER_STORAGE_USE_CUSTOM_SIZE
   #define _SL_BOOTLOADER_STORAGE_SIZE  SL_BOOTLOADER_STORAGE_SIZE
 #else
+  #if defined(FLASH_SIZE) && defined(_SILICON_LABS_32B_SERIES_3)
+// Default storage size is 32 kB less than half the flash size
+    #define _SL_BOOTLOADER_STORAGE_SIZE  ((FLASH_SIZE / 2UL) - SERIES_3_BOOTLOADER_SIZE)
+  #elif defined(FLASH_SIZE) && defined(_SILICON_LABS_32B_SERIES_2)
 // Default storage size is 16 kB less than half the flash size
-  #define _SL_BOOTLOADER_STORAGE_SIZE  ((FLASH_SIZE / 2UL) - 0x4000UL)
+    #define _SL_BOOTLOADER_STORAGE_SIZE  ((FLASH_SIZE / 2UL) - SERIES_2_BOOTLOADER_SIZE)
+  #else
+// Default to predefined storage size if no conditions are met
+    #define _SL_BOOTLOADER_STORAGE_SIZE  SL_BOOTLOADER_STORAGE_SIZE
+  #endif
 #endif
 
 #if defined(__GNUC__)

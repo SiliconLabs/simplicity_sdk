@@ -1,6 +1,6 @@
 id: zigbee_mfglib
 label: Manufacturing Library
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: Manufacturing Library (mfglib) utility. Provides functions that assist in radio testing and calibration.

@@ -104,13 +104,13 @@ int8_t sl_zigbee_af_gpdf_send(uint8_t frameType,
   do {
     sl_zigbee_gpd_rail_write_tx_fifo_wrapper(txMpdu, length);
     sl_zigbee_gpd_rail_idle_wrapper();
-    uint32_t preTxRailTime = RAIL_GetTime();
+    uint32_t preTxRailTime = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
     //
     sl_zigbee_gpd_rail_start_tx_wrapper(gpd->skipCca, gpd->channel);
     sl_zigbee_gpd_rail_idle_wrapper();
     //
     if (gpd->rxAfterTx) {
-      uint32_t txRailDurationUs = RAIL_GetTime() - preTxRailTime;
+      uint32_t txRailDurationUs = sl_rail_get_time(SL_RAIL_EFR32_HANDLE) - preTxRailTime;
       gpdScheduledReceive((((uint32_t)gpd->rxOffset * 1000) - txRailDurationUs),
                           (uint32_t)(gpd->minRxWindow) * 1000,
                           gpd->channel,

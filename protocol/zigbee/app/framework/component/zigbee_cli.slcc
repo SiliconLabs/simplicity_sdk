@@ -1,6 +1,6 @@
 id: zigbee_cli
 label: Zigbee CLI
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component is used to bring in the basic Zigbee CLI functionality

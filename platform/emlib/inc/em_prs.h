@@ -44,7 +44,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup prs
+ * @addtogroup prs PRS - Peripheral Reflex System
  * @{
  ******************************************************************************/
 
@@ -983,6 +983,9 @@ typedef enum {
   prsConsumerVDAC1_ASYNCTRIGCH1  = offsetof(PRS_TypeDef, CONSUMER_VDAC1_ASYNCTRIGCH1),  /**< VDAC1 ASYNC TRIGER CH1 consumer. */
   prsConsumerVDAC1_SYNCTRIGCH0   = offsetof(PRS_TypeDef, CONSUMER_VDAC1_SYNCTRIGCH0),   /**< VDAC1 SYNC TRIGER CH0 consumer. */
   prsConsumerVDAC1_SYNCTRIGCH1   = offsetof(PRS_TypeDef, CONSUMER_VDAC1_SYNCTRIGCH1),   /**< VDAC1 SYNC TRIGER CH1 consumer. */
+#endif
+#if defined(_PRS_CONSUMER_CORE_M33RXEV_MASK)
+  prsConsumerCORE_M33RXEV        = offsetof(PRS_TypeDef, CONSUMER_CORE_M33RXEV),        /**< M33 Consumer Selection. */
 #endif
 } PRS_Consumer_t;
 #endif

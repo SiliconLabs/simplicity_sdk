@@ -66,7 +66,7 @@ _Static_assert(OS_CFG_DBG_EN, "OS_CFG_DBG_EN not enabled, no OS statistics can b
 #endif
 
 #if defined(SL_CATALOG_FREERTOS_KERNEL_PRESENT)
-  _Static_assert(configUSE_TRACE_FACILITY, "configUSE_TRACE_FACILITY not enabled, no OS statistics can be gathered");
+_Static_assert(configUSE_TRACE_FACILITY, "configUSE_TRACE_FACILITY not enabled, no OS statistics can be gathered");
 #endif
 #endif
 // -----------------------------------------------------------------------------
@@ -434,8 +434,8 @@ static void _print_heap_stat(void)
   sl_memory_get_heap_info(&heap.minfo);
 
   // update statistic
-  if (_update_stat(&heap.stat, heap.minfo.free_size, heap.minfo.used_size)) {
 #if APP_OS_STAT_VERBOSE_MODE_ENABLED
+  if (_update_stat(&heap.stat, heap.minfo.free_size, heap.minfo.used_size)) {
     __print_rtt(APP_OS_STAT_HEAP_PRINT_FORMAT,
                 heap.minfo.base_addr,
                 heap.minfo.used_size,
@@ -448,15 +448,16 @@ static void _print_heap_stat(void)
                 heap.minfo.used_block_largest_size,
                 heap.minfo.used_block_smallest_size,
                 heap.stat.max_used);
-#else
-    if (heap.minfo.total_size / 100UL != 0UL) {
-      __print_rtt(APP_OS_STAT_HEAP_PRINT_FORMAT_SHORT,
-                  heap.minfo.base_addr,
-                  heap.minfo.used_size,
-                  heap.minfo.total_size,
-                  heap.minfo.used_size / (heap.minfo.total_size / 100UL));
-    }
-#endif
   }
+#else
+  if (_update_stat(&heap.stat, heap.minfo.free_size, heap.minfo.used_size)
+      && heap.minfo.total_size / 100UL != 0UL) {
+    __print_rtt(APP_OS_STAT_HEAP_PRINT_FORMAT_SHORT,
+                heap.minfo.base_addr,
+                heap.minfo.used_size,
+                heap.minfo.total_size,
+                heap.minfo.used_size / (heap.minfo.total_size / 100UL));
+  }
+#endif
 }
 #endif

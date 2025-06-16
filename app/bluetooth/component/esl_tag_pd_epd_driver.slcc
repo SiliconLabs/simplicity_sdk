@@ -1,5 +1,5 @@
 id: esl_tag_pd_epd_driver
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag e-paper display driver for Pervasive Display
 description: >
   This component is an example of a low-level driver implementation for the

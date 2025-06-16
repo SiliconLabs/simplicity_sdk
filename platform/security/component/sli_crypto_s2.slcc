@@ -1,6 +1,6 @@
 id: sli_crypto_s2
 label: Accelerated Crypto Primitives for Series-2 devices
-package: platform
+package: security_mbedtls
 description: >-
   This component provides hardware accelerated cryptographic primitives for Series-2 devices.
 category: Platform|Security|SLI Crypto

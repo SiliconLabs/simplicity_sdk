@@ -35,7 +35,7 @@
 
 #include "sl_component_catalog.h"
 #include "sl_common.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "rail_config.h"
 #include "sl_rail_util_init.h"
 #include "app_process.h"
@@ -75,41 +75,39 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-
-  set_up_tx_fifo(rail_handle);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Turn OFF LEDs
   clear_receive_led();
   clear_send_led();
 
   // Setup state timings for Auto-ACK
-  RAIL_StateTiming_t timings = { 0 };
-  timings.idleToTx = 100;
-  timings.idleToRx = 100;
-  timings.rxToTx = 192;
-  // Make txToRx a little lower than desired. See documentation on RAIL_ConfigAutoAck.
-  timings.txToRx = 182;
-  timings.rxSearchTimeout = 0;
-  timings.txToRxSearchTimeout = 0;
+  sl_rail_state_timing_t timings = { 0 };
+  timings.idle_to_tx = 100;
+  timings.idle_to_rx = 100;
+  timings.rx_to_tx = 192;
+  // Make tx_to_rx a little lower than desired. See documentation on sl_rail_config_auto_ack.
+  timings.tx_to_rx = 182;
+  timings.rxsearch_timeout = 0;
+  timings.tx_to_rxsearch_timeout = 0;
 
-  status = RAIL_SetStateTiming(rail_handle, &timings);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("After RAIL_SetStateTiming() result: %lu\n ", status);
+  status = sl_rail_set_state_timing(rail_handle, &timings);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("After sl_rail_set_state_timing() result: %lu\n ", status);
   }
 
   // Setup Auto-ACK message
-  RAIL_AutoAckConfig_t autoAckConfig = {
+  sl_rail_auto_ack_config_t autoAckConfig = {
     .enable = true,
-    .ackTimeout = 30000,
+    .ack_timeout_us = 30000,
     // "error" param ignored
-    .rxTransitions = { RAIL_RF_STATE_RX, RAIL_RF_STATE_RX },
+    .rx_transitions = { SL_RAIL_RF_STATE_RX, SL_RAIL_RF_STATE_RX },
     // "error" param ignored
-    .txTransitions = { RAIL_RF_STATE_RX, RAIL_RF_STATE_RX }
+    .tx_transitions = { SL_RAIL_RF_STATE_RX, SL_RAIL_RF_STATE_RX }
   };
 
 #ifdef RAIL0_CHANNEL_GROUP_1_PROFILE_LONG_RANGE
@@ -117,20 +115,27 @@ RAIL_Handle_t app_init(void)
 #else
   uint8_t ackData[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10 };
 #endif
-  status = RAIL_WriteAutoAckFifo(rail_handle, ackData, sizeof(ackData));
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("After RAIL_WriteAutoAckFifo() result: %lu\n", status);
+  status = sl_rail_write_auto_ack_fifo(rail_handle, ackData, sizeof(ackData));
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("After sl_rail_write_auto_ack_fifo() result: %lu\n", status);
   }
   // Enable Auto-ACK
-  status = RAIL_ConfigAutoAck(rail_handle, &autoAckConfig);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("After RAIL_ConfigAutoAck() result: %lu\n", status);
+  status = sl_rail_config_auto_ack(rail_handle, &autoAckConfig);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("After sl_rail_config_auto_ack() result: %lu\n", status);
   }
 
   // CLI info message
   print_sample_app_name("Simple TRX with Auto-ACK");
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

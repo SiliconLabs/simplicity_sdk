@@ -1,16 +1,16 @@
 id: joystick
 label: Joystick
-package: platform
+package: board_drivers
 description: >
-  The Joystick Driver provides an implementation of the Analog Joystick API.
+    The Joystick Driver provides an implementation of the Analog Joystick API.
 
-  This driver supports the Joystick Hardware present on Wireless Pro Kit (BRD4002A)
+    This driver supports the Joystick Hardware present on Wireless Pro Kit (BRD4002A)
 
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/joystick/
 source:
   - path: src/sl_joystick.c
@@ -19,10 +19,10 @@ include:
     file_list:
       - path: sl_joystick.h
 config_file:
-  - path: "config/s2/sl_joystick_config.h"
+  - path: config/s2/sl_joystick_config.h
     file_id: joystick_config
     condition: [device_series_2]
-  - path: "config/s3/sl_joystick_config.h"
+  - path: config/s3/sl_joystick_config.h
     file_id: joystick_config
     condition: [device_series_3]
 provides:

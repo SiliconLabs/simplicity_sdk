@@ -1,6 +1,6 @@
 id: "bluetooth_feature_scanner"
 label: "Scanner Base Feature"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   The Bluetooth scanning component, corresponding to the "scanner" class
   in Bluetooth APIs, is the base of legacy and extended scannings and it
@@ -25,14 +25,6 @@ provides:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_scanner
-  - name: bluetooth_controller_init
-    value:
-      function: sl_btctrl_init_scan()
-    priority: 4
-  - name: bluetooth_controller_init
-    value:
-      function: sl_btctrl_init_scan_ext()
-    priority: 8
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-scanner

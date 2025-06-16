@@ -60,10 +60,10 @@ static const uint8_t cryptoKey[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   clear_receive_led();
 
@@ -77,10 +77,17 @@ RAIL_Handle_t app_init(void)
   sl_rail_sdk_wmbus_frame_crypto5_init();
   sl_rail_sdk_wmbus_frame_crypto5_set_key(cryptoKey);
 
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
-  RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
+  sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

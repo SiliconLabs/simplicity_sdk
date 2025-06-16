@@ -9,8 +9,7 @@
 #include <stdint.h>
 #include <ZAF_types.h>
 /* FUNC_ID_SERIAL_API_SETUP command definitions */
-typedef enum
-{
+typedef enum {
   /**
    * The first 8 commands are given as bit-flags, and when all bits were consumed, a byte-array was created to give
    * more room.
@@ -33,7 +32,7 @@ typedef enum
    */
   SERIAL_API_SETUP_CMD_MAX_LR_TX_PWR_SET          = 3,
   SERIAL_API_SETUP_CMD_MAX_LR_TX_PWR_GET          = 5,
-                        // The values 6 and 7 are unused, but not reserved.
+  // The values 6 and 7 are unused, but not reserved.
   SERIAL_API_SETUP_CMD_TX_GET_MAX_LR_PAYLOAD_SIZE = 17,
   SERIAL_API_SETUP_CMD_TX_POWERLEVEL_SET_16_BIT   = 18,
   SERIAL_API_SETUP_CMD_TX_POWERLEVEL_GET_16_BIT   = 19,
@@ -42,8 +41,7 @@ typedef enum
 } eSerialAPISetupCmd;
 
 /* SERIAL_API_SETUP_CMD_NODEID_BASETYPE_SET definitions */
-typedef enum
-{
+typedef enum {
   SERIAL_API_SETUP_NODEID_BASE_TYPE_8_BIT         = 1,
   SERIAL_API_SETUP_NODEID_BASE_TYPE_16_BIT,
   SERIAL_API_SETUP_NODEID_BASE_TYPE_LAST,
@@ -55,19 +53,19 @@ extern eSerialAPISetupNodeIdBaseType nodeIdBaseType;
 
 /* Macro for retrieving a SerialAPI command nodeID value (8 or 16 bit) at address "pData" */
 /* Increments the input argument "idx" if nodeID is two bytes wide (i.e. 16 bit) */
-#define GET_NODEID(pData, idx) \
-    ( (nodeIdBaseType == SERIAL_API_SETUP_NODEID_BASE_TYPE_16_BIT) ? \
-      ((((uint8_t*)pData)[0] << 8) | ((uint8_t*)pData)[1]) : /* 16 bit, MSB | LSB */ \
-      ((uint8_t*)pData)[0] );                                /* 8 bit */ \
-    do { \
-      if (nodeIdBaseType == SERIAL_API_SETUP_NODEID_BASE_TYPE_16_BIT) \
-      { \
-        idx++; \
-      } \
-    } while (0)
+#define GET_NODEID(pData, idx)                                                       \
+  ( (nodeIdBaseType == SERIAL_API_SETUP_NODEID_BASE_TYPE_16_BIT)                     \
+    ?((((uint8_t*)pData)[0] << 8) | ((uint8_t*)pData)[1])    /* 16 bit, MSB | LSB */ \
+    :((uint8_t*)pData)[0]);                                  /* 8 bit */             \
+  do {                                                                               \
+    if (nodeIdBaseType == SERIAL_API_SETUP_NODEID_BASE_TYPE_16_BIT)                  \
+    {                                                                                \
+      idx++;                                                                         \
+    }                                                                                \
+  } while (0)
 
 #define GET_16BIT_VALUE(pData) \
-    ( ( (uint16_t)((uint8_t*)pData)[0] << 8) | (uint16_t)((uint8_t*)pData)[1] ) /* 16 bit, MSB | LSB */
+  ( ( (uint16_t)((uint8_t*)pData)[0] << 8) | (uint16_t)((uint8_t*)pData)[1])    /* 16 bit, MSB | LSB */
 
 /* Commands minimum length (bytes) */
 #define SERIAL_API_SETUP_CMD_TX_STATUS_REPORT_CMD_LENGTH_MIN    2
@@ -85,12 +83,15 @@ extern eSerialAPISetupNodeIdBaseType nodeIdBaseType;
 #pragma pack(1)
 typedef struct {
   uint8_t   region;
-  uint8_t   zw_classic:1;     ///< the region supports classic Z-Wave
-  uint8_t   zw_lr:1;          ///< the region supports Z-Wave Long Range
-  uint8_t   reserved:6;       ///< reserved for future use
+  uint8_t   zw_classic : 1;     ///< the region supports classic Z-Wave
+  uint8_t   zw_lr : 1;          ///< the region supports Z-Wave Long Range
+  uint8_t   reserved : 6;       ///< reserved for future use
   uint8_t   included_region;  ///< the selected region include this one (e.g. US_LR include US)
 } serial_api_setup_cmd_get_region_info_answer_t;
 #pragma pack(pop)
+/* Indicator that there are still nodes to be queried */
+#define MORE_NODES      0x80
+#define NO_MORE_NODES   0x00
 
 /**
  * Must be called upon receiving a "Node List Command".
@@ -101,6 +102,19 @@ typedef struct {
  */
 void func_id_serial_api_get_init_data(uint8_t inputLength,
                                       const uint8_t *pInputBuffer,
+                                      uint8_t *pOutputBuffer,
+                                      uint8_t *pOutputLength);
+
+/**
+ * Returns bitmask of NLS node IDs
+ * @param[in] inputLength Length of data in input buffer.
+ * @param[in] pInputBuffer Input buffer. First byte should be requested range of nodes.
+ *                         Supported values: 0, 1, 2, etc that corresponds to offset 0, 128, 256, etc in bytes.
+ * @param[out] pOutputBuffer Output buffer, contained of: BITMASK_OFFSET | MORE_NODES | BITMASK_LEN | BITMASK_ARRAY
+ * @param[out] pOutputLength Length of data in output buffer.
+ */
+void func_id_serial_api_get_nls_nodes(uint8_t const inputLength,
+                                      uint8_t const * const pInputBuffer,
                                       uint8_t *pOutputBuffer,
                                       uint8_t *pOutputLength);
 
@@ -176,5 +190,5 @@ void func_id_ZW_RemoveNodeIDFromNetwork (uint8_t inputLength,
  * @param pCallback   pointer to notifcation callback function. Function is called just before deice go into deepsleep
  * @return true if Shutdown process start, else false
  */
-bool InitiateShutdown( ZW_Void_Callback_t pCallback);
+bool InitiateShutdown(ZW_Void_Callback_t pCallback);
 #endif /* APPS_SERIALAPI_CMD_MANAGEMENT_H_ */

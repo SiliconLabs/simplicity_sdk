@@ -38,6 +38,11 @@
 #define led_toggle(led)
 #endif // SL_CATALOG_LED0_PRESENT
 
+#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && (SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0)
+#include "sl_simple_button.h"
+#include "sl_simple_button_instances.h"
+#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT && SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0
+
 #define LED_BLINK_PERIOD_MS          2000
 #define TRANSITION_TIME_DS           20
 #define FINDING_AND_BINDING_DELAY_MS 3000
@@ -57,15 +62,16 @@ static sl_zigbee_af_event_t finding_and_binding_event;
 
 static void commissioning_event_handler(sl_zigbee_af_event_t *event)
 {
+  (void)event;
   sl_status_t status;
 
   if (sl_zigbee_af_network_state() == SL_ZIGBEE_JOINED_NETWORK) {
     sl_zigbee_af_get_command_aps_frame()->sourceEndpoint = SWITCH_ENDPOINT;
     if (lastButton == BUTTON0) {
-      sl_zigbee_af_fill_command_on_off_cluster_toggle();
+      sl_zigbee_af_fill_command_on_off_cluster_toggle()
     } else if (lastButton == BUTTON1) {
       uint8_t nextLevel = (uint8_t)(0xFF & sl_zigbee_get_pseudo_random_number());
-      sl_zigbee_af_fill_command_level_control_cluster_move_to_level(nextLevel, TRANSITION_TIME_DS, 0, 0);
+      sl_zigbee_af_fill_command_level_control_cluster_move_to_level(nextLevel, TRANSITION_TIME_DS, 0, 0)
     }
     status = sl_zigbee_af_send_command_unicast_to_bindings();
     sl_zigbee_app_debug_println("%s: 0x%02X", "Send to bindings", status);
@@ -87,6 +93,8 @@ static void commissioning_event_handler(sl_zigbee_af_event_t *event)
 
 static void led_event_handler(sl_zigbee_af_event_t *event)
 {
+  (void)event;
+
   if (commissioning) {
     if (sl_zigbee_af_network_state() != SL_ZIGBEE_JOINED_NETWORK) {
       led_toggle(COMMISSIONING_STATUS_LED);
@@ -101,6 +109,7 @@ static void led_event_handler(sl_zigbee_af_event_t *event)
 
 static void finding_and_binding_event_handler(sl_zigbee_af_event_t *event)
 {
+  (void)event;
   sl_status_t status = sl_zigbee_af_find_and_bind_initiator_start(SWITCH_ENDPOINT);
   sl_zigbee_app_debug_println("Find and bind initiator %s: 0x%02X", "start", status);
 }
@@ -153,6 +162,10 @@ void sl_zigbee_af_network_steering_complete_cb(sl_status_t status,
                                                uint8_t joinAttempts,
                                                uint8_t finalState)
 {
+  (void)totalBeacons;
+  (void)joinAttempts;
+  (void)finalState;
+
   sl_zigbee_app_debug_println("%s network %s: 0x%02X", "Join", "complete", status);
 
   if (status != SL_STATUS_OK) {
@@ -179,6 +192,10 @@ void sl_zigbee_af_zll_commissioning_common_touch_link_complete_cb(const sl_zigbe
                                                                   uint8_t deviceInformationRecordCount,
                                                                   const sl_zigbee_zll_device_info_record_t *deviceInformationRecordList)
 {
+  (void)networkInfo;
+  (void)deviceInformationRecordCount;
+  (void)deviceInformationRecordList;
+
   sl_zigbee_app_debug_println("%s network %s: 0x%02X",
                               "Touchlink",
                               "complete",
@@ -197,6 +214,8 @@ void sl_zigbee_af_zll_commissioning_common_touch_link_complete_cb(const sl_zigbe
  */
 void sl_zigbee_af_zll_commissioning_client_touch_link_failed_cb(sl_zigbee_af_zll_commissioning_status_t status)
 {
+  (void)status;
+
   sl_zigbee_app_debug_println("%s network %s: 0x%02X",
                               "Touchlink",
                               "complete",
@@ -232,9 +251,6 @@ void sl_zigbee_af_radio_needs_calibrating_cb(void)
 #endif //SL_CATALOG_ZIGBEE_EZSP_PRESENT
 
 #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && (SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0)
-#include "sl_simple_button.h"
-#include "sl_simple_button_instances.h"
-
 /***************************************************************************//**
  * A callback called in interrupt context whenever a button changes its state.
  *
@@ -254,11 +270,9 @@ void sl_button_on_change(const sl_button_t *handle)
       lastButton = BUTTON0;
       sl_zigbee_af_event_set_active(&commissioning_event);
     }
-  } else if (SL_SIMPLE_BUTTON_INSTANCE(BUTTON1) == handle) {
-    if ( sl_button_get_state(handle) == SL_SIMPLE_BUTTON_RELEASED) {
-      lastButton = BUTTON1;
-      sl_zigbee_af_event_set_active(&commissioning_event);
-    }
+  } else if (SL_SIMPLE_BUTTON_INSTANCE(BUTTON1) == handle || sl_button_get_state(handle) == SL_SIMPLE_BUTTON_RELEASED) {
+    lastButton = BUTTON1;
+    sl_zigbee_af_event_set_active(&commissioning_event);
   }
 }
 #endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT && SL_ZIGBEE_APP_FRAMEWORK_USE_BUTTON_TO_STAY_AWAKE == 0

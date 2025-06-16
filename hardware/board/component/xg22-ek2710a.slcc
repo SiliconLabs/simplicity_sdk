@@ -1,7 +1,7 @@
 !!omap
 - id: xg22_ek2710a
 - label: XG22-EK2710A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG22E Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

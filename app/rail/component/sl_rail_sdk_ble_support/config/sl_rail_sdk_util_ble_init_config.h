@@ -31,7 +31,7 @@
 #ifndef SL_RAIL_SDK_UTIL_BLE_INIT_CONFIG_H
 #define SL_RAIL_SDK_UTIL_BLE_INIT_CONFIG_H
 
-#include "rail_types.h"
+#include "sl_rail_types.h"
 #include "sl_rail_sdk_util_ble_protocol_types.h"
 
 // <<< Use Configuration Wizard in Context Menu >>>
@@ -110,10 +110,10 @@
 // </e>
 
 // <h> Calibration Notifications
-// <q SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_BLE_ENABLE> Enable Temperature Calibration Notifications (RAIL_EVENT_CAL_NEEDED radio event issued when temperature calibrations needed, for example VCO calibration)
+// <q SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_BLE_ENABLE> Enable Temperature Calibration Notifications (SL_RAIL_EVENT_CAL_NEEDED radio event issued when temperature calibrations needed, for example VCO calibration)
 // <i> Default: 0
 #define SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_BLE_ENABLE 0
-// <q SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_BLE_ENABLE> Enable One-time Calibration Notifications (RAIL_EVENT_CAL_NEEDED radio event issued when one-time calibrations needed, for example IR calibration)
+// <q SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_BLE_ENABLE> Enable One-time Calibration Notifications (SL_RAIL_EVENT_CAL_NEEDED radio event issued when one-time calibrations needed, for example IR calibration)
 // <i> Default: 0
 #define SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_BLE_ENABLE 0
 // </h>
@@ -125,29 +125,29 @@
 
 // <h> TX Transitions
 // <o SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_SUCCESS> Transition on TX Success
-// <RAIL_RF_STATE_RX=> RX
-// <RAIL_RF_STATE_IDLE=> Idle
-// <i> Default: RAIL_RF_STATE_IDLE
-#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_SUCCESS  RAIL_RF_STATE_RX
+// <SL_RAIL_RF_STATE_RX=> RX
+// <SL_RAIL_RF_STATE_IDLE=> Idle
+// <i> Default: SL_RAIL_RF_STATE_IDLE
+#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_SUCCESS  SL_RAIL_RF_STATE_RX
 // <o SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_ERROR> Transition on TX Error
-// <RAIL_RF_STATE_RX=> RX
-// <RAIL_RF_STATE_IDLE=> Idle
-// <i> Default: RAIL_RF_STATE_IDLE
-#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_ERROR  RAIL_RF_STATE_RX
+// <SL_RAIL_RF_STATE_RX=> RX
+// <SL_RAIL_RF_STATE_IDLE=> Idle
+// <i> Default: SL_RAIL_RF_STATE_IDLE
+#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_TX_ERROR  SL_RAIL_RF_STATE_RX
 // </h>
 
 // <h> RX Transitions
 // <o SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_SUCCESS> Transition on RX Success
-// <RAIL_RF_STATE_RX=> RX
-// <RAIL_RF_STATE_TX=> TX
-// <RAIL_RF_STATE_IDLE=> Idle
-// <i> Default: RAIL_RF_STATE_IDLE
-#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_SUCCESS  RAIL_RF_STATE_RX
+// <SL_RAIL_RF_STATE_RX=> RX
+// <SL_RAIL_RF_STATE_TX=> TX
+// <SL_RAIL_RF_STATE_IDLE=> Idle
+// <i> Default: SL_RAIL_RF_STATE_IDLE
+#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_SUCCESS  SL_RAIL_RF_STATE_RX
 // <o SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_ERROR> Transition on RX Error
-// <RAIL_RF_STATE_RX=> RX
-// <RAIL_RF_STATE_IDLE=> Idle
-// <i> Default: RAIL_RF_STATE_IDLE
-#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_ERROR  RAIL_RF_STATE_RX
+// <SL_RAIL_RF_STATE_RX=> RX
+// <SL_RAIL_RF_STATE_IDLE=> Idle
+// <i> Default: SL_RAIL_RF_STATE_IDLE
+#define SL_RAIL_UTIL_INIT_TRANSITION_BLE_RX_ERROR  SL_RAIL_RF_STATE_RX
 // </h>
 
 // <e SL_RAIL_UTIL_INIT_DATA_FORMATS_BLE_ENABLE> Data Format Configuration
@@ -159,12 +159,12 @@
 // <o SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_SOURCE> Source of TX Data
 // <TX_PACKET_DATA=> Use frame hardware to packetize data
 // <i> Default: TX_PACKET_DATA
-#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_SOURCE  TX_PACKET_DATA
+#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_SOURCE  SL_RAIL_TX_DATA_SOURCE_PACKET_DATA
 // <o SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_MODE> Method of Providing TX Data
 // <PACKET_MODE=> Packet Mode
 // <FIFO_MODE=> FIFO Mode
 // <i> Default: PACKET_MODE
-#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_MODE  PACKET_MODE
+#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_TX_MODE  SL_RAIL_DATA_METHOD_PACKET_MODE
 // </h>
 
 // <h> RX Data
@@ -174,12 +174,12 @@
 // <RX_IQDATA_FILTLSB=> Get lowest 16 bits of I/Q data provided to demodulator
 // <RX_IQDATA_FILTMSB=> Get highest 16 bits of I/Q data provided to demodulator
 // <i> Default: RX_PACKET_DATA
-#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_RX_SOURCE  RX_PACKET_DATA
+#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_RX_SOURCE  SL_RAIL_RX_DATA_SOURCE_PACKET_DATA
 // <o SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_RX_MODE> Method of Retrieving RX Data
 // <PACKET_MODE=> Packet Mode
 // <FIFO_MODE=> FIFO Mode
 // <i> Default: PACKET_MODE
-#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_RX_MODE  PACKET_MODE
+#define SL_RAIL_UTIL_INIT_DATA_FORMAT_BLE_RX_MODE  SL_RAIL_DATA_METHOD_PACKET_MODE
 // </h>
 
 // <e SL_RAIL_UTIL_INIT_EVENTS_BLE_ENABLE> Radio Event Configuration
@@ -200,12 +200,6 @@
 // <q SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_LOST_BLE_ENABLE> RX Preamble Lost
 // <i> Default: 0
 #define SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_LOST_BLE_ENABLE 1
-// <q SL_RAIL_UTIL_INIT_EVENT_RX_SYNC1_DETECT_BLE_ENABLE> RX Sync1 Detect
-// <i> Default: 0
-#define SL_RAIL_UTIL_INIT_EVENT_RX_SYNC1_DETECT_BLE_ENABLE 0
-// <q SL_RAIL_UTIL_INIT_EVENT_RX_SYNC2_DETECT_BLE_ENABLE> RX Sync2 Detect
-// <i> Default: 0
-#define SL_RAIL_UTIL_INIT_EVENT_RX_SYNC2_DETECT_BLE_ENABLE 0
 // <q SL_RAIL_UTIL_INIT_EVENT_RX_FILTER_PASSED_BLE_ENABLE> RX Filter Passed
 // <i> Default: 0
 #define SL_RAIL_UTIL_INIT_EVENT_RX_FILTER_PASSED_BLE_ENABLE 0

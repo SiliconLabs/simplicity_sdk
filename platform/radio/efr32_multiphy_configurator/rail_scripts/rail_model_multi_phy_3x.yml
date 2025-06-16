@@ -74,7 +74,9 @@ RAILModel:
                               - RAILModelInfo:
                                   name: modemConfigEntryBase
                               - RAILModelInfo:
-                                  name: modemConfigEntrySubtract
+                                  name: modemConfigEntryCommonBase
+                              - RAILModelInfo:
+                                  name: modemConfigGroupEntry
                               - RAILModelInfo:
                                   name: entryType
                               - RAILModelInfo:
@@ -87,6 +89,19 @@ RAILModel:
                                   name: bchLut
                               - RAILModelInfo:
                                   name: alternatePhy
+
+                              - RAILModelObjectArray:
+                                  name: channelConfigGroups
+                                  _elements:
+                                    - RAILModelStruct:
+                                        name: channelConfigGroup
+                                        _fields:
+                                          - name: modemConfigGroup
+                                            dataType: FieldDataType.UINT32_T
+                                            isPtr: True
+                                          - name: modemConfigGroupLength
+                                            dataType: FieldDataType.UINT32_T
+                                            isPtr: False
 
                   - RAILModelObjectArray:
                       name: channelConfigEntries
@@ -101,6 +116,12 @@ RAILModel:
                                 dataType: FieldDataType.UINT32_T
                                 isPtr: True
                               - name: modemConfigDeltaAddLength
+                                dataType: FieldDataType.UINT32_T
+                                isPtr: False
+                              - name: channelConfigGroups
+                                dataType: FieldDataType.UINT32_T
+                                isPtr: True
+                              - name: channelConfigGroupsLength
                                 dataType: FieldDataType.UINT32_T
                                 isPtr: False
                               - name: baseFrequency
@@ -143,10 +164,10 @@ RAILModel:
                         - name: modemConfigBaseLength
                           dataType: FieldDataType.UINT32_T
                           isPtr: False
-                        - name: modemConfigDeltaSubtract
+                        - name: modemConfigCommonBase
                           dataType: FieldDataType.UINT32_T
                           isPtr: True
-                        - name: modemConfigDeltaSubtractLength
+                        - name: modemConfigCommonBaseLength
                           dataType: FieldDataType.UINT32_T
                           isPtr: False
                         - name: channelConfigEntries
@@ -382,6 +403,8 @@ RAILModel:
                               - name: modemTxCompensation
                                 dataType: FieldDataType.INT16_T
                                 isPtr: True
+                              - name: trecsPreBitsToSync
+                                dataType: FieldDataType.UINT32_T
 
             - RAILModelObjectArray:
                 name: modemConfigEntries
@@ -413,7 +436,13 @@ RAILModel:
                       *modemConfig
 
             - RAILModelObjectArray:
-                name: modemConfigEntriesSubtract
+                name: modemConfigEntriesCommonBase
+                _elements:
+                  - RAILModelObjectArray:
+                      *modemConfig
+
+            - RAILModelObjectArray:
+                name: modemConfigGroupEntries
                 _elements:
                   - RAILModelObjectArray:
                       *modemConfig

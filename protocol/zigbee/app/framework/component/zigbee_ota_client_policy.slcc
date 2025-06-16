@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This sample implementation shows how to define the policies of the Zigbee Over-the-air bootload cluster client (a multi-hop, application bootloader). It allows the implementor to decide what manufacturer ID, image type ID, and file version information is used when querying the server. It also defines callbacks, such as download complete and ready to bootload.
 label: OTA Bootload Cluster Client Policy
 quality: production

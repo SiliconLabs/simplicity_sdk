@@ -1,6 +1,6 @@
 id: zigbee_pro_router_stack_basic
 label: Pro Router Stack (Basic)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: evaluation
 description: Use the basic Zigbee PRO stack specifically for router devices (does not support high datarate phy or RAIL MUX, and stubs out code routers do not use).

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component that provides common functionalities between client and server sides of the Green Power components.
 label: Green Power Common
 quality: production

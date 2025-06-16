@@ -1,6 +1,6 @@
 id: legacy_common_ash
 label: Legacy Common ASH
-package: platform
+package: zigbee
 category: Services|Ember Legacy
 description: Legacy Ember ASH implementation common to both NCP and Host.
 quality: production

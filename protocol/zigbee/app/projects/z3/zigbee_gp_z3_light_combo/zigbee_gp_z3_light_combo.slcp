@@ -1,16 +1,18 @@
 project_name: zigbee_gp_z3_light_combo
 label: Zigbee GP - Z3LightCombo
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 description: This is a Zigbee 3.0 light application with Green Power endpoint, Green Power Proxy and Sink functionality.
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
-  - id: iostream_recommended_stream
+  - id: iostream_recommended_console
+  - id: zigbee_debug_basic
   - id: zigbee_debug_print
   - id: zigbee_pro_stack
   - id: zigbee_source_route
@@ -53,7 +55,6 @@ component:
   - id: simple_led
     instance:
       - led0
-      - led1
   - id: simple_button
     instance:
       - btn0
@@ -61,8 +62,8 @@ component:
   - id: zigbee_multirail_demo
   - id: zigbee_packet_handoff
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_ZIGBEE_GP_PROXY_TABLE_SIZE
@@ -110,9 +111,27 @@ configuration:
     value: 600
     condition:
       - cmsis_rtos2
+  # On series 3, the bootloader requires more stack to do context parsing of OTA images
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS
+    value: 2000
+    condition:
+      - device_series_3
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -226,11 +245,11 @@ template_contribution:
       - zigbee_multirail_demo
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

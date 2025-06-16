@@ -41,15 +41,18 @@
 #include "sl_component_catalog.h"
 #include "app_process.h"
 #include "sl_rail_sdk_simple_assistance.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_simple_button_instances.h"
 #include "sl_rail_sdk_packet_asm.h"
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
+  #include "sl_rail_sdk_util_802154_init.h"
   #include "sl_rail_sdk_util_802154_protocol_types.h"
   #include "sl_rail_sdk_util_802154_init_config.h"
   #include "sl_rail_sdk_ieee802154_config.h"
   #include "sl_rail_sdk_ieee802154_support.h"
 #elif defined SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
+  #include "sl_rail_sdk_util_ble_init.h"
+  #include "sl_rail_sdk_util_ble_protocol.h"
   #include "sl_rail_sdk_util_ble_protocol_config.h"
   #include "sl_rail_sdk_util_ble_init_config.h"
 #else
@@ -59,19 +62,13 @@
 #include "app_task_init.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 #include "sl_rail_sdk_fifo_size_config.h"
+#include "sl_code_classification.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-/// Size of the FIFO buffers
-#ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
-  #define RAIL_FIFO_SIZE                    (SL_RAIL_SDK_FRAME_MAX_SIZE)
-#else
-  #define RAIL_FIFO_SIZE                    (SL_RAIL_SDK_RX_FIFO_SIZE)
-#endif
 /// Size of sending data
 #define RAIL_PAYLOAD_DATA_SIZE            (17U)
 #ifdef SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
@@ -87,7 +84,7 @@
  *
  * @param[in] rail_handle     Handle to the RAIL context
  *****************************************************************************/
-static void start_receiving(RAIL_Handle_t rail_handle);
+static void start_receiving(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Transmits the data packet.
@@ -96,15 +93,15 @@ static void start_receiving(RAIL_Handle_t rail_handle);
  * @param[in] packet      The packet that is desired to send
  * @param[in] rail_handle The size of the packet
  *****************************************************************************/
-static void handle_transmit(RAIL_Handle_t rail_handle);
+static void handle_transmit(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Checks the received packet (data or ACK).
  *
  * @param[in] rail_handle     Handle to the RAIL context
- * @return RAIL_RxPacketHandle_t
+ * @return sl_rail_rx_packet_handle_t
  *****************************************************************************/
-static void handle_receive(RAIL_Handle_t rail_handle);
+static void handle_receive(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Handle errors detected in RAIL events.
@@ -178,18 +175,15 @@ static sl_rail_sdk_ieee802154_frame_t tx_frame = {
 /// The variable shows the actual state of the state machine
 static volatile state_t state = S_IDLE;
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = 0;
+static volatile sl_rail_status_t calibration_status = 0;
 /// RAIL Rx packet handle
-// static volatile RAIL_RxPacketHandle_t rx_packet_handle;
-/// Receive app buffer
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_app_buff[RAIL_FIFO_SIZE];
-/// Transmit FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[RAIL_FIFO_SIZE];
-/// Transmit FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[RAIL_FIFO_SIZE];
+// static volatile sl_rail_rx_packet_handle_t rx_packet_handle;
 
+/// Receive app buffer
+static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_app_buff[SL_RAIL_SDK_RX_FIFO_SIZE];
 /// Transmit app buffer
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_app_buff[RAIL_FIFO_SIZE];
+static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_app_buff[SL_RAIL_SDK_TX_FIFO_SIZE];
+
 /// Sending data (payload)
 static const __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_payload_data[RAIL_PAYLOAD_DATA_SIZE] = {
   0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -198,7 +192,7 @@ static const __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_payload_data[RAIL_PAYLOAD
 /// Notify RAIL Tx, Rx calibration error
 static bool rail_error = false;
 /// Copy of last RAIL events to process
-static RAIL_Events_t rail_last_state = RAIL_EVENTS_NONE;
+static sl_rail_events_t rail_last_state = SL_RAIL_EVENTS_NONE;
 /// Notify end of packet transmission
 static bool rail_packet_sent = false;
 /// Notify reception of packet
@@ -209,32 +203,15 @@ static bool start_rx = true;
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-/******************************************************************************
- * Initialization of RAIL TX FIFO
- *****************************************************************************/
-int16_t app_set_rail_tx_fifo(RAIL_Handle_t rail_handle)
-{
-  // RAIL FIFO size allocated by RAIL_SetTxFifo() call
-  uint16_t allocated_tx_fifo_size = 0;
-
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle, tx_fifo,
-                                          0U, RAIL_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == RAIL_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo"
-             " (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size, RAIL_FIFO_SIZE);
-  if (allocated_tx_fifo_size != RAIL_FIFO_SIZE) {
-    return -1;
-  }
-
-  return 0;
-}
 
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_sdk_util_get_handle();
+
   // Handle errors if pending
   if (rail_error) {
     rail_error = false;
@@ -291,7 +268,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
       // if any change comes, it goes into S_INIT state and performs the changes
       if (sl_rail_sdk_ieee802154_is_change_requested(&cli_requests)) {
-        RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, true);
+        sl_rail_idle(rail_handle, SL_RAIL_IDLE_ABORT, true);
         state = S_INIT;
 #if defined(SL_CATALOG_KERNEL_PRESENT)
         app_task_notify();
@@ -337,7 +314,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
 }
 
-void app_process_init(RAIL_Handle_t rail_handle)
+void app_process_init(sl_rail_handle_t rail_handle)
 {
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
   sl_rail_sdk_ieee802154_protocol_init(rail_handle, SL_RAIL_SDK_UTIL_INIT_PROTOCOL_INSTANCE_DEFAULT);
@@ -349,62 +326,44 @@ void app_process_init(RAIL_Handle_t rail_handle)
 }
 
 /******************************************************************************
- * RAIL callback, called while the RAIL is initializing.
- *****************************************************************************/
-RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle)
-{
-  uint16_t rxFifoSize = RAIL_FIFO_SIZE;
-  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, &rx_fifo[0], &rxFifoSize);
-  if (rxFifoSize != RAIL_FIFO_SIZE) {
-    // We set up an incorrect FIFO size
-    return RAIL_STATUS_INVALID_PARAMETER;
-  }
-  if (status == RAIL_STATUS_INVALID_STATE) {
-    // Allow failures due to multiprotocol
-    return RAIL_STATUS_NO_ERROR;
-  }
-  return status;
-}
-
-/******************************************************************************
  * RAIL callback, called if any RAIL event occurs.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   // Make a copy of the events
   rail_last_state = events;
 
   // Handle Rx events
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer,
       // download it later at the state machine
-      (void)RAIL_HoldRxPacket(rail_handle);
+      (void)sl_rail_hold_rx_packet(rail_handle);
       rail_packet_received = true;
     } else {
       rail_error = true;
     }
   }
   // Handle Tx events
-  if ( events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       rail_packet_sent = true;
     } else {
       rail_error = true;
     }
   }
 
-  if (events & RAIL_EVENTS_TXACK_COMPLETION ) {
-    if (events & RAIL_EVENT_TXACK_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TXACK_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_TXACK_PACKET_SENT) {
     } else {
       rail_error = true;
     }
   }
 
   // Perform all calibrations when needed
-  if ( events & RAIL_EVENT_CAL_NEEDED ) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL, RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
+  if ( events & SL_RAIL_EVENT_CAL_NEEDED ) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL, SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
       rail_error = true;
     }
   }
@@ -416,7 +375,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 /******************************************************************************
  * Button callback, called if any button is pressed or released.
  *****************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
     tx_requested = true;
@@ -432,9 +391,9 @@ void sl_button_on_change(const sl_button_t *handle)
 /*******************************************************************************
  * Use RAIL to transmit a data packet
  ******************************************************************************/
-static void handle_transmit(RAIL_Handle_t rail_handle)
+static void handle_transmit(sl_rail_handle_t rail_handle)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
 #ifdef SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
   sl_rail_sdk_ble_advertising_packet_t *ble_send_packet;
 #endif
@@ -455,7 +414,7 @@ static void handle_transmit(RAIL_Handle_t rail_handle)
   // Send packet
   // sets the tx options based on the current ACK settings (auto-ACK enabled?)
   status = sl_rail_sdk_ieee802154_transmission(rail_handle, tx_app_buff, packet_size);
-  if (status != RAIL_STATUS_NO_ERROR) {
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_warning("sl_rail_sdk_ieee802154_transmission() status: %lu\n", status);
   }
 
@@ -468,13 +427,13 @@ static void handle_transmit(RAIL_Handle_t rail_handle)
   printf_ble_packet(ble_send_packet);
 
   // Send Packet
-  status = RAIL_WriteTxFifo(rail_handle, tx_app_buff, packet_size, true);
+  status = sl_rail_write_tx_fifo(rail_handle, tx_app_buff, packet_size, true);
   if (status != packet_size) {
-    app_log_warning("BLE RAIL_WriteTxFifo status: %lu\n", status);
+    app_log_warning("BLE sl_rail_write_tx_fifo status: %lu\n", status);
   }
-  status = RAIL_StartTx(rail_handle, BLE_CHANNEL, RAIL_TX_OPTIONS_DEFAULT, NULL);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("BLE RAIL_StartTx status: %lu\n", status);
+  status = sl_rail_start_tx(rail_handle, BLE_CHANNEL, SL_RAIL_TX_OPTIONS_DEFAULT, NULL);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("BLE sl_rail_start_tx status: %lu\n", status);
   }
   #else
 #endif
@@ -483,19 +442,19 @@ static void handle_transmit(RAIL_Handle_t rail_handle)
 /*******************************************************************************
  * Use RAIL to start listening for radio packets
  ******************************************************************************/
-static void start_receiving(RAIL_Handle_t rail_handle)
+static void start_receiving(sl_rail_handle_t rail_handle)
 {
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
 
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
-  rail_status = RAIL_StartRx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
+  rail_status = sl_rail_start_rx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
 #elif defined SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
-  rail_status = RAIL_StartRx(rail_handle, BLE_CHANNEL, NULL);
+  rail_status = sl_rail_start_rx(rail_handle, BLE_CHANNEL, NULL);
 #else
 #endif
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_StartRx() result: %lu\n",
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_start_rx() result: %lu\n",
                     rail_status);
   }
 }
@@ -503,12 +462,12 @@ static void start_receiving(RAIL_Handle_t rail_handle)
 /*******************************************************************************
  * Handle received packets in loop
  ******************************************************************************/
-static void handle_receive(RAIL_Handle_t rail_handle)
+static void handle_receive(sl_rail_handle_t rail_handle)
 {
-  RAIL_RxPacketHandle_t rx_packet_handle;
-  RAIL_RxPacketDetails_t packet_details;
-  RAIL_RxPacketInfo_t packet_info;
-  RAIL_Status_t rail_status;
+  sl_rail_rx_packet_handle_t rx_packet_handle;
+  sl_rail_rx_packet_details_t packet_details;
+  sl_rail_rx_packet_info_t packet_info;
+  sl_rail_status_t rail_status;
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
   int16_t res = SL_RAIL_SDK_IEEE802154_ERROR;
 #endif
@@ -517,24 +476,24 @@ static void handle_receive(RAIL_Handle_t rail_handle)
 #endif
 
   do {
-    rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+    rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
 
-    if (rx_packet_handle == RAIL_RX_PACKET_HANDLE_INVALID) {
+    if (rx_packet_handle == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
       break;
     }
 
-    (void)RAIL_GetRxPacketDetails(rail_handle, rx_packet_handle, &packet_details);
+    (void)sl_rail_get_rx_packet_details(rail_handle, rx_packet_handle, &packet_details);
     // copies the data in the RX Buffer
-    RAIL_CopyRxPacket(rx_app_buff, &packet_info);
+    rail_status = sl_rail_copy_rx_packet(rail_handle, rx_app_buff, &packet_info);
     // after the copy of the packet, the RX packet can be release for RAIL
-    rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_ReleaseRxPacket() result: %lu\n", rail_status);
+    rail_status = sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_release_rx_packet() result: %lu\n", rail_status);
     }
 
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
     // Is it a ACK or a data frame
-    if (packet_details.isAck) {
+    if (packet_details.is_ack) {
       app_log_info("ACK received\n");
       // prints the received ACK frame
       sl_rail_sdk_ieee802154_print_ack(sl_rail_sdk_ieee802154_get_std(), rx_app_buff);
@@ -543,7 +502,7 @@ static void handle_receive(RAIL_Handle_t rail_handle)
       res = sl_rail_sdk_ieee802154_unpack_data_frame(sl_rail_sdk_ieee802154_get_std(),
                                                      &rx_frame,
                                                      rx_app_buff,
-                                                     RAIL_FIFO_SIZE);
+                                                     SL_RAIL_SDK_RX_FIFO_SIZE);
       // prints the received data based on the standard
       if (rx_requested && (res == SL_RAIL_SDK_IEEE802154_OK)) {
         sl_rail_sdk_ieee802154_print_frame(sl_rail_sdk_ieee802154_get_std(), &rx_frame);
@@ -569,7 +528,7 @@ static void handle_receive(RAIL_Handle_t rail_handle)
                               sl_rail_sdk_ble_get_payload_len(ble_recv_packet));
     }
 #endif
-  } while (rx_packet_handle != RAIL_RX_PACKET_HANDLE_INVALID);
+  } while (rx_packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID);
 }
 
 /*******************************************************************************
@@ -578,17 +537,17 @@ static void handle_receive(RAIL_Handle_t rail_handle)
 static void handle_error_state(void)
 {
   // Handle Rx error
-  if (rail_last_state & RAIL_EVENTS_RX_COMPLETION) {
+  if (rail_last_state & SL_RAIL_EVENTS_RX_COMPLETION) {
     app_log_error("Radio RX Error occurred\nEvents: %lld\n", rail_last_state);
     // Handle Tx error
-  } else if (rail_last_state & RAIL_EVENTS_TX_COMPLETION) {
+  } else if (rail_last_state & SL_RAIL_EVENTS_TX_COMPLETION) {
     app_log_error("Radio TX Error occurred\nEvents: %lld\n", rail_last_state);
     // Handle calibration error
   } else if (rail_last_state & RAIL_EVENT_CAL_NEEDED) {
-    app_log_warning("Radio Calibr. Error occurred\nEvents: %lld\nRAIL_Calibrate() result:%d\n",
+    app_log_warning("Radio Calibr. Error occurred\nEvents: %lld\nsl_rail_calibrate() result:%ld\n",
                     rail_last_state,
                     calibration_status);
-  } else if (rail_last_state & RAIL_EVENTS_TXACK_COMPLETION) {
+  } else if (rail_last_state & SL_RAIL_EVENTS_TXACK_COMPLETION) {
     app_log_error("ACK TX Error occurred\nEvents: %lld\n", rail_last_state);
   }
   start_rx = true;
@@ -603,10 +562,10 @@ static void printf_ble_packet(const sl_rail_sdk_ble_advertising_packet_t *packet
   uint32_t packet_size = sl_rail_sdk_ble_get_packet_size(packet);
   uint32_t payload_len = sl_rail_sdk_ble_get_payload_len(packet);
   uint8_t *packet_byte;
-  app_log_info("BLE Packet: (size = %d) (payload_len = %d) {\n", packet_size, payload_len);
+  app_log_info("BLE Packet: (size = %ld) (payload_len = %ld) {\n", packet_size, payload_len);
   for (uint32_t i = 0; i < packet_size; ++i) {
     packet_byte = (uint8_t *)packet + i;
-    app_log_info("[%d] -> 0x%02X\n", i, *packet_byte);
+    app_log_info("[%ld] -> 0x%02X\n", i, *packet_byte);
   }
   app_log_info("}\n");
 }

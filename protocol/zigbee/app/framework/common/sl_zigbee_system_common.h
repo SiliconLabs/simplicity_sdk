@@ -51,8 +51,16 @@ bool sli_zigbee_stack_is_ok_to_sleep(void);
 extern void sli_zigbee_stack_rtos_task_init_cb(void);
 extern void sli_zigbee_app_framework_rtos_task_init_cb(void);
 
+extern void sli_zigbee_stack_rtos_perm_allocation(void);
+extern void sli_zigbee_app_framework_rtos_perm_allocation(void);
+
 uint32_t sli_zigbee_app_framework_set_pm_requirements_and_get_ms_to_next_wakeup(void);
 uint32_t sli_zigbee_stack_get_ms_to_next_wakeup(void);
+
+#ifdef SL_CATALOG_HIGH_DATARATE_PHY_PRESENT
+// permanent rx_fifo allocation
+void sli_mac_hdr_phy_rx_fifo_initialize(void);
+#endif
 
 #ifdef SL_CATALOG_ZIGBEE_FORCE_SLEEP_AND_WAKEUP_PRESENT
 bool sli_zigbee_stack_is_force_sleep(void);

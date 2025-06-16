@@ -405,17 +405,19 @@ def check_util_exist(util_name, env):
     match_err = re.search(result_re, cmd_result)
     if match_err:
         if os.environ[env] is not None:
-            print(lvl.WARN,f"{util_name} not found in PATH!")
             p = reformat_path(os.environ[env])
-            for root, files in os.walk(p):
-                for f in files:
-                    if f.endswith(util_name) and os.access(os.path.join(root, f), os.X_OK):
-                        f = os.path.join(root, f)
-                        p = reformat_path(f)
-                        print(lvl.OKAY,"Using " + ansi.gn + f"{env}" + ansi.cl + f" instead: {p}")
-                        return p
-            print(lvl.ERR, f"Could not find {util_name}!")
-            return None
+            try:
+                for root, files in os.walk(p):
+                    for f in files:
+                        if f.endswith(util_name) and os.access(os.path.join(root, f), os.X_OK):
+                            f = os.path.join(root, f)
+                            print(lvl.WARN,f"{util_name} not found in PATH!")
+                            p = reformat_path(f)
+                            print(lvl.OKAY,"Using " + ansi.gn + f"{env}" + ansi.cl + f" instead: {p}")
+                            return p
+            except:
+                print(lvl.ERR, f"Could not find {util_name}!")
+                return None
     else:
         p = reformat_path(cmd_result)
         print(lvl.OKAY, f"{util_name} detected: {p}")
@@ -962,12 +964,18 @@ def main():
     if res is not None:
         COMMANDER = res
     else:
+        print(lvl.INFO,"Use PATH_SCMD env var to override default path for Simplicity Commander.")
+        print(lvl.INFO,"Please refer to AN1086 sections 2.3 and 3.3.2 on how to set the required")
+        print(lvl.INFO,"environmental variables.")
         sys.exit(1)
 
     res = check_util_exist('arm-none-eabi-objcopy', 'PATH_GCCARM')
     if res is not None:
         OBJCOPY = res
     else:
+        print(lvl.INFO,"Use PATH_GCCARM env var to override default path for gcc-arm.")
+        print(lvl.INFO,"Please refer to AN1086 sections 2.3 and 3.3.2 on how to set the required")
+        print(lvl.INFO,"environmental variables.")
         sys.exit(1)
 
     builtins.print("")

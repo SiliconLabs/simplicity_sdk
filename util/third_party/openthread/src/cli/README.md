@@ -21,6 +21,7 @@ Done
 
 ## OpenThread Command List
 
+- [attachtime](#attachtime)
 - [ba](#ba)
 - [bbr](#bbr)
 - [br](README_BR.md)
@@ -119,6 +120,7 @@ Done
 - [sntp](#sntp-query-sntp-server-ip-sntp-server-port)
 - [state](#state)
 - [srp](README_SRP.md)
+- [targetpower](#targetpower-channel-targetpower)
 - [tcat](README_TCAT.md)
 - [tcp](README_TCP.md)
 - [test](#test-tmforiginfilter-enabledisable)
@@ -136,6 +138,18 @@ Done
 - [wakeup](#wakeup-channel)
 
 ## OpenThread Command Details
+
+### attachtime
+
+Prints the attach time (duration since device was last attached).
+
+Duration is formatted as `{hh}:{mm}:{ss}` for hours, minutes, and seconds if it is less than one day. If the duration is longer than one day, the format is `{dd}d.{hh}:{mm}:{ss}`.
+
+```bash
+> attachtime
+01:38:25
+Done
+```
 
 ### bbr
 
@@ -347,9 +361,32 @@ Done
 
 Show current Border Agent information.
 
+### ba enable
+
+Enables Border Agent service.
+
+By default, the Border Agent service is enabled. The `ba enable` and `ba disable` allow user to explicitly control its state. This can be useful in scenarios such as:
+
+- The user wishes to delay the start of the Border Agent service (and its mDNS advertisement of the `_meshcop._udp` service on the infrastructure link). This allows time to prepare or determine vendor-specific TXT data entries for inclusion.
+- Unit tests or test scripts might disable the Border Agent service to prevent it from interfering with specific test steps. For example, tests validating mDNS or DNS-SD functionality may disable the Border Agent to prevent its registration of the MeshCoP service.
+
+```
+> ba enable
+Done
+```
+
+### ba disable
+
+Disables Border Agent service.
+
+```
+> ba disable
+Done
+```
+
 ### ba port
 
-Print border agent service port.
+Print Border Agent's service port.
 
 ```bash
 > ba port
@@ -359,104 +396,184 @@ Done
 
 ### ba state
 
-Print border agent state.
+Print Border Agent's state.
 
 Possible states are
 
-- `Stopped` : Border Agent is stopped.
-- `Started` : Border Agent is running with no active connection with external commissioner.
-- `Active` : Border Agent is running and is connected with an external commissioner.
+- `Disabled`: Border Agent service is disabled.
+- `Inactive`: Border Agent service is enabled but not yet active.
+- `Active`: Border Agent service is enabled and active. External commissioner can connect and establish secure DTLS sessions with the Border Agent using PSKc
 
 ```bash
 > ba state
-Started
+Active
 Done
 ```
 
-### ba disconnect
+### ba servicebasename \<name\>
 
-Disconnects border agent from any active secure sessions.
+Sets the base name to construct the service instance name used when advertising the mDNS `_meshcop._udp` service by the Border Agent.
+
+Requires the `OPENTHREAD_CONFIG_BORDER_AGENT_MESHCOP_SERVICE_ENABLE` feature.
+
+The name can also be configured using the `OPENTHREAD_CONFIG_BORDER_AGENT_MESHCOP_SERVICE_BASE_NAME` configuration option (which is the recommended way to specify this name). This CLI command (and its corresponding API) is provided for projects where the name needs to be set after device initialization and at run-time.
+
+Per the Thread specification, the service instance should be a user-friendly name identifying the device model or product. A recommended format is "VendorName ProductName". To construct the full name and ensure name uniqueness, the OpenThread Border Agent module will append the Extended Address of the device (as 16-character hex digits) to the given base name. Note that the same name will be used for the ephemeral key service `_meshcop-e._udp` when the ephemeral key feature is enabled and used.
 
 ```bash
-> ba disconnect
+ba servicebasename OpenThreadBorderAgent
+Done
+```
+
+### ba sessions
+
+Prints the list of Border Agent's sessions. Information per session:
+
+- Peer socket address (IPv6 address and port).
+- Whether or not the session is connected.
+- Whether or not the session is accepted as full commissioner.
+- Session lifetime in milliseconds (calculated from the time the session was first established).
+
+```bash
+ba sessions
+[fe80:0:0:0:cc79:2a29:d311:1aea]:9202 connected:yes commissioner:no lifetime:1860
 Done
 ```
 
 ### ba ephemeralkey
 
-Indicates if an ephemeral key is active.
+Print the Border Agent's Ephemeral Key Manager state.
+
+Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
+
+Possible states are
+
+- `Disabled`: Ephemeral Key Manager is disabled.
+- `Stopped`: Enabled but no key is in use (not yet set or started).
+- `Started`: Ephemeral key is set. Listening to accept secure connections from commissioner candidates.
+- `Connected`: Secure session is established with an external commissioner candidate. Not yet accepted as full commissioner.
+- `Accepted`: Secure session is established and external candidate is accepted as full commissioner.
+
+```bash
+> ba ephemeralkey
+Stopped
+Done
+
+> ba ephemeralkey start Z10X20g3J15w1000P60m16 1000
+Done
+
+> ba ephemeralkey
+Started
+Done
+```
+
+### ba ephemeralkey enable
+
+Enables the Border agent's Ephemeral Key Manager.
 
 Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
 
 ```bash
-> ba ephemeralkey
-inactive
-Done
-
-> ba ephemeralkey set Z10X20g3J15w1000P60m16 1000
-Done
-
-> ba ephemeralkey
-active
+> ba ephemeralkey enable
 Done
 ```
 
-### ba ephemeralkey set \<keystring\> \[timeout\] \[port\]
+### ba ephemeralkey disable
 
-Sets the ephemeral key for a given timeout duration.
+Disables the Border Agent's Ephemeral Key Manager.
 
 Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
 
-The ephemeral key can be set when Border Agent is already running and is not currently connected to any external commissioner (i.e., `ba state` gives `Started`).
+```bash
+> ba ephemeralkey disable
+Done
+
+> ba ephemeralkey
+Disabled
+Done
+```
+
+### ba ephemeralkey start \<keystring\> \[timeout\] \[port\]
+
+Starts using an ephemeral key for a given timeout duration.
+
+Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
+
+An ephemeral key can only be set when current state is `Stopped`, i.e., it is enabled but not yet started. This means that setting the ephemeral key again while a previously set key is still in use will fail. Callers can stop the previous key using `ba ephemeralkey stop` before starting with a new key.
+
+The Ephemeral Key Manager and the Border Agent service (which uses PSKc) can be enabled and used in parallel, as they use independent and separate DTLS transport and sessions.
 
 The `keystring` string is directly used as the ephemeral PSK (excluding the trailing null `\0` character). Its length MUST be between 6 and 32, inclusive.
 
 The `timeout` is in milliseconds. If not provided or set to zero, the default value of 2 minutes will be used. If the timeout value is larger than 10 minutes, the 10 minutes timeout value will be used instead.
 
-The `port` specifies the UDP port to use with the ephemeral key. If UDP port is zero or is not provided, an ephemeral port will be used. `ba port` will give the current UDP port in use by the Border Agent.
+The `port` specifies the UDP port to use with the ephemeral key. If UDP port is zero or is not provided, an ephemeral port will be used. `ba ephemeralkey port` will give the current UDP port in use.
 
-Setting the ephemeral key again before a previously set one is timed out, will replace the previous one.
+When successfully set, the ephemeral key can be used only once by an external commissioner candidate to establish a secure session. After the commissioner candidate disconnects, the use of the ephemeral key is stopped. If the timeout expires, the use of the ephemeral key is stopped, and any connected session using the key is immediately disconnected.
 
-During the timeout interval, the ephemeral key can be used only once by an external commissioner to establish a connection. After the commissioner disconnects, the ephemeral key is cleared, and the Border Agent reverts to using PSKc. If the timeout expires while a commissioner is still connected, the session will be terminated, and the Border Agent will cease using the ephemeral key and revert to PSKc.
+The Ephemeral Key Manager limits the number of failed DTLS connections to 10 attempts. After the 10th failed attempt, the use of the ephemeral key is automatically stopped (even if the timeout has not yet expired).
 
 ```bash
-> ba ephemeralkey set Z10X20g3J15w1000P60m16 5000 1234
+> ba ephemeralkey start Z10X20g3J15w1000P60m16 5000 1234
+Done
+
+> ba ephemeralkey
+Started
+Done
+
+> ba ephemeralkey port
+1234
 Done
 ```
 
-### ba ephemeralkey clear
+### ba ephemeralkey stop
 
-Cancels the ephemeral key in use if any.
+Stops the ephemeral key use and disconnects any session using it.
 
 Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
 
-Can be used to cancel a previously set ephemeral key before it is used or times out. If the Border Agent is not running or there is no ephemeral key in use, calling this function has no effect.
-
-If a commissioner is connected using the ephemeral key and is currently active, calling this method does not change its state. In this case the `ba ephemeralkey` will continue to return `active` until the commissioner disconnects.
+If there is no ephemeral key in use, calling this function has no effect.
 
 ```bash
-> ba ephemeralkey clear
+> ba ephemeralkey stop
+Done
+```
+
+### ba ephemeralkey port
+
+Print the port number in use by Ephemeral Key Manager.
+
+Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
+
+```bash
+> ba ephemeralkey port
+1234
 Done
 ```
 
 ### ba ephemeralkey callback enable
 
-Enables callback from Border Agent for ephemeral key state changes.
+Enables callback from Border Agent to be notified of state changes of Border Agent's Ephemeral Key Manager.
+
+Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
 
 ```bash
 > ba ephemeralkey callback enable
 Done
 
-> ba ephemeralkey set W10X12 5000 49155
+> ba ephemeralkey start W10X120 5000 49155
 Done
 
-BorderAgent callback: Ephemeral key active, port:49155
-BorderAgent callback: Ephemeral key inactive
+BorderAgentEphemeralKey callback - state:Started
+BorderAgentEphemeralKey callback - state:Connected
+BorderAgentEphemeralKey callback - state:Stopped
 ```
 
 ### ba ephemeralkey callback disable
 
-Disables callback from Border Agent for ephemeral key state changes.
+Disables callback from Border Agent to be notified of state changes of Border Agent's Ephemeral Key Manager.
+
+Requires `OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE`.
 
 ```bash
 > ba ephemeralkey callback disable
@@ -1023,7 +1140,6 @@ Get the counter value.
 
 Note:
 
-- `OPENTHREAD_CONFIG_UPTIME_ENABLE` is required for MLE role time tracking in `counters mle`
 - `OPENTHREAD_CONFIG_IP6_BR_COUNTERS_ENABLE` is required for `counters br`
 
 ```bash
@@ -1119,9 +1235,9 @@ CSL period is shown in microseconds.
 
 ```bash
 > csl
-Channel: 11
-Period: 160000us
-Timeout: 1000s
+channel: 11
+period: 160000us
+timeout: 1000s
 Done
 ```
 
@@ -1483,6 +1599,28 @@ Send a service instance resolution DNS query for a given service instance with a
 Service instance label is provided first, followed by the service name (note that service instance label can contain dot '.' character).
 
 The parameters after `service-name` are optional. Any unspecified (or zero) value for these optional parameters is replaced by the value from the current default config (`dns config`).
+
+### dns query \<record-type\> \<first-label\> \<next-labels\> \[DNS server IP\] \[DNS server port\] \[response timeout (ms)\] \[max tx attempts\] \[recursion desired (boolean)\]
+
+Requires `OPENTHREAD_CONFIG_DNS_CLIENT_ENABLE` and `OPENTHREAD_CONFIG_DNS_CLIENT_ARBITRARY_RECORD_QUERY_ENABLE`.
+
+Sends a DNS query for a given record type and DNS name. DNS name is provided as a first label, followed by the next labels which are dot '.' separated. Note that the first label can itself contain the dot '.' character.
+
+The `record-type` is a numerical value corresponding to the DNS RRType values.
+
+The parameters after `next-labels` are optional. Any unspecified (or zero) value for these optional parameters is replaced by the value from the current default config (`dns config`).
+
+If record type is `PTR` (12), `CNAME` (5), `DNAME` (39), `NS` (2), or `SRV` (33), the record data in the received response contains a DNS name which may use DNS name compression. For these specific record types, the record data is first decompressed such that it contains the full uncompressed DNS name. This decompressed data is then provided in the output. For all other record types, the record data is read and provided as it appears in the received response message.
+
+```bash
+> dns query 25 myhost default.service.arpa.
+DNS query response for myhost.default.service.arpa.
+0)
+    RecordType:25, RecordLength: 32, TTL:7108, Section:answer
+    Name:myhost.default.service.arpa.
+    RecordData:[001900010000e02d00440201030d4983605c0406803deb2d672cc42224773977]
+Done
+```
 
 ### dns server upstream \[enable|disable\]
 
@@ -2787,10 +2925,23 @@ Done
 
 ### networkdiagnostic reset \<addr\> \<type\> ..
 
-Send network diagnostic request to reset \<addr\>'s tlv of \<type\>s. Currently only `MAC Counters`(9) is supported.
+Send network diagnostic request to reset \<addr\>'s tlv of \<type\>s. Currently `MAC Counters`(9) is supported.
 
 ```bash
 > diagnostic reset fd00:db8::ff:fe00:0 9
+Done
+```
+
+### networkdiagnostic nonpreferredchannels
+
+Get or set the non-preferred channels value as a channel mask. This is used to respond to a Network Diagnostics Get request for the corresponding TLV. The channel mask is a 32-bit unsigned integer value where the least significant bit (LSB), also referred to as bit 0, corresponds to channel number 0, and so on.
+
+```bash
+> networkdiagnostic nonpreferredchannels 0x4000000
+Done
+
+> networkdiagnostic nonpreferredchannels
+0x4000000
 Done
 ```
 
@@ -3684,7 +3835,7 @@ Return state of current state.
 
 ```bash
 > state
-offline, disabled, detached, child, router or leader
+disabled, detached, child, router or leader
 Done
 ```
 
@@ -3727,6 +3878,18 @@ Try to switch to state `detached`, `child`, `router`.
 
 ```bash
 > state detached
+Done
+```
+
+### targetpower \<channel\> \<targetpower\>
+
+Set the target power.
+
+- `channel` : Thread channel.
+- `targetpower` : The target power in the unit of 0.01dBm.
+
+```bash
+> targetpower 12 1000
 Done
 ```
 

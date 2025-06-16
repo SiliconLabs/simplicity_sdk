@@ -1,16 +1,16 @@
 id: rail_util_init_core
 label: RAIL Utility, Initialization Core
 description: Utility to aid with RAIL Initialization Core Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_init_core
-    name: RAIL Utility, Initialization Core
-    license: Zlib
+    sbom:
+        id: rail_util_init_core
+        name: RAIL Utility, Initialization Core
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 requires:
   - name: rail_lib
   - name: rail_util_init
@@ -23,7 +23,7 @@ template_file:
 template_contribution:
   - name: event_handler
     value:
-      event: stack_init
-      include: sl_rail_util_init.h
-      handler: sl_rail_util_init
+        event: stack_init
+        include: sl_rail_util_init.h
+        handler: sl_rail_util_init
     priority: -9000

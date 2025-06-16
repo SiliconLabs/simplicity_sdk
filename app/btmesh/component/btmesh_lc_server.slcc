@@ -1,6 +1,6 @@
 id: "btmesh_lc_server"
 label: "LC Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Lightness Control (LC) Server model. Used to support the control and reporting
   functionality of a node with a light lightness controller that can monitor
@@ -62,3 +62,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-lc-server

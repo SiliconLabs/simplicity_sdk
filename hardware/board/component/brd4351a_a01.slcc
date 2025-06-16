@@ -1,7 +1,7 @@
 !!omap
 - id: brd4351a_a01
 - label: BRD4351A rev A01
-- package: platform
+- package: boards
 - description: Board support for BRD4351A.
 - category: Platform|Board|Radio Board
 - quality: production

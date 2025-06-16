@@ -107,7 +107,7 @@ class Phy_Internal_Base(object):
             ##### RF peak detector threshold configuration
             phy.profile_outputs.RAC_PGACTRL_LNAMIXRFPKDTHRESHSEL.override = 2
 
-        if model.part_family.lower() not in ["rainier"]:
+        if model.part_family.lower() not in ["rainier", "lpwh72000", "lpwh74000"]:
             ##### IF peak detector configuration
             # enable I/Q latch
             phy.profile_outputs.RAC_PGACTRL_PGAENLATCHI.override = 1

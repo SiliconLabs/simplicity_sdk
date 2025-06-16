@@ -19,16 +19,14 @@
 #define COMM_INT_TX_BUFFER_SIZE RECEIVE_BUFFER_SIZE
 #define COMM_INT_RX_BUFFER_SIZE RECEIVE_BUFFER_SIZE
 
-typedef enum
-{
+typedef enum {
   COMM_INTERFACE_STATE_SOF    = 0,
   COMM_INTERFACE_STATE_CMD    = 1,
   COMM_INTERFACE_STATE_LEN    = 2,
   COMM_INTERFACE_STATE_DATA   = 3,
 } comm_interface_state_t;
 
-typedef struct
-{
+typedef struct {
   transport_t transport;
   SSwTimer byte_timer;
   bool byte_timeout;
@@ -51,12 +49,9 @@ static void set_expect_bytes(uint8_t level)
 {
   vPortEnterCritical();
 
-  if (zpal_uart_get_available(comm_interface.transport.handle) >= level)
-  {
+  if (zpal_uart_get_available(comm_interface.transport.handle) >= level) {
     comm_interface.expect_bytes = 0;
-  }
-  else
-  {
+  } else {
     comm_interface.expect_bytes = level;
   }
 
@@ -65,8 +60,7 @@ static void set_expect_bytes(uint8_t level)
 
 static void receive_callback(__attribute__((unused)) const zpal_uart_handle_t handle, size_t available)
 {
-  if (available >= comm_interface.expect_bytes)
-  {
+  if (available >= comm_interface.expect_bytes) {
     comm_interface.expect_bytes = 0;
   }
 }
@@ -76,13 +70,10 @@ static void byte_timer_cb(__attribute__((unused)) SSwTimer *timer)
   comm_interface.byte_timeout = true;
 }
 
-
 static zpal_status_t comm_interface_transmit(transport_t *transport, const uint8_t *data, size_t len, transmit_done_cb_t cb)
 {
-  if (transport)
-  {
-    switch (transport->type)
-    {
+  if (transport) {
+    switch (transport->type) {
       case TRANSPORT_TYPE_UART:
         return zpal_uart_transmit(transport->handle, data, len, cb);
 
@@ -100,8 +91,7 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
 
   comm_interface.byte_timeout = false;
 
-  switch (type)
-  {
+  switch (type) {
     case CMD_FRAME:
     {
       tx_cmd_frame_t frame;
@@ -124,14 +114,11 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
 
     case BEAM_FRAME:
     {
-      if (BEAM_START == cmd)
-      {
+      if (BEAM_START == cmd) {
         tx_beam_start_frame_t* frame = (tx_beam_start_frame_t*)payload;
         set_expect_bytes(0);
         comm_interface_transmit(&comm_interface.transport, (uint8_t *)frame, 11, cb);
-      }
-      else
-      {
+      } else {
         tx_beam_stop_frame_t* frame = (tx_beam_stop_frame_t*)payload;
         set_expect_bytes(0);
         comm_interface_transmit(&comm_interface.transport, (uint8_t *)frame, 7, cb);
@@ -142,12 +129,11 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
     default:
       break;
   }
-
 }
 
 void comm_interface_wait_transmit_done(void)
 {
-  while(zpal_uart_transmit_in_progress(comm_interface.transport.handle));
+  while (zpal_uart_transmit_in_progress(comm_interface.transport.handle));
 }
 
 void comm_interface_init(void)
@@ -195,10 +181,11 @@ void comm_interface_set_byte_timeout_ms(uint32_t t)
 
 static void store_byte(uint8_t byte)
 {
-  if (TimerIsActive(&comm_interface.byte_timer))
+  if (TimerIsActive(&comm_interface.byte_timer)) {
     TimerRestart(&comm_interface.byte_timer);
-  else
+  } else {
     TimerStart(&comm_interface.byte_timer, comm_interface_get_byte_timeout_ms());
+  }
 
   comm_interface.byte_timeout = false;
   comm_interface.buffer[comm_interface.buffer_len] = byte;
@@ -207,8 +194,7 @@ static void store_byte(uint8_t byte)
 
 static void handle_sof(uint8_t input)
 {
-  if (input == SOF)
-  {
+  if (input == SOF) {
     comm_interface.state = COMM_INTERFACE_STATE_CMD;
     comm_interface.buffer_len = 0;
     comm_interface.rx_active = true; // now we're receiving - check for timeout
@@ -231,15 +217,13 @@ static void handle_len(uint8_t input)
 
 static comm_interface_parse_result_t handle_data(uint8_t input)
 {
-  if (comm_interface.rx_wait_count > 0)
-  {
+  if (comm_interface.rx_wait_count > 0) {
     comm_interface.rx_wait_count--;
     store_byte(input);
   }
 
-  if ((comm_interface.buffer_len >= RECEIVE_BUFFER_SIZE) ||
-      (comm_interface.buffer_len > serial_frame->len))      //buffer_len - sizeof(sof) >= serial_frame->len
-  {
+  if ((comm_interface.buffer_len >= RECEIVE_BUFFER_SIZE)
+      || (comm_interface.buffer_len > serial_frame->len)) { //buffer_len - sizeof(sof) >= serial_frame->len
     TimerStop(&comm_interface.byte_timer);
     comm_interface.byte_timeout = false;
     comm_interface.state = COMM_INTERFACE_STATE_SOF; // Restart looking for SOF
@@ -263,12 +247,10 @@ comm_interface_parse_result_t comm_interface_parse_data(void)
   uint8_t rx_byte;
   comm_interface_parse_result_t result = PARSE_IDLE;
 
-  while ((result == PARSE_IDLE) && zpal_uart_get_available(comm_interface.transport.handle))
-  {
+  while ((result == PARSE_IDLE) && zpal_uart_get_available(comm_interface.transport.handle)) {
     zpal_uart_receive(comm_interface.transport.handle, &rx_byte, sizeof(rx_byte));
 
-    switch (comm_interface.state)
-    {
+    switch (comm_interface.state) {
       case COMM_INTERFACE_STATE_SOF:
         handle_sof(rx_byte);
         break;
@@ -279,11 +261,10 @@ comm_interface_parse_result_t comm_interface_parse_data(void)
 
       case COMM_INTERFACE_STATE_LEN:
         handle_len(rx_byte);
-        if (0 < rx_byte)
-        {
+        if (0 < rx_byte) {
           break;
         }
-        // fall through
+      // fall through
 
       case COMM_INTERFACE_STATE_DATA:
         result = handle_data(rx_byte);
@@ -296,11 +277,9 @@ comm_interface_parse_result_t comm_interface_parse_data(void)
   }
 
   /* Check for timeouts - if no other events detected */
-  if (result == PARSE_IDLE)
-  {
+  if (result == PARSE_IDLE) {
     /* Are we in the middle of collecting a frame and have we timed out? */
-    if (comm_interface.rx_active && comm_interface.byte_timeout)
-    {
+    if (comm_interface.rx_active && comm_interface.byte_timeout) {
       comm_interface.byte_timeout = false;
       /* Reset to SOF hunting */
       comm_interface.state = COMM_INTERFACE_STATE_SOF;
@@ -310,8 +289,7 @@ comm_interface_parse_result_t comm_interface_parse_data(void)
   }
 
   /*Check how many bytes we need depending on state.*/
-  switch(comm_interface.state)
-  {
+  switch (comm_interface.state) {
     case COMM_INTERFACE_STATE_SOF:
       set_expect_bytes(HEADER_LEN);
       break;

@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_duty_cycle' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -51,18 +51,18 @@ sl_status_t sl_zigbee_get_current_duty_cycle(uint8_t maxDevices,
   sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.get_current_duty_cycle.request.maxDevices = maxDevices;
 
-  if ((maxDevices) > (SL_ZIGBEE_MAX_CHILDREN_FOR_PER_DEVICE_DUTY_CYCLE_MONITOR)) {
+  if (maxDevices > SL_ZIGBEE_MAX_CHILDREN_FOR_PER_DEVICE_DUTY_CYCLE_MONITOR) {
     assert(false); // "vector arrayOfDeviceDutyCycles length exceeds expected maximum
   }
 
-  memmove(msg.data.get_current_duty_cycle.request.arrayOfDeviceDutyCycles, arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * (maxDevices));
+  memmove(msg.data.get_current_duty_cycle.request.arrayOfDeviceDutyCycles, arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * maxDevices);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_current_duty_cycle_process_ipc_command, &msg);
 
-  if ((maxDevices) > (SL_ZIGBEE_MAX_CHILDREN_FOR_PER_DEVICE_DUTY_CYCLE_MONITOR)) {
+  if (maxDevices > SL_ZIGBEE_MAX_CHILDREN_FOR_PER_DEVICE_DUTY_CYCLE_MONITOR) {
     assert(false); // "vector arrayOfDeviceDutyCycles length exceeds expected maximum
   }
 
-  memmove(arrayOfDeviceDutyCycles, msg.data.get_current_duty_cycle.request.arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * (maxDevices));
+  memmove(arrayOfDeviceDutyCycles, msg.data.get_current_duty_cycle.request.arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * maxDevices);
   return msg.data.get_current_duty_cycle.response.result;
 }
 

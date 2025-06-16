@@ -621,15 +621,12 @@ static uint8_t xorBytesIntoBlock(uint8_t *block,
                                  const uint8_t *bytes,
                                  uint16_t count)
 {
-  uint16_t i;
-
-  for (i = 0; i < count; ) {
+  for (uint16_t i = 0; i < count; ) {
     uint16_t needed = ENCRYPTION_BLOCK_SIZE - blockIndex;
     uint16_t todo = count - i;
     uint16_t copied = min(todo, needed);
-    uint16_t j;
 
-    for (j = 0; j < copied; j++, blockIndex++) {
+    for (uint16_t j = 0; j < copied; j++, blockIndex++) {
       block[blockIndex] ^= *bytes++;
     }
     i += copied;
@@ -648,12 +645,11 @@ static void ccmEncryptData(uint8_t *bytes,
                            uint8_t *nonce)
 {
   while (length > 0) {
-    uint8_t todo = min(length, ENCRYPTION_BLOCK_SIZE);
-    uint8_t i;
+    uint8_t todo = (uint8_t)min(length, ENCRYPTION_BLOCK_SIZE);
     encryptNonce(nonce, 0x01, blockCount, encryptionBlock);
     blockCount += 1;
 
-    for (i = 0; i < todo; i++) {
+    for (uint8_t i = 0; i < todo; i++) {
       *bytes++ ^= encryptionBlock[i];
     }
 
@@ -667,9 +663,8 @@ static sl_status_t zb_sec_man_calc_encrypt_mic(uint8_t* nonce,
                                                uint8_t length)
 {
   uint8_t blockIndex = 2;     // skip over frame length field
-  uint8_t *chunk = data;
+  const uint8_t *chunk = data;
   uint16_t chunklen;
-  uint8_t phase;
 
   chunklen = encryption_start_index;
   encryptNonce(nonce, 0x49, length - encryption_start_index, encryptionBlock);
@@ -679,7 +674,7 @@ static sl_status_t zb_sec_man_calc_encrypt_mic(uint8_t* nonce,
   encryptionBlock[1] ^= LOW_BYTE(encryption_start_index);
   // phase 0: go over authenticated data
   // phase 1: go over the payload
-  for (phase = 0; phase < 2; phase++) {
+  for (uint8_t phase = 0; phase < 2; phase++) {
     blockIndex = xorBytesIntoBlock(encryptionBlock,
                                    blockIndex,
                                    chunk,

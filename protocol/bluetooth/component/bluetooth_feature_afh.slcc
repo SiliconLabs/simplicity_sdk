@@ -1,6 +1,6 @@
 id: "bluetooth_feature_afh"
 label:  "AFH"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Adaptive Frequency Hopping (AFH) is a feature in Bluetooth technology to ensure
   reliable data transmission, especially in noisy environments. If the central

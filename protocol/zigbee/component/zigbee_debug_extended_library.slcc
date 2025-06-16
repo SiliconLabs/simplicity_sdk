@@ -2,7 +2,7 @@
 #run "sled lib export <FILENAME> to generate
 id: zigbee_debug_extended_library
 label: Extended Debug (Library)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

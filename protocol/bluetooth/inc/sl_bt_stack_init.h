@@ -26,10 +26,33 @@ extern "C" {
 /**
  * @brief Initialize the Bluetooth stack.
  *
+ * This single-stage init is used when the application uses `sl_system` for
+ * initialization.
+ *
  * @return SL_STATUS_OK if the initialization was successful; Other error code
  *   indicates a failure.
  */
 sl_status_t sl_bt_stack_init();
+
+/**
+ * @brief Make permanent memory allocations for the Bluetooth stack.
+ *
+ * This function is part of a two-stage initialization used when the application
+ * uses `sl_main` for initialization. Do not call this function directly from
+ * the application. The Bluetooth host stack components contribute the necessary
+ * calls to the right steps of `sl_main` init.
+ */
+void sli_bt_stack_permanent_allocation(void);
+
+/**
+ * @brief Perform functional initialization of the Bluetooth stack.
+ *
+ * This function is part of a two-stage initialization used when the application
+ * uses `sl_main` for initialization. Do not call this function directly from
+ * the application. The Bluetooth host stack components contribute the necessary
+ * calls to the right steps of `sl_main` init.
+ */
+void sli_bt_stack_functional_init(void);
 
 #ifdef __cplusplus
 }

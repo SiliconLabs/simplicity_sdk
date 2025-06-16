@@ -1,7 +1,7 @@
 !!omap
 - id: brd4111a
 - label: BRD4111A
-- package: platform
+- package: boards
 - description: Board support for BRD4111A.
 - category: Platform|Board|Radio Board
 - quality: production

@@ -133,7 +133,7 @@ void sl_zigbee_debug_report_restore(bool state);
  *         does not follow the printf standard)</td></tr>
  * </table>
  */
-void sl_zigbee_debug_printf(const char * formatString, ...);
+void sl_zigbee_debug_printf(const char * formatString, ...) __attribute__((format(printf, 1, 2)));
 
 #else // (DEBUG_LEVEL >= BASIC_DEBUG) || defined(DOXYGEN_SHOULD_SKIP_THIS) || !defined(SL_ZIGBEE_SCRIPTED_TEST)
   #define sl_zigbee_debug_assert(filename, linenumber) do {} while (false)

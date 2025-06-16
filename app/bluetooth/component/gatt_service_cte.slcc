@@ -1,6 +1,6 @@
 id: gatt_service_cte
 label: Constant Tone Extension GATT Service (Connection)
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Constant Tone Extension GATT Service reference implementation for ACL connection.
 

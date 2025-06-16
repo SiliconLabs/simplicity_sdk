@@ -37,6 +37,7 @@
     EXTERN  OSIntExit
     EXTERN  OSTaskSwHook
     EXTERN  OS_CPU_ExceptStkBase
+    EXTERN  OS_CPU_ExceptStkLimit
     EXTERN  OS_TaskReturn
     EXTERN  OSIdleContext
     EXTERN  OSEnableIRQ
@@ -74,12 +75,14 @@ FPU_FPCCR       EQU     0xE000EF34                              ; Address of FPU
 ;           2) OSStartHighRdy() MUST:
 ;              a) Setup PendSV exception priority to lowest;
 ;              b) Set initial PSP to 0;
-;              c) Set the main stack to OS_CPU_ExceptStkBase
-;              d) Get current high priority, OSPrioCur = OSPrioHighRdy;
-;              e) Get current ready thread TCB, OSTCBCurPtr = OSTCBHighRdyPtr;
-;              f) Get new process SP from TCB, SP = OSTCBHighRdyPtr->StkPtr;
-;              g) Restore R0-R11 and R14 from new process stack;
-;              h) Enable interrupts (tasks will run with interrupts enabled).
+;              c) Set MSPLIM to 0;
+;              d) Set the main stack to OS_CPU_ExceptStkBase
+;              e) Set MSPLIM to OS_CPU_ExceptStkLimit;
+;              f) Get current high priority, OSPrioCur = OSPrioHighRdy;
+;              g) Get current ready thread TCB, OSTCBCurPtr = OSTCBHighRdyPtr;
+;              h) Get new process SP from TCB, SP = OSTCBHighRdyPtr->StkPtr;
+;              i) Restore R0-R11 and R14 from new process stack;
+;              j) Enable interrupts (tasks will run with interrupts enabled).
 ;********************************************************************************************************
 
 OSStartHighRdy
@@ -93,9 +96,15 @@ OSStartHighRdy
     MOVS    R0, #0                                              ; Set the PSP to 0 for initial context switch call
     MSR     PSP, R0
 
+    MSR     MSPLIM, R0                                          ; MSPLIM = 0 before changing the MSP
+
     MOV32   R0, OS_CPU_ExceptStkBase                            ; Initialize the MSP to the OS_CPU_ExceptStkBase
     LDR     R1, [R0]
     MSR     MSP, R1
+
+    MOV32   R0, OS_CPU_ExceptStkLimit                           ; Initialize the MSPLIM to the OS_CPU_ExceptStkLimit
+    LDR     R1, [R0]
+    MSR     MSPLIM, R1
 
     BL      OSTaskSwHook                                        ; Call OSTaskSwHook() for FPU Push & Pop
 

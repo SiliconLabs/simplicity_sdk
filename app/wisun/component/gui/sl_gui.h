@@ -134,7 +134,7 @@ void sl_gui_button_set_label(const sl_gui_button_id_t id, const char *label);
 
 /**************************************************************************//**
  * @brief Set callback for GUI button
- * @details Set evenet handler callback and arguments for the particular button
+ * @details Set event handler callback and arguments for the particular button
  * @param[in] id Button ID
  * @param[in] callback Event callback
  * @param[in] args Arguments

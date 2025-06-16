@@ -1,6 +1,6 @@
 id: zigbee_cbke_163k1
 label: CBKE 163k1
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides Certificate-Based Key Exchange (CBKE) functions specific to the 163k ECC curve used in Smart Energy 1.0 and 1.1.

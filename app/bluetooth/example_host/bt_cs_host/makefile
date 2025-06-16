@@ -32,6 +32,8 @@ include $(SDK_DIR)/app/bluetooth/component_host/cs_reflector.mk
 include $(SDK_DIR)/app/bluetooth/component_host/cs_initiator_client.mk
 include $(SDK_DIR)/app/bluetooth/component_host/cs_acp.mk
 include $(SDK_DIR)/app/bluetooth/component_host/cs_antenna.mk
+include $(SDK_DIR)/app/bluetooth/component_host/cs_ras_server_hybrid.mk
+include $(SDK_DIR)/app/bluetooth/component_host/cs_result.mk
 
 ################################################################################
 # Include paths                                                                #
@@ -42,6 +44,7 @@ $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/util/silicon_labs/rtl/inc \
 $(SDK_DIR)/platform/common/inc \
 $(SDK_DIR)/protocol/bluetooth/inc \
+$(SDK_DIR)/protocol/bluetooth/config \
 $(SDK_DIR)/protocol/bluetooth/bglib \
 $(PROJ_DIR)/config \
 $(PROJ_DIR)/autogen

@@ -1,5 +1,5 @@
 id: mbedtls_entropy_nvseed
-package: platform
+package: security_mbedtls
 label: Device-Unique Seed Entropy Source
 description: >-
   This component provides support for using entropy gathered from a device-unique seed.

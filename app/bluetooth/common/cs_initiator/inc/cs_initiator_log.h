@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS Initiator logging interface.
+ * @brief CS initiator - logging interface header
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -44,10 +44,12 @@
 #define initiator_log_wrap(...)
 #endif // defined(SL_CATALOG_APP_LOG_PRESENT) && CS_INITIATOR_LOG
 
-#define initiator_log_debug(...)    initiator_log_wrap(app_log_debug(LOG_PREFIX  __VA_ARGS__))
-#define initiator_log_info(...)     initiator_log_wrap(app_log_info(LOG_PREFIX  __VA_ARGS__))
-#define initiator_log_warning(...)  initiator_log_wrap(app_log_warning(LOG_PREFIX  __VA_ARGS__))
-#define initiator_log_error(...)    initiator_log_wrap(app_log_error(LOG_PREFIX  __VA_ARGS__))
-#define initiator_log_critical(...) initiator_log_wrap(app_log_critical(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_debug(...)         initiator_log_wrap(app_log_debug(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_info(...)          initiator_log_wrap(app_log_info(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_warning(...)       initiator_log_wrap(app_log_warning(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_error(...)         initiator_log_wrap(app_log_error(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_critical(...)      initiator_log_wrap(app_log_critical(LOG_PREFIX  __VA_ARGS__))
+#define initiator_log_hexdump_debug(...) initiator_log_wrap(app_log_hexdump_debug(__VA_ARGS__))
+#define initiator_log_append_debug(...) initiator_log_wrap(app_log_append_debug(__VA_ARGS__))
 
 #endif // CS_INITIATOR_LOG_H

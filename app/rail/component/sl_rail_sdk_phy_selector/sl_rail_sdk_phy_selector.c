@@ -71,10 +71,23 @@ uint8_t set_selected_phy(uint16_t new_phy)
 {
   uint16_t new_channel = 0;
   uint8_t status = 0;
+  sl_rail_status_t result = SL_RAIL_STATUS_NO_ERROR;
   if (channelConfigs[new_phy] != NULL) {
     selected_phy = new_phy;
-    RAIL_Idle(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), RAIL_IDLE_ABORT, true);
-    new_channel = RAIL_ConfigChannels(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), channelConfigs[selected_phy], NULL);
+    sl_rail_idle(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), SL_RAIL_IDLE_ABORT, true);
+    result = sl_rail_config_channels(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), (const sl_rail_channel_config_t *)channelConfigs[selected_phy], NULL);
+    if (result != SL_RAIL_STATUS_NO_ERROR) {
+#ifdef SL_CATALOG_APP_LOG_PRESENT
+      app_log_warning("Caching failed with error code %ld\n", result);
+#endif
+    }
+    new_channel = channelConfigs[new_phy]->configs[0].channelNumberStart;
+    result = sl_rail_prepare_channel(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), new_channel);
+    if (result != SL_RAIL_STATUS_NO_ERROR) {
+#ifdef SL_CATALOG_APP_LOG_PRESENT
+      app_log_warning("Channel setting failed with error code %ld\n", result);
+#endif
+    }
 #ifdef SL_CATALOG_RAIL_SDK_CHANNEL_SELECTOR_PRESENT
     set_selected_channel(new_channel);
 #endif

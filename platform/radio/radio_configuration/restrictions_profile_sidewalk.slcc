@@ -1,6 +1,6 @@
 id: restrictions_profile_sidewalk
 label: Restrictions - Sidewalk Profile
-package: platform
+package: platform_default_radio_confs
 description: Component provides sidewalk_profile.restriction configuration files by logic
 category: Platform|Radio Configuration
 quality: production

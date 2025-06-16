@@ -18,6 +18,8 @@
 #ifndef SL_BT_COEX_H
 #define SL_BT_COEX_H
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "sl_rail_util_coex_config.h"
 
 #ifdef __cplusplus

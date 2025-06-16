@@ -24,9 +24,7 @@
 #define COMM_INT_RX_BUFFER_SIZE RECEIVE_BUFFER_SIZE
 #define TRANSMIT_BUFFER_SIZE    COMM_INT_TX_BUFFER_SIZE
 
-
-typedef enum
-{
+typedef enum {
   COMM_INTERFACE_STATE_SOF      = 0,
   COMM_INTERFACE_STATE_LEN      = 1,
   COMM_INTERFACE_STATE_TYPE     = 2,
@@ -35,8 +33,7 @@ typedef enum
   COMM_INTERFACE_STATE_CHECKSUM = 5,
 } comm_interface_state_t;
 
-typedef struct
-{
+typedef struct {
   transport_t transport;
   SSwTimer ack_timer;
   bool ack_timeout;
@@ -54,15 +51,13 @@ typedef struct
   uint8_t rx_wait_count;
 } comm_interface_t;
 
-typedef struct
-{
+typedef struct {
   uint8_t sof;
   uint8_t len;
   uint8_t type;
   uint8_t cmd;
   uint8_t payload[UINT8_MAX];
 } tx_frame_t;
-
 
 static comm_interface_t comm_interface = {
   .transport.type = TRANSPORT_TYPE_UART,
@@ -79,13 +74,10 @@ static void set_expect_bytes(uint8_t level)
 {
   vPortEnterCritical();
 
-  if (zpal_uart_get_available(comm_interface.transport.handle) >= level)
-  {
+  if (zpal_uart_get_available(comm_interface.transport.handle) >= level) {
     comm_interface.expect_bytes = 0;
     TriggerNotification(EAPPLICATIONEVENT_SERIALDATARX);
-  }
-  else
-  {
+  } else {
     comm_interface.expect_bytes = level;
   }
 
@@ -94,8 +86,7 @@ static void set_expect_bytes(uint8_t level)
 
 static void receive_callback(__attribute__((unused)) const zpal_uart_handle_t handle, size_t available)
 {
-  if (available >= comm_interface.expect_bytes)
-  {
+  if (available >= comm_interface.expect_bytes) {
     comm_interface.expect_bytes = 0;
     TriggerNotification(EAPPLICATIONEVENT_SERIALDATARX);
   }
@@ -115,8 +106,7 @@ static void byte_timer_cb(__attribute__((unused)) SSwTimer *timer)
 
 static void buffer_check_timer_cb(__attribute__((unused)) SSwTimer *timer)
 {
-  if(zpal_uart_get_available(comm_interface.transport.handle))
-  {
+  if (zpal_uart_get_available(comm_interface.transport.handle)) {
     TriggerNotification(EAPPLICATIONEVENT_SERIALDATARX);
   }
 }
@@ -125,8 +115,7 @@ static uint8_t xor_checksum(uint8_t init, const uint8_t *data, uint8_t len)
 {
   uint8_t checksum = init;
 
-  for (int i = 0; i < len; i++)
-  {
+  for (int i = 0; i < len; i++) {
     checksum ^= data[i];
   }
 
@@ -135,10 +124,8 @@ static uint8_t xor_checksum(uint8_t init, const uint8_t *data, uint8_t len)
 
 static zpal_status_t comm_interface_transmit(transport_t *transport, const uint8_t *data, size_t len, transmit_done_cb_t cb)
 {
-  if (transport)
-  {
-    switch (transport->type)
-    {
+  if (transport) {
+    switch (transport->type) {
       case TRANSPORT_TYPE_UART:
         return zpal_uart_transmit(transport->handle, data, len, cb);
 
@@ -165,8 +152,7 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
   comm_interface.byte_timeout = false;
   comm_interface.ack_timeout = false;
 
-  if (payload != NULL)
-  {
+  if (payload != NULL) {
     frame.len = len + 3;
     frame.type = type;
     frame.cmd = cmd;
@@ -179,14 +165,12 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
     _cmd = cmd;
     _payload = payload;
     _checksum = frame.payload[len];
-  }
-  else
-  {
+  } else {
     /* retransmit last frame */
     frame.len = _len + 3;
     frame.type = _type;
     frame.cmd = _cmd;
-    if(_payload) {
+    if (_payload) {
       memcpy(frame.payload, _payload, _len);
     }
     frame.payload[_len] = _checksum;
@@ -201,7 +185,7 @@ void comm_interface_transmit_frame(uint8_t cmd, uint8_t type, const uint8_t *pay
 
 void comm_interface_wait_transmit_done(void)
 {
-  while(zpal_uart_transmit_in_progress(comm_interface.transport.handle));
+  while (zpal_uart_transmit_in_progress(comm_interface.transport.handle));
 }
 
 void comm_interface_init(void)
@@ -263,10 +247,11 @@ void comm_interface_set_byte_timeout_ms(uint32_t t)
 
 static void store_byte(uint8_t byte)
 {
-  if (TimerIsActive(&comm_interface.byte_timer))
+  if (TimerIsActive(&comm_interface.byte_timer)) {
     TimerRestart(&comm_interface.byte_timer);
-  else
+  } else {
     TimerStart(&comm_interface.byte_timer, comm_interface_get_byte_timeout_ms());
+  }
 
   comm_interface.byte_timeout = false;
   comm_interface.buffer[comm_interface.buffer_len] = byte;
@@ -277,19 +262,14 @@ static comm_interface_parse_result_t handle_sof(uint8_t input)
 {
   comm_interface_parse_result_t result = PARSE_IDLE;
 
-  if (input == SOF)
-  {
+  if (input == SOF) {
     comm_interface.state = COMM_INTERFACE_STATE_LEN;
     comm_interface.buffer_len = 0;
     comm_interface.rx_active = true; // now we're receiving - check for timeout
     store_byte(input);
-  }
-  else
-  {
-    if (comm_interface.ack_needed)
-    {
-      if ((input == ACK) || (input == NAK))
-      {
+  } else {
+    if (comm_interface.ack_needed) {
+      if ((input == ACK) || (input == NAK)) {
         comm_interface.ack_needed = false; // Done
         comm_interface.ack_timeout = false;
         comm_interface.byte_timeout = false;
@@ -297,21 +277,14 @@ static comm_interface_parse_result_t handle_sof(uint8_t input)
         TimerStop(&comm_interface.byte_timer);
         TimerStop(&comm_interface.buffer_check_timer);
       }
-      if (input == ACK)
-      {
+      if (input == ACK) {
         result = PARSE_FRAME_SENT;
-      }
-      else if (input == NAK)
-      {
+      } else if (input == NAK) {
         result = PARSE_TX_TIMEOUT;
-      }
-      else
-      {
+      } else {
         // Bogus character received...
       }
-    }
-    else
-    {
+    } else {
       comm_interface.ack_timeout = false;
       TimerStop(&comm_interface.ack_timer);
       TimerStop(&comm_interface.buffer_check_timer);
@@ -323,15 +296,12 @@ static comm_interface_parse_result_t handle_sof(uint8_t input)
 static void handle_len(uint8_t input)
 {
   // Check for length to be inside valid range
-  if ((input < FRAME_LENGTH_MIN) || (input > FRAME_LENGTH_MAX))
-  {
+  if ((input < FRAME_LENGTH_MIN) || (input > FRAME_LENGTH_MAX)) {
     comm_interface.state = COMM_INTERFACE_STATE_SOF; // Restart looking for SOF
     comm_interface.rx_active = false;  // Not really active now...
     TimerStop(&comm_interface.byte_timer);
     comm_interface.byte_timeout = false;
-  }
-  else
-  {
+  } else {
     comm_interface.state = COMM_INTERFACE_STATE_TYPE;
     store_byte(input);
   }
@@ -339,15 +309,12 @@ static void handle_len(uint8_t input)
 
 static void handle_type(uint8_t input)
 {
-  if (input > RESPONSE)
-  {
+  if (input > RESPONSE) {
     comm_interface.state = COMM_INTERFACE_STATE_SOF; // Restart looking for SOF
     comm_interface.rx_active = false;  // Not really active now...
     TimerStop(&comm_interface.byte_timer);
     comm_interface.byte_timeout = false;
-  }
-  else
-  {
+  } else {
     comm_interface.state = COMM_INTERFACE_STATE_CMD;
     store_byte(input);
   }
@@ -357,13 +324,10 @@ static void handle_cmd(uint8_t input)
 {
   store_byte(input);
 
-  if(serial_frame->len > 3)
-  {
+  if (serial_frame->len > 3) {
     comm_interface.rx_wait_count = serial_frame->len - 3;
     comm_interface.state = COMM_INTERFACE_STATE_DATA;
-  }
-  else
-  {
+  } else {
     comm_interface.rx_wait_count = 1;
     comm_interface.state = COMM_INTERFACE_STATE_CHECKSUM;
   }
@@ -374,9 +338,8 @@ static void handle_data(uint8_t input)
   comm_interface.rx_wait_count--;
   store_byte(input);
 
-  if ((comm_interface.buffer_len >= RECEIVE_BUFFER_SIZE) ||
-      (comm_interface.buffer_len > serial_frame->len))      //buffer_len - sizeof(sof) >= serial_frame->len
-  {
+  if ((comm_interface.buffer_len >= RECEIVE_BUFFER_SIZE)
+      || (comm_interface.buffer_len > serial_frame->len)) { //buffer_len - sizeof(sof) >= serial_frame->len
     comm_interface.state = COMM_INTERFACE_STATE_CHECKSUM;
   }
 }
@@ -396,8 +359,7 @@ static comm_interface_parse_result_t handle_checksum(uint8_t input, bool ack)
 
   /* Do we send ACK/NAK according to checksum... */
   /* if not then the received frame is dropped! */
-  if (ack)
-  {
+  if (ack) {
     uint8_t checksum = xor_checksum(0xFF, &serial_frame->len, serial_frame->len);
     result = (input == checksum) ? PARSE_FRAME_RECEIVED : PARSE_FRAME_ERROR;
     response = (input == checksum) ? ACK : NAK;
@@ -424,12 +386,10 @@ comm_interface_parse_result_t comm_interface_parse_data(bool ack)
   uint8_t rx_byte = 0;
   comm_interface_parse_result_t result = PARSE_IDLE;
 
-  while ((result == PARSE_IDLE) && zpal_uart_get_available(comm_interface.transport.handle))
-  {
+  while ((result == PARSE_IDLE) && zpal_uart_get_available(comm_interface.transport.handle)) {
     zpal_uart_receive(comm_interface.transport.handle, &rx_byte, sizeof(rx_byte));
 
-    switch (comm_interface.state)
-    {
+    switch (comm_interface.state) {
       case COMM_INTERFACE_STATE_SOF:
         result = handle_sof(rx_byte);
         break;
@@ -454,18 +414,16 @@ comm_interface_parse_result_t comm_interface_parse_data(bool ack)
         result = handle_checksum(rx_byte, ack);
         break;
 
-      default :
+      default:
         handle_default();
         break;
     }
   }
 
   /* Check for timeouts - if no other events detected */
-  if (result == PARSE_IDLE)
-  {
+  if (result == PARSE_IDLE) {
     /* Are we in the middle of collecting a frame and have we timed out? */
-    if (comm_interface.rx_active && comm_interface.byte_timeout)
-    {
+    if (comm_interface.rx_active && comm_interface.byte_timeout) {
       comm_interface.byte_timeout = false;
       /* Reset to SOF hunting */
       comm_interface.state = COMM_INTERFACE_STATE_SOF;
@@ -474,8 +432,7 @@ comm_interface_parse_result_t comm_interface_parse_data(bool ack)
     }
 
     /* Are we waiting for ACK and have we timed out? */
-    if (comm_interface.ack_needed && comm_interface.ack_timeout)
-    {
+    if (comm_interface.ack_needed && comm_interface.ack_timeout) {
       comm_interface.ack_timeout = false;
       /* Reset to SOF hunting */
       comm_interface.state = COMM_INTERFACE_STATE_SOF;
@@ -487,8 +444,7 @@ comm_interface_parse_result_t comm_interface_parse_data(bool ack)
   }
 
   /*Check how many bytes we need depending on state.*/
-  switch(comm_interface.state)
-  {
+  switch (comm_interface.state) {
     case COMM_INTERFACE_STATE_SOF:
       set_expect_bytes(comm_interface.ack_needed ? ACK_LEN : HEADER_LEN);
       break;

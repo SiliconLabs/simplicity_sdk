@@ -44,6 +44,8 @@ SL_NORETURN void btl_assert(void)
   btl_debugWriteLine("Assert!");
 #endif
   while (true) {
+    // Infinite loop to halt execution when an assertion fails.
+    // This can be replaced with a reset or error handling if necessary.
   }
 }
 

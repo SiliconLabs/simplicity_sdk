@@ -1,5 +1,5 @@
 id: psa_crypto_config
-package: platform
+package: security_mbedtls
 label: Configuration
 description: >-
   This component includes the PSA Crypto configuration.

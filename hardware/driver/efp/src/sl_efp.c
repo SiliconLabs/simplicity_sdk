@@ -30,7 +30,7 @@
 #include "em_assert.h"
 #include "em_common.h"
 #include "sl_clock_manager.h"
-#include "em_core.h"
+#include "sl_core.h"
 #include "em_emu.h"
 #include "sl_gpio.h"
 #include "sli_se_manager_mailbox.h"

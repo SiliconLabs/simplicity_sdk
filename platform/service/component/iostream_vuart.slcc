@@ -1,15 +1,13 @@
 id: iostream_vuart
-package: platform
-label: "IO Stream VUART"
+package: platform_core
+label: IO Stream VUART
 description: >
-  Instantiate the driver for using IO Stream over the Virtual UART (VUART) 
-  pseudo-peripheral. VUART is a special interface where RTT is used as 
-  input channel and the Single Wire Output(SWO) is used as output channel.
+    Instantiate the driver for using IO Stream over the Virtual UART (VUART)  pseudo-peripheral. VUART is a special interface where RTT is used as  input channel and the Single Wire Output(SWO) is used as output channel.
 category: Services|IO Stream|Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/iostream
 provides:
   - name: iostream_vuart
@@ -39,10 +37,10 @@ define:
 template_contribution:
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_iostream_vuart.h
       handler: sl_iostream_vuart_init
   - name: iostream_instance_info
     value:
-      include: sl_iostream_vuart.h
-      handler: sl_iostream_instance_vuart_info
+        include: sl_iostream_vuart.h
+        handler: sl_iostream_instance_vuart_info

@@ -40,20 +40,15 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Time Server
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Time initialization.
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
  *
  * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
+ *         Returns SL_STATUS_OK if successful. Error code otherwise.
  ******************************************************************************/
-uint16_t sl_btmesh_time_init(void)
+sl_status_t sl_btmesh_time_init(void)
 {
   // Initialize time server models
   sl_status_t result = sl_btmesh_time_server_init(BTMESH_TIME_SERVER_MAIN);
@@ -62,7 +57,7 @@ uint16_t sl_btmesh_time_init(void)
   return result;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of time server time updated event.
  *
  * @param[in] evt  Pointer to time server time updated event.
@@ -85,7 +80,7 @@ static void handle_time_server_time_updated_event(
   (void)evt;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of time server time zone offset updated event.
  *
  * @param[in] evt  Pointer to time server time zone offset updated event.
@@ -105,7 +100,7 @@ static void handle_time_server_time_zone_offset_updated_event(
   (void)evt;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of time server tai utc delta updated event.
  *
  * @param[in] evt  Pointer to time server tai utc delta updated event.
@@ -125,7 +120,7 @@ static void handle_time_server_tai_utc_delta_updated_event(
   (void)evt;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of time server time role updated event.
  *
  * @param[in] evt  Pointer to time server time role updated event.
@@ -169,6 +164,11 @@ static void handle_time_server_time_role_updated_event(
  ******************************************************************************/
 void sl_btmesh_time_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_time_server_time_updated_id:
       handle_time_server_time_updated_event(
@@ -193,17 +193,20 @@ void sl_btmesh_time_server_on_event(sl_btmesh_msg_t *evt)
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_time_init();
+        booted = true;
       }
       break;
 
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_time_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_time_init();
+        booted = true;
+      }
       break;
+    }
 
     default:
       break;
   }
 }
-
-/** @} (end addtogroup Time Server) */

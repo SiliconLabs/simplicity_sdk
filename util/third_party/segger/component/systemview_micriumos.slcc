@@ -1,6 +1,6 @@
 id: segger_systemview_micriumos
 label: SEGGER SystemView for Micrium OS
-package: platform
+package: segger
 description: SEGGER SystemView sample for Micrium OS
 category: Third Party|Segger|System View
 quality: production

@@ -7,7 +7,7 @@ import sys
 import logging
 from cc_base import cc_base, cc_data
 from ccs import cc_multilevel_sensor
-from typing import Any, List
+from typing import Any
 from os import walk
 from enum import IntEnum
 
@@ -23,7 +23,7 @@ class ExitCode(IntEnum):
     ERROR_GENERATED_NOT_WRITTEN = 4
     ERROR_DURING_GENERATION = 5
 
-def handle_templates(configuration: Any) -> List[cc_data]:
+def handle_templates(configuration: Any) -> list[cc_data]:
     """Handle all the templates
 
     Currently these templates are only command classes but this could be
@@ -34,7 +34,7 @@ def handle_templates(configuration: Any) -> List[cc_data]:
         configuration (Any): The configuration (cc_config) file
 
     Returns:
-        List[cc_data]: A list of Command Class data
+        list[cc_data]: A list of Command Class data
     """
     command_classes = [
         cc_base('zw_cc_color_switch', ['cc_color_switch_config.c.jinja'], 'colors'),
@@ -61,14 +61,14 @@ def handle_templates(configuration: Any) -> List[cc_data]:
     return ret
 
 
-def generate(input_dir: str) -> List[cc_data]:
+def generate(input_dir: str) -> list[cc_data]:
     """Finds all cc_config files and for each handle the templates
 
     Args:
         input_dir (str): _description_
 
     Returns:
-        List[cc_data]: A list of Command Class data
+        list[cc_data]: A list of Command Class data
     """
     ret = []
     config_files = glob.glob(os.path.join(input_dir, "*.cc_config"))
@@ -84,11 +84,11 @@ def generate(input_dir: str) -> List[cc_data]:
     return ret
 
 
-def take_action(files: List[cc_data], action: str, output_dir: str) -> int:
+def take_action(files: list[cc_data], action: str, output_dir: str) -> int:
     """Take a given action
 
     Args:
-        files (List[cc_data]): A list of Command Class data
+        files (list[cc_data]): A list of Command Class data
         action (str): The action
         output_dir (str): Output directory
 

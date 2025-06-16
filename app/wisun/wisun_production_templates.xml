@@ -9,7 +9,7 @@
     <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
-    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Wi-SUN Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -67,8 +67,8 @@
     <properties key="solutionReferenceId" value="protocol.wisun.app.wisun_rcp.wisun_rcp.slcp"/>
     <properties key="projectFilePaths" value="../../protocol/wisun/app/wisun_rcp/wisun_rcp.slcp"/>
     <properties key="readmeFiles" value="../../protocol/wisun/app/wisun_rcp/doc/readme.md"/>
-    <properties key="boardCompatibility" value="brd2705a brd4270a brd4270b brd4271a brd4272a brd4276a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <properties key="boardCompatibility" value="brd2705a brd4204d brd4210a brd4263c brd4264c brd4265b brd4269b brd4270a brd4270b brd4271a brd4272a brd4276a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
     <properties key="category" value="Wi-SUN Examples"/>

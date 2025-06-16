@@ -37,8 +37,11 @@
 /**************************************************************************//**
  * Add extended result data to the ACP event buffer.
  *****************************************************************************/
-void cs_on_extended_result(const cs_result_t *result,
-                           const sl_rtl_cs_procedure *cs_procedure,
+void cs_on_extended_result(const uint8_t conn_handle,
+                           const uint16_t ranging_counter,
+                           const uint8_t *result,
+                           const cs_result_session_data_t *result_data,
+                           const cs_ranging_data_t *ranging_data,
                            const void *user_data);
 
 /**************************************************************************//**

@@ -1,7 +1,7 @@
 !!omap
 - id: brd8016a
 - label: BRD8016A
-- package: platform
+- package: boards
 - description: Board support for BRD8016A.
 - category: Platform|Board|Mainboard
 - quality: production

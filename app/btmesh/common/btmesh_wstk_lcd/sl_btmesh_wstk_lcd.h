@@ -40,17 +40,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * \defgroup lcd_driver LCD Driver
- * \brief Driver for SPI LCD Display.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup disp_interface
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup lcd_driver
+ * @addtogroup btmesh_wstk_lcd
  * @{
  ******************************************************************************/
 
@@ -168,8 +158,7 @@ sl_status_t sl_btmesh_LCD_remove_page(uint8_t page);
  ******************************************************************************/
 sl_status_t sl_btmesh_LCD_clear_pages(void);
 
-/** @} (end addtogroup lcd_driver) */
-/** @} (end addtogroup disp_interface) */
+/** @} (end addtogroup btmesh_wstk_lcd) */
 
 #ifdef __cplusplus
 }

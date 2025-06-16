@@ -1,5 +1,5 @@
 id: zigbee_security_manager_dlk_ecc
-package: Zigbee
+package: zigbee
 label: Zigbee Security Manager Dynamic Link Key support
 description: The Zigbee Security Manager utility handles Zigbee-specific security functions. This optional component includes the necessary crypto operations needed to perform ECDHE and SPEKE key negotiation procedures for Dynamic Link Key Negotiation.
 category: Zigbee

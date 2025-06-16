@@ -69,6 +69,11 @@ EmberStatus emberGetCounter(EmberCounterType counterType,
                          count);
 }
 
+EmberStatus emberSetRadioRxFifo(uint16_t rxFifoSize)
+{
+  return emApiSetRadioRxFifo(rxFifoSize);
+}
+
 EmberStatus emberSetRadioChannelExtended(uint16_t channel,
                                          bool persistent)
 {

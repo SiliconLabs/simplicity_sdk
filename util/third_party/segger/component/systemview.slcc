@@ -1,6 +1,6 @@
 id: segger_systemview
 label: SEGGER SystemView
-package: platform
+package: segger
 description: SEGGER SystemView
 category: Third Party|Segger|System View
 quality: production

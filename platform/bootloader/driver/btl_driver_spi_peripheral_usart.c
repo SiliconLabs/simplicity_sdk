@@ -76,7 +76,7 @@
 
 // ‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐‐
 // Configuration validation
-#if (SL_USART_SPI_PERIPHERAL_RX_BUFFER_SIZE % 2) != 0
+#if (SL_SPI_PERIPHERAL_USART_RX_BUFFER_SIZE % 2) != 0
 #error "SPI Peripheral RX buffer size is not even"
 #endif
 

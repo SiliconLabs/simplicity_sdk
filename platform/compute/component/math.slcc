@@ -1,14 +1,14 @@
 id: math
 label: Math
-package: platform
+package: compute
 description: >
-  This component provides some math features.
+    This component provides some math features.
 category: Platform|Compute
 quality: production
 root_path: platform/compute/math
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 source:
   - path: src/sl_math_matrix.c
 include:

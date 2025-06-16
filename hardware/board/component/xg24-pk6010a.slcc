@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_pk6010a
 - label: XG24-PK6010A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG24 20 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

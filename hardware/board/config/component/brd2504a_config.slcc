@@ -2,7 +2,7 @@
 - id: brd2504a_config
 - label: brd2504a config
 - description: Configuration files for BRD2504A
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: production
 - metadata:
@@ -124,6 +124,11 @@
       instance: exp_16
     path: brd2504a/sl_emlib_gpio_init_exp_16_config.h
   - override:
+      component: i2c
+      file_id: i2c_config
+      instance: sensor
+    path: brd2504a/sl_i2c_sensor_config.h
+  - override:
       component: i2cspm
       file_id: i2cspm_config
       instance: sensor
@@ -158,51 +163,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd2504a/sl_iostream_usart_vcom_config.h
-  - override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd2504a/iot_flash_cfg_msc.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: sensor
-    path: brd2504a/iot_i2c_cfg_sensor.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: exp
-    path: brd2504a/iot_i2c_cfg_exp.h
-  - override:
-      component: iot_i2c
-      file_id: iot_i2c_cfg
-      instance: test
-    path: brd2504a/iot_i2c_cfg_test.h
-  - override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd2504a/iot_pwm_cfg_led0.h
-  - override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led1
-    path: brd2504a/iot_pwm_cfg_led1.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd2504a/iot_uart_cfg_vcom.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: exp
-    path: brd2504a/iot_uart_cfg_exp.h
-  - override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd2504a/iot_uart_cfg_loopback.h
   - override:
       component: pwm
       file_id: pwm_config

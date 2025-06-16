@@ -1,6 +1,6 @@
 id: ot_radio_source
 label: Radio
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides the OpenThread radio only support

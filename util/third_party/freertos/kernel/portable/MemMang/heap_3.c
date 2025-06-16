@@ -1,19 +1,8 @@
-/***************************************************************************//**
- * # License
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is Third Party Software licensed by Silicon Labs from a third party
- * and is governed by the sections of the MSLA applicable to Third Party
- * Software and the additional terms set forth below.
- *
- ******************************************************************************/
-
 /*
- * FreeRTOS Kernel V10.4.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V11.1.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -35,9 +24,7 @@
  * https://www.FreeRTOS.org
  * https://github.com/FreeRTOS
  *
- * 1 tab == 4 spaces!
  */
-
 
 /*
  * Implementation of pvPortMalloc() and vPortFree() that relies on the
@@ -58,50 +45,72 @@
 #define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
 #include "FreeRTOS.h"
+#include "sl_memory_manager.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
+#include "sl_component_catalog.h"
+#endif
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+#include "sli_memory_profiler.h"
+#endif
 #include "task.h"
 
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
-#if ( configSUPPORT_DYNAMIC_ALLOCATION == 0 )
+#if (configSUPPORT_DYNAMIC_ALLOCATION == 0)
     #error This file must not be used if configSUPPORT_DYNAMIC_ALLOCATION is 0
 #endif
 
 /*-----------------------------------------------------------*/
 
-void * pvPortMalloc( size_t xWantedSize )
+void * pvPortMalloc(size_t xWantedSize)
 {
-    void * pvReturn;
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+  void * volatile return_address = sli_memory_profiler_get_return_address();
+#endif
+  void * pvReturn;
 
-    vTaskSuspendAll();
-    {
-        pvReturn = malloc( xWantedSize );
-        traceMALLOC( pvReturn, xWantedSize );
+  vTaskSuspendAll();
+  {
+    pvReturn = sl_malloc(xWantedSize);
+#if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
+    sli_memory_profiler_track_ownership(SLI_INVALID_MEMORY_TRACKER_HANDLE, pvReturn, return_address);
+#endif
+    traceMALLOC(pvReturn, xWantedSize);
+  }
+  ( void ) xTaskResumeAll();
+
+    #if (configUSE_MALLOC_FAILED_HOOK == 1)
+  {
+    if ( pvReturn == NULL ) {
+      vApplicationMallocFailedHook();
     }
-    ( void ) xTaskResumeAll();
-
-    #if ( configUSE_MALLOC_FAILED_HOOK == 1 )
-        {
-            if( pvReturn == NULL )
-            {
-                extern void vApplicationMallocFailedHook( void );
-                vApplicationMallocFailedHook();
-            }
-        }
+  }
     #endif
 
-    return pvReturn;
+  return pvReturn;
 }
 /*-----------------------------------------------------------*/
 
-void vPortFree( void * pv )
+void vPortFree(void * pv)
 {
-    if( pv )
+  if ( pv != NULL ) {
+    vTaskSuspendAll();
     {
-        vTaskSuspendAll();
-        {
-            free( pv );
-            traceFREE( pv, 0 );
-        }
-        ( void ) xTaskResumeAll();
+      sl_free(pv);
+      traceFREE(pv, 0);
     }
+    ( void ) xTaskResumeAll();
+  }
 }
+/*-----------------------------------------------------------*/
+
+/*
+ * Reset the state in this file. This state is normally initialized at start up.
+ * This function must be called by the application before restarting the
+ * scheduler.
+ */
+void vPortHeapResetState(void)
+{
+  /* No state needs to be re-initialised in heap_3. */
+}
+/*-----------------------------------------------------------*/

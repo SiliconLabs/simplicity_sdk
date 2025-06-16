@@ -281,7 +281,7 @@ sl_status_t sl_widget_optionlist_add_item(sl_widget_option_list_t
 /**************************************************************************//**
  * @brief Scroll down optionlist.
  * @details Scrolling the optionlist down and update top item too.
- * @param[in,out] optionlist Optinolist
+ * @param[in,out] optionlist Optionlist
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_widget_optionlist_scroll_down(sl_widget_option_list_t
@@ -290,7 +290,7 @@ sl_status_t sl_widget_optionlist_scroll_down(sl_widget_option_list_t
 /**************************************************************************//**
  * @brief Scroll up optionlist.
  * @details Scrolling the optionlist up and update top item too.
- * @param[in,out] optionlist Optinolist
+ * @param[in,out] optionlist Optionlist
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_widget_optionlist_scroll_up(sl_widget_option_list_t
@@ -339,7 +339,7 @@ sl_status_t sl_widget_progressbar_update(const sl_widget_progressbar_t
  * @brief Set progressbar top label.
  * @details Set the top label of the progressbar
  * @param[in,out] progressbar Progressbar
- * @param[in] label Labal
+ * @param[in] label Label
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_widget_progressbar_set_top_label(sl_widget_progressbar_t
@@ -350,7 +350,7 @@ sl_status_t sl_widget_progressbar_set_top_label(sl_widget_progressbar_t
  * @brief Set progressbar bottom label.
  * @details Set the top label of the progressbar
  * @param[in,out] progressbar Progressbar
- * @param[in] label Labal
+ * @param[in] label Label
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_widget_progressbar_set_bottom_label(sl_widget_progressbar_t

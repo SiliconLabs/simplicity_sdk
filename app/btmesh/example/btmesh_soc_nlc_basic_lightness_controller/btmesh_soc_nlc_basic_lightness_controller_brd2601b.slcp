@@ -32,6 +32,7 @@ component:
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
   - id: btmesh_scheduler_server
   - id: btmesh_stack_gatt_prov_bearer
   - id: btmesh_stack_relay
@@ -43,7 +44,7 @@ component:
     - example
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: iostream_eusart
     instance:
       - vcom
@@ -53,7 +54,7 @@ component:
   - id: simple_rgb_pwm_led
     instance:
       - rgb_led0
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
@@ -61,7 +62,6 @@ source:
   - path: app_led_rgb.c
   - path: app_out_log.c
   - path: local_cli_commands.c
-  - path: main.c
   - path: rgbled_brd2601.c
 
 include:
@@ -150,6 +150,10 @@ template_contribution:
       help: "Prints info about BT address and mesh UUID"
     condition:
       - cli
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

@@ -1,14 +1,14 @@
 id: cpc_core
 label: CPC Core
-package: platform
+package: cpc
 description: Co-Processor Communication (CPC) Core
 category: Services|Co-Processor Communication
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 root_path: platform/service/cpc
 source:
   - path: src/sl_cpc.c
@@ -58,22 +58,29 @@ template_contribution:
     value: cpc
   - name: event_handler
     value:
-      event: service_init
-      include: sl_cpc.h
-      handler: sl_cpc_init
+        event: service_init
+        include: sl_cpc.h
+        handler: sl_cpc_init
     priority: -1
   - name: event_handler
     value:
-      event: service_process_action
+        event: service_process_action
+        include: sl_cpc.h
+        handler: sl_cpc_process_action
+  - name: event_handler
+    condition: [sl_main]
+    value:
+      event: service_permanent_allocation
       include: sl_cpc.h
-      handler: sl_cpc_process_action
+      handler: sl_cpc_init_permanent_allocations
+    priority: 1
   - name: power_manager_handler
     value:
-      event: is_ok_to_sleep
-      include: sl_cpc.h
-      handler: sl_cpc_is_ok_to_sleep
+        event: is_ok_to_sleep
+        include: sl_cpc.h
+        handler: sl_cpc_is_ok_to_sleep
   - name: power_manager_handler
     value:
-      event: sleep_on_isr_exit
-      include: sl_cpc.h
-      handler: sl_cpc_sleep_on_isr_exit
+        event: sleep_on_isr_exit
+        include: sl_cpc.h
+        handler: sl_cpc_sleep_on_isr_exit

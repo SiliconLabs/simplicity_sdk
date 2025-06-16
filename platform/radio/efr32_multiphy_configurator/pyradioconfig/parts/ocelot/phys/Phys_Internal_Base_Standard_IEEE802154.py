@@ -371,7 +371,7 @@ class PhysInternalBaseStandardIEEE802154Ocelot(PhysRAILBaseStandardIEEE802154Lyn
         phy.profile_inputs.agc_hysteresis.value = 0
         phy.profile_inputs.agc_period.value = 3
         phy.profile_inputs.agc_power_target.value = -17
-        phy.profile_inputs.base_frequency_hz.value =  long(868000000)
+        phy.profile_inputs.base_frequency_hz.value =  868_000_000
         phy.profile_inputs.baudrate_tol_ppm.value = 1875
         phy.profile_inputs.bitrate.value = 20000
         phy.profile_inputs.channel_spacing_hz.value = 0
@@ -402,6 +402,14 @@ class PhysInternalBaseStandardIEEE802154Ocelot(PhysRAILBaseStandardIEEE802154Lyn
         phy.profile_outputs.MODEM_TIMING_FASTRESYNC.override = 1
         phy.profile_outputs.MODEM_CTRL4_PREDISTDEB.override = 1
         phy.profile_outputs.MODEM_CTRL4_PREDISTGAIN.override = 3
+
+        return phy
+
+    def PHY_IEEE802154_915MHz_BPSK_40kbps(self, model, phy_name=None):
+        phy = self.PHY_IEEE802154_868MHz_BPSK(model, 'PHY_IEEE802154_915MHz_BPSK_40kbps')
+
+        phy.profile_inputs.base_frequency_hz.value = 915_000_000
+        phy.profile_inputs.bitrate.value = 40000
 
         return phy
 

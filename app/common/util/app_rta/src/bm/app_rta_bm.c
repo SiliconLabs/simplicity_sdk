@@ -3,7 +3,7 @@
  * @brief Application Runtime Adaptor implementation for bare-metal
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -38,6 +38,7 @@
 #include "sl_slist.h"
 #include "sl_memory_manager.h"
 #include "sl_power_manager.h"
+#include "sl_component_catalog.h"
 
 // -----------------------------------------------------------------------------
 // Definitions
@@ -448,7 +449,11 @@ void app_rta_internal_init(void)
   sl_slist_init(&ctx_list);
   // Initialize contributors
   app_rta_init_contributors();
+#ifndef SL_CATALOG_SL_MAIN_PRESENT
+  // sl_system is used. There is only one init event and app_rta_internal_init
+  // is subscribed to it. Invoke app_rta_ready().
   app_rta_ready();
+#endif // SL_CATALOG_SL_MAIN_PRESENT
 }
 
 bool app_rta_is_ok_to_sleep(void)

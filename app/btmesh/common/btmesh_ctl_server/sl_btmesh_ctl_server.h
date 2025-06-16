@@ -34,6 +34,11 @@
 #include "sl_btmesh_api.h"
 #include "sl_btmesh_ctl_signal_transition_handler.h"
 
+/***************************************************************************//**
+ * @addtogroup btmesh_ctl_server
+ * @{
+ ******************************************************************************/
+
 // -----------------------------------------------------------------------------
 // Functions which are automatically called when the component is selected
 
@@ -51,18 +56,17 @@ void sl_btmesh_ctl_server_on_event(sl_btmesh_msg_t *evt);
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
  * This function is called automatically after enabling the component.
- *
- * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
  ******************************************************************************/
 void sl_btmesh_ctl_server_init(void);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Component node reset handler.
  * Clearing component specific nvm content during node reset.
  * This function is called automatically by Universal Configurator after
  * enabling the component.
  ******************************************************************************/
 void sl_btmesh_ctl_server_on_node_reset(void);
+
+/** @} (end addtogroup btmesh_ctl_server) */
 
 #endif // SL_BTMESH_CTL_SERVER_H

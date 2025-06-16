@@ -14,7 +14,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: segment_lcd_app.c
 include:
   - path: .
@@ -24,20 +23,20 @@ include:
 component:
   - id: emlib_letimer
   - id: emlib_lcd
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: segment_lcd_driver
   - id: simple_button
     instance:
       - btn0
-      - btn1  
+      - btn1
 define:
   - name: DEBUG_EFM
 readme:
   - path: readme.md
 ui_hints:
-  highlight: readme.md  
+  highlight: readme.md
 tag:
   - hardware:component:segment_lcd_driver:cl010-1087-04
 

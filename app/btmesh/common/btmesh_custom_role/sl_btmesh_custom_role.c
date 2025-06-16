@@ -35,11 +35,6 @@
 #include "sl_btmesh_custom_role.h"
 #include "sl_common.h"
 
-/***************************************************************************//**
- * @addtogroup btmesh_custom_role
- * @{
- ******************************************************************************/
-
 // -----------------------------------------------------------------------------
 // Public function definitions
 
@@ -63,5 +58,3 @@ void sl_bt_custom_role_on_event(sl_bt_msg_t* evt)
 SL_WEAK void sl_btmesh_custom_role_init(void)
 {
 }
-
-/** @} (end addtogroup btmesh_custom_role) */

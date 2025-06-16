@@ -13,37 +13,64 @@ component:
   - id: zw_role_type_always_on
   - id: zw_api_zw
   - id: zw_dcdc_override
-  - id: zw_zpal_zniffer_app
-  - id: zw_zniffer_dependency
   # Platform
   - id: emlib_letimer
   - id: emlib_timer
   - id: emlib_msc
   - id: gpiointerrupt
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   - id: simple_led
     instance: [led0, led1]
+  - id: clock_manager
+
 requires:
   - name: iostream_swo
     condition: [zw_debug]
 source:
   - path: Zniffer.c
-  - path: main.c
-  - path: app.c
   - path: comm_interface.c
   - path: zniffer_handler.c
 include:
   - path: .
     file_list:
-      - path: app.h
       - path: comm_interface.h
       - path: zniffer_handler.h
       - path: commands.h
   - path: "../../ZAF/configuration/inc/"
     file_list:
       - path: "zaf_config_security.h"
+  - path: ../../platform/SiliconLabs/PAL/config/zw_zaf/s2
+    file_list:
+     - path: zaf_config.h
+  - path: ../../ZAF/CommandClasses/Common
+    file_list:
+      - path: CC_Common.h
+  - path: ../../ZAF/TransportLayer/inc
+    file_list:
+      - path: zaf_transport_tx.h
+  - path: ../../ZAF/CommandClasses/MultiChan/inc
+    file_list:
+      - path: multichannel.h
+  - path: ../../ZAF/configuration/inc
+    file_list:
+      - path: zaf_config_api.h
+  - path: ../../ZAF/ApplicationUtilities/CCListGenerator
+    file_list:
+      - path: zaf_cc_list_generator.h
+  - path: ../../ZAF/CommandClasses/Association/inc
+    file_list:
+      - path: association_plus_base.h
+  - path: ../../ZAF/ApplicationUtilities/CCListGenerator
+    file_list:
+      - path: zaf_cc_list_generator.h
+  - path: ../../ZAF/CommandClasses/Association/config
+    file_list:
+      - path: cc_association_config.h
+  - path: ../../ZAF/CommandClasses/Supervision/inc
+    file_list:
+      - path: CC_Supervision.h
 configuration:
   - name: ZAF_CONFIG_REQUEST_KEY_S0
     value: 1
@@ -112,8 +139,6 @@ configuration:
     value: 5
   - name: ZAF_APP_NAME
     value: '"zniffer"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -127,6 +152,11 @@ config_file:
     directory: sample_keys
   - path: ../../platform/SiliconLabs/PAL/BootLoader/sample-keys/sample_sign.key
     directory: sample_keys
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_developer_tool
+  - name: zwave_ncp_zniffer
 
 tag:
   - prebuilt_demo

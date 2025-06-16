@@ -31,17 +31,17 @@ received_frame_status_t ZAF_CC_invoke_specific(CC_handler_map_latest_t const * c
     return RECEIVED_FRAME_STATUS_NO_SUPPORT;
   }
   switch (p_cc_entry->handler_api_version) {
-    case 1:
+    case CC_API_HANDLER_V1:
     {
       cc_handler_v1_t handler = (cc_handler_v1_t)p_cc_entry->handler;
       return handler(input->rx_options, input->frame, input->length);
     }
-    case 2:
+    case CC_API_HANDLER_V2:
     {
       cc_handler_v2_t handler = (cc_handler_v2_t)p_cc_entry->handler;
       return handler(input->rx_options, input->frame, input->length, output->frame, &output->length);
     }
-    case 3:
+    case CC_API_HANDLER_V3:
     {
       cc_handler_v3_t handler = (cc_handler_v3_t)p_cc_entry->handler;
       return handler(input, output);
@@ -56,8 +56,7 @@ received_frame_status_t invoke_cc_handler(cc_handler_input_t * input,
                                           cc_handler_output_t * output)
 {
   CC_handler_map_latest_t const * iter = &cc_handlers_start;
-  for ( ; iter < &cc_handlers_stop; ++iter)
-  {
+  for ( ; iter < &cc_handlers_stop; ++iter) {
     if (iter->CC == input->frame->ZW_Common.cmdClass) {
       return ZAF_CC_invoke_specific(iter, input, output);
     }
@@ -92,8 +91,7 @@ void ZAF_CC_foreach(zaf_cc_invoker_callback_t callback, zaf_cc_context_t context
 {
   assert(callback != NULL);
   CC_handler_map_latest_t const * iter = &cc_handlers_start;
-  for ( ; iter < &cc_handlers_stop; ++iter)
-  {
+  for ( ; iter < &cc_handlers_stop; ++iter) {
     if (true == callback(iter, context)) {
       break;
     }
@@ -109,8 +107,7 @@ void ZAF_CC_config_foreach(zaf_cc_config_invoker_callback_t callback, void *cont
 {
   assert(callback != NULL);
   zaf_cc_config_entry_latest_t const * iter = &cc_config_start;
-  for ( ; iter < &cc_config_stop; ++iter)
-  {
+  for ( ; iter < &cc_config_stop; ++iter) {
     if (callback(iter, context)) {
       break;
     }

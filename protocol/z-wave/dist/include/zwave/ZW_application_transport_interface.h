@@ -1,8 +1,8 @@
 /**
-* @file
-*
-* @copyright 2019 Silicon Laboratories Inc.
-*/
+ * @file
+ *
+ * @copyright 2019 Silicon Laboratories Inc.
+ */
 
 #ifndef _ZW_APPLICATION_TRANSPORT_INTERFACE_H_
 #define _ZW_APPLICATION_TRANSPORT_INTERFACE_H_
@@ -18,7 +18,6 @@
 #include "NodeMask.h"
 #include "ZW_basis_api.h"
 
-
 /**
  * @addtogroup ZWaveAPI
  * @{
@@ -30,7 +29,7 @@
  * Max theoretical Z-Wave frame payload size in a Z-Wave protocol using 3CH network
  * The real Z-Wave frame payload type depends on various parameters (routed, multicast, explore, security and/or number of RF channels)
  * Customer must not use this value in their application. They must use the value MaxPayloadSize from the SNetworkInfo structure.
-*/
+ */
 #define ZW_MAX_PAYLOAD_SIZE                         160
 
 /// Numbers of nodes we can support when sending multicast frames on LR channel
@@ -52,15 +51,13 @@
 #define APPLICATION_INTERFACE_RECEIVE_ENUM_OFFSET   (0x80)
 #define APPLICATION_INTERFACE_STATUS_ENUM_OFFSET    (0xC0)
 
-typedef enum EProtocolType
-{
+typedef enum EProtocolType{
   EPROTOCOLTYPE_ZWAVE = 0,
   EPROTOCOLTYPE_ZWAVE_AV,
   EPROTOCOLTYPE_ZWAVE_FOR_IP
 } EProtocolType;
 
-typedef enum ELibraryType
-{
+typedef enum ELibraryType{
   ELIBRARYTYPE_CONTROLLER_STATIC     = 1, /// DEPRECATED
   ELIBRARYTYPE_CONTROLLER_PORTABLE   = 2, /// DEPRECATED
   ELIBRARYTYPE_SLAVE                 = 3, /// Previously Slave Enhanced
@@ -73,28 +70,24 @@ typedef enum ELibraryType
   ELIBRARYTYPE_AVDEVICE              = 11  /// DEPRECATED
 } ELibraryType;
 
-typedef enum EInclusionState_t
-{
+typedef enum EInclusionState_t{
   EINCLUSIONSTATE_EXCLUDED = 0,
   EINCLUSIONSTATE_UNSECURE_INCLUDED,
   EINCLUSIONSTATE_SECURE_INCLUDED
 } EInclusionState_t;
 
-typedef enum EListenBeforeTalkThreshold_t
-{
+typedef enum EListenBeforeTalkThreshold_t{
   ELISTENBEFORETALKTRESHOLD_DEFAULT = 127
 } EListenBeforeTalkThreshold_t;
 
-typedef enum EtxPowerLevel_t
-{
+typedef enum EtxPowerLevel_t{
   ETXPOWERLEVEL_DEFAULT = 127
 } EtxPowerLevel_t;
 
 /**
  * Transmit Type enum used by @ref SZwaveTransmitPackage
  */
-typedef enum EZwaveTransmitType
-{
+typedef enum EZwaveTransmitType{
   EZWAVETRANSMITTYPE_STD = APPLICATION_INTERFACE_TRANSMIT_ENUM_OFFSET,/**< EZWAVETRANSMITTYPE_STD */
   EZWAVETRANSMITTYPE_EX,                                              /**< EZWAVETRANSMITTYPE_EX */
   EZWAVETRANSMITTYPE_BRIDGE,                                          /**< EZWAVETRANSMITTYPE_BRIDGE */
@@ -125,8 +118,7 @@ typedef enum EZwaveTransmitType
 /**
  * Learn mode status updates.
  */
-typedef enum ELearnStatus
-{
+typedef enum ELearnStatus{
   ELEARNSTATUS_ASSIGN_COMPLETE,             /**< Internal status. Not passed to application. */
   ELEARNSTATUS_ASSIGN_NODEID_DONE,          /**< Internal status. Node ID have been assigned */
   ELEARNSTATUS_ASSIGN_RANGE_INFO_UPDATE,    /**< Internal status. Node is doing Neighbor discovery */
@@ -135,14 +127,14 @@ typedef enum ELearnStatus
   ELEARNSTATUS_SMART_START_IN_PROGRESS,     /**< Passed to application when Smart Start learn mode goes into progress. */
   ELEARNSTATUS_LEARN_IN_PROGRESS,           /**< Passed to application when classic learn mode goes into progress. */
   ELEARNSTATUS_LEARN_MODE_COMPLETED_TIMEOUT,/**< Passed to application if classic learn mode times out. */
-  ELEARNSTATUS_LEARN_MODE_COMPLETED_FAILED  /**< Passed to application if learn mode failed. */
+  ELEARNSTATUS_LEARN_MODE_COMPLETED_FAILED,  /**< Passed to application if learn mode failed. */
+  ELEARNSTATUS_LEARN_MODE_UNSECURE_INCLUSION_DONE /**< Passed to application when unsecure inclusion is done. */
 } ELearnStatus;
 
 /**
  * Z-Wave Command Types.
  */
-typedef enum EZwaveCommandType
-{
+typedef enum EZwaveCommandType{
   /**
    * @brief Generate a specific number of random bytes
    *
@@ -1111,7 +1103,6 @@ typedef enum EZwaveCommandType
    */
   EZWAVECOMMANDTYPE_ZW_SET_TX_ATTENUATION, // 125
 
-
   /*********************************************
    * SECURE API interface functions used in apps.
    ********************************************/
@@ -1182,6 +1173,7 @@ typedef enum EZwaveCommandType
 
   EZWAVECOMMANDTYPE_ENABLE_NODE_NLS,
   EZWAVECOMMANDTYPE_GET_NODE_NLS_STATE,
+  EZWAVECOMMANDTYPE_ZW_GET_INCLUDED_NLS_NODES, // 135
 
   EZWAVECOMMANDTYPE_SEND_PROTOCOL_DATA_CB,
   NUM_EZWAVECOMMANDTYPE
@@ -1190,8 +1182,7 @@ typedef enum EZwaveCommandType
 /**
  * Z-Wave Command Status Type used by SZwaveCommandStatusPackage
  */
-typedef enum EZwaveCommandStatusType
-{
+typedef enum EZwaveCommandStatusType{
   EZWAVECOMMANDSTATUS_TX = APPLICATION_INTERFACE_STATUS_ENUM_OFFSET,/**< EZWAVECOMMANDSTATUS_TX */
   EZWAVECOMMANDSTATUS_GENERATE_RANDOM,                              /**< EZWAVECOMMANDSTATUS_GENERATE_RANDOM */
   EZWAVECOMMANDSTATUS_NODE_INFO,                                    /**< EZWAVECOMMANDSTATUS_NODE_INFO */
@@ -1249,6 +1240,7 @@ typedef enum EZwaveCommandStatusType
   EZWAVECOMMANDSTATUS_ZW_GET_TX_POWER_MAX_SUPPORTED,                /**< EZWAVECOMMANDSTATUS_ZW_GET_TX_POWER_MAX_SUPPORTED */
   EZWAVECOMMANDSTATUS_GET_NODE_NLS_STATE,                           /**< EZWAVECOMMANDSTATUS_GET_NODE_NLS_STATE */
   EZWAVECOMMANDSTATUS_ENABLE_NODE_NLS,                              /**< EZWAVECOMMANDSTATUS_ENABLE_NODE_NLS */
+  EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_NLS_NODES,                    /**< EZWAVECOMMANDSTATUS_ZW_GET_INCLUDED_NLS_NODES */
   NUM_EZWAVECOMMANDSTATUS,                                          /**< NUM_EZWAVECOMMANDSTATUS */
   EZWAVECOMMANDSTATUS_INVALID = 0xFF
 } EZwaveCommandStatusType;
@@ -1256,8 +1248,7 @@ typedef enum EZwaveCommandStatusType
 /**
  * Z-Wave Receive type
  */
-typedef enum EZwaveReceiveType
-{
+typedef enum EZwaveReceiveType{
   EZWAVERECEIVETYPE_SINGLE = APPLICATION_INTERFACE_RECEIVE_ENUM_OFFSET,/**< EZWAVERECEIVETYPE_SINGLE */
   EZWAVERECEIVETYPE_MULTI,                                             /**< EZWAVERECEIVETYPE_MULTI */
   EZWAVERECEIVETYPE_NODE_UPDATE,                                       /**< EZWAVERECEIVETYPE_NODE_UPDATE */
@@ -1270,8 +1261,7 @@ typedef enum EZwaveReceiveType
 } EZwaveReceiveType;
 
 // Prioritized events that can wakeup protocol thread.
-typedef enum EProtocolEvent
-{
+typedef enum EProtocolEvent{
   EPROTOCOLEVENT_RFRXBEAM = 0,
   EPROTOCOLEVENT_RFTXCOMPLETE,
   EPROTOCOLEVENT_RFRX,
@@ -1294,8 +1284,7 @@ typedef enum EProtocolEvent
   NUM_EPROTOCOLEVENT
 } EProtocolEvent;
 
-typedef enum ERequestEncryptionEvent
-{
+typedef enum ERequestEncryptionEvent{
   ERPCCEEVENT_SERIALAPI_FAIL = NUM_EPROTOCOLEVENT,
   ERPCCEEVENT_SERIALAPI_OK,
 } ERequestEncryptionEvent;
@@ -1303,33 +1292,27 @@ typedef enum ERequestEncryptionEvent
 /**
  * Network Update Request
  */
-typedef struct SNetworkUpdateRequest
-{
+typedef struct SNetworkUpdateRequest{
   void            (*Handle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
-                                   // Allows application to recognize frames
+  // Allows application to recognize frames
 } SNetworkUpdateRequest;
 
-
-typedef enum ELearnMode
-{
+typedef enum ELearnMode{
   ELEARNMODE_DISABLED = 0,
   ELEARNMODE_CLASSIC = 1,
   ELEARNMODE_NETWORK_WIDE_INCLUSION = 2,
   ELEARNMODE_NETWORK_WIDE_EXCLUSION = 3
 } ELearnMode;
 
-typedef struct SNodeInfoRequest
-{
-
+typedef struct SNodeInfoRequest{
   void            (*Handle)(void); // Placeholder for callback function
                                    // Will be returned with transmit status
                                    // Allows application to recognize frames
   node_id_t DestNodeId;
 } SNodeInfoRequest;
 
-typedef struct SNodeInfo
-{
+typedef struct SNodeInfo{
   void            (*Handle)(void);  // Placeholder for callback function
                                     // Will be returned with transmit status
                                     // Allows application to recognize frames
@@ -1337,11 +1320,9 @@ typedef struct SNodeInfo
   uint8_t TransmitOptions;
 } SNodeInfo;
 
-
 // Command structures START -------------------------------------------
 
-typedef struct SCommandClassList_t
-{
+typedef struct SCommandClassList_t{
   uint8_t   iListLength;
   uint8_t * pCommandClasses;
 } SCommandClassList_t;
@@ -1350,50 +1331,42 @@ typedef struct SCommandClassList_t
  * List of Command Classes supported when device is not included,
  * included insecurely or included securely.
  */
-typedef struct SCommandClassSet_t
-{
+typedef struct SCommandClassSet_t{
   SCommandClassList_t UnSecureIncludedCC;       /**< List of UNsecure supported command classes. Available when node is NOT included or UNsecure included */
   SCommandClassList_t SecureIncludedUnSecureCC; /**< List of UNsecure supported command classes in secure network. Available when node is secure included */
   SCommandClassList_t SecureIncludedSecureCC;   /**< List of Secure supported command classes. Available when node is secure included */
 } SCommandClassSet_t;
 
-typedef struct SCommandClassVersions
-{
+typedef struct SCommandClassVersions{
   uint8_t SecurityVersion;
   uint8_t Security2Version;
   uint8_t TransportServiceVersion;
 } SCommandClassVersions;
 
 /// Generates true random word
-typedef struct SCommandGenerateRandom
-{
+typedef struct SCommandGenerateRandom{
   uint8_t iLength;  /// number of random bytes to generate
 } SCommandGenerateRandom;
 
-typedef struct SCommandNodeInfo
-{
+typedef struct SCommandNodeInfo{
   node_id_t NodeId;
 } SCommandNodeInfo;
 
-typedef struct SCommandClearNetworkStatistics
-{
+typedef struct SCommandClearNetworkStatistics{
   uint8_t Reserved;             // Not required set
 } SCommandClearNetworkStatistics;
 
-typedef struct SCommandSetLearnMode
-{
+typedef struct SCommandSetLearnMode{
   ELearnMode  eLearnMode;
   uint8_t useCB;
 } SCommandSetLearnMode;
 
-typedef struct SCommandSetSmartStartLearnMode
-{
+typedef struct SCommandSetSmartStartLearnMode{
   E_NETWORK_LEARN_MODE_ACTION  eLearnMode;
 } SCommandSetSmartStartLearnMode;
 
 /// Controller  API
-typedef struct SSetSucNodeId
-{
+typedef struct SSetSucNodeId{
   void            (*Handle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
                                    /// Allows application to recognize frames
@@ -1403,15 +1376,11 @@ typedef struct SSetSucNodeId
   uint8_t   Capabilities;         /* The capabilities of the new SUC */
 } SSetSucNodeId;
 
-typedef struct SCommandSetRfPowerLevel
-{
-
-    uint8_t powerLevelDBm;
+typedef struct SCommandSetRfPowerLevel{
+  uint8_t powerLevelDBm;
 } SCommandSetRfPowerLevel;
 
-typedef struct SSendSucNodeId
-{
-
+typedef struct SSendSucNodeId{
   void            (*Handle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
                                    /// Allows application to recognize frames
@@ -1419,14 +1388,11 @@ typedef struct SSendSucNodeId
   uint8_t TransmitOptions;
 } SSendSucNodeId;
 
-
-typedef struct SCommandSetPromiscuousMode
-{
+typedef struct SCommandSetPromiscuousMode{
   uint8_t Enable;
 } SCommandSetPromiscuousMode;
 
-typedef struct SAssignReturnRoute
-{
+typedef struct SAssignReturnRoute{
   void            (*Handle)(void);      /// Placeholder for callback function
                                         /// Will be returned with transmit status
                                         /// Allows application to recognize frames
@@ -1438,14 +1404,11 @@ typedef struct SAssignReturnRoute
   uint8_t   isSucRoute;
 } SAssignReturnRoute;
 
-typedef struct SCommandSetRfReceiveMode
-{
-
+typedef struct SCommandSetRfReceiveMode{
   uint8_t mode;
 } SCommandSetRfReceiveMode;
 
-typedef struct SDeleteReturnRoute
-{
+typedef struct SDeleteReturnRoute{
   void            (*Handle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
                                    /// Allows application to recognize frames
@@ -1454,30 +1417,25 @@ typedef struct SDeleteReturnRoute
   bool bDeleteSuc;                 /// Delete SUC return routes only, or Delete standard return routes only */
 } SDeleteReturnRoute;
 
-typedef struct SCommandGeniric8bParameter
-{
+typedef struct SCommandGeniric8bParameter{
   uint8_t value;
 } SCommandGeniric8bParameter;
 
-typedef struct SCommandGeniric16bParameter
-{
+typedef struct SCommandGeniric16bParameter{
   uint16_t value;
 } SCommandGeniric16bParameter;
 
-typedef struct SCommandAreNodesNeighbours
-{
+typedef struct SCommandAreNodesNeighbours{
   uint8_t NodeA;
   uint8_t NodeB;
 } SCommandAreNodesNeighbours;
 
-typedef struct SCommandGetRoutingInfo
-{
+typedef struct SCommandGetRoutingInfo{
   node_id_t nodeID;
   uint8_t   options;
 } SCommandGetRoutingInfo;
 
-typedef struct SSendSlaveNodeInformation
-{
+typedef struct SSendSlaveNodeInformation{
   void            (*Handle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
                                    /// Allows application to recognize frames
@@ -1486,75 +1444,65 @@ typedef struct SSendSlaveNodeInformation
   uint8_t txOptions;
 } SSendSlaveNodeInformation;
 
-
-typedef struct SCommandSetRoutingInfo
-{
+typedef struct SCommandSetRoutingInfo{
   uint8_t nodeID;
   uint8_t length;
   uint8_t nodeMask[MAX_NODEMASK_LENGTH];
 } SCommandSetRoutingInfo;
 
-typedef struct SCommandStoreNodeInfo
-{
+typedef struct SCommandStoreNodeInfo{
   uint8_t nodeID;
   uint8_t nodeInfo[6];
 } SCommandStoreNodeInfo;
 
-typedef struct SCommandStoreHomeID
-{
+typedef struct SCommandStoreHomeID{
   uint8_t homeID[HOMEID_LENGTH];
   uint8_t nodeID;
 } SCommandStoreHomeID;
 
-typedef struct SCommandSetPriorityRoute
-{
+typedef struct SCommandSetPriorityRoute{
   node_id_t nodeID;
   uint8_t   repeaters[MAX_REPEATERS];
   uint8_t   routeSpeed;
   uint8_t   clearGolden;
 } SCommandSetPriorityRoute;
 
-typedef struct SCommandAesEcb
-{
+typedef struct SCommandAesEcb{
   uint8_t key[16];
   uint8_t inputData[16];
 } SCommandAesEcb;
 
-
-typedef struct SCommandGetPriorityRoute
-{
+typedef struct SCommandGetPriorityRoute{
   uint8_t   *pPriRouteBuffer;              /// Will be returned with transmit status
   node_id_t nodeID;
 } SCommandGetPriorityRoute;
 
-typedef struct SCommandFailedNodeIDCmd
-{
+typedef struct SCommandFailedNodeIDCmd{
   node_id_t nodeID;
   uint8_t   normalPower;      //Only for replaced failed node api
 } SCommandFailedNodeIDCmd;
 
 typedef struct SCommandPMSetPowerDownCallback {
-   void (*callback)(void);
+  void (*callback)(void);
 } SCommandPMSetPowerDownCallback;
 
 typedef struct SCommandSetLBTThreshold {
-    uint8_t channel;
-    int8_t level;
+  uint8_t channel;
+  int8_t level;
 }
 SCommandSetLBTThreshold;
 
 typedef struct SCommandSetMaxInclReqInterval {
-    uint32_t inclusionRequestInterval;
+  uint32_t inclusionRequestInterval;
 } SCommandSetMaxInclReqInterval;
 
 typedef struct SCommandNvmBackupRestore {
-   uint32_t offset;
-   uint32_t length;
-   uint8_t  *nvmData;
+  uint32_t offset;
+  uint32_t length;
+  uint8_t  *nvmData;
 } SCommandNvmBackupRestore;
 
-typedef struct SCommandSetSecurityKeys
-{
+typedef struct SCommandSetSecurityKeys{
   uint8_t keys;
 } SCommandSetSecurityKeys;
 
@@ -1572,18 +1520,21 @@ typedef struct SCommandSendProtocolDataCb {
   TX_STATUS_TYPE extended_tx_status;
 } SCommandSendProtocolDataCb;
 
+typedef struct SCommandGetNLSNodes {
+  node_id_t nodeID;
+  uint8_t bitmaskOffset;
+} SCommandGetNLSNodes;
+
 // Command structures END ---------------------------------------------
 
-typedef struct SProtocolVersion
-{
+typedef struct SProtocolVersion{
   uint8_t Major;
   uint8_t Minor;
   uint8_t Revision;
 } SProtocolVersion;
 
 /// Protocol Info data
-typedef struct SProtocolInfo
-{
+typedef struct SProtocolInfo{
   SCommandClassVersions CommandClassVersions; /**< Versions of Command Classes supplied  by protocol */
   SProtocolVersion      ProtocolVersion;      /**< Protocol version */
   EProtocolType         eProtocolType;
@@ -1591,8 +1542,7 @@ typedef struct SProtocolInfo
 } SProtocolInfo;
 
 /// Network Info
-typedef struct SNetworkInfo
-{
+typedef struct SNetworkInfo{
   EInclusionState_t   eInclusionState;
   node_id_t           SucNodeId;
   uint8_t             SecurityKeys;     // Which security keys the node has
@@ -1601,40 +1551,36 @@ typedef struct SNetworkInfo
   uint16_t            MaxPayloadSize;
 } SNetworkInfo;
 
-typedef struct SLongRangeInfo
-{
+typedef struct SLongRangeInfo{
   uint16_t  MaxLongRangePayloadSize;
 } SLongRangeInfo;
 
-typedef struct t_ExtNodeInfo
-{
-   NODEINFO  NodeInfo;
-   uint8_t   extInfo;
+typedef struct t_ExtNodeInfo{
+  NODEINFO  NodeInfo;
+  uint8_t   extInfo;
 } t_ExtNodeInfo;
 
-typedef struct SRadioStatus
-{
+typedef struct SRadioStatus{
   int8_t iRadioPowerLevel;  // Radio power in db. 0 -> Max power.
 } SRadioStatus;
 
-typedef struct SApplicationHandles
-{
+typedef struct SApplicationHandles{
   SQueueNotifying*                  pZwTxQueue;    /**< Notifying Queue object (contains FreeRTOS queue)
-                                                - Queue for ZW frames from application to Protocol
-                                                for transmission */
+                                                      - Queue for ZW frames from application to Protocol
+                                                      for transmission */
 
   QueueHandle_t                     ZwRxQueue;     /**< FreeRTOS Queue handle - Queue for ZW frames
-                                                forwarded from protocol to application */
+                                                      forwarded from protocol to application */
 
   SQueueNotifying*                  pZwCommandQueue; /**< Notifying Queue object (contains FreeRTOS queue)
-                                                  - Queue for commands from Application to
-                                                  protocol */
+                                                        - Queue for commands from Application to
+                                                        protocol */
 
   QueueHandle_t                     ZwCommandStatusQueue;   /**< FreeRTOS Queue handle - Queue for status
-                                                         replies from protocol to application
-                                                         (status on commands from application to
-                                                         protocol and Tx request from App to
-                                                         protocol) */
+                                                               replies from protocol to application
+                                                               (status on commands from application to
+                                                               protocol and Tx request from App to
+                                                               protocol) */
 
   const zpal_radio_network_stats_t* pNetworkStatistics;  /**< Network statistics supplied by protocol */
 
@@ -1645,35 +1591,31 @@ typedef struct SApplicationHandles
   const SLongRangeInfo*             pLongRangeInfo;  /**< Only used by Controller nodes. Content is set to 0 on Slave nodes. */
 
   const SRadioStatus*               pRadioStatus;
-
 } SApplicationHandles;
 
-typedef struct SRadioConfig_t
-{
-  int8_t iListenBeforeTalkThreshold;  /**< Db (negative) or EListenBeforeTalkThreshold_t */
-  zpal_tx_power_t iTxPowerLevelMax;   /**< Db (negative) or EtxPowerLevel_t */
-  zpal_tx_power_t iTxPowerLevelAdjust;/**< Db (negative) or EtxPowerLevel_t */
-  int16_t iTxPowerLevelMaxLR;         /**< Maximum transmission power for Z-Wave LR */
-  zpal_radio_region_t eRegion;        /**< RF Region setting */
-  uint8_t radio_debug_enable;         /**< Enable radio PTI */
+typedef struct SRadioConfig_t{
+  int8_t iListenBeforeTalkThreshold;          /**< Db (negative) or EListenBeforeTalkThreshold_t */
+  zpal_tx_power_t iTxPowerLevelMax;           /**< Db (negative) or EtxPowerLevel_t */
+  zpal_tx_power_t iTxPowerLevelAdjust;        /**< Db (negative) or EtxPowerLevel_t */
+  int16_t iTxPowerLevelMaxLR;                 /**< Maximum transmission power for Z-Wave LR */
+  zpal_radio_region_t eRegion;                /**< RF Region setting */
+  uint8_t radio_debug_enable;                 /**< Enable radio PTI */
+  zpal_radio_application_t radio_application; /**< Radio Application type */
 } SRadioConfig_t;
 
-typedef struct SAppNodeInfo_t
-{
+typedef struct SAppNodeInfo_t{
   uint8_t             DeviceOptionsMask;
   APPL_NODE_TYPE      NodeType;
 } SAppNodeInfo_t;
 
-typedef struct SVirtualSlaveNodeInfo_t
-{
+typedef struct SVirtualSlaveNodeInfo_t{
   node_id_t           NodeId;
   bool                bListening; /// True if this node is always on air
   APPL_NODE_TYPE      NodeType;
   SCommandClassList_t CommandClasses;
 } SVirtualSlaveNodeInfo_t;
 
-typedef struct SVirtualSlaveNodeInfoTable_t
-{
+typedef struct SVirtualSlaveNodeInfoTable_t{
   uint8_t                         iTableLength;
   const SVirtualSlaveNodeInfo_t ** ppNodeInfo;  /// Array of pointers to node info. Pointers may be NULL
 } SVirtualSlaveNodeInfoTable_t;                 /// This allows "nulling" a pointer while modifying a virtual slave node info
@@ -1681,27 +1623,24 @@ typedef struct SVirtualSlaveNodeInfoTable_t
 
 /// This struct content must be set up by application before enabling protocol (enabling radio)
 /// Direct content (the pointers) may not be changed runtime, but the data they point to can be edited by application run time
-typedef struct SProtocolConfig_t
-{
+typedef struct SProtocolConfig_t{
   const SVirtualSlaveNodeInfoTable_t *        pVirtualSlaveNodeInfoTable; /// NULL is acceptable if no virtual slave nodes
   const uint8_t *                             pSecureKeysRequested;   /// values are ref SECURITY_KEY_S2_ACCESS_BIT, ref SECURITY_KEY_S2_AUTHENTICATED_BIT, ref SECURITY_KEY_S2_UNAUTHENTICATED_BIT,  - consider making a bit field struct for it
   const SAppNodeInfo_t *                      pNodeInfo;
   const SRadioConfig_t *                      pRadioConfig;
 } SProtocolConfig_t;
 
-typedef struct STransmitFrameConfig
-{
+typedef struct STransmitFrameConfig{
   /** Will be returned with transmit status
    * Allows application to recognize frames */
-  void (*Handle) (uint8_t txStatus, TX_STATUS_TYPE* extendedTxStatus);
+  void (*Handle)(uint8_t txStatus, TX_STATUS_TYPE* extendedTxStatus);
   uint8_t TransmitOptions;
   uint8_t iFrameLength;
   uint8_t aFrame[TX_BUFFER_SIZE];
 } STransmitFrameConfig;
 
-typedef struct STransmitProtocolFrameConfig
-{
-  void (*Handle) (uint8_t txStatus, TX_STATUS_TYPE* extendedTxStatus);
+typedef struct STransmitProtocolFrameConfig{
+  void (*Handle)(uint8_t txStatus, TX_STATUS_TYPE* extendedTxStatus);
   uint8_t protocolMetadataLength;
   uint8_t protocolMetadata[PROTOCOL_METADATA_LENGTH];
   uint8_t FrameLength;
@@ -1709,27 +1648,23 @@ typedef struct STransmitProtocolFrameConfig
 } STransmitProtocolFrameConfig;
 
 // Basis API
-typedef struct SExploreInclusionRequest
-{
+typedef struct SExploreInclusionRequest{
   uint8_t Reserved;               // Not required set
 } SExploreInclusionRequest;
 
-typedef struct SExploreExclusionRequest
-{
+typedef struct SExploreExclusionRequest{
   uint8_t Reserved;               // Not required set
 } SExploreExclusionRequest;
 
 /**
  * Contains info related to sending an INIF.
  */
-typedef struct SIncludedNodeInfo
-{
+typedef struct SIncludedNodeInfo{
   void (*Handle)(uint8_t, TX_STATUS_TYPE*); /**< Callback handle that Will be invoked with transmit status. */
 }
 SIncludedNodeInfo;
 
-typedef struct STest
-{
+typedef struct STest{
   #ifdef ZW_SLAVE
   void (*Handle)(void *);      // Will be returned with transmit status
                                // Allows application to recognize frames
@@ -1741,14 +1676,12 @@ typedef struct STest
 } STest;
 
 // Transport API
-typedef struct SSendData
-{
+typedef struct SSendData{
   STransmitFrameConfig FrameConfig;
   node_id_t DestNodeId;
 } SSendData;
 
-typedef struct SSendDataEx
-{
+typedef struct SSendDataEx{
   STransmitFrameConfig FrameConfig;
   node_id_t DestNodeId;
   node_id_t SourceNodeId;
@@ -1757,55 +1690,47 @@ typedef struct SSendDataEx
   enum SECURITY_KEY eKeyType;
 } SSendDataEx;
 
-typedef struct SSendDataBridge
-{
+typedef struct SSendDataBridge{
   STransmitFrameConfig FrameConfig;
   node_id_t DestNodeId;
   node_id_t SourceNodeId;
 } SSendDataBridge;
 
-typedef struct SSendDataMulti
-{
+typedef struct SSendDataMulti{
   STransmitFrameConfig FrameConfig;
   NODE_MASK_TYPE NodeMask;
 } SSendDataMulti;
 
-typedef struct SSendDataMultiEx
-{
+typedef struct SSendDataMultiEx{
   STransmitFrameConfig FrameConfig;
   uint8_t SourceNodeId;
   uint8_t GroupId;
   enum SECURITY_KEY eKeyType;
 } SSendDataMultiEx;
 
-typedef struct SSendDataMultiBridge
-{
+typedef struct SSendDataMultiBridge{
   STransmitFrameConfig FrameConfig;
   uint8_t NodeMask[MULTICAST_NODE_LIST_SIZE];
   node_id_t      SourceNodeId;
   bool lr_nodeid_list;
 } SSendDataMultiBridge;
 
-typedef struct SSendProtocolData
-{
+typedef struct SSendProtocolData{
   STransmitProtocolFrameConfig FrameConfig;
   node_id_t DestNodeID;
 } SSendProtocolData;
 
 // Controller  API
-typedef struct SCommandNetworkManagement
-{
+typedef struct SCommandNetworkManagement{
   void            (*pHandle)(void); // Placeholder for callback function
-                                   // Will be returned with transmit status
-                                   // Allows application to recognize frames
+                                    // Will be returned with transmit status
+                                    // Allows application to recognize frames
   uint8_t   mode;
   node_id_t nodeID;
 } SCommandNetworkManagement;
 
-
 // Slave API
-typedef struct SRequestNewRouteDestinations
-{
+typedef struct SRequestNewRouteDestinations{
   void    (*Handle)(void);      /// Will be returned with transmit status
                                 /// Allows application to recognize frames
   uint8_t iDestinationCount;    /// Number of new destinations
@@ -1813,8 +1738,7 @@ typedef struct SRequestNewRouteDestinations
   uint8_t aNewDestinations[ZW_MAX_CACHED_RETURN_ROUTE_DESTINATIONS];                 /// Will be returned with transmit status
 } SRequestNewRouteDestinations;
 
-typedef struct SCommandNetworkManagementDSK
-{
+typedef struct SCommandNetworkManagementDSK{
   void           (*pHandle)(void); /// Placeholder for callback function
                                    /// Will be returned with transmit status
                                    /// Allows application to recognize frames
@@ -1822,54 +1746,44 @@ typedef struct SCommandNetworkManagementDSK
   uint8_t dsk[8];            /// Dsk bytes from 0 to 7
 } SCommandNetworkManagementDSK;
 
-typedef struct SZWaveTransmitStatus
-{
+typedef struct SZWaveTransmitStatus{
   void            (*Handle)(void); /// Placeholder for callback function
   bool            bIsTxFrameLegal;  /// False if frame rejected by protocol, can be due to content/configuration or due to timing (e.g. inclusion request when not in learn mode)
   uint8_t         TxStatus;
   TX_STATUS_TYPE  ExtendedTxStatus;
 } SZWaveTransmitStatus;
 
-typedef struct SZWaveGenerateRandomStatus
-{
+typedef struct SZWaveGenerateRandomStatus{
   uint8_t iLength;
   uint8_t aRandomNumber[32];
 } SZWaveGenerateRandomStatus;
 
-typedef struct SZWaveNodeInfoStatus
-{
+typedef struct SZWaveNodeInfoStatus{
   node_id_t NodeId;
   t_ExtNodeInfo extNodeInfo;  // if NodeInfo.nodeType.generic = 0, node does not exist.
 } SZWaveNodeInfoStatus;
 
-typedef struct SZWaveLearnModeStatus
-{
+typedef struct SZWaveLearnModeStatus{
   ELearnStatus Status;   /* Status of learn mode */
 } SZWaveLearnModeStatus;
 
-typedef struct SZWaveInvalidTxRequestStatus
-{
+typedef struct SZWaveInvalidTxRequestStatus{
   uint8_t InvalidTxRequest;   /* Invalid value received (value should have been a valid EZWAVETRANSMITTYPE) */
 } SZWaveInvalidTxRequestStatus;
 
-typedef struct SZWaveInvalidCommandStatus
-{
+typedef struct SZWaveInvalidCommandStatus{
   EZwaveCommandType InvalidCommand;     /* Invalid value received (value should have been a valid EZWAVECOMMANDTYPE) */
 } SZWaveInvalidCommandStatus;
 
-typedef struct SZWaveGeneric8bStatus
-{
+typedef struct SZWaveGeneric8bStatus{
   uint8_t result;     /* generic value of any API that uses a byte as a return value*/
 } SZWaveGeneric8bStatus;
 
-typedef struct SZWaveGenericBoolStatus
-{
-
+typedef struct SZWaveGenericBoolStatus{
   bool result;     /* generic value of any API that uses a boolean as a return value*/
 } SZWaveGenericBoolStatus;
 
-typedef struct SCommandRequestNodeNeighborUpdate
-{
+typedef struct SCommandRequestNodeNeighborUpdate{
   void            (*Handle)(void); // Placeholder for callback function
                                    // Will be returned with transmit status
                                    // Allows application to recognize frames
@@ -1877,8 +1791,7 @@ typedef struct SCommandRequestNodeNeighborUpdate
   node_id_t NodeId;                // Node to have its neighbors discovered..
 } SCommandRequestNodeNeighborUpdate;
 
-typedef struct SCommandRequestNodeTypeNeighborUpdate
-{
+typedef struct SCommandRequestNodeTypeNeighborUpdate{
   void            (*Handle)(void); // Placeholder for callback function
                                    // Will be returned with transmit status
                                    // Allows application to recognize frames
@@ -1887,68 +1800,55 @@ typedef struct SCommandRequestNodeTypeNeighborUpdate
   node_id_t NodeId;                // Node to have its neighbors discovered..
 } SCommandRequestNodeTypeNeighborUpdate;
 
-typedef struct SZWaveGetRoutingInfoStatus
-{
-
+typedef struct SZWaveGetRoutingInfoStatus{
   uint8_t RoutingInfo[MAX_NODEMASK_LENGTH];
 } SZWaveGetRoutingInfoStatus;
 
-
-typedef struct SCommandInitiateShutdown
-{
-  void (*Handle) (void);      // Placeholder for callback function
-
+typedef struct SCommandInitiateShutdown{
+  void (*Handle)(void);       // Placeholder for callback function
 } SCommandInitiateShutdown;
 
-
-typedef struct SCommandSetSecurityFlags
-{
+typedef struct SCommandSetSecurityFlags{
   node_id_t nodeID;
   bool nodeS2Capable;
   bool nodeS2Included;
   bool nodeSecureIncluded;
 } SCommandSetSecurityFlags;
 
-typedef struct SZWaveGetPriorityRouteStatus
-{
+typedef struct SZWaveGetPriorityRouteStatus{
   uint8_t bAnyRouteFound;
   uint8_t repeaters[MAX_REPEATERS];
   uint8_t routeSpeed;
 } SZWaveGetPriorityRouteStatus;
 
-typedef struct SZWaveSetPriorityRouteStatus
-{
+typedef struct SZWaveSetPriorityRouteStatus{
   uint8_t bRouteUpdated;
 } SZWaveSetPriorityRouteStatus;
 
-typedef struct SZWaveGetVirtualNodesStatus
-{
+typedef struct SZWaveGetVirtualNodesStatus{
   uint8_t vNodesMask[MAX_NODEMASK_LENGTH];
 } SZWaveGetVirtualNodesStatus;
 
-typedef struct SZWaveAesEcbStatus
-{
+typedef struct SZWaveAesEcbStatus{
   uint8_t outputData[16];
 } SZWaveAesEcbStatus;
 
-typedef struct SZWaveGetBackgroundRssiStatus
-{
+typedef struct SZWaveGetBackgroundRssiStatus{
   int8_t rssi[ZPAL_RADIO_NUM_CHANNELS_LR_CH_CFG_1_2];
 } SZWaveGetBackgroundRssiStatus;
 
-typedef struct SZWaveNetworkManagementStatus
-{
+typedef struct SZWaveNetworkManagementStatus{
   void *pHandle;
   /*learn status can be sourceID, destinationID , data length and data can be up to NODEPARM_MAX*/
   uint8_t statusInfo[5 + NODEPARM_MAX];
 } SZWaveNetworkManagementStatus;
 
-typedef struct SNvmBackupRestoreStatus
-{
+typedef struct SNvmBackupRestoreStatus{
   uint8_t status;
 } SNvmBackupRestoreStatus;
 
 typedef struct SCommandGetNodeNLSStateStatus {
+  uint8_t nlsSupport;
   uint8_t nlsState;
 } SCommandGetNodeNLSStateStatus;
 
@@ -1956,23 +1856,25 @@ typedef struct SCommandEnableNodeNLSStatus {
   uint8_t status;
 } SCommandEnableNodeNLSStatus;
 
-typedef struct SZWaveGetIncludedNodes
-{
+typedef struct SZWaveGetIncludedNodes{
   NODE_MASK_TYPE node_id_list;
 } SZWaveGetIncludedNodes;
 
-typedef struct SZWaveGetIncludedNodesLR
-{
+typedef struct SZWaveGetIncludedNodesLR{
   LR_NODE_MASK_TYPE node_id_list;
 } SZWaveGetIncludedNodesLR;
 
-typedef struct SZWaveTxPowerMaxSupported
-{
+typedef struct SZWaveGetIncludedNodesNLS{
+  uint8_t node_id_list[GET_NLS_NODES_LIST_LENGTH_MAX];
+  bool more_nodes;
+  uint8_t output_length;
+} SZWaveGetIncludedNodesNLS;
+
+typedef struct SZWaveTxPowerMaxSupported{
   zpal_tx_power_t tx_power_max_supported;
 } SZWaveTxPowerMaxSupported;
 
-typedef struct SCommandTransferProtocolCC
-{
+typedef struct SCommandTransferProtocolCC{
   node_id_t srcNodeId;
   security_key_t decryptionKey;
   uint8_t payloadLength;
@@ -1982,60 +1884,59 @@ typedef struct SCommandTransferProtocolCC
 // Receive structures -----------------------------------
 
 /**
-*
-* The Z Wave protocol MAY notify an application by sending
-* \ref SReceiveNodeUpdate when a Node Information Frame has been received.
-* The Z Wave protocol MAY refrain from sending the information if the protocol
-* is currently expecting node information.
-*
-* A controller application MAY use the information provided by
-* \ref SReceiveNodeUpdate to update local data structures.
-*
-* The Z Wave protocol MUST notify a controller application by calling
-* \ref SReceiveNodeUpdate when a new node has been added or deleted
-* from the controller through the network management features.
-*
-* The Z Wave protocol MUST pass \ref SReceiveNodeUpdate to application in
-* response to \ref SNodeInfoRequest being passed to protocol by the controller
-* application.
-* The Z Wave protocol MAY notify a controller application by sending
-* \ref SReceiveNodeUpdate when a Node Information Frame has been received.
-* The Z Wave protocol MAY refrain from sending the information if the protocol
-* is currently expecting a Node Information frame.
-*
-* \ref SReceiveNodeUpdate MUST be sent in a controller node operating
-* as SIS each time a node is added or deleted by the primary controller.
-* \ref SReceiveNodeUpdate MUST be sent in a controller node operating
-* as SIS each time a node is added/deleted by an inclusion controller.
-*
-* A controller application MAY send a ZW_RequestNetWorkUpdate command
-* to a SIS or SIS node. In response, the SIS MUST return update information
-* for each node change since the last update handled by the requesting
-* controller node.
-* The application of the requesting controller node MAY receive multiple instances
-* of \ref SReceiveNodeUpdate in response to application passing
-* \ref SNetworkUpdateRequest to protocol.
-*
-* The Z Wave protocol MUST NOT send \ref SReceiveNodeUpdate in a
-* controller node acting as primary controller or inclusion controller
-* when a node is added or deleted.
-*
-* Any controller application MUST implement this function.
-*
-*
-* \param[in] bNodeID
-* \param[in] pCmd Pointer of the updated node's node info.
-* \param[in] bLen The length of the pCmd parameter.
-*
-* serialapi{ZW->HOST: REQ | 0x49 | bStatus | bNodeID | bLen | basic | generic | specific | commandclasses[ ]}
-*
-* \ref SReceiveNodeUpdate via the Serial API also have the possibility for
-* receiving the status UPDATE_STATE_NODE_INFO_REQ_FAILED, which means that a node
-* did not acknowledge a \ref SNodeInfoRequest .
-*
-*/
-typedef struct SReceiveNodeUpdate
-{
+ *
+ * The Z Wave protocol MAY notify an application by sending
+ * \ref SReceiveNodeUpdate when a Node Information Frame has been received.
+ * The Z Wave protocol MAY refrain from sending the information if the protocol
+ * is currently expecting node information.
+ *
+ * A controller application MAY use the information provided by
+ * \ref SReceiveNodeUpdate to update local data structures.
+ *
+ * The Z Wave protocol MUST notify a controller application by calling
+ * \ref SReceiveNodeUpdate when a new node has been added or deleted
+ * from the controller through the network management features.
+ *
+ * The Z Wave protocol MUST pass \ref SReceiveNodeUpdate to application in
+ * response to \ref SNodeInfoRequest being passed to protocol by the controller
+ * application.
+ * The Z Wave protocol MAY notify a controller application by sending
+ * \ref SReceiveNodeUpdate when a Node Information Frame has been received.
+ * The Z Wave protocol MAY refrain from sending the information if the protocol
+ * is currently expecting a Node Information frame.
+ *
+ * \ref SReceiveNodeUpdate MUST be sent in a controller node operating
+ * as SIS each time a node is added or deleted by the primary controller.
+ * \ref SReceiveNodeUpdate MUST be sent in a controller node operating
+ * as SIS each time a node is added/deleted by an inclusion controller.
+ *
+ * A controller application MAY send a ZW_RequestNetWorkUpdate command
+ * to a SIS or SIS node. In response, the SIS MUST return update information
+ * for each node change since the last update handled by the requesting
+ * controller node.
+ * The application of the requesting controller node MAY receive multiple instances
+ * of \ref SReceiveNodeUpdate in response to application passing
+ * \ref SNetworkUpdateRequest to protocol.
+ *
+ * The Z Wave protocol MUST NOT send \ref SReceiveNodeUpdate in a
+ * controller node acting as primary controller or inclusion controller
+ * when a node is added or deleted.
+ *
+ * Any controller application MUST implement this function.
+ *
+ *
+ * \param[in] bNodeID
+ * \param[in] pCmd Pointer of the updated node's node info.
+ * \param[in] bLen The length of the pCmd parameter.
+ *
+ * serialapi{ZW->HOST: REQ | 0x49 | bStatus | bNodeID | bLen | basic | generic | specific | commandclasses[ ]}
+ *
+ * \ref SReceiveNodeUpdate via the Serial API also have the possibility for
+ * receiving the status UPDATE_STATE_NODE_INFO_REQ_FAILED, which means that a node
+ * did not acknowledge a \ref SNodeInfoRequest .
+ *
+ */
+typedef struct SReceiveNodeUpdate{
   uint8_t Status;   // The status of the update process, value could be one of the following :
                     // \ref UPDATE_STATE_ADD_DONE A new node has been added to the network.
                     // \ref UPDATE_STATE_DELETE_DONE A node has been deleted from the network.
@@ -2048,19 +1949,17 @@ typedef struct SReceiveNodeUpdate
   uint8_t aPayload[MAX_NODE_INFO_LENGTH]; // the updated node's node info.
 } SReceiveNodeUpdate;
 
-
 /* Used by protocol to request/inform Application
-* of Security based Events.Currently only an event for Client Side Authentication(CSA)
-* has been defined - E_APPLICATION_SECURITY_EVENT_S2_INCLUSION_REQUEST_DSK_CSA.
-*
-* \ref E_APPLICATION_SECURITY_EVENT_S2_INCLUSION_REQUEST_DSK_CSA Security Event
-*   Is posted by protocol when in S2 inclusion with CSA enabled and the
-*   Server side DSK is needed.
-*   Application must call ZW_SetSecurityS2InclusionCSA_DSK(s_SecurityS2InclusionCSAPublicDSK_t *)
-*   with the retrieved Server / Controller side DSK.
-*/
-typedef struct SReceiveSecurityEvent
-{
+ * of Security based Events.Currently only an event for Client Side Authentication(CSA)
+ * has been defined - E_APPLICATION_SECURITY_EVENT_S2_INCLUSION_REQUEST_DSK_CSA.
+ *
+ * \ref E_APPLICATION_SECURITY_EVENT_S2_INCLUSION_REQUEST_DSK_CSA Security Event
+ *   Is posted by protocol when in S2 inclusion with CSA enabled and the
+ *   Server side DSK is needed.
+ *   Application must call ZW_SetSecurityS2InclusionCSA_DSK(s_SecurityS2InclusionCSAPublicDSK_t *)
+ *   with the retrieved Server / Controller side DSK.
+ */
+typedef struct SReceiveSecurityEvent{
   e_application_security_event_t Event; // Event type
   uint8_t iLength;                      // Length of security event payload
   uint8_t aEventData[48];               // Security Event payload
@@ -2069,8 +1968,7 @@ typedef struct SReceiveSecurityEvent
 /**
  * Transmit Parameters Union used by @ref SZwaveTransmitPackage
  */
-typedef union UTransmitParameters
-{
+typedef union UTransmitParameters{
   // Basis API
   SExploreInclusionRequest        ExploreInclusionRequest;
   SExploreExclusionRequest        ExploreExclusionRequest;
@@ -2100,8 +1998,7 @@ typedef union UTransmitParameters
 /**
  * Command Status Union used by @ref SZwaveCommandStatusPackage
  */
-typedef union UCommandStatus
-{
+typedef union UCommandStatus{
   SZWaveTransmitStatus          TxStatus;
   SZWaveGenerateRandomStatus    GenerateRandomStatus;
   SZWaveNodeInfoStatus          NodeInfoStatus;
@@ -2132,6 +2029,7 @@ typedef union UCommandStatus
   SZWaveGenericBoolStatus       SetPowerDownCallbackStatus;
   SZWaveGetIncludedNodes        GetIncludedNodes;
   SZWaveGetIncludedNodesLR      GetIncludedNodesLR;
+  SZWaveGetIncludedNodesNLS     GetIncludedNodesNLS;
   SZWaveGeneric8bStatus         RequestNodeNeigborUpdateStatus;
   SZWaveGeneric8bStatus         RequestNodeTypeNeigborUpdateStatus;
   SZWaveGeneric8bStatus         InitiateShutdownStatus;
@@ -2144,14 +2042,12 @@ typedef union UCommandStatus
   SCommandEnableNodeNLSStatus   EnableNodeNlsStatus;
 } UCommandStatus;
 
-typedef union UReceiveCmdPayload
-{
+typedef union UReceiveCmdPayload{
   ZW_APPLICATION_TX_BUFFER rxBuffer;
   uint8_t padding[ZW_MAX_PAYLOAD_SIZE];
 } UReceiveCmdPayload;
 
-typedef union UCommandParameters
-{
+typedef union UCommandParameters{
   SCommandGenerateRandom              GenerateRandom;
   SCommandNodeInfo                    NodeInfo;
   SCommandClearNetworkStatistics      ClearNetworkStatistics;
@@ -2195,6 +2091,7 @@ typedef union UCommandParameters
   SCommandEnableNodeNLS               EnableNodeNls;
   SCommandGetNodeNLSState             GetNodeNlsState;
   SCommandSendProtocolDataCb            SendProtocolDataCb;
+  SCommandGetNLSNodes                 GetNLSNodes;
 } UCommandParameters;
 
 /**************************************************************************
@@ -2202,8 +2099,7 @@ typedef union UCommandParameters
  * must be placed here. They are all dependent on the unions above.
  *************************************************************************/
 
-typedef struct SZwaveTransmitPackage
-{
+typedef struct SZwaveTransmitPackage{
   EZwaveTransmitType eTransmitType;
   UTransmitParameters uTransmitParams;
 } SZwaveTransmitPackage;
@@ -2211,57 +2107,49 @@ typedef struct SZwaveTransmitPackage
 /**
  * Z-Wave Command Status Package
  */
-typedef struct SZwaveCommandStatusPackage
-{
+typedef struct SZwaveCommandStatusPackage{
   EZwaveCommandStatusType eStatusType;
   UCommandStatus Content;
 } SZwaveCommandStatusPackage;
 
-typedef struct SZwaveCommandPackage
-{
+typedef struct SZwaveCommandPackage{
   EZwaveCommandType eCommandType;
   UCommandParameters uCommandParams;
 } SZwaveCommandPackage;
 
 // Receive structures ------------------------------
 
-typedef struct SReceiveSingle
-{
+typedef struct SReceiveSingle{
   UReceiveCmdPayload Payload;
   uint8_t iLength;
   RECEIVE_OPTIONS_TYPE RxOptions;
 } SReceiveSingle;
 
-typedef struct SReceiveMulti
-{
+typedef struct SReceiveMulti{
   NODE_MASK_TYPE NodeMask;
   UReceiveCmdPayload Payload;
   uint8_t iCommandLength;
   RECEIVE_OPTIONS_TYPE RxOptions;
 } SReceiveMulti;
 
-typedef struct SProtocolTxOptions
-{
+typedef struct SProtocolTxOptions{
   uint8_t rfSpeed;
   uint8_t txPower;
   TxOptions_t txOptions;
-
 } SProtocolTxOptions;
 
-typedef struct SRequestEncryption
-{
+typedef struct SRequestEncryption{
   node_id_t destNodeID;
   uint8_t payloadLength;
   UReceiveCmdPayload Payload;
   uint8_t protocolMetadataLength;
   uint8_t protocolMetadata[PROTOCOL_METADATA_LENGTH];
-  uint8_t useSupervision:1;
-  uint8_t reserved:7;
+  uint8_t useSupervision : 1;
+  uint8_t reserved : 7;
 } SRequestEncryption;
 
 // This one union is dependent on the structures above it.
-typedef union UReceiveParameters
-{
+typedef union UReceiveParameters{
   SReceiveSingle Rx;
   SReceiveMulti RxMulti;
   SReceiveNodeUpdate RxNodeUpdate;
@@ -2269,8 +2157,7 @@ typedef union UReceiveParameters
   SRequestEncryption RequestEncryption;
 } UReceiveParameters;
 
-typedef struct SZwaveReceivePackage
-{
+typedef struct SZwaveReceivePackage{
   EZwaveReceiveType eReceiveType;
   UReceiveParameters uReceiveParams;
 } SZwaveReceivePackage;

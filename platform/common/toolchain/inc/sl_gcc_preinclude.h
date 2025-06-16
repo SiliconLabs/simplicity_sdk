@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief GCC startup file
+ * @brief GCC startup preinclude file
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,13 +28,10 @@
  *
  ******************************************************************************/
 
-/* The startup files contain a stack and heap symbol in addition
- * to the vector table. The size of these internal stack and heap
- * objects depend on the build system providing two macros on the
- * commandline called __STACK_SIZE and __HEAP_SIZE.
+/* The Heap Size is set to 0 because its size is automatically determined
+ * by the linker file. The linker allocates all remaining available RAM to the heap.
  *
- * We provide alternative stack and heap symbols in the sl_memory_region.c
- * file which can be configured in a separate config file. Go to
- * sl_memory_manager_config.h to configure the stack and heap size. */
+ * The Stack Size is configured separately in the
+ * sl_memory_manager_region_config.h file, located in the memory_manager directory. */
 #define __STACK_SIZE    0x0
 #define __HEAP_SIZE     0x0

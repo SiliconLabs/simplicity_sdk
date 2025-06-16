@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include "os.h"
 #include "rtos_err.h"
+#include "sl_main_init.h"
 #include "app.h"
 #include "app_assert.h"
 #include "sl_memory_manager.h"
@@ -51,7 +52,7 @@ static OS_SEM  button_semaphore;
 /******************************************************************************
  * Application Runtime Init.
  *****************************************************************************/
-void app_init_runtime(void)
+void app_init_bt(void)
 {
   RTOS_ERR err;
   // Allocate stack for the task
@@ -61,7 +62,7 @@ void app_init_runtime(void)
   app_assert(app_task_stack != NULL,
              "Application task stack allocation failed.");
 
-  // Create the task for app_process_action
+  // Create the task for sl_app_process_action
   OSTaskCreate(&app_task_handle,
                APP_TASK_NAME,
                app_task,

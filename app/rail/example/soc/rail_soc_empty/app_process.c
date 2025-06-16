@@ -32,7 +32,8 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
@@ -60,10 +61,8 @@
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  (void) rail_handle;
-
   ///////////////////////////////////////////////////////////////////////////
   // Put your application code here!                                       //
   // This is called infinitely.                                            //
@@ -74,7 +73,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   (void) rail_handle;
   (void) events;

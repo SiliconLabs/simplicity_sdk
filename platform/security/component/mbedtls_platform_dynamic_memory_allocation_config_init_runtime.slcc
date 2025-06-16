@@ -1,5 +1,5 @@
 id: mbedtls_platform_dynamic_memory_allocation_config_init_runtime
-package: platform
+package: security_mbedtls
 label: Runtime initialisation of dynamic memory allocation functions for Mbed TLS.
 
 description: >-

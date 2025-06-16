@@ -67,34 +67,42 @@
  */
 
 // This will eventually be moved into a plugin-specific callbacks file.
+/** @brief Called via 'ota-server upgrade' CLI command or direct call when the server needs to send an upgrade command.
+ *
+ * The application must call this function to send an upgrade end response and complete the OTA.
+ *
+ * @param[out] dest  The destination node ID.
+ * @param[out] endpoint The destination endpoint.
+ * @param[out] id  The identifier that contains information about the upgrade image.
+ */
 void sl_zigbee_af_ota_server_send_upgrade_command_cb(sl_802154_short_addr_t dest,
                                                      uint8_t endpoint,
                                                      const sl_zigbee_af_ota_image_id_t* id);
 
-/** @brief Call when a block is sent to a device.
+/** @brief Called when a block is sent to a device.
  *
  * This function will be called when a block is sent to a device.
  *
- * @param actualLength  The block length.
- * @param manufacturerId  The manufacturer ID.
- * @param imageTypeId  The image Type ID.
- * @param firmwareVersion  Firmware Version.
+ * @param[out] actualLength  The block length.
+ * @param[out] manufacturerId  The manufacturer ID.
+ * @param[out] imageTypeId  The image Type ID.
+ * @param[out] firmwareVersion  Firmware Version.
  */
 void sl_zigbee_af_ota_server_block_sent_cb(uint8_t actualLength,
                                            uint16_t manufacturerId,
                                            uint16_t imageTypeId,
                                            uint32_t firmwareVersion);
 
-/** @brief Call when an update has started.
- *.
+/** @brief Called when an update has started.
+ *
  *
  * This function will be called when an update has started.
  *
- * @param manufacturerId  The manufacturer ID.
- * @param imageTypeId  The image Type ID.
- * @param firmwareVersion  Firmware Version.
- * @param maxDataSize  Maximum data size.
- * @param offset  Offset.
+ * @param[out] manufacturerId  The manufacturer ID.
+ * @param[out] imageTypeId  The image Type ID.
+ * @param[out] firmwareVersion  Firmware Version.
+ * @param[out] maxDataSize  Maximum data size.
+ * @param[out] offset  Offset.
  */
 void sl_zigbee_af_ota_server_update_started_cb(uint16_t manufacturerId,
                                                uint16_t imageTypeId,
@@ -102,15 +110,15 @@ void sl_zigbee_af_ota_server_update_started_cb(uint16_t manufacturerId,
                                                uint8_t maxDataSize,
                                                uint32_t offset);
 
-/** @brief Call when an OTA update has finished.
+/** @brief Called when an OTA update has finished.
  *
  * This function will be called when an OTA update has finished.
  *
- * @param manufacturerId  The manufacturer ID.
- * @param imageTypeId  The image Type ID.
- * @param firmwareVersion  Firmware Version.
- * @param source  The source node ID.
- * @param status  An update status.
+ * @param[out] manufacturerId  The manufacturer ID.
+ * @param[out] imageTypeId  The image Type ID.
+ * @param[out] firmwareVersion  Firmware Version.
+ * @param[out] source  The source node ID.
+ * @param[out] status  An update status.
  */
 void sl_zigbee_af_ota_server_update_complete_cb(uint16_t manufacturerId,
                                                 uint16_t imageTypeId,

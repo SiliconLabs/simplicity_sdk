@@ -11,13 +11,19 @@ from enum import IntEnum
 import itertools
 
 # Update kRAILVersion to be used in phyInfoData.
-kRAILVersion = 19
+kRAILVersion = 20
 
 class ConcPhyEnum(IntEnum):
+  """
+  These enumerations must match those in sl_rail_channel_config_entry_type_t
+  https://stash.silabs.com/projects/GSDK/repos/gsdk/browse/platform/radio/rail_lib/common/sl_rail_types.h
+  """
+
+
   CONC_PHY_NONE = 0
   CONC_PHY_BASE = 1
   CONC_PHY_VT = 2
-  CONC_PHY_9_6_NON_HOP = 3
+  CONC_PHY_FAST_SWITCH = 3
 
 class ProtocolIDEnum(IntEnum):
   CUSTOM = 0
@@ -43,6 +49,14 @@ class RAIL_ConcPhy:
         return True
 
     # virtual concurrnet PHY not found
+    return False
+
+  @staticmethod
+  def RAIL_IsConcPhyFastSw(opt_arguments):
+    for optional_argument in opt_arguments:
+      if (optional_argument.key == RAIL_OptArgInput.conc_phy_opt_hop) and (int(optional_argument.value) == ConcPhyEnum.CONC_PHY_FAST_SWITCH):
+        return True
+
     return False
 
 def parsePower(value):
@@ -275,7 +289,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
     # Make sure there is no duplicate address
     allWrites = [new_base]
     allWrites.extend(regs_channels)
-    if (self.partFamily in ["ocelot", "margay"]):
+    if (self.partFamily in ["ocelot", "margay", "serval"]):
       bcrdemoctrlReg = self.rm.MODEM.BCRDEMODCTRL
       viterbidemodReg = self.rm.MODEM.VITERBIDEMOD
     for j, chunkWrite in enumerate(allWrites):
@@ -293,7 +307,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
           print("chunkWrite[0]: {}".format(chunkWrite[0]))
         prevAddress = chunkWrite[0]
         for i, register in enumerate(chunkWrite):
-          if ((self.partFamily in ["ocelot", "margay"]) and (j != 0) and ((base_info["add"][j - 1][1][1].entryType.value == ConcPhyEnum.CONC_PHY_VT) or (base_info["add"][j - 1][1][1].entryType.value == ConcPhyEnum.CONC_PHY_9_6_NON_HOP))):
+          if ((self.partFamily in ["ocelot", "margay", "serval"]) and (j != 0) and ((base_info["add"][j - 1][1][1].entryType.value == ConcPhyEnum.CONC_PHY_VT))):
             # apply calculator workaround for ZWave concurrent PHY
             # need to make sure  BCR demod is enable and viterbi demod is disabled for virtual concurrent PHY (i.e. Zwave 9.6K concurrent PHY)
             if (register[0] == self._getRegAddressWithPolarity("MODEM", "BCRDEMODCTRL")):
@@ -326,7 +340,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
                 raise
           prevAddress = register
 
-    if self.partFamily.lower() in ["ocelot", "margay"]:
+    if self.partFamily.lower() in ["ocelot", "margay", "serval"]:
       # Conc. PHY optimization
       # for virtual concurrent PHY (i.e. Zwave 9.6K concurrent PHY), this sequence has to be followed when writing the deltaAdd register set:
       #    --- MODEM_SRCCHF, MODEM_BCRDEMODCTRL, MODEM_VITERBIDEMOD has to be written first
@@ -390,7 +404,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
           for x in lastWrites:
             reg_lists.append(x) # move the last set of register @ the end of deltaAdd list
 
-  def formatModemConfigEntries(self, configName, phyConfigEntry, registerEntries, base=False, subtract=False):
+  def formatModemConfigEntries(self, configName, phyConfigEntry, registerEntries, base=False, subtract=False, commonBase=False, reg_group_name=None):
     if self.rail_version == 1:
       # RAIL 1.x requires an action for every write
       for registerAddress, registerValue in registerEntries:
@@ -403,7 +417,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
       names = []
 
       # Create a new modemConfig element, and grab appropriate references based on
-      # whether this is a regular or subtract node.
+      # the mode.
       if base == True:
         if self.rail_version >= 3:
           newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesBase.newElement(configName + "_modem_config_base")
@@ -412,12 +426,21 @@ class RAILAdapter_MultiPhy(RAILAdapter):
         currentModemConfigs = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesBase
         currentPhyConfigEntryModemConfigEntry = phyConfigEntry.modemConfigEntryBase
       elif subtract == True:
-        if self.rail_version >= 3:
-          newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesSubtract.newElement(configName + "_modem_config_subtract")
-        else:
+        if self.rail_version < 3:
           newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesSubtract.newElement(configName + "_modemConfigSubtract")
-        currentModemConfigs = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesSubtract
-        currentPhyConfigEntryModemConfigEntry = phyConfigEntry.modemConfigEntrySubtract
+          currentModemConfigs = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesSubtract
+          currentPhyConfigEntryModemConfigEntry = phyConfigEntry.modemConfigEntrySubtract
+        else:
+          raise Exception("phy_config_delta_subtract is not supported in RAIL 3.x")
+      elif commonBase == True:
+        if self.rail_version >= 3:
+          newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesCommonBase.newElement(configName + "_modem_config_common_base")
+          currentModemConfigs = self.railModel.multiPhyConfig.commonStructures.modemConfigEntriesCommonBase
+          currentPhyConfigEntryModemConfigEntry = phyConfigEntry.modemConfigEntryCommonBase
+      elif reg_group_name is not None:
+        newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigGroupEntries.newElement(phyConfigEntry.name + f"_modem_config_group_{reg_group_name}")
+        currentModemConfigs = self.railModel.multiPhyConfig.commonStructures.modemConfigGroupEntries
+        currentPhyConfigEntryModemConfigEntry = phyConfigEntry.modemConfigGroupEntry
       else:
         if self.rail_version >= 3:
           newModemConfig = self.railModel.multiPhyConfig.commonStructures.modemConfigEntries.newElement(phyConfigEntry.name + "_modem_config")
@@ -555,9 +578,10 @@ class RAILAdapter_MultiPhy(RAILAdapter):
     if len(regs) > 0:
 
       if self.pte_script is False:
-        # Write the address of the phyInfo structure to SEQ.PHYINFO.ADDRESS
-        address = self._getRegAddressWithPolarity("SEQ","PHYINFO")
-        regs.append((address, phyConfigEntry.phyInfoEntry.value, "SEQ.PHYINFO"))
+        if self.rail_version < 3:
+          # Write the address of the phyInfo structure to SEQ.PHYINFO.ADDRESS
+          address = self._getRegAddressWithPolarity("SEQ","PHYINFO")
+          regs.append((address, phyConfigEntry.phyInfoEntry.value, "SEQ.PHYINFO"))
 
       # Write the address of the last Dynamic Slicer Configuration link
       # if there are any present, exclude the write if false
@@ -592,7 +616,16 @@ class RAILAdapter_MultiPhy(RAILAdapter):
 
     registers_base = baseChannelConfig.phy_config_base
     registers_channel = channelConfigEntry.phy_config_delta_add
-    registers_subtract = baseChannelConfig.phy_config_delta_subtract
+    if self.rail_version >= 3:
+      # Setting it to empty until calculator can provide phy_config_common_base registers
+      registers_common = {}
+    else:
+      registers_subtract = baseChannelConfig.phy_config_delta_subtract
+
+    if self.rail_version >= 3:
+      register_groups_dict = dict()
+      for register_group in channelConfigEntry.register_groups.register_group:
+        register_groups_dict[register_group.name] = register_group.phy_config_delta_grouped_add
 
     # Don't let the configurator dictate channel information to us. We use the
     # RAIL_ChannelConfig_t via SYNTH_Config to determine the below registers_channel,
@@ -600,15 +633,22 @@ class RAILAdapter_MultiPhy(RAILAdapter):
     # Also, BLOCKRAMADDR and CONVRAMADDR should only be written by us (RAIL)
     # We use pop(X, None) to avoid raising KeyError in case the register is not
     # in the dictionary
+    registers_sets_prune_list = [registers_base, registers_channel]
+    if self.rail_version >= 3:
+      registers_sets_prune_list += [register_groups_dict[phy_config_delta_grouped_add] for phy_config_delta_grouped_add in register_groups_dict]
     for register in config.PROTECTED_REGS:
-      for register_set in [ registers_base, registers_channel ]:
+      for register_set in registers_sets_prune_list:
         x = register_set.pop(register, None)
         if (x != None) and debug_print:
           print("Protected register found in register set, removing.")
           print(x)
 
     self.registers_base = registers_base
-    self.registers_subtract = registers_subtract
+    if self.rail_version >= 3:
+      self.registers_common = registers_common
+      self.register_groups_dict = register_groups_dict
+    else:
+      self.registers_subtract = registers_subtract
     self.registers_channel = registers_channel
 
   def _generatePhyInfoStructure(self, phyConfigEntry, baseConfigOptions, channelConfigOptions, model):
@@ -661,7 +701,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
       rssiAdjustDb = 0
 
     data.antDivRxAutoConfig.value = antDivConfiguration
-    if self.partFamily.lower() in [ "ocelot", "margay" ]:
+    if self.partFamily.lower() in [ "ocelot", "margay", "serval" ]:
       # The ADCDIV will take the place of the deprecated SRC1 field for Ocelot and Margay to resolve
       # the bug causing RAIL_LIB-9898.
       data.src1Denominator.value = model.vars.adc_vco_div_actual.value
@@ -849,7 +889,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
     outputs = model.profile.outputs
 
     legacyIrConfig = True
-    if (self.partFamily.lower() in ["ocelot", "sol", "margay"]):
+    if (self.partFamily.lower() in ["ocelot", "sol", "margay", "serval"]):
       # For the subG chip,
       # if there is a 2.4Ghz PHY being built, it should use the same ircal coefficient
       # as all the 2.4GHz PHYs should get the coefficient from DEVINFO
@@ -1172,7 +1212,7 @@ class RAILAdapter_MultiPhy(RAILAdapter):
 
 
   def _generateDcdcRetimingStructure(self, phyConfigEntry, model):
-    if (self.partFamily in ["ocelot", "sol", "margay"]):
+    if (self.partFamily in ["ocelot", "sol", "margay", "serval"]):
       # Get a local reference to model.profile.outputs to use here
       outputs = model.profile.outputs
 
@@ -1414,6 +1454,16 @@ class RAILAdapter_MultiPhy(RAILAdapter):
     else:
       regs.append((regAddress, 0, "FRC.BLOCKRAMADDR"))
 
+  def _generateChannelConfigGroups(self, phyConfigEntry):
+    newChannelConfigGroup = phyConfigEntry.channelConfigGroups.newElement()
+    newChannelConfigGroup.modemConfigGroup.value = phyConfigEntry.modemConfigGroupEntry.value
+    modemConfigGroupLength = 0
+    if newChannelConfigGroup.modemConfigGroup.value is not None:
+      for element in phyConfigEntry.modemConfigGroupEntry.value._elements:
+        modemConfigGroupLength = modemConfigGroupLength + element.length.value
+    newChannelConfigGroup.modemConfigGroupLength.value = modemConfigGroupLength
+    phyConfigEntry.channelConfigGroups.addElement(newChannelConfigGroup)
+
   def _generateChannelStructures(self, multiPhyConfigEntry, phyConfigEntry, channelConfigEntry):
 
     # Create a new Channel Config Entry
@@ -1436,6 +1486,8 @@ class RAILAdapter_MultiPhy(RAILAdapter):
         for element in phyConfigEntry.modemConfigEntry.value._elements:
           modemConfigDeltaAddLength = modemConfigDeltaAddLength + element.length.value
       newChannelConfigEntry.modemConfigDeltaAddLength.value = modemConfigDeltaAddLength
+      newChannelConfigEntry.channelConfigGroups.value = phyConfigEntry.channelConfigGroups
+      newChannelConfigEntry.channelConfigGroupsLength.value = len(phyConfigEntry.channelConfigGroups._elements)
 
     # Traverse existing channelConfigEntries and check for duplicates
     entryFound = False
@@ -1454,7 +1506,10 @@ class RAILAdapter_MultiPhy(RAILAdapter):
       # Populate the channelConfig object
       channelConfig = multiPhyConfigEntry.channelConfig
       channelConfig.modemConfigBase.value = multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntryBase.value
-      channelConfig.modemConfigDeltaSubtract.value = multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntrySubtract.value
+      if self.rail_version >= 3:
+        channelConfig.modemConfigCommonBase.value = multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntryCommonBase.value
+      else:
+        channelConfig.modemConfigDeltaSubtract.value = multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntrySubtract.value
       channelConfig.channelConfigEntries.value = multiPhyConfigEntry.channelConfigEntries
       channelConfig.length.value = len(multiPhyConfigEntry.channelConfigEntries._elements)
       channelConfig.signature.value = 0
@@ -1462,17 +1517,17 @@ class RAILAdapter_MultiPhy(RAILAdapter):
 
       if self.rail_version >= 3:
         modemConfigBaseLength = 0
-        modemConfigDeltaSubtractLength = 0
+        modemConfigCommonBaseLength = 0
 
         if channelConfig.modemConfigBase.value is not None:
           for element in multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntryBase.value._elements:
             modemConfigBaseLength = modemConfigBaseLength + element.length.value
         channelConfig.modemConfigBaseLength.value = modemConfigBaseLength
 
-        if channelConfig.modemConfigDeltaSubtract.value is not None:
-          for element in multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntrySubtract.value._elements:
-            modemConfigDeltaSubtractLength = modemConfigDeltaSubtractLength + element.length.value
-        channelConfig.modemConfigDeltaSubtractLength.value = modemConfigDeltaSubtractLength
+        if channelConfig.modemConfigCommonBase.value is not None:
+          for element in multiPhyConfigEntry.phyConfigEntries._elements[0].modemConfigEntryCommonBase.value._elements:
+            modemConfigCommonBaseLength = modemConfigCommonBaseLength + element.length.value
+        channelConfig.modemConfigCommonBaseLength.value = modemConfigCommonBaseLength
 
   def _orderChannelConfigEntries(self, railModel):
 
@@ -1804,14 +1859,23 @@ class RAILAdapter_MultiPhy(RAILAdapter):
 
           regs_channel = self._convertRmToRegisterList(self.registers_channel)
           regs_base = self._convertRmToRegisterList(self.registers_base)
-          regs_subtract = self._convertRmToRegisterList(self.registers_subtract)
+          if self.rail_version >= 3:
+            regs_common = self._convertRmToRegisterList(self.registers_common)
+            regs_group_dict = dict()
+            for reg_group in self.register_groups_dict:
+              regs_group_dict[reg_group] = self._convertRmToRegisterList(self.register_groups_dict[reg_group])
+          else:
+            regs_subtract = self._convertRmToRegisterList(self.registers_subtract)
           regs_channel = self._generateModemConfigEntries(phyConfigEntry, radioConfigModel, regs_channel)
 
           # NOTE! Special case: If regs_channel is empty, and the base is not, it means we need to include
           # the registers normally in the channel specific modemConfig in the base
           if not regs_channel:
             regs_base = self._generateModemConfigEntries(phyConfigEntry, radioConfigModel, regs_base)
-          regs_subtract = self._generateModemConfigEntries(phyConfigEntry, radioConfigModel, regs_subtract)
+          if self.rail_version >= 3:
+            regs_common = self._generateModemConfigEntries(phyConfigEntry, radioConfigModel, regs_common)
+          else:
+            regs_subtract = self._generateModemConfigEntries(phyConfigEntry, radioConfigModel, regs_subtract)
 
           # Package metadata in a struct for unpacking after optimization
           meta = (configName, phyConfigEntry, multiPhyConfigEntry, channelConfigEntry)
@@ -1820,15 +1884,27 @@ class RAILAdapter_MultiPhy(RAILAdapter):
 
           # Update regs for RAIL owned registers like FRC.CONVRAMADDR (series 1) & FRC.BLOCKRAMADDR
           regs_base, regs_channel = self._addRailOwnedRegsToConfigEntries(reference, phyConfigEntry, radioConfigModel, regs_base, regs_channel)
-
+          if self.rail_version >= 3:
+            for reg_group in regs_group_dict:
+              _, regs_group_dict[reg_group] = self._addRailOwnedRegsToConfigEntries(reference, phyConfigEntry, radioConfigModel, regs_base, regs_group_dict[reg_group])
           if not reference in radio_configs:
-            radio_configs[reference] = {
-              "base": regs_base,
-              "subtract": regs_subtract,
-              "add": [(regs_channel, meta)],
-            }
+            if self.rail_version >= 3:
+              radio_configs[reference] = {
+                "base": regs_base,
+                "common": regs_common,
+                "add": [(regs_channel, meta, regs_group_dict)],
+              }
+            else:
+              radio_configs[reference] = {
+                "base": regs_base,
+                "subtract": regs_subtract,
+                "add": [(regs_channel, meta)],
+              }
           else:
-            radio_configs[reference]["add"].append((regs_channel, meta))
+            if self.rail_version >= 3:
+              radio_configs[reference]["add"].append((regs_channel, meta, regs_group_dict))
+            else:
+              radio_configs[reference]["add"].append((regs_channel, meta))
         else:
           self._railModelPopulated = False
           print('Radio configurator had a failure, exiting rail scripts.')
@@ -1839,19 +1915,37 @@ class RAILAdapter_MultiPhy(RAILAdapter):
       self.optimizeRadioConfig(radio_config)
 
       regs_base = radio_config["base"]
-      regs_subtract = radio_config["subtract"]
+      if self.rail_version >= 3:
+        regs_common = radio_config["common"]
+      else:
+        regs_subtract = radio_config["subtract"]
 
-      for regs_channel, meta in radio_config["add"]:
-        configName = meta[0]
-        phyConfigEntry = meta[1]
-        multiPhyConfigEntry = meta[2]
-        channelConfigEntry = meta[3]
-        self.formatModemConfigEntries(configName, phyConfigEntry, regs_base, True)
-        self.formatModemConfigEntries(configName, phyConfigEntry, regs_channel)
-        self.formatModemConfigEntries(configName, phyConfigEntry, regs_subtract, False, True)
+      if self.rail_version >= 3:
+        for regs_channel, meta, regs_group_dict in radio_config["add"]:
+          configName = meta[0]
+          phyConfigEntry = meta[1]
+          multiPhyConfigEntry = meta[2]
+          channelConfigEntry = meta[3]
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_base, True)
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_channel)
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_common, False, False)
+          for reg_group in regs_group_dict:
+            self.formatModemConfigEntries(configName, phyConfigEntry, regs_group_dict[reg_group], False, False, reg_group_name=reg_group)
+            self._generateChannelConfigGroups(phyConfigEntry)
+          # Handle Channel Lists
+          self._generateChannelStructures(multiPhyConfigEntry, phyConfigEntry, channelConfigEntry)
+      else:
+        for regs_channel, meta in radio_config["add"]:
+          configName = meta[0]
+          phyConfigEntry = meta[1]
+          multiPhyConfigEntry = meta[2]
+          channelConfigEntry = meta[3]
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_base, True)
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_channel)
+          self.formatModemConfigEntries(configName, phyConfigEntry, regs_subtract, False, True)
+          # Handle Channel Lists
+          self._generateChannelStructures(multiPhyConfigEntry, phyConfigEntry, channelConfigEntry)
 
-        #Handle Channel Lists
-        self._generateChannelStructures(multiPhyConfigEntry, phyConfigEntry, channelConfigEntry)
     # Populate the channelConfigs objects
     self._generateChannelConfigs(self.railModel)
 

@@ -30,13 +30,13 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "sl_common.h"
 #include "sl_status.h"
 #include "sl_udelay.h"
 
 #include "sl_btmesh.h"
 #include "sl_bluetooth.h"
 #include "app.h"
+#include "sl_main_init.h"
 #include "app_assert.h"
 #include "app_log.h"
 #include "app_btmesh_util.h"
@@ -108,7 +108,7 @@ static bool init_done = false;
 /*******************************************************************************
  * Application Init.
  ******************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -122,7 +122,7 @@ SL_WEAK void app_init(void)
 /*******************************************************************************
  * Application Process Action.
  ******************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //
@@ -204,7 +204,8 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 
     case sl_bt_evt_connection_closed_id:
       if (num_connections > 0) {
-        if (--num_connections == 0) {
+        num_connections--;
+        if (num_connections == 0) {
           lcd_print("", SL_BTMESH_WSTK_LCD_ROW_CONNECTION_CFG_VAL);
           app_log("Disconnected" APP_LOG_NL);
         }

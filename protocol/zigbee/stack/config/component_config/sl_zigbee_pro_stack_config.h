@@ -113,6 +113,11 @@
 // <i> The number of entries that the binding table can hold.
 #define SL_ZIGBEE_BINDING_TABLE_SIZE   3
 
+// <o SL_ZIGBEE_ADDRESS_TABLE_SIZE> Address Table Size <1-256>
+// <i> Default: 12
+// <i> The number of entries that the Address Table can hold.
+#define SL_ZIGBEE_ADDRESS_TABLE_SIZE   12
+
 // </h>
 
 // <<< end of configuration section >>>

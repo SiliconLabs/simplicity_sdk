@@ -313,13 +313,13 @@ sl_802154_pan_id_t sl_zigbee_get_pan_id(void);
 
 /** @brief Set the configured 802.15.4 CCA mode in the radio. For a list of
  * CCA modes, please refer to RAIL documentation regarding
- * RAIL_IEEE802154_CcaMode_t.
+ * sl_rail_ieee802154_cca_mode_t.
  *
- * @param ccaMode  A RAIL_IEEE802154_CcaMode_t value
+ * @param ccaMode  A sl_rail_ieee802154_cca_mode_t value
  *
  * @return SL_STATUS_OK upon success, SL_STATUS_FAIL otherwise.
  *
- * @note The default CCA mode for Zigbee is RAIL_IEEE802154_CCA_MODE_RSSI.
+ * @note The default CCA mode for Zigbee is SL_RAIL_IEEE802154_CCA_MODE_RSSI.
  *
  * @note As mentioned in the RAIL documentation, on platforms that don't support
  * different CCA modes, a call to this function will do nothing.

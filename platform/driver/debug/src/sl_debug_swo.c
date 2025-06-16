@@ -53,6 +53,7 @@ sl_status_t sl_debug_swo_init(void)
 
   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
 
+#if !defined(SL_DEBUG_SWO_ENABLE) || (SL_DEBUG_SWO_ENABLE == 1)
   // Setup GPIO
 #if defined(GPIO_SWV_PORT)
   sl_gpio_t gpio_swv;
@@ -61,6 +62,7 @@ sl_status_t sl_debug_swo_init(void)
   sl_gpio_set_pin_mode(&gpio_swv, SL_GPIO_MODE_PUSH_PULL, 1);
 #endif
   sl_hal_gpio_enable_debug_swo(true);
+#endif
 
 #if (_SILICON_LABS_32B_SERIES == 2) && !defined(SL_CATALOG_CLOCK_MANAGER_PRESENT)
 #if defined(_CMU_TRACECLKCTRL_CLKSEL_MASK)

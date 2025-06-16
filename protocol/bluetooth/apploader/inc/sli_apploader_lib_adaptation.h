@@ -17,9 +17,9 @@
 #ifndef SLI_APPLOADER_LIB_ADAPTATION_H
 #define SLI_APPLOADER_LIB_ADAPTATION_H
 
-#include <rail.h>
+#include <sl_rail.h>
 
 void sli_apploader_set_interrupt_priorities();
-RAIL_TxPowerConfig_t *sli_apploader_get_tx_power_config();
+sl_rail_tx_power_config_t *sli_apploader_get_tx_power_config();
 
 #endif // SLI_APPLOADER_LIB_ADAPTATION_H

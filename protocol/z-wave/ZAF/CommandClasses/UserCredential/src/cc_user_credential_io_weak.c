@@ -29,7 +29,7 @@ ZW_WEAK void CC_UserCredential_init_database(void)
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_get_user(
   __attribute__((unused)) uint16_t unique_identifier,
-  __attribute__((unused)) u3c_user * user,
+  __attribute__((unused)) u3c_user_t * user,
   __attribute__((unused)) uint8_t * name)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
@@ -42,14 +42,14 @@ ZW_WEAK uint16_t CC_UserCredential_get_next_user(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_add_user(
-  __attribute__((unused)) u3c_user * user,
+  __attribute__((unused)) u3c_user_t * user,
   __attribute__((unused)) uint8_t * name)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_modify_user(
-  __attribute__((unused)) u3c_user * user,
+  __attribute__((unused)) u3c_user_t * user,
   __attribute__((unused)) uint8_t * name)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
@@ -69,7 +69,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_get_credential(
   __attribute__((unused)) uint16_t user_unique_identifier,
   __attribute__((unused)) u3c_credential_type credential_type,
   __attribute__((unused)) uint16_t credential_slot,
-  __attribute__((unused)) u3c_credential_metadata * credential_metadata,
+  __attribute__((unused)) u3c_credential_metadata_t * credential_metadata,
   __attribute__((unused)) uint8_t * credential_data)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
@@ -86,13 +86,13 @@ ZW_WEAK bool CC_UserCredential_get_next_credential(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_add_credential(
-  __attribute__((unused)) u3c_credential * credential)
+  __attribute__((unused)) u3c_credential_t * credential)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_modify_credential(
-  __attribute__((unused)) u3c_credential * credential)
+  __attribute__((unused)) u3c_credential_t * credential)
 {
   return U3C_DB_OPERATION_RESULT_ERROR;
 }

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_sync_scanner"
 label: "Synchronization to periodic advertising trains by scanning"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Synchronize to periodic advertising trains by scanning for extended
   advertisements that provide the synchronization information.

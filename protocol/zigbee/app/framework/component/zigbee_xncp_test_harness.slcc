@@ -1,6 +1,6 @@
 id: zigbee_xncp_test_harness
 label: XNCP Test Harness
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 description: Allows a test harness running on a host to control non-standard behavior on the NCP.

@@ -29,9 +29,9 @@
  ******************************************************************************/
 
 #include "sl_rail_util_load_devinfo.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 void sl_rail_util_load_devinfo(void)
 {
-  (void) RAIL_CopyDeviceInfo(RAIL_EFR32_HANDLE);
+  (void) sl_rail_copy_device_info(SL_RAIL_EFR32_HANDLE);
 }

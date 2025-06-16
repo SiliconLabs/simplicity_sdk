@@ -32,15 +32,20 @@
 #define SL_BTMESH_TIME_SERVER_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_time_server
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Scenes initialization.
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
  * This function is called automatically after enabling the component.
  *
  * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
+ *         Returns SL_STATUS_OK if successful. Error code otherwise.
  ******************************************************************************/
-uint16_t sl_btmesh_scenes_init(void);
+sl_status_t sl_btmesh_scenes_init(void);
 
 /***************************************************************************//**
  * Handling of mesh time events.
@@ -56,4 +61,5 @@ uint16_t sl_btmesh_scenes_init(void);
  ******************************************************************************/
 void sl_btmesh_time_server_on_event(sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_time_server) */
 #endif // SL_BTMESH_TIME_SERVER_H

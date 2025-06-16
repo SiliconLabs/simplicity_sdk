@@ -39,7 +39,7 @@
 #include "sl_rail_util_init_inst0_config.h"
 #include "sl_rail_util_protocol_types.h"
 #include "sl_rail_util_pa_config.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
 #include "app_log.h"
@@ -49,7 +49,7 @@
 #endif
 
 #include "rail_config.h"
-#include "rail_chip_specific.h"
+#include "sl_rail_chip_specific.h"
 #include "sl_rail_util_pa_config.h"
 
 /**
@@ -70,7 +70,7 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 /**
- * @enum RAIL_Protocol_t
+ * @enum RAIL_SDK_Protocol_t
  * @brief Enumeration of different radio protocols.
  *
  * This enumeration defines the various radio protocols that can be used.
@@ -90,7 +90,7 @@ typedef enum {
   MBUS = 11, /*!< Wireless M-Bus protocol */
   SIGFOX = 12, /*!< Sigfox protocol */
   UNDEFINED = 13 /*!< Undefined protocol */
-} RAIL_Protocol_t;
+} RAIL_SDK_Protocol_t;
 
 /** @} (end rail_sdk_packet_assistant_types) */
 // -----------------------------------------------------------------------------
@@ -112,14 +112,15 @@ void validation_check(void);
 void update_assistant_pointers(uint8_t new_phy_index);
 
 /**
- * @brief Unpacks the received packet, points to the payload and returns the length.
+ * @brief Unpacks the received packet, points to the payload, and returns the length.
  *
- * @param[out] rx_destination Where should the full packet be unpacked
- * @param[out] packet_information Where should all the information of the packet stored
- * @param[out] start_of_payload Pointer where the payload starts
- * @return The length of the received payload
+ * @param[in] rail_handle The RAIL handle used for unpacking the packet.
+ * @param[out] rx_destination Where should the full packet be unpacked.
+ * @param[out] packet_information Where should all the information of the packet stored.
+ * @param[out] start_of_payload Pointer where the payload starts.
+ * @return The length of the received payload.
  */
-uint16_t unpack_packet(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
+uint16_t unpack_packet(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
 
 /**
  * @brief Prepares the packet for sending and load it in the RAIL TX FIFO
@@ -128,7 +129,7 @@ uint16_t unpack_packet(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packe
  * @param[in] out_data The payload buffer
  * @param[in] length The length of the payload
  */
-void prepare_packet(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
+void prepare_packet(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
 
 /**
  * @brief Get the print packet information.

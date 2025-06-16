@@ -220,9 +220,7 @@ void sl_button_on_change(const sl_button_t *handle)
 #if defined(SL_CATALOG_KERNEL_PRESENT)
       if (enable_sleep) {
         sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
-        sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
       } else {
-        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM2);
         sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
       }
 #endif

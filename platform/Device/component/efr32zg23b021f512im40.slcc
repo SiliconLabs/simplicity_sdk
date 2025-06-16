@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32ZG23B021F512IM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32ZG23B021F512IM40.
 - category: Platform|Device|EFR32ZG23
 - quality: production
@@ -167,6 +167,7 @@
   - name: device_supports_connect
   - name: device_supports_zwave
   - name: device_supports_zwave_gateway
+  - name: device_supports_wisun
   - name: device_compute_basic
 - recommends:
   - id: trustzone_unaware

@@ -40,14 +40,14 @@ enum {
 
 extern uint8_t admin_key[16];
 extern uint32_t sl_zigbee_direct_anonymous_join_timeout_sec;
-extern uint8_t sl_zigbee_direct_interface_state;
+extern uint8_t sli_zigbee_direct_interface_state;
 extern uint8_t zigbee_direct_session_key[16];
 extern uint32_t incoming_counter;
 extern uint32_t outgoing_counter;
 extern sl_zigbee_af_event_t sli_zigbee_direct_anonymous_join_event;
 extern bool sli_zigbee_direct_tc_is_zigbee_direct_aware;
 
-void sl_zigbee_direct_handle_authenticate_write(uint8_t connection, uint8array *writeValue, uint16_t characteristic);
+void sli_zigbee_direct_handle_authenticate_write(uint8_t connection, byte_array *writeValue, uint16_t characteristic);
 void sli_zigbee_direct_anonymous_join_event_handler(sl_zigbee_af_event_t *event);
 
 /** @brief Calculates the Basic Key for a given ZVD based on the
@@ -60,7 +60,7 @@ void sli_zigbee_direct_anonymous_join_event_handler(sl_zigbee_af_event_t *event)
  * @return Returns ::SL_STATUS_OK the Basic Key was calculated successfully,
  *         ::SL_STATUS_FAIL if not.
  */
-sl_status_t sl_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* basic_key);
+sl_status_t sli_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* basic_key);
 
 /** @brief Calculates the Admin Key for a given ZVD based on the
  * current TC link key for that device
@@ -72,7 +72,7 @@ sl_status_t sl_zigbee_direct_calculate_basic_key(sl_802154_long_addr_t zvd_IEEE,
  * @return Returns ::SL_STATUS_OK the Admin Key was calculated successfully,
  *         ::SL_STATUS_FAIL if not.
  */
-sl_status_t sl_zigbee_direct_calculate_admin_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* admin_key);
+sl_status_t sli_zigbee_direct_calculate_admin_key(sl_802154_long_addr_t zvd_IEEE, uint8_t* admin_key);
 
 /** @brief Converts 16-bit UUID into 128-bit UUID
  *
@@ -105,7 +105,7 @@ sl_status_t sli_zigbee_direct_security_init();
  *                    The encryptData will contain the encrypted message
  *         ::SL_STATUS_FAIL if not.
  */
-sl_status_t sl_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *encryptData, uint16_t dataLen, uint16_t handle);
+sl_status_t sli_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *encryptData, uint16_t dataLen, uint16_t handle);
 
 /** @brief Decrypt Zigbee Direct packet
  * Direction of transmission is ZVD towards ZDD
@@ -122,6 +122,6 @@ sl_status_t sl_zigbee_direct_security_encrypt_packet(sl_802154_long_addr_t sourc
  *                    The decryptData will contain the decrypted message
  *         ::FALSE if not.
  */
-bool sl_zigbee_direct_security_decrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *decryptData, uint16_t dataLen, uint16_t handle);
+bool sli_zigbee_direct_security_decrypt_packet(sl_802154_long_addr_t sourceEui, uint8_t *decryptData, uint16_t dataLen, uint16_t handle);
 
 #endif // SILABS_ZIGBEE_DIRECT_SECURITY_H

@@ -36,7 +36,7 @@
 #include "app_process.h"
 #include "app_framework_common.h"
 #include "sl_light_switch.h"
-// Ensure that psa is initialized corretly
+// Ensure that psa is initialized correctly
 #include "psa/crypto.h"
 
 // -----------------------------------------------------------------------------
@@ -78,7 +78,7 @@ void app_init(void)
 ******************************************************************************/
 void emberAfInitCallback(void)
 {
-  // Ensure that psa is initialized corretly
+  // Ensure that psa is initialized correctly
   psa_crypto_init();
 
   emberAfAllocateEvent(&state_machine_event, &state_machine_handler);

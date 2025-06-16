@@ -190,6 +190,11 @@ SL_WEAK bool sl_iperf_network_is_connected(void)
   return false;
 }
 
+SL_WEAK void sl_iperf_network_wait_for_connection(void)
+{
+  (void) 0;
+}
+
 SL_WEAK uint16_t sl_iperf_network_htons(uint16_t val)
 {
   return val;

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Messaging client cluster. This component requires extending to display the message on the hardware display.
 label: Messaging Client Cluster
 quality: evaluation

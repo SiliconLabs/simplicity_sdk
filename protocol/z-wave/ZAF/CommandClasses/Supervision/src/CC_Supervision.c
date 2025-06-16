@@ -121,8 +121,6 @@
 #include <ZW_TransportMulticast.h>
 #include <string.h>
 #include <ZAF_Common_interface.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 #include "zpal_entropy.h"
 #include <ZW_typedefs.h>
 #include "zaf_transport_tx.h"
@@ -141,7 +139,7 @@
 static uint8_t supervision_session_id = 0;
 static uint8_t previously_receive_session_id = 0;
 static uint8_t previously_rxStatus = 0;
-static MULTICHAN_DEST_NODE_ID previously_received_destination = {0, 0, 0};
+static MULTICHAN_DEST_NODE_ID previously_received_destination = { 0, 0, 0 };
 
 static uint8_t m_CommandLength = 0;
 
@@ -174,8 +172,7 @@ ZW_WEAK void cc_supervision_get_received_handler(SUPERVISION_GET_RECEIVED_HANDLE
 {
   // More Status Update bit must be set if StatusUpdate (pArgs) bit is true.
   // Unless the status is SUCCESS, in which case an update is not necessary.
-  if (pArgs->status == CC_SUPERVISION_STATUS_SUCCESS)
-  {
+  if (pArgs->status == CC_SUPERVISION_STATUS_SUCCESS) {
     const uint8_t more_status_update_this_is_last = 1;
     pArgs->properties1 &= ~(CC_SUPERVISION_ADD_MORE_STATUS_UPDATE(more_status_update_this_is_last));
   }
@@ -193,12 +190,10 @@ ZW_WEAK void cc_supervision_report_recived_handler(__attribute__((unused)) cc_su
  */
 static bool mustCommandBeHandled(MULTICHAN_DEST_NODE_ID nodeID, uint8_t sessionID)
 {
-  if (previously_receive_session_id != sessionID)
-  {
+  if (previously_receive_session_id != sessionID) {
     return true;
   }
-  if (0 != memcmp((uint8_t *)&nodeID, (uint8_t *)&previously_received_destination, sizeof(MULTICHAN_DEST_NODE_ID)))
-  {
+  if (0 != memcmp((uint8_t *)&nodeID, (uint8_t *)&previously_received_destination, sizeof(MULTICHAN_DEST_NODE_ID))) {
     return true;
   }
   return false;
@@ -211,8 +206,7 @@ static received_frame_status_t CC_Supervision_handler(
   ZW_APPLICATION_TX_BUFFER * pFrameOut,
   __attribute__((unused)) uint8_t * pLengthOut)
 {
-  switch (pCmd->ZW_Common.cmd)
-  {
+  switch (pCmd->ZW_Common.cmd) {
     case SUPERVISION_GET:
     {
       /**
@@ -246,8 +240,7 @@ static received_frame_status_t CC_Supervision_handler(
       cc_handler_output_t output = { 0 };
       SetFlagSupervisionEncap(true);
 
-      if(previously_receive_session_id != CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1))
-      {
+      if (previously_receive_session_id != CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1)) {
         /*
          * Reset status session id is changed.
          */
@@ -255,10 +248,8 @@ static received_frame_status_t CC_Supervision_handler(
       }
 
       /* Make sure encapsulated CmdClass are supported (including possible endpoints) using current keyclass */
-      if (true == ZAF_CC_MultiChannel_IsCCSupported(rxOpt, (ZW_APPLICATION_TX_BUFFER *)(((uint8_t *)pCmd) + sizeof(ZW_SUPERVISION_GET_FRAME))))
-      {
-        if (true == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1)))
-        {
+      if (true == ZAF_CC_MultiChannel_IsCCSupported(rxOpt, (ZW_APPLICATION_TX_BUFFER *)(((uint8_t *)pCmd) + sizeof(ZW_SUPERVISION_GET_FRAME)))) {
+        if (true == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1))) {
           // Fill in supervision data in rxOpt
           rxOpt->bSupervisionActive = 1;
           rxOpt->sessionId = (uint8_t)CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1);
@@ -283,15 +274,13 @@ static received_frame_status_t CC_Supervision_handler(
 
           if (CC_SUPERVISION_STATUS_NOT_FOUND == status) {
             status = (cc_supervision_status_t)Transport_ApplicationCommandHandlerEx(
-                    rxOpt,
-                    (ZW_APPLICATION_TX_BUFFER *)(((uint8_t *)pCmd) + sizeof(ZW_SUPERVISION_GET_FRAME)),
-                    (pCmd->ZW_SupervisionGetFrame.encapsulatedCommandLength));
+              rxOpt,
+              (ZW_APPLICATION_TX_BUFFER *)(((uint8_t *)pCmd) + sizeof(ZW_SUPERVISION_GET_FRAME)),
+              (pCmd->ZW_SupervisionGetFrame.encapsulatedCommandLength));
           }
 #pragma GCC diagnostic pop
         }
-      }
-      else
-      {
+      } else {
         status = CC_SUPERVISION_STATUS_NOT_SUPPORTED;
       }
 
@@ -300,8 +289,7 @@ static received_frame_status_t CC_Supervision_handler(
        */
       SetFlagSupervisionEncap(false);
 
-      if (CC_SUPERVISION_STATUS_CANCEL == status)
-      {
+      if (CC_SUPERVISION_STATUS_CANCEL == status) {
         // do nothing.
         return RECEIVED_FRAME_STATUS_SUCCESS;
       }
@@ -313,10 +301,9 @@ static received_frame_status_t CC_Supervision_handler(
        * bit addressing frames.
        * RECEIVE_STATUS_TYPE_BROAD applies in the case of S2 multicast frames.
        */
-      if ((rxOpt->rxStatus & RECEIVE_STATUS_TYPE_MULTI) ||
-          (rxOpt->rxStatus & RECEIVE_STATUS_TYPE_BROAD))      {
-        if (false == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1)))
-        {
+      if ((rxOpt->rxStatus & RECEIVE_STATUS_TYPE_MULTI)
+          || (rxOpt->rxStatus & RECEIVE_STATUS_TYPE_BROAD)) {
+        if (false == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1))) {
           return RECEIVED_FRAME_STATUS_FAIL;
         }
 
@@ -326,17 +313,15 @@ static received_frame_status_t CC_Supervision_handler(
         previously_rxStatus = rxOpt->rxStatus;
 
         return RECEIVED_FRAME_STATUS_SUCCESS;
-      }
-      else
-      {
+      } else {
         /*
          * In this case the frame is sent using singlecast.
          *
          * We cannot respond to a singlecast in the following scenarios:
          * - Session ID is unchanged from last singlecast
          */
-          if ((false == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1))) &&
-              (0 == previously_rxStatus))        {
+        if ((false == mustCommandBeHandled(rxOpt->destNode, CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1)))
+            && (0 == previously_rxStatus)) {
           return RECEIVED_FRAME_STATUS_FAIL;
         }
       }
@@ -347,9 +332,8 @@ static received_frame_status_t CC_Supervision_handler(
 
       properties1 = CC_SUPERVISION_EXTRACT_SESSION_ID(pCmd->ZW_SupervisionGetFrame.properties1);
       properties1 |= CC_SUPERVISION_ADD_MORE_STATUS_UPDATE(CC_SUPERVISION_MORE_STATUS_UPDATES_THIS_IS_LAST);
-      if ((CC_SUPERVISION_STATUS_FAIL != status) &&
-          (CC_SUPERVISION_STATUS_NOT_SUPPORTED != status))
-      {
+      if ((CC_SUPERVISION_STATUS_FAIL != status)
+          && (CC_SUPERVISION_STATUS_NOT_SUPPORTED != status)) {
         // Call the assigned function.
         SUPERVISION_GET_RECEIVED_HANDLER_ARGS args = {
           .cmdClass = *(((uint8_t *)pCmd) + sizeof(ZW_SUPERVISION_GET_FRAME)),
@@ -374,20 +358,19 @@ static received_frame_status_t CC_Supervision_handler(
       if (false == Check_not_legal_response_job(rxOpt)) {
         zaf_tx_options_t tx_options = { 0 };
         zaf_transport_rx_to_tx_options(rxOpt, &tx_options);
-        (void) CmdClassSupervisionReportSend(&tx_options, properties1, status, 
+        (void) CmdClassSupervisionReportSend(&tx_options, properties1, status,
                                              output.duration);
       }
     }
-    return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      return RECEIVED_FRAME_STATUS_SUCCESS;
+      break;
 
     case SUPERVISION_REPORT:
-      if (supervision_session_id == pCmd->ZW_SupervisionReportFrame.properties1)
-      {
+      if (supervision_session_id == pCmd->ZW_SupervisionReportFrame.properties1) {
         // The received session ID matches the one we sent.
         cc_supervision_report_recived_handler(
-                pCmd->ZW_SupervisionReportFrame.status,
-                pCmd->ZW_SupervisionReportFrame.duration);
+          pCmd->ZW_SupervisionReportFrame.status,
+          pCmd->ZW_SupervisionReportFrame.duration);
 
         ZW_TransportMulticast_clearTimeout();
       }
@@ -448,8 +431,8 @@ static void supervision_event_handler(const uint8_t event, const void *data)
   cc_supervision_report_event * event_data = (cc_supervision_report_event *)data;
 
   uint8_t properties =
-      CC_SUPERVISION_ADD_MORE_STATUS_UPDATE(CC_SUPERVISION_MORE_STATUS_UPDATES_THIS_IS_LAST) |
-      CC_SUPERVISION_ADD_SESSION_ID(event_data->session_id);
+    CC_SUPERVISION_ADD_MORE_STATUS_UPDATE(CC_SUPERVISION_MORE_STATUS_UPDATES_THIS_IS_LAST)
+    | CC_SUPERVISION_ADD_SESSION_ID(event_data->session_id);
 
   cc_supervision_status_t status = CC_SUPERVISION_STATUS_NOT_SUPPORTED;
   uint8_t duration = 0;
@@ -470,11 +453,10 @@ static void supervision_event_handler(const uint8_t event, const void *data)
       break;
   }
   CmdClassSupervisionReportSend(
-      &(event_data->tx_options),
-      properties,
-      status,
-      duration);
-
+    &(event_data->tx_options),
+    properties,
+    status,
+    duration);
 }
 
 ZAF_EVENT_DISTRIBUTOR_REGISTER_CC_EVENT_HANDLER(COMMAND_CLASS_SUPERVISION, supervision_event_handler);

@@ -9,8 +9,7 @@
 #include "cc_central_scene_io.h"
 #include <string.h>
 
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include <ZAF_TSE.h>
 #include "AppTimer.h"
 #include "zaf_transport_tx.h"
@@ -42,13 +41,11 @@ CC_CentralScene_handler(
   ZW_APPLICATION_TX_BUFFER *pFrameOut,
   uint8_t * pFrameOutLength)
 {
-  switch (pCmd->ZW_Common.cmd)
-  {
+  switch (pCmd->ZW_Common.cmd) {
     case CENTRAL_SCENE_SUPPORTED_GET_V2:
-      if (false == Check_not_legal_response_job(rxOpt))
-      {
+      if (false == Check_not_legal_response_job(rxOpt)) {
         size_t numberOfBytesWithKeyAttributes = get_supported_key_attributes(
-            &(pFrameOut->ZW_CentralSceneSupportedReport1byteV3Frame));
+          &(pFrameOut->ZW_CentralSceneSupportedReport1byteV3Frame));
 
         pFrameOut->ZW_CentralSceneSupportedReport1byteV3Frame.cmdClass = COMMAND_CLASS_CENTRAL_SCENE_V3;
         pFrameOut->ZW_CentralSceneSupportedReport1byteV3Frame.cmd = CENTRAL_SCENE_SUPPORTED_REPORT_V3;
@@ -62,8 +59,7 @@ CC_CentralScene_handler(
       break;
 
     case CENTRAL_SCENE_CONFIGURATION_GET_V3:
-      if (false == Check_not_legal_response_job(rxOpt))
-      {
+      if (false == Check_not_legal_response_job(rxOpt)) {
         prepare_configuration_report(pFrameOut);
         *pFrameOutLength = sizeof(ZW_CENTRAL_SCENE_CONFIGURATION_REPORT_V3_FRAME);
 
@@ -86,26 +82,25 @@ CC_CentralScene_handler(
       centralSceneData.rxOptions = *rxOpt;
 
       if (false == ZAF_TSE_Trigger(CC_CentralScene_configuration_report_stx,
-                                    (void *)&centralSceneData,
-                                    true))
-      {
-        DPRINTF("%s(): ZAF_TSE_Trigger failed\n", __func__);
+                                   (void *)&centralSceneData,
+                                   true)) {
+        ZPAL_LOG_ERROR(ZPAL_LOG_CC_CENTRAL_SCENE, "%s(): ZAF_TSE_Trigger failed\n", __func__);
       }
     }
-    return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      return RECEIVED_FRAME_STATUS_SUCCESS;
+      break;
   }
   return RECEIVED_FRAME_STATUS_NO_SUPPORT;
 }
 
 JOB_STATUS
 cc_central_scene_notification_tx(
-    AGI_PROFILE* pProfile,
-    uint8_t keyAttribute,
-    uint8_t sceneNumber,
-    ZAF_TX_Callback_t pCbFunc)
+  AGI_PROFILE* pProfile,
+  uint8_t keyAttribute,
+  uint8_t sceneNumber,
+  ZAF_TX_Callback_t pCbFunc)
 {
-  ccc_pair_t ccc_pair = {COMMAND_CLASS_CENTRAL_SCENE_V3, CENTRAL_SCENE_NOTIFICATION_V3};
+  ccc_pair_t ccc_pair = { COMMAND_CLASS_CENTRAL_SCENE_V3, CENTRAL_SCENE_NOTIFICATION_V3 };
   uint8_t payload[] = {
     sequenceNumber++,
     (uint8_t)((cc_central_scene_configuration.slowRefresh << 7) | (keyAttribute & 0x87)),
@@ -113,13 +108,13 @@ cc_central_scene_notification_tx(
   };
 
   return cc_engine_multicast_request(
-      pProfile,
-      ENDPOINT_ROOT,
-      &ccc_pair,
-      payload,
-      sizeof(payload),
-      true,
-      pCbFunc);
+    pProfile,
+    ENDPOINT_ROOT,
+    &ccc_pair,
+    payload,
+    sizeof(payload),
+    true,
+    pCbFunc);
 }
 
 /**
@@ -133,10 +128,10 @@ cc_central_scene_notification_tx(
 static void
 CC_CentralScene_configuration_report_stx(zaf_tx_options_t *tx_options, __attribute__((unused)) void* pData)
 {
-  DPRINTF("* %s() *\n"
-      "\ttxOpt.src = %d\n"
-      "\ttxOpt.options %#02x\n",
-      __func__, tx_options->source_endpoint, tx_options->tx_options);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_CENTRAL_SCENE, "* %s() *\n"
+                                            "\ttxOpt.src = %d\n"
+                                            "\ttxOpt.options %#02x\n",
+                 __func__, tx_options->source_endpoint, tx_options->tx_options);
 
   /* Prepare payload for report */
   ZW_APPLICATION_TX_BUFFER txBuf = { 0 };
@@ -162,12 +157,9 @@ static void init(void)
   cc_central_scene_migrate();
 
   bool status = cc_central_scene_read(&saved_configuration);
-  if(status)
-  {
+  if (status) {
     cc_central_scene_configuration.slowRefresh = saved_configuration.slowRefresh;
-  }
-  else
-  {
+  } else {
     reset();
   }
 
@@ -181,7 +173,6 @@ static void prepare_configuration_report(ZW_APPLICATION_TX_BUFFER *pTxBuffer)
   pTxBuffer->ZW_CentralSceneConfigurationReportV3Frame.cmdClass = COMMAND_CLASS_CENTRAL_SCENE_V3;
   pTxBuffer->ZW_CentralSceneConfigurationReportV3Frame.cmd = CENTRAL_SCENE_CONFIGURATION_REPORT_V3;
   pTxBuffer->ZW_CentralSceneConfigurationReportV3Frame.properties1 = ((uint8_t) (cc_central_scene_configuration.slowRefresh << 7));
-
 }
 
 /**
@@ -213,10 +204,10 @@ static uint8_t get_supported_key_attributes(ZW_CENTRAL_SCENE_SUPPORTED_REPORT_1B
 
 void
 cc_central_scene_handle_notification_timer(
-    bool start_timer,
-    uint8_t scene_number)
+  bool start_timer,
+  uint8_t scene_number)
 {
-  DPRINTF("%s timer scene %d\n", start_timer? "start":"stop", scene_number);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_CENTRAL_SCENE, "%s timer scene %d\n", start_timer? "start":"stop", scene_number);
 
   if (start_timer) {
     last_scene_number = scene_number;
@@ -224,14 +215,13 @@ cc_central_scene_handle_notification_timer(
                (0 == cc_central_scene_configuration.slowRefresh) ? 200 : 55000);
   } else {
     // Clear saved scene number
-    if(scene_number != last_scene_number) {
+    if (scene_number != last_scene_number) {
       // Should never happen
-      DPRINTF("Warning: Last scene number is %d, now received %d\n", last_scene_number, scene_number);
+      ZPAL_LOG_WARNING(ZPAL_LOG_CC_CENTRAL_SCENE, "Warning: Last scene number is %d, now received %d\n", last_scene_number, scene_number);
     }
     last_scene_number = 0;
     TimerStop(&central_scene_notification_timer);
   }
-
 }
 
 static void
@@ -239,10 +229,10 @@ central_scene_notification_timer_cb(__attribute__((unused)) SSwTimer *pTimer)
 {
   // This function is only triggered if timer expired while the key was held down
   (void) cc_central_scene_notification_tx(
-      NULL,
-      CENTRAL_SCENE_NOTIFICATION_KEY_ATTRIBUTES_KEY_HELD_DOWN_V2,
-      last_scene_number,
-      NULL);
+    NULL,
+    CENTRAL_SCENE_NOTIFICATION_KEY_ATTRIBUTES_KEY_HELD_DOWN_V2,
+    last_scene_number,
+    NULL);
 
   // restart timer automatically. App will stop the timer when the button is released.
   TimerStart(&central_scene_notification_timer,

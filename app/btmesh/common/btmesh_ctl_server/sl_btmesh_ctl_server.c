@@ -54,11 +54,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup CTL_Server
- * @{
- ******************************************************************************/
-
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
 #define scene_server_reset_register(elem_index) \
   scene_server_reset_register_impl(elem_index)
@@ -96,6 +91,8 @@ static PACKSTRUCT(struct lightbulb_state {
 
 static sl_status_t ctl_temperature_update(uint16_t element_index,
                                           uint32_t remaining_ms);
+void pri_level_move_stop(void);
+static void sec_level_move_stop(void);
 
 /// copy of transition delay parameter, needed for delayed ctl request
 static uint32_t delayed_ctl_trans = 0;
@@ -139,7 +136,7 @@ static void ctl_delayed_ctl_request_timer_cb(app_timer_t *handle,
 static void ctl_state_store_timer_cb(app_timer_t *handle,
                                      void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light state from Persistent Storage and
  * copies the data in the global variable lightbulb_state.
  * If PS key with ID SL_BTMESH_CTL_SERVER_PS_KEY_CFG_VAL does not exist or loading failed,
@@ -149,26 +146,26 @@ static void ctl_state_store_timer_cb(app_timer_t *handle,
  ******************************************************************************/
 static sl_status_t lightbulb_state_load(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
 static void lightbulb_state_validate_and_correct(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the lightbulb state in RAM is changed.
  * It sets up a soft timer that will save the state in flash after small delay.
  * The purpose is to reduce amount of unnecessary flash writes.
  ******************************************************************************/
 static void lightbulb_state_changed(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
 static void lightbulb_state_validate_and_correct(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_respond to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -182,7 +179,7 @@ static sl_status_t generic_server_respond(uint16_t model_id,
                                           uint32_t remaining_ms,
                                           uint8_t response_flags);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_update to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -193,7 +190,7 @@ static sl_status_t generic_server_update(uint16_t model_id,
                                          const struct mesh_generic_state *target,
                                          uint32_t remaining_ms);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_publish to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -202,7 +199,7 @@ static sl_status_t generic_server_publish(uint16_t model_id,
                                           uint16_t element_index,
                                           mesh_generic_state_t kind);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -214,7 +211,7 @@ static void generic_server_register_handler(uint16_t model_id,
                                             mesh_lib_generic_server_recall_cb recall);
 
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for sl_btmesh_scene_server_reset_register with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -226,17 +223,7 @@ static void generic_server_register_handler(uint16_t model_id,
 static void scene_server_reset_register_impl(uint16_t elem_index);
 #endif
 
-/***************************************************************************//**
- * \defgroup LightCTL
- * \brief Light CTL Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightCTL
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light CTL request.
  *
  * @param[in] element_index  Server model element index.
@@ -274,7 +261,7 @@ static sl_status_t ctl_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light CTL state.
  *
  * @param[in] element_index  Server model element index.
@@ -304,7 +291,7 @@ static sl_status_t ctl_update(uint16_t element_index, uint32_t remaining_ms)
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light CTL state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -329,7 +316,7 @@ static sl_status_t ctl_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light CTL model.
  *
  * @param[in] model_id       Server model ID.
@@ -367,6 +354,16 @@ static void ctl_request(uint16_t model_id,
            request->ctl.deltauv,
            transition_ms,
            delay_ms);
+
+  // Because CTL Set request updates Lightness and Color Temperature at the same time,
+  // all ongoing underlying generic level move transitions must be stopped
+  // If no delay is specified, the cancellation is done immediately,
+  // otherwise the cancellation is done by the delayed timer callback
+
+  if (!delay_ms) {
+    pri_level_move_stop();
+    sec_level_move_stop();
+  }
 
   if ((sl_btmesh_get_lightness_current() == request->ctl.lightness)
       && (lightbulb_state.temperature_current == request->ctl.temperature)
@@ -457,7 +454,7 @@ static void ctl_request(uint16_t model_id,
                          mesh_lighting_state_ctl_temperature);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light CTL change event.
  *
  * @param[in] model_id       Server model ID.
@@ -516,7 +513,7 @@ static void ctl_change(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light CTL recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -596,13 +593,13 @@ static void ctl_recall(uint16_t model_id,
   sl_status_t e;
   e = ctl_temperature_update(BTMESH_CTL_SERVER_TEMPERATURE, transition_ms);
   if (e == SL_STATUS_OK) {
-    e = generic_server_publish(MESH_LIGHTING_CTL_SERVER_MODEL_ID,
-                               BTMESH_LIGHTING_SERVER_MAIN,
-                               mesh_lighting_state_ctl);
+    generic_server_publish(MESH_LIGHTING_CTL_SERVER_MODEL_ID,
+                           BTMESH_LIGHTING_SERVER_MAIN,
+                           mesh_lighting_state_ctl);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light CTL request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -623,7 +620,7 @@ static void ctl_transition_complete(void)
   ctl_update_and_publish(BTMESH_CTL_SERVER_MAIN, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light CTL request has completed.
  ******************************************************************************/
 static void delayed_ctl_request(void)
@@ -663,19 +660,7 @@ static void delayed_ctl_request(void)
   }
 }
 
-/** @} (end addtogroup LightCTL) */
-
-/***************************************************************************//**
- * \defgroup LightCTLSetup
- * \brief Light CTL Setup Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightCTLSetup
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light CTL setup request.
  *
  * @param[in] element_index  Server model element index.
@@ -719,7 +704,7 @@ static sl_status_t ctl_setup_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light CTL setup state.
  *
  * @param[in] element_index  Server model element index.
@@ -756,7 +741,7 @@ static sl_status_t ctl_setup_update(uint16_t element_index,
                                0);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light CTL setup model.
  *
  * @param[in] model_id       Server model ID.
@@ -790,7 +775,7 @@ static void ctl_setup_request(uint16_t model_id,
 
   mesh_generic_state_t kind = mesh_generic_state_last;
   switch (request->kind) {
-    case mesh_lighting_request_ctl_default:
+    case mesh_lighting_request_ctl_default: {
       kind = mesh_lighting_state_ctl_default;
       log_info("ctl_setup_request: state=ctl_default, default lightness=%u, "
                "default color temperature=%u, default delta UV=%d" NL,
@@ -802,25 +787,27 @@ static void ctl_setup_request(uint16_t model_id,
           && (lightbulb_state.temperature_default == request->ctl.temperature)
           && (lightbulb_state.deltauv_default == request->ctl.deltauv)) {
         log_info("Request for current state received; no op" NL);
-      } else {
-        if (sl_btmesh_get_lightness_default() != request->ctl.lightness) {
-          log_info("Setting default lightness to <%u>" NL, request->ctl.lightness);
-          sl_btmesh_set_lightness_default(request->ctl.lightness);
-        }
-        if (lightbulb_state.temperature_default != request->ctl.temperature) {
-          log_info("Setting default color temperature to <%u>" NL,
-                   request->ctl.temperature);
-          lightbulb_state.temperature_default = request->ctl.temperature;
-        }
-        if (lightbulb_state.deltauv_default != request->ctl.deltauv) {
-          log_info("Setting default delta UV to <%d>" NL, request->ctl.deltauv);
-          lightbulb_state.deltauv_default = request->ctl.deltauv;
-        }
-        lightbulb_state_changed();
+        break;
       }
-      break;
+      if (sl_btmesh_get_lightness_default() != request->ctl.lightness) {
+        log_info("Setting default lightness to <%u>" NL, request->ctl.lightness);
+        sl_btmesh_set_lightness_default(request->ctl.lightness);
+      }
+      if (lightbulb_state.temperature_default != request->ctl.temperature) {
+        log_info("Setting default color temperature to <%u>" NL,
+                 request->ctl.temperature);
+        lightbulb_state.temperature_default = request->ctl.temperature;
+      }
+      if (lightbulb_state.deltauv_default != request->ctl.deltauv) {
+        log_info("Setting default delta UV to <%d>" NL, request->ctl.deltauv);
+        lightbulb_state.deltauv_default = request->ctl.deltauv;
+      }
+      lightbulb_state_changed();
 
-    case mesh_lighting_request_ctl_temperature_range:
+      break;
+    }
+
+    case mesh_lighting_request_ctl_temperature_range: {
       kind = mesh_lighting_state_ctl_temperature_range;
       log_info("ctl_setup_request: state=ctl_temperature_range, "
                "min color temperature=%u, max color temperature=%u" NL,
@@ -832,22 +819,24 @@ static void ctl_setup_request(uint16_t model_id,
           && (lightbulb_state.temperature_max
               == request->ctl_temperature_range.max)) {
         log_info("Request for current state received; no op" NL);
-      } else {
-        if (lightbulb_state.temperature_min
-            != request->ctl_temperature_range.min) {
-          log_info("Setting min color temperature to <%u>" NL,
-                   request->ctl_temperature_range.min);
-          lightbulb_state.temperature_min = request->ctl_temperature_range.min;
-        }
-        if (lightbulb_state.temperature_max
-            != request->ctl_temperature_range.max) {
-          log_info("Setting max color temperature to <%u>" NL,
-                   request->ctl_temperature_range.max);
-          lightbulb_state.temperature_max = request->ctl_temperature_range.max;
-        }
-        lightbulb_state_changed();
+        break;
       }
+      if (lightbulb_state.temperature_min
+          != request->ctl_temperature_range.min) {
+        log_info("Setting min color temperature to <%u>" NL,
+                 request->ctl_temperature_range.min);
+        lightbulb_state.temperature_min = request->ctl_temperature_range.min;
+      }
+      if (lightbulb_state.temperature_max
+          != request->ctl_temperature_range.max) {
+        log_info("Setting max color temperature to <%u>" NL,
+                 request->ctl_temperature_range.max);
+        lightbulb_state.temperature_max = request->ctl_temperature_range.max;
+      }
+      lightbulb_state_changed();
+
       break;
+    }
 
     default:
       break;
@@ -860,7 +849,7 @@ static void ctl_setup_request(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light CTL setup change event.
  *
  * @param[in] model_id       Server model ID.
@@ -950,19 +939,7 @@ static void ctl_setup_change(uint16_t model_id,
   }
 }
 
-/** @} (end addtogroup LightCTLSetup) */
-
-/***************************************************************************//**
- * \defgroup LightCTLTemperature
- * \brief Light CTL Temperature Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightCTLTemperature
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light CTL temperature request.
  *
  * @param[in] element_index  Server model element index.
@@ -998,7 +975,7 @@ static sl_status_t ctl_temperature_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light CTL temperature state.
  *
  * @param[in] element_index  Server model element index.
@@ -1027,7 +1004,7 @@ static sl_status_t ctl_temperature_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light CTL temperature state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -1052,7 +1029,7 @@ static sl_status_t ctl_temperature_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light CTL temperature model.
  *
  * @param[in] model_id       Server model ID.
@@ -1088,6 +1065,12 @@ static void ctl_temperature_request(uint16_t model_id,
            request->ctl_temperature.temperature,
            request->ctl_temperature.deltauv,
            transition_ms, delay_ms);
+
+  // CTL Temperature is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    sec_level_move_stop();
+  }
 
   if ((lightbulb_state.temperature_current
        == request->ctl_temperature.temperature)
@@ -1168,7 +1151,7 @@ static void ctl_temperature_request(uint16_t model_id,
                          mesh_generic_state_level);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light CTL temperature change event.
  *
  * @param[in] model_id       Server model ID.
@@ -1212,7 +1195,7 @@ static void ctl_temperature_change(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light CTL temperature recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -1272,7 +1255,7 @@ static void ctl_temperature_recall(uint16_t model_id,
   ctl_temperature_update_and_publish(BTMESH_CTL_SERVER_TEMPERATURE, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light CTL temperature request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1291,7 +1274,7 @@ static void ctl_temperature_transition_complete(void)
   ctl_temperature_update_and_publish(BTMESH_CTL_SERVER_TEMPERATURE, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light CTL temperature request
  * has completed.
  ******************************************************************************/
@@ -1328,19 +1311,7 @@ static void delayed_ctl_temperature_request(void)
   }
 }
 
-/** @} (end addtogroup LightCTLTemperature) */
-
-/***************************************************************************//**
- * \defgroup SecGenericLevel
- * \brief Generic Level Server model on secondary element.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup SecGenericLevel
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Convert level to temperature.
  *
  * @param[in] level  Level to convert.
@@ -1349,13 +1320,13 @@ static void delayed_ctl_temperature_request(void)
  ******************************************************************************/
 static uint16_t level_to_temperature(int16_t level)
 {
-  return lightbulb_state.temperature_min
-         + (uint32_t)(level + (int32_t)32768)
-         * (lightbulb_state.temperature_max - lightbulb_state.temperature_min)
-         / 65535;
+  return (uint16_t)(lightbulb_state.temperature_min
+                    + (uint32_t)(level + (int32_t)32768)
+                    * (lightbulb_state.temperature_max - lightbulb_state.temperature_min)
+                    / 65535);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Convert temperature to level.
  *
  * @param[in] temperature  Temperature to convert.
@@ -1370,7 +1341,7 @@ static int16_t temperature_to_level(uint16_t temperature)
          - (int32_t)32768;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic level request on secondary element.
  *
  * @param[in] element_index  Server model element index.
@@ -1404,7 +1375,7 @@ static sl_status_t sec_level_response(uint16_t element_index,
                                 0x00);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on secondary element.
  *
  * @param[in] element_index  Server model element index.
@@ -1431,7 +1402,7 @@ static sl_status_t sec_level_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on secondary element
  * and publish model state to the network.
  *
@@ -1456,7 +1427,7 @@ static sl_status_t sec_level_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Schedule next generic level move request on secondary element.
  *
  * @param[in] remaining_delta   The remaining level delta to the target state.
@@ -1486,7 +1457,7 @@ static void sec_level_move_schedule_next_request(int32_t remaining_delta)
   app_assert_status_f(sc, "Failed to start Sec Level timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handle generic level move request on secondary element.
  ******************************************************************************/
 static void sec_level_move_request(void)
@@ -1518,7 +1489,7 @@ static void sec_level_move_request(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Stop generic level move on secondary element.
  ******************************************************************************/
 static void sec_level_move_stop(void)
@@ -1533,7 +1504,7 @@ static void sec_level_move_stop(void)
   move_sec_level_trans = 0;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic level model
  * on secondary element.
  *
@@ -1728,7 +1699,7 @@ static void sec_level_request(uint16_t model_id,
                          mesh_lighting_state_ctl_temperature);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level change event
  * on secondary element.
  *
@@ -1756,14 +1727,13 @@ static void sec_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.sec_level_current = current->level.level;
     lightbulb_state_changed();
-    sec_level_move_stop();
   } else {
     log_info("Secondary level update -same value (%d)" NL,
              lightbulb_state.sec_level_current);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level recall event
  * on secondary element.
  *
@@ -1810,7 +1780,7 @@ static void sec_level_recall(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a generic level request on secondary element
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1827,7 +1797,7 @@ static void sec_level_transition_complete(void)
   sec_level_update_and_publish(BTMESH_CTL_SERVER_TEMPERATURE, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for generic level request
  * on secondary element has completed.
  ******************************************************************************/
@@ -1890,7 +1860,18 @@ static void delayed_sec_level_request(void)
 
 /** @} (end addtogroup SecGenericLevel) */
 
-/***************************************************************************//**
+/*******************************************************************************
+ * This function is registered as callback to be executed when the underlying
+ * Generic OnOff state had been changed
+ ******************************************************************************/
+static void lightness_server_onoff_changed_cb(void)
+{
+  // If the OnOff state had been changed for the light, ongoing Generic Level Move
+  // transitions must be stopped
+  sec_level_move_stop();
+}
+
+/*******************************************************************************
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
  ******************************************************************************/
@@ -1919,9 +1900,11 @@ static void init_ctl_models(void)
                                   sec_level_request,
                                   sec_level_change,
                                   sec_level_recall);
+
+  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light state from Persistent Storage and
  * copies the data in the global variable lightbulb_state.
  * If PS key with ID SL_BTMESH_CTL_SERVER_PS_KEY_CFG_VAL does not exist or loading failed,
@@ -1970,7 +1953,7 @@ static sl_status_t lightbulb_state_load(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function saves the current light state in Persistent Storage so that
  * the data is preserved over reboots and power cycles.
  * The light state is hold in a global variable lightbulb_state.
@@ -1991,7 +1974,7 @@ static sl_status_t lightbulb_state_store(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the lightbulb state in RAM is changed.
  * It sets up a soft timer that will save the state in flash after small delay.
  * The purpose is to reduce amount of unnecessary flash writes.
@@ -2006,7 +1989,7 @@ static void lightbulb_state_changed(void)
   app_assert_status_f(sc, "Failed to start State Store timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
@@ -2056,15 +2039,6 @@ void sl_btmesh_ctl_server_init(void)
   uint32_t transition_ms = sl_btmesh_get_default_transition_time();
   switch (sl_btmesh_get_lightness_onpowerup()) {
     case MESH_GENERIC_ON_POWER_UP_STATE_OFF:
-      lightbulb_state.temperature_current = lightbulb_state.temperature_default;
-      lightbulb_state.temperature_target = lightbulb_state.temperature_default;
-      lightbulb_state.deltauv_current = lightbulb_state.deltauv_default;
-      lightbulb_state.deltauv_target = lightbulb_state.deltauv_default;
-      sl_btmesh_ctl_set_temperature_deltauv_level(lightbulb_state.temperature_default,
-                                                  lightbulb_state.deltauv_default,
-                                                  IMMEDIATE);
-      break;
-
     case MESH_GENERIC_ON_POWER_UP_STATE_ON:
       lightbulb_state.temperature_current = lightbulb_state.temperature_default;
       lightbulb_state.temperature_target = lightbulb_state.temperature_default;
@@ -2125,20 +2099,31 @@ void sl_btmesh_ctl_server_init(void)
  ******************************************************************************/
 void sl_btmesh_ctl_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_ctl_server_init();
+      if (!booted) {
+        sl_btmesh_ctl_server_init();
+        booted = true;
+      }
       break;
 
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_ctl_server_init();
+        booted = true;
       }
       break;
 
     case sl_btmesh_evt_node_reset_id:
       sl_btmesh_ctl_server_on_node_reset();
+      break;
+    default:
       break;
   }
 }
@@ -2153,12 +2138,7 @@ void sl_btmesh_ctl_server_on_node_reset(void)
   app_btmesh_nvm_erase(SL_BTMESH_CTL_SERVER_PS_KEY_CFG_VAL);
 }
 
-/***************************************************************************//**
- * @addtogroup BtmeshWrappers
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_respond to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -2190,7 +2170,7 @@ static sl_status_t generic_server_respond(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_update to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -2216,7 +2196,7 @@ static sl_status_t generic_server_update(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_publish to log if the Btmesh API call
  * results in error. The parameters and the return value of the two functions
  * are the same.
@@ -2238,7 +2218,7 @@ static sl_status_t generic_server_publish(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -2255,15 +2235,19 @@ static void generic_server_register_handler(uint16_t model_id,
                                                             ch,
                                                             recall);
 
-  app_assert_status_f(sc,
-                      "CTL server failed to register handlers "
-                      "(mdl=0x%04x,elem=%d)",
-                      model_id,
-                      elem_index);
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc,
+                        "CTL server failed to register handlers "
+                        "(mdl=0x%04x,elem=%d)",
+                        model_id,
+                        elem_index);
+  }
 }
 
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for sl_btmesh_scene_server_reset_register with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -2276,14 +2260,13 @@ static void scene_server_reset_register_impl(uint16_t elem_index)
 {
   sl_status_t sc = sl_btmesh_scene_server_reset_register(elem_index);
 
-  // The function can fail if there is no scene server model in the element or
-  // the btmesh_stack_scene_server component is not present. Both of these
-  // are configuration issues so assert can be used.
-  app_assert_status_f(sc, "CTL server failed to reset scene register.");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "CTL server failed to reset scene register.");
+  }
 }
 #endif
-
-/** @} (end addtogroup BtmeshWrappers) */
 
 /**************************************************************************//**
  * Timer Callbacks
@@ -2341,6 +2324,11 @@ static void ctl_delayed_ctl_temperature_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // CTL Temperature is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  sec_level_move_stop();
+
   // delay for a ctl temperature request has passed, now process the request
   delayed_ctl_temperature_request();
 }
@@ -2350,6 +2338,12 @@ static void ctl_delayed_ctl_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // CTL Set updates both Generic Level values, any ongoing level transitions
+  // are stopped before processing the request
+  pri_level_move_stop();
+  sec_level_move_stop();
+
   // delay for a ctl request has passed, now process the request
   delayed_ctl_request();
 }
@@ -2362,5 +2356,3 @@ static void ctl_state_store_timer_cb(app_timer_t *handle,
   // save the lightbulb state
   lightbulb_state_store();
 }
-
-/** @} (end addtogroup CTL_SERVER) */

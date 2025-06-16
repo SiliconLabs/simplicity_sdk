@@ -46,12 +46,7 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup iv_update
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  *  Handling of mesh iv_update related events.
  *  @param[in] evt  Pointer to incoming event.
  ******************************************************************************/
@@ -72,5 +67,3 @@ void sl_btmesh_iv_update_on_event(sl_btmesh_msg_t* evt)
   }
 #endif
 }
-
-/** @} (end addtogroup iv_update) */

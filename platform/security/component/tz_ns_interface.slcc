@@ -1,5 +1,5 @@
 id: tz_ns_interface
-package: platform
+package: security_trustzone
 label: Non-secure interface for TrustZone secure library or other applications.
 description: >-
   This component includes Non-Secure interface files.

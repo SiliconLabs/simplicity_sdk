@@ -1,6 +1,6 @@
 id: "bluetooth_feature_external_bonding_database"
 label: "External Bluetooth bonding database"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Configures the Bluetooth stack to operate with an external bonding database.
   In this configuration the user application takes care of storing the
@@ -10,6 +10,8 @@ description: >
 category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events
 quality: "production"
 root_path: "protocol/bluetooth"
+config_file:
+  - path: "config/sl_bluetooth_external_bondingdb_config.h"
 requires:
   - name: "bluetooth_stack"
 provides:

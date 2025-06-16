@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component implementing the server-side CLI functionality of the Green Power cluster.
 label: Green Power Server CLI
 quality: production
@@ -71,6 +71,12 @@ template_contribution:
       argument:
         - type: uint16
           help: Time in milliseconds
+  - name: cli_command
+    value:
+      group: green-power-server
+      name: close-comm
+      handler: sl_zigbee_af_green_power_cluster_gp_sink_cli_commissioning_window_close
+      help: Closes commissioning window where there is no active GPD commissioning session.
   - name: cli_command
     value:
       group: green-power-server

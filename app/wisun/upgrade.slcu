@@ -73,3 +73,16 @@ upgrade:
           - sl_wisun_udp_client_cli
         add:
           - sl_wisun_cli
+    configuration:
+      - name: SL_FTP_CLNT_AUTH_DEFAUL_HOST
+        replacement: SL_FTP_CLNT_AUTH_DEFAULT_HOST
+        description: >
+          Typo: the SL_FTP_CLNT_AUTH_DEFAUL_HOST configuration has been renamed to SL_FTP_CLNT_AUTH_DEFAULT_HOST.
+      - name: SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL
+        replacement: SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL
+        description: >
+          Typo: the SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL configuration has been renamed to SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL.
+      - name: SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID
+        replacement: SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID
+        description: >
+          Typo: the SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID configuration has been renamed to SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID.

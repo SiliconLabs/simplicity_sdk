@@ -1,6 +1,6 @@
 id: "btmesh_stack_proxy"
 label: "Proxy"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh GATT Proxy functionality. It is mainly used by devices such as mobile phones to communicate with the rest of the Bluetooth mesh network through a proxy device. The proxy protocol is designed to enable nodes to send and receive the Bluetooth Mesh network packets over a connection-oriented bearer."
 category: "Bluetooth Mesh|Stack|Features"
 quality: "production"

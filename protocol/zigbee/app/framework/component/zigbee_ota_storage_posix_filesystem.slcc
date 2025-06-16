@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of a multi-file storage module for Over-the-air Bootload protocols, which is used by either the Zigbee Over-the-air cluster or the legacy Ember standalone bootloader protocol. It uses a POSIX filesystem as the underlying storage device, and therefore can store any number of files.  It can be used by either the OTA client or OTA server.
 id: zigbee_ota_storage_posix_filesystem
 label: OTA POSIX Filesystem Storage Module

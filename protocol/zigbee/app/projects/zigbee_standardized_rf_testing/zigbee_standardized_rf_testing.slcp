@@ -1,6 +1,6 @@
 project_name: zigbee_standardized_rf_testing
 label: Zigbee - StandardizedRfTesting
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 
@@ -9,10 +9,12 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
-  - id: iostream_recommended_stream
+  - id: iostream_recommended_console
+  - id: zigbee_debug_basic
   - id: zigbee_debug_print
   - id: zigbee_pro_stack
   - id: zigbee_zcl_framework_core
@@ -21,8 +23,8 @@ component:
   - id: zigbee_mfglib
   - id: zigbee_system_common
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
@@ -60,8 +62,27 @@ configuration:
     value: 600
     condition:
       - cmsis_rtos2
+  # On series 3, the bootloader requires more stack to do context parsing of OTA images
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS
+    value: 2000
+    condition:
+      - device_series_3
+
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -74,11 +95,11 @@ include:
   - path: ./
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

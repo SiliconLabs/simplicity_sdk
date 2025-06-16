@@ -21,21 +21,7 @@
 #include "stack/internal/inc/message_internal_def.h"
 
 typedef struct {
-  sl_zigbee_gp_status_t status;
-  uint8_t gpdLink;
-  uint8_t sequenceNumber;
-  sl_zigbee_gp_address_t addr;
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel;
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType;
-  bool autoCommissioning;
-  uint8_t bidirectionalInfo;
-  uint32_t gpdSecurityFrameCounter;
-  uint8_t gpdCommandId;
-  uint32_t mic;
-  uint8_t proxyTableIndex;
-  uint8_t gpdCommandPayloadLength;
-  uint8_t gpdCommandPayload[MAX_IPC_VEC_ARG_CAPACITY];
-  sl_zigbee_rx_packet_info_t packetInfo;
+  sl_zigbee_gp_params_t params;
 } sli_zigbee_stack_gpep_incoming_message_handler_ipc_event_t;
 
 typedef struct {
@@ -88,6 +74,24 @@ typedef struct {
   uint8_t relayList[MAX_IPC_VEC_ARG_CAPACITY];
   bool consumed;
 } sli_zigbee_stack_override_incoming_route_record_handler_ipc_event_t;
+
+typedef struct {
+  sl_zigbee_zigbee_packet_type_t packetType;
+  uint8_t packetData[MAX_IPC_VEC_ARG_CAPACITY];
+  uint8_t size_p;
+  uint8_t data[MAX_IPC_VEC_ARG_CAPACITY];
+  uint8_t size_d;
+  sl_zigbee_packet_action_t action;
+} sli_zigbee_stack_post_incoming_packet_filter_cb_ipc_event_t;
+
+typedef struct {
+  sl_zigbee_zigbee_packet_type_t packetType;
+  uint8_t packetData[MAX_IPC_VEC_ARG_CAPACITY];
+  uint8_t size_p;
+  uint8_t data[MAX_IPC_VEC_ARG_CAPACITY];
+  uint8_t size_d;
+  sl_zigbee_packet_action_t action;
+} sli_zigbee_stack_post_outgoing_packet_filter_cb_ipc_event_t;
 
 typedef struct {
   uint8_t mac_index;

@@ -1,7 +1,7 @@
 !!omap
 - id: slwrb4180b
 - label: SLWRB4180B
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG21 2.4 GHz 20 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

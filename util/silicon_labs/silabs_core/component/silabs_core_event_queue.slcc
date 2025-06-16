@@ -1,6 +1,6 @@
 id: silabs_core_event_queue
 label: "Ember queue-based event system"
-package: platform
+package: zigbee
 description: Ember queue-based event system.
 category: Platform|Utilities
 quality: production

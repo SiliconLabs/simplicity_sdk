@@ -1,19 +1,8 @@
-/***************************************************************************//**
- * # License
- *
- * The licensor of this software is Silicon Laboratories Inc. Your use of this
- * software is governed by the terms of Silicon Labs Master Software License
- * Agreement (MSLA) available at
- * www.silabs.com/about-us/legal/master-software-license-agreement. This
- * software is Third Party Software licensed by Silicon Labs from a third party
- * and is governed by the sections of the MSLA applicable to Third Party
- * Software and the additional terms set forth below.
- *
- ******************************************************************************/
-
 /*
- * FreeRTOS Kernel V10.4.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V11.1.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -40,7 +29,6 @@
 #ifndef DEPRECATED_DEFINITIONS_H
 #define DEPRECATED_DEFINITIONS_H
 
-
 /* Each FreeRTOS port has a unique portmacro.h header file.  Originally a
  * pre-processor definition was used to ensure the pre-processor found the correct
  * portmacro.h file for the port being used.  That scheme was deprecated in favour
@@ -52,12 +40,12 @@
 
 #ifdef OPEN_WATCOM_INDUSTRIAL_PC_PORT
     #include "..\..\Source\portable\owatcom\16bitdos\pc\portmacro.h"
-    typedef void ( __interrupt __far * pxISR )();
+typedef void (__interrupt __far * pxISR)();
 #endif
 
 #ifdef OPEN_WATCOM_FLASH_LITE_186_PORT
     #include "..\..\Source\portable\owatcom\16bitdos\flsh186\portmacro.h"
-    typedef void ( __interrupt __far * pxISR )();
+typedef void (__interrupt __far * pxISR)();
 #endif
 
 #ifdef GCC_MEGA_AVR
@@ -226,7 +214,7 @@
  * FreeRTOSConfig.h when using the Borland compiler. */
     #include "frconfig.h"
     #include "..\portable\BCC\16BitDOS\PC\prtmacro.h"
-    typedef void ( __interrupt __far * pxISR )();
+typedef void (__interrupt __far * pxISR)();
 #endif
 
 #ifdef BCC_FLASH_LITE_186_PORT
@@ -235,7 +223,7 @@
  * FreeRTOSConfig.h when using the Borland compiler. */
     #include "frconfig.h"
     #include "..\portable\BCC\16BitDOS\flsh186\prtmacro.h"
-    typedef void ( __interrupt __far * pxISR )();
+typedef void (__interrupt __far * pxISR)();
 #endif
 
 #ifdef __GNUC__
@@ -259,7 +247,6 @@
 #ifdef __96340
     #include "portmacro.h"
 #endif
-
 
 #ifdef __IAR_V850ES_Fx3__
     #include "../../Source/portable/IAR/V850ES/portmacro.h"

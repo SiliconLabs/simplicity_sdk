@@ -31,15 +31,18 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+#include "sl_component_catalog.h"
 #include "app_log.h"
 #include "sl_app_common.h"
+#ifdef SL_CATALOG_SI70XX_DRIVER_PRESENT
 #include "sl_si70xx.h"
 #include "sl_i2cspm_instances.h"
+#endif
 #include "sl_sleeptimer.h"
 #include "app_process.h"
 #include "app_init.h"
 #include "app_framework_common.h"
-// Ensure that psa is initialized corretly
+// Ensure that psa is initialized correctly
 #include "psa/crypto.h"
 #include "mbedtls/build_info.h"
 
@@ -74,9 +77,10 @@ void emberAfInitCallback(void)
   uint8_t device_id = 0;
   EmberStatus em_status = EMBER_ERR_FATAL;
 
-  // Ensure that psa is initialized corretly
+  // Ensure that psa is initialized correctly
   psa_crypto_init();
 
+#ifdef SL_CATALOG_SI70XX_DRIVER_PRESENT
   // init temperature sensor
   if (!sl_si70xx_present(sl_i2cspm_sensor, SI7021_ADDR, &device_id)) {
     // wait a bit before re-trying
@@ -87,6 +91,7 @@ void emberAfInitCallback(void)
       app_log_error("Failed to initialize temperature sensor!\n");
     }
   }
+#endif
 
   emberAfAllocateEvent(&report_control, &report_handler);
   // CLI info message

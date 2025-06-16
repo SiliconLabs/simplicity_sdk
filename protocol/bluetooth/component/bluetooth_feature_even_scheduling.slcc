@@ -1,6 +1,6 @@
 id: "bluetooth_feature_ll_even_scheduling"
 label:  "Even Connection Scheduling Algorithm"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   The component provides Even Connection Distribution algorithm which has been
   designed to be used especially with applications involving several concurrent
@@ -31,12 +31,6 @@ conflicts:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_even_scheduling
-  - name: bluetooth_controller_init
-    value:
-      function: "sl_btctrl_enable_even_connsch()"
-    # note: priority of this component needs to be lower than
-    # bluetooth_feature_connection to ensure it's enabled before
-    priority: 4
 metadata:
   sbom:
     license: MSLA

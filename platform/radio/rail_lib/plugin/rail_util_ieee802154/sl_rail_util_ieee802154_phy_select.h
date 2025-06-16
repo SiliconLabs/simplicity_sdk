@@ -31,6 +31,7 @@
 #ifndef SL_RAIL_UTIL_IEEE802154_PHY_SELECT_H
 #define SL_RAIL_UTIL_IEEE802154_PHY_SELECT_H
 
+#include "sl_rail_types.h"
 #include "rail_types.h"
 #include "sl_rail_util_ieee802154_stack_event.h"
 
@@ -153,7 +154,11 @@ sl_rail_util_radio_config_t sl_rail_util_ieee802154_get_active_radio_config(void
  * @param[in] railHandle A RAIL instance handle.
  * @return Status code indicating success of the function call.
  */
+#if     SL_RAIL_3_API
+sl_rail_status_t sl_rail_util_ieee802154_config_radio(sl_rail_handle_t railHandle);
+#else//!SL_RAIL_3_API
 RAIL_Status_t sl_rail_util_ieee802154_config_radio(RAIL_Handle_t railHandle);
+#endif//SL_RAIL_3_API
 
 /**
  * @}

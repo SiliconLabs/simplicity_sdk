@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component contains all the core functionality to build ZCL applications.
 label: ZCL Framework Core
 quality: production

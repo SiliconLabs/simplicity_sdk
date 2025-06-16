@@ -1,14 +1,14 @@
 id: cpc_primary_driver_uart_eusart
-package: platform
+package: cpc
 description: UART driver over EUSART peripheral for Co-Processor Communication (CPC) Primary Device.
 label: CPC Primary - UART (EUSART)
 category: Services|Co-Processor Communication|Primary Device|Driver
 quality: experimental
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 instantiable:
-  prefix: inst
+    prefix: inst
 root_path: platform/service/cpc
 config_file:
   - path: config/s2/sl_cpc_drv_uart_eusart_{{instance}}_config.h
@@ -43,7 +43,7 @@ template_file:
   - path: template/s2/sl_cpc_drv_uart_config.h.jinja
 template_contribution:
   - name: cpc_uart_instance_name
-    value: "{{instance}}"
+    value: '{{instance}}'
   - name: cpc_interface_type
     value: uart
   - name: cpc_uart_periph_type

@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -57,6 +57,9 @@ extern otError OT_API_REAL_NAME(otBleSecureFlush)(otInstance *aInstance);
 extern otError OT_API_REAL_NAME(otBleSecureGetPeerCertificateBase64)(otInstance    *aInstance,
                                                                      unsigned char *aPeerCert,
                                                                      size_t        *aCertLength);
+extern otError OT_API_REAL_NAME(otBleSecureGetPeerCertificateDer)(otInstance    *aInstance,
+                                                                  unsigned char *aPeerCert,
+                                                                  size_t        *aCertLength);
 extern otError OT_API_REAL_NAME(otBleSecureGetPeerSubjectAttributeByOid)(otInstance *aInstance,
                                                                          const char *aOid,
                                                                          size_t      aOidLength,
@@ -161,6 +164,16 @@ otError OT_API_WRAPPER_NAME(otBleSecureGetPeerCertificateBase64)(otInstance    *
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBleSecureGetPeerCertificateBase64)(aInstance, aPeerCert, aCertLength);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otBleSecureGetPeerCertificateDer)(otInstance    *aInstance,
+                                                              unsigned char *aPeerCert,
+                                                              size_t        *aCertLength)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otBleSecureGetPeerCertificateDer)(aInstance, aPeerCert, aCertLength);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

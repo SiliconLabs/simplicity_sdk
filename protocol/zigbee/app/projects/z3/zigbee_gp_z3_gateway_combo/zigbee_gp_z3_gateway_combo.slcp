@@ -1,6 +1,6 @@
 project_name: zigbee_gp_z3_gateway_combo
 label: Zigbee GP - Z3GatewayCombo
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: production
 
@@ -9,6 +9,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -89,10 +90,6 @@ configuration:
     value: 5
   - name: SL_CLI_EXAMPLE_IOSTREAM_HANDLE
     value: sl_iostream_get_default()
-  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
-    value: 600
-    condition:
-      - cmsis_rtos2
 
 include:
   - path: ./
@@ -102,6 +99,7 @@ include:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -235,11 +233,11 @@ template_contribution:
           help: Boolean value, excluding (1) or not excluding (0) stack boot counter tokens.
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

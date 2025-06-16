@@ -23,6 +23,7 @@
 #include "sl_rail_mux_rename.h"
 #endif
 
+#include "sl_rail_types.h"
 #include "coexistence-802154.h"
 #include "stack/include/sl_zigbee_types.h"
 
@@ -39,7 +40,7 @@ void sl_rail_util_coex_counter_on_event(sl_rail_util_coex_event_t event)
 }
 
 #ifdef SL_CATALOG_RAIL_MULTIPLEXER_PRESENT
-void sl_rail_util_coex_enable_counter(RAIL_Handle_t railHandle)
+void sl_rail_util_coex_enable_counter(sl_rail_handle_t railHandle)
 {
   sl_rail_mux_set_coex_counter_handler(railHandle, &sl_zigbee_coex_counter_on_event);
 }

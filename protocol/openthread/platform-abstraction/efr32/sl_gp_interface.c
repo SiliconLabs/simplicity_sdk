@@ -33,9 +33,9 @@
 
 #include "sl_gp_interface.h"
 #include "ieee802154mac.h"
-#include "rail_ieee802154.h"
 #include "sl_gp_interface_config.h"
 #include "sl_packet_utils.h"
+#include "sl_rail_ieee802154.h"
 #include "sl_status.h"
 #include <assert.h>
 #include <string.h>

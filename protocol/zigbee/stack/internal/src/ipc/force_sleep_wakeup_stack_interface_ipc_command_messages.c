@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'force_sleep_wakeup_stack_interface' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -24,16 +24,19 @@
 
 void sli_802154_stack_cancel_polls_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_802154_stack_cancel_polls();
 }
 
 void sli_802154_stack_purge_incoming_queue_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_802154_stack_purge_incoming_queue();
 }
 
 void sli_802154_stack_purge_transmit_queue_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_802154_stack_purge_transmit_queue();
 }
 

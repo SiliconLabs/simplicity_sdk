@@ -1,6 +1,6 @@
 id: ot_diags
 label: Diagnostics
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides diagnostic functionalities for OpenThread.

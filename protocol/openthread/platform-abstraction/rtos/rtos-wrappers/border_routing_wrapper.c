@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -46,7 +46,11 @@
 #error Unsupported compiler
 #endif
 
+extern bool                        OT_API_REAL_NAME(otBorderRoutingIsMultiAilDetected)(otInstance *aInstance);
 extern otBorderRoutingDhcp6PdState OT_API_REAL_NAME(otBorderRoutingDhcp6PdGetState)(otInstance *aInstance);
+extern otBorderRoutingOmrConfig    OT_API_REAL_NAME(otBorderRoutingGetOmrConfig)(otInstance        *aInstance,
+                                                                              otIp6Prefix       *aOmrPrefix,
+                                                                              otRoutePreference *aPreference);
 extern otBorderRoutingState        OT_API_REAL_NAME(otBorderRoutingGetState)(otInstance *aInstance);
 extern otError                     OT_API_REAL_NAME(otBorderRoutingGetFavoredNat64Prefix)(otInstance        *aInstance,
                                                                       otIp6Prefix       *aPrefix,
@@ -62,6 +66,9 @@ extern otError OT_API_REAL_NAME(otBorderRoutingGetNextPeerBrEntry)(otInstance   
 extern otError OT_API_REAL_NAME(otBorderRoutingGetNextPrefixTableEntry)(otInstance                         *aInstance,
                                                                         otBorderRoutingPrefixTableIterator *aIterator,
                                                                         otBorderRoutingPrefixTableEntry    *aEntry);
+extern otError OT_API_REAL_NAME(otBorderRoutingGetNextRdnssAddrEntry)(otInstance                         *aInstance,
+                                                                      otBorderRoutingPrefixTableIterator *aIterator,
+                                                                      otBorderRoutingRdnssAddrEntry      *aEntry);
 extern otError OT_API_REAL_NAME(otBorderRoutingGetNextRouterEntry)(otInstance                         *aInstance,
                                                                    otBorderRoutingPrefixTableIterator *aIterator,
                                                                    otBorderRoutingRouterEntry         *aEntry);
@@ -78,6 +85,10 @@ extern otError OT_API_REAL_NAME(otBorderRoutingSetEnabled)(otInstance *aInstance
 extern otError OT_API_REAL_NAME(otBorderRoutingSetExtraRouterAdvertOptions)(otInstance    *aInstance,
                                                                             const uint8_t *aOptions,
                                                                             uint16_t       aLength);
+extern otError OT_API_REAL_NAME(otBorderRoutingSetOmrConfig)(otInstance              *aInstance,
+                                                             otBorderRoutingOmrConfig aConfig,
+                                                             const otIp6Prefix       *aOmrPrefix,
+                                                             otRoutePreference        aPreference);
 extern otRoutePreference OT_API_REAL_NAME(otBorderRoutingGetRouteInfoOptionPreference)(otInstance *aInstance);
 extern otRoutePreference OT_API_REAL_NAME(otBorderRoutingGetRoutePreference)(otInstance *aInstance);
 extern uint16_t          OT_API_REAL_NAME(otBorderRoutingCountPeerBrs)(otInstance *aInstance, uint32_t *aMinAge);
@@ -89,15 +100,39 @@ extern void              OT_API_REAL_NAME(otBorderRoutingDhcp6PdSetRequestCallba
                                                                        void                                 *aContext);
 extern void              OT_API_REAL_NAME(otBorderRoutingPrefixTableInitIterator)(otInstance                         *aInstance,
                                                                      otBorderRoutingPrefixTableIterator *aIterator);
+extern void              OT_API_REAL_NAME(otBorderRoutingSetMultiAilCallback)(otInstance                     *aInstance,
+                                                                 otBorderRoutingMultiAilCallback aCallback,
+                                                                 void                           *aContext);
 extern void OT_API_REAL_NAME(otBorderRoutingSetOnLinkPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix);
+extern void OT_API_REAL_NAME(otBorderRoutingSetRdnssAddrCallback)(otInstance                      *aInstance,
+                                                                  otBorderRoutingRdnssAddrCallback aCallback,
+                                                                  void                            *aContext);
 extern void OT_API_REAL_NAME(otBorderRoutingSetRouteInfoOptionPreference)(otInstance       *aInstance,
                                                                           otRoutePreference aPreference);
 extern void OT_API_REAL_NAME(otBorderRoutingSetRoutePreference)(otInstance *aInstance, otRoutePreference aPreference);
+
+bool OT_API_WRAPPER_NAME(otBorderRoutingIsMultiAilDetected)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    bool ret = OT_API_REAL_NAME(otBorderRoutingIsMultiAilDetected)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
 
 otBorderRoutingDhcp6PdState OT_API_WRAPPER_NAME(otBorderRoutingDhcp6PdGetState)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     otBorderRoutingDhcp6PdState ret = OT_API_REAL_NAME(otBorderRoutingDhcp6PdGetState)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otBorderRoutingOmrConfig OT_API_WRAPPER_NAME(otBorderRoutingGetOmrConfig)(otInstance        *aInstance,
+                                                                          otIp6Prefix       *aOmrPrefix,
+                                                                          otRoutePreference *aPreference)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otBorderRoutingOmrConfig ret = OT_API_REAL_NAME(otBorderRoutingGetOmrConfig)(aInstance, aOmrPrefix, aPreference);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -162,6 +197,16 @@ otError OT_API_WRAPPER_NAME(otBorderRoutingGetNextPrefixTableEntry)(otInstance  
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otBorderRoutingGetNextPrefixTableEntry)(aInstance, aIterator, aEntry);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otBorderRoutingGetNextRdnssAddrEntry)(otInstance                         *aInstance,
+                                                                  otBorderRoutingPrefixTableIterator *aIterator,
+                                                                  otBorderRoutingRdnssAddrEntry      *aEntry)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otBorderRoutingGetNextRdnssAddrEntry)(aInstance, aIterator, aEntry);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -236,6 +281,17 @@ otError OT_API_WRAPPER_NAME(otBorderRoutingSetExtraRouterAdvertOptions)(otInstan
     return ret;
 }
 
+otError OT_API_WRAPPER_NAME(otBorderRoutingSetOmrConfig)(otInstance              *aInstance,
+                                                         otBorderRoutingOmrConfig aConfig,
+                                                         const otIp6Prefix       *aOmrPrefix,
+                                                         otRoutePreference        aPreference)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otBorderRoutingSetOmrConfig)(aInstance, aConfig, aOmrPrefix, aPreference);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
 otRoutePreference OT_API_WRAPPER_NAME(otBorderRoutingGetRouteInfoOptionPreference)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
@@ -298,10 +354,28 @@ void OT_API_WRAPPER_NAME(otBorderRoutingPrefixTableInitIterator)(otInstance     
     sl_ot_rtos_release_stack_mutex();
 }
 
+void OT_API_WRAPPER_NAME(otBorderRoutingSetMultiAilCallback)(otInstance                     *aInstance,
+                                                             otBorderRoutingMultiAilCallback aCallback,
+                                                             void                           *aContext)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    OT_API_REAL_NAME(otBorderRoutingSetMultiAilCallback)(aInstance, aCallback, aContext);
+    sl_ot_rtos_release_stack_mutex();
+}
+
 void OT_API_WRAPPER_NAME(otBorderRoutingSetOnLinkPrefix)(otInstance *aInstance, const otIp6Prefix *aPrefix)
 {
     sl_ot_rtos_acquire_stack_mutex();
     OT_API_REAL_NAME(otBorderRoutingSetOnLinkPrefix)(aInstance, aPrefix);
+    sl_ot_rtos_release_stack_mutex();
+}
+
+void OT_API_WRAPPER_NAME(otBorderRoutingSetRdnssAddrCallback)(otInstance                      *aInstance,
+                                                              otBorderRoutingRdnssAddrCallback aCallback,
+                                                              void                            *aContext)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    OT_API_REAL_NAME(otBorderRoutingSetRdnssAddrCallback)(aInstance, aCallback, aContext);
     sl_ot_rtos_release_stack_mutex();
 }
 

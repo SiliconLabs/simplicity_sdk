@@ -92,7 +92,7 @@ void sl_ot_sleep_init(void)
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
 OT_TOOL_WEAK bool efr32AllowSleepCallback(void)
 {
-    return !sWakeRequirementSet;
+    return true;
 }
 
 #if (defined(SL_CATALOG_POWER_MANAGER_PRESENT))
@@ -144,7 +144,8 @@ static bool isPlatformEventPending(void)
 {
     bool isPending = efr32AlarmIsReady();
 
-#if defined(SL_CATALOG_IOSTREAM_EUSART_PRESENT) || defined(SL_CATALOG_IOSTREAM_USART_PRESENT)
+#if defined(SL_CATALOG_OPENTHREAD_UART_PRESENT) \
+    && (defined(SL_CATALOG_IOSTREAM_EUSART_PRESENT) || defined(SL_CATALOG_IOSTREAM_USART_PRESENT))
     isPending = isPending || efr32UartIsDataReady();
 #endif
 

@@ -41,11 +41,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup friend
- * @{
- ******************************************************************************/
-
 /*******************************************************************************
  * Initialize LPN functionality with configuration and friendship establishment.
  ******************************************************************************/
@@ -66,12 +61,19 @@ void sl_btmesh_friend_feature_init(void)
  ******************************************************************************/
 void sl_btmesh_friend_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
-    case sl_btmesh_evt_node_initialized_id:
+    case sl_btmesh_evt_node_initialized_id: {
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_friend_feature_init();
+        booted = true;
       }
       break;
+    }
 
     case sl_btmesh_evt_friend_friendship_established_id:
       sl_btmesh_friend_on_friendship_established(
@@ -88,7 +90,10 @@ void sl_btmesh_friend_on_event(sl_btmesh_msg_t *evt)
 
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_friend_feature_init();
+      if (!booted) {
+        sl_btmesh_friend_feature_init();
+        booted = true;
+      }
       break;
 
     default:
@@ -112,5 +117,3 @@ SL_WEAK void sl_btmesh_friend_on_friendship_terminated(uint16_t netkey_index,
   (void) lpn_address;
   (void) reason;
 }
-
-/** @} (end addtogroup friend) */

@@ -18,24 +18,21 @@
 #include <ZW_application_transport_interface.h>
 #include <ZAF_Common_interface.h>
 #include <CC_Supervision.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
+#include "zw_power_manager_ids.h"
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
 /****************************************************************************/
 
-typedef enum
-{
+typedef enum {
   MCTXRESULT_SUCCESS,
   MCTXRESULT_FAILURE,
   MCTXRESULT_NO_DESTINATIONS
 }
 MultiChannelTXResult_t;
 
-typedef enum
-{
+typedef enum {
   MULTICAST_TXRESULT_SUCCESS,
   MULTICAST_TXRESULT_FAILURE,
   MULTICAST_TXRESULT_NOT_ENOUGH_DESTINATIONS
@@ -75,8 +72,6 @@ static ZAF_TRANSPORT_TX_BUFFER txBuf = { 0 };
 
 static bool multiCastInProgress;
 
-static zpal_pm_handle_t m_PowerLock;
-
 /****************************************************************************/
 /*                              EXPORTED DATA                               */
 /****************************************************************************/
@@ -91,16 +86,16 @@ static zpal_pm_handle_t m_PowerLock;
  * This will evaluate whether there is more transmissions left to do for the
  * currently active association group and set the isFinished flag accordingly.
  */
-#define EVALUATE_TRANSMISSION_RESULT(isFinished)                    \
-    do {                                                            \
-      if (AssociationGetSinglecastNodeCount() == 0) {               \
-        isFinished = TRANSMISSION_RESULT_FINISHED;                  \
-      } else {                                                      \
-        /* This will indicate to the stack and application that further transmissions are due.   \
-         * Certain parameters will not be cleaned, like the buffer holding the packet for TX. */ \
-         isFinished = TRANSMISSION_RESULT_NOT_FINISHED;             \
-      }                                                             \
-    } while(0)
+#define EVALUATE_TRANSMISSION_RESULT(isFinished)    \
+  do {                                              \
+    if (AssociationGetSinglecastNodeCount() == 0) { \
+      isFinished = TRANSMISSION_RESULT_FINISHED;    \
+    } else {                                        \
+      /* This will indicate to the stack and application that further transmissions are due. \
+       * Certain parameters will not be cleaned, like the buffer holding the packet for TX. */ \
+      isFinished = TRANSMISSION_RESULT_NOT_FINISHED;                                           \
+    }                                                                                          \
+  } while(0)
 
 /****************************************************************************/
 /*                            PRIVATE FUNCTIONS                             */
@@ -115,14 +110,13 @@ static MulticastTXResult_t TransmitMultiCast(transmission_result_t * pTxResult);
 static void
 ZCB_RequestJobStatus(TRANSMISSION_RESULT * pTransmissionResult)
 {
-  DPRINT("\r\nZCB_RequestJobStatus");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\nZCB_RequestJobStatus");
   /* Free the module before calling callback in case of recursive calls */
-  if(pTransmissionResult->isFinished == TRANSMISSION_RESULT_FINISHED) {
+  if (pTransmissionResult->isFinished == TRANSMISSION_RESULT_FINISHED) {
     multiCastInProgress = false;
   }
 
-  if(NON_NULL(p_callback_hold))
-  {
+  if (NON_NULL(p_callback_hold)) {
     p_callback_hold(pTransmissionResult);
   }
 }
@@ -134,13 +128,10 @@ RequestBufferSupervisionPayloadActivate(ZW_APPLICATION_TX_BUFFER** ppPayload,
   /*Rewrite SV-cmd if CCmultichannel has written in payload*/
   CommandClassSupervisionGetWrite(&(txBuf.supervisionGet));
   *pPayLoadlen = CommandClassSupervisionGetGetPayloadLength(&(txBuf.supervisionGet));
-  if(true == supervision)
-  {
+  if (true == supervision) {
     *ppPayload = (ZW_APPLICATION_TX_BUFFER*)&(txBuf.supervisionGet);
     *pPayLoadlen += sizeof(ZW_SUPERVISION_GET_FRAME);
-  }
-  else
-  {
+  } else {
     *ppPayload = &(txBuf.appTxBuf);
   }
   return true;
@@ -188,7 +179,6 @@ static void multichannel_callback(transmission_result_t * pTxResult)
 
       // Return here so that simultaneous transmissions towards different destinations are avoided.
       return;
-
     } else if (MCTXRESULT_NO_DESTINATIONS == MultiChannelResult) {
       // Multi-channel transmissions are done. Continue to multicast...
     } else {
@@ -241,7 +231,7 @@ static MultiChannelTXResult_t TransmitMultiChannel(__attribute__((unused)) trans
 {
   do {
     destination_info_t node = { 0 };
- 
+
     memset((uint8_t *)&node, 0, sizeof(node));
 
     /* This function will return once every node in group of the same nodeID but with endpoint is prepared
@@ -251,25 +241,24 @@ static MultiChannelTXResult_t TransmitMultiChannel(__attribute__((unused)) trans
                                                                   &node);
 
     /* For each nodeID with endpoints, there will be a multi-channel transmission. */
-    if (1 == node.node.BitAddress)
-    {
+    if (1 == node.node.BitAddress) {
       TRANSMIT_OPTIONS_TYPE_SINGLE_EX txOptions = {
-                                                   .txOptions = p_nodelist_hold->txOptions,
-                                                   .txSecOptions = S2_TXOPTION_VERIFY_DELIVERY,
-                                                   .sourceEndpoint = p_nodelist_hold->sourceEndpoint,
-                                                   .pDestNode = &node
+        .txOptions = p_nodelist_hold->txOptions,
+        .txSecOptions = S2_TXOPTION_VERIFY_DELIVERY,
+        .sourceEndpoint = p_nodelist_hold->sourceEndpoint,
+        .pDestNode = &node
       };
       singleCastTxDestNodeId = node.node.nodeId;
       EZAF_EnqueueStatus_t txResult;
       txResult = ZAF_Transmit(
-                    p_data_hold,
-                    data_length_hold,
-                    &txOptions,
-                    multichannel_callback);
+        p_data_hold,
+        data_length_hold,
+        &txOptions,
+        multichannel_callback);
 
       return (ZAF_ENQUEUE_STATUS_SUCCESS == txResult) ? MCTXRESULT_SUCCESS : MCTXRESULT_FAILURE;
     }
-    DPRINT("\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\n");
   } while (true == moreMultiChannelNodes);
 
   return MCTXRESULT_NO_DESTINATIONS;
@@ -284,8 +273,7 @@ static MulticastTXResult_t TransmitMultiCast(__attribute__((unused)) transmissio
   txSecOptions = fSupervisionEnableHold ? S2_TXOPTION_VERIFY_DELIVERY : 0;
 
   //Safeguard against buffer overflow
-  if (TX_BUFFER_SIZE < data_length_hold)
-  {
+  if (TX_BUFFER_SIZE < data_length_hold) {
     return MULTICAST_TXRESULT_FAILURE;
   }
 
@@ -294,7 +282,6 @@ static MulticastTXResult_t TransmitMultiCast(__attribute__((unused)) transmissio
     .uTransmitParams.SendDataMultiEx.FrameConfig.Handle = ZCB_callback_wrapper,
     .uTransmitParams.SendDataMultiEx.FrameConfig.iFrameLength = (uint8_t)data_length_hold,
     .uTransmitParams.SendDataMultiEx.FrameConfig.TransmitOptions = 0
-
   };
   memcpy(&FramePackage.uTransmitParams.SendDataMultiEx.FrameConfig.aFrame, p_data_hold, data_length_hold);
 
@@ -303,8 +290,7 @@ static MulticastTXResult_t TransmitMultiCast(__attribute__((unused)) transmissio
   if ((remainingNodeCount < 2) || moreMultiChannelNodes == true) {
     /* Not enough destinations for sending a multicast OR further endpoint destinations are pending TX. */
     return MULTICAST_TXRESULT_NOT_ENOUGH_DESTINATIONS;
-  }
-  else if (m_pAppHandle->pNetworkInfo->SecurityKeys & SECURITY_KEY_S2_MASK) {
+  } else if (m_pAppHandle->pNetworkInfo->SecurityKeys & SECURITY_KEY_S2_MASK) {
     // We got more than one s2 node => Transmit S2 multicast.
     FramePackage.uTransmitParams.SendDataMultiEx.GroupId = p_nodelist_hold->S2_groupID;
     FramePackage.uTransmitParams.SendDataMultiEx.SourceNodeId = 0xFF;
@@ -315,14 +301,12 @@ static MulticastTXResult_t TransmitMultiCast(__attribute__((unused)) transmissio
     FramePackage.eTransmitType = EZWAVETRANSMITTYPE_MULTI_EX;
 
     // Put the package on queue (and don't wait for it)
-    if (QueueNotifyingSendToBack(m_pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0) != EQUEUENOTIFYING_STATUS_SUCCESS)
-    {
+    if (QueueNotifyingSendToBack(m_pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0) != EQUEUENOTIFYING_STATUS_SUCCESS) {
       return MULTICAST_TXRESULT_FAILURE;
     }
   } else if (!(m_pAppHandle->pNetworkInfo->SecurityKeys & SECURITY_KEY_NONE_MASK)) {
     // Fetch the nodeIDs for multicast
-    for (uint32_t i = 0; i < remainingNodeCount; i++)
-    {
+    for (uint32_t i = 0; i < remainingNodeCount; i++) {
       destination_info_t * pNode = AssociationGetNextSinglecastDestination();
       ZW_NodeMaskSetBit(node_mask, (uint8_t)pNode->node.nodeId);
     }
@@ -331,13 +315,10 @@ static MulticastTXResult_t TransmitMultiCast(__attribute__((unused)) transmissio
     memcpy(&FramePackage.uTransmitParams.SendDataMulti.NodeMask, &node_mask, sizeof(NODE_MASK_TYPE));
 
     // Put the package on queue (and don't wait for it)
-    if (QueueNotifyingSendToBack(m_pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0) != EQUEUENOTIFYING_STATUS_SUCCESS)
-    {
+    if (QueueNotifyingSendToBack(m_pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0) != EQUEUENOTIFYING_STATUS_SUCCESS) {
       return MULTICAST_TXRESULT_FAILURE;
     }
-  }
-  else
-  {
+  } else {
     // Do nothing
   }
   return MULTICAST_TXRESULT_SUCCESS;
@@ -351,8 +332,7 @@ ZW_TransportMulticast_SendRequest(const uint8_t * const p_data,
                                   ZAF_TX_Callback_t p_callback)
 {
   if (IS_NULL(p_nodelist) || 0 == p_nodelist->list_length
-      || IS_NULL(p_data) || 0 == data_length || multiCastInProgress)
-  {
+      || IS_NULL(p_data) || 0 == data_length || multiCastInProgress) {
     return ETRANSPORTMULTICAST_FAILED;
   }
 
@@ -364,8 +344,7 @@ ZW_TransportMulticast_SendRequest(const uint8_t * const p_data,
   data_length_hold = data_length;
 
   CommandClassSupervisionGetAdd(&(txBuf.supervisionGet));
-  if (true != RequestBufferSetPayloadLength(data_length))
-  {
+  if (true != RequestBufferSetPayloadLength(data_length)) {
     // Failure to set payload length
     return ETRANSPORTMULTICAST_FAILED;
   }
@@ -381,11 +360,10 @@ ZW_TransportMulticast_SendRequest(const uint8_t * const p_data,
 
   // Use supervision if security scheme is 2 and supervision is enabled.
   if (true != RequestBufferSupervisionPayloadActivate(
-      (ZW_APPLICATION_TX_BUFFER**)&p_data_hold,
-      &data_length_hold,
-      ((0 != (SECURITY_KEY_S2_MASK & secKeys))
-          && fSupervisionEnableHold)))
-  {
+        (ZW_APPLICATION_TX_BUFFER**)&p_data_hold,
+        &data_length_hold,
+        ((0 != (SECURITY_KEY_S2_MASK & secKeys))
+         && fSupervisionEnableHold))) {
     // Something is wrong.
     return ETRANSPORTMULTICAST_FAILED;
   }
@@ -429,9 +407,9 @@ ZW_TransportMulticast_SendRequest(const uint8_t * const p_data,
 static void
 ZCB_callback_wrapper(uint8_t Status, __attribute__((unused)) TX_STATUS_TYPE* pStatusType)
 {
-  TRANSMISSION_RESULT  transmissionResult = {.nodeId = singleCastTxDestNodeId,
-                                             .status = Status,
-                                             .isFinished = TRANSMISSION_RESULT_FINISHED};
+  TRANSMISSION_RESULT  transmissionResult = { .nodeId = singleCastTxDestNodeId,
+                                              .status = Status,
+                                              .isFinished = TRANSMISSION_RESULT_FINISHED };
   ZCB_multicast_callback(&transmissionResult);
 }
 
@@ -449,29 +427,25 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
   static TRANSMISSION_RESULT transmissionResult = { 0 };
   EZAF_EnqueueStatus_t txResult;
 
-  DPRINT("\r\n ZCB_multicast_callback() \n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\n ZCB_multicast_callback() \n");
   multicast_cb_called = false;
   if (gotSupervision) {
-     gotSupervision = false;
+    gotSupervision = false;
     return;
   }
 
   // Handle the result of transmission.
-  if (singlecast_node_count > 0)  // Check whether this callback is invoked due to a made transmission.
-  {
+  if (singlecast_node_count > 0) { // Check whether this callback is invoked due to a made transmission.
     /*
      * When singlecast_node_count is higher than zero, it means that the call
      * to this function is a callback when transmission is done or failed.
      */
 
     // Check whether to set the finish flag.
-    if (singlecast_node_count == remainingNodeCount)
-    {
+    if (singlecast_node_count == remainingNodeCount) {
       transmissionResult.isFinished = TRANSMISSION_RESULT_FINISHED;
-      DPRINT("\r\nTransmission done!");
-    }
-    else
-    {
+      ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\nTransmission done!");
+    } else {
       transmissionResult.isFinished = TRANSMISSION_RESULT_NOT_FINISHED;
     }
 
@@ -479,13 +453,10 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
      * If pTransmissionResult == NULL, then this call is really just a call to start transmission,
      * and not a result of a transmission having been done.
      */
-     transmissionResult.nodeId = singleCastTxDestNodeId;
-    if (NON_NULL(pTransmissionResult))
-    {
+    transmissionResult.nodeId = singleCastTxDestNodeId;
+    if (NON_NULL(pTransmissionResult)) {
       transmissionResult.status = pTransmissionResult->status;
-    }
-    else
-    {
+    } else {
       transmissionResult.status = TRANSMIT_COMPLETE_OK;
     }
 
@@ -494,8 +465,7 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
   }
 
   // Initiate new transmission.
-  if (singlecast_node_count < remainingNodeCount)
-  {
+  if (singlecast_node_count < remainingNodeCount) {
     TRANSMIT_OPTIONS_TYPE_SINGLE_EX txOptions = {
       .txOptions = p_nodelist_hold->txOptions,
       .txSecOptions = txSecOptions | S2_TXOPTION_VERIFY_DELIVERY,
@@ -503,8 +473,7 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
       .pDestNode = AssociationGetNextSinglecastDestination()
     };
 
-    if(0 == singlecast_node_count && (txSecOptions & S2_TXOPTION_SINGLECAST_FOLLOWUP) )
-    {
+    if (0 == singlecast_node_count && (txSecOptions & S2_TXOPTION_SINGLECAST_FOLLOWUP) ) {
       txOptions.txSecOptions |= S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP;
     }
 
@@ -512,12 +481,11 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
     transmissionResult.nodeId = singleCastTxDestNodeId;
 
     if (true != RequestBufferSupervisionPayloadActivate(
-        (ZW_APPLICATION_TX_BUFFER**)&p_data_hold,
-        &data_length_hold,
-        ((0 != (SECURITY_KEY_S2_MASK & secKeys))
-            && fSupervisionEnableHold
-            && (0 == txOptions.pDestNode->node.BitAddress))))
-    {
+          (ZW_APPLICATION_TX_BUFFER**)&p_data_hold,
+          &data_length_hold,
+          ((0 != (SECURITY_KEY_S2_MASK & secKeys))
+           && fSupervisionEnableHold
+           && (0 == txOptions.pDestNode->node.BitAddress)))) {
       transmissionResult.status = TRANSMIT_COMPLETE_FAIL;
       transmissionResult.isFinished = TRANSMISSION_RESULT_FINISHED;
 
@@ -527,17 +495,17 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
     }
 
     txResult = ZAF_Transmit(
-                  p_data_hold,
-                  data_length_hold,
-                  &txOptions,
-                  ZCB_multicast_callback);
+      p_data_hold,
+      data_length_hold,
+      &txOptions,
+      ZCB_multicast_callback);
     // If Supervision CC is used, keep Radio Powered on 1 sec after transmission.
-    if(fSupervisionEnableHold)
-      zpal_pm_stay_awake(m_PowerLock, 1000);
+    if (fSupervisionEnableHold) {
+      zpal_pm_lock(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, 1000, ZPAL_PM_APP_RADIO_ZAF_TRANSPORT_MULTICAST_ID);
+    }
 
-    if (ZAF_ENQUEUE_STATUS_SUCCESS != txResult)
-    {
-      DPRINTF("\r\nError: %d", txResult);
+    if (ZAF_ENQUEUE_STATUS_SUCCESS != txResult) {
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_TRANSPORT, "\r\nError: %d", txResult);
       transmissionResult.status = TRANSMIT_COMPLETE_FAIL;
       EVALUATE_TRANSMISSION_RESULT(transmissionResult.isFinished);
 
@@ -553,7 +521,7 @@ ZCB_multicast_callback(TRANSMISSION_RESULT * pTransmissionResult)
 void
 ZW_TransportMulticast_clearTimeout(void)
 {
-  zpal_pm_cancel(m_PowerLock);
+  zpal_pm_lock_cancel(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_DOMAIN_APP, ZPAL_PM_APP_RADIO_ZAF_TRANSPORT_MULTICAST_ID);
   if (multicast_cb_called) {
     return;
   }
@@ -566,5 +534,4 @@ ZW_TransportMulticast_init(void)
 {
   memset((uint8_t *)&txBuf, 0x00, sizeof(txBuf));
   multiCastInProgress = false;
-  m_PowerLock = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
 }

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Simple Metering client cluster.  This component is a sample that implements the simple metering client callbacks and prints the results.
 label: Simple Metering Client
 quality: production

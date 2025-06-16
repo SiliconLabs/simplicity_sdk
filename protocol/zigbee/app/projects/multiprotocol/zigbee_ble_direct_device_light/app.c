@@ -78,7 +78,7 @@ static void toggleOnoffAttribute(void);
 #endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
 
 extern uint8_t adv_handle[];
-extern sl_zigbee_network_parameters_t sl_zigbee_direct_network_params;
+extern sl_zigbee_network_parameters_t sli_zigbee_direct_network_params;
 
 uint32_t sl_zigbee_af_zigbee_direct_cluster_server_command_parse(sl_service_opcode_t opcode,
                                                                  sl_service_function_context_t *context);
@@ -130,7 +130,6 @@ extern void bleConnectionInfoTableInit(void);
 extern uint8_t sl_my_passcode[SL_ZIGBEE_ENCRYPTION_KEY_SIZE];
 void sl_zigbee_af_main_init_cb(void)
 {
-  sl_zigbee_node_type_t node_type = SL_ZIGBEE_UNKNOWN_DEVICE;
   sl_status_t init_status;
 
   #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
@@ -140,7 +139,7 @@ void sl_zigbee_af_main_init_cb(void)
   bleConnectionInfoTableInit();
   sli_zigbee_direct_security_init();
 
-  sl_zigbee_direct_network_params.panId = sl_zigbee_get_pseudo_random_number();
+  sli_zigbee_direct_network_params.panId = sl_zigbee_get_pseudo_random_number();
 
   sl_zigbee_af_event_init(&sli_zigbee_direct_anonymous_join_event, sli_zigbee_direct_anonymous_join_event_handler);
 

@@ -12,8 +12,6 @@
 #include <ZAF_file_ids.h>
 #include <zpal_nvm.h>
 #include <zpal_misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 // Matches FILE_ID_APPLICATIONDATA from DoorLockKeyPad sample app
 #define DOOR_LOCK_DATA_LEGACY_FILE_ID (0x00000)

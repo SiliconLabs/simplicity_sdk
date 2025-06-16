@@ -288,7 +288,7 @@ static void _set_phy(void *args)
   // full cleanup
   _full_cleanup();
 
-  // to disconnet from the network
+  // to disconnect from the network
   sl_wisun_disconnect();
 
   // to connect to the network with the new settings

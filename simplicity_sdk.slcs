@@ -2,11 +2,10 @@ id: "simplicity_sdk"
 label: "Simplicity SDK Suite"
 description: |-
   Simplicity SDK Suite for EFM32 and EFR32 microcontrollers and radios.
-sdk_version: "2024.12.2"
+sdk_version: "2025.6.0"
 specification_version: 12
 supplier: "Silicon Laboratories, Inc."
 component_path:
-  - path: "app/amazon/component"
   - path: "app/bluetooth/component"
   - path: "app/btmesh/component"
   - path: "app/rail/component"
@@ -26,6 +25,7 @@ component_path:
   - path: "platform/driver/component"
   - path: "platform/service/component"
   - path: "platform/service/cpc/component"
+  - path: "platform/service/cpc-v2/component"
   - path: "platform/service/ddp/component"
   - path: "platform/Device/component"
   - path: "platform/Device/component-restricted"
@@ -68,18 +68,6 @@ component_path:
   - path: "util/plugin/component"
   - path: "util/silicon_labs/silabs_core/component"
   - path: "util/silicon_labs/rtl/component"
-  - path: "util/third_party/aws_iot_libs/component"
-  - path: "util/third_party/aws_iot_libs/component/aws_demos"
-  - path: "util/third_party/aws_iot_libs/component/aws_services"
-  - path: "util/third_party/aws_iot_libs/component/aws_tests"
-  - path: "util/third_party/aws_iot_libs/component/c_sdk"
-  - path: "util/third_party/aws_iot_libs/component/core_libs"
-  - path: "util/third_party/aws_iot_libs/component/freertos_plus"
-  - path: "util/third_party/aws_iot_libs/component/iot_ble"
-  - path: "util/third_party/aws_iot_libs/component/iot_common_io"
-  - path: "util/third_party/aws_iot_libs/component/iot_logging"
-  - path: "util/third_party/aws_iot_libs/component/iot_platform"
-  - path: "util/third_party/aws_iot_libs/component/runtest"
   - path: "util/third_party/cmsis/component"
   - path: "util/third_party/coremark/component"
   - path: "util/third_party/crypto_ip/component"
@@ -97,42 +85,47 @@ component_path:
 toolchain_mapping: "platform/common/toolchain/toolchains.slct"
 documentation:
   - docset: gecko-platform
-    version: "5.1.2"
+    version: "5.2.0"
   - docset: mbed-tls
-    version: "3.5.0"
+    version: "3.6.2"
   - docset: connect-stack
-    version: "4.0.2"
+    version: "4.1.0"
   - docset: mcu-bootloader
-    version: "3.0.2"
+    version: "3.1.0"
   - docset: openthread
-    version: "2.6.2"
+    version: "2.7.0"
   - docset: rail
-    version: "2.18.2"
+    version: "3.0.0"
   - docset: wifi/wf200/rtos
     version: "3.6.2"
   - docset: wisun
-    version: "2.5.0"
+    version: "2.6.0"
   - docset: zigbee
-    version: "8.1.2"
+    version: "8.2.0"
   - docset: rtl-lib
-    version: "9.1.0"
+    version: "10.0.0"
   - docset: bluetooth
-    version: "9.1.0"
+    version: "10.0.0"
+  - docset: btmesh
+    version: "9.0.0"
   - docset: protocol-usb
-    version: "1.4.1"
-  - docset: machine-learning
-    version: "2.0.0"
+    version: "1.5.0"
 upgrade_manifest:
   - path: "app/common/upgrade.slcu"
+  - path: "app/bluetooth/upgrade.slcu"
+  - path: "app/btmesh/upgrade.slcu"
   - path: "app/wisun/upgrade.slcu"
   - path: "app/rail/upgrade.slcu"
   - path: "hardware/upgrade.slcu"
   - path: "platform/upgrade.slcu"
   - path: "platform/service/component/upgrade.slcu"
+  - path: "protocol/bluetooth/component/upgrade.slcu"
+  - path: "protocol/flex/component/upgrade.slcu"
   - path: "protocol/zigbee/component/upgrade.slcu"
   - path: "platform/security/component/upgrade.slcu"
   - path: "util/third_party/unity_test_framework/component/upgrade.slcu"
   - path: "protocol/openthread/component/upgrade.slcu"
+  - path: "protocol/z-wave/component/upgrade.slcu"
 post_build_profile:
   - path: "platform/common/postbuild_profile/"
   - path: "app/bluetooth/postbuild_profile"
@@ -142,6 +135,8 @@ post_build_profile:
 compatible_sdk:
   - id: gecko_sdk
     versions:
+      "4.4.6": "4.4.6"
+      "4.4.5": "4.4.5"
       "4.4.4": "4.4.4"
       "4.4.3": "4.4.3"
       "4.4.2": "4.4.2"
@@ -151,6 +146,7 @@ compatible_sdk:
       "4.3.2": "4.3.2"
       "4.3.1": "4.3.1"
       "4.3.0": "4.3.0"
+      "4.2.7": "4.2.7"
       "4.2.6": "4.2.6"
       "4.2.5": "4.2.5"
       "4.2.4": "4.2.4"

@@ -3,7 +3,7 @@
  * @brief Clock Manager - Oscillators configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -81,7 +81,7 @@
 // <o SL_CLOCK_MANAGER_HFXO_CTUNE> CTUNE <0-255>
 // <d> 140
 #ifndef SL_CLOCK_MANAGER_HFXO_CTUNE
-#define SL_CLOCK_MANAGER_HFXO_CTUNE    140
+#define SL_CLOCK_MANAGER_HFXO_CTUNE    141
 #endif
 
 // <o SL_CLOCK_MANAGER_HFXO_PRECISION> Precision in PPM <0-65535>
@@ -117,7 +117,7 @@
 // <o SL_CLOCK_MANAGER_LFXO_CTUNE> CTUNE <0-127>
 // <d> 63
 #ifndef SL_CLOCK_MANAGER_LFXO_CTUNE
-#define SL_CLOCK_MANAGER_LFXO_CTUNE    63
+#define SL_CLOCK_MANAGER_LFXO_CTUNE    42
 #endif
 
 // <o SL_CLOCK_MANAGER_LFXO_PRECISION> LFXO precision in PPM <0-65535>
@@ -274,7 +274,7 @@
 
 // <<< sl:start pin_tool >>>
 
-// <cmu signal=CLKIN0> SL_CLOCK_MANAGER_CLKIN0
+// <cmu signal=CLKIN0 optional=true> SL_CLOCK_MANAGER_CLKIN0
 // $[CMU_SL_CLOCK_MANAGER_CLKIN0]
 
 

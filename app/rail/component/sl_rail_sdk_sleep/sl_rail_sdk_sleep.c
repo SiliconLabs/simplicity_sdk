@@ -34,7 +34,7 @@
 #include "sl_rail_sdk_sleep.h"
 #include "sl_clock_manager.h"
 #include "sl_rail_util_init.h"
-#include "rail.h"
+#include "sl_rail.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -54,23 +54,27 @@
  * API prepares the RAIL and Power Manager to work together.
  * Enables RAIL timer syncronization after sleep.
  ******************************************************************************/
-RAIL_Status_t sl_rail_sdk_sleep_init(void)
+sl_rail_status_t sl_rail_sdk_sleep_init(void)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
-  RAIL_Handle_t rail_handle = NULL;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_handle_t rail_handle = NULL;
+  sl_rail_sleep_config_t sleep_config = SL_RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED;
+  sl_rail_timer_sync_config_t timer_sync_config = SL_RAIL_TIMER_SYNC_DEFAULT;
 
   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
-  status = RAIL_InitPowerManager();
+  status = sl_rail_init_power_manager();
 
-  if (RAIL_STATUS_NO_ERROR == status) {
+  if (SL_RAIL_STATUS_NO_ERROR == status) {
     rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
     if (NULL == rail_handle) {
-      status = RAIL_STATUS_INVALID_PARAMETER;
+      status = SL_RAIL_STATUS_INVALID_PARAMETER;
     }
   }
 
-  if (RAIL_STATUS_NO_ERROR == status) {
-    status = RAIL_ConfigSleep(rail_handle, RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED);
+  timer_sync_config.sleep = sleep_config;
+
+  if (SL_RAIL_STATUS_NO_ERROR == status) {
+    status = sl_rail_config_sleep(rail_handle, &timer_sync_config);
   }
 
   return status;

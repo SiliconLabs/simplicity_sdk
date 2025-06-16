@@ -32,18 +32,20 @@
 #include "psa/crypto.h"
 #include "sli_mbedtls_omnipresent.h"
 #include "sli_cryptoacc_opaque_types.h"
+#include "sli_psa_driver_features.h"
 #include "sli_psa_driver_common.h"
 #include "cryptoacc_management.h"
 #include "cryptolib_def.h"
 #include "sx_errors.h"
 #include "sx_aes.h"
 
+#if defined(SLI_PSA_DRIVER_FEATURE_PBKDF2)
+
 #include <string.h>
 
 // -----------------------------------------------------------------------------
 // Defines
 
-#if defined(SLI_PSA_DRIVER_FEATURE_PBKDF2)
 #define PBKDF2_COUNTER_ENCODING_SIZE  (4u)
 
 // -----------------------------------------------------------------------------

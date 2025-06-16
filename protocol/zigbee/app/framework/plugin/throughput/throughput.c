@@ -71,7 +71,7 @@ static void printParameter(uint8_t printSelection);
 static void printCounter(uint8_t);
 static void printAllParameters(void);
 static void printResult(void);
-static void startTest(void);
+static void startTest(bool doClearCounters);
 static void stopTest(void);
 static void clearCounters(void);
 enum printSelection {
@@ -191,7 +191,7 @@ static void printResult(void)
   }
 }
 
-static void startTest(void)
+static void startTest(bool doClearCounters)
 {
   uint8_t i;
 
@@ -225,7 +225,9 @@ static void startTest(void)
   for (i = 0; i < ZIGBEE_TX_TEST_MAX_INFLIGHT; i++) {
     testParams.inflightInfoTable[i].inUse = false;
   }
-  clearCounters();
+  if (doClearCounters) {
+    clearCounters();
+  }
   test_in_progress = true;
   sl_zigbee_af_core_println("Starting Test");
   packetSendEventHandler(&packetSendEvent);
@@ -542,9 +544,12 @@ void sli_zigbee_af_throughput_cli_stop_test(sl_cli_command_arg_t *arguments)
 
 void sli_zigbee_af_throughput_cli_start_test(sl_cli_command_arg_t *arguments)
 {
-  (void)arguments;
+  bool clear_counters = true;
+  if (sl_cli_get_argument_count(arguments) >= 1) {
+    clear_counters = sl_cli_get_argument_uint8(arguments, 0);
+  }
 
-  startTest();
+  startTest(clear_counters);
 }
 
 void sli_zigbee_af_throughput_cli_print_result(sl_cli_command_arg_t *arguments)

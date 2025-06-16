@@ -3,6 +3,7 @@ Radio Configurator
 """
 import copy
 import os
+import re
 import traceback
 import types
 from enum import Enum
@@ -11,7 +12,7 @@ from pyradioconfig._version import __version__
 from pyradioconfig.calculator_model_framework.Utils.CalcStatus import CalcStatus
 from pyradioconfig.calculator_model_framework.Utils.ClassManager import ClassManager
 from pyradioconfig.calculator_model_framework.Utils.CustomExceptions import UnknownOPNTypeException, \
-    InvalidOptionOverride, UnknownProfileException
+    InvalidOptionOverride, UnknownProfileException, InvalidRegexException
 from pyradioconfig.calculator_model_framework.Utils.FileUtilities import FileUtilities
 from pyradioconfig.calculator_model_framework.Utils.LogMgr import LogMgr
 from pyradioconfig.calculator_model_framework.Utils.ModelChecking import ModelChecking, ModelCheckingError
@@ -752,6 +753,17 @@ class CalcManager(object):
                 variable = getattr(modem_model.vars, input.var_name)
                 variable.value_forced = input.var_value
 
+        # get register groups
+        reg_groups = self.get_register_groups(modem_model.part_family)
+
+        # Validate each regex expression
+        if reg_groups:
+            regs_regex_found = {reg_group_regex for reg_group_list in reg_groups.values() for reg_group_regex in
+                                reg_group_list}
+            for reg_group_regex in regs_regex_found:
+                if len(reg_group_regex.split("_")) > 2:
+                    raise InvalidRegexException(f"{reg_group_regex} is at the register field level (not allowed)")
+
         # Assign user outputs from Profile to Variables
         for output in profile.outputs:
             if output.override is not None:
@@ -767,6 +779,29 @@ class CalcManager(object):
                         variable.value_forced = output.override
                 else:
                     variable.value_forced = output.override
+
+            # handle output groups
+            if reg_groups:
+                group_found_for_output = False
+                for reg_group_name, reg_group_list in reg_groups.items():
+                    for reg_group_regex in reg_group_list:
+                        if bool(re.search(reg_group_regex, output.var_name)):
+                            if reg_group_name not in output.groups:
+                                output.groups.append(reg_group_name)
+                                group_found_for_output = True
+                            if reg_group_regex in regs_regex_found:
+                                regs_regex_found.remove(reg_group_regex)
+
+                # TODO: Temporary code for future use, to check if a register has been assigned a group
+                # TODO: This assert is not needed so long as a register output is allowed to not belong to any group.
+                if group_found_for_output is False and output.output_type in [ModelOutputType.SVD_REG_FIELD, ModelOutputType.SEQ_REG_FIELD]:
+                    # LogMgr.Warning('No group found for: {}'.format(output.var_name))
+                    pass
+
+        if reg_groups:
+            # Validate if every reg_regex in a group has been assigned at least 1 output (check for regex mistakes)
+            if len(regs_regex_found) > 0:
+                LogMgr.Warning(f"WARNING: These regex did not find a register field match: {regs_regex_found}")
 
         # Call any target specific calculate functions last (these overwrite all other settings)
         if not profile.skip_target_calculation:
@@ -1094,6 +1129,9 @@ class CalcManager(object):
                 self.__override_profile_output(model_instance, key, value)
             elif hasattr(model_instance.profile.outputs, key.upper()):
                 self.__override_profile_output(model_instance, key.upper(), value)
+            elif hasattr(model_instance.vars, key):
+                var = getattr(model_instance.vars, key)
+                var.value_forced = value
             else:
                 raise InvalidOptionOverride(key + ' is not a valid option input or output for {} profile.'.format(model_instance.profile.name))
 
@@ -1519,9 +1557,14 @@ class CalcManager(object):
 
     @staticmethod
     def get_list_of_parts_supported(incl_unit_test_part=False):
-        parts_list = ['bobcat', 'caracal', 'dumbo', 'jumbo', 'leopard', 'lion', 'lynx', 'margay', 'nerio', 'nixi', 'ocelot', 'panther', 'rainier', 'sol']
-        if incl_unit_test_part:
-            parts_list.append('unit_test_part')
+        parts_list = []
+        exclude_list = ['common','wifi74000']
+        if not incl_unit_test_part:
+            exclude_list.append('unit_test_part')
+        parts_location = os.path.dirname(parts.__file__)
+        for dirname in os.listdir(parts_location):
+            if not dirname.startswith('_') and dirname not in exclude_list:
+                parts_list.append(dirname)
         return parts_list
 
     def _call_target_calculate(self, model_instance):
@@ -1660,7 +1703,9 @@ class CalcManager(object):
     def __override_profile_output(self, model_instance, key, value):
         # process option inputs into profile output overrides
         output = getattr(model_instance.profile.outputs, key)
-        if output._var.var_type != Enum:
+        if output._var.is_array and isinstance(value, list):
+            output.override = value
+        elif output._var.var_type != Enum:
             output.override = (output._var.var_type)(value)
         else:
             if isinstance(value, basestring):
@@ -1673,3 +1718,23 @@ class CalcManager(object):
 
     def getPartFamilyImportPath(self, part_family, import_type):
         return "pyradioconfig.parts.{}.{}".format(part_family.lower(), import_type)
+
+    def get_register_groups(self, part_family):
+        reg_groups = {}
+        try:
+            reg_path = self.getPartFamilyImportPath(part_family, "groups.reg_groups")
+            reg_mod_imp = ClassManager.load_module_from_import_path(reg_path)
+            if hasattr(reg_mod_imp, 'PhyGroups'):
+                reg_mod = reg_mod_imp.PhyGroups()
+                if reg_mod:
+                    for name in dir(reg_mod):
+                        if not name.startswith('__'):
+                            val = getattr(reg_mod, name)
+                            if val and type(val) is list:
+                                reg_groups[name] = val
+            else:
+                LogMgr.Warning("Unable to import PhyGroups() from modules: {}".format(reg_path))
+        except (ImportError, AttributeError) as ie:
+            # LogMgr.Warning("Unable to import modules: {}".format(ie))
+            pass
+        return reg_groups

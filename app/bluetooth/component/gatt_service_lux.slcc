@@ -1,6 +1,6 @@
 id: gatt_service_lux
 label: Environment Sensing - Ambient Light GATT Service
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides ambient light sensor data in GATT characteristics.
   Designed for the Thunderboard smartphone app.

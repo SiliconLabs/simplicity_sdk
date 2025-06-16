@@ -55,6 +55,8 @@
 #define BOOTLOADER_ERROR_UART_BASE                  0x1200L
 /// Compression errors
 #define BOOTLOADER_ERROR_COMPRESSION_BASE           0x1300L
+/// RTOS erros
+#define BOOTLOADER_ERROR_RTOS_BASE                  0x1400L
 
 /** @} addtogroup ErrorBases */
 
@@ -179,6 +181,12 @@
 /// Authentication did not check out
 #define BOOTLOADER_ERROR_SECURITY_REJECTED \
   (BOOTLOADER_ERROR_SECURITY_BASE | 0x04L)
+/// Security Init failed
+#define BOOTLOADER_ERROR_SECURITY_INIT_FAILED \
+  (BOOTLOADER_ERROR_SECURITY_BASE | 0x05L)
+/// Security De Init failed
+#define BOOTLOADER_ERROR_SECURITY_DE_INIT_FAILED \
+  (BOOTLOADER_ERROR_SECURITY_BASE | 0x06L)
 
 /** @} addtogroup SecurityError */
 
@@ -299,6 +307,9 @@
 /// OOB write in the storage slot while parsing the GBL file
 #define BOOTLOADER_ERROR_PARSER_OOB_WRITE \
   (BOOTLOADER_ERROR_PARSER_BASE | 0x0FL)
+/// Invalid hash
+#define BOOTLOADER_ERROR_PARSER_HASH \
+  (BOOTLOADER_ERROR_PARSER_BASE | 0x10L)
 
 /** @} addtogroup ParserError */
 
@@ -377,6 +388,20 @@
 
 /** @} addtogroup CompressionError */
 
+/**
+ * @addtogroup RTOSError RTOS Error Codes
+ * @brief Bootloader error codes returned by the application interface
+ * @details
+ *    Offset from @ref BOOTLOADER_ERROR_RTOS_BASE
+ * @{
+ */
+/// Mutex operations executed successfully
+#define BOOTLOADER_ERROR_RTOS_MUTEX_SUCCESS \
+  (BOOTLOADER_ERROR_RTOS_BASE | 0x01)
+/// Mutex operations failed
+#define BOOTLOADER_ERROR_RTOS_MUTEX_FAILED \
+  (BOOTLOADER_ERROR_RTOS_BASE | 0x02)
+/** @} addtogroup RTOSError */
 /** @} addtogroup ErrorCodes */
 
 #endif // BTL_ERRORCODE_H

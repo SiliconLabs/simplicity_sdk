@@ -49,8 +49,8 @@
 #define SL_BT_APP_OTA_DFU_CONFIG_PRIORITY      APP_RTA_PRIORITY_NORMAL
 
 // <o SL_BT_APP_OTA_DFU_CONFIG_STACK> Stack size (in bytes)
-// <i> Default: 1024
-#define SL_BT_APP_OTA_DFU_CONFIG_STACK         1024
+// <i> Default: 2560
+#define SL_BT_APP_OTA_DFU_CONFIG_STACK         2560
 
 // <o SL_BT_APP_OTA_DFU_CONFIG_WAIT> Timeout for guard (in ticks)
 // <i> Default: 10

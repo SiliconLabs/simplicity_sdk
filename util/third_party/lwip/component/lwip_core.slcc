@@ -1,6 +1,6 @@
 id: lwip_core
 label: "LightWeight IP (LWIP) core stack"
-package: platform
+package: lwip
 description: >
     The LightWeight IP (LWIP) core stack component provides the core LWIP. LWIP (lightweight IP) is a widely
     used open-source TCP/IP stack designed for embedded systems. LWIP was originally developed by Adam Dunkels at the

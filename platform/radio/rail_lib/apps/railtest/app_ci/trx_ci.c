@@ -259,12 +259,7 @@ void setTxAltPreambleLen(sl_cli_command_arg_t *args)
 void stopInfinitePreambleTx(sl_cli_command_arg_t *args)
 {
   RAIL_Status_t status = RAIL_StopInfinitePreambleTx(railHandle);
-  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s",
-                ((status == RAIL_STATUS_NO_ERROR) ? "Success"
-                 : (status == RAIL_STATUS_INVALID_CALL) ? "Invalid Call"
-                 : (status == RAIL_STATUS_INVALID_STATE) ? "Invalid State"
-                 : "Failure"
-                ));
+  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s", getStatusMessage(status));
 }
 
 void getSyncWords(sl_cli_command_arg_t *args)
@@ -527,8 +522,8 @@ void setTxStream(sl_cli_command_arg_t *args)
 
 void configDirectMode(sl_cli_command_arg_t *args)
 {
+  RAIL_Status_t status = RAIL_STATUS_INVALID_CALL;
 #if ((_SILICON_LABS_32B_SERIES == 1) || (_SILICON_LABS_32B_SERIES_2_CONFIG >= 3))
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
   RAIL_DirectModeConfig_t directModeConfig = { 0 };
 
   #ifdef _SILICON_LABS_32B_SERIES_1
@@ -552,16 +547,10 @@ void configDirectMode(sl_cli_command_arg_t *args)
   directModeConfig.dinPin = sl_cli_get_argument_uint8(args, 7);
 
   status = RAIL_ConfigDirectMode(railHandle, &directModeConfig);
-
-  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s",
-                ((status == RAIL_STATUS_NO_ERROR) ? "Success"
-                 : (status == RAIL_STATUS_INVALID_CALL) ? "Invalid Call"
-                 : "Failure"
-                ));
 #else
   (void)args;
-  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s", "Invalid Call");
 #endif
+  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s", getStatusMessage(status));
 }
 
 void setDirectMode(sl_cli_command_arg_t *args)
@@ -620,6 +609,8 @@ static const char * const rfBands[] = { "Off", "GHz", "MHz", "Any", };
 static RAIL_RfSenseBand_t rfBand = RAIL_RFSENSE_OFF;
 static uint32_t rfUs = 0;
 static const char * const rfSensitivity[] = { "High", "Low" };
+#endif
+#if (RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION || RAIL_SUPPORTS_RFSENSE_SELECTIVE_OOK)
 static void RAILCb_SensedRf(void)
 {
   counters.rfSensedEvent++;
@@ -636,10 +627,12 @@ void sleep(sl_cli_command_arg_t *args)
   uint8_t emMode = (uint8_t)sl_cli_get_argument_string(args, 0)[0] - '0';
 #if defined(_SILICON_LABS_32B_SERIES_2)
   void (*em4Function)(void) = &EMU_EnterEM4;
-  uint8_t rfSenseSyncWordNumBytes = 0U;
-  uint32_t rfSenseSyncWord = 0U;
+#endif
+#if (RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION || RAIL_SUPPORTS_RFSENSE_SELECTIVE_OOK)
   RailRfSenseMode_t mode = RAIL_RFSENSE_MODE_OFF;
   bool enableCb = (emMode & 0x80) ? false : true;
+  uint32_t rfSenseSyncWord = 0U;
+  uint8_t rfSenseSyncWordNumBytes = 0U;
 #endif
   emMode &= ~0x80;
 
@@ -662,7 +655,7 @@ void sleep(sl_cli_command_arg_t *args)
                                 ? 0 : sl_cli_get_argument_uint32(args, 1);
       rfSenseSyncWord = sl_cli_get_argument_uint32(args, 2);
       rfBand = ((RAIL_RfSenseBand_t) sl_cli_get_argument_uint32(args, 3)
-                & RAIL_RFENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
+                & RAIL_RFSENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
       mode = ((rfBand != RAIL_RFSENSE_OFF) && (rfSenseSyncWordNumBytes > 0))
              ? RAIL_RFSENSE_MODE_SELECTIVE_OOK : RAIL_RFSENSE_MODE_OFF;
 #else
@@ -680,7 +673,7 @@ void sleep(sl_cli_command_arg_t *args)
         rfUs = sl_cli_get_argument_uint32(args, 1);
         if (sl_cli_get_argument_count(args) >= 3) {
           rfBand = ((RAIL_RfSenseBand_t) sl_cli_get_argument_uint32(args, 2)
-                    & RAIL_RFENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
+                    & RAIL_RFSENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
         }
         mode = ((rfBand != RAIL_RFSENSE_OFF) && (rfUs > 0))
                ? RAIL_RFSENSE_MODE_ENERGY_DETECTION : RAIL_RFSENSE_MODE_OFF;
@@ -794,7 +787,7 @@ void sleep(sl_cli_command_arg_t *args)
     serEvent = false;
     rxPacketEvent = false;
 
-    bool rfSensed;
+    bool rfSensed = false;
    #if     DEBUG_SLEEP_LOOP
     uint64_t sleeps = 0;
     typedef struct wakeReasons{
@@ -960,10 +953,7 @@ void sleep(sl_cli_command_arg_t *args)
 
 void rfSense(sl_cli_command_arg_t *args)
 {
-#if !RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION
-  responsePrintError(sl_cli_get_command_string(args, 0), 0x15, "RFSENSE Unsupported");
-  return;
-#else
+#if RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION
   RailRfSenseMode_t mode = RAIL_RFSENSE_MODE_OFF;
   uint8_t rfSenseSyncWordNumBytes = 0U;
   uint32_t rfSenseSyncWord = 0U;
@@ -974,7 +964,7 @@ void rfSense(sl_cli_command_arg_t *args)
                                ? 0 : sl_cli_get_argument_uint32(args, 0);
                                rfSenseSyncWord = sl_cli_get_argument_uint32(args, 1);
                                rfBand = ((RAIL_RfSenseBand_t) sl_cli_get_argument_uint32(args, 2)
-                                         & RAIL_RFENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
+                                         & RAIL_RFSENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
                                mode = ((rfBand != RAIL_RFSENSE_OFF) && (rfSenseSyncWordNumBytes > 0))
                                       ? RAIL_RFSENSE_MODE_SELECTIVE_OOK : RAIL_RFSENSE_MODE_OFF;
 #else
@@ -987,7 +977,7 @@ void rfSense(sl_cli_command_arg_t *args)
       rfUs = sl_cli_get_argument_uint32(args, 0);
       if (sl_cli_get_argument_count(args) >= 2) {
         rfBand = ((RAIL_RfSenseBand_t) sl_cli_get_argument_uint32(args, 1)
-                  & RAIL_RFENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
+                  & RAIL_RFSENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
       }
       mode = ((rfBand != RAIL_RFSENSE_OFF) && (rfUs > 0))
              ? RAIL_RFSENSE_MODE_ENERGY_DETECTION : RAIL_RFSENSE_MODE_OFF;
@@ -1028,7 +1018,9 @@ void rfSense(sl_cli_command_arg_t *args)
                 rfBands[rfBand & RAIL_RFSENSE_ANY],
                 rfUs,
                 rfSensitivity[(rfBand & 0x20U) >> 5U]);
-#endif // _SILICON_LABS_32B_SERIES_2_CONFIG == 1
+#else//!RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION
+  responsePrintError(sl_cli_get_command_string(args, 0), 0x15, "RFSENSE Unsupported");
+#endif//RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION
 }
 
 void rfSensedCheck(void)

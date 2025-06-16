@@ -1,7 +1,7 @@
 !!omap
 - id: brd1021a
 - label: BRD1021A
-- package: platform
+- package: boards
 - description: Board support for BRD1021A.
 - category: Platform|Board|Socket Board
 - quality: evaluation

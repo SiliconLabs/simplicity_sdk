@@ -20,6 +20,7 @@ define:
   - name: "HAVE_LFN_PARENT"
   - name: "HAVE_FFN"
   - name: "HAVE_ROUTER"
+  - name: "HAVE_DIRECT_CONNECT"
 
 template_contribution:
   - name: component_catalog

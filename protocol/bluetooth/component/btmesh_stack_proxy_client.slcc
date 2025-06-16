@@ -1,6 +1,6 @@
 id: "btmesh_stack_proxy_client"
 label: "Proxy Client"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh GATT Proxy client-side functionality. The Proxy Client supports a mesh bearer using the Proxy protocol. For example, the Proxy Client can use the GATT bearer to send mesh messages to a node that supports the advertising bearer."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

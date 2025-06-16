@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: The Smart Energy Sub-GHz server monitors clients' and its own duty cycles. Once a Limited threshold is reached, the Sub-GHz server instructs the offending client to suspend sending any more ZCL messages for a certain period. On reaching the Critical threshold, the suspend ZCL messages command is broadcast to all clients.
 label: Sub-GHz Server
 quality: production

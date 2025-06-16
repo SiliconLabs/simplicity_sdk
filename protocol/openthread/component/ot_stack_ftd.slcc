@@ -1,6 +1,6 @@
 id: ot_stack_ftd
 label: Stack (FTD)
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides the OpenThread stack for a Full Thread Device (FTD)
@@ -21,13 +21,16 @@ recommends:
 config_file:
   - path: protocol/openthread/config/sl_openthread_features_config.h
     file_id: openthread_features
-    unless: [ot_cert_libs,ot_reference_device]
+    unless: [ot_cert_libs,ot_reference_device,ot_ncp]
   - path: protocol/openthread/config/sl_openthread_features_ftd_cert_config.h
     file_id: openthread_features
     condition: [ot_cert_libs]
   - path: protocol/openthread/config/sl_openthread_reference_device_config.h
     file_id: openthread_features
     condition: [ot_reference_device]
+  - path: protocol/openthread/config/sl_openthread_features_ncp_config.h
+    file_id: openthread_features
+    condition: [ot_ncp]
 include:
   - path: protocol/openthread/include
     file_list:
@@ -37,13 +40,16 @@ validation_helper:
 define:
   - name: SL_OPENTHREAD_STACK_FEATURES_CONFIG_FILE
     value: "\"sl_openthread_features_config.h\""
-    unless: [ot_cert_libs,ot_reference_device]
+    unless: [ot_cert_libs,ot_reference_device,ot_ncp]
   - name: SL_OPENTHREAD_STACK_FEATURES_CONFIG_FILE
     value: "\"sl_openthread_features_ftd_cert_config.h\""
     condition: [ot_cert_libs]
   - name: SL_OPENTHREAD_STACK_FEATURES_CONFIG_FILE
     value: "\"sl_openthread_reference_device_config.h\""
     condition: [ot_reference_device]
+  - name: SL_OPENTHREAD_STACK_FEATURES_CONFIG_FILE
+    value: "\"sl_openthread_features_ncp_config.h\""
+    condition: [ot_ncp]
   - name: OPENTHREAD_CONFIG_FILE
     value: "\"sl_openthread_package_info.h\""
   - name: OPENTHREAD_FTD

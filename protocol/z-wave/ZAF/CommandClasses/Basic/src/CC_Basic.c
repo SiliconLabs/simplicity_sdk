@@ -19,9 +19,6 @@
 #include "ZAF_CC_Invoker.h"
 #include "zaf_config_api.h"
 
-//#define DEBUGPRINT
-#include "DebugPrint.h"
-
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
 /****************************************************************************/
@@ -43,19 +40,18 @@ typedef struct {
   CC_handler_map_latest_t * p_cc_output;
 } context_t;
 
-static bool cc_callback(CC_handler_map_latest_t const * const p_cc_entry, zaf_cc_context_t context) {
+static bool cc_callback(CC_handler_map_latest_t const * const p_cc_entry, zaf_cc_context_t context)
+{
   context_t * p_context = context;
 
-  for ( uint8_t i = 0; i < p_context->pCmdClassList->list_size; i++)
-  {
+  for ( uint8_t i = 0; i < p_context->pCmdClassList->list_size; i++) {
     if (p_context->pCmdClassList->cc_list[i] != p_cc_entry->CC) {
       // Continue if there is no match on the CC.
       continue;
     }
 
-    if ((NULL != p_cc_entry->basic_set_mapper) ||
-        (NULL != p_cc_entry->basic_get_mapper))
-    {
+    if ((NULL != p_cc_entry->basic_set_mapper)
+        || (NULL != p_cc_entry->basic_get_mapper)) {
       // Either the Basic Set mapper or the Basic Get mapper is defined. Return the match.
       p_context->p_cc_output = (CC_handler_map_latest_t *)p_cc_entry;
       return true;
@@ -72,8 +68,8 @@ static bool cc_callback(CC_handler_map_latest_t const * const p_cc_entry, zaf_cc
  * 4. Invoke the corresponding CC handler.
  */
 static CC_handler_map_latest_t const * get_cc_handler_map(
-    RECEIVE_OPTIONS_TYPE_EX const * const rxOpt) {
-
+  RECEIVE_OPTIONS_TYPE_EX const * const rxOpt)
+{
   zaf_cc_list_t *pCmdClassList  = NULL;
 
   // Set "included" argument to true as this call will only happen if the device is included.
@@ -81,8 +77,8 @@ static CC_handler_map_latest_t const * get_cc_handler_map(
   assert(NULL != pCmdClassList);  // FATAL: Empty CC list. We should not have reached this point. Unlikely scenario!
 
   context_t context = {
-                       .pCmdClassList = pCmdClassList,
-                       .p_cc_output = NULL
+    .pCmdClassList = pCmdClassList,
+    .p_cc_output = NULL
   };
 
   ZAF_CC_foreach(cc_callback, &context);
@@ -95,9 +91,8 @@ CC_Basic_handler(
   cc_handler_input_t * input,
   cc_handler_output_t * output)
 {
-  switch (input->frame->ZW_Common.cmd)
-  {
-      //Must be ignored to avoid unintentional operation. Cannot be mapped to another command class.
+  switch (input->frame->ZW_Common.cmd) {
+    //Must be ignored to avoid unintentional operation. Cannot be mapped to another command class.
     case BASIC_SET:
     {
       /*
@@ -111,9 +106,8 @@ CC_Basic_handler(
        */
       RECEIVE_OPTIONS_TYPE_EX rxOptMirrored = *input->rx_options;
 
-      if ((0x63 < input->frame->ZW_BasicSetV2Frame.value) &&
-          (0xFF != input->frame->ZW_BasicSetV2Frame.value))
-      {
+      if ((0x63 < input->frame->ZW_BasicSetV2Frame.value)
+          && (0xFF != input->frame->ZW_BasicSetV2Frame.value)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -121,8 +115,7 @@ CC_Basic_handler(
        * CC:0060.03.00.21.004: For backwards compatibility, the Root Device MUST mirror the
        * application functionality of End Point 1.
        */
-      if ((zaf_config_get_number_of_endpoints() > 0) && (0 == input->rx_options->destNode.endpoint))
-      {
+      if ((zaf_config_get_number_of_endpoints() > 0) && (0 == input->rx_options->destNode.endpoint)) {
         rxOptMirrored.destNode.endpoint = 1;
       }
 
@@ -132,7 +125,6 @@ CC_Basic_handler(
         cc_Handler_Iter->basic_set_mapper(input->frame);
 
         return ZAF_CC_invoke_specific(cc_Handler_Iter, input, output);
-
       }
 
       /*
@@ -141,12 +133,11 @@ CC_Basic_handler(
        */
       return RECEIVED_FRAME_STATUS_NO_SUPPORT;
     }
-      break;
+    break;
 
     case BASIC_GET:
     {
-      if (true == Check_not_legal_response_job(input->rx_options))
-      {
+      if (true == Check_not_legal_response_job(input->rx_options)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -173,7 +164,7 @@ CC_Basic_handler(
 
       return RECEIVED_FRAME_STATUS_NO_SUPPORT;
     }
-      break;
+    break;
 
     default:
       return RECEIVED_FRAME_STATUS_NO_SUPPORT;
@@ -189,18 +180,18 @@ CC_Basic_Report_tx(
   ZAF_TX_Callback_t callback)
 {
   CMD_CLASS_GRP cmdGrp = {
-    .cmdClass=COMMAND_CLASS_BASIC,
-    .cmd=BASIC_REPORT
+    .cmdClass = COMMAND_CLASS_BASIC,
+    .cmd = BASIC_REPORT
   };
 
   return cc_engine_multicast_request(
-      pProfile,
-      sourceEndpoint,
-      &cmdGrp,
-      &bValue,
-      1,
-      true,
-      callback);
+    pProfile,
+    sourceEndpoint,
+    &cmdGrp,
+    &bValue,
+    1,
+    true,
+    callback);
 }
 
 /**************************************************************************************************

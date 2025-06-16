@@ -17,11 +17,11 @@
 
 /****************************************************************************************************//**
  * @note     (1) This port targets the following:
- *                   Core      : ARMv7M and ARMv8M Cortex-M
+ *                   Core      : ARMv7M Cortex-M
  *                   Mode      : Thumb-2 ISA
  *                   Toolchain : GNU C Compiler
  *
- *           (2) This port supports the ARM Cortex-M3, Cortex-M4, Cortex-M7 and Cortex-M33 architectures.
+ *           (2) This port supports the ARM Cortex-M3, Cortex-M4 and Cortex-M7 architectures.
  *******************************************************************************************************/
 
 #ifndef  _ARMV7M_OS_CPU_H

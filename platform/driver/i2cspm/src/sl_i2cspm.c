@@ -63,7 +63,7 @@
 #define SL_I2CSPM_READ_DIRECTION       0x01
 
 // Leader Mode.
-#define SL_I2CSPM_LEADER_MODE    (sl_hal_i2c_mode_t)(0)
+#define SL_I2CSPM_LEADER_MODE    (sl_i2c_operating_mode_t)(0)
 
 // I2C Errors.
 #define SL_I2CSPM_IF_ERRORS    (I2C_IF_BUSERR | I2C_IF_ARBLOST)

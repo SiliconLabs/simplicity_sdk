@@ -53,7 +53,10 @@
  * See \ref MBEDTLS_AES_C for more information.
  */
 #if defined(_SILICON_LABS_32B_SERIES)
+// PLATFORM_HYD-5151
+#if !defined(_SILICON_LABS_32B_SERIES_3_CONFIG_353) && !defined(SIXG300XIWIFI74000XFULL_FPGA)
   #define MBEDTLS_AES_ALT
+#endif
 #endif
 #if defined(CRYPTOACC_PRESENT) || defined(SEMAILBOX_PRESENT)
   #define AES_192_SUPPORTED

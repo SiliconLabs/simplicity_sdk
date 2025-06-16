@@ -1,5 +1,5 @@
 id: mbedtls_slcrypto_driver
-package: platform
+package: security_mbedtls
 label: Drivers for Silicon Labs Crypto Acceleration
 description: >-
   This component enables hardware acceleration drivers in Mbed TLS for EFM32 and
@@ -67,7 +67,10 @@ requires:
   - name: libcryptosoc
     condition: [device_has_cryptoacc]
   - name: se_manager
-    condition: [device_efx]
+    # PLATFORM-HYD-5151
+    condition: [device_series_2]
+  - name: se_manager
+    condition: [device_generic_family_sixx301]
   - name: component_catalog
   - name: psa_driver
     condition: [device_series_2]

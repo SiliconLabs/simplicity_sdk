@@ -50,171 +50,6 @@ extern "C" {
 
 /***************************************************************************//**
  * @addtogroup power_manager Power Manager
- *
- * @details Power manager is a platform level software module that manages
- * the system's energy modes. Its main purpose is to transition the system to a
- * low energy mode when the processor has nothing to execute. The energy mode the
- * system will transition to is determined each time the system goes to sleep
- * using requirements. These requirements are set by the different software modules
- * (drivers, stacks, application code, etc...). Power manager also ensures a
- * strict control of some power hungry resources such as the high frequency
- * external oscillator (normally called HFXO). Power manager also
- * offers a notification mechanism through which any piece of software module can be
- * notified of energy mode transitions through callbacks.
- *
- * @note Sleep Driver is deprecated. Use Power Manager for all sleep-related
- *       operations. See <a href="https://www.silabs.com/documents/
- *       public/application-notes/
- *       an1358-migrating-from-sleep-driver-to-power-manager.pdf">AN1358:
- *       Migrating from Sleep Driver to Power Manager</a> for information on how
- *       to migrate from Sleep Driver to Power Manager.
- * @note Emlib EMU functions EMU_EnterEM1()/EMU_EnterEM2()/EMU_EnterEM3() must not
- *       be used when the Power Manager is present. The Power Manager module must be
- *       the one deciding at which EM level the device sleeps to ensure the application
- *       properly works. Using both at the same time could lead to undefined behavior
- *       in the application.
- *
- * @details
- * ## Initialization
- *
- *   Power manager must be initialized prior to any call to power manager API.
- *   If sl_system is used, only sl_system_init() must be called, otherwise
- *   sl_power_manager_init() must be called manually. Note that power manager
- *   must be initialized after the clock(s), when initialized manually, as the
- *   power manager check which oscillators are used during the initialization phase.
- *
- * ## Add and remove requirements
- *
- *   The drivers should add and remove energy mode requirements, at runtime, on the
- *   lowest energy mode for them depending on their state. When calling
- *   sl_power_manager_sleep(), the lowest possible Energy mode will be automatically
- *   selected.
- *
- *   It is possible to add and remove requirements from ISR. If a specific energy mode
- *   is required in the ISR, but not required to generate the interrupt, a requirement
- *   on the energy mode can be added from the ISR. It is guaranteed that the associated
- *   clock will be active once sl_power_manager_add_requirement() returns. The EM
- *   requirement can be also be removed from an ISR.
- *
- *   Requirements should not be removed if it was not previously added.
- *
- * ## Subscribe to events
- *
- *   It possible to get notified when the system transition from a power level to
- *   another power level. This can allow to do some operations depending on which level
- *   the system goes, such as saving/restoring context.
- *
- * ## Sleep
- *
- *   When the software has no more operation and only need to wait for an event, the
- *   software must call sl_power_manager_sleep(). This is automatically done when the
- *   kernel is present, but it needs to be called from the super loop in a baremetal
- *   project.
- *
- * ## Query callback functions
- *
- * ### Is OK to sleep
- *
- *   Between the time `sl_power_manager_sleep` is called and the MCU is really put
- *   in a lower Energy mode, it is possible that an ISR occur and require the system
- *   to resume at that time instead of sleeping. So a callback is called in a critical
- *   section to validate that the MCU can go to sleep.
- *
- *   In case of an application that runs on an RTOS, the RTOS will take care of determining
- *   if it is ok to sleep. In case of a baremetal application, the function `sl_power_manager_is_ok_to_sleep()`
- *   will be generated automatically by Simplicity Studio's wizard.
- *   The function will look at multiple software modules from the SDK to take a decision.
- *   The application can contribute to the decision by defining the function `app_is_ok_to_sleep()`.
- *   If any of the software modules (including the application via `app_is_ok_to_sleep()`) return false,
- *   the process of entering in sleep will be aborted.
- *
- * ### Sleep on ISR exit
- *
- *   When the system enters sleep, the only way to wake it up is via an interrupt or
- *   exception. By default, power manager will assume that when an interrupt
- *   occurs and the corresponding ISR has been executed, the system must not go back
- *   to sleep. However, in the case where all the processing related to this interrupt
- *   is performed in the ISR, it is possible to go back to sleep by using this hook.
- *
- *   In case of an application that runs on an RTOS, the RTOS will take care of determining
- *   if the system can go back to sleep on ISR exit. Power manager will ensure the system resumes
- *   its operations as soon as a task is resumed, posted or that its delay expires.
- *   In case of a baremetal application, the function `sl_power_manager_sleep_on_isr_exit()` will be generated
- *   automatically by Simplicity Studio's wizard. The function will look at multiple software modules from the SDK
- *   to take a decision. The application can contribute to the decision by defining the
- *   function `app_sleep_on_isr_exit()`.
- *   The generated function will take a decision based on the value returned by the different software modules
- *   (including the application via `app_sleep_on_isr_exit()`):
- *
- *   `SL_POWER_MANAGER_IGNORE`: if the software module did not cause the system wakeup and/or doesn't want to contribute to the decision.
- *   `SL_POWER_MANAGER_SLEEP`: if the software module did cause the system wakeup, but the system should go back to sleep.
- *   `SL_POWER_MANAGER_WAKEUP`: if the software module did cause the system wakeup, and the system should not go back to sleep.
- *
- *   If any software module returned `SL_POWER_MANAGER_SLEEP` and none returned `SL_POWER_MANAGER_WAKEUP`,
- *   the system will go back to sleep. Any other combination will cause the system not to go back to sleep.
- *
- * ### Debugging feature
- *
- *   By setting the configuration define SL_POWER_MANAGER_DEBUG to 1, it is possible
- *   to record the requirements currently set and their owner. It is possible to print
- *   at any time a table that lists all the added requirements and their owner. This
- *   table can be printed by caling the function
- *   sl_power_manager_debug_print_em_requirements().
- *   Make sure to add the following define
- *   ```
- *   #define CURRENT_MODULE_NAME "<Module printable name here>"
- *   ```
- *   to any application code source file that adds and removes requirements.
- *
- * ## Usage Example
- *
- * ```
- * #define EM_EVENT_MASK_ALL  (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM0   \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM0  \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM1 \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM1  \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2  \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 \
- *                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3)
- *
- * sl_power_manager_em_transition_event_handle_t event_handle;
- * sl_power_manager_em_transition_event_info_t event_info = {
- *   .event_mask = EM_EVENT_MASK_ALL,
- *   .on_event = my_events_callback,
- * }
- *
- * void main(void)
- * {
- *   // Initialize power manager; not needed if sl_system_init() is used.
- *   sl_power_manager_init();
- *
- *   // Limit sleep level to EM1
- *   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
- *
- *   // Subscribe to all event types; get notified for every power transition.
- *   sl_power_manager_subscribe_em_transition_event(&event_handle, &event_info);
- *   while (1) {
- *     // Actions
- *     [...]
- *     if (completed) {
- *        // Remove energy mode requirement, can go to EM2 or EM3 now, depending on the configuration
- *        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
- *     }
- *
- *     // Sleep to lowest possible energy mode; This call is not needed when using the kernel.
- *     sl_power_manager_sleep();
- *     // Will resume after an interrupt or exception
- *   }
- * }
- *
- * void my_events_callback(sl_power_manager_em_t from,
- *                         sl_power_manager_em_t to)
- * {
- *   printf("Event:%s-%s\r\n", string_lookup_table[from], string_lookup_table[to]);
- * }
- * ```
- *
  * @{
  ******************************************************************************/
 
@@ -233,8 +68,6 @@ extern "C" {
 #define SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM1      (1 << 3)                                  ///< sl power manager event transition leaving em1
 #define SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2     (1 << 4)                                  ///< sl power manager event transition entering em2
 #define SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2      (1 << 5)                                  ///< sl power manager event transition leaving em2
-#define SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3     (1 << 6)                                  ///< sl power manager event transition entering em3 (DEPRECATED)
-#define SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3      (1 << 7)                                  ///< sl power manager event transition leaving em3  (DEPRECATED)
 
 // -----------------------------------------------------------------------------
 // Data Types
@@ -312,11 +145,10 @@ sl_status_t sl_power_manager_init(void);
  * Sleep at the lowest allowed energy mode.
  *
  * @note Must not be called from ISR
- * @par
+ *
  * @note This function will expect and call a callback with the following
  *       signature: `bool sl_power_manager_is_ok_to_sleep(void)`.
- *
- * @note This function can be used to cancel a sleep action and handle the
+ *       This callback can be used to cancel a sleep action and handle the
  *       possible race condition where an ISR that would cause a wakeup is
  *       triggered right after the decision to call sl_power_manager_sleep()
  *       has been made.
@@ -346,11 +178,6 @@ void sl_power_manager_sleep(void);
  *
  * @param em  Energy mode to add the requirement to:
  *            - ::SL_POWER_MANAGER_EM1
- *            - ::SL_POWER_MANAGER_EM2 (DEPRECATED)
- *
- * @note Adding EM requirements on SL_POWER_MANAGER_EM2 is now DEPRECATED.
- *       The calls can simply be removed since the system will go to deepsleep
- *       (EM2/EM3) in the absence of EM1 requirements.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 __STATIC_INLINE void sl_power_manager_add_em_requirement(sl_power_manager_em_t em)
@@ -369,11 +196,6 @@ __STATIC_INLINE void sl_power_manager_add_em_requirement(sl_power_manager_em_t e
  *
  * @param em  Energy mode to remove the requirement to:
  *            - ::SL_POWER_MANAGER_EM1
- *            - ::SL_POWER_MANAGER_EM2 (DEPRECATED)
- *
- * @note Removing EM requirements on SL_POWER_MANAGER_EM2 is now DEPRECATED.
- *       The calls can simply be removed since the system will go to deepsleep
- *       (EM2/EM3) in the absence of EM1 requirements.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 __STATIC_INLINE void sl_power_manager_remove_em_requirement(sl_power_manager_em_t em)
@@ -400,10 +222,6 @@ __STATIC_INLINE void sl_power_manager_remove_em_requirement(sl_power_manager_em_
  *
  * @note The parameters passed must be persistent, meaning that they need to survive
  *       until the callback fires.
- *
- * @note SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 and
- *       SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3 are now DEPRECATED and should
- *       not be used in the event_info argument.
  *
  * Usage example:
  *
@@ -582,10 +400,273 @@ void sl_power_manager_em4_unlatch_pin_retention(void);
  ******************************************************************************/
 void sl_power_manager_em4_presleep_hook(void);
 
+/***************************************************************************//**
+ * Updates the clocks information used by the Power Manager to evaluate the
+ * EM2/3 wake-up time.
+ *
+ * @note  This function is an advanced function used in case the clock tree is
+ *        changed during runtime. Call this function after the clock change so
+ *        that the Power Manager module can update its internal information
+ *        about the clocks.
+ *
+ * @note  This function must always be called when the system is fully restored
+ *        since it's taking a snapshot of the current clock usage.
+ *        Therefore, it must not be called from ISRs and Power Manager
+ *        notifications.
+ ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
+void slx_power_manager_update_clock_info(void);
+
 /** @} (end addtogroup power_manager) */
 
 #ifdef __cplusplus
 }
 #endif
+
+/* *INDENT-OFF* */
+/* THE REST OF THE FILE IS DOCUMENTATION ONLY! */
+/**************************************************************************//**
+* @addtogroup power_manager Power Manager
+* @{
+* @details Power manager is a platform level software module that manages
+* the system's energy modes. Its main purpose is to transition the system to a
+* low energy mode when the processor has nothing to execute. The energy mode the
+* system will transition to is determined each time the system goes to sleep
+* using requirements. These requirements are set by the different software modules
+* (drivers, stacks, application code, etc...). Power manager also ensures a
+* strict control of some power hungry resources such as the high frequency
+* external oscillator (normally called HFXO). Power manager also
+* offers a notification mechanism through which any piece of software module can be
+* notified of energy mode transitions through callbacks.
+*
+* @note Emlib EMU functions EMU_EnterEM1()/EMU_EnterEM2()/EMU_EnterEM3() must not
+*       be used when the Power Manager is present. The Power Manager module must be
+*       the one deciding at which EM level the device sleeps to ensure the application
+*       properly works. Using both at the same time could lead to undefined behavior
+*       in the application.
+*
+* @details
+* ## Initialization
+*
+*   Power manager must be initialized prior to any call to power manager API.
+*   If sl_system or sl_main is used, the @ref sl_power_manager_init() function will be
+*   part of the initilization sequence handled by those modules. Otherwise
+*   @ref sl_power_manager_init() must be called manually. Note that power manager
+*   must be initialized after the clock(s), when initialized manually, as the
+*   power manager check which oscillators are used during the initialization phase.
+*
+* ## Add and remove requirements
+*
+*   The drivers should add and remove energy mode requirements, at runtime, on the
+*   lowest energy mode for them depending on their state. When calling
+*   @ref sl_power_manager_sleep(), the lowest possible Energy mode will be automatically
+*   selected.
+*
+*   It is possible to add and remove requirements from ISR. If a specific energy mode
+*   is required in the ISR, but not required to generate the interrupt, a requirement
+*   on the energy mode can be added from the ISR. It is guaranteed that the associated
+*   clock will be active once @ref sl_power_manager_add_em_requirement() returns. The
+*   EM requirement can be also be removed from an ISR.
+*
+*   Requirements should not be removed if it was not previously added.
+*
+* ## Subscribe to events
+*
+*   It possible to get notified when the system transition from a power level to
+*   another power level. This can allow to do some operations depending on which level
+*   the system goes, such as saving/restoring context.
+*
+* ## Sleep
+*
+*   When the software has no more operation and only need to wait for an event, the
+*   software must call @ref sl_power_manager_sleep(). This is automatically done when a
+*   kernel is present, but it needs to be called from the super loop in a baremetal
+*   project.
+*
+* ## Query callback functions
+*
+* ### Is OK to sleep
+*
+*   Between the time @ref sl_power_manager_sleep is called and the MCU is really put
+*   in a lower Energy mode, it is possible that an ISR occur and require the system
+*   to resume at that time instead of sleeping. So a callback is called in a critical
+*   section to validate that the MCU can go to sleep.
+*
+*   In case of an application that runs on an RTOS, the RTOS will take care of determining
+*   if it is ok to sleep. In case of a baremetal application, the function `sl_power_manager_is_ok_to_sleep()`
+*   will be generated automatically by Simplicity Studio's wizard.
+*   The function will look at multiple software modules from the SDK to take a decision.
+*   The application can contribute to the decision by defining the function `app_is_ok_to_sleep()`.
+*   If any of the software modules (including the application via `app_is_ok_to_sleep()`) return false,
+*   the process of entering in sleep will be aborted.
+*
+* ### Sleep on ISR exit
+*
+*   When the system enters sleep, the only way to wake it up is via an interrupt or
+*   exception. By default, power manager will assume that when an interrupt
+*   occurs and the corresponding ISR has been executed, the system must not go back
+*   to sleep. However, in the case where all the processing related to this interrupt
+*   is performed in the ISR, it is possible to go back to sleep by using this hook.
+*
+*   In case of an application that runs on an RTOS, the RTOS will take care of determining
+*   if the system can go back to sleep on ISR exit. Power manager will ensure the system resumes
+*   its operations as soon as a task is resumed, posted or that its delay expires.
+*   In case of a baremetal application, the function `sl_power_manager_sleep_on_isr_exit()` will be generated
+*   automatically by Simplicity Studio's wizard. The function will look at multiple software modules from the SDK
+*   to take a decision. The application can contribute to the decision by defining the
+*   function `app_sleep_on_isr_exit()`.
+*   The generated function will take a decision based on the value returned by the different software modules
+*   (including the application via `app_sleep_on_isr_exit()`):
+*
+*   `SL_POWER_MANAGER_IGNORE`: if the software module did not cause the system wakeup and/or doesn't want to contribute to the decision.
+*   `SL_POWER_MANAGER_SLEEP`: if the software module did cause the system wakeup, but the system should go back to sleep.
+*   `SL_POWER_MANAGER_WAKEUP`: if the software module did cause the system wakeup, and the system should not go back to sleep.
+*
+*   If any software module returned `SL_POWER_MANAGER_SLEEP` and none returned `SL_POWER_MANAGER_WAKEUP`,
+*   the system will go back to sleep. Any other combination will cause the system not to go back to sleep.
+*
+* ## Debugging feature
+*
+*   By setting the configuration define SL_POWER_MANAGER_DEBUG to 1, it is possible
+*   to record the requirements currently set and their owner. It is possible to print
+*   at any time a table that lists all the added requirements and their owner. This
+*   table can be printed by caling the function
+*   @ref sl_power_manager_debug_print_em_requirements().
+*   Make sure to add the following define
+*   ```
+*   #define CURRENT_MODULE_NAME "<Module printable name here>"
+*   ```
+*   to any application code source file that adds and removes requirements.
+*
+* ## Usage Example
+*
+* ```
+* #define EM_EVENT_MASK_ALL  (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM0   \
+*                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM0  \
+*                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM1 \
+*                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM1  \
+*                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 \
+*                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2)
+*
+* sl_power_manager_em_transition_event_handle_t event_handle;
+* sl_power_manager_em_transition_event_info_t event_info = {
+*   .event_mask = EM_EVENT_MASK_ALL,
+*   .on_event = my_events_callback,
+* }
+*
+* void main(void)
+* {
+*   // Initialize power manager; not needed if sl_system_init() is used.
+*   sl_power_manager_init();
+*
+*   // Limit sleep level to EM1.
+*   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+*
+*   // Subscribe to all event types; get notified for every power transition.
+*   sl_power_manager_subscribe_em_transition_event(&event_handle, &event_info);
+*   while (1) {
+*     // Actions
+*     [...]
+*     if (completed) {
+*        // Remove energy mode requirement, can go to EM2 or EM3 now, depending on the configuration.
+*        sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+*     }
+*
+*     // Sleep to lowest possible energy mode; This call is not needed when using the kernel.
+*     sl_power_manager_sleep();
+*     // Will resume after an interrupt or exception.
+*   }
+* }
+*
+* void my_events_callback(sl_power_manager_em_t from,
+*                         sl_power_manager_em_t to)
+* {
+*   printf("Event:%s-%s\r\n", string_lookup_table[from], string_lookup_table[to]);
+* }
+* ```
+*
+* ## EM4 Sleep
+*
+* The Power Manager module provides support for entering Energy Mode 4 (EM4),
+* the lowest energy mode available.
+*
+* To enter EM4, the @ref sl_power_manager_enter_em4() function is used. This function
+* ensures that the system transitions to EM4 safely and performs any necessary
+* pre-sleep operations via the @ref sl_power_manager_em4_presleep_hook() function,
+* which can be overridden by the application if additional actions are required.
+*
+* Additionally, the Power Manager provides support for EM4 pin retention. Use the
+* `SL_POWER_MANAGER_INIT_EMU_EM4_PIN_RETENTION_MODE` configuration to set the pin
+* retention mode in EM4. When enabled, pins retain their state through EM4 entry
+* and wake-up. The retained pin state can be released after wake-up by calling
+* the @ref sl_power_manager_em4_unlatch_pin_retention() function.
+*
+* Keep in mind that EM4 entry is irreversible, and waking up from this energy
+* mode will result in a system reset. Careful consideration should be given to
+* the conditions under which EM4 is entered.
+*
+* ## Update Power Manager after runtime clock changes
+*
+* The @ref slx_power_manager_update_clock_info() API is an advanced function
+* used to update the Power Manager's internal information about the system's
+* clock configuration. This is particularly important when the clock tree is
+* modified during runtime, as the Power Manager relies on accurate clock data
+* to evaluate energy mode transitions and wake-up times. It is essential to
+* call this function after any clock changes to ensure the Power Manager
+* operates correctly. Note that this function must be invoked when the system
+* is fully restored and should not be called from ISRs or Power Manager
+* notifications.
+*
+* ## Execution Modes
+*
+* Power Manager has the Executions Modes feature which is specific to series 3
+* devices. It can be enabled by setting the configuration
+* `SL_POWER_MANAGER_EXECUTION_MODES_FEATURE_EN`. When this feature is active,
+* the system can dynamically switch between Standard and Performance modes
+* during normal execution in EM0.
+* Performance mode typically increases the system clock frequency, providing
+* enhanced performance. The exact specifications and behavior of Standard and
+* Performance modes are device-specific.
+*
+* To manage these modes, use the following APIs:
+* - @ref sl_power_manager_add_performance_mode_requirement() : Add a requirement
+*        on the Performance mode. If no previous requirement were added, this
+*        will activate the Performance mode.
+* - @ref sl_power_manager_remove_performance_mode_requirement() :  Remove a
+*        previously added requirement. If the last requirement is removed, this
+*        will deactivate the Performance mode and reverts to Standard mode.
+*
+* ## Advanced Functionalities
+*
+* ### Update Power Manager after runtime clock changes
+*
+* The Power Manager initialization must occur after the clocks are initialized,
+* as it relies on the clock configuration to determine which clocks to restore
+* during wake-ups. Using `sl_system` or `sl_main` modules will automatically
+* call the clock and power initialization functions in the right order as part
+* of their initialization sequence.
+* If any clock branches are modified at runtime, the Power Manager must be informed
+* of these changes to ensure proper clock restoration after sleep.
+*
+* To handle this, use the @ref slx_power_manager_update_clock_info() API. This
+* function captures the current clock configuration and must be called after any
+* runtime changes to the clock tree. It ensures the Power Manager has accurate
+* information for restoring clocks during wake-ups.
+*
+* **Important:** Call @ref slx_power_manager_update_clock_info() only when the
+* system is fully restored, as it takes a snapshot of the current clock usage.
+* Avoid invoking this function from ISRs or within Power Manager notifications.
+*
+* **Important:** Modifying the clock tree at runtime is an advanced operation and
+* should only be performed with a thorough understanding of its potential impact
+* on other modules sharing the same clock branch and the overall system stability.
+*
+* ## Additional Information
+*
+* For more information on the Power Manager module please refer to this
+* [Power Manager guide](/gecko-platform/{build-docspace-version}/platform-service-power-manager-overview).
+*
+* @} (end addtogroup power_manager)
+******************************************************************************/
 
 #endif // SL_POWER_MANAGER_H

@@ -322,8 +322,31 @@ class Profile_Mbus_Ocelot(IProfile):
         else:
             raise Exception("Unexpected value found for mbus_symbol_encoding")
 
-    def profile_calculate(self, model):
+    def mbus_stack_info_calc(self, model):
+        protocol_id_value = model.vars.protocol_id.var_enum.Mbus.value
+        mbus_mode = model.profile.inputs.mbus_mode.var_value
+        mbus_frame_format = model.profile.inputs.mbus_frame_format.var_value
+
+        if mbus_mode in [
+            model.vars.mbus_mode.var_enum.ModeT_M2O_100k,
+            model.vars.mbus_mode.var_enum.ModeT_O2M_32p768k,
+            model.vars.mbus_mode.var_enum.ModeTC_M2O_100k,] and mbus_frame_format == model.vars.mbus_frame_format.var_enum.FrameA:
+            phy_mode_id_value = 1
+        elif mbus_mode in [
+            model.vars.mbus_mode.var_enum.ModeC_M2O_100k,
+            model.vars.mbus_mode.var_enum.ModeC_O2M_50k,] and mbus_frame_format == model.vars.mbus_frame_format.var_enum.FrameA:
+            phy_mode_id_value = 3
+        elif mbus_mode in [
+                model.vars.mbus_mode.var_enum.ModeC_M2O_100k,
+                model.vars.mbus_mode.var_enum.ModeC_O2M_50k, ] and mbus_frame_format == model.vars.mbus_frame_format.var_enum.FrameB:
+            phy_mode_id_value = 4
+        else:
+            phy_mode_id_value = 0
+
         model.vars.protocol_id.value_forced = model.vars.protocol_id.var_enum.Mbus
+        model.vars.stack_info.value_forced = [protocol_id_value, phy_mode_id_value]
+
+    def profile_calculate(self, model):
         self.mbus_profile_frame_format_common(model)
         self.mbus_profile_frame_format_calc(model)
         self.mbus_profile_radio_common(model)

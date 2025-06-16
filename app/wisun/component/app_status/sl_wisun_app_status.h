@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_app_status.h
- * @brief Wi-SUN Application Status CoAP notfication
+ * @brief Wi-SUN Application Status CoAP notification
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -81,6 +81,7 @@ bool sl_wisun_app_status_condition_cb(const sl_wisun_coap_notify_t * notify);
  *          parameters that are static for the file
  * @return sockaddr_in6_t The pointer to the address setting structure
  *****************************************************************************/
+#pragma message("sl_wisun_app_status_get_remote_address(): the API is not thread-safe")
 sockaddr_in6_t* sl_wisun_app_status_get_remote_address(void);
 
 /**************************************************************************//**

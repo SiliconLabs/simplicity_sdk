@@ -46,3 +46,7 @@ class ProfileBaseRainier(Profile_Base_Bobcat):
         IProfile.make_hidden_input(profile, model.vars.agc_power_mode, 'Advanced', readable_name="AGC Power Mode")
         IProfile.make_hidden_input(profile, model.vars.rfpkd_mode, 'Advanced', readable_name="RFPKD Mode")
 
+        IProfile.make_hidden_input(profile, model.vars.rxdc_power_save_mode, 'Advanced', readable_name="Rx Duty cycle power save mode")
+        IProfile.make_hidden_input(profile, model.vars.rxdc_power_save_time_us, 'Advanced',
+                                   readable_name="Rx Duty cycle power save time (us)", value_limit_min=1, value_limit_max=200)
+

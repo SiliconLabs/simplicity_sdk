@@ -199,7 +199,7 @@ static const RAIL_PaAutoModeConfigEntry_t RAIL_PaAutoModeConfigDefault[] = {
     .band = RAIL_PA_BAND_COUNT
   }
 };
-#elif (_SILICON_LABS_32B_SERIES_3_CONFIG == 301 || _SILICON_LABS_32B_SERIES_3_CONFIG == 300)
+#elif (_SILICON_LABS_32B_SERIES_3_CONFIG >= 300)
 static const RAIL_PaAutoModeConfigEntry_t RAIL_PaAutoModeConfigDefault[] = {
   {
     .min = -190,
@@ -260,11 +260,9 @@ static const RAIL_PaAutoModeConfigEntry_t RAIL_PaAutoModeConfigDefault10dBm[] = 
 #endif
 #endif
 
-#ifdef RAIL_PA_AUTO_MODE_WEAK
-__WEAK
-#endif
 // RAIL_PaAutoModeConfig points at a constant object of RAIL_PaAutoModeConfigDefault or
 // a constant RAIL_PaAutoModeConfigEntry_t strongly defined.
+SLI_LIBRAIL_WEAK
 const RAIL_PaAutoModeConfigEntry_t * RAIL_PaAutoModeConfig = RAIL_PaAutoModeConfigDefault;
 
 RAIL_Status_t RAIL_ConfigPaAutoEntry(RAIL_Handle_t railHandle,
@@ -278,9 +276,7 @@ RAIL_Status_t RAIL_ConfigPaAutoEntry(RAIL_Handle_t railHandle,
   return RAIL_STATUS_NO_ERROR;
 }
 
-#ifdef RAIL_PA_AUTO_MODE_WEAK
-__WEAK
-#endif
+SLI_LIBRAIL_WEAK
 RAIL_Status_t RAILCb_PaAutoModeDecision(RAIL_Handle_t railHandle,
                                         RAIL_TxPower_t *power,
                                         RAIL_TxPowerMode_t *mode,

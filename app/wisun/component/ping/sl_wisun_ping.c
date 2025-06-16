@@ -426,7 +426,6 @@ static void _ping_task_fnc(void *args)
     stat = osMessageQueueGet(_ping_req_msg_queue, &req, &msg_prio, osWaitForever);
     (void) msg_prio;
     if (stat != osOK) {
-      sl_wisun_app_core_util_dispatch_thread();
       continue;
     }
 

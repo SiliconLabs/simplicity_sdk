@@ -40,7 +40,7 @@ void sli_zigbee_af_fragmentation_platform_init_callback(void)
 
 sl_status_t sli_zigbee_af_fragmentation_send(sli_zigbee_tx_fragmented_packet_t* txPacket,
                                              uint8_t fragmentNumber,
-                                             uint16_t fragmentLen,
+                                             uint8_t fragmentLen,
                                              uint16_t offset)
 {
   sl_status_t status;
@@ -48,7 +48,7 @@ sl_status_t sli_zigbee_af_fragmentation_send(sli_zigbee_tx_fragmented_packet_t* 
   status = sl_zigbee_send_unicast(txPacket->messageType,
                                   txPacket->indexOrDestination,
                                   &txPacket->apsFrame,
-                                  fragmentNumber,
+                                  (uint16_t)fragmentNumber,
                                   fragmentLen,
                                   txPacket->bufferPtr + offset,
                                   &(txPacket->apsFrame.sequence));
@@ -61,6 +61,8 @@ void sli_zigbee_af_fragmentation_handle_source_route(sli_zigbee_tx_fragmented_pa
 {
   // Nothing to do on SOC.  This will be handled later by the NWK code
   // calling into the application to ask for a source route.
+  (void) txPacket;
+  (void) indexOrDestination;
 }
 
 void sli_zigbee_af_fragmentation_send_reply(sl_802154_short_addr_t sender,

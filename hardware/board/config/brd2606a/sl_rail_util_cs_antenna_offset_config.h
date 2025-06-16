@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -39,7 +39,7 @@ extern "C" {
 
 // <h> CS Antenna Offset Configuration
 // <o SL_RAIL_UTIL_CS_ANTENNA_COUNT> Number of available antennas <1..4>
-// <d> 1
+// <d> 2
 #define SL_RAIL_UTIL_CS_ANTENNA_COUNT                     2
 
 // <o SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE> Antenna offset configuration type

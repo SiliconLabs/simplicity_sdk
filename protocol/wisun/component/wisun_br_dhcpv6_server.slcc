@@ -12,6 +12,7 @@ requires:
 
 provides:
   - name: wisun_br_dhcpv6
+  - name: wisun_br_dhcpv6_server
 
 include:
   - path: plugin

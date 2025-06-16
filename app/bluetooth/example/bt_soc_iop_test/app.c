@@ -27,21 +27,32 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "sl_bt_api.h"
 #include "gatt_db.h"
 #include "app_assert.h"
 #include "app_log.h"
-#include "app.h"
-#include "app_iop.h"
 #include "app_memlcd.h"
+#include "app_iop.h"
+#include "app.h"
+#include "sl_main_init.h"
 
 // The advertising set handle allocated from Bluetooth stack.
 static uint8_t advertising_set_handle = SL_BT_INVALID_ADVERTISING_SET_HANDLE;
 
-// Bonding handle
+// Security
 static uint32_t bonding_handle = SL_BT_INVALID_BONDING_HANDLE;
-
 static bool increase_security = false;
+
+// Readable strings for sl_bt_connection_security_t
+static const char *connection_security_str[] = {
+  "(0x00) No security",
+  "(0x01) Unauthenticated pairing",
+  "(0x02) Authenticated pairing",
+  "(0x03) Bonding"
+};
 
 /***************************************************************************//**
  * Application Init.
@@ -64,7 +75,7 @@ void app_process_action(void)
 
 /***************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  ******************************************************************************/
@@ -82,11 +93,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
                                                    8,
                                                    (uint8_t *)&evt->data.evt_system_boot);
       app_log_status_error(sc);
-      app_log_info("Stack version: %d.%d.%d-b%d." APP_LOG_NL,
+      app_log_info("Bluetooth stack booted: v%d.%d.%d+%08lx" APP_LOG_NL,
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
 
       // Read address.
       sc = sl_bt_gap_get_identity_address(&public_address, 0);
@@ -98,7 +109,7 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
       }
       app_log_append("%2.2x." APP_LOG_NL, public_address.addr[0]);
 
-      set_display(IDLE);
+      set_display(DISPLAY_STATE_IDLE, NULL);
 
       // Set default connection parameters
       sc = sl_bt_connection_set_default_parameters(DEFAULT_CONNECTION_INTERVAL,
@@ -121,7 +132,7 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
       app_log_status_error(sc);
 
       if (sc == SL_STATUS_OK) {
-        app_log_info("All bondings deleted." APP_LOG_NL);
+        app_log_info("Bondings deleted." APP_LOG_NL);
       }
 
       // Set Security Manager to debug mode, so the encrypted BLE packets can be
@@ -165,25 +176,20 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // This event indicates that a new connection was opened.
     case sl_bt_evt_connection_opened_id: {
       uint8_t connection_handle = evt->data.evt_connection_opened.connection;
-      bonding_handle = evt->data.evt_connection_opened.bonding;
-      app_log_info("Connection opened." APP_LOG_NL);
-      app_log_info("Connection handle: %d" APP_LOG_NL, connection_handle);
-      app_log_info("Connection address: %02X:%02X:%02X:%02X:%02X:%02X" APP_LOG_NL,
+      app_log_info("Connection opened. Handle: [%d]. "
+                   "Address: [%02X:%02X:%02X:%02X:%02X:%02X]. Address type: [%d]. "
+                   "Bonded: [%d]" APP_LOG_NL,
+                   connection_handle,
                    evt->data.evt_connection_opened.address.addr[5],
                    evt->data.evt_connection_opened.address.addr[4],
                    evt->data.evt_connection_opened.address.addr[3],
                    evt->data.evt_connection_opened.address.addr[2],
                    evt->data.evt_connection_opened.address.addr[1],
-                   evt->data.evt_connection_opened.address.addr[0]);
-      app_log_info("Connection address type: %d" APP_LOG_NL,
-                   evt->data.evt_connection_opened.address_type);
-      if (bonding_handle == SL_BT_INVALID_BONDING_HANDLE) {
-        app_log_info("Connection not bonded." APP_LOG_NL);
-      } else {
-        app_log_info("Connection bonded." APP_LOG_NL);
-      }
+                   evt->data.evt_connection_opened.address.addr[0],
+                   evt->data.evt_connection_opened.address_type,
+                   evt->data.evt_connection_opened.bonding != SL_BT_INVALID_BONDING_HANDLE);
 
-      set_display(CONNECTED);
+      set_display(DISPLAY_STATE_CONNECTED, NULL);
 
       // Test 3 (MA discovers the GATT) takes place now.
 
@@ -198,85 +204,57 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // This event indicates there is a request to display the passkey to the user.
     case sl_bt_evt_sm_passkey_display_id: {
       passkey = evt->data.evt_sm_passkey_display.passkey; // Store passkey.
-      app_log_info("Passkey: %4lu." APP_LOG_NL, passkey); // Make it appear on Console.
-      // Note: It also appears in the Simplicity Connect app.
-      set_display(DISPLAY_PASSKEY); // Make it appear on LCD.
-      break;
-    }
-
-    // Indicates a user request to display that the new bonding request is
-    // received and for the user to confirm the request.
-    case sl_bt_evt_sm_confirm_bonding_id: {
-      app_log_info("Bonding confirm." APP_LOG_NL);
-      // Accept bonding request.
-      sc = sl_bt_sm_bonding_confirm(evt->data.evt_sm_confirm_bonding.connection,
-                                    1);
-      app_log_status_error(sc);
+      app_log_info("Passkey: %06lu." APP_LOG_NL, passkey); // Make it appear on Console.
+      set_display(DISPLAY_STATE_PASSKEY, &passkey); // Make it appear on LCD.
+      // Note: It is also displayed in the Simplicity Connect app.
       break;
     }
 
     // Triggered after the pairing or bonding procedure is successfully completed.
     case sl_bt_evt_sm_bonded_id: {
-      app_log_info("Bonding success." APP_LOG_NL);
-      bonding_handle = evt->data.evt_sm_bonded.bonding;
-      set_display(BOND_SUCCESS);
+      app_log_info("Security increased to [%s]" APP_LOG_NL,
+                   connection_security_str[evt->data.evt_sm_bonded.security_mode]);
+
+      if (evt->data.evt_sm_bonded.security_mode == sl_bt_connection_mode1_level4) {
+        if (evt->data.evt_sm_bonded.bonding != SL_BT_INVALID_BONDING_HANDLE) {
+          bonding_handle = evt->data.evt_sm_bonded.bonding;
+          app_log_info("Bonding handle: %lu" APP_LOG_NL, bonding_handle);
+          set_display(DISPLAY_STATE_BONDING, NULL);
+        } else {
+          app_log_error("Invalid bonding handle." APP_LOG_NL);
+        }
+      }
       break;
     }
 
     // This event is triggered if the pairing or bonding procedure fails.
     case sl_bt_evt_sm_bonding_failed_id: {
-      app_log_error("Bonding failed, reason 0x%2X." APP_LOG_NL,
+      app_log_error("Pairing/Bonding failed. Reason: [0x%04x]." APP_LOG_NL,
                     evt->data.evt_sm_bonding_failed.reason);
       // Closing and reopening connection to retry.
       sc = sl_bt_connection_close(evt->data.evt_sm_bonding_failed.connection);
       app_log_status_error(sc);
-
-      set_display(BOND_FAILURE);
       break;
     }
 
     //--------------------------------
-    // Triggered whenever the connection parameters are changed
+    // Triggered whenever the connection parameters are changed and at any time a connection is established
     case sl_bt_evt_connection_parameters_id: {
       connection_interval = evt->data.evt_connection_parameters.interval;
       responder_latency = evt->data.evt_connection_parameters.latency;
       supv_timeout = (uint16_t)((evt->data.evt_connection_parameters.timeout));
 
-      uint8_t interval_whole = (connection_interval * 1.25f);
-      uint8_t interval_partial = (100 * (connection_interval * 1.25f)) - 100 * interval_whole;
+      uint8_t interval_whole = (uint8_t)(connection_interval * 1.25f);
+      uint8_t interval_partial = (uint8_t)(100 * (connection_interval * 1.25f)) - 100 * interval_whole;
 
-      app_log_info("Connection parameters are changed: Connection Interval = %u.%2u[ms], "
-                   "Responder Latency = %u, Supervision Timeout = %u[ms] ",
-                   interval_whole,
-                   interval_partial,
-                   responder_latency,
-                   supv_timeout * 10);
-
-      switch (evt->data.evt_connection_parameters.security_mode) {
-        case sl_bt_connection_mode1_level1: {
-          app_log_append_info("Security: No Security." APP_LOG_NL);
-          break;
-        }
-
-        case sl_bt_connection_mode1_level2: {
-          app_log_append_info("Security: Unauthenticated pairing." APP_LOG_NL);
-          break;
-        }
-
-        case sl_bt_connection_mode1_level3: {
-          app_log_append_info("Security: Authenticated pairing." APP_LOG_NL);
-          break;
-        }
-
-        case sl_bt_connection_mode1_level4: {
-          app_log_append_info("Security: Bonded." APP_LOG_NL);
-          break;
-        }
-
-        default: {
-          break;
-        }
-      }
+      app_log_debug("Connection parameters: Connection Interval = %u.%2u[ms], "
+                    "Responder Latency = %u, Supervision Timeout = %u[ms] "
+                    "Security = [%s]" APP_LOG_NL,
+                    interval_whole,
+                    interval_partial,
+                    responder_latency,
+                    supv_timeout * 10,
+                    connection_security_str[evt->data.evt_connection_parameters.security_mode]);
       break;
     }
 
@@ -285,8 +263,7 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // either direction of a connection.
     case sl_bt_evt_connection_data_length_id: {
       pdu_size = evt->data.evt_connection_data_length.tx_data_len;
-      app_log_info("Connection parameters are changed: PDU = %u." APP_LOG_NL,
-                   pdu_size);
+      app_log_debug("Connection parameters are changed: PDU = %u." APP_LOG_NL, pdu_size);
       break;
     }
 
@@ -294,8 +271,7 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // Indicates that an ATT_MTU exchange procedure is completed.
     case sl_bt_evt_gatt_mtu_exchanged_id: {
       mtu_size = evt->data.evt_gatt_mtu_exchanged.mtu;
-      app_log_info("Connection parameters are changed: MTU = %u." APP_LOG_NL,
-                   mtu_size);
+      app_log_debug("Connection parameters are changed: MTU = %u." APP_LOG_NL, mtu_size);
       break;
     }
 
@@ -303,15 +279,16 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // Indicates that PHY update procedure is completed.
     case sl_bt_evt_connection_phy_status_id: {
       phy = evt->data.evt_connection_phy_status.phy;
-      app_log_info("Connection parameters are changed: PHY = %u." APP_LOG_NL,
-                   phy);
+      app_log_debug("Connection parameters are changed: PHY = %u." APP_LOG_NL, phy);
       break;
     }
 
     //--------------------------------
     // This event indicates that a connection was closed.
     case sl_bt_evt_connection_closed_id: {
-      set_display(IDLE);
+      app_log_info("Connection closed. Handle: [%d]." APP_LOG_NL,
+                   evt->data.evt_connection_closed.connection);
+      set_display(DISPLAY_STATE_IDLE, NULL);
 
       // Configure security manager for the next connection.
       switch (security_level) {
@@ -323,12 +300,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
           app_log_status_error(sc);
 
           if (sc == SL_STATUS_OK) {
-            app_log_info("All bondings deleted. "
-                         "Connection security: Unauthenticated pairing." APP_LOG_NL);
+            app_log_info("Bondings deleted. Preparing for security level: [%s]." APP_LOG_NL,
+                         connection_security_str[(sl_bt_connection_security_t)security_level]);
           }
 
-          sc = sl_bt_sm_configure(BONDING_WITHOUT_MITM,
-                                  sl_bt_sm_io_capability_noinputnooutput);
+          sc = sl_bt_sm_configure(BONDING_WITHOUT_MITM, sl_bt_sm_io_capability_noinputnooutput);
           app_log_status_error_f(sc, "SM configure failure." APP_LOG_NL);
 
           sc = sl_bt_sm_set_bondable_mode(BONDING_DISABLED);
@@ -344,12 +320,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
           app_log_status_error(sc);
 
           if (sc == SL_STATUS_OK) {
-            app_log_info("All bondings deleted. "
-                         "Connection security: Authenticated pairing." APP_LOG_NL);
+            app_log_info("Bondings deleted. Preparing for security level: [%s]." APP_LOG_NL,
+                         connection_security_str[(sl_bt_connection_security_t)security_level]);
           }
 
-          sc = sl_bt_sm_configure(BONDING_WITH_MITM,
-                                  sl_bt_sm_io_capability_displayonly);
+          sc = sl_bt_sm_configure(BONDING_WITH_MITM, sl_bt_sm_io_capability_displayonly);
           app_log_status_error_f(sc, "SM configure failure." APP_LOG_NL);
 
           sc = sl_bt_sm_set_passkey(passkey);
@@ -369,12 +344,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
           app_log_status_error(sc);
 
           if (sc == SL_STATUS_OK) {
-            app_log_info("All bondings deleted. "
-                         "Connection security: Bonded." APP_LOG_NL);
+            app_log_info("Bondings deleted. Preparing for security level: [%s]." APP_LOG_NL,
+                         connection_security_str[(sl_bt_connection_security_t)security_level]);
           }
 
-          sc = sl_bt_sm_configure(BONDING_WITH_MITM,
-                                  sl_bt_sm_io_capability_displayonly);
+          sc = sl_bt_sm_configure(BONDING_WITH_MITM, sl_bt_sm_io_capability_displayonly);
           app_log_status_error_f(sc, "SM configure failure." APP_LOG_NL);
 
           sc = sl_bt_sm_set_passkey(passkey);
@@ -387,13 +361,13 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
 
         // LE Privacy 1.2 test based on an existing bonding
         case SECURITY_LEVEL_PRIVACY: {
-          sc = sl_bt_resolving_list_add_device_by_bonding(bonding_handle,
-                                                          sl_bt_resolving_list_privacy_mode_network);
+          sc = sl_bt_resolving_list_add_device_by_bonding(bonding_handle, sl_bt_resolving_list_privacy_mode_network);
           app_log_status_error_f(sc, "Failed to add bonding handle %ld to the resolving list." APP_LOG_NL, bonding_handle);
+
           sc = sl_bt_accept_list_add_device_by_bonding(bonding_handle);
           app_log_status_error_f(sc, "Failed to add bonding handle %ld to the accept list." APP_LOG_NL, bonding_handle);
-          sc = sl_bt_advertiser_configure(advertising_set_handle,
-                                          SL_BT_ADVERTISER_USE_FILTER_FOR_CONNECTION_REQUESTS);
+
+          sc = sl_bt_advertiser_configure(advertising_set_handle, SL_BT_ADVERTISER_USE_FILTER_FOR_CONNECTION_REQUESTS);
           app_log_status_error_f(sc, "Failed to configure advertising set." APP_LOG_NL);
           break;
         }

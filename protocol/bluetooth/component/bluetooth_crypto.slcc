@@ -1,6 +1,6 @@
 id: "bluetooth_crypto"
 label: "Bluetooth Core Crypto Configuration"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth Low Energy stack crypto configurations
 
@@ -15,6 +15,15 @@ template_contribution:
       count: 2
     condition:
       - psa_crypto
+    unless:
+      - bluetooth_feature_external_bonding_database
+  - name: psa_key_slots
+    value:
+      name: psa_key_slots_bluetooth_stack
+      count: 3
+    condition:
+      - psa_crypto
+      - bluetooth_feature_external_bonding_database
 requires:
   - name: "psa_crypto"
   - name: "psa_crypto_cmac"
@@ -22,6 +31,8 @@ requires:
   - name: "psa_crypto_ecdh"
   - name: "psa_crypto_ecc_secp256r1"
   - name: "psa_its"
+    condition:
+      - bluetooth_feature_builtin_bonding_database
 
 provides:
   - name: "bluetooth_crypto"

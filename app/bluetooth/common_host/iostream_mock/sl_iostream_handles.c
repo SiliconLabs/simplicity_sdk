@@ -30,19 +30,19 @@
 
 #include "sl_iostream_handles.h"
 
-/// Dummy definition of sl_iostream_instances_count for compatibility.
+/// Mock definition of sl_iostream_instances_count for compatibility.
 const unsigned int sl_iostream_instances_count = 0u;
 
-/// Dummy definition of sl_iostream_instance_mock for compatibility.
+/// Mock definition of sl_iostream_instance_mock for compatibility.
 sl_iostream_instance_info_t sl_iostream_instance_mock = {
   .handle = NULL,
-  .name = "dummy-value",
-  .type = DUMMY_VALUE,
+  .name = "mock-value",
+  .type = MOCK_VALUE,
   .periph_id = 0,
   .init = NULL,
 };
 
-/// Dummy definition of sl_iostream_instances_info for compatibility.
+/// Mock definition of sl_iostream_instances_info for compatibility.
 const sl_iostream_instance_info_t *sl_iostream_instances_info[] = {
   &sl_iostream_instance_mock,
 };

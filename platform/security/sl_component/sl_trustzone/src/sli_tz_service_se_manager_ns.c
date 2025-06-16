@@ -713,6 +713,33 @@ sl_status_t sl_se_read_cert(sl_se_command_context_t *cmd_ctx,
                                                    IOVEC_LEN(out_vec));
 }
 
+/***************************************************************************//**
+ *   This function computes the shared secret with Elliptic Curve Diffie Hellman
+ *   (ECDH) algorithm
+ ******************************************************************************/
+sl_status_t sl_se_ecdh_compute_shared_secret(sl_se_command_context_t *cmd_ctx,
+                                             const sl_se_key_descriptor_t *key_in_priv,
+                                             const sl_se_key_descriptor_t *key_in_pub,
+                                             const sl_se_key_descriptor_t *key_out)
+{
+  sli_tz_fn_id fn_id = SLI_TZ_SERVICE_SE_MANAGER_ECDH_COMPUTE_SHARED_SECRET_SID;
+  sli_tz_invec in_vec[] = {
+    { .base = &fn_id, .len = sizeof(sli_tz_fn_id) },
+    { cmd_ctx, sizeof(sl_se_command_context_t) },
+    { key_in_priv, sizeof(sl_se_key_descriptor_t) },
+    { key_in_pub, sizeof(sl_se_key_descriptor_t) },
+  };
+  sli_tz_outvec out_vec[] = {
+    { (sl_se_key_descriptor_t *)key_out, sizeof(sl_se_key_descriptor_t) },
+  };
+
+  return (sl_status_t)sli_tz_ns_interface_dispatch((sli_tz_veneer_fn)sli_tz_s_interface_dispatch_se_manager,
+                                                   (uint32_t)in_vec,
+                                                   IOVEC_LEN(in_vec),
+                                                   (uint32_t)out_vec,
+                                                   IOVEC_LEN(out_vec));
+}
+
 #if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
 
 /***************************************************************************//**

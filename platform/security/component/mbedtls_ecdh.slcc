@@ -1,5 +1,5 @@
 id: mbedtls_ecdh
-package: platform
+package: security_mbedtls
 label: ECDH
 description: >-
   This component provides support for key agreement with the ECDH protocol

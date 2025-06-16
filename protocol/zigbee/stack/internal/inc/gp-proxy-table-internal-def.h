@@ -3,7 +3,7 @@
  * @brief internal names for 'gp-proxy-table' declarations
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -22,6 +22,8 @@
 
 // Command Indirection
 
+void sli_zigbee_stack_gp_clear_proxy_table(void);
+
 sl_status_t sli_zigbee_stack_gp_proxy_table_get_entry(uint8_t proxyIndex,
                                                       sl_zigbee_gp_proxy_table_entry_t *entry);
 
@@ -37,5 +39,7 @@ bool sli_zigbee_stack_gp_proxy_table_process_gp_pairing(uint32_t options,
                                                         sl_zigbee_key_data_t *gpdKey,
                                                         uint32_t gpdSecurityFrameCounter,
                                                         uint8_t forwardingRadius);
+
+void sli_zigbee_stack_gp_proxy_table_remove_entry(uint8_t index);
 
 #endif // GP_PROXY_TABLE_INTERNAL_DEF_H

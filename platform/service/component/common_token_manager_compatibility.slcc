@@ -1,0 +1,80 @@
+id: common_token_manager_compatibility
+label: Common Token Manager Compatibility
+package: platform_core
+description: >
+  This component provides required header files for common token manager test app for series 2 device.
+  Manually add this component to your project, this component is hidden from UI.
+category: Services|Token Manager
+quality: evaluation
+metadata:
+  sbom:
+    license: Zlib
+provides:
+  - name: wireless_stack
+    allow_multiple: true
+    condition: [device_series_2]
+requires:
+  - name: common_token_manager
+define:
+  - name: TOKEN_MANAGER_TEST
+  - name: STACK_TYPES_HEADER
+    value: '"../stack/include/sl_zigbee_types.h"'
+    condition: [device_series_2]
+  - name: "PLATFORM_HEADER"
+    value: "\"platform-header.h\""
+  - name: PLAT
+  - name: MICRO
+  - name: PHY
+include:
+  - path: platform/service/token_manager/legacy/test/
+    condition: [device_series_2]
+    file_list:
+      - path: stack/include/sl_zigbee_types.h
+      - path: stack/config/token-stack.h
+  - path: platform/service/token_manager/legacy/test/include
+    condition: [device_series_2]
+    file_list:
+      - path: sl_zigbee_debug.h
+      - path: sl_zigbee.h
+      - path: error-def.h
+  - path: platform/service/token_manager/legacy/test/stack
+    condition: [device_series_2]
+  - path: platform/service/token_manager/legacy/test/stack/config
+    condition: [device_series_2]
+    file_list:
+      - path: sl_zigbee_configuration_defaults.h
+  - path: platform/service/token_manager/legacy/test/stack/include
+    condition: [device_series_2]
+    file_list:
+      - path: error.h
+  - path: platform/service/legacy_hal/inc/
+    condition: [device_series_2]
+    file_list:
+      - path: asm.h
+      - path: bootloader-eeprom.h
+      - path: button.h
+      - path: crc.h
+      - path: efm32_micro.h
+      - path: em2xx-reset-defs.h
+      - path: emlib_config.h
+      - path: hal.h
+      - path: interrupts-efm32.h
+      - path: led.h
+      - path: micro-common.h
+      - path: micro-types.h
+      - path: micro.h
+      - path: platform-header.h
+      - path: random.h
+      - path: reset-def.h
+      - path: serial.h
+      - path: token-manufacturing-series-2.h
+      - path: token-manufacturing.h
+      - path: serial/serial.h
+      - path: cortexm3/diagnostic.h
+      - path: hal/hal.h
+      - path: sl_legacy_hal_integration_hooks.h
+      - path: em2xx-reset-defs.h
+source:
+  - path: platform/service/legacy_hal/src/token_legacy.c
+ui_hints:
+  visibility: never

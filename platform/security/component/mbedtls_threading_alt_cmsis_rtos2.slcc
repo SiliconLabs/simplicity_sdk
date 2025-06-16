@@ -1,5 +1,5 @@
 id: mbedtls_threading_alt_cmsis_rtos2
-package: platform
+package: security_mbedtls
 label: Silicon Labs Threading support Mbed TLS
 description: >
   This component provides threading support for Mbed TLS based on using

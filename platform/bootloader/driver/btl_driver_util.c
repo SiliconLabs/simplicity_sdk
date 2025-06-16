@@ -18,13 +18,9 @@
 
 uint32_t util_getClockFreq(void)
 {
-#if defined(_SILICON_LABS_32B_SERIES_2)
-  const uint8_t frequencies[] = { 4, 0, 0, 7, 0, 0, 13, 16, 19, 0, 26, 32, 38, 48, 56, 64, 80 };
-#else
-  const uint8_t frequencies[] = { 4, 0, 0, 7, 0, 0, 13, 16, 19, 0, 26, 32, 38, 48, 56, 64, 72 };
-#endif
   uint32_t clockFreq;
 #if defined(_SILICON_LABS_32B_SERIES_2)
+  const uint8_t frequencies[] = { 4, 0, 0, 7, 0, 0, 13, 16, 19, 0, 26, 32, 38, 48, 56, 64, 80 };
   if ((CMU->SYSCLKCTRL & _CMU_SYSCLKCTRL_CLKSEL_MASK) == CMU_SYSCLKCTRL_CLKSEL_HFXO) {
     #if defined(BSP_CLK_HFXO_FREQ)
     clockFreq = BSP_CLK_HFXO_FREQ;
@@ -47,26 +43,10 @@ uint32_t util_getClockFreq(void)
   }
   clockFreq /= (1U + ((CMU->SYSCLKCTRL & _CMU_SYSCLKCTRL_HCLKPRESC_MASK)
                       >> _CMU_SYSCLKCTRL_HCLKPRESC_SHIFT));
-#else
-  if ((CMU->HFCLKSTATUS & _CMU_HFCLKSTATUS_SELECTED_MASK) == CMU_HFCLKSTATUS_SELECTED_HFXO) {
-    #if defined(BSP_CLK_HFXO_FREQ)
-    clockFreq = BSP_CLK_HFXO_FREQ;
-    #else
-    clockFreq = 38400000UL;
-    #endif
-  } else {
-    clockFreq = (CMU->HFRCOCTRL & _CMU_HFRCOCTRL_FREQRANGE_MASK) >> _CMU_HFRCOCTRL_FREQRANGE_SHIFT;
-    if (clockFreq > 16) {
-      clockFreq = 19000000UL;
-    } else {
-      clockFreq = frequencies[clockFreq] * 1000000UL;
-    }
-    if (clockFreq == 4000000UL) {
-      clockFreq /= (0x1 << ((CMU->HFRCOCTRL & _CMU_HFRCOCTRL_CLKDIV_MASK) >> _CMU_HFRCOCTRL_CLKDIV_SHIFT));
-    }
-  }
-  clockFreq /= (1U + ((CMU->HFPRESC & _CMU_HFPRESC_PRESC_MASK)
-                      >> _CMU_HFPRESC_PRESC_SHIFT));
+#elif defined (_SILICON_LABS_32B_SERIES_3)
+  clockFreq = 38400000UL;
+  clockFreq /= (1U + ((CMU->SYSCLKCTRL & _CMU_SYSCLKCTRL_HCLKPRESC_MASK)
+                      >> _CMU_SYSCLKCTRL_HCLKPRESC_SHIFT));
 #endif
   return clockFreq;
 }

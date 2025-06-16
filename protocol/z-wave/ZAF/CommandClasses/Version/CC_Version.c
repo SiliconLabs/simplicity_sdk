@@ -17,8 +17,7 @@
 #include <zaf_config_api.h>
 #include <zpal_bootloader.h>
 #include <zpal_misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
@@ -46,8 +45,8 @@
  * @param[out] pVariantgroup returns pointer to application version group number n.
  */
 ZW_WEAK void CC_Version_GetFirmwareVersion_handler(
-    __attribute__((unused)) uint8_t firmwareTargetIndex,
-    __attribute__((unused)) VG_VERSION_REPORT_V2_VG* pVariantgroup)
+  __attribute__((unused)) uint8_t firmwareTargetIndex,
+  __attribute__((unused)) VG_VERSION_REPORT_V2_VG* pVariantgroup)
 {
 }
 
@@ -69,22 +68,20 @@ CC_Version_add_bootloader(
 }
 
 static received_frame_status_t CC_Version_handler(
-    RECEIVE_OPTIONS_TYPE_EX *rxOpt,
-    ZW_APPLICATION_TX_BUFFER *pCmd,
-    __attribute__((unused)) uint8_t cmdLength,
-    ZW_APPLICATION_TX_BUFFER * pFrameOut,
-    uint8_t * pLengthOut)
+  RECEIVE_OPTIONS_TYPE_EX *rxOpt,
+  ZW_APPLICATION_TX_BUFFER *pCmd,
+  __attribute__((unused)) uint8_t cmdLength,
+  ZW_APPLICATION_TX_BUFFER * pFrameOut,
+  uint8_t * pLengthOut)
 {
   SApplicationHandles * pAppHandles;
 
-  if(true == Check_not_legal_response_job(rxOpt))
-  {
+  if (true == Check_not_legal_response_job(rxOpt)) {
     /*Do not support endpoint bit-addressing */
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
-  switch (pCmd->ZW_VersionGetFrame.cmd)
-  {
+  switch (pCmd->ZW_VersionGetFrame.cmd) {
     case VERSION_GET_V2:
     {
       uint8_t firmwareTargetIndex;/*firmware target number 1..N */
@@ -100,22 +97,21 @@ static received_frame_status_t CC_Version_handler(
       pFrameOut->ZW_VersionReport1byteV2Frame.firmware0SubVersion = zpal_get_app_version_minor();
       pFrameOut->ZW_VersionReport1byteV2Frame.hardwareVersion = zaf_config_get_hardware_version();
       numberOfFirmwareTargets = zaf_config_get_firmware_target_count();
-      if(zaf_config_get_bootloader_upgradable()) {
+      if (zaf_config_get_bootloader_upgradable()) {
         numberOfFirmwareTargets++;
       }
       pFrameOut->ZW_VersionReport1byteV2Frame.numberOfFirmwareTargets = numberOfFirmwareTargets - 1;/*-1 : Firmware version 0*/
 
-      for (firmwareTargetIndex = 1; firmwareTargetIndex < numberOfFirmwareTargets; firmwareTargetIndex++)
-      {
+      for (firmwareTargetIndex = 1; firmwareTargetIndex < numberOfFirmwareTargets; firmwareTargetIndex++) {
         uint8_t * pFrame = (uint8_t *)&(pFrameOut->ZW_VersionReport1byteV2Frame.variantgroup1);
-        if(zaf_config_get_bootloader_upgradable() && zaf_config_get_bootloader_target_id() == firmwareTargetIndex) {     
+        if (zaf_config_get_bootloader_upgradable() && zaf_config_get_bootloader_target_id() == firmwareTargetIndex) {
           CC_Version_add_bootloader((VG_VERSION_REPORT_V2_VG *)(pFrame + 2 * (firmwareTargetIndex - 1)));
         } else {
           CC_Version_GetFirmwareVersion_handler(firmwareTargetIndex, (VG_VERSION_REPORT_V2_VG *)(pFrame + 2 * (firmwareTargetIndex - 1)));
         }
       }
 
-      *pLengthOut = sizeof(pFrameOut->ZW_VersionReport1byteV2Frame) + (numberOfFirmwareTargets - 1)* sizeof(VG_VERSION_REPORT_V2_VG) - sizeof(VG_VERSION_REPORT_V2_VG); /*-1 is Firmware version 0*/
+      *pLengthOut = sizeof(pFrameOut->ZW_VersionReport1byteV2Frame) + (numberOfFirmwareTargets - 1) * sizeof(VG_VERSION_REPORT_V2_VG) - sizeof(VG_VERSION_REPORT_V2_VG); /*-1 is Firmware version 0*/
 
       return RECEIVED_FRAME_STATUS_SUCCESS;
     }
@@ -131,17 +127,15 @@ static received_frame_status_t CC_Version_handler(
       zaf_cc_list_t *cc_list = GetCommandClassList(false, SECURITY_KEY_NONE, 0);
 
       /*
-        * Transport Service, Security S0 and S2 versions must be returned only if they are
-        * listed in the NIF. Since these command classes must always be in the non-secure list, we
-        * can use that list to check it.
-        */
+       * Transport Service, Security S0 and S2 versions must be returned only if they are
+       * listed in the NIF. Since these command classes must always be in the non-secure list, we
+       * can use that list to check it.
+       */
       if (memchr(cc_list->cc_list,
-                  cc,
-                  cc_list->list_size))
-      {
+                 cc,
+                 cc_list->list_size)) {
         // CC is in the list
-        switch (pCmd->ZW_VersionCommandClassGetFrame.requestedCommandClass)
-        {
+        switch (pCmd->ZW_VersionCommandClassGetFrame.requestedCommandClass) {
           case COMMAND_CLASS_TRANSPORT_SERVICE:
             version = pAppHandles->pProtocolInfo->CommandClassVersions.TransportServiceVersion;
             break;
@@ -159,24 +153,20 @@ static received_frame_status_t CC_Version_handler(
 
       pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion = version;
 
-      if (0xFF == pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion)
-      {
+      if (0xFF == pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion) {
         /*
-        * When every CC uses the REGISTER_CC() macro, the compiler creates a section in the code.
-        * Also two variables are automatically created and these represent the beginning and the end
-        * of the section. The variables can be used to loop through the section.
-        */
+         * When every CC uses the REGISTER_CC() macro, the compiler creates a section in the code.
+         * Also two variables are automatically created and these represent the beginning and the end
+         * of the section. The variables can be used to loop through the section.
+         */
         CC_handler_map_latest_t const * iter = &cc_handlers_start;
-        for ( ; iter < &cc_handlers_stop; ++iter)
-        {
-          if (pCmd->ZW_VersionCommandClassGetFrame.requestedCommandClass == iter->CC)
-          {
-            DPRINTF("\r\nCC: %#x - Version: %d\r\n", iter->CC, iter->version);
+        for ( ; iter < &cc_handlers_stop; ++iter) {
+          if (pCmd->ZW_VersionCommandClassGetFrame.requestedCommandClass == iter->CC) {
+            ZPAL_LOG_DEBUG(ZPAL_LOG_CC_VERSION, "\r\nCC: %#x - Version: %d\r\n", iter->CC, iter->version);
             pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion = iter->version;
           }
         }
-        if (0xFF == pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion)
-        {
+        if (0xFF == pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion) {
           pFrameOut->ZW_VersionCommandClassReportFrame.commandClassVersion = 0; // Value if not found
         }
       }
@@ -240,7 +230,7 @@ static received_frame_status_t CC_Version_handler(
       pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame.applicationVersion2 = zpal_get_app_version_minor();
       pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame.applicationVersion3 = zpal_get_app_version_patch();
       pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame.applicationBuildNumber1 = (uint8_t)(ZAF_GetBuildNumber() >> 8);
-      pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame.applicationBuildNumber2 = (uint8_t)(ZAF_GetBuildNumber() & 0xFF) ;
+      pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame.applicationBuildNumber2 = (uint8_t)(ZAF_GetBuildNumber() & 0xFF);
 
       *pLengthOut = sizeof(pFrameOut->ZW_VersionZwaveSoftwareReportV3Frame);
 

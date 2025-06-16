@@ -29,8 +29,7 @@
 /**
  * Enumeration for "Start Level Change" command.
  */
-typedef enum
-{
+typedef enum {
   CCMLS_PRIMARY_SWITCH_UP,              //!< CCMLS_PRIMARY_SWITCH_UP
   CCMLS_PRIMARY_SWITCH_DOWN,            //!< CCMLS_PRIMARY_SWITCH_DOWN
   CCMLS_PRIMARY_SWITCH_RESERVED,        //!< CCMLS_PRIMARY_SWITCH_RESERVED
@@ -41,8 +40,7 @@ CCMLS_PRIMARY_SWITCH_T;
 /**
  * Enumeration for "Start Level Change" command.
  */
-typedef enum
-{
+typedef enum {
   CCMLS_IGNORE_START_LEVEL_FALSE,//!< CCMLS_IGNORE_START_LEVEL_FALSE
   CCMLS_IGNORE_START_LEVEL_TRUE  //!< CCMLS_IGNORE_START_LEVEL_TRUE
 }
@@ -51,8 +49,7 @@ CCMLS_IGNORE_START_LEVEL_T;
 /**
  * Enumeration for "Start Level Change" command.
  */
-typedef enum
-{
+typedef enum {
   CCMLS_SECONDARY_SWITCH_INCREMENT,//!< CCMLS_SECONDARY_SWITCH_INCREMENT
   CCMLS_SECONDARY_SWITCH_DECREMENT,//!< CCMLS_SECONDARY_SWITCH_DECREMENT
   CCMLS_SECONDARY_SWITCH_RESERVED, //!< CCMLS_SECONDARY_SWITCH_RESERVED
@@ -79,8 +76,8 @@ CCMLS_SECONDARY_SWITCH_T;
  * @return Status of the job.
  */
 JOB_STATUS
-CmdClassMultilevelSwitchStartLevelChange(
-  AGI_PROFILE* pProfile,
+  CmdClassMultilevelSwitchStartLevelChange(
+  AGI_PROFILE * pProfile,
   uint8_t sourceEndpoint,
   VOID_CALLBACKFUNC(pCbFunc)(TRANSMISSION_RESULT * pTransmissionResult),
   CCMLS_PRIMARY_SWITCH_T primarySwitch,
@@ -99,8 +96,8 @@ CmdClassMultilevelSwitchStartLevelChange(
  * @return Status of the job.
  */
 JOB_STATUS
-CmdClassMultilevelSwitchStopLevelChange(
-  AGI_PROFILE* pProfile,
+  CmdClassMultilevelSwitchStopLevelChange(
+  AGI_PROFILE * pProfile,
   uint8_t sourceEndpoint,
   VOID_CALLBACKFUNC(pCbFunc)(TRANSMISSION_RESULT * pTransmissionResult));
 
@@ -114,8 +111,8 @@ CmdClassMultilevelSwitchStopLevelChange(
  * @return Status of the job.
  */
 JOB_STATUS
-CmdClassMultilevelSwitchSetTransmit(
-  AGI_PROFILE* pProfile,
+  CmdClassMultilevelSwitchSetTransmit(
+  AGI_PROFILE * pProfile,
   uint8_t sourceEndpoint,
   VOID_CALLBACKFUNC(pCbFunc)(TRANSMISSION_RESULT * pTransmissionResult),
   uint8_t value,
@@ -124,6 +121,6 @@ CmdClassMultilevelSwitchSetTransmit(
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif

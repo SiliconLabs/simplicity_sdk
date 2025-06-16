@@ -7,10 +7,46 @@ class CalcEnhancedRainier(ICalculator):
         #Required method
         pass
 
-    def calc_enhanced_misc(self, model):
+    def calc_ehdsssen_reg(self, model):
         demod_select = model.vars.demod_select.value
 
         if demod_select == model.vars.demod_select.var_enum.ENHANCED_DSSS:
+            ehdsssen = 1
+        else:
+            ehdsssen = 0
+
+        self._reg_write(model.vars.MODEM_EHDSSSCTRL_EHDSSSEN, ehdsssen)
+
+    def calc_enhanced_dsssdsaqualen_reg(self, model):
+        duty_cycled = model.vars.rxdc_power_save_mode.value != model.vars.rxdc_power_save_mode.var_enum.DISABLED
+        enhanced_en = (model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value == 1)
+
+        if enhanced_en:
+            do_not_care = False
+            default = False
+
+            if duty_cycled:
+                # For duty cycle, we have to disable DSSSDSAQUALEN to increase off time
+                # because if we're detecting the last 0 of the preamble, then we can't use the next symbol to qualify
+                # since the next symbol is not a 0 (start of SFD).
+                dsssdsaqualen = 0
+            else:
+                # If not duty-cycled, DSSSDSAQALEN improves screening of false detects
+                dsssdsaqualen = 1
+        else:
+            dsssdsaqualen = 0
+            do_not_care = True
+            default = True
+
+        self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSDSAQUALEN,
+                        value=dsssdsaqualen,
+                        default=default,
+                        do_not_care=do_not_care)
+
+    def calc_enhanced_misc(self, model):
+        enhanced_en = (model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value == 1)
+
+        if enhanced_en:
             do_not_care = False
         else:
             do_not_care = True
@@ -49,9 +85,20 @@ class CalcEnhancedRainier(ICalculator):
         self._reg_write(model.vars.MODEM_SICTRL1_FREQOFFTOLERANCE, default=True, do_not_care=do_not_care)
         self._reg_write(model.vars.MODEM_SICTRL2_SISTARTDELAY, default=True, do_not_care=do_not_care)
         self._reg_write(model.vars.MODEM_SICTRL2_SISTARTDELAYMODE, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCTRL_DSSSDSATHD, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCTRL_DUALDSA, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG2_MAXSCHMODE, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG3_DSSSDASMAXTHD, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG3_DSSSFOETRACKGEAR, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG3_OPMODE, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG3_DSSSINITIMLEN, default=True, do_not_care=do_not_care)
+        self._reg_write(model.vars.MODEM_EHDSSSCFG3_LQIAVGWIN, default=True, do_not_care=do_not_care)
 
-        # : only available for B0 onward
-        if not model.part_revision in ['A0', 'A1', 'A2']:
+        self._write_sifastdetect_regs(model, do_not_care)
+
+    def _write_sifastdetect_regs(self, model, do_not_care):
+
+        if (not (model.part_family.upper() == 'RAINIER' and model.part_revision in ['A0', 'A1', 'A2'])):
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_FASTCWDETECTEN, default=True, do_not_care=do_not_care)
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_FASTSUPERCHIPEN, default=True, do_not_care=do_not_care)
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_FASTNARROWPULSEEN, default=True, do_not_care=do_not_care)
@@ -62,3 +109,42 @@ class CalcEnhancedRainier(ICalculator):
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_NPULSEFIXEDTHRESHOLD, default=True, do_not_care=do_not_care)
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_NPULSETHRESHADJEN, default=True, do_not_care=do_not_care)
             self._reg_write(model.vars.MODEM_SIFASTDETECTCTRL_NPULSETHRESHADJ, default=True, do_not_care=do_not_care)
+
+    def calc_enhanced_dsssfrtcorrthd_reg(self, model):
+
+        enhanced_en = (model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value == 1)
+        dssscfecombomode = model.vars.MODEM_DIGMIXCTRL_DSSSCFECOMBO.value
+        hop_enable = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
+
+        # DSSSFRTCORRTHD is fast first symbol detection threshold
+        if enhanced_en:
+            do_not_care = False
+            if hop_enable and dssscfecombomode != 2:
+                dsssfrtcorrthd = 875        # Improves sensitivity and rejects PER floor from adjacent channel side lobes
+            else:
+                dsssfrtcorrthd = 600      # Improves ZB sensitivity by 1dB
+        else:
+            dsssfrtcorrthd = 700
+            do_not_care = True
+
+        self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSFRTCORRTHD, dsssfrtcorrthd, do_not_care=do_not_care)
+
+    def calc_enhanced_dssspatt_reg(self, model):
+        # Assume the only 2 use cases are Zigbee and Signify
+        enhanced_en = (model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value == 1)
+        dual_syncword_used = model.vars.syncword_dualsync.value
+        duty_cycled = model.vars.rxdc_power_save_mode.value != model.vars.rxdc_power_save_mode.var_enum.DISABLED
+        hop_enabled = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
+
+        if enhanced_en:
+            do_not_care = False
+            if dual_syncword_used or duty_cycled or hop_enabled:
+                # DSSSPATT = 0 is better for duty-cycling FreqOffset (See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2865)
+                dssspatt = 0        # Use last 4 preamble symbols for frequency offset estimation
+            else:
+                dssspatt = 0x7A      # we will use the last 2 preamble symbols + 2 802.15.4 syncword symbol for the frequency offset estimation
+        else:
+            dssspatt = 0
+            do_not_care = True
+
+        self._reg_write(model.vars.MODEM_EHDSSSCFG0_DSSSPATT, dssspatt, do_not_care=do_not_care)

@@ -1,7 +1,7 @@
 !!omap
 - id: brd4400b
 - label: BRD4400B
-- package: platform
+- package: boards
 - description: Board support for BRD4400B.
 - category: Platform|Board|Radio Board
 - quality: production

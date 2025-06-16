@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component implementing a CLI for the Green Power device application framework.
 label: Green Power Device AF CLI
 quality: production

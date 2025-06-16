@@ -63,17 +63,17 @@ extern "C" {
 
 // Periodic advertisement interval for PAwR train.
 // Value in units of 1.25 ms.
-#define ESL_LIB_PAWR_MIN_INTERVAL_DEFAULT          1248
+#define ESL_LIB_PAWR_MIN_INTERVAL_DEFAULT          1210
 // Number of subevents, practically has to be equal to the supported number
 // of ESL groups.
 #define ESL_LIB_PAWR_MAX_INTERVAL_DEFAULT          ESL_LIB_PAWR_MIN_INTERVAL_DEFAULT
-// Scalable up to 6630 tags in 26 groups
-#define ESL_LIB_PAWR_SUBEVENT_COUNT_DEFAULT        26
-// 60 ms
-#define ESL_LIB_PAWR_SUBEVENT_INTERVAL_DEFAULT     48
+// Scalable up to 13970 tags in 55 groups
+#define ESL_LIB_PAWR_SUBEVENT_COUNT_DEFAULT        55
+// Subevent length in 1.25ms units (27.5ms)
+#define ESL_LIB_PAWR_SUBEVENT_INTERVAL_DEFAULT     22
 // Time between the advertising packet in a subevent and the first response
 // slot. Value in units of 1.25 ms.
-#define ESL_LIB_PAWR_RESPONSE_SLOT_DELAY_DEFAULT   34
+#define ESL_LIB_PAWR_RESPONSE_SLOT_DELAY_DEFAULT   8
 // Time between response slots. Value in units of 0.125 ms.
 // 0.75 ms enough for up to 75 bytes on 1M phy
 // (including LL overhead plus T_IFS)
@@ -116,7 +116,7 @@ extern "C" {
 
 #ifndef ESL_LIB_CONN_INTERVAL_MIN_DEFAULT
 // Overridable at compile time with 'make "CFLAGS=-DESL_LIB_CONN_INTERVAL_MIN_DEFAULT=X"'
- #define ESL_LIB_CONN_INTERVAL_MIN_DEFAULT        (ESL_LIB_PAWR_SUBEVENT_INTERVAL_DEFAULT / 4)
+ #define ESL_LIB_CONN_INTERVAL_MIN_DEFAULT        (ESL_LIB_PAWR_SUBEVENT_INTERVAL_DEFAULT / 2)
 #endif // ESL_LIB_CONN_INTERVAL_MIN_DEFAULT
 #define ESL_LIB_CONN_INTERVAL_MAX_DEFAULT         ESL_LIB_CONN_INTERVAL_MIN_DEFAULT
 

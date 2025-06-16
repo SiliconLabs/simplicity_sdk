@@ -6,6 +6,9 @@
  */
 #include "app_hw.h"
 #include "sl_component_catalog.h"
+#ifdef SL_CATALOG_SIMPLE_BUTTON_PRESENT
+#include "app_button_handler.h"
+#endif
 
 void app_hw_deep_sleep_wakeup_handler(void)
 {

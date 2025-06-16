@@ -35,6 +35,13 @@
 #endif // defined(SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS) && (SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS > 0) && defined(NUM_PERSISTED_ZCL_ATTRIBUTES)
 
 //------------------------------------------------------------------------------
+// Static Declarations
+static sl_zigbee_af_status_t sli_zigbee_af_process_write_attribute_data(sl_zigbee_af_attribute_metadata_t *metadata,
+                                                                        uint8_t* data,
+                                                                        sl_zigbee_af_attribute_search_record_t *record,
+                                                                        sl_zigbee_af_attribute_type_t dataType,
+                                                                        bool updateNvm,
+                                                                        bool syncMultiProtocol);
 
 //------------------------------------------------------------------------------
 // External Declarations
@@ -136,6 +143,25 @@ sl_zigbee_af_status_t sl_zigbee_af_write_server_attribute(uint8_t endpoint,
                                        true, // override read-only?
                                        false, // just test?
                                        true); // update NVM
+}
+
+sl_zigbee_af_status_t sl_zigbee_af_write_server_attribute_without_sync(uint8_t endpoint,
+                                                                       sl_zigbee_af_cluster_id_t cluster,
+                                                                       sl_zigbee_af_attribute_id_t attributeID,
+                                                                       uint8_t* dataPtr,
+                                                                       sl_zigbee_af_attribute_type_t dataType)
+{
+  return sli_zigbee_af_write_attribute_with_sync(endpoint,
+                                                 cluster,
+                                                 attributeID,
+                                                 CLUSTER_MASK_SERVER,
+                                                 SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE,
+                                                 dataPtr,
+                                                 dataType,
+                                                 true, // override read-only?
+                                                 false, // just test?
+                                                 true, // update NVM
+                                                 false); // Don't sync with multiprotocol datamodel
 }
 
 sl_zigbee_af_status_t sl_zigbee_af_write_manufacturer_specific_client_attribute(uint8_t endpoint,
@@ -672,6 +698,30 @@ sl_zigbee_af_status_t sl_zigbee_af_append_attribute_report_fields(uint8_t endpoi
 //------------------------------------------------------------------------------
 // Internal Functions
 
+sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
+                                                    sl_zigbee_af_cluster_id_t cluster,
+                                                    sl_zigbee_af_attribute_id_t attributeID,
+                                                    uint8_t mask,
+                                                    uint16_t manufacturerCode,
+                                                    uint8_t *data,
+                                                    sl_zigbee_af_attribute_type_t dataType,
+                                                    bool overrideReadOnlyAndDataType,
+                                                    bool justTest,
+                                                    bool updateNvm)
+{
+  return sli_zigbee_af_write_attribute_with_sync(endpoint,
+                                                 cluster,
+                                                 attributeID,
+                                                 mask,
+                                                 manufacturerCode,
+                                                 data,
+                                                 dataType,
+                                                 overrideReadOnlyAndDataType,
+                                                 justTest,
+                                                 updateNvm,
+                                                 true); // syncMultiProtocol
+}
+
 // writes an attribute (identified by clusterID and attrID to the given value.
 // this returns:
 // - SL_ZIGBEE_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE: if attribute isnt supported by the device (the
@@ -695,20 +745,25 @@ sl_zigbee_af_status_t sl_zigbee_af_append_attribute_report_fields(uint8_t endpoi
 // for not writing to NVM, since values in NVM are used to update the RAM
 // contents.
 //
+// if true is passed for syncMultiProtocol, then the written attribute will be evaluated by the
+// multiprotocol attribute map. If it maps to the counterpart protocol datamodel,
+// the stack will call the multiprocol attribute synchronization api.
+//
 // reads the attribute specified, returns false if the attribute is not in
 // the table or the data is too large, returns true and writes to dataPtr
 // if the attribute is supported and the readLength specified is less than
 // the length of the data.
-sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
-                                                    sl_zigbee_af_cluster_id_t cluster,
-                                                    sl_zigbee_af_attribute_id_t attributeID,
-                                                    uint8_t mask,
-                                                    uint16_t manufacturerCode,
-                                                    uint8_t *data,
-                                                    sl_zigbee_af_attribute_type_t dataType,
-                                                    bool overrideReadOnlyAndDataType,
-                                                    bool justTest,
-                                                    bool updateNvm)
+sl_zigbee_af_status_t sli_zigbee_af_write_attribute_with_sync(uint8_t endpoint,
+                                                              sl_zigbee_af_cluster_id_t cluster,
+                                                              sl_zigbee_af_attribute_id_t attributeID,
+                                                              uint8_t mask,
+                                                              uint16_t manufacturerCode,
+                                                              uint8_t *data,
+                                                              sl_zigbee_af_attribute_type_t dataType,
+                                                              bool overrideReadOnlyAndDataType,
+                                                              bool justTest,
+                                                              bool updateNvm,
+                                                              bool syncMultiProtocol)
 {
   sl_zigbee_af_attribute_metadata_t *metadata = NULL;
   sl_zigbee_af_attribute_search_record_t record;
@@ -718,11 +773,10 @@ sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
   record.attributeId = attributeID;
   record.manufacturerCode = manufacturerCode;
 
-  sl_zigbee_af_status_t status = sli_zigbee_af_read_or_write_attribute(&record,
-                                                                       &metadata,
-                                                                       NULL, // buffer
-                                                                       0, // buffer size
-                                                                       false); // write?
+  sl_zigbee_af_status_t status = sli_zigbee_af_read_attribute_from_storage(&record,
+                                                                           &metadata,
+                                                                           NULL, // buffer
+                                                                           0); // buffer size
   (void)status;
 
   // if we dont support that attribute
@@ -792,90 +846,7 @@ sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
 
   // write the data unless this is only a test
   if (!justTest) {
-    // Do not know the size of data buffer so use the max 0xFFFF as a bound.
-    uint16_t dataSize = sl_zigbee_af_attribute_value_size(metadata->attributeType,
-                                                          data,
-                                                          0xFFFF);
-    if (dataSize == 0u) {
-      return SL_ZIGBEE_ZCL_STATUS_FAILURE;
-    }
-    // Pre write attribute callback for all attribute changes,
-    // regardless of cluster.
-    sl_zigbee_af_status_t status
-      = sl_zigbee_af_pre_attribute_change_cb(endpoint,
-                                             cluster,
-                                             attributeID,
-                                             mask,
-                                             manufacturerCode,
-                                             dataType,
-                                             dataSize,
-                                             data);
-    if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-      return status;
-    }
-
-    // Pre-write attribute callback specific
-    // to the cluster that the attribute lives in.
-    status = sli_zigbee_af_cluster_pre_attribute_changed_callback(endpoint,
-                                                                  cluster,
-                                                                  attributeID,
-                                                                  mask,
-                                                                  manufacturerCode,
-                                                                  dataType,
-                                                                  dataSize,
-                                                                  data);
-    if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-      return status;
-    }
-
-    // write the attribute
-    status = sli_zigbee_af_read_or_write_attribute(&record,
-                                                   NULL, // metadata
-                                                   data,
-                                                   0, // buffer size - unused
-                                                   true); // write?
-
-    if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
-      return status;
-    }
-
-    // Startup code that restores attributes from NVM will call this function with updateNvm=false
-    if (updateNvm) {
-      // Save the attribute to token if needed
-      // Function itself will weed out tokens that are not tokenized.
-#ifdef DEFER_ATTRIBUTE_UPDATES_IN_NVM
-      defer_attribute_write_to_token(data, endpoint, cluster, metadata, mask, manufacturerCode);
-#else // DEFER_ATTRIBUTE_UPDATES_IN_NVM
-      sli_zigbee_af_save_attribute_to_token(data, endpoint, cluster, metadata);
-#endif // DEFER_ATTRIBUTE_UPDATES_IN_NVM
-    }
-
-    sl_zigbee_af_reporting_attribute_change_cb(endpoint,
-                                               cluster,
-                                               attributeID,
-                                               mask,
-                                               manufacturerCode,
-                                               dataType,
-                                               data);
-
-    // Post write attribute callback for all attributes changes, regardless
-    // of cluster.
-    sl_zigbee_af_post_attribute_change_cb(endpoint,
-                                          cluster,
-                                          attributeID,
-                                          mask,
-                                          manufacturerCode,
-                                          dataType,
-                                          dataSize,
-                                          data);
-
-    // Post-write attribute callback specific
-    // to the cluster that the attribute lives in.
-    sli_zigbee_af_cluster_attribute_changed_callback(endpoint,
-                                                     cluster,
-                                                     attributeID,
-                                                     mask,
-                                                     manufacturerCode);
+    return sli_zigbee_af_process_write_attribute_data(metadata, data, &record, dataType, updateNvm, syncMultiProtocol);
   } else {
     // bug: 11618, we are not handling properly external attributes
     // in this case... We need to do something. We don't really
@@ -884,6 +855,98 @@ sl_zigbee_af_status_t sli_zigbee_af_write_attribute(uint8_t endpoint,
     sl_zigbee_af_attributes_flush();
   }
 
+  return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
+}
+
+static sl_zigbee_af_status_t sli_zigbee_af_process_write_attribute_data(sl_zigbee_af_attribute_metadata_t *metadata,
+                                                                        uint8_t* data,
+                                                                        sl_zigbee_af_attribute_search_record_t *record,
+                                                                        sl_zigbee_af_attribute_type_t dataType,
+                                                                        bool updateNvm,
+                                                                        bool syncMultiProtocol)
+{
+  // Do not know the size of data buffer so use the max 0xFFFF as a bound.
+  uint16_t dataSize = sl_zigbee_af_attribute_value_size(metadata->attributeType,
+                                                        data,
+                                                        0xFFFF);
+  if (dataSize == 0u) {
+    return SL_ZIGBEE_ZCL_STATUS_FAILURE;
+  }
+  // Pre write attribute callback for all attribute changes,
+  // regardless of cluster.
+  sl_zigbee_af_status_t status
+    = sl_zigbee_af_pre_attribute_change_cb(record->endpoint,
+                                           record->clusterId,
+                                           record->attributeId,
+                                           record->clusterMask,
+                                           record->manufacturerCode,
+                                           dataType,
+                                           dataSize,
+                                           data);
+  if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
+    return status;
+  }
+
+  // Pre-write attribute callback specific
+  // to the cluster that the attribute lives in.
+  status = sli_zigbee_af_cluster_pre_attribute_changed_callback(record->endpoint,
+                                                                record->clusterId,
+                                                                record->attributeId,
+                                                                record->clusterMask,
+                                                                record->manufacturerCode,
+                                                                dataType,
+                                                                dataSize,
+                                                                data);
+  if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
+    return status;
+  }
+
+  // write the attribute
+  status = sli_zigbee_af_write_attribute_to_storage(record,
+                                                    data,
+                                                    syncMultiProtocol);
+
+  if (status != SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
+    return status;
+  }
+
+  // Startup code that restores attributes from NVM will call this function with updateNvm=false
+  if (updateNvm) {
+    // Save the attribute to token if needed
+    // Function itself will weed out tokens that are not tokenized.
+#ifdef DEFER_ATTRIBUTE_UPDATES_IN_NVM
+    defer_attribute_write_to_token(data, record->endpoint, record->clusterId, metadata, record->clusterMask, record->manufacturerCode);
+#else // DEFER_ATTRIBUTE_UPDATES_IN_NVM
+    sli_zigbee_af_save_attribute_to_token(data, record->endpoint, record->clusterId, metadata);
+#endif // DEFER_ATTRIBUTE_UPDATES_IN_NVM
+  }
+
+  sl_zigbee_af_reporting_attribute_change_cb(record->endpoint,
+                                             record->clusterId,
+                                             record->attributeId,
+                                             record->clusterMask,
+                                             record->manufacturerCode,
+                                             dataType,
+                                             data);
+
+  // Post write attribute callback for all attributes changes, regardless
+  // of cluster.
+  sl_zigbee_af_post_attribute_change_cb(record->endpoint,
+                                        record->clusterId,
+                                        record->attributeId,
+                                        record->clusterMask,
+                                        record->manufacturerCode,
+                                        dataType,
+                                        dataSize,
+                                        data);
+
+  // Post-write attribute callback specific
+  // to the cluster that the attribute lives in.
+  sli_zigbee_af_cluster_attribute_changed_callback(record->endpoint,
+                                                   record->clusterId,
+                                                   record->attributeId,
+                                                   record->clusterMask,
+                                                   record->manufacturerCode);
   return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
 }
 
@@ -907,11 +970,10 @@ sl_zigbee_af_status_t sli_zigbee_af_read_attribute(uint8_t endpoint,
   record.clusterMask = mask;
   record.attributeId = attributeID;
   record.manufacturerCode = manufacturerCode;
-  status = sli_zigbee_af_read_or_write_attribute(&record,
-                                                 &metadata,
-                                                 dataPtr,
-                                                 readLength,
-                                                 false); // write?
+  status = sli_zigbee_af_read_attribute_from_storage(&record,
+                                                     &metadata,
+                                                     dataPtr,
+                                                     readLength);
 
   if (status == SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
     // It worked!  If the user asked for the type, set it before returning.
@@ -1051,11 +1113,10 @@ static void deferred_attribute_write_event_handler(sl_zigbee_af_event_t *event)
   record.clusterMask = write_value.cluster_mask;
   record.attributeId = write_value.attribute_id;
   record.manufacturerCode = write_value.manufacturer_code;
-  sl_zigbee_af_status_t status = sli_zigbee_af_read_or_write_attribute(&record,
-                                                                       &metadata,
-                                                                       data,
-                                                                       sizeof(data),
-                                                                       false); // write
+  sl_zigbee_af_status_t status = sli_zigbee_af_read_attribute_from_storage(&record,
+                                                                           &metadata,
+                                                                           data,
+                                                                           sizeof(data));
 
   if (status == SL_ZIGBEE_ZCL_STATUS_SUCCESS) {
     sli_zigbee_af_save_attribute_to_token(data,

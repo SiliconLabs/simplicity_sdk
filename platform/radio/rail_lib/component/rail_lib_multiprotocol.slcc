@@ -1,25 +1,29 @@
 id: rail_lib_multiprotocol
 label: RAIL Library, Multiprotocol
 description: Multiprotocol RAIL Library Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_lib_multiprotocol
-    name: RAIL Library, Multiprotocol
-    license: MSLA
+    sbom:
+        id: rail_lib_multiprotocol
+        name: RAIL Library, Multiprotocol
+        license: MSLA
 requires:
   - name: rail_lib
   - name: rail_util_built_in_phys
     condition:
       - device_init
+  # Automatically sets transition time based on system clock frequency for series 3 devices.
+  - name: sl_rail_util_mp_transition_time
+    condition:
+      - device_series_3
 provides:
   - name: rail_lib_multiprotocol # specific tag
   - name: rail_lib_Xprotocol # generic tag
 documentation:
-  docset: rail
-  document: rail-api/rail-lib
+    docset: rail
+    document: rail-api/rail-lib
 define:
   - name: SL_RAIL_LIB_MULTIPROTOCOL_SUPPORT
     value: '1'

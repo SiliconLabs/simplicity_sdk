@@ -1,7 +1,7 @@
 /**
  * @file
  * Platform abstraction for Zniffer application
- * 
+ *
  * @copyright 2022 Silicon Laboratories Inc.
  */
 #ifndef ZNIFFER_HW_H_

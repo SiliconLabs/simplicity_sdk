@@ -9,8 +9,7 @@
 /****************************************************************************/
 #include "CC_Indicator.h"
 #include "CC_IndicatorPrivate.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include <ZAF_TSE.h>
 #include <string.h>
 #include "ZW_TransportEndpoint.h"
@@ -23,12 +22,10 @@
 /**
  * Structure used to track received indicator property values
  */
-typedef struct
-{
+typedef struct {
   bool modified;
   uint8_t value;
 } INDICATOR_VALUE_INFO;
-
 
 /****************************************************************************/
 /*                              PRIVATE DATA                                */
@@ -49,12 +46,11 @@ static s_CC_indicator_data_t ZAF_TSE_localActuationIdentifyData = {
   .rxOptions = {
     .rxStatus = 0,          /* rxStatus, verified by the TSE for Multicast */
     .securityKey = 0,       /* securityKey, ignored by the TSE */
-    .sourceNode = {0,0,0},  /* sourceNode (nodeId, endpoint), verified against lifeline destinations by the TSE */
-    .destNode = {0,0,0}     /* destNode (nodeId, endpoint), verified by the TSE for local endpoint */
+    .sourceNode = { 0, 0, 0 },  /* sourceNode (nodeId, endpoint), verified against lifeline destinations by the TSE */
+    .destNode = { 0, 0, 0 }     /* destNode (nodeId, endpoint), verified by the TSE for local endpoint */
   },
   .indicatorId = 0x50      /* Identify Indicator*/
 };
-
 
 static void
 prepare_report_v3(uint8_t indicatorId, ZW_APPLICATION_TX_BUFFER *pTxBuffer, uint8_t *payloadLen);
@@ -85,17 +81,13 @@ UpdateIndicator(void)
   uint32_t off_time_ms = 0;
   uint32_t blinker_cycles = 0;
 
-  if (g_on_off_period_length > 0 && g_on_off_num_cycles > 0)
-  {
+  if (g_on_off_period_length > 0 && g_on_off_num_cycles > 0) {
     uint32_t on_off_period_length_ms = g_on_off_period_length * 100;
 
     /* The value 0x00 is special and means "symmetrical on/off blink" */
-    if (0 == g_on_time)
-    {
+    if (0 == g_on_time) {
       on_time_ms = on_off_period_length_ms / 2;
-    }
-    else
-    {
+    } else {
       on_time_ms = g_on_time * 100;
     }
 
@@ -106,9 +98,8 @@ UpdateIndicator(void)
      * as cc_indicator_callback_t cycles as "run until
      * stopped"
      */
-    if (g_on_off_num_cycles != 0xFF)
-    {
-       blinker_cycles = g_on_off_num_cycles;
+    if (g_on_off_num_cycles != 0xFF) {
+      blinker_cycles = g_on_off_num_cycles;
     }
   }
 
@@ -127,7 +118,6 @@ CC_Indicator_RefreshIndicatorProperties(void)
                   (void *)&ZAF_TSE_localActuationIdentifyData,
                   true);
 }
-
 
 /**
  * Maps a single indicator value to the three version 3 indicator properties
@@ -148,20 +138,16 @@ CC_Indicator_RefreshIndicatorProperties(void)
 static void
 SetIndicator0Value(uint8_t value)
 {
-  if (0 == value)
-  {
+  if (0 == value) {
     g_on_off_period_length = 0;
     g_on_off_num_cycles    = 0;
     g_on_time              = 0;
-  }
-  else
-  {
+  } else {
     g_on_off_period_length = 0xFF; /* Longest period possible */
     g_on_off_num_cycles    = 0xFF; /* Unlimited numer of periods (run until stopped) */
     g_on_time              = 0xFF; /* On the full period */
   }
 }
-
 
 /**
  * Maps the three version 3 indicator properties stored in the global variables
@@ -186,14 +172,12 @@ GetIndicator0Value(void)
 
   uint8_t value = 0;
 
-  if (g_on_off_period_length > 0 && g_on_off_num_cycles > 0)
-  {
+  if (g_on_off_period_length > 0 && g_on_off_num_cycles > 0) {
     value = 0xFF;
   }
 
   return value;
 }
-
 
 /**
  * Command handler for INDICATOR_SET (version 1) commands.
@@ -215,27 +199,22 @@ IndicatorHandler_Set_V1(ZW_APPLICATION_TX_BUFFER *cmd,
   const ZW_INDICATOR_SET_FRAME *set_cmd = &(cmd->ZW_IndicatorSetFrame);
 
   /* Value MUST be in the range 0x00..0x63 or 0xFF */
-  if (set_cmd->value < 0x64 || 0xFF == set_cmd->value)
-  {
+  if (set_cmd->value < 0x64 || 0xFF == set_cmd->value) {
     SetIndicator0Value(set_cmd->value);
     UpdateIndicator();
 
     /* Supported indicator has been changed, making a call to ZAF_TSE: */
     indicatorData.indicatorId = INDICATOR_IND_NODE_IDENTIFY; /* Default indicator is mapped to Identify */
     /* Only 1 indicator ID supported, so we can set overwrite_previous_trigger to true */
-    if (false == ZAF_TSE_Trigger(CC_Indicator_report_stx, (void *)&indicatorData, true))
-    {
-      DPRINTF("%s(): ZAF_TSE_Trigger failed\n", __func__);
+    if (false == ZAF_TSE_Trigger(CC_Indicator_report_stx, (void *)&indicatorData, true)) {
+      ZPAL_LOG_ERROR(ZPAL_LOG_CC_INDICATOR, "%s(): ZAF_TSE_Trigger failed\n", __func__);
     }
 
     return E_CMD_HANDLER_RETURN_CODE_HANDLED;
-  }
-  else
-  {
+  } else {
     return E_CMD_HANDLER_RETURN_CODE_FAIL;
   }
 }
-
 
 /**
  * Command handler for INDICATOR_SET (version 3) commands.
@@ -259,21 +238,17 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
   uint32_t calculated_frame_length = 0;
 
   const uint32_t frame_size_fixed_part = offsetof(ZW_INDICATOR_SET_1BYTE_V3_FRAME,
-                                             variantgroup1);
+                                                  variantgroup1);
 
   /* Make sure we received at least full frame before proceeding */
-  if (cmd_length < frame_size_fixed_part)
-  {
+  if (cmd_length < frame_size_fixed_part) {
     return E_CMD_HANDLER_RETURN_CODE_FAIL;
-  }
-  else
-  {
+  } else {
     obj_count               = set_cmd->properties1 & INDICATOR_OBJECT_COUNT_MASK;
-    calculated_frame_length = frame_size_fixed_part +
-                              obj_count * sizeof(VG_INDICATOR_SET_V3_VG);
+    calculated_frame_length = frame_size_fixed_part
+                              + obj_count * sizeof(VG_INDICATOR_SET_V3_VG);
 
-    if (cmd_length < calculated_frame_length)
-    {
+    if (cmd_length < calculated_frame_length) {
       return E_CMD_HANDLER_RETURN_CODE_FAIL;
     }
   }
@@ -281,28 +256,22 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
 
   e_cmd_handler_return_code_t rc  = E_CMD_HANDLER_RETURN_CODE_HANDLED;
 
-  if (0 == obj_count)
-  {
+  if (0 == obj_count) {
     /* Only process indicator0Value here - ignore if obj_count > 0 */
     rc = IndicatorHandler_Set_V1(cmd, cmd_length);
-  }
-  else
-  {
+  } else {
     const VG_INDICATOR_SET_V3_VG *vg_array = &(set_cmd->variantgroup1);
 
     /* Default values */
-    INDICATOR_VALUE_INFO on_off_period_length = {0};
-    INDICATOR_VALUE_INFO on_off_num_cycles    = {0};
-    INDICATOR_VALUE_INFO on_time              = {0};
+    INDICATOR_VALUE_INFO on_off_period_length = { 0 };
+    INDICATOR_VALUE_INFO on_off_num_cycles    = { 0 };
+    INDICATOR_VALUE_INFO on_time              = { 0 };
 
-    for (uint32_t i = 0; i < obj_count; i++)
-    {
-      if (vg_array[i].indicatorId == INDICATOR_IND_NODE_IDENTIFY)
-      {
+    for (uint32_t i = 0; i < obj_count; i++) {
+      if (vg_array[i].indicatorId == INDICATOR_IND_NODE_IDENTIFY) {
         uint8_t value = vg_array[i].value;
 
-        switch (vg_array[i].propertyId)
-        {
+        switch (vg_array[i].propertyId) {
           case INDICATOR_PROP_ON_OFF_PERIOD:
             on_off_period_length.value    = value;
             on_off_period_length.modified = true;
@@ -325,9 +294,7 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
             rc = E_CMD_HANDLER_RETURN_CODE_FAIL;
             break;
         }
-      }
-      else
-      {
+      } else {
         /* Unsupported IndicatorID - we don't know yet if we received all
          * required properties for the supported indicator ID, but for
          * the supervision report we indicate that at least some of what
@@ -338,13 +305,11 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
     }
 
     /* Did we receive the two required properties? */
-    if (on_off_period_length.modified && on_off_num_cycles.modified)
-    {
+    if (on_off_period_length.modified && on_off_num_cycles.modified) {
       g_on_off_period_length = on_off_period_length.value;
       g_on_off_num_cycles    = on_off_num_cycles.value;
 
-      if (on_time.value > g_on_off_period_length)
-      {
+      if (on_time.value > g_on_off_period_length) {
         /* Ignore (i.e. use default value) "on_time" if bigger than period length */
         g_on_time = 0;
 
@@ -353,9 +318,7 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
          * we will signal a failure
          */
         rc = E_CMD_HANDLER_RETURN_CODE_FAIL;
-      }
-      else
-      {
+      } else {
         /* If on_time was unspecified, it defaults to 0 anyway */
         g_on_time = on_time.value;
       }
@@ -364,13 +327,10 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
       /* Supported indicator has been changed, making a call to ZAF_TSE: */
       indicatorData.indicatorId = INDICATOR_IND_NODE_IDENTIFY; /* Default indicator is mapped to Identify */
       /* Only 1 indicator ID supported, so we can set overwrite_previous_trigger to true */
-      if (false == ZAF_TSE_Trigger(CC_Indicator_report_stx, (void *)&indicatorData, true))
-      {
-        DPRINTF("%s(): ZAF_TSE_Trigger failed\n", __func__);
+      if (false == ZAF_TSE_Trigger(CC_Indicator_report_stx, (void *)&indicatorData, true)) {
+        ZPAL_LOG_ERROR(ZPAL_LOG_CC_INDICATOR, "%s(): ZAF_TSE_Trigger failed\n", __func__);
       }
-    }
-    else
-    {
+    } else {
       /* Minimum required parameters were not present */
       rc = E_CMD_HANDLER_RETURN_CODE_FAIL;
     }
@@ -378,7 +338,6 @@ IndicatorHandler_Set_V3(ZW_APPLICATION_TX_BUFFER *cmd,
 
   return rc;
 }
-
 
 /**
  * Command handler for INDICATOR_GET (version 1) commands.
@@ -407,8 +366,6 @@ IndicatorHandler_Get_V1(ZW_APPLICATION_TX_BUFFER *pFrameOut,
   return RECEIVED_FRAME_STATUS_SUCCESS;
 }
 
-
-
 /**
  * Command handler for INDICATOR_GET (version 3) commands.
  *
@@ -429,8 +386,7 @@ IndicatorHandler_Get_V3(ZW_APPLICATION_TX_BUFFER *cmd,
                         ZW_APPLICATION_TX_BUFFER *pFrameOut,
                         uint8_t                  *pLengthOut)
 {
-  if (cmd_length < sizeof(ZW_INDICATOR_GET_V3_FRAME))
-  {
+  if (cmd_length < sizeof(ZW_INDICATOR_GET_V3_FRAME)) {
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
@@ -440,7 +396,6 @@ IndicatorHandler_Get_V3(ZW_APPLICATION_TX_BUFFER *cmd,
 
   return RECEIVED_FRAME_STATUS_SUCCESS;
 }
-
 
 /**
  * Command handler for INDICATOR_SUPPORTED_GET commands.
@@ -466,28 +421,24 @@ IndicatorHandler_SupportedGet_V3(ZW_APPLICATION_TX_BUFFER *cmd,
                                  ZW_APPLICATION_TX_BUFFER *pFrameOut,
                                  uint8_t                  *pLengthOut)
 {
-  if (cmd_length < sizeof(ZW_INDICATOR_SUPPORTED_GET_V3_FRAME))
-  {
+  if (cmd_length < sizeof(ZW_INDICATOR_SUPPORTED_GET_V3_FRAME)) {
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
   const ZW_INDICATOR_SUPPORTED_GET_V3_FRAME    *sget_cmd = &(cmd->ZW_IndicatorSupportedGetV3Frame);
 
-  if ((INDICATOR_IND_NODE_IDENTIFY == sget_cmd->indicatorId) || (INDICATOR_IND_NA == sget_cmd->indicatorId))
-  {
+  if ((INDICATOR_IND_NODE_IDENTIFY == sget_cmd->indicatorId) || (INDICATOR_IND_NA == sget_cmd->indicatorId)) {
     pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.cmdClass                  = COMMAND_CLASS_INDICATOR_V3;
     pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.cmd                       = INDICATOR_SUPPORTED_REPORT_V3;
     pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.indicatorId               = INDICATOR_IND_NODE_IDENTIFY;
     pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.nextIndicatorId           = INDICATOR_IND_NA;
     pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.properties1               = 1;
-    pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.propertySupportedBitMask1 = (1 << INDICATOR_PROP_ON_OFF_PERIOD) |
-                                        (1 << INDICATOR_PROP_ON_OFF_CYCLES) |
-                                        (1 << INDICATOR_PROP_ON_TIME);
+    pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame.propertySupportedBitMask1 = (1 << INDICATOR_PROP_ON_OFF_PERIOD)
+                                                                                   | (1 << INDICATOR_PROP_ON_OFF_CYCLES)
+                                                                                   | (1 << INDICATOR_PROP_ON_TIME);
 
     *pLengthOut = sizeof(pFrameOut->ZW_IndicatorSupportedReport1byteV3Frame);
-  }
-  else
-  {
+  } else {
     /* The indicator is not supported, send back an empty report. */
 
     /*
@@ -505,12 +456,11 @@ IndicatorHandler_SupportedGet_V3(ZW_APPLICATION_TX_BUFFER *cmd,
 
     /* Leave out the bitmask when sending */
     *pLengthOut = offsetof(ZW_INDICATOR_SUPPORTED_REPORT_1BYTE_V3_FRAME,
-                       propertySupportedBitMask1);
+                           propertySupportedBitMask1);
   }
 
   return RECEIVED_FRAME_STATUS_SUCCESS;
 }
-
 
 /****************************************************************************/
 /*                             PUBLIC FUNCTIONS                             */
@@ -522,61 +472,48 @@ IndicatorHandler_SupportedGet_V3(ZW_APPLICATION_TX_BUFFER *cmd,
  */
 static received_frame_status_t
 CC_Indicator_handler(RECEIVE_OPTIONS_TYPE_EX  *rx_opt,
-                      ZW_APPLICATION_TX_BUFFER *cmd,
-                      uint8_t                   cmd_length,
-                      ZW_APPLICATION_TX_BUFFER * pFrameOut,
-                      uint8_t * pLengthOut)
+                     ZW_APPLICATION_TX_BUFFER *cmd,
+                     uint8_t                   cmd_length,
+                     ZW_APPLICATION_TX_BUFFER * pFrameOut,
+                     uint8_t * pLengthOut)
 {
   received_frame_status_t rc = RECEIVED_FRAME_STATUS_NO_SUPPORT;
   e_cmd_handler_return_code_t set_handler_status; // return value of set handler
 
-  switch (cmd->ZW_Common.cmd)
-  {
+  switch (cmd->ZW_Common.cmd) {
     case INDICATOR_SET_V3:
       // Build up new CC data structure
       memset(&indicatorData, 0, sizeof(s_CC_indicator_data_t));
       indicatorData.rxOptions = *rx_opt;
 
       /* The parsing of Indicator V3 Set Command is complex, so the ZAF TSE Trigger is made from the command handler */
-      if (cmd_length == sizeof(ZW_INDICATOR_SET_FRAME))
-      {
+      if (cmd_length == sizeof(ZW_INDICATOR_SET_FRAME)) {
         set_handler_status = IndicatorHandler_Set_V1(cmd, cmd_length);
-      }
-      else
-      {
+      } else {
         set_handler_status = IndicatorHandler_Set_V3(cmd, cmd_length);
       }
 
       // Assumption is that Indicator handler returns success and fail only
-      rc = (set_handler_status == E_CMD_HANDLER_RETURN_CODE_HANDLED) ?
-          RECEIVED_FRAME_STATUS_SUCCESS : RECEIVED_FRAME_STATUS_FAIL;
+      rc = (set_handler_status == E_CMD_HANDLER_RETURN_CODE_HANDLED)
+           ?RECEIVED_FRAME_STATUS_SUCCESS : RECEIVED_FRAME_STATUS_FAIL;
       break;
 
     case INDICATOR_GET_V3:
-      if (false == Check_not_legal_response_job(rx_opt))
-      {
-        if (cmd_length == sizeof(ZW_INDICATOR_GET_FRAME))
-        {
+      if (false == Check_not_legal_response_job(rx_opt)) {
+        if (cmd_length == sizeof(ZW_INDICATOR_GET_FRAME)) {
           rc = IndicatorHandler_Get_V1(pFrameOut, pLengthOut);
-        }
-        else
-        {
+        } else {
           rc = IndicatorHandler_Get_V3(cmd, cmd_length, pFrameOut, pLengthOut);
         }
-      }
-      else
-      {
+      } else {
         rc = RECEIVED_FRAME_STATUS_FAIL;
       }
       break;
 
     case INDICATOR_SUPPORTED_GET_V3:
-      if (false == Check_not_legal_response_job(rx_opt))
-      {
+      if (false == Check_not_legal_response_job(rx_opt)) {
         rc = IndicatorHandler_SupportedGet_V3(cmd, cmd_length, pFrameOut, pLengthOut);
-      }
-      else
-      {
+      } else {
         rc = RECEIVED_FRAME_STATUS_FAIL;
       }
       break;
@@ -592,10 +529,10 @@ CC_Indicator_handler(RECEIVE_OPTIONS_TYPE_EX  *rx_opt,
 static void
 CC_Indicator_report_stx(zaf_tx_options_t *tx_options, void* pData)
 {
-  DPRINTF("* %s() *\n"
-      "\ttxOpt.src = %d\n"
-      "\ttxOpt.options %#02x\n",
-      __func__, tx_options->source_endpoint, tx_options->tx_options);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_INDICATOR, "* %s() *\n"
+                                        "\ttxOpt.src = %d\n"
+                                        "\ttxOpt.options %#02x\n",
+                 __func__, tx_options->source_endpoint, tx_options->tx_options);
 
   /* Prepare payload for report */
   ZW_APPLICATION_TX_BUFFER txBuf = { 0 };
@@ -614,9 +551,8 @@ CC_Indicator_report_stx(zaf_tx_options_t *tx_options, void* pData)
 static void
 prepare_report_v3(uint8_t indicatorId, ZW_APPLICATION_TX_BUFFER *pTxBuffer, uint8_t *payloadLen)
 {
-  if(INDICATOR_IND_NODE_IDENTIFY == indicatorId)
-  {
-    DPRINTF("LINE: %d INDICATOR_IND_NODE_IDENTIFY\n", __LINE__);
+  if (INDICATOR_IND_NODE_IDENTIFY == indicatorId) {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_INDICATOR, "LINE: %d INDICATOR_IND_NODE_IDENTIFY\n", __LINE__);
     pTxBuffer->ZW_IndicatorReport3byteV3Frame.cmdClass = COMMAND_CLASS_INDICATOR_V3;
     pTxBuffer->ZW_IndicatorReport3byteV3Frame.cmd = INDICATOR_REPORT_V3;
     pTxBuffer->ZW_IndicatorReport3byteV3Frame.indicator0Value = GetIndicator0Value();
@@ -635,10 +571,8 @@ prepare_report_v3(uint8_t indicatorId, ZW_APPLICATION_TX_BUFFER *pTxBuffer, uint
     pTxBuffer->ZW_IndicatorReport3byteV3Frame.variantgroup3.value       = g_on_time;
 
     *payloadLen = sizeof(ZW_INDICATOR_REPORT_3BYTE_V3_FRAME);
-  }
-  else
-  {
-    DPRINTF("LINE: %d Unsupported indicator ID\n", __LINE__);
+  } else {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_INDICATOR, "LINE: %d Unsupported indicator ID\n", __LINE__);
     pTxBuffer->ZW_IndicatorReport1byteV3Frame.cmdClass        = COMMAND_CLASS_INDICATOR_V3;
     pTxBuffer->ZW_IndicatorReport1byteV3Frame.cmd             = INDICATOR_REPORT_V3;
     pTxBuffer->ZW_IndicatorReport1byteV3Frame.indicator0Value = GetIndicator0Value();

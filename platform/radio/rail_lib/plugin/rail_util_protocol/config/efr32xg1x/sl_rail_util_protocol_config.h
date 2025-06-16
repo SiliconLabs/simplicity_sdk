@@ -31,8 +31,6 @@
 #ifndef SL_RAIL_UTIL_PROTOCOL_CONFIG_H
 #define SL_RAIL_UTIL_PROTOCOL_CONFIG_H
 
-#include "sl_rail_util_protocol_types.h"
-
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <h> Bluetooth LE Settings

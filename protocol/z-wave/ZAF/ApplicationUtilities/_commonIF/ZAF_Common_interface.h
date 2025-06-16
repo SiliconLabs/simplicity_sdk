@@ -1,4 +1,3 @@
-
 /**
  * @file
  * @brief Sets and gets useful values and handles.
@@ -18,7 +17,6 @@
 
 #include <ZW_application_transport_interface.h>
 
-
 /**
  * @addtogroup ZAF
  * @{
@@ -33,8 +31,7 @@ typedef void (* zaf_wake_up_callback_t)(void);
  * This information will be used to distinguish between these two mode in order to indicate the needed
  * operations when they differ between Z-Wave and Long Range.
  */
-typedef enum
-{
+typedef enum {
   EINCLUSIONMODE_NOT_SET = 0,   ///!< Does not indicate inclusion state, but that it is undefined!
   EINCLUSIONMODE_ZWAVE_CLS,     ///!< This node was included as a Z-Wave Classic device.
   EINCLUSIONMODE_ZWAVE_LR       ///!< This node was included as a Z-Wave Long Range device.
@@ -49,21 +46,12 @@ typedef enum
 void ZAF_setAppHandle(SApplicationHandles* pAppHandle);
 
 /**
- * Pass an application power lock handle to the ZAF framework. Can be later used by CC-s.
- * Used for Power management in case of wake up of FLiRS nodes.
- *
- * @param powerLock pointer to power lock object in application
- */
-void ZAF_setPowerLock(zpal_pm_handle_t powerLock);
-
-/**
  * Set the CP context. The application should use this an initialization,
  * so the ZAF_Common interface can redistribute the pContext address subsequently
  *
  * @param handle to set
  */
 void ZAF_SetCPHandle(CP_Handle_t handle);
-
 
 // Getters
 
@@ -98,12 +86,6 @@ SQueueNotifying* ZAF_getZwCommandQueue(void);
 const zpal_radio_network_stats_t* ZAF_getNetworkStatistics(void);
 
 /**
- * Get m_PowerLock object
- * @return m_PowerLock
- */
-zpal_pm_handle_t ZAF_getPowerLock(void);
-
-/**
  * Returns the granted security keys.
  *
  * Refer to ZW_security_api.h for the security key masks.
@@ -111,14 +93,12 @@ zpal_pm_handle_t ZAF_getPowerLock(void);
  */
 uint8_t ZAF_GetSecurityKeys(void);
 
-
 /**
  * Get Command Publisher handle
  * Any other module can request the address of the CP context to use the API
  * @return Pointer to Command Publisher context
  */
 CP_Handle_t ZAF_getCPHandle(void);
-
 
 /**
  * Check if device is FLiRS based on device option mask

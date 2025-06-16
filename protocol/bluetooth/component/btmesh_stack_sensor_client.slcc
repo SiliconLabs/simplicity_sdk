@@ -1,6 +1,6 @@
 id: "btmesh_stack_sensor_client"
 label: "Sensor Client Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Sensor Client model.
   It is used to support the functionality of a node that can monitor sensor data and configure a set of sensors on another node."
 category: "Bluetooth Mesh|Stack|Models|Sensors"

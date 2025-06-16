@@ -24,11 +24,13 @@ component:
   - id: emlib_timer
   - id: emlib_msc
   - id: gpiointerrupt
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   - id: simple_led
     instance: [led0, led1]
+  - id: clock_manager
+
 source:
   - path: app_node_info.c
   - path: cmd_handlers_invoker.c
@@ -45,7 +47,6 @@ source:
   - path: app.c
   - path: utils.c
   - path: virtual_slave_node_info.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -128,16 +129,10 @@ configuration:
   - name: SL_SLEEPTIMER_PERIPHERAL
     value: SL_SLEEPTIMER_PERIPHERAL_BURTC
     condition: ["device_series_2"]
-  - name: SL_STACK_SIZE
-    value: 1280
-  - name: SL_HEAP_SIZE
-    value: 128
   - name: ZAF_CONFIG_INSTALLER_ICON_TYPE
     value: 0
   - name: ZAF_APP_NAME
     value: '"serial_api_controller"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -145,6 +140,10 @@ define:
 
 post_build:
   profile: zwave_application
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_ncp_serial_api_controller
 
 tag:
   - prebuilt_demo

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Code common to both the client and server of the Silicon Labs standalone bootload protocol.
 id: zigbee_standalone_bootloader_common
 label: Standalone Bootloader Common

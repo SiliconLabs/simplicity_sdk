@@ -1,7 +1,7 @@
 !!omap
 - id: brd4308b_a02
 - label: BRD4308B rev A02
-- package: platform
+- package: boards
 - description: Board support for BRD4308B.
 - category: Platform|Board|Radio Board
 - quality: production

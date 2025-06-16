@@ -1,6 +1,6 @@
 id: lwip_app_smtp
 label: "LWIP SMTP High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP smtp high layer application specifically programmed with the lwIP low-level raw API,
     this is simple SMTP client for raw API. It is a minimal implementation of SMTP as specified in RFC 5321.

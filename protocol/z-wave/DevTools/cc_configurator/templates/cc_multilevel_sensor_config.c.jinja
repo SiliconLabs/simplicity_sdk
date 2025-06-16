@@ -34,13 +34,13 @@ static sensor_interface_t cc_multilevel_sensors[MULTILEVEL_SENSORS_NUM] = {
   {% set _endpoint_id = _endpoint["endpoint"] %}
 {% for _instance in _endpoint["sensors"] %}
 ZW_WEAK bool
-cc_multilevel_sensor_endpoint_{{_endpoint_id}}_{{_instance}}_interface_init()
+cc_multilevel_sensor_endpoint_{{_endpoint_id}}_{{_instance}}_interface_init(void)
 {
   return true;
 }
 
 ZW_WEAK bool
-cc_multilevel_sensor_endpoint_{{_endpoint_id}}_{{_instance}}_interface_deinit()
+cc_multilevel_sensor_endpoint_{{_endpoint_id}}_{{_instance}}_interface_deinit(void)
 {
   return true;
 }

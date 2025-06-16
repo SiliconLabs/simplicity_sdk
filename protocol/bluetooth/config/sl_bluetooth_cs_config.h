@@ -39,7 +39,7 @@
 
 // <o SL_BT_CONFIG_MAX_CS_PROCEDURES> Maximum number of procedures per CS configuration <1-32>
 // <i> Default: 2
-// <i> Define the number of procedures the application needs per CS configuration.
+// <i> Define the maximum number of simultaneous procedures the CS device supports.
 #define SL_BT_CONFIG_MAX_CS_PROCEDURES     (2)
 
 // <<< end of configuration section >>>

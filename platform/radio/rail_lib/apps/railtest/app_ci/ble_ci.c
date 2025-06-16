@@ -294,12 +294,7 @@ void enableBleSignalIdentifier(sl_cli_command_arg_t *args)
     (void) RAIL_BLE_ConfigSignalIdentifier(railHandle, RAIL_BLE_SIGNAL_IDENTIFIER_MODE_DISABLE);
     status = RAIL_STATUS_INVALID_CALL;
   }
-  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s",
-                ((status == RAIL_STATUS_NO_ERROR) ? "Success"
-                 : (status == RAIL_STATUS_INVALID_CALL) ? "Invalid Call"
-                 : (status == RAIL_STATUS_INVALID_PARAMETER) ? "Invalid Parameter"
-                 : "Failure"
-                ));
+  responsePrint(sl_cli_get_command_string(args, 0), "Result:%s", getStatusMessage(status));
 #else
   responsePrint(sl_cli_get_command_string(args, 0),
                 "Signal identifier unsupported");

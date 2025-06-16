@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32MG27C230F768IM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32MG27C230F768IM40.
 - category: Platform|Device|EFR32MG27
 - quality: production

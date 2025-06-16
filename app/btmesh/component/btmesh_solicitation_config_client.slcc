@@ -1,6 +1,6 @@
 id: "btmesh_solicitation_config_client"
 label: "Bluetooth Mesh Solicitation PDU RPL Config Client"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Provides a thin layer to automatically initialize the Solicitation PDU RPL Config Client model.
   The model then can be used to remove addresses from the solicitation replay protection list
@@ -36,3 +36,6 @@ template_contribution:
     value:
       include: "sl_btmesh_solicitation_config_client.h"
       function: "sl_btmesh_solicitation_config_client_on_event"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-solicitation-config-client

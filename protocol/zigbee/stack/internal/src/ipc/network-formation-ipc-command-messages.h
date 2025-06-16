@@ -3,7 +3,7 @@
  * @brief defines structured format for 'network-formation' ipc messages
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -100,6 +100,14 @@ typedef struct {
   sli_zigbee_stack_get_beacon_classification_params_ipc_req_t request;
   sli_zigbee_stack_get_beacon_classification_params_ipc_rsp_t response;
 } sli_zigbee_stack_get_beacon_classification_params_ipc_msg_t;
+
+typedef struct {
+  bool result;
+} sli_zigbee_stack_get_join_uses_install_code_ipc_rsp_t;
+
+typedef struct {
+  sli_zigbee_stack_get_join_uses_install_code_ipc_rsp_t response;
+} sli_zigbee_stack_get_join_uses_install_code_ipc_msg_t;
 
 typedef struct {
   sl_802154_short_addr_t returnNodeIdThatSentLeave;
@@ -305,6 +313,14 @@ typedef struct {
   sli_zigbee_stack_set_beacon_jitter_duration_ipc_req_t request;
   sli_zigbee_stack_set_beacon_jitter_duration_ipc_rsp_t response;
 } sli_zigbee_stack_set_beacon_jitter_duration_ipc_msg_t;
+
+typedef struct {
+  bool enable;
+} sli_zigbee_stack_set_join_uses_install_code_ipc_req_t;
+
+typedef struct {
+  sli_zigbee_stack_set_join_uses_install_code_ipc_req_t request;
+} sli_zigbee_stack_set_join_uses_install_code_ipc_msg_t;
 
 typedef struct {
   uint8_t numBeacons;

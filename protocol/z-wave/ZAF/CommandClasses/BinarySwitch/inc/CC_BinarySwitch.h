@@ -90,23 +90,23 @@ void cc_binary_switch_set(cc_binary_switch_t * p_switch, uint8_t value);
 uint8_t cc_binary_switch_get_current_value(cc_binary_switch_t * p_switch);
 
 /**
- * @brief 
- * 
- * @param p_switch 
+ * @brief
+ *
+ * @param p_switch
  */
 void cc_binary_switch_handler(cc_binary_switch_t * p_switch);
 
 /**
- * @brief 
- * 
- * @return cc_binary_switch_t* 
+ * @brief
+ *
+ * @return cc_binary_switch_t*
  */
 cc_binary_switch_t * cc_binary_switch_get_config(void);
 
 /**
- * @brief 
- * 
- * @return uint8_t 
+ * @brief
+ *
+ * @return uint8_t
  */
 uint8_t cc_binary_switch_get_config_length(void);
 

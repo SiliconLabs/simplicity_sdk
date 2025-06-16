@@ -1,13 +1,13 @@
 id: bmp280_driver
-package: platform
+package: board_drivers
 label: BMP280 - Pressure Sensor
 description: >
-  Driver for the Bosch Sensortec BMP280 barometric pressure sensor
+    Driver for the Bosch Sensortec BMP280 barometric pressure sensor
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/bmp280
 provides:
   - name: bmp280_driver

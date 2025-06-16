@@ -28,8 +28,8 @@
  *
  ******************************************************************************/
 
-#ifndef _SL_HAL_SYSTEM_H
-#define _SL_HAL_SYSTEM_H
+#ifndef SL_HAL_SYSTEM_H
+#define SL_HAL_SYSTEM_H
 
 #include "em_device.h"
 #include "sl_hal_system_generic.h"
@@ -54,6 +54,69 @@ extern "C" {
 /*******************************************************************************
  ********************************   ENUMS   ************************************
  ******************************************************************************/
+#if defined(_SILICON_LABS_32B_SERIES_2)
+/** HFRCODPLL frequency bands */
+SL_ENUM_GENERIC(sl_hal_system_hfrcodpll_freq_t, uint32_t) {
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_1M0Hz            = 1000000U,         /**< 1MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_2M0Hz            = 2000000U,         /**< 2MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_4M0Hz            = 4000000U,         /**< 4MHz RC band.  */
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_4) \
+  || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7)  || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_5M0Hz            = 5000000U,         /**< 5MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_10M0Hz           = 10000000U,        /**< 10MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_20M0Hz           = 20000000U,        /**< 20MHz RC band. */
+#endif
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_7M0Hz            = 7000000U,         /**< 7MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_13M0Hz           = 13000000U,        /**< 13MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_16M0Hz           = 16000000U,        /**< 16MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_19M0Hz           = 19000000U,        /**< 19MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_26M0Hz           = 26000000U,        /**< 26MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_32M0Hz           = 32000000U,        /**< 32MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_38M0Hz           = 38000000U,        /**< 38MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_48M0Hz           = 48000000U,        /**< 48MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_56M0Hz           = 56000000U,        /**< 56MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_64M0Hz           = 64000000U,        /**< 64MHz RC band. */
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_80M0Hz           = 80000000U,        /**< 80MHz RC band. */
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5)
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_100M0Hz          = 100000000U,       /**< 100MHz RC band. */
+#endif
+  SL_HAL_SYSTEM_HFRCODPLL_FREQ_USER_DEFINED     = 0,
+};
+
+/** HFRCODPLL minimum frequency */
+#define SL_HAL_SYSTEM_HFRCODPLL_MIN       SL_HAL_SYSTEM_HFRCODPLL_FREQ_1M0Hz
+/** HFRCODPLL maximum frequency */
+#define SL_HAL_SYSTEM_HFRCODPLL_MAX       SL_HAL_SYSTEM_HFRCODPLL_FREQ_80M0Hz
+
+#if defined(HFRCOEM23_PRESENT)
+/** HFRCOEM23 frequency bands */
+SL_ENUM_GENERIC(sl_hal_system_hfrcoem23_freq_t, uint32_t) {
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_1M0Hz            = 1000000U,         /**< 1MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_2M0Hz            = 2000000U,         /**< 2MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_4M0Hz            = 4000000U,         /**< 4MHz RC band.  */
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_3) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) \
+  || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_8)
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_5M0Hz            = 5000000U,         /**< 5MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_10M0Hz           = 10000000U,        /**< 10MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_20M0Hz           = 20000000U,        /**< 20MHz RC band. */
+#endif
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_7M0Hz            = 7000000U,         /**< 7MHz RC band.  */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_13M0Hz           = 13000000U,        /**< 13MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_16M0Hz           = 16000000U,        /**< 16MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_19M0Hz           = 19000000U,        /**< 19MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_26M0Hz           = 26000000U,        /**< 26MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_32M0Hz           = 32000000U,        /**< 32MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_40M0Hz           = 40000000U,        /**< 40MHz RC band. */
+  SL_HAL_SYSTEM_HFRCOEM23_FREQ_USER_DEFINED     = 0,
+};
+
+/** HFRCOEM23 minimum frequency */
+#define SL_HAL_SYSTEM_HFRCOEM23_MIN         SL_HAL_SYSTEM_HFRCOEM23_FREQ_1M0Hz
+/** HFRCOEM23 maximum frequency */
+#define SL_HAL_SYSTEM_HFRCOEM23_MAX         SL_HAL_SYSTEM_HFRCOEM23_FREQ_40M0Hz
+
+#endif
+#endif
 
 /// Family identifiers.
 SL_ENUM_GENERIC(sl_hal_system_part_family_t, uint32_t) {
@@ -97,6 +160,10 @@ SL_ENUM_GENERIC(sl_hal_system_part_family_t, uint32_t) {
   SL_HAL_SYSTEM_PART_FAMILY_ZEN_28 = DEVINFO_PART_FAMILY_ZG | (28 << _DEVINFO_PART_FAMILYNUM_SHIFT),   ///< EFR32 Zen Gecko Series 2 Config 8 Value Device Family
   SL_HAL_SYSTEM_PART_FAMILY_SIDEWALK_28 = DEVINFO_PART_FAMILY_SG | (28 << _DEVINFO_PART_FAMILYNUM_SHIFT),   ///< EFR32 Side Walk Gecko Series 2 Config 8 Value Device Family
   SL_HAL_SYSTEM_PART_FAMILY_EFM32_PEARL_28 = DEVINFO_PART_FAMILY_PG | (28 << _DEVINFO_PART_FAMILYNUM_SHIFT),  ///< EFM32 Pearl Gecko Series 2 Config 8 Value Device Family
+#endif
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+  SL_HAL_SYSTEM_PART_FAMILY_MIGHTY_29 = DEVINFO_PART_FAMILY_MG | (29 << _DEVINFO_PART_FAMILYNUM_SHIFT), ///< EFR32 Mighty Gecko Series 2 Config 9 Value Device Family
+  SL_HAL_SYSTEM_PART_FAMILY_BLUE_29 = DEVINFO_PART_FAMILY_BG | (29 << _DEVINFO_PART_FAMILYNUM_SHIFT),   ///< EFR32 Blue Gecko Series 2 Config 9 Value Device Family
 #endif
 #if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
   SL_HAL_SYSTEM_PART_FAMILY_BLUETOOTH_301 = DEVINFO_PART0_PROTOCOL_BLUETOOTH        \
@@ -143,4 +210,4 @@ sl_hal_system_part_family_t sl_hal_system_get_family(void);
 }
 #endif
 
-#endif /* #ifndef _SL_HAL_SYSTEM_H */
+#endif /* #ifndef SL_HAL_SYSTEM_H */

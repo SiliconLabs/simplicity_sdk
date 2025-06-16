@@ -110,13 +110,11 @@ void sl_zigbee_af_green_power_client_add_groupcast_sink(SL_CLI_COMMAND_ARG)
 
 void sl_zigbee_af_green_power_client_remove_proxy_table_entry(SL_CLI_COMMAND_ARG)
 {
-#ifndef EZSP_HOST
   sl_zigbee_gp_address_t addr;
   uint32_t srcID = sl_cli_get_argument_uint32(arguments, 0);
   addr.applicationId = 0;
   addr.id.sourceId = srcID;
-  sli_zigbee_gp_proxy_table_remove_entry(sl_zigbee_gp_proxy_table_lookup(&addr));
-#endif
+  sl_zigbee_gp_proxy_table_remove_entry(sl_zigbee_gp_proxy_table_lookup(&addr));
 }
 
 void sl_zigbee_af_green_power_client_print_proxy_table(SL_CLI_COMMAND_ARG)

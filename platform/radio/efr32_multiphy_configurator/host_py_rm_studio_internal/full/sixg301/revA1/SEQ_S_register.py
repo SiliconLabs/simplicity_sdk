@@ -93,19 +93,19 @@ class RM_Register_SEQ_S_MODINDEX_CALC_MODINDEXE_DOUBLED(Base_RM_Register):
         self.__dict__['zz_frozen'] = True
 
 
-class RM_Register_SEQ_S_SPARE4(Base_RM_Register):
+class RM_Register_SEQ_S_FSWCOREINFO(Base_RM_Register):
     def __init__(self, rmio, label):
         self.__dict__['zz_frozen'] = False
-        super(RM_Register_SEQ_S_SPARE4, self).__init__(rmio, label,
+        super(RM_Register_SEQ_S_FSWCOREINFO, self).__init__(rmio, label,
             0xa0000000, 0x010,
-            'SPARE4', 'SEQ_S.SPARE4', 'read-write',
+            'FSWCOREINFO', 'SEQ_S.FSWCOREINFO', 'read-write',
             u"",
             0x00000000, 0x00000000,
             0x00001000, 0x00002000,
             0x00003000)
 
-        self.SPARE4 = RM_Field_SEQ_S_SPARE4_SPARE4(self)
-        self.zz_fdict['SPARE4'] = self.SPARE4
+        self.CONFIG = RM_Field_SEQ_S_FSWCOREINFO_CONFIG(self)
+        self.zz_fdict['CONFIG'] = self.CONFIG
         self.__dict__['zz_frozen'] = True
 
 
@@ -122,8 +122,8 @@ class RM_Register_SEQ_S_MODEMINFO(Base_RM_Register):
 
         self.LEGACY_EN = RM_Field_SEQ_S_MODEMINFO_LEGACY_EN(self)
         self.zz_fdict['LEGACY_EN'] = self.LEGACY_EN
-        self.SPARE0 = RM_Field_SEQ_S_MODEMINFO_SPARE0(self)
-        self.zz_fdict['SPARE0'] = self.SPARE0
+        self.RXDC1CH_EN = RM_Field_SEQ_S_MODEMINFO_RXDC1CH_EN(self)
+        self.zz_fdict['RXDC1CH_EN'] = self.RXDC1CH_EN
         self.TRECS_EN = RM_Field_SEQ_S_MODEMINFO_TRECS_EN(self)
         self.zz_fdict['TRECS_EN'] = self.TRECS_EN
         self.BCR_EN = RM_Field_SEQ_S_MODEMINFO_BCR_EN(self)
@@ -134,14 +134,16 @@ class RM_Register_SEQ_S_MODEMINFO(Base_RM_Register):
         self.zz_fdict['LONGRANGE_EN'] = self.LONGRANGE_EN
         self.ENHDSSS_EN = RM_Field_SEQ_S_MODEMINFO_ENHDSSS_EN(self)
         self.zz_fdict['ENHDSSS_EN'] = self.ENHDSSS_EN
-        self.SPARE1 = RM_Field_SEQ_S_MODEMINFO_SPARE1(self)
-        self.zz_fdict['SPARE1'] = self.SPARE1
+        self.FSW_EN = RM_Field_SEQ_S_MODEMINFO_FSW_EN(self)
+        self.zz_fdict['FSW_EN'] = self.FSW_EN
         self.SOFTMODEM_EN = RM_Field_SEQ_S_MODEMINFO_SOFTMODEM_EN(self)
         self.zz_fdict['SOFTMODEM_EN'] = self.SOFTMODEM_EN
         self.BTC_EN = RM_Field_SEQ_S_MODEMINFO_BTC_EN(self)
         self.zz_fdict['BTC_EN'] = self.BTC_EN
-        self.SPARE2 = RM_Field_SEQ_S_MODEMINFO_SPARE2(self)
-        self.zz_fdict['SPARE2'] = self.SPARE2
+        self.RXDC2CH_EN = RM_Field_SEQ_S_MODEMINFO_RXDC2CH_EN(self)
+        self.zz_fdict['RXDC2CH_EN'] = self.RXDC2CH_EN
+        self.SPARE0 = RM_Field_SEQ_S_MODEMINFO_SPARE0(self)
+        self.zz_fdict['SPARE0'] = self.SPARE0
         self.__dict__['zz_frozen'] = True
 
 

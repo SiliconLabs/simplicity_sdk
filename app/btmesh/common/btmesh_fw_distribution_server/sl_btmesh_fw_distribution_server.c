@@ -67,11 +67,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup dist_server BT Mesh Firmware Distribution Server
- * @{
- ******************************************************************************/
-
 // -----------------------------------------------------------------------------
 //                                    Macros
 // -----------------------------------------------------------------------------
@@ -298,7 +293,7 @@ typedef struct fw_dist_server_list_s {
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
 
-/***************************************************************************//**
+/*******************************************************************************
  * Log byte array as text
  *
  * The byte arrays might not be null terminated so it is not a valid C string
@@ -317,7 +312,7 @@ SL_UNUSED static void _log_bytes_as_text(uint8_t level,
                                          uint16_t len,
                                          char null_replacement_char);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Log firmware identifier
  *
  * @param level Log level
@@ -332,7 +327,7 @@ SL_UNUSED static void _log_fwid_level(uint8_t level,
                                       uint8_t fwid_len,
                                       bool hex_format);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Log metadata
  *
  * @param level Log level
@@ -347,7 +342,7 @@ SL_UNUSED static void _log_metadata_level(uint8_t level,
                                           uint8_t metadata_len,
                                           bool hex_format);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Transition Upload state machine into selected state
  *
  * @param self Pointer to Distribution Server descriptor sturcture
@@ -356,7 +351,7 @@ SL_UNUSED static void _log_metadata_level(uint8_t level,
 static void upload_state_transition(fw_dist_server_t *const self,
                                     const upload_state_t target_state);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initializes the distributor state vaiables
  *
  * @param[in] self Pointer to the Distributor Server data representing the
@@ -364,7 +359,7 @@ static void upload_state_transition(fw_dist_server_t *const self,
  ******************************************************************************/
 static void dist_init(fw_dist_server_t *const self);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Notification handler for BLOB Transfer Client API
  *
  * @param notification Notification data
@@ -372,7 +367,7 @@ static void dist_init(fw_dist_server_t *const self);
 static void handle_blob_transfer_client_notification(
   const sl_btmesh_blob_transfer_client_notification_t *const notification);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Transition Distribution state machine into selected state
  *
  * @param self Pointer to Distribution Server descriptor structure
@@ -381,7 +376,7 @@ static void handle_blob_transfer_client_notification(
 static void dist_state_transition(fw_dist_server_t *const self,
                                   const sl_btmesh_fw_dist_server_dist_step_t target_state);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Finds server in linked list belonging to elem_index
  *
  * @see fw_dist_server_list_t, fw_dist_server_list
@@ -392,7 +387,7 @@ static void dist_state_transition(fw_dist_server_t *const self,
  ******************************************************************************/
 static fw_dist_server_t* find_server(uint16_t elem_index);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Invalidates the FW list in BLOB storage and clears the FW list in NVM and RAM
  *
  * @param[in] self Pointer to the Distributor Server data representing the
@@ -760,7 +755,7 @@ static sl_status_t fw_storage_get_fwid_length(fw_dist_server_t *const self,
 
   if (sc == SL_STATUS_OK) {
     if ((length >= DFU_FWID_MIN_LEN) && (length <= DFU_FWID_MAX_LEN)) {
-      *fwid_length = length;
+      *fwid_length = (uint8_t)length;
     } else {
       sc = SL_STATUS_INVALID_RANGE;
       // The mandatory firmware ID footer has invalid length in the BLOB
@@ -800,7 +795,7 @@ static sl_status_t fw_storage_get_metadata_length(fw_dist_server_t *const self,
   if (sc == SL_STATUS_OK) {
     // If the metadata exists then it shall be at least one byte long
     if (length > 0 && length <= DFU_METADATA_MAX_LEN) {
-      *metadata_length = length;
+      *metadata_length = (uint8_t)length;
     } else {
       sc = SL_STATUS_INVALID_RANGE;
       log_error(LOG_PREFIX
@@ -1408,7 +1403,8 @@ static sl_status_t fw_list_append(fw_dist_server_t *const self,
       <= self->fw_list_nvm->current_fw_list_length) {
     sc = SL_STATUS_NO_MORE_RESOURCE;
   } else {
-    uint16_t fw_list_index = self->fw_list_nvm->current_fw_list_length++;
+    uint16_t fw_list_index = self->fw_list_nvm->current_fw_list_length;
+    self->fw_list_nvm->current_fw_list_length++;
     self->fw_list[fw_list_index] = fw_descriptor;
     memcpy(&self->fw_list_nvm->blob_ids[fw_list_index],
            &fw_descriptor->blob_id,
@@ -1481,7 +1477,7 @@ static void sl_btmesh_fw_distribution_server_element_init(uint16_t elem_index)
   sl_status_t sc;
   fw_dist_server_t *self;
   uint32_t max_blob_count;
-  static fw_dist_server_list_t *tail;
+  static fw_dist_server_list_t *tail = NULL;
 
   fw_dist_server_list_t *new_fw_dist_server = NULL;
   sc = sl_memory_calloc(1, sizeof(struct fw_dist_server_list_s),
@@ -1504,6 +1500,7 @@ static void sl_btmesh_fw_distribution_server_element_init(uint16_t elem_index)
     tail = fw_dist_server_list;
   } else {
     // If head is present (implies tale is valid), create new tail
+    app_assert((tail != NULL), "Distribution list head is present but tail is NULL!");
     tail->next = new_fw_dist_server;
     tail = tail->next;
   }
@@ -1527,8 +1524,7 @@ static void sl_btmesh_fw_distribution_server_element_init(uint16_t elem_index)
   // There is no use case, that the blob storage should be able to store more
   // than 65535 blobs inside an EFR32 MCU.
   max_blob_count = sl_btmesh_blob_storage_get_max_blob_count();
-  self->capabilities->max_fw_list_length =
-    (max_blob_count < 0xFFFF) ? max_blob_count : 0xFFFF;
+  self->capabilities->max_fw_list_length = (uint16_t)((max_blob_count < 0xFFFF) ? max_blob_count : 0xFFFF);
 
   // The max_fw_list_length capability shall be set because it is used to
   // calculate the max_upload_space
@@ -1558,8 +1554,11 @@ static void sl_btmesh_fw_distribution_server_element_init(uint16_t elem_index)
                                      SL_BTMESH_FW_DIST_SERVER_MULTICAST_THRESHOLD_DEFAULT_CFG_VAL,
                                      0,
                                      NULL);
-
-  app_assert_status_f(sc, "Failed to init FW Distribution Server");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Failed to init FW Distribution Server ");
+  }
 
   sl_btmesh_fw_distribution_server_on_distribution_state_changed(self->elem_index,
                                                                  self->dist.state,
@@ -1611,8 +1610,8 @@ static void handle_nodes_added(
         <= sl_btmesh_blob_transfer_client_get_max_servers()) {
       for (uint8_t idx = 0; (idx + 2) < evt->added_nodes.len; idx += 3) {
         // Access layer messages are little endian
-        uint16_t server_address = (evt->added_nodes.data[idx + 1] << 8)
-                                  | evt->added_nodes.data[idx];
+        uint16_t server_address = (uint16_t)((evt->added_nodes.data[idx + 1] << 8)
+                                             | evt->added_nodes.data[idx]);
         uint8_t update_fw_image_idx = evt->added_nodes.data[idx + 2];
 
         self->dist.node_count++;
@@ -1797,7 +1796,7 @@ static void handle_dist_start_request(
   // Respond to distribution start request with status information which
   // indicates that the request is accepted or rejected
   sc_dist_start_rsp = sl_btmesh_fw_dist_server_dist_start_rsp(self->elem_index,
-                                                              dist_status);
+                                                              (uint16_t)dist_status);
   log_status_error_f(sc_dist_start_rsp,
                      LOG_PREFIX "Distribution Start response failed (elem=%d)" NL,
                      self->elem_index);
@@ -1896,7 +1895,7 @@ static void handle_dist_resume_request(
   }
 
   sl_status_t sc = sl_btmesh_fw_dist_server_resume_rsp(evt->elem_index,
-                                                       dist_status);
+                                                       (uint16_t)dist_status);
   log_status_error_f(sc,
                      LOG_PREFIX "Distribution resume response failed (elem=%d)" NL,
                      evt->elem_index);
@@ -2118,7 +2117,7 @@ static sl_status_t upload_is_start_req_valid(
   if (SL_STATUS_OK == sc) {
     log_error(LOG_PREFIX "Upload failed due to firmware id already exists (elem=%d)" NL,
               evt->elem_index);
-    sc = SL_STATUS_ALREADY_EXISTS;
+    return SL_STATUS_ALREADY_EXISTS;
   }
 
   return SL_STATUS_OK;
@@ -2211,7 +2210,7 @@ static void handle_upload_start_request(
   }
 
   sl_status_t sc_upload_rsp = sl_btmesh_fw_dist_server_upload_start_rsp(evt->elem_index,
-                                                                        upload_status);
+                                                                        (uint8_t)upload_status);
   log_status_error_f(sc_upload_rsp,
                      LOG_PREFIX "Upload start response failed (elem=%d,claddr=0x%04X)" NL,
                      evt->elem_index,
@@ -2510,11 +2509,15 @@ static void handle_fw_delete_request(
     if (SL_STATUS_OK == sc) {
       self->deleting = true;
       self->async_req_client_address = evt->client_address;
-    } else {
-      sc = sl_btmesh_fw_dist_server_delete_rsp(self->elem_index,
-                                               sl_btmesh_fw_dist_server_dist_status_internal_error,
-                                               evt->fwid.len,
-                                               evt->fwid.data);
+      return;
+    }
+    sc = sl_btmesh_fw_dist_server_delete_rsp(self->elem_index,
+                                             sl_btmesh_fw_dist_server_dist_status_internal_error,
+                                             evt->fwid.len,
+                                             evt->fwid.data);
+    if (SL_STATUS_OK != sc) {
+      log_error(LOG_PREFIX "Sending response firmware delete request event failed! (elem=%d)" NL,
+                self->elem_index);
     }
   } else {
     log_status_error_f(sc,
@@ -2554,7 +2557,7 @@ static void handle_fw_delete_response(fw_dist_server_t *self,
   // The BT Mesh stack sends the Firmware Distribution Firmware Status message
   // with the provided status information to the Distribution Client
   sc = sl_btmesh_fw_dist_server_delete_rsp(self->elem_index,
-                                           firmware_status,
+                                           (uint16_t)firmware_status,
                                            self->deleting_fwid_len,
                                            self->deleting_fwid);
   log_status_error_f(sc,
@@ -2671,7 +2674,7 @@ static void handle_fw_delete_all_response(fw_dist_server_t *self,
   sl_btmesh_fw_dist_server_dist_status_t firmware_status =
     sl_btmesh_fw_dist_server_dist_status_internal_error;
 
-  if ((SL_STATUS_OK == erase_status)) {
+  if (SL_STATUS_OK == erase_status) {
     // The whole BLOB storage and the FW list in the NVM3 was deleted successfully
     // which restores the original state of these resources and therefore it fixes
     // storage corruption as well
@@ -2697,7 +2700,7 @@ static void handle_fw_delete_all_response(fw_dist_server_t *self,
   // The BT Mesh stack sends the Firmware Distribution Firmware Status message
   // with the provided status information to the Distribution Client
   sc_delete_rsp = sl_btmesh_fw_dist_server_delete_all_rsp(self->elem_index,
-                                                          firmware_status);
+                                                          (uint16_t)firmware_status);
   log_status_error_f(sc_delete_rsp,
                      LOG_PREFIX "FW delete all response failed (elem=%d,claddr=0x%04X)" NL,
                      self->elem_index,
@@ -3228,7 +3231,7 @@ sl_status_t mesh_platform_dfu_dist_server_get_fw_count(size_t element_index,
                                                        uint16_t *count)
 {
   sl_status_t sc;
-  fw_dist_server_t *self = find_server(element_index);
+  fw_dist_server_t *self = find_server((uint16_t)element_index);
   sc = SERVER_STATUS_GET(self, SL_STATUS_INVALID_STATE);
 
   if (sc == SL_STATUS_OK) {
@@ -3260,7 +3263,7 @@ sl_status_t mesh_platform_dfu_dist_server_get_remaining_space(size_t element_ind
 {
   sl_status_t sc;
   uint32_t remaining_upload_space = 0;
-  fw_dist_server_t *self = find_server(element_index);
+  fw_dist_server_t *self = find_server((uint16_t)element_index);
 
   sc = SERVER_STATUS_GET(self, SL_STATUS_INVALID_STATE);
 
@@ -3303,7 +3306,7 @@ sl_status_t mesh_platform_dfu_dist_server_get_fw_by_index(size_t element_index,
                                                           mesh_dfu_dist_server_fw_info_t *info)
 {
   sl_status_t sc;
-  fw_dist_server_t *self = find_server(element_index);
+  fw_dist_server_t *self = find_server((uint16_t)element_index);
   SERVER_STATUS_CHECK(self, SL_STATUS_INVALID_STATE);
 
   sc = fw_list_get_fw_info_by_index(self, fw_index, FW_BLOB_SELECTOR_CURRENT, info);
@@ -3336,7 +3339,7 @@ sl_status_t mesh_platform_dfu_dist_server_get_fw_by_fwid(size_t element_index,
                                                          mesh_dfu_dist_server_fw_info_t *info)
 {
   sl_status_t sc;
-  fw_dist_server_t *self = find_server(element_index);
+  fw_dist_server_t *self = find_server((uint16_t)element_index);
   SERVER_STATUS_CHECK(self, SL_STATUS_INVALID_STATE);
 
   sc = fw_list_get_fw_info_by_fwid(self, fwid, fwid_len, FW_BLOB_SELECTOR_CURRENT, info);
@@ -3424,15 +3427,24 @@ void sl_btmesh_fw_distribution_server_delete_step_handle(void)
 // Handle Firmware Distribution Server events
 void sl_btmesh_fw_distribution_server_on_event(const sl_btmesh_msg_t *const evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id: {
-      sl_btmesh_fw_distribution_server_init();
+      if (!booted) {
+        sl_btmesh_fw_distribution_server_init();
+        booted = true;
+      }
       break;
     }
     case sl_btmesh_evt_node_initialized_id: {
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_fw_distribution_server_init();
+        booted = true;
       }
       break;
     }
@@ -3504,6 +3516,8 @@ void sl_btmesh_fw_distribution_server_on_event(const sl_btmesh_msg_t *const evt)
       handle_dist_resume_request(&evt->data.evt_fw_dist_server_resume_req);
       break;
     }
+    default:
+      break;
   }
 }
 
@@ -3593,4 +3607,3 @@ const char *sl_btmesh_fw_distribution_server_firmware_update_status_to_string(sl
       return "INVALID";
   }
 }
-/** @} end dist_server */

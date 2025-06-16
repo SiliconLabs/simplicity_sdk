@@ -1,5 +1,5 @@
 id: mbedtls_hkdf
-package: platform
+package: security_mbedtls
 label: HKDF
 description: >-
   This component provides support for key derivation using HKDF in Mbed TLS.

@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_app_status.c
- * @brief Wi-SUN Application Status CoAP notfication
+ * @brief Wi-SUN Application Status CoAP notification
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -51,6 +51,10 @@
 #include "sl_wisun_trace_util.h"
 #include "sl_wisun_app_core.h"
 #include "sl_wisun_app_core_util.h"
+
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+#include "sl_wisun_coap_rhnd.h"
+#endif
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -61,19 +65,33 @@
 #endif
 
 /// Notification payload size
-#define SL_WISUN_APP_STATUS_NOTIF_PAYLOAD_SIZE      1024UL
+#define SL_WISUN_APP_STATUS_NOTIF_PAYLOAD_SIZE            1024UL
 
 /// Max neighbor count included in the neighbour info
-#define SL_WISUN_APP_STATUS_NOTIF_MAX_NEIGHBOUR_CNT 8UL
+#define SL_WISUN_APP_STATUS_NOTIF_MAX_NEIGHBOUR_CNT       8UL
 
 /// App status notification coap msg ID
-#define SL_WISUN_APP_STATUS_NOTIF_MSG_ID            40001U
+#define SL_WISUN_APP_STATUS_NOTIF_MSG_ID                  40001U
 
 /// Application version string length
-#define SL_WISUN_APP_STATUS_VERSION_STR_LEN         64U
+#define SL_WISUN_APP_STATUS_VERSION_STR_LEN               64U
 
 /// Application version format string
-#define SL_WISUN_APP_STATUS_VERSION_FORMAT_STR      "v%lu.%lu.%lu"
+#define SL_WISUN_APP_STATUS_VERSION_FORMAT_STR            "v%lu.%lu.%lu"
+
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+/// Resource type for application status
+#define SL_WISUN_APP_STATUS_RESOURCE_RT_STATUS            "status"
+
+/// App status interface app
+#define SL_WISUN_APP_STATUS_RESOURCE_IF_STATUS            "app"
+
+/// Not valid app status request response string
+#define SL_WISUN_APP_STATUS_NOT_VALID_STATUS_RESP         "[Not valid app status request]"
+
+/// App status failed response string
+#define SL_WISUN_APP_STATUS_FAILED_RESP                   "[App status failed]"
+#endif
 
 /// Neighbour info notification json header str
 #define SL_WISUN_APP_STATUS_NOTIF_NEIGHBOUR_INFO_JSON_HEADER_STR \
@@ -124,11 +142,25 @@
 
 /**************************************************************************//**
  * @brief Notify handler function
- * @details Callbacj for notificaiton service
+ * @details Callback for notification service
  * @param[in] notify Notification instance
  * @return sl_wisun_coap_packet_t * Built CoAP packet
  *****************************************************************************/
 static sl_wisun_coap_packet_t * _notify_hnd(const struct sl_wisun_coap_notify *notify);
+
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+/**************************************************************************//**
+ * @brief Build constant response packet
+ * @details Build response packet with constant string and with given response code
+ * @param[in] req_packet Request packet
+ * @param[in] resp_str Response string
+ * @param[in] code Response code
+ * @return sl_wisun_coap_packet_t * Response packet ptr
+ *****************************************************************************/
+static sl_wisun_coap_packet_t * _build_const_resp(const sl_wisun_coap_packet_t * const req_packet,
+                                                  const char * const resp_str,
+                                                  const sn_coap_msg_code_e code);
+#endif
 
 /**************************************************************************//**
  * @brief Build neighbour info
@@ -137,6 +169,16 @@ static sl_wisun_coap_packet_t * _notify_hnd(const struct sl_wisun_coap_notify *n
  * @param[in,out] buf_len Available buffer length, value is updated
  *****************************************************************************/
 static void _build_neighbour_info(uint8_t **buf, uint16_t *buf_len);
+
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+/**************************************************************************//**
+ * @brief Prepare app status response packet
+ * @details Callback for CoAP Resource Handler Service. It should be registered.
+ * @param[in] req_packet Request packet
+ * @return sl_wisun_coap_packet_t * Response packet ptr
+ *****************************************************************************/
+static sl_wisun_coap_packet_t *_app_status_response_cb(const sl_wisun_coap_packet_t * const req_packet);
+#endif
 
 /**************************************************************************//**
  * @brief Build device info
@@ -209,17 +251,27 @@ static const osMutexAttr_t _app_wisun_app_status_mtx_attr = {
 // -----------------------------------------------------------------------------
 void sl_wisun_app_status_init(void)
 {
-  int32_t ret = 0L;
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+  static sl_wisun_coap_rhnd_resource_t coap_resource = { 0 };
+
+  // init app status resource
+  sl_wisun_coap_rhnd_resource_init(&coap_resource);
+  coap_resource.data.uri_path = SL_WISUN_APP_STATUS_DEFAULT_URI_PATH;
+  coap_resource.data.resource_type = SL_WISUN_APP_STATUS_RESOURCE_RT_STATUS;
+  coap_resource.data.interface = SL_WISUN_APP_STATUS_RESOURCE_IF_STATUS;
+  coap_resource.auto_response = _app_status_response_cb;
+  coap_resource.redirect_response = NULL;
+  coap_resource.discoverable = true;
+  assert(sl_wisun_coap_rhnd_resource_add(&coap_resource) == SL_STATUS_OK);
+#endif
+
   // init wisun network mutex
   _app_wisun_app_status_mtx = osMutexNew(&_app_wisun_app_status_mtx_attr);
   assert(_app_wisun_app_status_mtx != NULL);
 
-  _notify.id = SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID;
-  ret = inet_pton(AF_INET6,
-                  SL_WISUN_APP_STATUS_DEFAULT_REMOTE_ADDR,
-                  &_notify.remote_addr.sin6_addr);
-  assert(ret == 1);
-
+  // init notification instance
+  assert(inet_pton(AF_INET6, SL_WISUN_APP_STATUS_DEFAULT_REMOTE_ADDR, &_notify.remote_addr.sin6_addr) == 1);
+  _notify.id = SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID;
   _notify.remote_addr.sin6_port = htons(SL_WISUN_APP_STATUS_DEFAULT_REMOTE_PORT);
   _notify.schedule_time_ms = SL_WISUN_APP_STATUS_DEFAULT_SCHEDULE_TIME_MS;
   _notify.tick_ms = 0UL;
@@ -538,6 +590,53 @@ static sl_wisun_coap_packet_t * _notify_hnd(const struct sl_wisun_coap_notify *n
   return &pkt;
 }
 
+#if SL_WISUN_APP_STATUS_COAP_RESOURCE_ENABLE
+static sl_wisun_coap_packet_t *_app_status_response_cb(const sl_wisun_coap_packet_t * const req_packet)
+{
+  sl_wisun_coap_packet_t *resp_packet = NULL;
+
+  if (req_packet->msg_code != COAP_MSG_CODE_REQUEST_GET) {
+    return _build_const_resp(req_packet,
+                             SL_WISUN_APP_STATUS_NOT_VALID_STATUS_RESP,
+                             COAP_MSG_CODE_RESPONSE_BAD_REQUEST);
+  }
+
+  // Init packet
+  resp_packet = sl_wisun_coap_build_response(req_packet, COAP_MSG_CODE_RESPONSE_BAD_REQUEST);
+  if (resp_packet == NULL) {
+    resp_packet = _build_const_resp(req_packet,
+                                    SL_WISUN_APP_STATUS_FAILED_RESP,
+                                    COAP_MSG_CODE_RESPONSE_BAD_REQUEST);
+  }
+
+  resp_packet->msg_code = COAP_MSG_CODE_RESPONSE_CONTENT;
+  resp_packet->content_format = COAP_CT_JSON;
+  _app_wisun_mutex_acquire();
+  resp_packet->payload_len = _build_payload();
+  _app_wisun_mutex_release();
+  resp_packet->payload_ptr = _notif_buff;
+
+  return resp_packet;
+}
+
+static sl_wisun_coap_packet_t * _build_const_resp(const sl_wisun_coap_packet_t * const req_packet,
+                                                  const char * const resp_str,
+                                                  const sn_coap_msg_code_e code)
+{
+  sl_wisun_coap_packet_t *resp_packet = NULL;
+
+  resp_packet = sl_wisun_coap_build_response(req_packet, code);
+  if (resp_packet == NULL) {
+    return NULL;
+  }
+
+  resp_packet->payload_ptr = (uint8_t *)resp_str;
+  resp_packet->payload_len = (uint16_t)sl_strnlen((char *)resp_str, SL_WISUN_APP_STATUS_NOTIF_PAYLOAD_SIZE);
+
+  return resp_packet;
+}
+#endif
+
 /* Mutex acquire */
 __STATIC_INLINE void _app_wisun_mutex_acquire(void)
 {
@@ -553,6 +652,6 @@ __STATIC_INLINE void _app_wisun_mutex_release(void)
 /* update coap notify instance*/
 __STATIC_INLINE sl_status_t _update_notify_settings(void)
 {
-  sl_wisun_coap_notify_remove_by_id(SL_WISUN_APP_STATUS_DEFAULT_NOTIFCATION_ID);
+  sl_wisun_coap_notify_remove_by_id(SL_WISUN_APP_STATUS_DEFAULT_NOTIFICATION_ID);
   return sl_wisun_coap_notify_add(&_notify);
 }

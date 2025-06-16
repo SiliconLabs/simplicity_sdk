@@ -1,6 +1,6 @@
 id: zigbee_stack_code_classification
 label: Stack Code Classifications
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 ui_hints:

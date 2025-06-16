@@ -352,7 +352,7 @@ class BtmeshGroupCmd(BtmeshCmd):
             help=NO_AUTO_BIND_HELP,
         )
 
-    def add_dcd_args(self, parser: ArgumentParserExt, support_remove_args=True):
+    def add_dcd_args(self, parser: ArgumentParserExt):
         self.dcd_check_group = parser.add_mutually_exclusive_group()
         onoff_text = "on" if app_cfg.appgroup.dcd_check_default else "off"
         DCD_CHECK_DEFAULT = f"DCD check is turned {onoff_text} by default."
@@ -461,7 +461,7 @@ class BtmeshGroupCmd(BtmeshCmd):
         self.add_bind_addr_mdl_args(self.group_add_parser, support_remove_args=False)
         self.add_mdl_profile_args(self.group_add_parser, support_remove_args=False)
         self.add_auto_bind_args(self.group_add_parser)
-        self.add_dcd_args(self.group_add_parser, support_remove_args=False)
+        self.add_dcd_args(self.group_add_parser)
         self.add_group_basic_retry_args(self.group_add_parser)
         return SUBPARSER_NAME, self.group_add_parser
 
@@ -492,7 +492,7 @@ class BtmeshGroupCmd(BtmeshCmd):
         self.add_bind_addr_mdl_args(self.group_update_parser, support_remove_args=True)
         self.add_mdl_profile_args(self.group_update_parser, support_remove_args=True)
         self.add_auto_bind_args(self.group_update_parser)
-        self.add_dcd_args(self.group_update_parser, support_remove_args=True)
+        self.add_dcd_args(self.group_update_parser)
         self.add_group_basic_retry_args(self.group_update_parser)
         return SUBPARSER_NAME, self.group_update_parser
 

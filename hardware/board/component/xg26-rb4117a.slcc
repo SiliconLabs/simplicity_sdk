@@ -1,7 +1,7 @@
 !!omap
 - id: xg26_rb4117a
 - label: XG26-RB4117A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG26 2.4 GHz +20 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

@@ -23,6 +23,7 @@ class ProfileWisunFanOcelot(ProfileWisunFanJumbo):
         self.build_optional_profile_inputs(model, profile)
         self.build_advanced_profile_inputs(model, profile)
         self.build_hidden_profile_inputs(model, profile)
+        self.build_metadata_profile_inputs(model, profile)
         self.build_deprecated_profile_inputs(model, profile)
 
         # Build outputs

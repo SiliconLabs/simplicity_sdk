@@ -1,12 +1,12 @@
 id: micriumos_common_shell
 label: Shell
-package: micrium-krnx
+package: micriumos
 description: Micrium OS Common Shell
 category: Services|Micrium|Common
 quality: production
 metadata:
-  sbom:
-    license: MSLA
+    sbom:
+        license: MSLA
 component_root_path: platform/micrium_os/common
 source:
   - path: source/shell/shell_cmd.c

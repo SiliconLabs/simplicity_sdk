@@ -1,6 +1,6 @@
 id: "btmesh_wstk_lcd"
 label: "WSTK LCD Driver"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   The WSTK LCD Driver is an application-level software module which
   implements an interface for WSTK board's LCD screen usage, ensuring the
@@ -10,7 +10,7 @@ description: >
   line of text to the LCD.
   This component is prepared for integration into SOC applications.
 
-  This is a No-code component (The LCD can be enabled/disabled 
+  This is a No-code component (The LCD can be enabled/disabled
   in the Platform/Board Control software component).
 category: "Bluetooth Mesh|Utility"
 quality: "production"
@@ -58,3 +58,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-wstk-lcd

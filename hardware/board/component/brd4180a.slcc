@@ -1,7 +1,7 @@
 !!omap
 - id: brd4180a
 - label: BRD4180A
-- package: platform
+- package: boards
 - description: Board support for BRD4180A.
 - category: Platform|Board|Radio Board
 - quality: production

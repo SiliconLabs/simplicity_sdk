@@ -70,7 +70,7 @@ typedef struct {
   sl_indication_t indication[SL_USED_CHARACTERISTIC_INDICATION_COUNT];
   // number of indications
   uint8_t count_of_indications;
-} sl_indicaton_queue_t;
+} sl_indication_queue_t;
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -125,7 +125,7 @@ static bool indication_is_under_way = false;
 /// Indication settings
 static sl_indication_setting_t sl_indication_settings[SL_USED_CHARACTERISTIC_INDICATION_COUNT] = { 0 };
 /// Indication queue
-static sl_indicaton_queue_t indicatons_queue = { 0 };
+static sl_indication_queue_t indications_queue = { 0 };
 /// handle of the connected device
 static uint8_t connected_device_handle;
 /// Information used by the mobile device
@@ -326,20 +326,20 @@ static void sl_add_bluetooth_indication(uint8_t characteristic, void * pData, ui
 {
   if (advertising_set_handle != 0xFF) {
     if (sl_is_indication_enabled(characteristic)) {
-      if (indicatons_queue.count_of_indications < SL_USED_CHARACTERISTIC_INDICATION_COUNT) {
-        for (int i = 0; i < indicatons_queue.count_of_indications; i++) {
-          if (indicatons_queue.indication[i].characteristic == characteristic) {
+      if (indications_queue.count_of_indications < SL_USED_CHARACTERISTIC_INDICATION_COUNT) {
+        for (int i = 0; i < indications_queue.count_of_indications; i++) {
+          if (indications_queue.indication[i].characteristic == characteristic) {
             return;
           }
         }
-        indicatons_queue.count_of_indications++;
-        indicatons_queue.indication[indicatons_queue.count_of_indications - 1].characteristic = characteristic;
-        indicatons_queue.indication[indicatons_queue.count_of_indications - 1].data_size = 0;
+        indications_queue.count_of_indications++;
+        indications_queue.indication[indications_queue.count_of_indications - 1].characteristic = characteristic;
+        indications_queue.indication[indications_queue.count_of_indications - 1].data_size = 0;
         if ((pData != NULL) && (data_length_byte <= MAX_INDICATION_DATA_LENGTH_BYTE)) {
-          memcpy(indicatons_queue.indication[indicatons_queue.count_of_indications - 1].data,
+          memcpy(indications_queue.indication[indications_queue.count_of_indications - 1].data,
                  pData,
                  data_length_byte);
-          indicatons_queue.indication[indicatons_queue.count_of_indications - 1].data_size = data_length_byte;
+          indications_queue.indication[indications_queue.count_of_indications - 1].data_size = data_length_byte;
         }
       } else {
         app_log_info("Indication queue is full\n");
@@ -360,8 +360,8 @@ void sl_send_bluetooth_indications(void)
   sl_indication_t* indication = NULL;
   if (advertising_set_handle != 0xFF) {
     if (!indication_is_under_way) {
-      if (indicatons_queue.count_of_indications > 0) {
-        indication = &indicatons_queue.indication[0];
+      if (indications_queue.count_of_indications > 0) {
+        indication = &indications_queue.indication[0];
         if (indication != NULL) {
           switch (indication->characteristic) {
             case gattdb_source_address_connect: /*Intentional fall through*/
@@ -399,14 +399,14 @@ void sl_send_bluetooth_indications(void)
  ******************************************************************************/
 static void sl_remove_last_indication(uint8_t characteristic)
 {
-  if (indicatons_queue.count_of_indications > 0) {
-    if (characteristic == indicatons_queue.indication[0].characteristic) {
-      indicatons_queue.count_of_indications--;
+  if (indications_queue.count_of_indications > 0) {
+    if (characteristic == indications_queue.indication[0].characteristic) {
+      indications_queue.count_of_indications--;
       for (uint8_t i = 0; i < SL_USED_CHARACTERISTIC_INDICATION_COUNT - 1; i++) {
-        memcpy(&indicatons_queue.indication[i], &indicatons_queue.indication[i + 1], sizeof(sl_indication_t));
+        memcpy(&indications_queue.indication[i], &indications_queue.indication[i + 1], sizeof(sl_indication_t));
 
-        if (i >= indicatons_queue.count_of_indications) {
-          memset(&indicatons_queue.indication[i], 0, sizeof(sl_indication_t));
+        if (i >= indications_queue.count_of_indications) {
+          memset(&indications_queue.indication[i], 0, sizeof(sl_indication_t));
           break;
         }
       }

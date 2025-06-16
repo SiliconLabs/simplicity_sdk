@@ -1,5 +1,5 @@
 id: mbedtls_gcm
-package: platform
+package: security_mbedtls
 label: GCM
 description: >-
   This component provides support for authenticated encryption and decryption

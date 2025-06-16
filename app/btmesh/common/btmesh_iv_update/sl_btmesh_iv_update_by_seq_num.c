@@ -45,11 +45,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup iv_update
- * @{
- ******************************************************************************/
-
 #define NORMAL_OPERATION 0
 #define IV_UPDATE_IN_PROGRESS 1
 
@@ -61,20 +56,30 @@ static void seq_num_testing_stop(void);
 
 static void handle_seq_num_testing(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Handling of mesh iv_update related events.
  *  @param[in] evt  Pointer to incoming event.
  ******************************************************************************/
 void sl_btmesh_iv_update_by_seq_num_on_event(sl_btmesh_msg_t* evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         handle_seq_num_testing();
+        booted = true;
       }
       break;
-    case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id:
+      if (booted) {
+        break;
+      }
+    // Intentional fallthrough
+    case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_changed_ivupdate_state_id:
       handle_seq_num_testing();
       break;
@@ -96,7 +101,7 @@ static void handle_seq_num_testing(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Check if any element's current sequence number is above the threshold
  ******************************************************************************/
 static void on_seq_num_testing_timer(app_timer_t *handle, void *data)
@@ -107,7 +112,12 @@ static void on_seq_num_testing_timer(app_timer_t *handle, void *data)
   for (uint16_t i = 0; i < SL_BTMESH_CONFIG_MAX_ELEMENTS; i++) {
     uint32_t seqnum;
     sc = sl_btmesh_node_get_element_seqnum(i, &seqnum);
-    app_assert_status_f(sc, "Failed to get sequence number");
+    // Does not exist error can occur after a firmware update
+    // but before DCD update if the elements change.
+    // Allow continuing, the error shall disappear after DCD update.
+    if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+      app_assert_status_f(sc, "Failed to get sequence number");
+    }
     if (seqnum > SL_BTMESH_IV_UPDATE_SEQ_NUM_THRESHOLD) {
       sc = sl_btmesh_node_request_ivupdate();
       log_status_error_f(sc, "Failed to request IV Update" NL);
@@ -116,7 +126,7 @@ static void on_seq_num_testing_timer(app_timer_t *handle, void *data)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Start testing the sequence numbers
  ******************************************************************************/
 static void seq_num_testing_start(void)
@@ -129,7 +139,7 @@ static void seq_num_testing_start(void)
   app_assert_status_f(sc, "Failed to start timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Stop testing the sequence numbers
  ******************************************************************************/
 static void seq_num_testing_stop(void)
@@ -137,5 +147,3 @@ static void seq_num_testing_stop(void)
   sl_status_t sc = app_timer_stop(&seq_num_testing_timer);
   app_assert_status_f(sc, "Failed to stop timer");
 }
-
-/** @} (end addtogroup iv_update) */

@@ -49,11 +49,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Lighting
- * @{
- ******************************************************************************/
-
 /// No flags used for message
 #define NO_FLAGS                  0
 /// Immediate transition time is 0 seconds
@@ -99,7 +94,7 @@ static uint8_t ctl_request_count = 0;
 /// ctl transaction identifier
 static uint8_t ctl_trid = 0;
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function publishes one light CTL request to change the temperature level
  * of light(s) in the group. Global variable temperature_level holds the latest
  * desired light temperature level.
@@ -189,11 +184,11 @@ void sl_btmesh_ctl_client_set_temperature(uint8_t temperature_percent)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after 50 ms delay
   if (ctl_request_count > 0) {
-    sl_status_t sc = app_timer_start(&ctl_retransmission_timer,
-                                     SL_BTMESH_CTL_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     ctl_retransmission_timer_cb,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&ctl_retransmission_timer,
+                         SL_BTMESH_CTL_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         ctl_retransmission_timer_cb,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start periodic timer");
   }
 
@@ -226,18 +221,18 @@ void sl_btmesh_ctl_client_set_lightness(uint8_t lightness_percent)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after 50 ms delay
   if (ctl_request_count > 0) {
-    sl_status_t sc = app_timer_start(&ctl_retransmission_timer,
-                                     SL_BTMESH_CTL_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     ctl_retransmission_timer_cb,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&ctl_retransmission_timer,
+                         SL_BTMESH_CTL_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         ctl_retransmission_timer_cb,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start periodic timer");
   }
 
   (void) app_btmesh_rta_release();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Timer Callbacks
  * @param[in] handle pointer to handle instance
  * @param[in] data pointer to input data
@@ -262,4 +257,3 @@ static void  ctl_retransmission_timer_cb(app_timer_t *handle,
 
   (void) app_btmesh_rta_release();
 }
-/** @} (end addtogroup Lighting) */

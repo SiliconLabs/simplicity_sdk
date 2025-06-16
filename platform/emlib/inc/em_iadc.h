@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup iadc
+ * @addtogroup iadc IADC - Incremental ADC
  * @{
  ******************************************************************************/
 
@@ -1209,7 +1209,11 @@ __STATIC_INLINE void IADC_disableInt(IADC_TypeDef *iadc, uint32_t flags)
  ******************************************************************************/
 __STATIC_INLINE void IADC_enableInt(IADC_TypeDef *iadc, uint32_t flags)
 {
+#if defined (IADC_HAS_SET_CLEAR)
+  iadc->IEN_SET = flags;
+#else
   iadc->IEN |= flags;
+#endif
 }
 
 /***************************************************************************//**

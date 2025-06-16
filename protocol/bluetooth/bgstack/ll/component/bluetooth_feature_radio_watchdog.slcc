@@ -1,6 +1,6 @@
 id: bluetooth_feature_radio_watchdog
 label: Bluetooth Radio Watchdog
-package: Bluetooth
+package: bluetooth_le_controller
 description: Radio watchdog feature
 
 category: Bluetooth|Bluetooth LE Controller (Link Layer)|Additional Features
@@ -12,11 +12,6 @@ requires:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_radio_watchdog
-  - name: bluetooth_controller_init
-    value:
-      include: "sl_btctrl_linklayer.h"
-      function: "sl_btctrl_enable_radio_watchdog()"
-    priority: 10
 metadata:
   sbom:
     license: MSLA

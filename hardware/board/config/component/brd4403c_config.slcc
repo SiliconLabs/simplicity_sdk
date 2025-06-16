@@ -2,7 +2,7 @@
 - id: brd4403c_config
 - label: brd4403c config
 - description: Configuration files for BRD4403C
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: production
 - metadata:
@@ -109,6 +109,12 @@
   - condition:
     - brd4001a
     override:
+      component: device_init_hfxo
+      file_id: device_init_hfxo_config
+    path: brd4403c_brd4001a/sl_device_init_hfxo_config.h
+  - condition:
+    - brd4001a
+    override:
       component: device_init_lfxo
       file_id: device_init_lfxo_config
     path: brd4403c_brd4001a/sl_device_init_lfxo_config.h
@@ -182,55 +188,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd4403c_brd4001a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd4403c_brd4001a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd4403c_brd4001a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd4403c_brd4001a/iot_pwm_cfg_led0.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: exp
-    path: brd4403c_brd4001a/iot_pwm_cfg_exp.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd4403c_brd4001a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: exp
-    path: brd4403c_brd4001a/iot_uart_cfg_exp.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd4403c_brd4001a/iot_uart_cfg_loopback.h
   - condition:
     - brd4001a
     override:
@@ -379,6 +336,12 @@
   - condition:
     - brd4002a
     override:
+      component: device_init_hfxo
+      file_id: device_init_hfxo_config
+    path: brd4403c_brd4002a/sl_device_init_hfxo_config.h
+  - condition:
+    - brd4002a
+    override:
       component: device_init_lfxo
       file_id: device_init_lfxo_config
     path: brd4403c_brd4002a/sl_device_init_lfxo_config.h
@@ -452,55 +415,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd4403c_brd4002a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd4403c_brd4002a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd4403c_brd4002a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd4403c_brd4002a/iot_pwm_cfg_led0.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: exp
-    path: brd4403c_brd4002a/iot_pwm_cfg_exp.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd4403c_brd4002a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: exp
-    path: brd4403c_brd4002a/iot_uart_cfg_exp.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd4403c_brd4002a/iot_uart_cfg_loopback.h
   - condition:
     - brd4002a
     override:

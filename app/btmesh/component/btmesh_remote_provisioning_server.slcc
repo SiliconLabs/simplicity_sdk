@@ -1,6 +1,6 @@
 id: "btmesh_remote_provisioning_server"
 label: "Remote Provisioning Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Used to support remote provisioning server functionality of provisioning
   a remote device over the mesh network and to perform the Node Provisioning
@@ -31,7 +31,9 @@ provides:
   - name: "btmesh_remote_provisioning_server"
 requires:
   - name: "app_assert"
+  - name: "app_timer"
   - name: "app_btmesh_util"
+  - name: "bluetooth_feature_gatt"
   - name: "btmesh_role_init"
   - name: "btmesh_stack_node"
   - name: "btmesh_stack_remote_provisioning_server"
@@ -47,3 +49,6 @@ template_contribution:
 validation_helper:
   - path: "../../script/validation/remote_provisioning_validation.lua"
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-remote-provisioning-server

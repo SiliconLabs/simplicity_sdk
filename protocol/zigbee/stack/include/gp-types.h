@@ -52,65 +52,6 @@
 #define GP_SIZE_OF_SINK_LIST_ENTRIES_OCTET_STRING (1 + (GP_SINK_LIST_ENTRIES * (sizeof(sl_zigbee_gp_sink_group_t))))
 
 /**
- * @brief GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
- */
-#define GP_PARAMS                                  \
-  sl_zigbee_gp_status_t status,                    \
-  uint8_t gpdLink,                                 \
-  uint8_t sequenceNumber,                          \
-  sl_zigbee_gp_address_t * addr,                   \
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel, \
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,     \
-  bool autoCommissioning,                          \
-  uint8_t bidirectionalInfo,                       \
-  uint32_t gpdSecurityFrameCounter,                \
-  uint8_t gpdCommandId,                            \
-  uint32_t mic,                                    \
-  uint8_t proxyTableIndex,                         \
-  uint8_t gpdCommandPayloadLength,                 \
-  uint8_t * gpdCommandPayload,                     \
-  sl_zigbee_rx_packet_info_t * packetInfo
-
-/**
- * @brief GP arguments list represented as a macro while calling GP endpoint incoming message handler and callbacks.
- */
-#define GP_ARGS            \
-  status,                  \
-  gpdLink,                 \
-  sequenceNumber,          \
-  addr,                    \
-  gpdfSecurityLevel,       \
-  gpdfSecurityKeyType,     \
-  autoCommissioning,       \
-  bidirectionalInfo,       \
-  gpdSecurityFrameCounter, \
-  gpdCommandId,            \
-  mic,                     \
-  proxyTableIndex,         \
-  gpdCommandPayloadLength, \
-  gpdCommandPayload,       \
-  packetInfo
-
-/**
- * @brief GP arguments list with void type cast represented as a macro to be used in callback stubs.
- */
-#define GP_UNUSED_ARGS           \
-  (void)status;                  \
-  (void)gpdLink;                 \
-  (void)sequenceNumber;          \
-  (void)addr;                    \
-  (void)gpdfSecurityLevel;       \
-  (void)gpdfSecurityKeyType;     \
-  (void)autoCommissioning;       \
-  (void)rxAfterTx;               \
-  (void)gpdSecurityFrameCounter; \
-  (void)gpdCommandId;            \
-  (void)mic;                     \
-  (void)proxyTableIndex;         \
-  (void)gpdCommandPayloadLength; \
-  (void)gpdCommandPayload;
-
-/**
  * @brief Bit mask for the proxy table ebtry option bit representing in-range bit field.
  */
 #define GP_PROXY_TABLE_OPTIONS_IN_RANGE (BIT(10))
@@ -164,6 +105,11 @@
  * @brief Tunneling delay constant Dmax in milliseconds. Ref green power specification for more information on this constant.
  */
 #define GP_DMAX 100
+
+/**
+ * @brief Defines the maximum size of the application payload for Green Power (GP) commands in the Zigbee stack.
+ */
+#define SL_ZIGBEE_GP_MAX_APPLICATION_PAYLOAD 100
 
 /**
  * @name GP Types
@@ -743,6 +689,60 @@ typedef struct {
     } genericSwitch;
   } optionData;//sl_zigbee_gp_translation_table_additional_info_block_option_record_option_data_field_t;
 } sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t;
+
+/**
+ * @brief GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+ */
+typedef struct {
+  /** The status of the GPDF receive. */
+  sl_zigbee_gp_status_t status;
+
+  /** The gpdLink value of the received GPDF. */
+  uint8_t gpdLink;
+
+  /** The GPDF sequence number. */
+  uint8_t sequenceNumber;
+
+  /** The address of the source GPD. */
+  sl_zigbee_gp_address_t addr;
+
+  /** The security level of the received GPDF. */
+  sl_zigbee_gp_security_level_t gpdfSecurityLevel;
+
+  /** The securityKeyType used to decrypt/authenticate the incoming GPDF. */
+  sl_zigbee_gp_key_type_t gpdfSecurityKeyType;
+
+  /** Whether the incoming GPDF had the auto-commissioning bit set. */
+  bool autoCommissioning;
+
+  /**
+   * Bidirectional information represented in bitfields:
+   * - Bit 0: rxAfterTx of incoming GPDF.
+   * - Bit 1: Indicates if the TX queue is available for outgoing GPDF.
+   */
+  uint8_t bidirectionalInfo;
+
+  /** The security frame counter of the incoming GPDF. */
+  uint32_t gpdSecurityFrameCounter;
+
+  /** The gpdCommandId of the incoming GPDF. */
+  uint8_t gpdCommandId;
+
+  /** The received MIC of the GPDF. */
+  uint32_t mic;
+
+  /** The proxy table index of the corresponding proxy table entry to the incoming GPDF. */
+  uint8_t proxyTableIndex;
+
+  /** The length of the GPD command payload. */
+  uint8_t gpdCommandPayloadLength;
+
+  /** The GPD command payload. */
+  uint8_t gpdCommandPayload[SL_ZIGBEE_GP_MAX_APPLICATION_PAYLOAD];
+
+  /** Rx packet information. */
+  sl_zigbee_rx_packet_info_t packetInfo;
+} sl_zigbee_gp_params_t;
 
 //@} \\END GP Types
 

@@ -147,5 +147,4 @@ void ZAF_CP_CommandPublish(CP_Handle_t handle, void* pRxPackage);
  * @} // ZAF
  */
 
-
 #endif /* _CMD_PUBLISHER_H_ */

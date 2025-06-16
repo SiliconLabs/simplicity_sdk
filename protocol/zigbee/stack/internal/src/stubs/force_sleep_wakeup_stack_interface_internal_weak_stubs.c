@@ -3,7 +3,7 @@
  * @brief stubbed definitions of internal implementations for force_sleep_wakeup_stack_interface
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -22,17 +22,21 @@
 
 SL_WEAK void sli_802154_stack_cancel_polls(void)
 {
+  // NOTE stub definition
 }
 
 SL_WEAK void sli_802154_stack_purge_incoming_queue(void)
 {
+  // NOTE stub definition
 }
 
 SL_WEAK void sli_802154_stack_purge_transmit_queue(void)
 {
+  // NOTE stub definition
 }
 
 SL_WEAK void sli_mac_stack_lower_mac_force_sleep(bool sleep)
 {
+  // NOTE stub definition
   (void) sleep;
 }

@@ -1,6 +1,6 @@
 id: "ncp_btmesh_user_cmd"
 label: "NCP User Commands"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Demonstrates the communication between an NCP host and NCP target using
   BGAPI user messages, responses and events. Can be used as a starting point
@@ -24,3 +24,6 @@ provides:
   - name: "ncp_btmesh_user_cmd"
 requires:
   - name: "ncp"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/ncp-btmesh-user-cmd

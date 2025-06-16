@@ -22,8 +22,7 @@
 
 typedef void (*cmd_handler_t)(const comm_interface_frame_ptr);
 
-typedef struct
-{
+typedef struct {
   uint8_t cmd;
   cmd_handler_t pHandler;
 }
@@ -31,9 +30,9 @@ cmd_handler_map_t;
 
 #define CMD_HANDLER_SECTION "zw_cmd_handlers"
 
-#define ZW_ADD_CMD(cmd) \
-  static void cmd_handler_fcn_##cmd(__attribute__((unused)) const comm_interface_frame_ptr frame); /* Prototype */ \
-  static const cmd_handler_map_t cmd_handler_##cmd __attribute__((__used__, __section__( CMD_HANDLER_SECTION ))) = {cmd,cmd_handler_fcn_##cmd}; \
+#define ZW_ADD_CMD(cmd)                                                                                                                          \
+  static void cmd_handler_fcn_##cmd(__attribute__((unused)) const comm_interface_frame_ptr frame); /* Prototype */                               \
+  static const cmd_handler_map_t cmd_handler_##cmd __attribute__((__used__, __section__(CMD_HANDLER_SECTION))) = { cmd, cmd_handler_fcn_##cmd }; \
   static void cmd_handler_fcn_##cmd(__attribute__((unused)) const comm_interface_frame_ptr frame)
 
 /**

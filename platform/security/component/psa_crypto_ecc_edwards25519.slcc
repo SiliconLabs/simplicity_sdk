@@ -1,5 +1,5 @@
 id: psa_crypto_ecc_edwards25519
-package: platform
+package: security_mbedtls
 label: edwards25519
 description: >-
   This component adds support for the Twisted Edwards 255-bit

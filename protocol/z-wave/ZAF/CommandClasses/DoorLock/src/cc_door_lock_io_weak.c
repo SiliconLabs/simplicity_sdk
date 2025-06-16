@@ -6,8 +6,6 @@
 
 #include <cc_door_lock_io.h>
 #include <ZW_typedefs.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 ZW_WEAK bool
 cc_door_lock_write(__attribute__((unused)) cc_door_lock_data_t *door_lock_data)

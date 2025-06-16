@@ -1,12 +1,13 @@
 project_name: zigbee_ncp_mp_uart_hw
 label: Zigbee - NCP MpNcpUartHw
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 description: The multi-PAN application provides support to form two personal area networks  on same channel on single radio. This multi-PAN network coprocessor (NCP)  application supports communication with a host application over a UART  interface with hardware flow control. This NCP application can be built as  configured, or optionally can be augmented with customized extensions for  initialization, main loop processing, event definition/handling, and messaging  with the host.
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: iostream_usart
     instance:
       - vcom
@@ -31,8 +32,8 @@ component:
   - id: zigbee_multi_pan
   - id: zigbee_zll
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
@@ -80,14 +81,15 @@ include:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

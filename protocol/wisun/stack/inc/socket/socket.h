@@ -322,6 +322,8 @@ typedef int ssize_t;
 
 /// Experimental: Enable Extended Directed Frame Exchange mode.
 /// When set, optval must point to an uint32_t.
+/// When set, all data from the socket will be sent using the EDFE mode
+/// even if there is a single fragment
 #define SO_EDFE_MODE              0xfb
 #define SOCKET_EDFE_MODE          SO_EDFE_MODE
 ///@}

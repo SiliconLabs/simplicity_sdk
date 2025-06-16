@@ -1,7 +1,7 @@
 !!omap
 - id: sltb001a
 - label: SLTB001A
-- package: platform
+- package: boards
 - description: Kit BSP support for the Thunderboard Sense.
 - category: Platform|Board|Kit|Thunderboard
 - quality: production

@@ -104,6 +104,15 @@ Error Radio::AddSrcMatchExtEntry(const Mac::ExtAddress &aExtAddress)
     address.Set(aExtAddress.m8, Mac::ExtAddress::kReverseByteOrder);
     return otPlatRadioAddSrcMatchExtEntry(GetInstancePtr(), &address);
 }
+
+Error Radio::ClearSrcMatchExtEntry(const Mac::ExtAddress &aExtAddress)
+{
+    Mac::ExtAddress address;
+
+    address.Set(aExtAddress.m8, Mac::ExtAddress::kReverseByteOrder);
+    return otPlatRadioClearSrcMatchExtEntry(GetInstancePtr(), &address);
+}
+
 Error Radio::Transmit(Mac::TxFrame &aFrame)
 {
 #if (OPENTHREAD_MTD || OPENTHREAD_FTD) && OPENTHREAD_CONFIG_OTNS_ENABLE
@@ -117,19 +126,19 @@ Error Radio::Transmit(Mac::TxFrame &aFrame)
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
 inline uint64_t UintSafeMinus(uint64_t aLhs, uint64_t aRhs) { return aLhs > aRhs ? (aLhs - aRhs) : 0; }
 
-RadioStatistics::RadioStatistics(void)
+Radio::Statistics::Statistics(void)
     : mStatus(kDisabled)
 {
     ResetTime();
 }
 
-void RadioStatistics::RecordStateChange(Status aStatus)
+void Radio::Statistics::RecordStateChange(Status aStatus)
 {
     UpdateTime();
     mStatus = aStatus;
 }
 
-void RadioStatistics::HandleReceiveAt(uint32_t aDurationUs)
+void Radio::Statistics::HandleReceiveAt(uint32_t aDurationUs)
 {
     // The actual rx time of ReceiveAt cannot be obtained from software level. This is a workaround.
     if (mStatus == kSleep)
@@ -138,7 +147,7 @@ void RadioStatistics::HandleReceiveAt(uint32_t aDurationUs)
     }
 }
 
-void RadioStatistics::RecordTxDone(otError aError, uint16_t aPsduLength)
+void Radio::Statistics::RecordTxDone(otError aError, uint16_t aPsduLength)
 {
     if (aError == kErrorNone || aError == kErrorNoAck)
     {
@@ -164,7 +173,7 @@ void RadioStatistics::RecordTxDone(otError aError, uint16_t aPsduLength)
     }
 }
 
-void RadioStatistics::RecordRxDone(otError aError)
+void Radio::Statistics::RecordRxDone(otError aError)
 {
     uint32_t ackTimeUs;
 
@@ -183,23 +192,20 @@ exit:
     return;
 }
 
-const otRadioTimeStats &RadioStatistics::GetStats(void)
+const Radio::Statistics::TimeStats &Radio::Statistics::GetStats(void)
 {
     UpdateTime();
 
     return mTimeStats;
 }
 
-void RadioStatistics::ResetTime(void)
+void Radio::Statistics::ResetTime(void)
 {
-    mTimeStats.mDisabledTime = 0;
-    mTimeStats.mSleepTime    = 0;
-    mTimeStats.mRxTime       = 0;
-    mTimeStats.mTxTime       = 0;
-    mLastUpdateTime          = TimerMicro::GetNow();
+    ClearAllBytes(mTimeStats);
+    mLastUpdateTime = TimerMicro::GetNow();
 }
 
-void RadioStatistics::UpdateTime(void)
+void Radio::Statistics::UpdateTime(void)
 {
     TimeMicro nowTime     = TimerMicro::GetNow();
     uint32_t  timeElapsed = nowTime - mLastUpdateTime;

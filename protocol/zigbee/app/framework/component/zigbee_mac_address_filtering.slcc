@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component artificially limits what the stack hears by filtering the packets just above the lower MAC. The component can be configured on the fly via CLI with the short or long address of devices whose packets will be dropped or allowed. There are two lists, a short address list (2-byte node ID) and a long address list (8-byte IEEE address). Each list may be configured as either an allow list or deny list. The default is a deny list with no addresses configured (accept all packets normally). There is also a separate option to allow or drop packets with no address information (e.g. Beacon Requests). NOTE The radio will still generate and process MAC Acks for packets. This component cannot be used to effect the behavior of MAC Acks, which are handled by the RAIL library and radio hardware.
 label: MAC Address Filtering
 quality: production

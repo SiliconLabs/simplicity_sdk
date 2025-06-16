@@ -1,0 +1,21 @@
+id: railapp_malloc
+label: RAILAPP Malloc
+package: platform
+description: Memory allocation component for RAILAPP debug buffer capture
+category: Platform|Radio
+quality: production
+metadata:
+  sbom:
+    license: Zlib
+provides:
+  - name: railapp_malloc
+requires:
+  - name: sl_core
+config_file:
+  - path: platform/radio/rail_lib/apps/railapp/config/sl_railapp_malloc_config.h
+source:
+  - path: platform/radio/rail_lib/apps/railapp/railapp_malloc.c
+include:
+  - path: platform/radio/rail_lib/apps/railapp
+    file_list:
+      - path: railapp_malloc.h

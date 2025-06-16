@@ -1,6 +1,6 @@
 !!omap
 - id: BGM220SC12WGA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for BGM220SC12WGA.
 - category: Platform|Device|BGM22
 - quality: production

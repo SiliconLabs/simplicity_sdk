@@ -1,7 +1,7 @@
 id: "rail_mux"
 label: "RAIL 802.15.4 Multiplexer"
-package: platform
-category: Radio|Mac
+package: zigbee
+category: 802.15.4|Radio
 quality: "production"
 description: "Implements a RAIL Multiplexer Layer that enables supports for multiple 802.15.4-based protocols."
 provides:
@@ -10,7 +10,7 @@ provides:
 requires:
   - name: "legacy_hal"
   - name: "rail_lib"
-  - name: rail_util_ieee802154_phy_select
+  - name: sl_rail_util_ieee802154_phy_select
   - name: "sl_assert"
   - name: code_classification
 

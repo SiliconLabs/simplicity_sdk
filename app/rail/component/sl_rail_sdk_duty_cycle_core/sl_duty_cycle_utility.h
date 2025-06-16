@@ -34,7 +34,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -54,10 +54,10 @@
  * @param[in] duty_cycle_config Pointer to a preconfigured structure.
  * @param[in] bit_length Pointer to the function output (preamble bit length).
  *
- * @return RAIL_Status_t   Status code indicating success or failure.
+ * @return sl_rail_status_t   Status code indicating success or failure.
  ******************************************************************************/
-RAIL_Status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
-                                                      RAIL_RxDutyCycleConfig_t * duty_cycle_config,
-                                                      uint16_t * bit_length);
+sl_rail_status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
+                                                         sl_rail_rx_duty_cycle_config_t * duty_cycle_config,
+                                                         uint16_t * bit_length);
 
 #endif // SL_DUTY_CYCLE_UTILITY_H

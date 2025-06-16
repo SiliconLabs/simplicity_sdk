@@ -35,12 +35,12 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup mesh_fw_update_server
+ * @addtogroup btmesh_firmware_update_server
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup mesh_fw_update_server_api
+ * @addtogroup btmesh_firmware_update_server_api
  *
  * BT Mesh Firmware Update Server user-overridable API
  * @{
@@ -58,7 +58,7 @@ typedef enum sl_btmesh_fw_update_server_verify_state_e {
 
 /// Metadata check step result
 typedef enum sl_btmesh_fw_update_server_metadata_check_state_e {
-  /// Metadata check pedning
+  /// Metadata check pending
   BTMESH_FW_UPDATE_SERVER_METADATA_CHECK_PENDING,
   /// Metadata check error
   BTMESH_FW_UPDATE_SERVER_METADATA_CHECK_ERROR,
@@ -96,7 +96,7 @@ typedef enum sl_btmesh_fw_update_server_additional_information_e {
  *                                 also needs to free memory if it was allocated
  *                                 on heap, which could be done in
  *                                 @ref sl_btmesh_fw_update_server_apply.
- *                                 If it's set to NULL, than no data is read
+ *                                 If it's set to NULL, then no data is read
  *                                 from storage automatically during
  *                                 verification.
  * @param[out] verify_chunk_size Size of verification chunk. Progress
@@ -216,6 +216,12 @@ void sl_btmesh_fw_update_server_apply(void);
 
 /***************************************************************************//**
  * Used to retrieve information about firmware stored on the device for DFU
+ * @param[in] index DFU Storage index
+ * @param[out] fwid_len Length of the firmware ID
+ * @param[out] fwid_ptr Pointer to the firmware ID
+ * @param[out] uri_len Length of the Uniform Resource Identifier (URI)
+ * @param[out] uri_ptr Pointer to the Uniform Resource Identifier (URI)
+ * @return SL_STATUS_OK if successful, SL_STATUS_BT_MESH_DOES_NOT_EXIST if the index is invalid
  ******************************************************************************/
 sl_status_t mesh_platform_get_installed_firmware_information(uint8_t index,
                                                              uint8_t *fwid_len,
@@ -223,9 +229,9 @@ sl_status_t mesh_platform_get_installed_firmware_information(uint8_t index,
                                                              uint8_t *uri_len,
                                                              const uint8_t **uri_ptr);
 
-/** @} end mesh_fw_update_server_api */
+/** @} end btmesh_firmware_update_server_api */
 
-/** @} end mesh_fw_update_server */
+/** @} end btmesh_firmware_update_server */
 
 #ifdef __cplusplus
 }

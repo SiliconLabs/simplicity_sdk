@@ -17,11 +17,11 @@
 
 /****************************************************************************************************//**
  * @note     (1) This port targets the following:
- *                   Core      : ARMv7M and ARMv8M Cortex-M
+ *                   Core      : ARMv7M Cortex-M
  *                   Mode      : Thumb-2 ISA
  *                   Toolchain : IAR EWARM
  *
- * @note     (2) This port supports the ARM Cortex-M3, Cortex-M4, Cortex-M7 and Cortex-M33 architectures.
+ * @note     (2) This port supports the ARM Cortex-M3, Cortex-M4 and Cortex-M7 architectures.
  *******************************************************************************************************/
 
 #define   OS_CPU_GLOBALS
@@ -44,6 +44,7 @@ const CPU_CHAR *os_cpu_c__c = "$Id: $";
 #endif
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
 #include <sl_power_manager.h>
+#include <sli_power_manager.h>
 #endif
 
 #ifdef __cplusplus
@@ -123,6 +124,30 @@ void OSIdleContext(void)
   }
 #endif
 }
+
+/*****************************************************************************************************//**
+ *                                             OSIdleEnterHandler
+ *
+ * @brief    This function handles idling. It should never return.
+ *           Being called from an idle context, it means there is no context save.
+ *           Extra care must be taken as no states will be saved and any set of instructions with side
+ *           effects shall be performed in a critical section.
+ *           This function is called using the isr stack.
+ *******************************************************************************************************/
+#if defined(MICRIUMOS_SLEEP_ON_EXIT_SUPPORT)
+void OSIdleEnterHandler(void)
+{
+#ifdef SL_CATALOG_POWER_MANAGER_PRESENT
+  // Do pre-sleep operations: do EM transition notification if necessary, update PM state, etc.
+  sli_power_manager_pre_sleep();
+
+  // Actual sleep will be entered at the end of the PendSV Exception Handler since sleep-on-exit flag is set.
+#else
+  // Set Sleep-on-exit flag
+  SCB->SCR |= SCB_SCR_SLEEPONEXIT_Msk;
+#endif
+}
+#endif
 
 /*****************************************************************************************************//**
  *                                               OSInitHook()
@@ -527,6 +552,23 @@ void OSTaskSwHook(void)
   }
 #endif
 }
+
+/****************************************************************************************************//**
+ *                                           OsTaskReadyHook()
+ *
+ * @brief    Called when a task is made ready.
+ *
+ * @param    p_tcb   Pointer to the TCB of the task being ready.
+ *******************************************************************************************************/
+#if defined(MICRIUMOS_SLEEP_ON_EXIT_SUPPORT)
+void OsTaskReadyHook(OS_TCB *p_tcb)
+{
+  (void)p_tcb;
+
+  // Clear Sleep-on-exit bit
+  SCB->SCR &= ~SCB_SCR_SLEEPONEXIT_Msk;
+}
+#endif
 
 /*****************************************************************************************************//**
  *                                             OSCanReturnToSleep()

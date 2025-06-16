@@ -41,21 +41,22 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * Set SYSCLK clock source.
- ******************************************************************************/
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
-sl_status_t sli_clock_manager_set_sysclk_source(sl_oscillator_t source);
-
-/***************************************************************************//**
- * Get SYSCLK clock source.
- ******************************************************************************/
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CLOCK_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
-sl_status_t sli_clock_manager_get_sysclk_source(sl_oscillator_t *source);
-
-/***************************************************************************//**
  * When this callback function is called, it means that HFXO is ready.
  ******************************************************************************/
 __WEAK void sli_clock_manager_notify_hfxo_ready(void);
+
+/***************************************************************************//**
+ * Gets the HFXO's average startup time.
+ *
+ * @param[out] val  The HFXO's AVGSTUP value.
+ *
+ * @return  Status code.
+ *          SL_STATUS_OK if successful.
+ *          SL_STATUS_NOT_READY if measure is not done yet.
+ *          SL_STATUS_NOT_SUPPORTED if not supported.
+ *
+ ******************************************************************************/
+sl_status_t sli_clock_manager_get_hfxo_average_startup_time(uint32_t *val);
 
 #ifdef __cplusplus
 }

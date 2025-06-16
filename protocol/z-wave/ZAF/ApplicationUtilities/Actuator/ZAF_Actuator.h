@@ -19,7 +19,6 @@
  *
  */
 
-
 #ifndef ZAF_ACTUATOR_H
 #define ZAF_ACTUATOR_H
 
@@ -39,22 +38,22 @@ typedef void(*zaf_actuator_callback_t)(struct actuator *pActuator);
  * The structure of Actuator module
  */
 typedef struct actuator {
-    uint32_t defaultRefreshRate; ///< Step/rate counted in milliseconds - how often app refresh its state
+  uint32_t defaultRefreshRate;   ///< Step/rate counted in milliseconds - how often app refresh its state
                                  ///< when transitions from current to target value. Used as timeout in timer
-    uint32_t refreshRate;        ///< Adjusted refreshRate if needed, greater than defaultRefreshRate
-    uint8_t min;                 ///< Minimum value that object can have
-    uint8_t max;                 ///< Maximum value that object can have
-    SSwTimer timer;              ///< Timer used while transitioning from one state to another
-    uint16_t valueCurrent;       ///< Current value of object. Internally stored as 10 times higher to get
+  uint32_t refreshRate;          ///< Adjusted refreshRate if needed, greater than defaultRefreshRate
+  uint8_t min;                   ///< Minimum value that object can have
+  uint8_t max;                   ///< Maximum value that object can have
+  SSwTimer timer;                ///< Timer used while transitioning from one state to another
+  uint16_t valueCurrent;         ///< Current value of object. Internally stored as 10 times higher to get
                                  ///< more accurate change.
                                  ///< @warning Always use @ref ZAF_Actuator_GetCurrentValue() to get current value
-    uint16_t valueTarget;        ///< End value. Internally stored as 10 times higher to match current value format
+  uint16_t valueTarget;          ///< End value. Internally stored as 10 times higher to match current value format
                                  ///< @warning Always use @ref ZAF_Actuator_GetTargetValue() to get target value
-    zaf_actuator_callback_t cc_cb;         ///< Pointer to function called when CC needs to take an action
-    uint16_t singleStepValue;    ///< Internal value used to increase/decrease valueCurrent during timed changes
-    bool directionUp;            ///< Internal value, determines should valueCurrent be increasing or decreasing
-    uint8_t lastOnValue;         ///< Last ON value before setting to OFF (when applicable)
-    uint8_t durationDefault;     ///< Factory default duration, used in timed changes, when no other duration was given
+  zaf_actuator_callback_t cc_cb;           ///< Pointer to function called when CC needs to take an action
+  uint16_t singleStepValue;      ///< Internal value used to increase/decrease valueCurrent during timed changes
+  bool directionUp;              ///< Internal value, determines should valueCurrent be increasing or decreasing
+  uint8_t lastOnValue;           ///< Last ON value before setting to OFF (when applicable)
+  uint8_t durationDefault;       ///< Factory default duration, used in timed changes, when no other duration was given
 } s_Actuator;
 
 /**

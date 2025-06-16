@@ -1,6 +1,6 @@
 id: "btmesh_stack_test"
 label: "Test"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Test Utilities (Only for development, do not use them in production)."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

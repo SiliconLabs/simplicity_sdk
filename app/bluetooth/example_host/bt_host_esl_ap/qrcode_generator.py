@@ -27,6 +27,7 @@ QR code generator for ESL demo
 
 from image_converter import XbmConverter, Image
 from intelhex import IntelHex
+from itertools import zip_longest
 import ap_logger
 import subprocess
 import argparse
@@ -100,7 +101,7 @@ class Commander:
         # Look for the line "Unique ID      : <MAC address>"
         uid_info = re.search(r"Unique ID\s*:\s*(.*)\s*.*", commander_response)
         if uid_info:
-            # Keep the MAC address, chopping the dummy values from the center
+            # Keep the MAC address, chopping the unnecessary values from the center
             uid = (
                 uid_info.group(1)[0:2]
                 + ":"
@@ -201,8 +202,8 @@ Can be omitted if the device is already flashed with the correct file and is unl
         nargs="?",
         default=FALLBACK_HEX,
     )
-    parser.add_argument("-s", "--serialno", help="J-Link serial number of the WSTK")
-    parser.add_argument("--ip", help="IP address of the WSTK")
+    parser.add_argument("-s", "--serialno", nargs='+', help="J-Link serial number(s) of target WSTK(s)")
+    parser.add_argument("-i", "--ip", nargs='+', help="IP address(s) of target WSTK(s)")
     parser.add_argument(
         "-w",
         "--width",
@@ -219,62 +220,68 @@ Can be omitted if the device is already flashed with the correct file and is unl
     )
     args = parser.parse_args()
 
-    commander = Commander(args.serialno, args.ip)
+    if args.serialno is None:
+        args.serialno = [None]
+    if args.ip is None:
+        args.ip = [None]
 
-    # 1) Check if file is in a known format: Intel HEX (.hex), or Motorola S-Records (.s37)
-    ihex = None
-    if args.hex == FALLBACK_HEX:
-        log.warning(
-            "No input file specified, try reading it from the device. This may take a little longer than if we had an input file."
-        )
-        commander.read_mem(args.hex)
-        log.info("Temporary file processing in progress...")
-    try:
-        f = bincopy.BinFile(args.hex)
-    except IOError as e:
-        log.critical(e)
-        abort(e.errno)
-    except bincopy.UnsupportedFileFormatError:
-        log.error(f"Can't open file: {args.hex} due to unknown format.")
-        abort(-4)
-    else:
-        try:
-            ihex = IntelHex(io.StringIO(f.as_ihex()))
-        except:
-            log.error("IntelHex import error.")
-            abort(-5)
-    finally:
+    for board, ip in zip_longest(args.serialno, args.ip):
+        commander = Commander(board, ip)
+
+        # 1) Check if file is in a known format: Intel HEX (.hex), or Motorola S-Records (.s37)
+        ihex = None
         if args.hex == FALLBACK_HEX:
-            os.remove(args.hex)
-            log.info(f"Temporary file removed: {args.hex}")
+            log.warning(
+                "No input file specified, try reading it from the device. This may take a little longer than if we had an input file."
+            )
+            commander.read_mem(args.hex)
+            log.info("Temporary file processing in progress...")
+        try:
+            f = bincopy.BinFile(args.hex)
+        except IOError as e:
+            log.critical(e)
+            abort(e.errno)
+        except bincopy.UnsupportedFileFormatError:
+            log.error(f"Can't open file: {args.hex} due to unknown format.")
+            abort(-4)
+        else:
+            try:
+                ihex = IntelHex(io.StringIO(f.as_ihex()))
+            except:
+                log.error("IntelHex import error.")
+                abort(-5)
+        finally:
+            if args.hex == FALLBACK_HEX:
+                os.remove(args.hex)
+                log.info(f"Temporary file removed: {args.hex}")
 
-    # 2) Read MAC address and create QR code data
-    uid = commander.get_board_uid()
-    log.info(f"UID: {uid}")
-    data = "connect " + uid
+        # 2) Read MAC address and create QR code data
+        uid = commander.get_board_uid()
+        log.info(f"UID: {uid}")
+        data = "connect " + uid
 
-    # 3) Generate QR code: the generated data should be a binary which can be flashed to NVM
-    bin_image, _ = generate_qrcode(data, args.height, args.width)
+        # 3) Generate QR code: the generated data should be a binary which can be flashed to NVM
+        bin_image, _ = generate_qrcode(data, args.height, args.width)
 
-    # 4) Find the magic constant with commander in the given hex file
-    try:
-        start_addr, size = find_magic_in_hex(ihex)
-    except EOFError:
-        log.error(
-            "The QR Code region could not be found. Please check if you have the correct firmware and specified the right target!"
-        )
-        abort(-6)
-    # 5) Check if the space is enough for the QR code
-    if size < len(bin_image):
-        log.error("There is not enough memory to flash the QR code")
-        abort(-7)
+        # 4) Find the magic constant with commander in the given hex file
+        try:
+            start_addr, size = find_magic_in_hex(ihex)
+        except EOFError:
+            log.error(
+                "The QR Code region could not be found. Please check if you have the correct firmware and specified the right target!"
+            )
+            abort(-6)
+        # 5) Check if the space is enough for the QR code
+        if size < len(bin_image):
+            log.error("There is not enough memory to flash the QR code")
+            abort(-7)
 
-    # 6) Create the new hex file and flash it on the device
+        # 6) Create the new hex file and flash it on the device
 
-    merged_hex = merge_qr_hex(bin_image, ihex, start_addr)
-    commander.flash_board(merged_hex)
-    log.info("Done. Cleaning up.")
-    os.remove(merged_hex)
+        merged_hex = merge_qr_hex(bin_image, ihex, start_addr)
+        commander.flash_board(merged_hex)
+        log.info("Done. Cleaning up.")
+        os.remove(merged_hex)
 
 
 if __name__ == "__main__":

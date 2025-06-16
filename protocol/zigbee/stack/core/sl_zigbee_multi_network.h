@@ -269,10 +269,10 @@ void sli_zigbee_schedule_next_poll(void);
   sli_zigbee_stack_stack_status_handler(status)
 #define sli_zigbee_call_poll_handler(childId, jit) \
   sli_zigbee_stack_poll_handler(childId, jit)
-#define sli_zigbee_call_packet_handoff_outgoing_handler(packetType, packetBuffer, index, data) \
-  sl_zigbee_internal_packet_handoff_outgoing_handler(packetType, packetBuffer, index, data)
-#define sli_zigbee_call_packet_handoff_incoming_handler(packetType, packetBuffer, index, data) \
-  sl_zigbee_internal_packet_handoff_incoming_handler(packetType, packetBuffer, index, data)
+#define sli_zigbee_call_packet_handoff_outgoing_handler(packetType, packetBuffer, index, data, data_len) \
+  sl_zigbee_internal_packet_handoff_outgoing_handler(packetType, packetBuffer, index, data, data_len)
+#define sli_zigbee_call_packet_handoff_incoming_handler(packetType, packetBuffer, index, data, data_len) \
+  sl_zigbee_internal_packet_handoff_incoming_handler(packetType, packetBuffer, index, data, data_len)
 #else
 // Wrapper for the sli_zigbee_stack_zigbee_key_establishment_handler() callback.
 void sli_zigbee_call_zigbee_key_establishment_handler(sl_802154_long_addr_t partner,
@@ -288,7 +288,8 @@ sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_outgoing_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data);
+  void *data,
+  uint8_t data_len);
 
 // Wrapper for the sl_zigbee_internal_packet_handoff_incoming_handler() callback
 sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_incoming_handler(
@@ -296,7 +297,8 @@ sl_zigbee_packet_action_t sli_zigbee_call_packet_handoff_incoming_handler(
   sli_buffer_manager_buffer_t packetBuffer,
   uint8_t index,
   // Return:
-  void *data);
+  void *data,
+  uint8_t data_len);
 #endif // defined(SL_ZIGBEE_MULTI_NETWORK_STRIPPED)
 
 //------------------------------------------------------------------------------

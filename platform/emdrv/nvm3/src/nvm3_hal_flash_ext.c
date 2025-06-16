@@ -67,12 +67,11 @@
  ******************************************************************************/
 static bool isErased(void *adr, size_t len)
 {
-  size_t i;
   size_t cnt;
   uint32_t *dat = adr;
 
   cnt = len / sizeof(uint32_t);
-  for (i = 0U; i < cnt; i++) {
+  for (size_t i = 0U; i < cnt; i++) {
     if (*dat != 0xFFFFFFFFUL) {
       return false;
     }
@@ -99,7 +98,7 @@ static sl_status_t nvm3_halFlashExtOpen(nvm3_HalPtr_t nvmAdr, size_t nvmSize)
   // Initialize SE lock mutex
   halSta = sl_se_init();
   if (halSta != SL_STATUS_OK) {
-    return SL_STATUS_NVM3_SECURITY_INIT_FAILED;
+    return SL_STATUS_INITIALIZATION;
   }
 
   sl_se_init_command_context(&cmd_ctx);
@@ -110,8 +109,6 @@ static sl_status_t nvm3_halFlashExtOpen(nvm3_HalPtr_t nvmAdr, size_t nvmSize)
     if (((size_t)nvmAdr < (size_t)startAdr) || (((size_t)nvmAdr + nvmSize) > ((size_t)startAdr + regSize))) {
       return SL_STATUS_NVM3_INVALID_ADDR;
     }
-  } else {
-    return SL_STATUS_NVM3_GET_REGION_LOCATION_FAILED;
   }
 
   return halSta;

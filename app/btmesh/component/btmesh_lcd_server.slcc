@@ -1,6 +1,6 @@
 id: "btmesh_lcd_server"
 label: "Large Composition Data Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   A thin wrapper of the Bluetooth Mesh Stack Large Composition Data component.
   This component enables automatic Models Metadata Page 0 generation for Silicon
@@ -22,3 +22,6 @@ provides:
   - name: "btmesh_lcd_server"
 requires:
   - name: "btmesh_stack_lcd_server"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-lcd-server

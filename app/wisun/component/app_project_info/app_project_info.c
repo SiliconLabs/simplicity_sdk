@@ -386,7 +386,7 @@ sl_status_t app_project_info_get(app_project_info_t * const dest)
   if (dest == NULL) {
     return SL_STATUS_FAIL;
   }
-  
+
   dest->version_count = sizeof(_versions) / sizeof(app_project_info_version_t);
   if (dest->version_count <= 1U) {
     return SL_STATUS_FAIL;
@@ -412,12 +412,11 @@ sl_status_t app_project_info_get(app_project_info_t * const dest)
   return SL_STATUS_OK;
 }
 
-
 void app_project_info_print_pretty(const app_project_info_t * const info, app_project_info_printer_t printer)
 {
   const app_project_info_version_t *ver = NULL;
 
-  if (info == NULL 
+  if (info == NULL
       || printer == NULL) {
     return;
   }

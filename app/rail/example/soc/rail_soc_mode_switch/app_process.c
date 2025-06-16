@@ -33,19 +33,20 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "app_process.h"
+#include "sl_rail_util_init.h"
 #include "sl_simple_button_instances.h"
 #include "sl_rail_sdk_simple_assistance.h"
 #include "rail_config.h"
 #include "sl_rail_sdk_packet_asm.h"
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 #include "sl_rail_sdk_mode_switch.h"
 #include "sl_rail_sdk_fifo_size_config.h"
 #include "sl_power_manager.h"
 #include "app_log.h"
 #include "app_assert.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
@@ -82,42 +83,42 @@ static void select_state(void);
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_packet_received(RAIL_Handle_t rail_handle);
+static void handle_state_packet_received(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Function to handle the S_PACKET_SENT state.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_packet_sent(RAIL_Handle_t rail_handle);
+static void handle_state_packet_sent(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Function to handle the S_RX_PACKET_ERROR state.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_rx_packet_error(RAIL_Handle_t rail_handle);
+static void handle_state_rx_packet_error(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Function to handle the S_TX_PACKET_ERROR state.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_tx_packet_error(RAIL_Handle_t rail_handle);
+static void handle_state_tx_packet_error(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Function to handle the S_CALIBRATION_ERROR state.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_calibration_error(RAIL_Handle_t rail_handle);
+static void handle_state_calibration_error(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Function to handle the S_IDLE state.
  *
  * @param[in] rail_handle A RAIL instance handle
  *****************************************************************************/
-static void handle_state_idle(RAIL_Handle_t rail_handle);
+static void handle_state_idle(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * The function printfs the received rx message.
@@ -147,12 +148,7 @@ static volatile state_t state = S_IDLE;
 static volatile uint64_t error_code = 0;
 
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = 0;
-
-/// Receive and Send FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[SL_RAIL_SDK_RX_FIFO_SIZE];
-
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[SL_RAIL_SDK_TX_FIFO_SIZE];
+static volatile sl_rail_status_t calibration_status = 0;
 
 /// Transmit packet
 static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
@@ -175,14 +171,19 @@ static volatile bool cal_error = false;
 /// Flag, indicating mode switch request
 volatile bool ms_requested = false;
 
+static uint8_t rx_buffer[SL_RAIL_SDK_RX_FIFO_SIZE];
+
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
   select_state();
   switch (state) {
     case S_PACKET_RECEIVED:
@@ -218,19 +219,19 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
   mode_switch_state_t ms_state = get_ms_state();
 
   error_code = events;
 
   // Handle Rx events
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer,
       // download it later at the state machine
-      RAIL_HoldRxPacket(rail_handle);
+      sl_rail_hold_rx_packet(rail_handle);
       packet_received = true;
     } else {
       // Handle Rx error
@@ -238,8 +239,8 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     }
   }
   // Handle Tx events
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       packet_sent = true;
     } else {
       // Handle Tx error
@@ -247,11 +248,11 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     }
   }
 
-  if (events & RAIL_EVENT_IEEE802154_MODESWITCH_START) {
+  if (events & SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_START) {
     if (ms_state == MS_IDLE) {
       status = switch_to_ms_channel(rail_handle);
-      if (status == RAIL_STATUS_NO_ERROR) {
-        app_log_info("RAIL_EVENT_IEEE802154_MODESWITCH_START happened\n");
+      if (status == SL_RAIL_STATUS_NO_ERROR) {
+        app_log_info("SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_START happened\n");
         set_ms_state(MS_ON_NEW_PHY);
       }
     } else {
@@ -259,17 +260,17 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     }
   }
 
-  if (events & RAIL_EVENT_IEEE802154_MODESWITCH_END) {
+  if (events & SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_END) {
     status = return_to_base_channel();
-    if (status == RAIL_STATUS_NO_ERROR) {
-      app_log_info("RAIL_EVENT_IEEE802154_MODESWITCH_END happened\n");
+    if (status == SL_RAIL_STATUS_NO_ERROR) {
+      app_log_info("SL_RAIL_EVENT_IEEE802154_MODE_SWITCH_END happened\n");
     }
   }
 
   // Perform all calibrations when needed
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL, RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL, SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
       cal_error = true;
     }
   }
@@ -281,7 +282,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 /******************************************************************************
  * Button callback, called if any button is pressed or released.
  *****************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
     if (handle == &sl_button_btn0) {
@@ -301,24 +302,6 @@ void sl_button_on_change(const sl_button_t *handle)
 #if defined(SL_CATALOG_KERNEL_PRESENT)
   app_task_notify();
 #endif
-}
-
-/******************************************************************************
- * Set up the rail TX fifo for later usage
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle)
-{
-  uint16_t allocated_tx_fifo_size = 0;
-
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle,
-                                          tx_fifo,
-                                          0,
-                                          SL_RAIL_SDK_TX_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == SL_RAIL_SDK_TX_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo"
-             "(%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             SL_RAIL_SDK_TX_FIFO_SIZE);
 }
 
 /******************************************************************************
@@ -358,48 +341,50 @@ static void select_state(void)
 /******************************************************************************
  * Function to handle the S_PACKET_RECEIVED state.
  *****************************************************************************/
-static void handle_state_packet_received(RAIL_Handle_t rail_handle)
+static void handle_state_packet_received(sl_rail_handle_t rail_handle)
 {
   // Packet received:
-  //  - Check whether RAIL_HoldRxPacket() was successful, i.e. packet handle is valid
+  //  - Check whether sl_rail_hold_rx_packet() was successful, i.e. packet handle is valid
   //  - Copy it to the application FIFO
   //  - Free up the radio FIFO
   //  - Return to app IDLE state (RAIL will automatically switch back to Rx radio state)
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
-  RAIL_RxPacketHandle_t rx_packet_handle;
-  RAIL_RxPacketInfo_t packet_info;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_rx_packet_handle_t rx_packet_handle;
+  sl_rail_rx_packet_info_t packet_info;
   uint8_t *start_of_packet = 0U;
   uint16_t packet_size = 0U;
 
-  rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                          RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                          &packet_info);
-  while (rx_packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
+  rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                                SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+                                                &packet_info);
+  while (rx_packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
     start_of_packet = 0;
-    packet_size = unpack_packet(rx_fifo,
-                                &packet_info,
-                                &start_of_packet,
-                                get_phy_modulation_from_channel(get_channel()));
-    rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("ERROR RAIL_ReleaseRxPacket() result: %lu\n", rail_status);
-    }
-    if (rx_requested) {
-      printf_rx_packet(start_of_packet, packet_size);
-    }
-    if (start_of_packet[0] == MS_END_PACKET_INDICATOR) {
-      rail_status = return_to_base_channel();
-      if (rail_status == RAIL_STATUS_NO_ERROR) {
-        app_log_info("Mode switch end, returned to the base channel\n");
-      } else {
-        app_log_warning("Error during returning to the base channel: %d\n",
-                        (uint8_t)rail_status);
+    if (packet_info.packet_bytes <= SL_RAIL_SDK_RX_FIFO_SIZE) {
+      packet_size = unpack_packet(rail_handle, rx_buffer,
+                                  &packet_info,
+                                  &start_of_packet,
+                                  get_phy_modulation_from_channel(get_channel()));
+      rail_status = sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
+      if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+        app_log_warning("ERROR sl_rail_release_rx_packet() result: %lu\n", rail_status);
       }
+      if (rx_requested) {
+        printf_rx_packet(start_of_packet, packet_size);
+      }
+      if (start_of_packet[0] == MS_END_PACKET_INDICATOR) {
+        rail_status = return_to_base_channel();
+        if (rail_status == SL_RAIL_STATUS_NO_ERROR) {
+          app_log_info("Mode switch end, returned to the base channel\n");
+        } else {
+          app_log_warning("Error during returning to the base channel: %d\n",
+                          (uint8_t)rail_status);
+        }
+      }
+      toggle_receive_led();
     }
-    toggle_receive_led();
-    rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                            RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                            &packet_info);
+    rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                                  SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+                                                  &packet_info);
   }
   state = S_IDLE;
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -410,10 +395,10 @@ static void handle_state_packet_received(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Function to handle the S_PACKET_SENT state.
  *****************************************************************************/
-static void handle_state_packet_sent(RAIL_Handle_t rail_handle)
+static void handle_state_packet_sent(sl_rail_handle_t rail_handle)
 {
   (void) rail_handle;
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
   mode_switch_state_t ms_state = get_ms_state();
   uint16_t ms_new_channel = get_ms_new_channel();
 
@@ -427,7 +412,7 @@ static void handle_state_packet_sent(RAIL_Handle_t rail_handle)
   if (ms_state == MS_SENDING_MS_END_PACKET) {
     rail_status = return_to_base_channel();
     update_rail_pa_settings(rail_handle, get_channel());
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
       app_log_warning("ERROR return_to_base_channel: %d\n",
                       rail_status);
     }
@@ -453,7 +438,7 @@ static void handle_state_packet_sent(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Function to handle the S_RX_PACKET_ERROR state.
  *****************************************************************************/
-static void handle_state_rx_packet_error(RAIL_Handle_t rail_handle)
+static void handle_state_rx_packet_error(sl_rail_handle_t rail_handle)
 {
   (void) rail_handle;
 
@@ -467,7 +452,7 @@ static void handle_state_rx_packet_error(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Function to handle the S_TX_PACKET_ERROR state.
  *****************************************************************************/
-static void handle_state_tx_packet_error(RAIL_Handle_t rail_handle)
+static void handle_state_tx_packet_error(sl_rail_handle_t rail_handle)
 {
   (void) rail_handle;
 
@@ -481,14 +466,14 @@ static void handle_state_tx_packet_error(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Function to handle the S_CALIBRATION_ERROR state.
  *****************************************************************************/
-static void handle_state_calibration_error(RAIL_Handle_t rail_handle)
+static void handle_state_calibration_error(sl_rail_handle_t rail_handle)
 {
   (void) rail_handle;
-  RAIL_Status_t calibration_status_buff = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t calibration_status_buff = SL_RAIL_STATUS_NO_ERROR;
 
   calibration_status_buff = calibration_status;
   app_log_error("Radio Calibration Error occurred\nEvents: 0x%llX\n"
-                "RAIL_Calibrate() result: %d\n",
+                "sl_rail_calibrate() result: %d\n",
                 error_code,
                 calibration_status_buff);
   state = S_IDLE;
@@ -500,9 +485,9 @@ static void handle_state_calibration_error(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Function to handle the S_IDLE state.
  *****************************************************************************/
-static void handle_state_idle(RAIL_Handle_t rail_handle)
+static void handle_state_idle(sl_rail_handle_t rail_handle)
 {
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
   sl_status_t status = SL_STATUS_OK;
   mode_switch_state_t ms_state = get_ms_state();
 
@@ -513,7 +498,7 @@ static void handle_state_idle(RAIL_Handle_t rail_handle)
   if (ms_state == MS_REQUESTED) {
     status = trig_mode_switch_tx(rail_handle);
     if (rail_status != SL_STATUS_OK) {
-      app_log_warning("ERROR RAIL_IEEE802154_ComputeChannelFromPhyModeId: %d\n",
+      app_log_warning("ERROR sl_rail_ieee802154_compute_channel_from_phy_mode_id: %d\n",
                       (uint16_t)status);
     }
     // ms_state is changed on success
@@ -537,12 +522,12 @@ static void handle_state_idle(RAIL_Handle_t rail_handle)
                      sizeof(out_packet),
                      get_phy_modulation_from_channel(get_channel()));
     }
-    rail_status = RAIL_StartTx(rail_handle,
-                               get_channel(),
-                               RAIL_TX_OPTIONS_DEFAULT,
-                               NULL);
-    if (rail_status == RAIL_STATUS_NO_ERROR) {
-      app_log_info("RAIL_StartTx() ok\n");
+    rail_status = sl_rail_start_tx(rail_handle,
+                                   get_channel(),
+                                   SL_RAIL_TX_OPTIONS_DEFAULT,
+                                   NULL);
+    if (rail_status == SL_RAIL_STATUS_NO_ERROR) {
+      app_log_info("sl_rail_start_tx() ok\n");
       ms_state = get_ms_state();
       if (ms_state == MS_INITIATED) {
         set_ms_state(MS_SENDING_MS_START_PACKET);
@@ -563,18 +548,18 @@ static void handle_state_idle(RAIL_Handle_t rail_handle)
                        sizeof(out_packet),
                        get_phy_modulation_from_channel(get_ms_new_channel()));
         update_rail_pa_settings(rail_handle, get_ms_new_channel());
-        rail_status = RAIL_StartTx(rail_handle,
-                                   get_ms_new_channel(),
-                                   RAIL_TX_OPTIONS_DEFAULT,
-                                   NULL);
-        if (rail_status == RAIL_STATUS_NO_ERROR) {
-          app_log_info("RAIL_StartTx() ok\n");
+        rail_status = sl_rail_start_tx(rail_handle,
+                                       get_ms_new_channel(),
+                                       SL_RAIL_TX_OPTIONS_DEFAULT,
+                                       NULL);
+        if (rail_status == SL_RAIL_STATUS_NO_ERROR) {
+          app_log_info("sl_rail_start_tx() ok\n");
         } else {
-          app_log_warning("ERROR RAIL_StartTx() result: %lu\n", rail_status);
+          app_log_warning("ERROR sl_rail_start_tx() result: %lu\n", rail_status);
         }
       }
     } else {
-      app_log_warning("ERROR RAIL_StartTx() result: %lu\n", rail_status);
+      app_log_warning("ERROR sl_rail_start_tx() result: %lu\n", rail_status);
     }
     tx_requested = false;
 #if defined(SL_CATALOG_KERNEL_PRESENT)

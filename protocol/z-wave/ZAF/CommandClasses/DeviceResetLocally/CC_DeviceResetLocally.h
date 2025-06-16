@@ -29,7 +29,7 @@
 
 /**
  * @brief Transmission callback for CC_DeviceResetLocally_notification_tx().
- * 
+ *
  * @param pTransmissionResult Result of each transmission.
  */
 extern void CC_DeviceResetLocally_done(TRANSMISSION_RESULT * pTransmissionResult);
@@ -42,6 +42,6 @@ void CC_DeviceResetLocally_notification_tx();
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif

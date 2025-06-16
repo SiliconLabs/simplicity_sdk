@@ -1,5 +1,5 @@
 id: psa_crypto_sha224
-package: platform
+package: security_mbedtls
 label: SHA-224
 description: >-
   This component provides support for the SHA-224 hash algorithm in PSA Crypto.

@@ -1,13 +1,13 @@
 id: trustzone_nonsecure
-label: "TrustZone Non-Secure"
+label: TrustZone Non-Secure
 description: >
-   Set up application configuration to create TrustZone Non-Secure application.
-package: platform
+    Set up application configuration to create TrustZone Non-Secure application.
+package: platform_core
 category: Platform|TrustZone
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 define:
   - name: SL_TRUSTZONE_NONSECURE

@@ -1,13 +1,13 @@
 id: imu_driver
-package: platform
+package: board_drivers
 label: IMU - Inertial Measurement Unit
 description: >
-  Intertial Measurement Unit driver
+    Intertial Measurement Unit driver
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/imu
 provides:
   - name: imu_driver

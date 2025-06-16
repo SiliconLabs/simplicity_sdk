@@ -1,6 +1,6 @@
 id: lwip_app_netbiosns
 label: "LWIP NetBIOS-NS High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP NetBIOS-NS high layer application specifically programmed with the lwIP low-level raw API,
     this is an example implementation of a NetBIOS name server. It responds to name queries for a

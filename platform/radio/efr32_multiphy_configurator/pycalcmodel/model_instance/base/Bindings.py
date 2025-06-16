@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Oct 13 17:05:21 2020 by generateDS.py version 2.12d.
+# Generated Mon Aug 12 15:50:54 2024 by generateDS.py version 2.12d.
 #
 # Command line options:
 #   ('-o', '..\\..\\model_instance\\base\\Bindings.py')
@@ -1639,6 +1639,7 @@ class featureType(GeneratedsSuper):
 
 
 class physType(GeneratedsSuper):
+    """Contains an optional phy used to initialize the profile."""
     subclass = None
     superclass = None
     def __init__(self, phy=None):
@@ -1721,7 +1722,11 @@ class physType(GeneratedsSuper):
 
 
 class phyType(GeneratedsSuper):
-    """The phy name. The name to display in the GUI.A plain text
+    """A phy is a collection of preconfigured values for direct use by the
+    user. Internally maps to a profile name and version. For the
+    model instance, this optional member indicates the exact phy
+    values were assigned to the profile with no modifications.The
+    phy name. The name to display in the GUI.A plain text
     description of the phy.The name used to collect a group of
     similar phys.The profile name to pass the phy input values.The
     Boolean expression of feature_NAME variables with logical AND
@@ -1973,6 +1978,8 @@ class phyType(GeneratedsSuper):
 
 
 class profile_inputsType(GeneratedsSuper):
+    """The collection of input variables. Specify the name and the value.
+    These inputs are NOT exposed to user for modification."""
     subclass = None
     superclass = None
     def __init__(self, profile_input=None):
@@ -2066,7 +2073,8 @@ class profile_inputsType(GeneratedsSuper):
 
 
 class profile_inputType(GeneratedsSuper):
-    """Specifies if this input has array of data."""
+    """An input variable name, where the variable must have an forced
+    value.Specifies if this input has array of data."""
     subclass = None
     superclass = None
     def __init__(self, is_array=None, readable_name=None, var_name=None, category=None, values=None):
@@ -2211,6 +2219,9 @@ class profile_inputType(GeneratedsSuper):
 
 
 class profile_outputsType(GeneratedsSuper):
+    """The collection of profile output override values. Specify the name
+    and override value. The override inputs are NOT exposed to the
+    user for modification."""
     subclass = None
     superclass = None
     def __init__(self, profile_output=None):
@@ -2304,16 +2315,19 @@ class profile_outputsType(GeneratedsSuper):
 
 
 class profile_outputType(GeneratedsSuper):
-    """Specifies if this output has array of data."""
+    """An output variable name, where the calculated output value is
+    overridden. This can be viewed as an input to the
+    calculatorSpecifies if this output has array of data."""
     subclass = None
     superclass = None
-    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None):
+    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None, groups=None):
         self.original_tagname_ = None
         self.is_array = _cast(bool, is_array)
         self.readable_name = readable_name
         self.category = category
         self.var_name = var_name
         self.overrides = overrides
+        self.groups = groups
     def factory(*args_, **kwargs_):
         if profile_outputType.subclass:
             return profile_outputType.subclass(*args_, **kwargs_)
@@ -2332,6 +2346,9 @@ class profile_outputType(GeneratedsSuper):
     def get_overrides(self): return self.overrides
     def set_overrides(self, overrides): self.overrides = overrides
     overridesProp = property(get_overrides, set_overrides)
+    def get_groups(self): return self.groups
+    def set_groups(self, groups): self.groups = groups
+    groupsProp = property(get_groups, set_groups)
     def get_is_array(self): return self.is_array
     def set_is_array(self, is_array): self.is_array = is_array
     is_arrayProp = property(get_is_array, set_is_array)
@@ -2340,7 +2357,8 @@ class profile_outputType(GeneratedsSuper):
             self.readable_name is not None or
             self.category is not None or
             self.var_name is not None or
-            self.overrides is not None
+            self.overrides is not None or
+            self.groups is not None
         ):
             return True
         else:
@@ -2383,6 +2401,9 @@ class profile_outputType(GeneratedsSuper):
             outfile.write('<%svar_name>%s</%svar_name>%s' % (namespace_, self.gds_format_string(quote_xml(self.var_name), input_name='var_name'), namespace_, eol_))
         if self.overrides is not None:
             self.overrides.export(outfile, level, namespace_, name_='overrides', pretty_print=pretty_print)
+        if self.groups is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sgroups>%s</%sgroups>%s' % (namespace_, self.gds_format_string(quote_xml(self.groups), input_name='groups'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='profile_outputType'):
         level += 1
         already_processed = set()
@@ -2410,6 +2431,9 @@ class profile_outputType(GeneratedsSuper):
             self.overrides.exportLiteral(outfile, level)
             showIndent(outfile, level)
             outfile.write('),\n')
+        if self.groups is not None:
+            showIndent(outfile, level)
+            outfile.write('groups=%s,\n' % quote_python(self.groups))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2445,10 +2469,16 @@ class profile_outputType(GeneratedsSuper):
             obj_.build(child_)
             self.overrides = obj_
             obj_.original_tagname_ = 'overrides'
+        elif nodeName_ == 'groups':
+            groups_ = child_.text
+            groups_ = self.gds_validate_string(groups_, node, 'groups')
+            self.groups = groups_
 # end class profile_outputType
 
 
 class profilesType(GeneratedsSuper):
+    """Contains a single instance of the profile selected for this
+    instance."""
     subclass = None
     superclass = None
     def __init__(self, profile=None):
@@ -2531,14 +2561,17 @@ class profilesType(GeneratedsSuper):
 
 
 class profileType(GeneratedsSuper):
-    """The name of the calculation or configuration represented by this
-    profile.The name to display in the GUI.Used to organize profiles
-    for display.A plain text description of the profile. Explain
-    what happens here. What is computed.Indicates this is the
-    default profile to display to the user.The Boolean expression of
-    feature_NAME variables with logical AND (double ampersands), OR
-    (double pipes), and/or NOT (exclamation) operators. Use
-    parenthesis to group. An empty string defaults to true."""
+    """A profile defines one or more input variables with defaults, any
+    internal variables to be forced, and the corresponding
+    calculated output variables.The name of the calculation or
+    configuration represented by this profile.The name to display in
+    the GUI.Used to organize profiles for display.A plain text
+    description of the profile. Explain what happens here. What is
+    computed.Indicates this is the default profile to display to the
+    user.The Boolean expression of feature_NAME variables with
+    logical AND (double ampersands), OR (double pipes), and/or NOT
+    (exclamation) operators. Use parenthesis to group. An empty
+    string defaults to true."""
     subclass = None
     superclass = None
     def __init__(self, name=None, readable_name=None, category=None, desc=None, default=None, act_logic=None, inputs=None, forces=None, outputs=None, default_phys=None):
@@ -2771,6 +2804,8 @@ class profileType(GeneratedsSuper):
 
 
 class inputsType(GeneratedsSuper):
+    """The collection of input variables. Specify the name and the default
+    value. Exposed to user for modification."""
     subclass = None
     superclass = None
     def __init__(self, input=None):
@@ -2864,11 +2899,12 @@ class inputsType(GeneratedsSuper):
 
 
 class inputType1(GeneratedsSuper):
-    """Specifies if this input has array of data.Describes the purpose of
-    this input variable.An optional minimum value, inclusive.An
-    optional maximum value, inclusive.Specifies the number of
-    fractional digits to display for a float or fixed point
-    value.Boolean that defines this input as deprecatedType of
+    """An input variable name, where the variable must have an forced
+    value.Specifies if this input has array of data.Describes the
+    purpose of this input variable.An optional minimum value,
+    inclusive.An optional maximum value, inclusive.Specifies the
+    number of fractional digits to display for a float or fixed
+    point value.Boolean that defines this input as deprecatedType of
     visibility applicable to a GUIDefine the units multiplier when
     shown on the GUI."""
     subclass = None
@@ -3156,6 +3192,8 @@ class inputType1(GeneratedsSuper):
 
 
 class forcesType(GeneratedsSuper):
+    """A collection of internal variables to be forced to a default. These
+    variables are not exposed to the user."""
     subclass = None
     superclass = None
     def __init__(self, force=None):
@@ -3249,7 +3287,9 @@ class forcesType(GeneratedsSuper):
 
 
 class forceType(GeneratedsSuper):
-    """Specifies if this force has array of data."""
+    """An internal variable that is NOT exposed to the user can be forced
+    to a default value that overrides the calculated value.Specifies
+    if this force has array of data."""
     subclass = None
     superclass = None
     def __init__(self, is_array=None, var_name=None, values=None):
@@ -3364,6 +3404,8 @@ class forceType(GeneratedsSuper):
 
 
 class outputsType(GeneratedsSuper):
+    """The collection of output variables. These variables will be assigned
+    values during execution of this profile."""
     subclass = None
     superclass = None
     def __init__(self, output=None):
@@ -3457,13 +3499,17 @@ class outputsType(GeneratedsSuper):
 
 
 class outputType2(GeneratedsSuper):
-    """Specifies if this output has array of data.Describes the purpose of
-    this output variable.An optional minimum value, inclusive.An
-    optional maximum value, inclusive.Specifies the number of
-    fractional digits to display for a float or fixed point value."""
+    """An output calculated during execution of the profile calculations.
+    The variable may contain a svd_mapping attribute to allow
+    register assignment. Use the output_type attribute to determine
+    the type of this profile output.Specifies if this output has
+    array of data.Describes the purpose of this output variable.An
+    optional minimum value, inclusive.An optional maximum value,
+    inclusive.Specifies the number of fractional digits to display
+    for a float or fixed point value."""
     subclass = None
     superclass = None
-    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None, var_values=None, var_overrides=None):
+    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None, var_values=None, var_overrides=None, groups=None):
         self.original_tagname_ = None
         self.is_array = _cast(bool, is_array)
         self.output_type = _cast(None, output_type)
@@ -3475,6 +3521,7 @@ class outputType2(GeneratedsSuper):
         self.var_name = var_name
         self.var_values = var_values
         self.var_overrides = var_overrides
+        self.groups = groups
     def factory(*args_, **kwargs_):
         if outputType2.subclass:
             return outputType2.subclass(*args_, **kwargs_)
@@ -3496,6 +3543,9 @@ class outputType2(GeneratedsSuper):
     def get_var_overrides(self): return self.var_overrides
     def set_var_overrides(self, var_overrides): self.var_overrides = var_overrides
     var_overridesProp = property(get_var_overrides, set_var_overrides)
+    def get_groups(self): return self.groups
+    def set_groups(self, groups): self.groups = groups
+    groupsProp = property(get_groups, set_groups)
     def get_is_array(self): return self.is_array
     def set_is_array(self, is_array): self.is_array = is_array
     is_arrayProp = property(get_is_array, set_is_array)
@@ -3520,7 +3570,8 @@ class outputType2(GeneratedsSuper):
             self.category is not None or
             self.var_name is not None or
             self.var_values is not None or
-            self.var_overrides is not None
+            self.var_overrides is not None or
+            self.groups is not None
         ):
             return True
         else:
@@ -3577,6 +3628,9 @@ class outputType2(GeneratedsSuper):
             self.var_values.export(outfile, level, namespace_, name_='var_values', pretty_print=pretty_print)
         if self.var_overrides is not None:
             self.var_overrides.export(outfile, level, namespace_, name_='var_overrides', pretty_print=pretty_print)
+        if self.groups is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sgroups>%s</%sgroups>%s' % (namespace_, self.gds_format_string(quote_xml(self.groups), input_name='groups'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='outputType2'):
         level += 1
         already_processed = set()
@@ -3626,6 +3680,9 @@ class outputType2(GeneratedsSuper):
             self.var_overrides.exportLiteral(outfile, level)
             showIndent(outfile, level)
             outfile.write('),\n')
+        if self.groups is not None:
+            showIndent(outfile, level)
+            outfile.write('groups=%s,\n' % quote_python(self.groups))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3688,10 +3745,15 @@ class outputType2(GeneratedsSuper):
             obj_.build(child_)
             self.var_overrides = obj_
             obj_.original_tagname_ = 'var_overrides'
+        elif nodeName_ == 'groups':
+            groups_ = child_.text
+            groups_ = self.gds_validate_string(groups_, node, 'groups')
+            self.groups = groups_
 # end class outputType2
 
 
 class default_physType(GeneratedsSuper):
+    """Contains at least one default phy."""
     subclass = None
     superclass = None
     def __init__(self, default_phy=None):
@@ -3785,7 +3847,9 @@ class default_physType(GeneratedsSuper):
 
 
 class default_phyType(GeneratedsSuper):
-    """The phy name."""
+    """The default phy to use for this profile. Use the phy's act_logic
+    attribute to ensure that the proper default is selected based on
+    the feature variable values.The phy name."""
     subclass = None
     superclass = None
     def __init__(self, phy_name=None):
@@ -3865,6 +3929,9 @@ class default_phyType(GeneratedsSuper):
 
 
 class variablesType(GeneratedsSuper):
+    """Collection of all variables in the model. These variables serve as
+    direct inputs and outputs to defined profiles. Some variables
+    may only be used internally in intermediate stages."""
     subclass = None
     superclass = None
     def __init__(self, variable=None):
@@ -3958,10 +4025,12 @@ class variablesType(GeneratedsSuper):
 
 
 class variableType(GeneratedsSuper):
-    """The variable name. If a variable is referenced in a profile, then
-    this name will match the var_name in the profile section.The
-    variable type.Specifies if this variable has array of
-    data.Specify how to display the variable value.A plain text
+    """A working variable that represents an initial input, an intermediate
+    value used in one of the calculation stages, or a final
+    output.The variable name. If a variable is referenced in a
+    profile, then this name will match the var_name in the profile
+    section.The variable type.Specifies if this variable has array
+    of data.Specify how to display the variable value.A plain text
     description of the variable.Denotes that this variable can be
     forced. Defaults to true. As the value_actual usage is
     deprecated, this attribute will be set to false for actual
@@ -4035,8 +4104,8 @@ class variableType(GeneratedsSuper):
     def validate_nameType(self, value):
         # Validate type nameType, a restriction on xs:string.
         pass
-    def validate_varType(self, value):
-        # Validate type varType, a restriction on xs:string.
+    def validate_typeType(self, value):
+        # Validate type typeType, a restriction on varType.
         pass
     def validate_formatType(self, value):
         # Validate type formatType, a restriction on xs:string.
@@ -4198,7 +4267,7 @@ class variableType(GeneratedsSuper):
         if value is not None and 'type' not in already_processed:
             already_processed.add('type')
             self.type_ = value
-            self.validate_varType(self.type_)    # validate type varType
+            self.validate_typeType(self.type_)    # validate type typeType
         value = find_attr_value_('is_array', node)
         if value is not None and 'is_array' not in already_processed:
             already_processed.add('is_array')
@@ -4269,7 +4338,8 @@ class variableType(GeneratedsSuper):
 
 
 class enumType(GeneratedsSuper):
-    """The name of the enum.A plain text description of the enum."""
+    """Defines an enum class name and members.The name of the enum.A plain
+    text description of the enum."""
     subclass = None
     superclass = None
     def __init__(self, name=None, desc=None, members=None):
@@ -4383,6 +4453,7 @@ class enumType(GeneratedsSuper):
 
 
 class membersType(GeneratedsSuper):
+    """A collection of members."""
     subclass = None
     superclass = None
     def __init__(self, member=None):
@@ -4590,6 +4661,12 @@ class memberType(GeneratedsSuper):
 
 
 class valuesType(GeneratedsSuper):
+    """The values here are a snapshot of the variable model. Internal
+    variables NOT defined in the profile may have no values defined.
+    If this variable is a profile input or force, it must have a
+    forced value before the calculations run. If this variable is a
+    profile output, it must have a calculated value after the
+    processed flag is True."""
     subclass = None
     superclass = None
     def __init__(self, calculated=None, forced=None):
@@ -4690,6 +4767,8 @@ class valuesType(GeneratedsSuper):
 
 
 class calculatedType(GeneratedsSuper):
+    """The calculated value of the variable from an internal stage. Can be
+    overridden with the forced value."""
     subclass = None
     superclass = None
     def __init__(self, value=None):
@@ -4780,6 +4859,11 @@ class calculatedType(GeneratedsSuper):
 
 
 class forcedType(GeneratedsSuper):
+    """The forced value to use in place of the calculated value. or to
+    specify input for the start of a calculation stage. A profile
+    input variable is assigned to this value. Can be compared
+    against the default value in the profile. A profile force
+    variable is also assigned here."""
     subclass = None
     superclass = None
     def __init__(self, value=None):
@@ -4870,6 +4954,7 @@ class forcedType(GeneratedsSuper):
 
 
 class access_readType(GeneratedsSuper):
+    """Logs getter functions that read the variable value."""
     subclass = None
     superclass = None
     def __init__(self, name=None):
@@ -4960,6 +5045,9 @@ class access_readType(GeneratedsSuper):
 
 
 class access_writeType(GeneratedsSuper):
+    """Logs setter function that wrote the variable value. If this name is
+    set and the variable value is attempted to be set, then an
+    exception is thrown, that this value is already set."""
     subclass = None
     superclass = None
     def __init__(self, name=None):
@@ -5039,6 +5127,8 @@ class access_writeType(GeneratedsSuper):
 
 
 class logsType(GeneratedsSuper):
+    """Array of log messages generated by radio configurator during
+    calculation"""
     subclass = None
     superclass = None
     def __init__(self, log=None):
@@ -5132,7 +5222,7 @@ class logsType(GeneratedsSuper):
 
 
 class logType3(GeneratedsSuper):
-    """Log type (e.g. error, warning, information)"""
+    """Free form log text.Log type (e.g. error, warning, information)"""
     subclass = None
     superclass = None
     def __init__(self, type_=None, valueOf_=None):
@@ -5150,8 +5240,8 @@ class logType3(GeneratedsSuper):
     typeProp = property(get_type, set_type)
     def get_valueOf_(self): return self.valueOf_
     def set_valueOf_(self, valueOf_): self.valueOf_ = valueOf_
-    def validate_logType(self, value):
-        # Validate type logType, a restriction on xs:string.
+    def validate_typeType4(self, value):
+        # Validate type typeType4, a restriction on logType.
         pass
     def hasContent_(self):
         if (
@@ -5212,7 +5302,7 @@ class logType3(GeneratedsSuper):
         if value is not None and 'type' not in already_processed:
             already_processed.add('type')
             self.type_ = value
-            self.validate_logType(self.type_)    # validate type logType
+            self.validate_typeType4(self.type_)    # validate type typeType4
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         pass
 # end class logType3

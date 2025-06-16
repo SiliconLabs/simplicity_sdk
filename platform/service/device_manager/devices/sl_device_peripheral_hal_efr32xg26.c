@@ -103,7 +103,7 @@ const sl_peripheral_val_t sl_peripheral_val_dmem1 = { .base = DMEM1_BASE,
 #if defined(DPLL0_BASE)
 // Define peripheral DPLL0.
 const sl_peripheral_val_t sl_peripheral_val_dpll0 = { .base = DPLL0_BASE,
-                                                      .clk_branch = SL_CLOCK_BRANCH_DPLLREFCLK,
+                                                      .clk_branch = SL_CLOCK_BRANCH_INVALID,
                                                       .bus_clock = SL_BUS_CLOCK_DPLL0 };
 #endif
 
@@ -208,14 +208,14 @@ const sl_peripheral_val_t sl_peripheral_val_i2c1 = { .base = I2C1_BASE,
 #if defined(I2C2_BASE)
 // Define peripheral I2C2.
 const sl_peripheral_val_t sl_peripheral_val_i2c2 = { .base = I2C2_BASE,
-                                                     .clk_branch = SL_CLOCK_BRANCH_INVALID,
+                                                     .clk_branch = SL_CLOCK_BRANCH_PCLK,
                                                      .bus_clock = SL_BUS_CLOCK_I2C2 };
 #endif
 
 #if defined(I2C3_BASE)
 // Define peripheral I2C3.
 const sl_peripheral_val_t sl_peripheral_val_i2c3 = { .base = I2C3_BASE,
-                                                     .clk_branch = SL_CLOCK_BRANCH_INVALID,
+                                                     .clk_branch = SL_CLOCK_BRANCH_PCLK,
                                                      .bus_clock = SL_BUS_CLOCK_I2C3 };
 #endif
 

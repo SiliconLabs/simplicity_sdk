@@ -48,7 +48,7 @@ extern "C" {
 #include "sl_hal_system.h"
 #endif
 
-#include "rail.h"
+#include "sl_rail.h"
 
 #include "alarm.h"
 #include "uart.h"
@@ -71,7 +71,7 @@ extern otInstance *sInstance;
 #define gRailHandle emPhyRailHandle // use gRailHandle in the OpenThread PAL.
 #endif
 
-extern RAIL_Handle_t gRailHandle; // coex needs the emPhyRailHandle symbol.
+extern sl_rail_handle_t gRailHandle; // coex needs the emPhyRailHandle symbol.
 
 /**
  * This function performs all platform-specific initialization of
@@ -149,12 +149,12 @@ void efr32PrintResetInfo(void);
  * initialized and a valid handle is available. On platforms that
  * don't support different CCA modes, a call to this function with
  * non-Default CCA mode (i.e. with any value except
- * RAIL_IEEE802154_CCA_MODE_RSSI) will return a failure.
+ * SL_RAIL_IEEE802154_CCA_MODE_RSSI) will return a failure.
  *
  * @param[in] aMode Mode of CCA operation.
  * @return RAIL Status code indicating success of the function call.
  */
-RAIL_Status_t efr32RadioSetCcaMode(uint8_t aMode);
+sl_rail_status_t efr32RadioSetCcaMode(uint8_t aMode);
 
 /**
  * This callback is used to check if is safe to put the EFR32 into a
@@ -179,7 +179,7 @@ bool efr32AllowSleepCallback(void);
  */
 otError efr32RadioLoadChannelConfig(uint8_t aChannel, int8_t aTxPower);
 
-otError railStatusToOtError(RAIL_Status_t status);
+otError railStatusToOtError(sl_rail_status_t status);
 
 /**
  * This function performs Serial processing.

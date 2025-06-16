@@ -1,12 +1,12 @@
 id: toolchain_gcc
 label: GCC Toolchain
-package: platform
+package: platform_core
 description: Toolchain support for GCC
 category: Platform|Toolchain
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 tag:
   - toolchain:id:gcc
@@ -18,7 +18,7 @@ provides:
 requires:
   - name: toolchain_linker_type
   - name: toolchain_variant
-  - name: sl_memory
+  - name: memory_manager_region
     condition: [device_cortexm]
   - name: sl_syscalls
     condition: [device_cortexm]
@@ -36,5 +36,5 @@ library:
     unless: [device_host]
 toolchain_settings:
   - option: link_time_optimization
-    value: "disabled"
+    value: disabled
     unless: [toolchain_lto]

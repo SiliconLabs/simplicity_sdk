@@ -75,7 +75,7 @@ sl_status_t app_timer_start(app_timer_t *timer,
   OS_TICK delay;
   OS_TICK period;
   OS_OPT opt;
-
+  uint64_t required_tick_count;
   // Check input parameters.
   if ((timeout_ms == 0) && is_periodic) {
     return SL_STATUS_INVALID_PARAMETER;
@@ -85,11 +85,16 @@ sl_status_t app_timer_start(app_timer_t *timer,
   tick_rate = OSTimeTickRateHzGet(&err);
   RTOS_ERROR_CHECK(err);
 
-  delay = (timeout_ms * tick_rate + OSTmrUpdateCnt * 1000 - 1)
-          / (OSTmrUpdateCnt * 1000);
-  if (delay == 0) {
+  required_tick_count = ((uint64_t)timeout_ms * tick_rate + OSTmrUpdateCnt * 1000 - 1)
+                        / (OSTmrUpdateCnt * 1000);
+  if ( required_tick_count == 0 ) {
+    // The timer resolution is too small for the requested timeout.
+    return SL_STATUS_INVALID_PARAMETER;
+  } else if (required_tick_count > UINT32_MAX) {
+    // The timer can not provide the required delay, because it is too large.
     return SL_STATUS_INVALID_PARAMETER;
   }
+  delay = (OS_TICK)(required_tick_count);
   period = is_periodic ? delay : 0;
   opt = is_periodic ? OS_OPT_TMR_PERIODIC : OS_OPT_TMR_ONE_SHOT;
 

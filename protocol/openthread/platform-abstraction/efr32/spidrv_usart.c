@@ -36,21 +36,13 @@
 #include "sl_component_catalog.h"
 #endif // SL_COMPONENT_CATALOG_PRESENT
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <string.h>
-
 #include "sl_core.h"
 
-#if defined(SL_CATALOG_GPIO_PRESENT)
-#include "sl_device_gpio.h"
-#else
-#include "em_gpio.h"
-#endif
-
 #include "em_ldma.h"
-
 #include "gpiointerrupt.h"
+#include "sl_device_gpio.h"
+#include "sl_gpio.h"
+
 #include "spidrv.h"
 
 #include "sl_clock_manager.h"
@@ -64,7 +56,7 @@
 #include <openthread-system.h>
 #include <openthread/error.h>
 #include <openthread/platform/spi-slave.h>
-#include "utils/code_utils.h"
+#include "common/code_utils.hpp"
 
 // DEFINES
 #define MAX_DMA_DESCRIPTOR_TRANSFER_COUNT ((_LDMA_CH_CTRL_XFERCNT_MASK >> _LDMA_CH_CTRL_XFERCNT_SHIFT) + 1U)
@@ -133,6 +125,13 @@ static void rcp_spidrv_spi_transaction_end_interrupt(uint8_t intNo)
     uint32_t tx_transaction_size = 0U;
 
     LDMA_StopTransfer(sl_spidrv_handle_data.txDMACh);
+    LDMA_StopTransfer(sl_spidrv_handle_data.rxDMACh);
+
+    // Clear the rxFifo if it receives more bytes than expected LDMA rx xferCnt.
+    if (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_TXBUFCNT_MASK)
+    {
+        sl_spidrv_handle_data.peripheral.usartPort->CMD = USART_CMD_CLEARRX;
+    }
 
     uint32_t tx_dma_channel_nb = sl_spidrv_handle_data.txDMACh;
 
@@ -185,9 +184,9 @@ otError otPlatSpiSlaveEnable(otPlatSpiSlaveTransactionCompleteCallback aComplete
     otError error = OT_ERROR_NONE;
 
     // If driver was already configured, an error is returned.
-    otEXPECT_ACTION(complete_callback == NULL, error = OT_ERROR_ALREADY);
-    otEXPECT_ACTION(process_callback == NULL, error = OT_ERROR_ALREADY);
-    otEXPECT_ACTION(context == NULL, error = OT_ERROR_ALREADY);
+    VerifyOrExit(complete_callback == NULL, error = OT_ERROR_ALREADY);
+    VerifyOrExit(process_callback == NULL, error = OT_ERROR_ALREADY);
+    VerifyOrExit(context == NULL, error = OT_ERROR_ALREADY);
 
     sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
 
@@ -219,8 +218,8 @@ otError otPlatSpiSlaveEnable(otPlatSpiSlaveTransactionCompleteCallback aComplete
             spidrvSlaveStartImmediate,      ///< A slave mode transfer start scheme.
     };
 
-    otEXPECT_ACTION(SPIDRV_Init((SPIDRV_HandleData_t *)&sl_spidrv_handle_data, &init_data) == ECODE_EMDRV_SPIDRV_OK,
-                    error = OT_ERROR_FAILED);
+    VerifyOrExit(SPIDRV_Init((SPIDRV_HandleData_t *)&sl_spidrv_handle_data, &init_data) == ECODE_EMDRV_SPIDRV_OK,
+                 error = OT_ERROR_FAILED);
 
     // Client callback functions.
     complete_callback = aCompleteCallback;
@@ -264,15 +263,12 @@ otError otPlatSpiSlaveEnable(otPlatSpiSlaveTransactionCompleteCallback aComplete
     GPIO_PinModeSet(SL_NCP_SPIDRV_USART_HOST_INT_PORT, SL_NCP_SPIDRV_USART_HOST_INT_PIN, gpioModePushPull, 1U);
 #endif
 
-    GPIOINT_Init();
-
     GPIO_PinModeSet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN, gpioModeInputPullFilter, 1);
 
     CORE_ENTER_ATOMIC();
 
     // Initialization during transaction is not supported.
-    otEXPECT_ACTION(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN) != 0U,
-                    error = OT_ERROR_FAILED);
+    VerifyOrExit(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN) != 0U, error = OT_ERROR_FAILED);
 
     GPIO_ExtIntConfig(SL_NCP_SPIDRV_USART_CS_PORT,
                       SL_NCP_SPIDRV_USART_CS_PIN,
@@ -364,43 +360,43 @@ otError otPlatSpiSlavePrepareTransaction(uint8_t *aOutputBuf,
 
     otError error = OT_ERROR_NONE;
 
-    otEXPECT_ACTION(aOutputBufLen <= MAX_DMA_DESCRIPTOR_TRANSFER_COUNT, error = OT_ERROR_FAILED);
-    otEXPECT_ACTION(aInputBufLen <= MAX_DMA_DESCRIPTOR_TRANSFER_COUNT, error = OT_ERROR_FAILED);
+    VerifyOrExit(aOutputBufLen <= MAX_DMA_DESCRIPTOR_TRANSFER_COUNT, error = OT_ERROR_FAILED);
+    VerifyOrExit(aInputBufLen <= MAX_DMA_DESCRIPTOR_TRANSFER_COUNT, error = OT_ERROR_FAILED);
 
     uint32_t tx_dma_channel_number = sl_spidrv_handle_data.txDMACh;
     uint32_t rx_dma_channel_number = sl_spidrv_handle_data.rxDMACh;
 
     // Check the CS pin if SPI transactions are in progress.
-    otEXPECT_ACTION(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN), error = OT_ERROR_BUSY);
+    VerifyOrExit(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN), error = OT_ERROR_BUSY);
 
-    if (aInputBuf != NULL)
+    if (aOutputBuf)
     {
-        sl_spidrv_handle_data.peripheral.usartPort->CMD = USART_CMD_CLEARRX;
-        // Wait until the Rx fifo clears up.
-        while (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_RXDATAV_MASK)
-            ;
+        LDMA_StopTransfer(tx_dma_channel_number);
+    }
 
-        rx_descriptor.xfer.xferCnt = aInputBufLen - 1U;
-        rx_descriptor.xfer.dstAddr = (uint32_t)aInputBuf;
+    if (aInputBuf)
+    {
+        // Clear the rxFifo only if it is not empty.
+        if (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_RXDATAV_MASK)
+        {
+            sl_spidrv_handle_data.peripheral.usartPort->CMD = USART_CMD_CLEARRX;
+            // Wait until the Rx fifo clears up.
+            while (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_RXDATAV_MASK)
+                ;
+        }
 
         LDMA_StopTransfer(rx_dma_channel_number);
-        // Wait if Rx LDMA channel is busy.
-        while (LDMA->CHBUSY & (1 << rx_dma_channel_number))
-            ;
-
-        LDMA_StartTransfer(rx_dma_channel_number,
-                           (LDMA_TransferCfg_t *)&rx_dma_transfer_config,
-                           (LDMA_Descriptor_t *)&rx_descriptor);
     }
+
+    VerifyOrExit(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN), error = OT_ERROR_BUSY);
 
     if (aOutputBuf != NULL)
     {
-        LDMA_StopTransfer(tx_dma_channel_number);
-        // Wait if Tx LDMA channel is busy.
-        while (LDMA->CHBUSY & (1 << tx_dma_channel_number))
-            ;
-
-        sl_spidrv_handle_data.peripheral.usartPort->CMD = USART_CMD_CLEARTX;
+        // Clear the txFifo only if it is not empty.
+        if (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_TXBUFCNT_MASK)
+        {
+            sl_spidrv_handle_data.peripheral.usartPort->CMD = USART_CMD_CLEARTX;
+        }
 
         tx_descriptor[0].xfer.xferCnt = aOutputBufLen - 1U;
         tx_descriptor[0].xfer.srcAddr = (uint32_t)aOutputBuf;
@@ -408,10 +404,28 @@ otError otPlatSpiSlavePrepareTransaction(uint8_t *aOutputBuf,
         // Wait until Tx fifo clears up.
         while (sl_spidrv_handle_data.peripheral.usartPort->STATUS & _USART_STATUS_TXBUFCNT_MASK)
             ;
+    }
 
+    if (aInputBuf != NULL)
+    {
+        rx_descriptor.xfer.xferCnt = aInputBufLen - 1U;
+        rx_descriptor.xfer.dstAddr = (uint32_t)aInputBuf;
+    }
+
+    VerifyOrExit(GPIO_PinInGet(SL_NCP_SPIDRV_USART_CS_PORT, SL_NCP_SPIDRV_USART_CS_PIN), error = OT_ERROR_BUSY);
+
+    if (aOutputBuf != NULL)
+    {
         LDMA_StartTransfer(tx_dma_channel_number,
                            (LDMA_TransferCfg_t *)&tx_dma_transfer_config,
                            (LDMA_Descriptor_t *)&(tx_descriptor[0]));
+    }
+
+    if (aInputBuf != NULL)
+    {
+        LDMA_StartTransfer(rx_dma_channel_number,
+                           (LDMA_TransferCfg_t *)&rx_dma_transfer_config,
+                           (LDMA_Descriptor_t *)&rx_descriptor);
     }
 
     if (aRequestTransactionFlag)

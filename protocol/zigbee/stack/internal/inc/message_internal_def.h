@@ -3,7 +3,7 @@
  * @brief internal names for 'message' declarations
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -99,21 +99,7 @@ sl_status_t slxi_zigbee_stack_add_to_incoming_network_queue(int8_t rssi,
 
 // Callback Indirection
 
-void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_status_t status,
-                                                    uint8_t gpdLink,
-                                                    uint8_t sequenceNumber,
-                                                    sl_zigbee_gp_address_t *addr,
-                                                    sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-                                                    sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-                                                    bool autoCommissioning,
-                                                    uint8_t bidirectionalInfo,
-                                                    uint32_t gpdSecurityFrameCounter,
-                                                    uint8_t gpdCommandId,
-                                                    uint32_t mic,
-                                                    uint8_t proxyTableIndex,
-                                                    uint8_t gpdCommandPayloadLength,
-                                                    uint8_t *gpdCommandPayload,
-                                                    sl_zigbee_rx_packet_info_t *packetInfo);
+void sli_zigbee_stack_gpep_incoming_message_handler(sl_zigbee_gp_params_t *params);
 
 void sli_zigbee_stack_id_conflict_handler(sl_802154_short_addr_t conflictingId);
 
@@ -149,6 +135,20 @@ void sli_zigbee_stack_override_incoming_route_record_handler(sl_zigbee_rx_packet
                                                              uint8_t relayCount,
                                                              uint8_t *relayList,
                                                              bool *consumed);
+
+void sli_zigbee_stack_post_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                     uint8_t *packetData,
+                                                     uint8_t size_p,
+                                                     uint8_t *data,
+                                                     uint8_t size_d,
+                                                     sl_zigbee_packet_action_t action);
+
+void sli_zigbee_stack_post_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                     uint8_t *packetData,
+                                                     uint8_t size_p,
+                                                     uint8_t *data,
+                                                     uint8_t size_d,
+                                                     sl_zigbee_packet_action_t action);
 
 void sli_zigbee_stack_redirect_outgoing_message_handler(uint8_t mac_index,
                                                         uint8_t packet_length,

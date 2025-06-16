@@ -18,11 +18,6 @@ filter:
   - name: "Project Difficulty"
     value: ["Advanced"]
 
-component:
-  - id: sl_system
-  - id: clock_manager
-  - id: device_init
-
 provides:
   - name: bt_soc_tz_secure_application
 

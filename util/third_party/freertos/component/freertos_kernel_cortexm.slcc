@@ -1,13 +1,21 @@
 id: freertos_kernel_cortexm
-label: FreeRTOS
-package: platform
+label: FreeRTOS Kernel ARM Cortex-M Port
+package: freertos
 description: >
-  FreeRTOS kernel
+  This component provides the FreeRTOS kernel port for ARM Cortex-M
+  processors.
 category: RTOS|FreeRTOS
 quality: production
 metadata:
   sbom:
-    license: MSLA
+    license: Apache 2.0
+    upstream:
+      name: CMSIS-FreeRTOS
+      version: 11.1.0
+      supplier: ARM-software
+      url: https://github.com/ARM-software/CMSIS-FreeRTOS
+      package_url: https://github.com/ARM-software/CMSIS-FreeRTOS/releases/tag/v11.1.0
+      comment: CMSIS-FreeRTOS, Version 11.1.0 
 source:
   - path: util/third_party/freertos/cmsis/Source/cmsis_os2.c
   - path: util/third_party/freertos/kernel/portable/IAR/ARM_CM0/port.c
@@ -42,6 +50,10 @@ source:
     condition:
       - toolchain_iar
       - cortexm33
+  - path: util/third_party/freertos/kernel/portable/IAR/ARM_CM33_NTZ/non_secure/mpu_wrappers_v2_asm.S
+    condition:
+      - toolchain_iar
+      - cortexm33
   - path: util/third_party/freertos/kernel/portable/IAR/ARM_CM33_NTZ/non_secure/port.c
     condition:
       - toolchain_iar
@@ -50,7 +62,15 @@ source:
     condition:
       - toolchain_iar
       - cortexm55
+  - path: util/third_party/freertos/kernel/portable/IAR/ARM_CM33_NTZ/non_secure/mpu_wrappers_v2_asm.S
+    condition:
+      - toolchain_iar
+      - cortexm55
   - path: util/third_party/freertos/kernel/portable/GCC/ARM_CM0/port.c
+    condition:
+      - toolchain_gcc
+      - cortexm0plus
+  - path: util/third_party/freertos/kernel/portable/GCC/ARM_CM0/mpu_wrappers_v2_asm.c
     condition:
       - toolchain_gcc
       - cortexm0plus
@@ -70,6 +90,10 @@ source:
     condition:
       - toolchain_gcc
       - cortexm33
+  - path: util/third_party/freertos/kernel/portable/GCC/ARM_CM33_NTZ/non_secure/mpu_wrappers_v2_asm.c
+    condition:
+      - toolchain_gcc
+      - cortexm33
   - path: util/third_party/freertos/kernel/portable/GCC/ARM_CM33_NTZ/non_secure/port.c
     condition:
       - toolchain_gcc
@@ -78,6 +102,13 @@ source:
     condition:
       - toolchain_gcc
       - cortexm55
+  - path: util/third_party/freertos/kernel/portable/GCC/ARM_CM33_NTZ/non_secure/mpu_wrappers_v2_asm.c
+    condition:
+      - toolchain_gcc
+      - cortexm55
+  - path: util/third_party/freertos/kernel/portable/SiliconLabs/cortexm/tick_power_manager.c
+    condition: 
+      - power_manager
 include:
   - path: util/third_party/freertos/cmsis/Include
     file_list:
@@ -141,6 +172,7 @@ include:
     file_list:
       - path: portmacro.h
       - path: portasm.h
+      - path: portmacrocommon.h
     condition:
       - toolchain_iar
       - cortexm33
@@ -148,6 +180,7 @@ include:
     file_list:
       - path: portmacro.h
       - path: portasm.h
+      - path: portmacrocommon.h
     condition:
       - toolchain_gcc
       - cortexm33
@@ -155,6 +188,7 @@ include:
     file_list:
       - path: portmacro.h
       - path: portasm.h
+      - path: portmacrocommon.h
     condition:
       - toolchain_iar
       - cortexm55
@@ -162,6 +196,7 @@ include:
     file_list:
       - path: portmacro.h
       - path: portasm.h
+      - path: portmacrocommon.h
     condition:
       - toolchain_gcc
       - cortexm55
@@ -181,10 +216,6 @@ requires:
     condition: [power_manager]
   - name: component_catalog
     condition: [power_manager]
-recommends:
-  - id: freertos_heap_3
-  - id: device_init
-  - id: device_init_nvic
 validation_helper:
   - path: util/third_party/freertos/script/freertos_validation.lua
 template_contribution:

@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_dk2606a
 - label: XG24-DK2606A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG24 Channel Sounding Dev Kit.
 - category: Platform|Board|Kit|Development Kit
 - quality: production

@@ -88,11 +88,11 @@ sl_status_t sl_se_aes_crypt_ecb(sl_se_command_context_t *cmd_ctx,
   // Add key input block to command
   sli_add_key_input(cmd_ctx, key, status);
 
-  volatile sli_se_datatransfer_t in = SLI_SE_DATATRANSFER_DEFAULT(input, length);
-  sli_se_mailbox_command_add_input(se_cmd, (sli_se_datatransfer_t*)&in);
+  sli_se_datatransfer_t in = SLI_SE_DATATRANSFER_DEFAULT(input, length);
+  sli_se_mailbox_command_add_input(se_cmd, &in);
 
-  volatile sli_se_datatransfer_t out = SLI_SE_DATATRANSFER_DEFAULT(output, length);
-  sli_se_mailbox_command_add_output(se_cmd, (sli_se_datatransfer_t*)&out);
+  sli_se_datatransfer_t out = SLI_SE_DATATRANSFER_DEFAULT(output, length);
+  sli_se_mailbox_command_add_output(se_cmd, &out);
 
   return sli_se_execute_and_wait(cmd_ctx);
 }
@@ -1630,6 +1630,13 @@ sl_status_t sl_se_hmac(sl_se_command_context_t *cmd_ctx,
       break;
 
 #endif
+#if defined(_SILICON_LABS_32B_SERIES_3)
+    case SL_SE_HASH_AES_MMO:
+      command_word = SLI_SE_COMMAND_HMAC | SLI_SE_COMMAND_OPTION_HMAC_HASH_AES_MMO;
+      // AES-MMO digest size is 16 bytes
+      hmac_len = 16;
+      break;
+#endif
     default:
       return SL_STATUS_INVALID_PARAMETER;
   }
@@ -3025,10 +3032,13 @@ sl_status_t sl_se_hmac_multipart_update(sl_se_command_context_t *cmd_ctx,
   sli_se_mailbox_command_add_parameter(se_cmd, message_len);
 
   // Data input.
-  sli_se_datatransfer_t in_out_hmac_state = SLI_SE_DATATRANSFER_DEFAULT(state_in_out, hmac_state_len);
+  sli_se_datatransfer_t in_hmac_state = SLI_SE_DATATRANSFER_DEFAULT(state_in_out, hmac_state_len);
   sli_se_datatransfer_t in_data = SLI_SE_DATATRANSFER_DEFAULT(message, message_len);
-  sli_se_mailbox_command_add_input(se_cmd, &in_out_hmac_state);
+  sli_se_mailbox_command_add_input(se_cmd, &in_hmac_state);
   sli_se_mailbox_command_add_input(se_cmd, &in_data);
+
+  sli_se_datatransfer_t out_hmac_state = SLI_SE_DATATRANSFER_DEFAULT(state_in_out, hmac_state_len);
+  sli_se_mailbox_command_add_output(se_cmd, &out_hmac_state);
 
   return sli_se_execute_and_wait(cmd_ctx);
 }

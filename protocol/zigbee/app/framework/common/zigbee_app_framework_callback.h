@@ -662,62 +662,12 @@ void sl_zigbee_af_calculate_smacs_283k1_handler_cb(
   sl_zigbee_smac_data_t *responderSmac);
 
 /** @brief
- * A callback invoked by the ZigBee GP stack when a GPDF is received.
- * @param status The status of the GPDF receive.
- * @param gpdLink The gpdLink value of the received GPDF.
- * @param sequenceNumber The GPDF sequence number.
- * @param addr The address of the source GPD.
- * @param gpdfSecurityLevel The security level of the received GPDF.
- * @param gpdfSecurityKeyType The securityKeyType used to decrypt/authenticate
-   the incoming GPDF.
- * @param autoCommissioning Whether the incoming GPDF had the auto-commissioning
-   bit set.
- * @param bidirectionalInfo Bidirectional information represented in bitfields,
-   where bit0 holds the rxAfterTx of incoming gpdf and bit1 holds if tx queue is
-   available for outgoing gpdf.
- * @param gpdSecurityFrameCounter The security frame counter of the incoming
-   GDPF.
- * @param gpdCommandId The gpdCommandId of the incoming GPDF.
- * @param mic The received MIC of the GPDF.
- * @param proxyTableIndex The proxy table index of the corresponding proxy table
-   entry to the incoming GPDF.
- * @param gpdCommandPayloadLength The length of the GPD command payload.
- * @param gpdCommandPayload The GPD command payload.
+ * GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+ * @param params The GPDF parameters
  */
 void sl_zigbee_af_gpep_incoming_message_cb(
-  // The status of the GPDF receive.
-  sl_zigbee_gp_status_t status,
-  // The gpdLink value of the received GPDF.
-  uint8_t gpdLink,
-  // The GPDF sequence number.
-  uint8_t sequenceNumber,
-  // The address of the source GPD.
-  sl_zigbee_gp_address_t *addr,
-  // The security level of the received GPDF.
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-  // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-  // Whether the incoming GPDF had the auto-commissioning bit set.
-  bool autoCommissioning,
-  // Bidirectional information represented in bitfields, where bit0 holds
-  // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-  // for outgoing gpdf.
-  uint8_t bidirectionalInfo,
-  // The security frame counter of the incoming GDPF.
-  uint32_t gpdSecurityFrameCounter,
-  // The gpdCommandId of the incoming GPDF.
-  uint8_t gpdCommandId,
-  // The received MIC of the GPDF.
-  uint32_t mic,
-  // The proxy table index of the corresponding proxy table entry to the
-  // incoming GPDF.
-  uint8_t proxyTableIndex,
-  // The length of the GPD command payload.
-  uint8_t gpdCommandPayloadLength,
-  // The GPD command payload.
-  uint8_t *gpdCommandPayload,
-  // Rx packet information
-  sl_zigbee_rx_packet_info_t *packetInfo);
+  // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+  sl_zigbee_gp_params_t *params);
 
 /** @brief
  * Rtos Stack Wakeup Isr Handler

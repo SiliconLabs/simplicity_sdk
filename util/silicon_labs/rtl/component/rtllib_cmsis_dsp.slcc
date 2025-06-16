@@ -1,6 +1,6 @@
 id: rtllib_cmsis_dsp
 label: CMSIS-DSP SBOM
-package: rtl
+package: realtime_locationing
 category: Bluetooth|Direction Finding
 quality: production
 description: This component defines upstream CMSIS-DSP SBOM metadata.

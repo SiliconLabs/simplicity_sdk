@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_cfb
-package: platform
+package: security_mbedtls
 label: CFB Mode
 description: >-
   This component provides support for the CFB stream cipher mode in PSA Crypto.

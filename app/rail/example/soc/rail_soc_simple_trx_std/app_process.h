@@ -34,7 +34,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_component_catalog.h"
 
 // -----------------------------------------------------------------------------
@@ -71,13 +71,6 @@ extern bool is_ieee802154_app(void);
 extern bool is_ble_app(void);
 
 /**************************************************************************//**
- * The function sets the RAIL TX FIFO.
- *
- * @param[in] rail_handle     Handle to the RAIL context
- *****************************************************************************/
-int16_t app_set_rail_tx_fifo(RAIL_Handle_t rail_handle);
-
-/**************************************************************************//**
  * The function is used for Application logic.
  *
  * @param[in] rail_handle     Handle to the RAIL context
@@ -85,12 +78,12 @@ int16_t app_set_rail_tx_fifo(RAIL_Handle_t rail_handle);
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 /**************************************************************************//**
  * The function initializes the all states, status for application process.
  *
  *****************************************************************************/
-void app_process_init(RAIL_Handle_t rail_handle);
+void app_process_init(sl_rail_handle_t rail_handle);
 
 #endif  // APP_PROCESS_H

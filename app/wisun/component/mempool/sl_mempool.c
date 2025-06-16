@@ -46,7 +46,7 @@
 /**************************************************************************//**
  * @brief Allocate block handler
  * @details Helper function
- * @return sl_mempool_block_hnd_t* Block handler pointer on succes
+ * @return sl_mempool_block_hnd_t* Block handler pointer on success
  *                                 or NULL on error
  *****************************************************************************/
 static sl_mempool_block_hnd_t *_alloc_block_hnd(void);
@@ -63,7 +63,7 @@ static void _free_block_hnd(sl_mempool_block_hnd_t * block_hnd);
  * @details Helper function
  * @param[in] addr Address
  * @param[in] memp Memory Pool object
- * @return sl_mempool_block_hnd_t* Block handler pointer on succes
+ * @return sl_mempool_block_hnd_t* Block handler pointer on success
  *                                 or NULL on error
  *****************************************************************************/
 static sl_mempool_block_hnd_t *_get_block_hnd_by_addr(const void * const addr,

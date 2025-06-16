@@ -7,11 +7,11 @@ The Simplicity SDK combines Silicon Labs wireless software development kits (SDK
 - Ultra-low power consumption
 - Strong network reliability
 
-Silicon Labs also helps future-proof your devices with over-the-air software and security updates, helping to minimize maintenance cost and improve your end user product experience!
+Silicon Labs also helps future-proof your devices with over-the-air software and security updates, helping to minimize maintenance cost and improve your end user product experience.
 
 ## Announcements
 
-On December 13th, 2023, the git LFS server changed and enabled a bandwidth quota based on your IP address. Go [here](https://github.com/SiliconLabs/.github) for more information on how to resolve issues related to these changes.
+The 2025.6.0 release of the Simplicity SDK includes several PDF documents and release notes migrated to Markdown hosted on [docs.silabs.com](https://docs.silabs.com).
 
 ## Licensing
 
@@ -20,7 +20,7 @@ The default license is the [Master Software License Agreement (MSLA)](https://ww
 
 ## Documentation
 
-An archive of all documents associated with the latest release of Simplicity SDK can be found in [Releases](https://github.com/SiliconLabs/simplicity_sdk/releases). Documentation for some of the protocol SDKs and software components is available on https://docs.silabs.com.
+An archive of all documents associated with the latest release of Simplicity SDK can be found in [Releases](https://github.com/SiliconLabs/simplicity_sdk/releases). Documentation for some of the protocol SDKs and software components is available on [docs.silabs.com](https://docs.silabs.com).
 
 ## Getting Started with Simplicity SDK
 
@@ -40,7 +40,7 @@ Simplicity Studio 5 includes everything needed for IoT product development with 
 - Code-correlated energy profiling,
 - And a variety of other tools.
 
-Start by downloading the [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio) package for your operating system from https://www.silabs.com/simplicity. Step-by-step installation instructions are provided in the online [Simplicity Studio 5 User’s Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-getting-started/install-ss-5-and-software).
+Start by downloading the [Simplicity Studio](https://www.silabs.com/developers/simplicity-studio) package for your operating system from [Simplicity Studio Software](https://www.silabs.com/simplicity). Step-by-step installation instructions are provided in the online [Simplicity Studio 5 User’s Guide](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-getting-started/install-ss-5-and-software).
 
 ### Installing Simplicity SDK and Tools Manually
 

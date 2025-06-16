@@ -27,6 +27,14 @@
 #include "sl_component_catalog.h"
 #endif
 
+#if defined(SL_CATALOG_CLOCK_MANAGER_PRESENT)
+#include "sl_clock_manager_oscillator_config.h"
+#endif
+
+#if defined(SL_CATALOG_RAIL_UTIL_IEEE802154_FAST_CHANNEL_SWITCHING_PRESENT)
+#include "sl_rail_util_ieee802154_fast_channel_switching_config.h"
+#endif // SL_CATALOG_RAIL_UTIL_IEEE802154_FAST_CHANNEL_SWITCHING_PRESENT
+
 #if defined(__GNUC__)
 extern uint32_t __ResetReasonStart__;
 #elif defined(__ICCARM__)
@@ -601,12 +609,15 @@ void bootloader_ppusatdnSaveReconfigureState(Bootloader_PPUSATDnCLKENnState_t *c
   CMU->CLKEN1_SET = CMU_CLKEN1_CRYPTOACC;
 #endif
 
+#if !defined(SL_RAIL_UTIL_IEEE802154_FAST_CHANNEL_SWITCHING_ENABLED) || (SL_RAIL_UTIL_IEEE802154_FAST_CHANNEL_SWITCHING_ENABLED == 0)
   // Wait for any active transition of other busmasters to finish
   if (SMU->PPUSATD0 & SMU_PPUSATD0_LDMA) {
     while (LDMA_S->STATUS & LDMA_STATUS_ANYBUSY) ;
   } else {
     while (LDMA_NS->STATUS & LDMA_STATUS_ANYBUSY) ;
   }
+#endif
+
 #if defined(CRYPTOACC_PRESENT)
   if (SMU->PPUSATD1 & SMU_PPUSATD1_CRYPTOACC) {
     #if defined(_SILICON_LABS_GECKO_INTERNAL_SDID_230)
@@ -637,14 +648,13 @@ void bootloader_ppusatdnSaveReconfigureState(Bootloader_PPUSATDnCLKENnState_t *c
 
   SMU->PPUSATD0_SET = SMU_PPUSATD0_CMU;
   SMU->PPUSATD0_SET = SMU_PPUSATD0_MSC;
-  if (bootloader_getAllocatedDMAChannel() != -1
-      && bootloader_getAllocatedDMAChannel() != BOOTLOADER_ERROR_INIT_STORAGE) {
-    SMU->PPUSATD0_SET = SMU_PPUSATD0_LDMA;
-    SMU->PPUSATD0_SET = SMU_PPUSATD0_LDMAXBAR;
-    SMU->BMPUSATD0_SET = SMU_BMPUSATD0_LDMA;
-  }
 
   SMU->PPUSATD0_SET = SMU_PPUSATD0_HFRCO0;
+#if defined(SL_CATALOG_CLOCK_MANAGER_PRESENT)
+#if (SL_CLOCK_MANAGER_HFRCO_DPLL_EN == 1)
+  SMU->PPUSATD0_SET = SMU_PPUSATD0_DPLL0;
+#endif
+#endif
 #if !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_6) \
   && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_8) && !defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
   SMU->PPUSATD0_SET = SMU_PPUSATD0_GPIO;

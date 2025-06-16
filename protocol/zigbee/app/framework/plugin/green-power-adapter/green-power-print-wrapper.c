@@ -38,6 +38,11 @@ WEAK(void sl_zigbee_af_app_println_wrapper(const char * formatString, ...))
 {
 }
 
+WEAK(void sl_zigbee_af_app_print_wrapper(const char * formatString, ...))
+{
+  UNUSED_VAR(formatString);
+}
+
 WEAK(void sl_zigbee_af_print_wrapper(uint16_t area, const char * formatString, ...))
 {
 }
@@ -68,5 +73,11 @@ WEAK(void sl_zigbee_af_green_power_cluster_print_buffer_wrapper(const uint8_t *b
 
 WEAK(void sl_zigbee_af_green_power_cluster_print_string_wrapper(const uint8_t *buffer))
 {
+}
+
+WEAK(void sl_zigbee_af_println_wrapper(uint16_t area, const char * formatString, ...))
+{
+  UNUSED_VAR(area);
+  UNUSED_VAR(formatString);
 }
 #endif // !SL_ZIGBEE_TEST

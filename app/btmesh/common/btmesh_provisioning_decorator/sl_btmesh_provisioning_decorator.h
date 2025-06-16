@@ -32,6 +32,11 @@
 #define SL_BTMESH_PROVISIONING_DECORATOR_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_provisioning_decorator
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Callbacks
  ******************************************************************************/
 
@@ -99,4 +104,5 @@ void sl_btmesh_on_node_provisioning_failed(uint16_t result);
  ******************************************************************************/
 void sl_btmesh_handle_provisioning_decorator_event(sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_provisioning_decorator) */
 #endif // SL_BTMESH_PROVISIONING_DECORATOR_H

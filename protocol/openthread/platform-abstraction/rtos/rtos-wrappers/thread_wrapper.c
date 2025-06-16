@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -125,6 +125,7 @@ extern uint16_t         OT_API_REAL_NAME(otThreadGetKeySwitchGuardTime)(otInstan
 extern uint16_t         OT_API_REAL_NAME(otThreadGetRloc16)(otInstance *aInstance);
 extern uint16_t         OT_API_REAL_NAME(otThreadGetVersion)(void);
 extern uint32_t         OT_API_REAL_NAME(otThreadGetChildTimeout)(otInstance *aInstance);
+extern uint32_t         OT_API_REAL_NAME(otThreadGetCurrentAttachDuration)(otInstance *aInstance);
 extern uint32_t         OT_API_REAL_NAME(otThreadGetKeySequenceCounter)(otInstance *aInstance);
 extern uint32_t         OT_API_REAL_NAME(otThreadGetMaxTimeInQueue)(otInstance *aInstance);
 extern uint32_t         OT_API_REAL_NAME(otThreadGetPartitionId)(otInstance *aInstance);
@@ -578,6 +579,14 @@ uint32_t OT_API_WRAPPER_NAME(otThreadGetChildTimeout)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     uint32_t ret = OT_API_REAL_NAME(otThreadGetChildTimeout)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+uint32_t OT_API_WRAPPER_NAME(otThreadGetCurrentAttachDuration)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    uint32_t ret = OT_API_REAL_NAME(otThreadGetCurrentAttachDuration)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

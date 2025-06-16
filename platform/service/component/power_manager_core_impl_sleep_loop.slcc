@@ -1,14 +1,14 @@
 id: power_manager_core_impl_sleep_loop
-label: "Power Manager: Core implementation"
-package: platform
+label: 'Power Manager: Core implementation'
+package: platform_core
 description: Power Manager core Sleep Loop's implementation.
 category: Services|Power Manager
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 root_path: platform/service/power_manager/src/sleep_loop
 source:
   - path: sl_power_manager.c

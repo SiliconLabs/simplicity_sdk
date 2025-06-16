@@ -1,5 +1,5 @@
 id: tz_secure_key_library
-package: platform
+package: security_trustzone
 label: TrustZone Secure Key Library
 description: >-
   This component enables TrustZone secure library and its Non-Secure interface.

@@ -1,5 +1,5 @@
 id: tz_service_psa_crypto
-package: platform
+package: security_trustzone
 label: PSA Crypto Service for TrustZone Secure Key Library
 description: >-
   This component includes the PSA Crypto core support for TrustZone secure library.

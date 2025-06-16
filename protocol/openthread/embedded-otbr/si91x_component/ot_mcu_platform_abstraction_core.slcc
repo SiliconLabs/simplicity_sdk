@@ -1,6 +1,6 @@
 id: ot_mcu_platform_abstraction_core
 label: Platform Abstraction (Core)
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: experimental
 description: This component provides the abstraction layer between the OpenThread stack on host MCU and Silicon Labs platform

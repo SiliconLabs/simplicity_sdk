@@ -9,9 +9,7 @@
 #include "zw_config_rf.h"
 #include <assert.h>
 #include "MfgTokens.h"
-#include "DebugPrintConfig.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "ZW_system_startup_api.h"
 #include "zaf_config_security.h"
 #include "ZAF_Common_helper.h"
@@ -22,9 +20,7 @@
 #include "app_hw.h"
 #include "zw_region_config.h"
 #include "ZAF_ApplicationEvents.h"
-#ifdef DEBUGPRINT
 #include "ZAF_PrintAppInfo.h"
-#endif
 
 #include "zniffer_handler.h"
 
@@ -61,8 +57,8 @@
 //@ [REQUESTED_SECURITY_KEYS_ID]
 
 /**
-* Set up security keys to request when joining a network.
-*/
+ * Set up security keys to request when joining a network.
+ */
 static const uint8_t SecureKeysRequested = ZAF_CONFIG_REQUESTED_SECURITY_KEYS;
 
 static const SAppNodeInfo_t AppNodeInfo =
@@ -79,7 +75,8 @@ static SRadioConfig_t RadioConfig =
   .iTxPowerLevelAdjust = APP_MEASURED_0DBM_TX_POWER,
   .iTxPowerLevelMaxLR = APP_MAX_TX_POWER_LR,
   .eRegion = ZW_REGION,
-  .radio_debug_enable = ENABLE_RADIO_DEBUG
+  .radio_debug_enable = true, // The Zniffer must always enable the radio debug connection
+  .radio_application = ZPAL_RADIO_APPLICATION_ZNIFFER,
 };
 
 static const SProtocolConfig_t ProtocolConfig = {
@@ -89,10 +86,6 @@ static const SProtocolConfig_t ProtocolConfig = {
   .pRadioConfig = &RadioConfig
 };
 
-#ifdef DEBUGPRINT
-static uint8_t m_aDebugPrintBuffer[96];
-#endif
-
 void ApplicationTask(SApplicationHandles* pAppHandles);
 
 /**
@@ -101,14 +94,12 @@ void ApplicationTask(SApplicationHandles* pAppHandles);
 ZW_APPLICATION_STATUS
 ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 {
-  DPRINT("Enabling watchdog\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
   ZAF_PrintAppInfo();
-#endif
 
   // Read Rf region from MFG_ZWAVE_COUNTRY_FREQ
   zpal_radio_region_t regionMfg;
@@ -118,28 +109,28 @@ ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
   } else {
     ZW_SetMfgTokenDataCountryRegion((void*) &RadioConfig.eRegion);
   }
-  DPRINTF("Rf region: %d\n", RadioConfig.eRegion);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Rf region: %d\n", RadioConfig.eRegion);
 
   /*************************************************************************************
-   * CREATE USER TASKS  -  ZW_ApplicationRegisterTask() and ZW_UserTask_CreateTask()
-   *************************************************************************************
-   * Register the main APP task function.
-   *
-   * ATTENTION: This function is the only task that can call ZAF API functions!!!
-   * Failure to follow guidelines will result in undefined behavior.
-   *
-   * Furthermore, this function is the only way to register Event Notification
-   * Bit Numbers for associating to given event handlers.
-   *
-   * ZW_UserTask_CreateTask() can be used to create additional tasks.
-   * @see zwave_soc_sensor_pir example for more info.
-   *************************************************************************************/
+  * CREATE USER TASKS  -  ZW_ApplicationRegisterTask() and ZW_UserTask_CreateTask()
+  *************************************************************************************
+  * Register the main APP task function.
+  *
+  * ATTENTION: This function is the only task that can call ZAF API functions!!!
+  * Failure to follow guidelines will result in undefined behavior.
+  *
+  * Furthermore, this function is the only way to register Event Notification
+  * Bit Numbers for associating to given event handlers.
+  *
+  * ZW_UserTask_CreateTask() can be used to create additional tasks.
+  * @see zwave_soc_sensor_pir example for more info.
+  *************************************************************************************/
   __attribute__((unused)) bool bWasTaskCreated = ZW_ApplicationRegisterTask(
-                                                    ApplicationTask,
-                                                    EAPPLICATIONEVENT_ZWRX,
-                                                    EAPPLICATIONEVENT_ZWCOMMANDSTATUS,
-                                                    &ProtocolConfig
-                                                    );
+    ApplicationTask,
+    EAPPLICATIONEVENT_ZWRX,
+    EAPPLICATIONEVENT_ZWCOMMANDSTATUS,
+    &ProtocolConfig
+    );
   assert(bWasTaskCreated);
 
   return(APPLICATION_RUNNING);
@@ -152,7 +143,7 @@ ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 void
 ApplicationTask(__attribute__((unused)) SApplicationHandles* pAppHandles)
 {
-  DPRINT("Zniffer Application Started\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Zniffer Application Started\r\n");
   run_zniffer();
 }
 
@@ -162,7 +153,6 @@ ApplicationTask(__attribute__((unused)) SApplicationHandles* pAppHandles)
  */
 ZW_WEAK void Zniffer_hw_init(void)
 {
-
 }
 
 ZW_WEAK const void * Zniffer_get_uart_config_ext(void)

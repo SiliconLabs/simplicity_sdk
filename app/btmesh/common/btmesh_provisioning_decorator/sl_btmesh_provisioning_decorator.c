@@ -37,11 +37,6 @@
 #include "sl_btmesh_provisioning_decorator.h"
 #include "sl_btmesh_provisioning_decorator_config.h"
 
-/***************************************************************************//**
- * @addtogroup ProvisioningDecorator
- * @{
- ******************************************************************************/
-
 // -----------------------------------------------------------------------------
 // Provisioning Callbacks
 
@@ -154,4 +149,3 @@ void sl_btmesh_handle_provisioning_decorator_event(sl_btmesh_msg_t *evt)
       break;
   }
 }
-/** @} (end addtogroup ProvisioningDecorator) */

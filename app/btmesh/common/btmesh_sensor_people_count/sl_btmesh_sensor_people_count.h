@@ -36,18 +36,7 @@
 #define SL_BTMESH_SENSOR_PEOPLE_COUNT_VALUE_IS_NOT_KNOWN  (0xFFFF)
 
 /***************************************************************************//**
- * @defgroup PeopleCount People Count Sensor Module
- * @brief People Count Sensor Module Implementation
- * This module simulate the people count sensor behavior.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup Sensor
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup PeopleCount
+ * @addtogroup btmesh_sensor_people_count
  * @{
  ******************************************************************************/
 
@@ -76,7 +65,6 @@ void  sl_btmesh_people_count_increase(void);
  ******************************************************************************/
 void  sl_btmesh_people_count_decrease(void);
 
-/** @} (end addtogroup PeopleCount) */
-/** @} (end addtogroup Sensor) */
+/** @} (end addtogroup btmesh_sensor_people_count) */
 
 #endif /* SL_BTMESH_SENSOR_PEOPLE_COUNT_H */

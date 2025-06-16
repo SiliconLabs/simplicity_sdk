@@ -50,6 +50,13 @@
 #include "crypto/storage.hpp"
 
 namespace ot {
+
+#if OPENTHREAD_FTD || OPENTHREAD_MTD
+namespace Ip6 {
+class InterfaceIdentifier;
+}
+#endif
+
 namespace Mac {
 
 /**
@@ -110,10 +117,19 @@ public:
      */
     void Fill(uint8_t aByte) { memset(this, aByte, sizeof(*this)); }
 
+#if OPENTHREAD_FTD || OPENTHREAD_MTD
     /**
      * Generates a random IEEE 802.15.4 Extended Address.
      */
     void GenerateRandom(void);
+
+    /**
+     * Sets the Extended Address from a given IPv6 Address Interface Identifier.
+     *
+     * @param[in] aIid   The IPv6 Interface Identifier to convert to Extended Address.
+     */
+    void SetFromIid(const Ip6::InterfaceIdentifier &aIid);
+#endif
 
     /**
      * Sets the Extended Address from a given byte array.
@@ -197,6 +213,16 @@ public:
     {
         CopyAddress(aBuffer, m8, aByteOrder);
     }
+
+    /**
+     * Overloads operator `==` to evaluate whether or not two `ExtAddress` instances are equal.
+     *
+     * @param[in]  aOther  The other `ExtAddress` instance to compare with.
+     *
+     * @retval TRUE   If the two `ExtAddress` instances are equal.
+     * @retval FALSE  If the two `ExtAddress` instances are not equal.
+     */
+    bool operator==(const ExtAddress &aOther) const;
 
     /**
      * Converts an address to a string.
@@ -344,6 +370,15 @@ public:
         mType = kTypeExtended;
     }
 
+#if OPENTHREAD_FTD || OPENTHREAD_MTD
+    /**
+     * Sets the address as an Extended Address from a given IPv6 Address Interface Identifier.
+     *
+     * @param[in] aIid   The IPv6 Interface Identifier to convert to Extended Address.
+     */
+    void SetExtendedFromIid(const Ip6::InterfaceIdentifier &aIid);
+#endif
+
     /**
      * Indicates whether or not the address is a Short Broadcast Address.
      *
@@ -357,6 +392,16 @@ public:
      * @returns TRUE if address is Short Invalid Address, FALSE otherwise.
      */
     bool IsShortAddrInvalid(void) const { return ((mType == kTypeShort) && (GetShort() == kShortAddrInvalid)); }
+
+    /**
+     * Overloads operator `==` to evaluate whether or not two `Address` instances are equal.
+     *
+     * @param[in]  aOther  The other `Address` instance to compare with.
+     *
+     * @retval TRUE   If the two `Address` instances are equal.
+     * @retval FALSE  If the two `Address` instances are not equal.
+     */
+    bool operator==(const Address &aOther) const;
 
     /**
      * Converts an address to a null-terminated string

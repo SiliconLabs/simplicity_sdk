@@ -44,7 +44,8 @@
 #if OTBR_ENABLE_BORDER_AGENT
 #include "border_agent/border_agent.hpp"
 #endif
-#include "ncp/rcp_host.hpp"
+#include "host/ncp_host.hpp"
+#include "host/rcp_host.hpp"
 #if OTBR_ENABLE_BACKBONE_ROUTER
 #include "backbone_router/backbone_agent.hpp"
 #endif
@@ -60,6 +61,11 @@
 #if OTBR_ENABLE_VENDOR_SERVER
 #include "agent/vendor.hpp"
 #endif
+#if OTBR_ENABLE_DNSSD_PLAT
+#include "host/posix/dnssd.hpp"
+#endif
+#include "host/posix/multicast_routing_manager.hpp"
+#include "host/posix/netif.hpp"
 #include "utils/infra_link_selector.hpp"
 
 namespace otbr {
@@ -98,7 +104,7 @@ public:
      * @param[in] aRestListenAddress     Network address to listen on.
      * @param[in] aRestListenPort        Network port to listen on.
      */
-    explicit Application(Ncp::ThreadHost   &aHost,
+    explicit Application(Host::ThreadHost  &aHost,
                          const std::string &aInterfaceName,
                          const std::string &aBackboneInterfaceName,
                          const std::string &aRestListenAddress,
@@ -137,7 +143,7 @@ public:
      *
      * @returns The OpenThread controller object.
      */
-    Ncp::ThreadHost &GetHost(void) { return mHost; }
+    Host::ThreadHost &GetHost(void) { return mHost; }
 
 #if OTBR_ENABLE_MDNS
     /**
@@ -159,7 +165,7 @@ public:
      */
     BorderAgent &GetBorderAgent(void)
     {
-        return *mBorderAgent;
+        return mBorderAgent;
     }
 #endif
 
@@ -243,7 +249,7 @@ public:
      */
     DBus::DBusAgent &GetDBusAgent(void)
     {
-        return *mDBusAgent;
+        return mDBusAgent;
     }
 #endif
 
@@ -257,21 +263,37 @@ private:
     void InitRcpMode(void);
     void DeinitRcpMode(void);
 
+    void CreateNcpMode(void);
     void InitNcpMode(void);
     void DeinitNcpMode(void);
 
-    std::string      mInterfaceName;
-    const char      *mBackboneInterfaceName;
-    Ncp::ThreadHost &mHost;
+#if OTBR_ENABLE_BORDER_AGENT
+    void SetBorderAgentOnInitState(void);
+#endif
+#if OTBR_ENABLE_DBUS_SERVER
+    DBus::DependentComponents MakeDBusDependentComponents(void);
+#endif
+
+    const std::string        mInterfaceName;
+    const std::string        mBackboneInterfaceName;
+    Host::ThreadHost        &mHost;
+    std::unique_ptr<Netif>   mNetif;
+    std::unique_ptr<InfraIf> mInfraIf;
+
 #if OTBR_ENABLE_MDNS
     Mdns::StateSubject               mMdnsStateSubject;
     std::unique_ptr<Mdns::Publisher> mPublisher;
 #endif
+#if OTBR_ENABLE_DNSSD_PLAT
+    DnssdPlatform mDnssdPlatform;
+#endif
 #if OTBR_ENABLE_BORDER_AGENT
-    std::unique_ptr<BorderAgent> mBorderAgent;
+    BorderAgent mBorderAgent;
+    UdpProxy    mBorderAgentUdpProxy;
 #endif
 #if OTBR_ENABLE_BACKBONE_ROUTER
     std::unique_ptr<BackboneRouter::BackboneAgent> mBackboneAgent;
+    std::unique_ptr<MulticastRoutingManager>       mMulticastRoutingManager;
 #endif
 #if OTBR_ENABLE_SRP_ADVERTISING_PROXY
     std::unique_ptr<AdvertisingProxy> mAdvertisingProxy;
@@ -289,7 +311,7 @@ private:
     std::unique_ptr<rest::RestWebServer> mRestWebServer;
 #endif
 #if OTBR_ENABLE_DBUS_SERVER
-    std::unique_ptr<DBus::DBusAgent> mDBusAgent;
+    DBus::DBusAgent mDBusAgent;
 #endif
 #if OTBR_ENABLE_VENDOR_SERVER
     std::shared_ptr<vendor::VendorServer> mVendorServer;

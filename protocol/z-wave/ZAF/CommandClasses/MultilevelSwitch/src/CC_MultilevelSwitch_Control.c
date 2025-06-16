@@ -15,12 +15,10 @@
 /*                      PRIVATE TYPES and DEFINITIONS                       */
 /****************************************************************************/
 
-typedef struct _multi_level_switch_set_t_
-{
+typedef struct _multi_level_switch_set_t_{
   uint8_t value;
   uint8_t dimmingDuration;
 }multi_level_switch_set_t;
-
 
 /****************************************************************************/
 /*                              PRIVATE DATA                                */
@@ -59,14 +57,13 @@ CmdClassMultilevelSwitchStartLevelChange(
   };
 
   return cc_engine_multicast_request(pProfile,
-      sourceEndpoint,
-      &ccc_pair,
-      payload,
-      sizeof(payload),
-      true,
-      pCbFunc);
+                                     sourceEndpoint,
+                                     &ccc_pair,
+                                     payload,
+                                     sizeof(payload),
+                                     true,
+                                     pCbFunc);
 }
-
 
 JOB_STATUS
 CmdClassMultilevelSwitchStopLevelChange(
@@ -78,15 +75,14 @@ CmdClassMultilevelSwitchStopLevelChange(
   cmdGrp.cmd = SWITCH_MULTILEVEL_STOP_LEVEL_CHANGE_V4;
 
   return cc_engine_multicast_request(
-      pProfile,
-      sourceEndpoint,
-      &cmdGrp,
-      NULL,
-      0,
-      true,
-      pCbFunc);
+    pProfile,
+    sourceEndpoint,
+    &cmdGrp,
+    NULL,
+    0,
+    true,
+    pCbFunc);
 }
-
 
 JOB_STATUS
 CmdClassMultilevelSwitchSetTransmit(
@@ -103,13 +99,11 @@ CmdClassMultilevelSwitchSetTransmit(
   cmdGrp.cmdClass = COMMAND_CLASS_SWITCH_MULTILEVEL_V4;
   cmdGrp.cmd = SWITCH_MULTILEVEL_SET_V4;
   return cc_engine_multicast_request(
-      pProfile,
-      sourceEndpoint,
-      &cmdGrp,
-      (uint8_t*)&multi_level_switch_set,
-      sizeof(multi_level_switch_set_t),
-      true,
-      pCbFunc);
-
+    pProfile,
+    sourceEndpoint,
+    &cmdGrp,
+    (uint8_t*)&multi_level_switch_set,
+    sizeof(multi_level_switch_set_t),
+    true,
+    pCbFunc);
 }
-

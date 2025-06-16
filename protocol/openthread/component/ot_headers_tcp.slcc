@@ -1,6 +1,6 @@
 id: ot_headers_tcp
 label: OpenThread headers (TCP)
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides the OpenThread TCP header files.

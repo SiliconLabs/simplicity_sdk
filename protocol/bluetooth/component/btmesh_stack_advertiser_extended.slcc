@@ -1,6 +1,6 @@
 id: "btmesh_stack_advertiser_extended"
 label: "Proprietary Extended Advertiser"
-package: "Btmesh"
+package: bluetooth_mesh
 description: >
   This component provides an implementation of advertising capabilities that use extended advertising PDUs.
   It uses Bluetooth extended advertiser API.

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Application interface provided to main().
+ * @brief Application interface.
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -31,14 +31,49 @@
 #ifndef APP_H
 #define APP_H
 
-/**************************************************************************//**
- * Application Init.
- *****************************************************************************/
-void app_init(void);
+#include <stdbool.h>
 
 /**************************************************************************//**
- * Application Process Action.
+ * Proceed with execution. (Indicate that it is required to run the application
+ * process action.)
  *****************************************************************************/
-void app_process_action(void);
+void app_proceed(void);
+
+/**************************************************************************//**
+ * Check if it is required to process with execution.
+ * @return true if required, false otherwise.
+ *****************************************************************************/
+bool app_is_process_required(void);
+
+/**************************************************************************//**
+ * Acquire access to protected variables.
+ *
+ * Acquire the guard to operate on the internal state variables.
+ * Guard is implemented using mutexing (RTOS).
+ *
+ * @note Must not be used from ISR context.
+ *
+ * @return true if operation was successful.
+ *****************************************************************************/
+bool app_mutex_acquire(void);
+
+/**************************************************************************//**
+ * Finish access to protected variables.
+ *
+ * Release the guard to stop working on the internal state variables.
+ * Guard is implemented using mutexing (RTOS).
+ *
+ * @note Must not be used from ISR context.
+ *****************************************************************************/
+void app_mutex_release(void);
+
+/**************************************************************************//**
+ * Initialize the application.
+ *
+ * This function initializes the application components.
+ *
+ * @note Must not be used from ISR context.
+ *****************************************************************************/
+void app_init_bt(void);
 
 #endif // APP_H

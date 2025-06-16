@@ -3,7 +3,7 @@
  * @brief Bluetooth NCP Transport Layer over USART
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -131,23 +131,8 @@ static void send_read_request(void);
 *****************************************************************************/
 void sli_bt_ncp_transport_init(void)
 {
+  // Create context
   sl_status_t sc;
-  uint32_t frequency;
-
-  // Get the default UARTDRV handle
-  uartdrv_handle = sl_uartdrv_get_default();
-  irq_number = irq_number_from_handle(uartdrv_handle);
-  if (irq_number < (IRQn_Type)(0)) {
-    sl_bt_ncp_transport_on_error(SL_BT_NCP_TRANSPORT_ERROR_COM_HANDLE,
-                                 SL_STATUS_INVALID_HANDLE);
-  }
-
-  // calculate the maximum amount of time to wait for UART TX buffer to empty
-  sc = sl_clock_manager_get_clock_branch_frequency(SL_CLOCK_BRANCH_HCLK, &frequency);
-  if (sc != SL_STATUS_OK) {
-    sl_bt_ncp_transport_on_error(SL_BT_NCP_TRANSPORT_ERROR_CLOCK, sc);
-  }
-
   app_rta_config_t config = {
     .requirement.runtime = true,
     .requirement.guard   = true,
@@ -169,7 +154,22 @@ void sli_bt_ncp_transport_init(void)
 
 void sli_bt_ncp_transport_rta_ready(void)
 {
-  // No action required.
+  sl_status_t sc;
+  uint32_t frequency;
+
+  // Get the default UARTDRV handle
+  uartdrv_handle = sl_uartdrv_get_default();
+  irq_number = irq_number_from_handle(uartdrv_handle);
+  if (irq_number < (IRQn_Type)(0)) {
+    sl_bt_ncp_transport_on_error(SL_BT_NCP_TRANSPORT_ERROR_COM_HANDLE,
+                                 SL_STATUS_INVALID_HANDLE);
+  }
+
+  // Calculate the maximum amount of time to wait for UART TX buffer to empty
+  sc = sl_clock_manager_get_clock_branch_frequency(SL_CLOCK_BRANCH_HCLK, &frequency);
+  if (sc != SL_STATUS_OK) {
+    sl_bt_ncp_transport_on_error(SL_BT_NCP_TRANSPORT_ERROR_CLOCK, sc);
+  }
 }
 
 /******************************************************************************

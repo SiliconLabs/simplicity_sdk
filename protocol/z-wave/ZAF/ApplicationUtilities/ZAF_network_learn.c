@@ -4,7 +4,6 @@
  * @copyright 2019 Silicon Laboratories Inc.
  */
 
-
 #include "ZAF_network_learn.h"
 #include "ZW_application_transport_interface.h"
 #include "ZAF_Common_interface.h"

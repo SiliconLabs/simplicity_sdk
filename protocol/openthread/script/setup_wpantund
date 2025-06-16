@@ -36,31 +36,23 @@
 . script/_otbr_wpan
 . ../../util/third_party/ot-br-posix/script/_ipforward
 . ../../util/third_party/ot-br-posix/script/_nat64
-. ../../util/third_party/ot-br-posix/script/_dns64
 . ../../util/third_party/ot-br-posix/script/_dhcpv6_pd
-. ../../util/third_party/ot-br-posix/script/_network_manager
 . ../../util/third_party/ot-br-posix/script/_swapfile
 . ../../util/third_party/ot-br-posix/script/_sudo_extend
-. ../../util/third_party/ot-br-posix/script/_disable_services
 
 main()
 {
     . $BEFORE_HOOK
     extend_sudo_timeout
     setup_swapfile
-    disable_services
     otbr_uninstall
-    network_manager_uninstall
     dhcpv6_pd_uninstall
     wpantund_uninstall
     nat64_uninstall
-    dns64_uninstall
     ipforward_uninstall
 
     ipforward_install
     nat64_install
-    dns64_install
-    network_manager_install
     wpantund_install
     dhcpv6_pd_install
     #otbr_install

@@ -72,7 +72,7 @@ void emberAfTickCallback(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your application logic code here!                                   //
-  // This is called infinitel.                                               //
+  // This is called infinitely.                                              //
   /////////////////////////////////////////////////////////////////////////////
 }
 

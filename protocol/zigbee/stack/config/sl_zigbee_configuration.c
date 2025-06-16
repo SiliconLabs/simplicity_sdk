@@ -22,6 +22,7 @@
 
 #include PLATFORM_HEADER
 #include "hal.h"
+#include "sl_common.h" // SL_ALIGN
 #include "stack/include/sl_zigbee.h"
 #include "stack/include/message.h" // Required for packetHandlers
 #include "mac-child.h" // unified-mac
@@ -35,6 +36,13 @@
 #include "sl_component_catalog.h"
 #endif // SL_COMPONENT_CATALOG_PRESENT
 
+#ifdef SL_CATALOG_RADIO_PRIORITY_15_4_PRESENT
+#include "sl_802154_radio_priority_config.h"
+#endif // SL_CATALOG_RADIO_PRIORITY_15_4_PRESENT
+
+#ifdef SL_CATALOG_HIGH_DATARATE_PHY_PRESENT
+#include "high_datarate_phy_config.h"
+#endif
 // *****************************************
 // Memory Allocations & declarations
 // *****************************************
@@ -154,6 +162,21 @@ uint8_t sl_zigbee_child_table_size = 0;
 #else // !(defined(SL_ZIGBEE_LEAF_STACK) && defined(SL_ZIGBEE_AF_NCP))
 uint8_t sl_zigbee_child_table_size = SL_ZIGBEE_CHILD_TABLE_SIZE;
 #endif // defined(SL_ZIGBEE_LEAF_STACK) && defined(SL_ZIGBEE_AF_NCP)
+
+#if defined(SL_HDR_PHY_MAX_PACKET_SIZE)
+#define MAX_FLAT_PACKET_SIZE SL_HDR_PHY_MAX_PACKET_SIZE
+#else
+#define MAX_FLAT_PACKET_SIZE 127
+#endif
+
+uint16_t sli_mac_max_flat_pkt_size = MAX_FLAT_PACKET_SIZE + 16 /* + 4 crc + 12 RAIL appendend info +*/;
+
+// TX buffer needs to be 32 bit aligned
+// Manually adding padding byte at the end of each major index array to ensure they are properly aligned
+#define ALIGNED_MAX_FLAT_PACKET_SIZE (((MAX_FLAT_PACKET_SIZE + 3) / 4) * 4)
+uint16_t sli_mac_max_flat_packet_size = ALIGNED_MAX_FLAT_PACKET_SIZE;
+SL_ALIGN(4) static uint8_t outgoing_flat_packet[MAX_MAC_INDEX][ALIGNED_MAX_FLAT_PACKET_SIZE] SL_ATTRIBUTE_ALIGN(4);
+uint8_t *sli_mac_upper_mac_outgoing_flat_packet_ptr = (uint8_t *)outgoing_flat_packet;
 
 //------------------------------------------------------------------------------
 // NWK Layer
@@ -448,10 +471,6 @@ uint8_t customMacFilterTableSize = SL_ZIGBEE_CUSTOM_MAC_FILTER_TABLE_SIZE;
 sl_zigbee_mac_filter_match_data_t sli_zigbee_custom_mac_filter_match_list_data[SL_ZIGBEE_CUSTOM_MAC_FILTER_TABLE_SIZE];
 
 #endif // SL_ZIGBEE_AF_NCP || SL_CATALOG_ZIGBEE_NCP_FRAMEWORK_PRESENT || SL_ZIGBEE_TEST
-
-#ifdef SL_CATALOG_RADIO_PRIORITY_15_4_PRESENT
-#include "sl_802154_radio_priority_config.h"
-#endif // SL_CATALOG_RADIO_PRIORITY_15_4_PRESENT
 
 #ifdef CSL_SUPPORT
 // TODO: EMZIGBEE-8554: Change the Tx Default Priority to use a macro to set the priority based on the

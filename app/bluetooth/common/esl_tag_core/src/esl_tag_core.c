@@ -105,9 +105,30 @@
 // Divisor constant for unit to milli unit conversion
 #define ESL_DRIFT_THRESHOLD_DIVISOR    1000u
 
+typedef union {
+  esl_address_t value;
+  PACKSTRUCT(struct {
+    uint8_t esl_id;
+    uint8_t group_id;
+  });
+} esl_address_union_t;
+
+typedef union {
+  // Note: this will only work as expected on little endian machines!
+  sl_bt_ead_randomizer_t randomizer;
+  // Use the similar naming to the Core spec. v5.4, Vol 6, Part E, Section 2 (CCM)
+  // but in snake_case instead of CamelCase
+  uint64_t               packet_counter;
+} response_randomizer_t;
+
+// make an alias for the same structure used by the AP sync packets
+typedef response_randomizer_t sync_randomizer_t;
+
 typedef struct {
   // Timestamp of last PAwR sync received event
   uint64_t pawr_timestamp;
+  // AP sync key material last known randomizer - NULL until no sync packet received
+  sync_randomizer_t *last_ap_randomizer;
   // ESL Control Point Notifications status
   bool     notifications_enabled;
   // Helper variable to accumulate time drifts
@@ -118,28 +139,24 @@ typedef struct {
   uint32_t pawr_interval_ticks;
   // Sync timeout parameter for the PAwR sync.
   uint32_t sync_timeout;
-  // The Sync handle allocated from Bluetooth stack.
-  uint16_t sync_handle;
-  // ESL Tag Basic state variable
-  esl_basic_state_t basic_state;
   // ESL Tag Internal status variable
   esl_state_t status;
+  // ESL Tag Basic state variable
+  esl_basic_state_t basic_state;
+  // The Sync handle allocated from Bluetooth stack.
+  uint16_t sync_handle;
+  // PAwR payload size limit
+  uint16_t response_payload_limit;
   // ESL Tag Internal configuration status variable
   uint8_t config_status;
   // The connection handle allocated from Bluetooth stack.
   uint8_t connection_handle;
   // The bonding handle allocated from Bluetooth stack.
   uint8_t bonding_handle;
+  // ESL Address local storage
+  esl_address_union_t address;
   // ESL Access Point BT address
   bd_addr ap_address;
-  // ESL Address local storage
-  union {
-    esl_address_t value;
-    struct {
-      uint8_t esl_id;
-      uint8_t group_id;
-    };
-  } address;
 } esl_struct_t;
 
 typedef struct {
@@ -170,15 +187,13 @@ typedef struct {
   uint8_t advertising_set_handle[ESL_TAG_ADVERTISERS_COUNT];
 } esl_persistent_struct_t;
 
-typedef union {
-  // Note: this will only work as expected on little endian machines!
-  sl_bt_ead_randomizer_t randomizer;
-  // Use exact naming from Core spec. v5.4, Vol 6, Part E, Section 2 (CCM)
-  uint64_t               packetCounter;
-} response_randomizer_t;
-
 // EAD Randomizer for ESL Responses encryption
 static response_randomizer_t esl_core_response_randomizer = { 0 };
+
+#if ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
+// AP sync key material randomizer when we first received a valid PAwR message
+static sync_randomizer_t esl_core_ap_randomizer_base = { 0 };
+#endif // ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
 
 // Custom data for advertising, in accordance with ESLS v1.0r01, section 2.7.3.1
 static const uint8_t esl_core_advertising_data[] = {
@@ -197,19 +212,23 @@ static const char *esl_states_string[] = {
 
 static esl_struct_t esl_tag = {
   .pawr_timestamp         = 0,
+#if ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
+  .last_ap_randomizer    = NULL,
+#endif // ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
   .notifications_enabled  = false,
   .tick_error             = 0,
   .time_offset            = 0,
   .pawr_interval_ticks    = 0,
   .sync_timeout           = ESL_SYNC_MIN_TIMEOUT,
-  .sync_handle            = SL_BT_INVALID_SYNC_HANDLE,
-  .basic_state            = 0,
   .status                 = esl_state_boot,
+  .basic_state            = 0,
+  .sync_handle            = SL_BT_INVALID_SYNC_HANDLE,
+  .response_payload_limit = ESL_PAYLOAD_MAX_LENGTH,
   .config_status          = 0,
   .connection_handle      = SL_BT_INVALID_CONNECTION_HANDLE,
   .bonding_handle         = SL_BT_INVALID_BONDING_HANDLE,
-  .ap_address             = { { 0 } },
-  .address.value          = 0
+  .address.value          = 0,
+  .ap_address             = { { 0 } }
 };
 
 static esl_keys_struct_t esl_keys = {
@@ -251,10 +270,13 @@ static void esl_core_secondary_advertiser(void *p_event_data, uint16_t event_siz
 {
   (void)event_size;
   (void)p_event_data;
-  // start the secondary advertiser also as sl_bt_legacy_advertiser_connectable
-  // but this advertising doesn't expose any service nor other UUID
-  (void)sl_bt_legacy_advertiser_start(esl_tag_persistent.advertising_set_handle[1],
-                                      sl_bt_legacy_advertiser_connectable);
+  // start only if there's no active connection
+  if (esl_tag.connection_handle == SL_BT_INVALID_CONNECTION_HANDLE) {
+    // start the secondary advertiser also as sl_bt_legacy_advertiser_connectable
+    // but this advertising doesn't expose any service nor other UUID
+    (void)sl_bt_legacy_advertiser_start(esl_tag_persistent.advertising_set_handle[1],
+                                        sl_bt_legacy_advertiser_connectable);
+  }
 }
 #endif // ESL_TAG_INTERMITTENT_ADVERTISING
 
@@ -357,6 +379,12 @@ uint16_t esl_core_get_sync_handle(void)
   return esl_tag.sync_handle;
 }
 
+// ESL Tag PAwR response payload size limit getter
+uint16_t esl_core_get_response_payload_limit(void)
+{
+  return esl_tag.response_payload_limit;
+}
+
 // ESL Tag PAwR request event getter
 uint16_t esl_core_get_request_event(void)
 {
@@ -391,17 +419,17 @@ void esl_core_unassociate(void)
 
   esl_core_purge_delayed_commands();
   esl_core_clear_last_error();
-  esl_core_purge_responses();
+  esl_core_purge_responses(0);  // default init for max. response payload length
   (void)sl_bt_ead_delete_key(&esl_keys.ap_key);
   (void)sl_bt_ead_delete_key(&esl_keys.response_key);
 
   memset(&esl_tag, 0, sizeof(esl_tag));
   // set some fundamental values properly after cleanup
-  esl_tag.status                = last_status;
-  esl_tag.connection_handle     = SL_BT_INVALID_CONNECTION_HANDLE,
-  esl_tag.bonding_handle        = SL_BT_INVALID_BONDING_HANDLE;
   esl_tag.sync_timeout          = ESL_SYNC_MIN_TIMEOUT;
+  esl_tag.status                = last_status;
   esl_tag.sync_handle           = SL_BT_INVALID_SYNC_HANDLE;
+  esl_tag.connection_handle     = SL_BT_INVALID_CONNECTION_HANDLE;
+  esl_tag.bonding_handle        = SL_BT_INVALID_BONDING_HANDLE;
 
   sl_bt_sm_delete_bondings();
 
@@ -486,6 +514,7 @@ static inline bool is_esl_configured_for(uint8_t mask)
 static void esl_sync_cleanup(uint16_t reason)
 {
   esl_tag.sync_handle = SL_BT_INVALID_SYNC_HANDLE;
+  esl_tag.response_payload_limit = ESL_PAYLOAD_MAX_LENGTH;
   esl_core_set_basic_state_bit(ESL_BASIC_STATE_SYNCHRONIZED_BIT, ESL_CLEAR);
 
   if (reason == SL_STATUS_BT_CTRL_CONNECTION_TERMINATED_BY_LOCAL_HOST) {
@@ -494,7 +523,7 @@ static void esl_sync_cleanup(uint16_t reason)
                   "Sync closed on request.");
   } else {
     sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
-                  ESL_LOG_LEVEL_INFO,
+                  ESL_LOG_LEVEL_WARNING,
                   "Sync lost due 0x%04x",
                   reason);
   }
@@ -502,6 +531,59 @@ static void esl_sync_cleanup(uint16_t reason)
   if (esl_tag.status == esl_state_synchronized) {
     esl_core_unsynchronize();
   }
+}
+
+static uint16_t esl_get_response_payload_limit(uint8_t adv_phy, uint8_t slot_spacing)
+{
+  // Payload overhead, including up to 13 bytes for LL AUX_SYNC_SUBEVENT_RSP,
+  // 9 bytes for encryption and two times 2 bytes for AD Data Type framing
+  const uint32_t payload_overhead_bytes = 26u;
+  // slot spacing includes the 150 us inter-frame space
+  const uint8_t t_ifs_us = 150u;
+  const char * const phy_str[4] = { "1m", "2m", "coded", "any" };
+  const char *phy_str_p = phy_str[3];
+
+  uint16_t slot_time_us = (slot_spacing * 125u) - t_ifs_us;
+  uint16_t size_limit = ESL_PAYLOAD_MIN_LENGTH;
+  uint8_t byte_time_us;
+
+  // Immediate return on invalid request with minimum size limit
+  if (slot_spacing >= 2) {
+    switch (adv_phy) {
+      case sl_bt_gap_phy_1m:
+        phy_str_p = phy_str[0];
+        byte_time_us = 8u;
+        break;
+      case sl_bt_gap_phy_2m:
+        phy_str_p = phy_str[1];
+        byte_time_us = 4u;
+        break;
+      case sl_bt_gap_coded_phy:
+        phy_str_p = phy_str[2];
+      /* FALLTHRU */
+      // @suppress("No break at the end of case")
+      default: // unknown / unsupported PHY will fall back to S=8 symbol rate
+        byte_time_us = 64u;
+        break;
+    }
+
+    size_limit = (slot_time_us / byte_time_us);
+
+    if (size_limit < ESL_PAYLOAD_MIN_LENGTH + payload_overhead_bytes) {
+      size_limit = ESL_PAYLOAD_MIN_LENGTH;
+    } else {
+      size_limit -= payload_overhead_bytes;
+    }
+  }
+  sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
+                ESL_LOG_LEVEL_INFO,
+                "Calculated ESL response payload limit for %u slot spacing on %s PHY is %u bytes.",
+                slot_spacing,
+                phy_str_p,
+                size_limit);
+  (void)phy_str_p;  // suppress warnings if sl_bt_esl_log is not enabled
+  (void)phy_str;
+  return size_limit;
 }
 
 static void esl_state_boot_handler(sl_bt_msg_t *evt)
@@ -550,8 +632,18 @@ static void esl_state_boot_handler(sl_bt_msg_t *evt)
         sc = sl_bt_sm_set_bondable_mode(ESL_FALSE);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
 
-        // extend security flags
+#if !ESL_TAG_INTERMITTENT_ADVERTISING
+        // ESL_SECURITY_BONDED_ONLY option is incompatible with Intermittent
+        // Advertising ESL Core custom feature as the BLE stack doesn't emit the
+        // events necessary for proper advertisement handling if the flag
+        // ESL_SECURITY_BONDED_ONLY is set and an untrusted device tried
+        // connecting. With the bonded-only SM flag set, the stack won't emit
+        // any event for such connections eventually, which then leaves the
+        // "other" connectable advertising disabled after the untrusted device
+        // has been disconnected silently.
+        // Extend security flags if allowed by the configuration
         flags |= ESL_SECURITY_BONDED_ONLY;
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
 
         // set esl_tag.bonding_handle, default 0
         esl_tag.bonding_handle = 0;
@@ -591,7 +683,7 @@ static void esl_state_boot_handler(sl_bt_msg_t *evt)
                     "Started with random seed: %lu.",
                     seed);
       // set an arbitrary, initial random value for the ESL EAD Randomizer
-      esl_core_response_randomizer.packetCounter = 0xfa7eful * seed;
+      esl_core_response_randomizer.packet_counter = 0xfa7eful * seed;
       esl_tag.config_status |= ESL_CONFIG_FLAG_RANDOMIZER_READY;
       // init stdlib's rand() generator by our TRNG seed
       srand(seed);
@@ -675,10 +767,13 @@ static void esl_state_connectable_handler(sl_bt_msg_t *evt)
 
     case sl_bt_evt_sm_bonded_id:
       if (esl_tag.bonding_handle == SL_BT_INVALID_BONDING_HANDLE) {
+        uint8_t  flags = ESL_SECURITY_BASE_FLAGS;
         esl_tag.bonding_handle = evt->data.evt_sm_bonded.bonding;
-
-        sc = sl_bt_sm_configure(ESL_SECURITY_BASE_FLAGS
-                                | ESL_SECURITY_BONDED_ONLY,
+#if !ESL_TAG_INTERMITTENT_ADVERTISING
+        // Extend security flags if allowed by the configuration
+        flags |= ESL_SECURITY_BONDED_ONLY;
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
+        sc = sl_bt_sm_configure(flags,
                                 sl_bt_sm_io_capability_noinputnooutput);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
         // do not accept bonding anymore
@@ -774,12 +869,10 @@ static void esl_state_connectable_handler(sl_bt_msg_t *evt)
 
 static void esl_state_configuring_handler(sl_bt_msg_t *evt)
 {
-  sl_status_t sc;
-
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_bt_evt_connection_parameters_id:
     // connection could be opened over PAwR, so this event needs to be handled
-    // @suppress("No break at end of case")
+    // @suppress("No break at the end of case")
     /* FALLTHRU */
     case sl_bt_evt_sm_bonding_failed_id:
       // can happen if the bonded AP unexpectedly requests new bonding (e.g. lost the bonding key)
@@ -787,34 +880,36 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
       break;
 
     case sl_bt_evt_gatt_server_user_write_request_id: {
-      sl_status_t result = SL_STATUS_INVALID_PARAMETER;
       const uint16_t offset = evt->data.evt_gatt_server_user_write_request.offset;
-      const uint8_t  len = evt->data.evt_gatt_server_user_write_request.value.len;
+      const uint16_t len = evt->data.evt_gatt_server_user_write_request.value.len;
       const uint16_t overall_size = offset + len;
       static uint8_t execute_write_flag = 0;
 
       if (evt->data.evt_gatt_server_user_write_request.characteristic == gattdb_esl_control_point) {
-        uint32_t cmd_len;
+        uint8_t cmd_len;
         cmd_len = evt->data.evt_gatt_server_attribute_value.value.data[0];
         cmd_len = esl_core_get_tlv_len(cmd_len) + 1; // opcode is one more byte!
         if (evt->data.evt_gatt_server_attribute_value.value.len == cmd_len) {
+          sl_status_t sc;
           uint8_t *data = evt->data.evt_gatt_server_attribute_value.value.data;
 
+          esl_core_purge_responses(ESL_CP_MAX_PAYLOAD_LENGTH);
           // process command sent to the ESL control point
-          result = esl_core_parse_all_opcodes(data, cmd_len);
+          sc = esl_core_parse_all_opcodes(data, cmd_len);
 
           // send response only if required by the client
           if (evt->data.evt_gatt_server_user_write_request.att_opcode == sl_bt_gatt_write_request) {
-            sl_bt_gatt_server_send_user_write_response(evt->data.evt_gatt_server_user_write_request.connection,
-                                                       evt->data.evt_gatt_server_user_write_request.characteristic,
-                                                       SL_STATUS_OK);
+            (void)sl_bt_gatt_server_send_user_write_response(evt->data.evt_gatt_server_user_write_request.connection,
+                                                             evt->data.evt_gatt_server_user_write_request.characteristic,
+                                                             SL_STATUS_OK);
           } else {
             // in case of Write Without Response request, the result's just logged
             sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                           ESL_LOG_LEVEL_INFO,
                           "Write Without Response result: 0x%04lX",
-                          result);
+                          sc);
           }
+          (void)sc; // suppress warning if sl_bt_esl_log is disabled
 
           if (esl_tag.notifications_enabled) {
             uint8_t response[ESL_CP_MAX_PAYLOAD_LENGTH];
@@ -827,40 +922,54 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
                                                   len,
                                                   response);
             }
-          } else {
-            // responses were created, but we can't just send -> delete all!
-            esl_core_purge_responses();
           }
+          // restore current PAwR payload limit after opcode processing
+          esl_core_purge_responses((uint8_t)esl_tag.response_payload_limit);
         }
       } else {
-        result = SL_STATUS_OK;
+        sl_status_t sc = SL_STATUS_OK;
 
         switch (evt->data.evt_gatt_server_user_write_request.characteristic) {
           case gattdb_esl_address:
             if (evt->data.evt_gatt_server_user_write_request.value.len == sizeof(esl_address_t)) {
-              esl_address_t address = *(esl_address_t *)evt->data.evt_gatt_server_user_write_request.value.data;
-              // do not allow the broadcast address to be set - neither by mistake!
-              if (esl_core_get_id(address) != ESL_BROADCAST_ID) {
+              // backup copy of old value, just in case
+              esl_address_union_t address = *(esl_address_union_t *)evt->data.evt_gatt_server_user_write_request.value.data;
+
+              if (esl_core_get_id(address.value) == ESL_BROADCAST_ID) {
+                // do not allow the broadcast address to be set - neither by mistake!
+                sc = SL_STATUS_BT_ATT_VALUE_NOT_ALLOWED;
+                break;
+              } else {
                 // ignore RFU bit
-                esl_tag.address.value = address & (ESL_GROUP_ID_MASK | ESL_ID_MASK);
+                address.value  &= (ESL_GROUP_ID_MASK | ESL_ID_MASK);
+              }
+
+              if (esl_tag.sync_handle != SL_BT_INVALID_SYNC_HANDLE) {
+                // change subevent according to new group if already in sync
+                sc = sl_bt_pawr_sync_set_sync_subevents(esl_tag.sync_handle,
+                                                        sizeof(address.group_id),
+                                                        &address.group_id);
+                sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
+                              ESL_LOG_LEVEL_ERROR,
+                              "ESL Address configuration failed, sc: 0x%04x",
+                              sc);
+              }
+
+              // do not allow higher group address to be set than the subevent count
+              if (sc == SL_STATUS_OK) {
+                esl_tag.address = address;
                 esl_tag.config_status |= ESL_CONFIG_FLAG_ESL_ADDRESS;
 
                 sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                               ESL_LOG_LEVEL_INFO,
                               "ESL Address configured: 0x%04x",
                               esl_tag.address.value);
-
-                if (esl_tag.sync_handle != SL_BT_INVALID_SYNC_HANDLE) {
-                  // change subevent according to new group if already in sync
-                  (void)sl_bt_pawr_sync_set_sync_subevents(esl_tag.sync_handle,
-                                                           sizeof(esl_tag.address.group_id),
-                                                           &esl_tag.address.group_id);
-                }
               } else {
-                result = SL_STATUS_BT_ATT_VALUE_NOT_ALLOWED;
+                // this value is informative only, it's not standardized by ESLP
+                sc = SL_STATUS_BT_ATT_OUT_OF_RANGE;
               }
             } else {
-              result = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
+              sc = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
             }
             break;
 
@@ -886,13 +995,16 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
                 if (sc == SL_STATUS_OK) {
                   esl_tag.config_status |= execute_write_flag;
                 }
-                break;
               }
             } else {
-              result = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
+              sc = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
               memset((void *)&esl_keys.ap_key, 0, SL_BT_EAD_KEY_MATERIAL_SIZE);
               esl_tag.config_status &= (uint8_t) ~execute_write_flag;
             }
+#if ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
+            // "delete" the known previous randomizer, whenever the AP writes its key material
+            esl_tag.last_ap_randomizer = NULL;
+#endif // ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
             break;
 
           case gattdb_esl_response_key:
@@ -921,7 +1033,7 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
                 break;
               }
             } else {
-              result = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
+              sc = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
               memset((void *)&esl_keys.response_key, 0, SL_BT_EAD_KEY_MATERIAL_SIZE);
               esl_tag.config_status &= (uint8_t) ~execute_write_flag;
             }
@@ -940,7 +1052,7 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
                             *(uint32_t *)evt->data.evt_gatt_server_user_write_request.value.data);
             } else {
               esl_tag.config_status &= (uint8_t) ~ESL_CONFIG_FLAG_ESL_ABS_TIME;
-              result = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
+              sc = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
             }
             break;
 
@@ -949,14 +1061,14 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
               // characteristic value will be 0 for sl_bt_gatt_execute_write_request and shall be ignored
               if (!execute_write_flag) {
                 // flag shall be set before sl_bt_gatt_execute_write_request can be accepted!
-                result = SL_STATUS_BT_ATT_WRITE_REQUEST_REJECTED;
+                sc = SL_STATUS_BT_ATT_WRITE_REQUEST_REJECTED;
                 sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                               ESL_LOG_LEVEL_WARNING,
                               "Invalid GATT Execute Write Request ignored");
               } else if ((esl_tag.config_status & execute_write_flag) == 0) {
                 void *data = &esl_keys.ap_key;
                 // error case: insufficient write length before the sl_bt_gatt_execute_write_request
-                result = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
+                sc = SL_STATUS_BT_ATT_INVALID_ATT_LENGTH;
 
                 if (execute_write_flag == ESL_CONFIG_FLAG_ESL_RESPONSE_KEY) {
                   // change data pointer if needed
@@ -977,24 +1089,24 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
               execute_write_flag = 0;
             } else {
               // let other components try process the requests unknown to ESL core
-              result = SL_STATUS_BT_ATT_REQUEST_NOT_SUPPORTED;
+              sc = SL_STATUS_BT_ATT_REQUEST_NOT_SUPPORTED;
             }
             break;
         }
 
-        if (result != SL_STATUS_BT_ATT_REQUEST_NOT_SUPPORTED) {
+        if (sc != SL_STATUS_BT_ATT_REQUEST_NOT_SUPPORTED) {
           if (evt->data.evt_gatt_server_user_write_request.att_opcode == sl_bt_gatt_write_request
               || evt->data.evt_gatt_server_user_write_request.att_opcode == sl_bt_gatt_execute_write_request) {
             sl_bt_gatt_server_send_user_write_response(evt->data.evt_gatt_server_user_write_request.connection,
                                                        evt->data.evt_gatt_server_user_write_request.characteristic,
-                                                       result);
+                                                       (uint8_t)sc);
           } else if (evt->data.evt_gatt_server_user_write_request.att_opcode == sl_bt_gatt_prepare_write_request) {
             sl_bt_gatt_server_send_user_prepare_write_response(evt->data.evt_gatt_server_user_write_request.connection,
                                                                evt->data.evt_gatt_server_user_write_request.characteristic,
-                                                               result,
+                                                               (uint8_t)sc,
                                                                evt->data.evt_gatt_server_user_write_request.offset,
                                                                evt->data.evt_gatt_server_user_write_request.value.len,
-                                                               evt->data.evt_gatt_server_user_write_request.value.data);
+                                                               (uint8_t *)evt->data.evt_gatt_server_user_write_request.value.data);
           }
         }
       }
@@ -1037,6 +1149,7 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
       (void)sl_bt_connection_close(evt->data.evt_pawr_sync_transfer_received.connection);
 
       if (evt->data.evt_pawr_sync_transfer_received.status == SL_STATUS_OK) {
+        sl_status_t sc = SL_STATUS_OK;
         uint32_t interval;
         uint32_t sync_timeout;
 
@@ -1057,11 +1170,21 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
         } else {
           esl_core_set_basic_state_bit(ESL_BASIC_STATE_SYNCHRONIZED_BIT, ESL_SET);
           esl_tag.sync_handle = evt->data.evt_pawr_sync_transfer_received.sync;
-
+          esl_tag.response_payload_limit =
+            esl_get_response_payload_limit(evt->data.evt_pawr_sync_transfer_received.adv_phy,
+                                           evt->data.evt_pawr_sync_transfer_received.response_slot_spacing);
+          // calculated response slot payload size may significantly exceed the limit specified by the ESL spec.!
+          if (esl_tag.response_payload_limit > ESL_PAYLOAD_MAX_LENGTH) {
+            // ensure the actual payload limit conforms to the ESLP.
+            esl_tag.response_payload_limit = ESL_PAYLOAD_MAX_LENGTH;
+          }
+          // prepare the response queue size limit
+          esl_core_purge_responses((uint8_t)esl_tag.response_payload_limit);
           sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                         ESL_LOG_LEVEL_INFO,
-                        "PAST done, %d ms PAwR sync service opened.",
-                        sync_timeout);
+                        "PAST done, %d ms PAwR sync service opened, response payload size limit is %u bytes",
+                        sync_timeout,
+                        esl_tag.response_payload_limit);
           sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                         ESL_LOG_LEVEL_DEBUG,
                         "Remote clock accuracy: %d ppm",
@@ -1074,9 +1197,20 @@ static void esl_state_configuring_handler(sl_bt_msg_t *evt)
           (void)sl_sleeptimer_ms32_to_tick(interval,
                                            &esl_tag.pawr_interval_ticks);
           // set listener subevent according to current ESL group
-          (void)sl_bt_pawr_sync_set_sync_subevents(esl_tag.sync_handle,
-                                                   sizeof(esl_tag.address.group_id),
-                                                   &esl_tag.address.group_id);
+          sc = sl_bt_pawr_sync_set_sync_subevents(esl_tag.sync_handle,
+                                                  sizeof(esl_tag.address.group_id),
+                                                  &esl_tag.address.group_id);
+          if (sc != SL_STATUS_OK) {
+            (void)sl_bt_sync_close(esl_tag.sync_handle);
+#if ESL_TAG_SYNC_SCAN_ENABLE
+            esl_tag_persistent.scan_permitted = false;
+#endif // #if ESL_TAG_SYNC_SCAN_ENABLE
+            sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
+                          ESL_LOG_LEVEL_ERROR,
+                          "Sync close due set sync subevent failure with sc: 0x%04x for se: 0x%02x",
+                          sc,
+                          esl_tag.address.group_id);
+          }
         }
       } else {
         // clean up sync info
@@ -1160,6 +1294,29 @@ static void esl_state_synchronized_handler(sl_bt_msg_t *evt)
         // also skip processing any improperly encrypted data:
         // (skip msg == NULL and improper length and/or type)
         if (msg && msg[0] == --len && msg[1] == ESL_AD_TYPE) {
+#if ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
+          uint64_t packet_counter = 0;
+          // get AP sync packet current randomizer value
+          memcpy(&packet_counter,
+                 &evt->data.evt_pawr_sync_subevent_report.data.data[SL_BT_EAD_HEADER_SIZE],
+                 SL_BT_EAD_RANDOMIZER_SIZE);
+          // initial state check for substitute previous value generation
+          if (esl_tag.last_ap_randomizer == NULL) {
+            // make the base "valid" by setting the static pointer if it was NULL
+            esl_tag.last_ap_randomizer = &esl_core_ap_randomizer_base;
+            // but create a substitute value as there was a previous value
+            // (since we can never know the start "random" value in advance)
+            // masking is necessary to avoid the 40 bit underflow
+            esl_tag.last_ap_randomizer->packet_counter = (packet_counter - 1) & 0xffffffffffu;
+          }
+          // this check below now can prevent (2^40) replay attempts
+          if (((int64_t)packet_counter - (int64_t)esl_tag.last_ap_randomizer->packet_counter) <= 0) {
+            // 0 result means wrap-around while negative values mean a replay attempt
+            break;
+          }
+          // save current AP sync randomizer value as last known good value
+          esl_tag.last_ap_randomizer->packet_counter = packet_counter;
+#endif // ESL_TAG_EAD_REPLAY_MITIGATION_ENABLED
           esl_core_signal_valid_message();
           // backup vales for response
           esl_tag_persistent.request_event = evt->data.evt_pawr_sync_subevent_report.event_counter;
@@ -1250,13 +1407,13 @@ static void esl_state_synchronized_handler(sl_bt_msg_t *evt)
           esl_tag.tick_error -= error_threshold;
           esl_tag.time_offset--;
           sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
-                        ESL_LOG_LEVEL_INFO,
+                        ESL_LOG_LEVEL_DEBUG,
                         "LFXO is too fast, Absolute Time adjusted down!");
         } else if (esl_tag.tick_error <= -error_threshold) {
           esl_tag.tick_error += error_threshold;
           esl_tag.time_offset++;
           sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
-                        ESL_LOG_LEVEL_INFO,
+                        ESL_LOG_LEVEL_DEBUG,
                         "LFXO is too slow, Absolute Time adjusted up!");
         } else {
           // nothing more to do until the time drifts
@@ -1371,26 +1528,38 @@ void esl_core_init(void)
 
 SL_WEAK void esl_core_boot_event(void)
 {
+  // Do nothing special by default on stack boot event.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 SL_WEAK void esl_core_unassociate_callback(void)
 {
+  // Do nothing by default right after the ESL entered to Unassociated state.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 SL_WEAK void esl_core_update_complete_callback(void)
 {
+  // Do nothing by default after an update complete command executed successfully.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 SL_WEAK void esl_core_service_reset_event(void)
 {
+  // Do nothing by default on service reset.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 SL_WEAK void esl_core_init_hook(void)
 {
+  // Do nothing special by default on early init.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 SL_WEAK void esl_core_shutdown_hook(void)
 {
+  // Do nothing special by default before complete shutdown.
+  // ESL vendors can override this behavior by writing their own implementation.
 }
 
 void esl_core_bt_on_event(sl_bt_msg_t *evt)
@@ -1524,13 +1693,13 @@ sl_status_t esl_core_start_advertising(void)
                     ESL_LOG_LEVEL_INFO,
                     "Power saving disabled by ESL_TAG_POWER_DOWN_ENABLE config!");
     }
+#if ESL_TAG_INTERMITTENT_ADVERTISING
+    (void)app_scheduler_add_delayed(&esl_core_secondary_advertiser,
+                                    ESL_TAG_SECONDARY_ADVERTISING_DELAY,
+                                    NULL, 0, NULL);
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
   }
 
-#if ESL_TAG_INTERMITTENT_ADVERTISING
-  (void)app_scheduler_add_delayed(&esl_core_secondary_advertiser,
-                                  ESL_TAG_SECONDARY_ADVERTISING_DELAY,
-                                  NULL, 0, NULL);
-#endif // ESL_TAG_INTERMITTENT_ADVERTISING
   return result;
 }
 
@@ -1574,7 +1743,7 @@ sl_status_t esl_core_get_randomizer(sl_bt_ead_randomizer_t randomizer)
 
   if (!!(esl_tag.config_status & ESL_CONFIG_FLAG_RANDOMIZER_READY)) {
     // Increase packet counter for every new packet
-    ++esl_core_response_randomizer.packetCounter;
+    ++esl_core_response_randomizer.packet_counter;
     result = SL_STATUS_OK;
   } else {
     struct sl_bt_ead_nonce_s nonce;
@@ -1679,7 +1848,7 @@ sl_status_t esl_core_update_sync_parameters(uint32_t timeout, uint16_t skip)
     // set an appropriate timeout for possible sync lost
     result = sl_bt_sync_update_sync_parameters(esl_tag.sync_handle,
                                                skip,
-                                               timeout);
+                                               (uint16_t)timeout);
 
     sl_bt_esl_log(ESL_LOG_COMPONENT_CORE,
                   ESL_LOG_LEVEL_INFO,

@@ -49,8 +49,7 @@
 /**
  * enum type OTA_STATUS use to
  */
-typedef enum
-{
+typedef enum {
   OTA_STATUS_DONE = 0,
   OTA_STATUS_ABORT = 1,
   OTA_STATUS_TIMEOUT = 2
@@ -91,7 +90,6 @@ void CC_FirmwareUpdate_SetFinishCallback(OTA_STATUS pOtaFinish);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* _CC_FIRMWAREUPDATE_H_*/
-

@@ -56,38 +56,10 @@ sl_cpc_system_status_t cpc_get_reset_reason(void)
 {
   sl_cpc_system_status_t last_status = STATUS_RESET_UNKNOWN;
   uint32_t reset_cause;
+
 #if defined(SL_CATALOG_EMLIB_RMU_PRESENT)
   reset_cause = RMU_ResetCauseGet();
   RMU_ResetCauseClear();
-#elif defined(SL_CATALOG_HAL_EMU_PRESENT)
-  reset_cause = sl_hal_emu_get_reset_cause();
-  sl_hal_emu_clear_reset_cause();
-#endif
-#if defined(SL_CATALOG_EMLIB_RMU_PRESENT)
-#if defined(RMU_PRESENT)
- #if defined(_RMU_RSTCAUSE_MASK)
-  if (reset_cause & RMU_RSTCAUSE_PORST) {
-    last_status = STATUS_RESET_POWER_ON;
-  } else if (reset_cause & RMU_RSTCAUSE_AVDDBOD) {
-    last_status = STATUS_RESET_FAULT;
-  } else if (reset_cause & RMU_RSTCAUSE_DVDDBOD) {
-    last_status = STATUS_RESET_FAULT;
-  } else if (reset_cause & RMU_RSTCAUSE_DECBOD) {
-    last_status = STATUS_RESET_FAULT;
-  } else if (reset_cause & RMU_RSTCAUSE_EXTRST) {
-    last_status = STATUS_RESET_EXTERNAL;
-  } else if (reset_cause & RMU_RSTCAUSE_WDOGRST) {
-    last_status = STATUS_RESET_WATCHDOG;
-  } else if (reset_cause & RMU_RSTCAUSE_LOCKUPRST) {
-    last_status = STATUS_RESET_CRASH;
-  } else if (reset_cause & RMU_RSTCAUSE_SYSREQRST) {
-    last_status = STATUS_RESET_SOFTWARE;
-  } else if (reset_cause & RMU_RSTCAUSE_EM4RST) {
-    last_status = STATUS_RESET_OTHER;
-  }
-  #endif
-
-#elif defined(EMU_PRESENT)
 
  #if defined(_EMU_RSTCTRL_AVDDBODRMODE_MASK)
   if (reset_cause & rmuResetAVDD) {
@@ -96,6 +68,16 @@ sl_cpc_system_status_t cpc_get_reset_reason(void)
  #endif
  #if defined(_EMU_RSTCTRL_IOVDD0BODRMODE_MASK)
   if (reset_cause & rmuResetIOVDD0) {
+    last_status = STATUS_RESET_FAULT;
+  }
+ #endif
+ #if defined(_EMU_RSTCTRL_IOVDD1BODRMODE_MASK)
+  if (reset_cause & rmuResetIOVDD1) {
+    last_status = STATUS_RESET_FAULT;
+  }
+ #endif
+ #if defined(_EMU_RSTCTRL_IOVDD2BODRMODE_MASK)
+  if (reset_cause & rmuResetIOVDD2) {
     last_status = STATUS_RESET_FAULT;
   }
  #endif
@@ -133,12 +115,76 @@ sl_cpc_system_status_t cpc_get_reset_reason(void)
   if (reset_cause & rmuResetSESys) {
     last_status = STATUS_RESET_SOFTWARE;
   }
-  #endif  // _RMU_RSTCAUSE_MASK
- #endif // RMU_PRESENT
+ #endif
+ #if defined(_EMU_RSTCTRL_DCIRMODE_MASK)
+  if (reset_cause & rmuResetDCI) {
+    last_status = STATUS_RESET_EXTERNAL;
+  }
+ #endif
+
+#elif defined(SL_CATALOG_HAL_EMU_PRESENT)
+  reset_cause = sl_hal_emu_get_reset_cause();
+  sl_hal_emu_clear_reset_cause();
+
+  #if defined(_EMU_RSTCTRL_WDOG0RMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_WDOG0) {
+    last_status = STATUS_RESET_WATCHDOG;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_WDOG1RMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_WDOG1) {
+    last_status = STATUS_RESET_WATCHDOG;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_SYSRMODE_MASK)
+  if (reset_cause & SL_HAL_EMU_RESET_SYS) {
+    last_status = STATUS_RESET_SOFTWARE;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_LOCKUPRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_CORE_LOCKUP) {
+    last_status = STATUS_RESET_CRASH;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_AVDDBODRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_AVDD) {
+    last_status = STATUS_RESET_FAULT;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_IOVDD0BODRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_IOVDD0) {
+    last_status = STATUS_RESET_FAULT;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_IOVDD1BODRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_IOVDD1) {
+    last_status = STATUS_RESET_FAULT;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_DECBODRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_DECOUPLE) {
+    last_status = STATUS_RESET_FAULT;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_FLBODRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_FLASH) {
+    last_status = STATUS_RESET_FAULT;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_SEM0SYSRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_SE_SYS) {
+    last_status = STATUS_RESET_SOFTWARE;
+  }
+  #endif
+  #if defined(_EMU_RSTCTRL_SEM0LOCKUPRMODE_SHIFT)
+  if (reset_cause & SL_HAL_EMU_RESET_SE_LOCKUP) {
+    last_status = STATUS_RESET_CRASH;
+  }
+  #endif
 #else
-  // FIXME: Return correct
-  (void) reset_cause;
-#endif // SL_CATALOG_EMLIB_RMU_PRESENT
+  (void)reset_cause;
+#endif
+
   return last_status;
 }
 
@@ -194,11 +240,16 @@ void cpc_get_bootloader_info(sli_cpc_system_bootloader_info_t *infos)
  ******************************************************************************/
 void cpc_system_reset(sli_cpc_system_reboot_mode_t reboot_mode)
 {
-  (void)reboot_mode;
-
 #if (defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT))
-  // The reset command asked to perform a reset.
-  BootloaderResetCause_t* resetCause = (BootloaderResetCause_t*) (RAM_MEM_BASE);
+  BootloaderResetCause_t* resetCause;
+
+#if defined(_SILICON_LABS_32B_SERIES_3)
+  resetCause = (BootloaderResetCause_t*) (SRAM_BASE);
+#else // handle _SILICON_LABS_32B_SERIES_2
+  resetCause = (BootloaderResetCause_t*) (RAM_MEM_BASE);
+#endif
+
+  resetCause->signature = BOOTLOADER_RESET_SIGNATURE_VALID;
 
   // Set reset reason to bootloader entry
   switch (reboot_mode) {
@@ -209,20 +260,16 @@ void cpc_system_reset(sli_cpc_system_reboot_mode_t reboot_mode)
       resetCause->reason = BOOTLOADER_RESET_REASON_BOOTLOAD;
       break;
     default:
+      resetCause->signature = BOOTLOADER_RESET_SIGNATURE_INVALID;
       SLI_CPC_ASSERT(0);
       break;
   }
 
-  resetCause->signature = BOOTLOADER_RESET_SIGNATURE_VALID;
+#else
+  (void)reboot_mode;
 #endif  // SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT
 
 #if (defined(SL_CATALOG_EMLIB_CORE_PRESENT))
-#if defined(RMU_PRESENT)
-// Clear reset cause
-  RMU->CMD = RMU_CMD_RCCLR;
-// Trigger a software system reset
-  RMU->CTRL = (RMU->CTRL & ~_RMU_CTRL_SYSRMODE_MASK) | RMU_CTRL_SYSRMODE_EXTENDED;
-#endif  // RMU_PRESENT
 
   CHIP_Reset();
 

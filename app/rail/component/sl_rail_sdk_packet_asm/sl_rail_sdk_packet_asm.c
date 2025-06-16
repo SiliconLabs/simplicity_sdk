@@ -569,7 +569,7 @@ uint8_t *sl_rail_sdk_802154_packet_unpack_data_frame(sl_rail_sdk_802154_packet_m
   return tmp;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_2byte_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_2byte_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                                   uint8_t *fcsType,
                                                                   uint8_t *whitening,
                                                                   uint16_t *payload_size,
@@ -601,7 +601,7 @@ uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_2byte_data_frame(const RAIL_RxP
   return tmp;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_4byte_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_4byte_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                                   uint8_t *fcsType,
                                                                   uint8_t *whitening,
                                                                   uint16_t *payload_size,
@@ -632,7 +632,7 @@ uint8_t *sl_rail_sdk_802154_packet_unpack_sunfsk_4byte_data_frame(const RAIL_RxP
   return tmp;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_ofdm_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_ofdm_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                           uint8_t *rate,
                                                           uint8_t *scrambler,
                                                           uint16_t *payload_size,
@@ -667,7 +667,7 @@ uint8_t *sl_rail_sdk_802154_packet_unpack_ofdm_data_frame(const RAIL_RxPacketInf
   return tmp;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_oqpsk_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_oqpsk_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                            bool *spreadingMode,
                                                            uint8_t *rateMode,
                                                            uint16_t *payload_size,
@@ -750,7 +750,7 @@ int16_t sl_rail_sdk_802154_packet_pack_sidewalk_data_frame(uint8_t fcsType,
   return SL_RAIL_SDK_802154_PACKET_OK;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_sidewalk_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_sidewalk_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                               uint8_t *fcsType,
                                                               uint8_t *whitening,
                                                               uint16_t *payload_size,
@@ -825,7 +825,7 @@ int16_t sl_rail_sdk_802154_packet_pack_longrange_data_frame(uint16_t payload_siz
   return SL_RAIL_SDK_802154_PACKET_OK;
 }
 
-uint8_t *sl_rail_sdk_802154_packet_unpack_longrange_data_frame(const RAIL_RxPacketInfo_t *packet_information,
+uint8_t *sl_rail_sdk_802154_packet_unpack_longrange_data_frame(const sl_rail_rx_packet_info_t *packet_information,
                                                                uint16_t *payload_size,
                                                                uint8_t *frame_buffer)
 {

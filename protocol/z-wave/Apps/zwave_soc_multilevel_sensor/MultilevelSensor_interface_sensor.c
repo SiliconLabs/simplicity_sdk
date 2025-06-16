@@ -22,14 +22,13 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 #include "sl_i2cspm.h"
 #include "sl_i2cspm_instances.h"
 #include "sl_si70xx.h"
 #include "sl_veml6035.h"
 #include <cc_multilevel_sensor_config.h>
 #include "ZW_typedefs.h"
+#include "zpal_log.h"
 // -----------------------------------------------------------------------------
 //                Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -176,7 +175,7 @@ cc_multilevel_sensor_endpoint_0_humidity_interface_read_value(sensor_read_result
 
     MultilevelSensor_temperature_humidity_sensor_read(&rh_data, &temp_data);
 
-    DPRINTF("Humidity: %d\n", rh_data);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Humidity: %d\n", rh_data);
 
     o_result->raw_result[3] = (uint8_t)(rh_data   & 0xFF);
     o_result->raw_result[2] = (uint8_t)((rh_data >> 8) & 0xFF);
@@ -201,7 +200,7 @@ cc_multilevel_sensor_endpoint_0_air_temperature_interface_read_value(sensor_read
 
     MultilevelSensor_temperature_humidity_sensor_read(&rh_data, &temp_data);
 
-    DPRINTF("Temperature: %d\n", rh_data);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Temperature: %d\n", rh_data);
 
     if (i_scale == SENSOR_SCALE_FAHRENHEIT) {
       temperature_celsius_divided = (float)temp_data / (float)1000;
@@ -237,7 +236,7 @@ cc_multilevel_sensor_endpoint_0_ambient_light_interface_read_value(sensor_read_r
 
     al_data_int = (uint32_t) (al_data * 1000);
 
-    DPRINTF("Ambient light: %d\n", al_data_int);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Ambient light: %d\n", al_data_int);
 
     o_result->raw_result[3] = (uint8_t)(al_data_int & 0xFF);
     o_result->raw_result[2] = (uint8_t)((al_data_int >> 8) & 0xFF);

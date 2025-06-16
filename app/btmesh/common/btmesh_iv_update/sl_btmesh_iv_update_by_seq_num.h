@@ -34,7 +34,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @addtogroup iv_update
+ * @addtogroup btmesh_iv_update
  * @{
  ******************************************************************************/
 
@@ -44,6 +44,6 @@
  ******************************************************************************/
 void sl_btmesh_iv_update_by_seq_num_on_event(sl_btmesh_msg_t *evt);
 
-/** @} (end addtogroup iv_update) */
+/** @} (end addtogroup btmesh_iv_update) */
 
 #endif /* SL_BTMESH_IV_UPDATE_BY_SEQ_NUM_H */

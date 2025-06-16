@@ -37,6 +37,7 @@
 #include "CC_MultilevelSwitch_Support.h"
 #include "sl_component_catalog.h"
 #include "assert.h"
+#include "zpal_log.h"
 
 #ifdef SL_CATALOG_RGB_LED_PRESENT
 #include "sl_simple_rgb_pwm_led.h"
@@ -49,8 +50,6 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -123,11 +122,11 @@ void app_rgbw_led_update(void)
 {
   uint8_t multilevel_switch_max = cc_multilevel_switch_get_max_value();
 
-#if defined(DEBUGPRINT) && defined(SL_CATALOG_RGB_LED_PRESENT)
-  DPRINTF("%s Setting RGB=(%u,%u,%u)\n", __func__,
-          (rgb_led_attributes.color.red * rgb_led_attributes.intensity) / multilevel_switch_max,
-          (rgb_led_attributes.color.green * rgb_led_attributes.intensity) / multilevel_switch_max,
-          (rgb_led_attributes.color.blue * rgb_led_attributes.intensity) / multilevel_switch_max);
+#if defined(SL_CATALOG_RGB_LED_PRESENT)
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "%s Setting RGB=(%u,%u,%u)\n", __func__,
+                 (rgb_led_attributes.color.red * rgb_led_attributes.intensity) / multilevel_switch_max,
+                 (rgb_led_attributes.color.green * rgb_led_attributes.intensity) / multilevel_switch_max,
+                 (rgb_led_attributes.color.blue * rgb_led_attributes.intensity) / multilevel_switch_max);
 #endif
 
 #ifdef SL_CATALOG_RGB_LED_PRESENT

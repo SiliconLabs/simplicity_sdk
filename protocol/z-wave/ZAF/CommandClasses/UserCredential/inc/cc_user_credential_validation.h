@@ -13,7 +13,7 @@
 /**
  * Function pointer type for Credential Type Validators
  */
-typedef bool (*u3c_credential_type_validator_t)(u3c_credential*, RECEIVE_OPTIONS_TYPE_EX*);
+typedef bool (*u3c_credential_type_validator_t)(u3c_credential_t*, RECEIVE_OPTIONS_TYPE_EX*);
 
 /**
  * Checks whether a Credential is identical to an existing Credential in the
@@ -26,8 +26,8 @@ typedef bool (*u3c_credential_type_validator_t)(u3c_credential*, RECEIVE_OPTIONS
  * @return true if the credential is a duplicate
  */
 bool find_existing_credential(
-  const u3c_credential * const p_credential,
-  u3c_credential_metadata * p_existing_metadata
+  const u3c_credential_t * const p_credential,
+  u3c_credential_metadata_t * p_existing_metadata
   );
 
 /**
@@ -39,7 +39,7 @@ bool find_existing_credential(
  *
  * @return true if the credential passes all checks
  */
-bool validate_credential_data(u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options);
+bool validate_credential_data(u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options);
 
 /**
  * Validates that a new Credential conforms to the active configuration of the
@@ -50,7 +50,7 @@ bool validate_credential_data(u3c_credential * p_credential, RECEIVE_OPTIONS_TYP
  * @return true if the Credential passes all checks
  */
 bool validate_new_credential_metadata(
-  const u3c_credential_metadata * const p_metadata
+  const u3c_credential_metadata_t * const p_metadata
   );
 
 /**
@@ -76,7 +76,7 @@ bool validate_associated_uuid(
  * @return true if the Credential passes all checks
  */
 bool validate_new_credential_data(
-  u3c_credential * p_credential,
+  u3c_credential_t * p_credential,
   RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   );
 
@@ -98,23 +98,7 @@ bool validate_new_credential_data(
  * @note result code of a successful check should be ignored, but in
  * practice ensure it is set to ADMIN_CODE_OPERATION_RESULT_NONE in this case.
  */
-bool validate_admin_pin_code(u3c_admin_code_metadata_t * data);
-
-/**
- * Checks whether a frame was initiated locally.
- *
- * @param[in] p_rx_options Pointer to the properties of the incoming frame
- *
- * @return true if tframe was initiated locally.
- */
-bool is_rx_frame_initiated_locally(const RECEIVE_OPTIONS_TYPE_EX * p_rx_options);
-
-/**
- * Fills the frame info to properly handle locally initiated operations.
- *
- * @param[in] p_rx_options Pointer to the properties of the incoming frame
- */
-void fill_rx_frame_with_local(RECEIVE_OPTIONS_TYPE_EX * p_rx_options);
+bool validate_admin_pin_code(u3c_admin_code_metadata_t * const data);
 
 /**
  * Validates user name encoding.

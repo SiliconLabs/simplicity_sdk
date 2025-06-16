@@ -155,7 +155,7 @@ typedef struct sl_iperf_stats {
   uint32_t last_recv_pkt_cnt;
   /// Current received packet timestamp
   sl_iperf_ts_ms_t ts_curr_recv_ms;
-  /// Previous received packt timestamp
+  /// Previous received packet timestamp
   sl_iperf_ts_ms_t ts_prev_recv_ms;
   /// Current sent packet timestamp
   sl_iperf_ts_ms_t ts_curr_sent_ms;
@@ -385,7 +385,7 @@ typedef struct sl_iperf_clnt_hdr_ext {
 } sl_iperf_clnt_hdr_ext_t;
 #pragma pack(pop)
 
-/// iPerf Client Isochronus payload
+/// iPerf Client Isochronous payload
 #pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_isoch_payload {
   /// period units microseconds
@@ -423,7 +423,7 @@ typedef struct sl_iperf_clnt_hdr_ext_starttime_fq {
 } sl_iperf_clnt_hdr_ext_starttime_fq_t;
 #pragma pack(pop)
 
-/// iPerf Client Isochronus settings
+/// iPerf Client Isochronous settings
 #pragma pack(push, 4)
 typedef struct sl_iperf_clnt_hdr_ext_isoch_settings {
   /// Lower FPS
@@ -454,11 +454,11 @@ typedef struct sl_iperf_udp_clnt_hdr {
   sl_iperf_clnt_hdr_v1_t base;
   /// Extended header
   sl_iperf_clnt_hdr_ext_t extend;
-  /// Isochronus payload
+  /// Isochronous payload
   sl_iperf_clnt_hdr_isoch_payload_t isoch;
   /// Extended start FQ
   sl_iperf_clnt_hdr_ext_starttime_fq_t start_fq;
-  /// Isochronus settings
+  /// Isochronous settings
   sl_iperf_clnt_hdr_ext_isoch_settings_t isoch_settings;
 } sl_iperf_udp_clnt_hdr_t;
 #pragma pack(pop)

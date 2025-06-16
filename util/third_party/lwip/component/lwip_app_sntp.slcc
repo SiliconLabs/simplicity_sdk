@@ -1,6 +1,6 @@
 id: lwip_app_sntp
 label: "LWIP SNTP high layer application"
-package: platform
+package: lwip
 description: >
     The LWIP sntp high layer application specifically programmed with the lwIP low-level raw API,
     this is simple "SNTP" client for the lwIP raw API. It is a minimal implementation of SNTPv4

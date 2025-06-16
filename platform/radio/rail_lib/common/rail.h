@@ -42,6 +42,8 @@
 extern "C" {
 #endif
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * @addtogroup RAIL_API RAIL API
  * @brief This is the primary API layer for the Radio Abstraction Interface
@@ -82,7 +84,7 @@ extern "C" {
  */
 RAIL_Status_t RAIL_GetVersion(RAIL_Version_t *version, bool verbose);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * A global pointer to the head of a linked list of state buffers
@@ -98,7 +100,7 @@ RAIL_Status_t RAIL_GetVersion(RAIL_Version_t *version, bool verbose);
  * to allocate and provide its own buffers. However, this use is highly
  * discouraged.
  */
-extern RAIL_StateBufferEntry_t *RAIL_StateBufferHead;
+#define RAIL_StateBufferHead sl_rail_state_buffer_head
 
 /**
  * Get the run-time size of the radio's state buffer.
@@ -139,7 +141,7 @@ uint32_t RAIL_GetStateBufferSize(RAIL_Handle_t genericRailHandle);
 RAIL_Status_t RAIL_AddStateBuffer(RAIL_Handle_t genericRailHandle,
                                   RAIL_StateBufferEntry_t *newEntry);
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Add a 3rd multiprotocol internal state buffer for use by \ref RAIL_Init().
@@ -189,7 +191,7 @@ RAIL_Status_t RAIL_AddStateBuffer4(RAIL_Handle_t genericRailHandle);
  */
 RAIL_Status_t RAIL_UseDma(uint8_t channel);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * Load the first image \ref RAIL_SEQ_IMAGE_1 into the radio sequencer during
@@ -284,18 +286,18 @@ RAIL_Status_t RAIL_LoadSfmEmpty(RAIL_Handle_t genericRailHandle);
  * @return Status code indicating success of the function call.
  *
  * This callback is used by RAIL to load a software modem sequencer image
- * during \ref RAIL_Init() via an API such as \ref RFHAL_LoadSfmSunOfdmOqpsk().
+ * during \ref RAIL_Init() via an API such as \ref RAIL_LoadSfmSunOfdmOqpsk().
  * If this function is not implemented, a default image including OFDM and
  * OQPSK modulations will be loaded.
  *
  * @note If this function is implemented without a call to an image loading API
- *   such as \ref RFHAL_LoadSfmSunOfdmOqpsk(), an assert will occur during RAIL
+ *   such as \ref RAIL_LoadSfmSunOfdmOqpsk(), an assert will occur during RAIL
  *   initialization. Similarly, if an image is loaded that is unsupported by
  *   the platform, an assert will occur.
  */
 RAIL_Status_t RAILCb_LoadSfmSequencer(void);
 
-#endif //DOXYGEN_SHOULD_SKIP_THIS
+#endif //DOXYGEN_UNDOCUMENTED
 
 /**
  * Reads out device specific data that may be needed by RAIL
@@ -310,6 +312,8 @@ RAIL_Status_t RAILCb_LoadSfmSequencer(void);
  *   This function does nothing on EFR32 Series 2 devices.
  */
 RAIL_Status_t RAIL_CopyDeviceInfo(RAIL_Handle_t genericRailHandle);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Initialize RAIL.
@@ -328,6 +332,10 @@ RAIL_Status_t RAIL_CopyDeviceInfo(RAIL_Handle_t genericRailHandle);
  *   again, it will do nothing and return NULL. \ref RAIL_CopyDeviceInfo()
  *   should be called once before calling this function for
  *   Silicon Labs Series 3 devices.
+ *
+ * @note The first call to \ref RAIL_Init() implicitly enables PTI, but
+ *  it won't take effect unless or until \ref RAIL_ConfigPti() has been
+ *  called with a mode other than the default \ref RAIL_PTI_MODE_DISABLED.
  */
 RAIL_Handle_t RAIL_Init(const RAIL_Config_t *railCfg,
                         RAIL_InitCompleteCallbackPtr_t cb);
@@ -342,6 +350,8 @@ RAIL_Handle_t RAIL_Init(const RAIL_Config_t *railCfg,
  * can use \ref RAIL_IsInitialized() to determine whether RAIL has been initialized or not.
  */
 bool RAIL_IsInitialized(void);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Collect entropy from the radio if available.
@@ -384,13 +394,19 @@ uint16_t RAIL_GetRadioEntropy(RAIL_Handle_t railHandle,
  *   to use.
  * @return Status code indicating success of the function call.
  *
- * This method must be called before \ref RAIL_EnablePti() is called.
- * There is only one PTI configuration that can be active on a
+ * When this function is called prior to the first \ref RAIL_Init() call,
+ * the PTI configuration is recorded but activation is deferred to \ref
+ * RAIL_Init().
+ * When called subsequent to \ref RAIL_Init(), the radio should be off
+ * (idle) and the PTI configuration is recorded and put into effect
+ * immediately unless \ref RAIL_EnablePti() had been called just prior
+ * to disable PTI, in which case activation is deferred to when \ref
+ * RAIL_EnablePti() is subsequently called to enable PTI.
+
+ * Only one PTI configuration that can be active on a
  * radio, regardless of the number of protocols (unless the application
  * updates the configuration upon a protocol switch -- RAIL does not
  * save the configuration in a protocol RAIL instance).
- *
- * PTI should be configured only when the radio is off (idle).
  *
  * @note On EFR32 platforms GPIO configuration must be unlocked
  *   (see GPIO->LOCK register) to configure or use PTI.
@@ -432,6 +448,10 @@ RAIL_Status_t RAIL_GetPtiConfig(RAIL_Handle_t railHandle,
  * RAIL does not save this state in a protocol RAIL instance).
  *
  * PTI should be enabled or disabled only when the radio is off (idle).
+ *
+ * @note The first call to \ref RAIL_Init() implicitly enables PTI, but
+ *  it won't take effect unless or until \ref RAIL_ConfigPti() has been
+ *  called with a mode other than the default \ref RAIL_PTI_MODE_DISABLED.
  *
  * @warning On EFR32 platforms GPIO configuration must be unlocked
  *   (see GPIO->LOCK register) to configure or use PTI, otherwise a fault
@@ -550,6 +570,7 @@ RAIL_Status_t RAIL_GetRfPath(RAIL_Handle_t railHandle, RAIL_AntennaSel_t *rfPath
 ///
 /// @{
 
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Load a static radio configuration.
  *
@@ -558,14 +579,14 @@ RAIL_Status_t RAIL_GetRfPath(RAIL_Handle_t railHandle, RAIL_AntennaSel_t *rfPath
  * @return Status code indicating success of the function call.
  *
  * The configuration passed into this function should be auto-generated
- * and not manually created or edited. By default, do not call this function
- * in RAIL 2.x and later unless instructed by Silicon Labs because it
- * may bypass updating certain RAIL state. In RAIL 2.x and later, the
- * RAIL_ConfigChannels function applies the default radio configuration
- * automatically.
+ * and not manually created or edited. Do not call this function unless
+ * instructed by Silicon Labs because it may bypass updating certain
+ * RAIL state. In RAIL 2.x the \ref RAIL_ConfigChannels() function applies
+ * the default radio configuration automatically.
  */
 RAIL_Status_t RAIL_ConfigRadio(RAIL_Handle_t railHandle,
                                RAIL_RadioConfig_t config);
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Modify the currently configured fixed frame length in bytes.
@@ -600,7 +621,9 @@ uint16_t RAIL_SetFixedLength(RAIL_Handle_t railHandle, uint16_t length);
  * @return The first available channel in the configuration.
  *
  * When configuring channels on EFR32, the radio tuner is reconfigured
- * based on the frequency and channel spacing in the channel configuration.
+ * based on the frequency and channel spacing in the channel configuration
+ * and the first channel in the configuration is implicitly prepared as if
+ * \ref RAIL_PrepareChannel() were called.
  *
  * @note config can be NULL to simply register or unregister the cb callback
  *   function when using RAIL internal protocol-specific radio configuration
@@ -753,7 +776,7 @@ RAIL_Status_t RAIL_GetChannelAlt(RAIL_Handle_t railHandle, uint16_t *channel);
  */
 uint32_t RAIL_GetSymbolRate(RAIL_Handle_t railHandle);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Calculate the symbol rate for the current PHY.
  *
@@ -765,7 +788,7 @@ uint32_t RAIL_GetSymbolRate(RAIL_Handle_t railHandle);
  * implemented automatically in the radio configuration as a stub.
  */
 uint32_t RAILCb_CalcSymbolRate(RAIL_Handle_t railHandle);
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Return the bit rate for the current PHY.
@@ -781,7 +804,7 @@ uint32_t RAILCb_CalcSymbolRate(RAIL_Handle_t railHandle);
  */
 uint32_t RAIL_GetBitRate(RAIL_Handle_t railHandle);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Calculate the bit rate for the current PHY.
  *
@@ -793,7 +816,7 @@ uint32_t RAIL_GetBitRate(RAIL_Handle_t railHandle);
  * implemented automatically in the radio configuration as a stub.
  */
 uint32_t RAILCb_CalcBitRate(RAIL_Handle_t railHandle);
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Set the PA capacitor tune value for transmit and receive.
@@ -969,7 +992,7 @@ RAIL_Status_t RAIL_ResetCrcInitVal(RAIL_Handle_t railHandle);
 /// for expiration with the \ref RAIL_IsTimerExpired() function. See below for an
 /// example of the interrupt driven method of interacting with the timer.
 /// @code{.c}
-/// void timerCb(RAIL_Handle_t cbArg)
+/// void timerCb(RAIL_Handle_t railHandle)
 /// {
 ///   // Timer callback action
 /// }
@@ -1000,7 +1023,7 @@ RAIL_Status_t RAIL_ResetCrcInitVal(RAIL_Handle_t railHandle);
 ///              RAIL_Time_t expectedTimeOfEvent,
 ///              void *cbArg)
 /// {
-///   if (tmr == tmr1) {
+///   if (tmr == &tmr1) {
 ///     // Timer 1 action
 ///   } else {
 ///     // Timer 2 action
@@ -1024,6 +1047,8 @@ RAIL_Status_t RAIL_ResetCrcInitVal(RAIL_Handle_t railHandle);
 /// @endcode
 ///
 /// @{
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Get the current RAIL time.
@@ -1069,6 +1094,8 @@ RAIL_Status_t RAIL_SetTime(RAIL_Time_t time);
  *   interrupt extends beyond the delay duration.
  */
 RAIL_Status_t RAIL_DelayUs(RAIL_Time_t microseconds);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Schedule a timer to expire using the RAIL timebase.
@@ -1145,6 +1172,8 @@ bool RAIL_IsTimerExpired(RAIL_Handle_t railHandle);
  */
 bool RAIL_IsTimerRunning(RAIL_Handle_t railHandle);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Configure the RAIL software timer feature.
  *
@@ -1178,6 +1207,9 @@ bool RAIL_ConfigMultiTimer(bool enable);
  * @param[in] callback A function to call on timer expiry. See \ref
  *   RAIL_MultiTimerCallback_t. May be NULL if no callback is desired.
  * @param[in] cbArg An extra callback function parameter for the user application.
+ *   Since the \ref RAIL_MultiTimerCallback_t callback function lacks a
+ *   \ref RAIL_Handle_t parameter this can be used to pass the current
+ *   RAIL handle if desired.
  * @return
  *   \ref RAIL_STATUS_NO_ERROR on success.@n
  *   \ref RAIL_STATUS_INVALID_PARAMETER if tmr has an illegal value or if
@@ -1209,7 +1241,7 @@ bool RAIL_CancelMultiTimer(RAIL_MultiTimer_t *tmr);
 /**
  * Check if a given timer is running.
  *
- * @param[in] tmr A pointer to the timer instance.
+ * @param[in,out] tmr A pointer to the timer instance.
  * @return true if the timer is running; false if the timer is not running
  *    or tmr is not a timer instance.
  */
@@ -1218,7 +1250,7 @@ bool RAIL_IsMultiTimerRunning(RAIL_MultiTimer_t *tmr);
 /**
  * Check if a given timer has expired.
  *
- * @param[in] tmr A pointer to the timer instance.
+ * @param[in,out] tmr A pointer to the timer instance.
  * @return true if the timer has expired or tmr is not a timer instance;
  *   false if the timer is running.
  */
@@ -1227,7 +1259,7 @@ bool RAIL_IsMultiTimerExpired(RAIL_MultiTimer_t *tmr);
 /**
  * Get time left before a given timer instance expires.
  *
- * @param[in] tmr A pointer to the timer instance to query.
+ * @param[in,out] tmr A pointer to the timer instance to query.
  * @param[in] timeMode Indicates how the function provides the time
  *   remaining. By choosing \ref
  *   RAIL_TimeMode_t::RAIL_TIME_ABSOLUTE, the function returns the
@@ -1240,6 +1272,8 @@ bool RAIL_IsMultiTimerExpired(RAIL_MultiTimer_t *tmr);
  */
 RAIL_Time_t RAIL_GetMultiTimer(RAIL_MultiTimer_t *tmr,
                                RAIL_TimeMode_t timeMode);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /** @} */ // end of group System_Timing
 
@@ -1818,12 +1852,13 @@ RAIL_Status_t RAIL_ConfigEvents(RAIL_Handle_t railHandle,
 ///   (void) RAIL_ConfigData(railHandle, &railDataConfig);
 ///
 ///   // Events that can occur in Packet Mode:
-///   //    RAIL_EVENT_TX_PACKET_SENT
-///   //    RAIL_EVENT_RX_PACKET_RECEIVED
+///   //   RAIL_EVENT_TX_PACKET_SENT
+///   //   RAIL_EVENT_RX_PACKET_RECEIVED
 ///   // and optionally (packet data automatically dropped):
-///   //    RAIL_EVENT_RX_ADDRESS_FILTERED
-///   //    RAIL_EVENT_RX_PACKET_ABORTED
-///   //    RAIL_EVENT_RX_FRAME_ERROR
+///   //   RAIL_EVENT_RX_ADDRESS_FILTERED
+///   //   RAIL_EVENT_RX_PACKET_ABORTED
+///   //   RAIL_EVENT_RX_FRAME_ERROR
+///   //   RAIL_EVENT_RX_FIFO_OVERFLOW
 ///   // and if enabled:
 ///   //   RAIL_EVENT_TX_UNDERFLOW
 ///   //   RAIL_EVENT_TXACK_UNDERFLOW
@@ -2095,6 +2130,8 @@ uint16_t RAIL_SetTxFifoAlt(RAIL_Handle_t railHandle,
                            uint16_t initLength,
                            uint16_t size);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Set the address of the receive FIFO, a circular buffer used for receive data.
  *
@@ -2174,6 +2211,8 @@ RAIL_Status_t RAIL_SetRxFifo(RAIL_Handle_t railHandle,
 /// }
 /// @endcode
 RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Read packet data from RAIL's receive FIFO.
@@ -2801,6 +2840,8 @@ RAIL_Status_t RAIL_EnableCacheSynthCal(RAIL_Handle_t railHandle, bool enable);
 RAIL_Status_t RAIL_ConfigTxPower(RAIL_Handle_t railHandle,
                                  const RAIL_TxPowerConfig_t *config);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Get the TX power settings currently used in the amplifier.
  *
@@ -2816,6 +2857,8 @@ RAIL_Status_t RAIL_ConfigTxPower(RAIL_Handle_t railHandle,
  */
 RAIL_Status_t RAIL_GetTxPowerConfig(RAIL_Handle_t railHandle,
                                     RAIL_TxPowerConfig_t *config);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Set the TX power in units of raw units (see \ref rail_chip_specific.h for
@@ -2862,6 +2905,8 @@ RAIL_Status_t RAIL_SetTxPower(RAIL_Handle_t railHandle,
  * RAIL_TX_POWER_LEVEL_INVALID.
  */
 RAIL_TxPowerLevel_t RAIL_GetTxPower(RAIL_Handle_t railHandle);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Convert raw values written to registers to decibel value (in units of
@@ -3118,6 +3163,8 @@ RAIL_Status_t RAILCb_PaAutoModeDecision(RAIL_Handle_t railHandle,
                                         RAIL_TxPower_t *power,
                                         RAIL_TxPowerMode_t *mode,
                                         const RAIL_ChannelConfigEntry_t *chCfgEntry);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /** @} */ // end of group PA
 
@@ -3737,6 +3784,8 @@ RAIL_Status_t RAIL_ConfigRxOptions(RAIL_Handle_t railHandle,
                                    RAIL_RxOptions_t mask,
                                    RAIL_RxOptions_t options);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Include the code necessary for frame type based length decoding.
  *
@@ -3765,6 +3814,8 @@ RAIL_Status_t RAIL_IncludeFrameTypeLength(RAIL_Handle_t railHandle);
  */
 void RAILCb_ConfigFrameTypeLength(RAIL_Handle_t railHandle,
                                   const RAIL_FrameType_t *frameType);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Start the receiver on a specific channel.
@@ -3948,6 +3999,8 @@ RAIL_RxPacketHandle_t RAIL_GetRxPacketInfo(RAIL_Handle_t railHandle,
 RAIL_Status_t RAIL_GetRxIncomingPacketInfo(RAIL_Handle_t railHandle,
                                            RAIL_RxPacketInfo_t *pPacketInfo);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Copy a full packet to a user-specified contiguous buffer.
  *
@@ -3977,6 +4030,8 @@ void RAIL_CopyRxPacket(uint8_t *pDest,
                  pPacketInfo->lastPortionData, size);
   }
 }
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Get detailed information about a received packet.
@@ -4433,7 +4488,7 @@ bool RAIL_IsAverageRssiReady(RAIL_Handle_t railHandle);
 int16_t RAIL_GetAverageRssi(RAIL_Handle_t railHandle);
 
 /**
- * Set the RSSI offset.
+ * Set an RSSI offset.
  *
  * @param[in] railHandle A radio-generic or real RAIL instance handle.
  * @param[in] rssiOffset desired dB offset to be added to the RSSI measurements.
@@ -4449,14 +4504,14 @@ int16_t RAIL_GetAverageRssi(RAIL_Handle_t railHandle);
  * can only be called while the radio is off, or in the case of multiprotocol,
  * on an inactive protocol.
  *
- * @note: If RAIL has not been initialized, a radio-generic handle,
- *   such as \ref RAIL_EFR32_HANDLE, can be used to set a radio's RSSI offset
- *   applied to all protocols on that radio.
- *
- * @note: Setting a large rssiOffset may still cause the RSSI readings to
- *   underflow. If that happens, the RSSI value returned by
- *   \ref RAIL_GetRssi(), \ref RAIL_GetAverageRssi(),
- *   \ref RAIL_GetChannelHoppingRssi() etc. will be \ref RAIL_RSSI_LOWEST.
+ * @note: Prior to RAIL being initialized, a radio-wide protocol-independent
+ *   offset can be established using a radio-generic handle like \ref
+ *   RAIL_EFR32_HANDLE. The radio RSSI offset can range from -50 to +20 dB.\n
+ *   After RAIL has been initialized a real RAIL protocol handle must be
+ *   provided to set a protocol-specific RSSI offset, which is added to any
+ *   radio offset (plus a per-PHY offset set by the radio calculator). The
+ *   absolute value of the overall sum of all these offsets cannot exceed \ref
+ *   RAIL_RSSI_OFFSET_MAX otherwise RSSIs could underflow or overflow.
  *
  * @note: During \ref Rx_Channel_Hopping this API will not update the
  *   RSSI offset immediately if channel hopping has already been configured.
@@ -4475,7 +4530,7 @@ RAIL_Status_t RAIL_SetRssiOffset(RAIL_Handle_t railHandle, int8_t rssiOffset);
  * @note: A radio-generic handle, such as \ref RAIL_EFR32_HANDLE, can be used to
  *   get the radio's RSSI offset otherwise this will return the RSSI offset
  *   value associated with the RAIL protocol instance handle, exclusive of any
- *   radio RSSI offset correction, if any.
+ *   radio or PHY-specific RSSI offset correction, if any.
  */
 int8_t RAIL_GetRssiOffset(RAIL_Handle_t railHandle);
 
@@ -5428,7 +5483,7 @@ RAIL_Time_t RAIL_StartRfSense(RAIL_Handle_t railHandle,
 ///
 /// @param[in] railHandle A RAIL instance handle.
 /// @param[in] config A pointer to a \ref RAIL_RfSenseSelectiveOokConfig_t
-///   which holds the RFSENSE configuration for Selective(OOK) mode.
+///   which holds the RF Sense configuration for Selective(OOK) mode.
 /// @return Status code indicating success of the function call.
 ///
 /// Some radios support Selective RF energy detection (OOK mode) where the
@@ -5486,7 +5541,7 @@ RAIL_Status_t RAIL_StartSelectiveOokRfSense(RAIL_Handle_t railHandle,
  * @param[in] railHandle A handle for RAIL instance.
  * @return Status code indicating success of the function call.
  *
- * This function switches to the RFSENSE Selective(OOK) PHY for transmitting a
+ * This function switches to the RF Sense Selective(OOK) PHY for transmitting a
  * packet to wake up a chip that supports Selective RF energy detection (OOK
  * mode). You may only call this function while the radio is idle. While the
  * radio is configured for this PHY, receive functionality should not be used.
@@ -5660,13 +5715,14 @@ RAIL_Status_t RAIL_EnableRxChannelHopping(RAIL_Handle_t railHandle,
 RAIL_Status_t RAIL_TriggerRxChannelHop(RAIL_Handle_t railHandle);
 
 /**
- * Get RSSI in deci-dBm of one channel in the channel hopping sequence, during
+ * Get RSSI in quarter-dBm of one channel in the channel hopping sequence, during
  * channel hopping.
  *
  * @param[in] railHandle A RAIL instance handle.
  * @param[in] channelIndex Index in the channel hopping sequence of the
  *   channel of interest.
- * @return Latest RSSI in deci-dBm for the channel at the specified index.
+ * @return Latest RSSI in quarter-dBm (dBm * 4) for the channel at the
+ *   specified index.
  *
  * @note Use the compile time symbol \ref RAIL_SUPPORTS_CHANNEL_HOPPING or
  *   the runtime call \ref RAIL_SupportsChannelHopping() to check whether
@@ -5921,22 +5977,36 @@ RAIL_Status_t RAIL_SetTaskPriority(RAIL_Handle_t railHandle,
                                    uint8_t priority,
                                    RAIL_TaskType_t taskType);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
- * Get time needed to switch between protocols.
+ * Get the time needed to switch between protocols.
  *
- * @return \ref RAIL_Time_t Time needed to switch between protocols.
+ * @return \ref RAIL_Time_t Approximate time, in microseconds, needed to switch between protocols.
+ *
+ * @note The transition time determines how early the scheduler starts
+ * processing a protocol switch relative to a scheduled event. This value
+ * is approximate and actual transition time may vary slightly due to
+ * system overhead.
  */
 RAIL_Time_t RAIL_GetTransitionTime(void);
 
 /**
- * Set time needed to switch between protocols. Call this API
+ * Set the time needed to switch between protocols. Call this API
  * only once, before any protocol is initialized via
  * \ref RAIL_Init(). Changing this value during normal operation
  * can result in improper scheduling behavior.
  *
- * @param[in] transitionTime Time needed to switch between protocols.
+ * @param[in] transitionTime Time, in microseconds, needed to switch between protocols.
+ *
+ * @note The transition time determines how early the scheduler starts
+ * processing a protocol switch relative to a scheduled event. This value
+ * is approximate and does not account for all system overhead. Setting
+ * this value too low may cause scheduling issues or missed events.
  */
 void RAIL_SetTransitionTime(RAIL_Time_t transitionTime);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /** @} */ // end of group Multiprotocol
 
@@ -6261,7 +6331,7 @@ RAIL_Status_t RAIL_Verify(RAIL_VerifyConfig_t *configVerify,
                           uint32_t durationUs,
                           bool restart);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * Enable radio state change interrupt.
@@ -6294,7 +6364,7 @@ void RAILCb_RadioStateChanged(uint8_t state);
  */
 RAIL_RadioStateEfr32_t RAIL_GetRadioStateAlt(RAIL_Handle_t railHandle);
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /** @} */ // end of group Diagnostic
 
@@ -6440,12 +6510,16 @@ RAIL_Status_t RAIL_ConfigThermalProtection(RAIL_Handle_t genericRailHandle,
 RAIL_Status_t RAIL_GetThermalProtection(RAIL_Handle_t genericRailHandle,
                                         RAIL_ChipTempConfig_t *chipTempConfig);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /** Number of temperature values provided for HFXO metrics */
 #define RAIL_HFXO_TEMP_MEASURE_COUNT              (1U)
 
 /** Total number of temperature values provided by \ref RAIL_GetTemperature(). */
 #define RAIL_TEMP_MEASURE_COUNT  (RAIL_CHIP_TEMP_MEASURE_COUNT \
                                   + RAIL_HFXO_TEMP_MEASURE_COUNT)
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Get the different temperature measurements in Kelvin done by sequencer or host.
@@ -6522,7 +6596,7 @@ RAIL_Status_t RAIL_ChangedDcdc(void);
 
 /** @} */ // end of group Retiming
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /******************************************************************************
  * Debug
@@ -6579,7 +6653,7 @@ uint32_t RAIL_GetSchedBufferSize(RAIL_Handle_t genericRailHandle);
 
 /** @} */ // end of group Debug
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /******************************************************************************
  * Assertion Callback
@@ -6684,9 +6758,9 @@ RAIL_Status_t RAIL_GetThermistorImpedance(RAIL_Handle_t railHandle,
  *
  * A version of this function is provided in the \ref rail_util_thermistor
  * plugin for Silicon Labs radio boards. For custom boards this function can be
- * modified and re-implemented as needed.
+ * modified and re-implemented as needed in the plugin.
  *
- * @note This plugin is mandatory on EFR32xG25 platform.
+ * @note The \ref rail_util_thermistor plugin is mandatory on EFR32xG25 platforms.
  */
 RAIL_Status_t RAIL_ConvertThermistorImpedance(RAIL_Handle_t railHandle,
                                               uint32_t thermistorImpedance,
@@ -6701,11 +6775,11 @@ RAIL_Status_t RAIL_ConvertThermistorImpedance(RAIL_Handle_t railHandle,
  *   with the current ppm error in ppm units.
  * @return Status code indicating success of the function call.
  *
- * This function is provided in the rail_util_thermistor plugin to get
- * accurate values from our boards thermistor. For a custom board, this
- * function could be modified and re-implemented for other needs.
+ * A version of this function is provided in the \ref rail_util_thermistor
+ * plugin for Silicon Labs radio boards. For custom boards this function can be
+ * modified and re-implemented as needed in the plugin.
  *
- * @note This plugin is mandatory on EFR32xG25 platform.
+ * @note The \ref rail_util_thermistor plugin is mandatory on EFR32xG25 platforms.
  */
 RAIL_Status_t RAIL_ComputeHFXOPPMError(RAIL_Handle_t railHandle,
                                        int16_t crystalTemperatureC,
@@ -6853,14 +6927,14 @@ RAIL_Status_t RAIL_CompensateHFXO(RAIL_Handle_t railHandle, int8_t crystalPPMErr
  * Some RAIL API are not suppoted with EMU, GPIO, LDMA, HFXO, PRS or SYSRTC
  * configured secure:
  *
- * | Secure peripheral |                                                                                                             Unsupported RAIL API/features                                                                      |
- * |-------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
- * |       EMU         | \ref RAIL_StartThermistorMeasurement(), \ref RAIL_InitPowerManager()                                                                                                                                           |
- * |       GPIO        | \ref RAIL_EnableDirectMode(), \ref RAIL_EnableDirectModeAlt(), \ref RAIL_EnablePti(), \ref RAIL_ConfigPti(), \ref RAIL_ConfigHFXOThermistor(), \ref RAIL_StartThermistorMeasurement(), \ref RAIL_ConfigVdet()  |
- * |       LDMA        | \ref RAIL_IEEE802154_SUPPORTS_RX_CHANNEL_SWITCHING (\ref RAIL_IEEE802154_ConfigRxChannelSwitching() and \ref RAIL_RX_OPTION_CHANNEL_SWITCHING)                                                                 |
- * |       HFXO        | \ref RAIL_StartThermistorMeasurement(), \ref RAIL_EnableVdet(), \ref RAIL_GetVdet()                                                                                                                            |
- * |       PRS         | \ref RAIL_EnablePrsLnaBypass()                                                                                                                                                                                 |
- * |       SYSRTC      | \ref RAIL_ConfigSleep() with \ref RAIL_SleepConfig_t::RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED, \ref RAIL_ConfigSleepAlt() with \ref RAIL_SleepConfig_t::RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED                        |
+ * | Secure peripheral |                                                                                                             Unsupported RAIL API/features                                                                                                        |
+ * |-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ * |       EMU         | \ref RAIL_StartThermistorMeasurement(), \ref RAIL_InitPowerManager()                                                                                                                                                                             |
+ * |       GPIO        | \ref RAIL_EnableDirectMode(), \ref RAIL_EnableDirectModeAlt(), \ref RAIL_EnablePti(), \ref RAIL_ConfigPti(), \ref RAIL_ConfigHFXOThermistor(), \ref RAIL_StartThermistorMeasurement(), \ref RAIL_ConfigVdet(), \ref RAIL_BLE_ConfigAoxAntenna()  |
+ * |       LDMA        | \ref RAIL_IEEE802154_SUPPORTS_RX_CHANNEL_SWITCHING (\ref RAIL_IEEE802154_ConfigRxChannelSwitching() and \ref RAIL_RX_OPTION_CHANNEL_SWITCHING)                                                                                                   |
+ * |       HFXO        | \ref RAIL_StartThermistorMeasurement(), \ref RAIL_EnableVdet(), \ref RAIL_GetVdet()                                                                                                                                                              |
+ * |       PRS         | \ref RAIL_EnablePrsLnaBypass()                                                                                                                                                                                                                   |
+ * |       SYSRTC      | \ref RAIL_ConfigSleep() with \ref RAIL_SleepConfig_t::RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED, \ref RAIL_ConfigSleepAlt() with \ref RAIL_SleepConfig_t::RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED                                                          |
  *
  * @{
  */
@@ -7242,10 +7316,10 @@ bool RAIL_SupportsPrecisionLFRCO(RAIL_Handle_t railHandle);
 bool RAIL_SupportsRadioEntropy(RAIL_Handle_t railHandle);
 
 /**
- * Indicate whether RAIL supports RFSENSE Energy Detection Mode on this chip.
+ * Indicate whether RAIL supports RF Sense Energy Detection Mode on this chip.
  *
  * @param[in] railHandle A radio-generic or real RAIL instance handle.
- * @return true if RFSENSE Energy Detection Mode is supported; false otherwise.
+ * @return true if RF Sense Energy Detection Mode is supported; false otherwise.
  *
  * Runtime refinement of compile-time
  * \ref RAIL_SUPPORTS_RFSENSE_ENERGY_DETECTION.
@@ -7253,10 +7327,10 @@ bool RAIL_SupportsRadioEntropy(RAIL_Handle_t railHandle);
 bool RAIL_SupportsRfSenseEnergyDetection(RAIL_Handle_t railHandle);
 
 /**
- * Indicate whether RAIL supports RFSENSE Selective(OOK) Mode on this chip.
+ * Indicate whether RAIL supports RF Sense Selective(OOK) Mode on this chip.
  *
  * @param[in] railHandle A radio-generic or real RAIL instance handle.
- * @return true if RFSENSE Selective(OOK) Mode is supported; false otherwise.
+ * @return true if RF Sense Selective(OOK) Mode is supported; false otherwise.
  *
  * Runtime refinement of compile-time \ref RAIL_SUPPORTS_RFSENSE_SELECTIVE_OOK.
  */
@@ -7305,6 +7379,8 @@ bool RAIL_SupportsRxRawData(RAIL_Handle_t railHandle);
  */
 bool RAIL_SupportsSQPhy(RAIL_Handle_t railHandle);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Indicate whether this chip supports a particular power mode (PA).
  *
@@ -7349,6 +7425,8 @@ bool RAIL_SupportsTxPowerModeAlt(RAIL_Handle_t railHandle,
                                  RAIL_TxPowerLevel_t *maxPowerLevel,
                                  RAIL_TxPowerLevel_t *minPowerLevel);
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Indicate whether this chip supports automatic TX to TX transitions.
  *
@@ -7358,6 +7436,18 @@ bool RAIL_SupportsTxPowerModeAlt(RAIL_Handle_t railHandle,
  * Runtime refinement of compile-time \ref RAIL_SUPPORTS_TX_TO_TX.
  */
 bool RAIL_SupportsTxToTx(RAIL_Handle_t railHandle);
+
+#ifndef DOXYGEN_UNDOCUMENTED
+/**
+ * Indicate whether RAIL supports the Sequencer User on this chip.
+ *
+ * @param[in] railHandle A radio-generic or real RAIL instance handle.
+ * @return true if Sequencer User is supported; false otherwise.
+ *
+ * Runtime refinement of compile-time \ref RAIL_SUPPORTS_USER_SEQUENCER.
+ */
+bool RAIL_SupportsUserSequencer(RAIL_Handle_t railHandle);
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Indicate whether RAIL supports the BLE protocol on this chip.
@@ -7397,13 +7487,7 @@ bool RAIL_BLE_Supports1MbpsViterbi(RAIL_Handle_t railHandle);
  *
  * Runtime refinement of compile-time \ref RAIL_BLE_SUPPORTS_1MBPS.
  */
-static inline
-bool RAIL_BLE_Supports1Mbps(RAIL_Handle_t railHandle)
-{
-  bool temp = RAIL_BLE_Supports1MbpsViterbi(railHandle); // Required for MISRA compliance
-  return (RAIL_BLE_Supports1MbpsNonViterbi(railHandle)
-          || temp);
-}
+bool RAIL_BLE_Supports1Mbps(RAIL_Handle_t railHandle);
 
 /**
  * Indicate whether this chip supports BLE 2 Mbps Non-Viterbi PHY.
@@ -7433,13 +7517,7 @@ bool RAIL_BLE_Supports2MbpsViterbi(RAIL_Handle_t railHandle);
  *
  * Runtime refinement of compile-time \ref RAIL_BLE_SUPPORTS_2MBPS.
  */
-static inline
-bool RAIL_BLE_Supports2Mbps(RAIL_Handle_t railHandle)
-{
-  bool temp = RAIL_BLE_Supports2MbpsViterbi(railHandle); // Required for MISRA compliance
-  return (RAIL_BLE_Supports2MbpsNonViterbi(railHandle)
-          || temp);
-}
+bool RAIL_BLE_Supports2Mbps(RAIL_Handle_t railHandle);
 
 /**
  * Indicate whether this chip supports BLE Antenna Switching needed for
@@ -7473,7 +7551,7 @@ bool RAIL_BLE_SupportsCodedPhy(RAIL_Handle_t railHandle);
  */
 bool RAIL_BLE_SupportsCte(RAIL_Handle_t railHandle);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Indicate whether this chip supports BLE CS.
  *
@@ -7483,7 +7561,7 @@ bool RAIL_BLE_SupportsCte(RAIL_Handle_t railHandle);
  * Runtime refinement of compile-time \ref RAIL_BLE_SUPPORTS_CS.
  */
 bool RAIL_BLE_SupportsCs(RAIL_Handle_t railHandle);
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * Indicate whether this chip supports BLE IQ Sampling needed for
@@ -7547,7 +7625,7 @@ bool RAIL_BLE_SupportsSimulscanPhy(RAIL_Handle_t railHandle);
  */
 bool RAIL_SupportsProtocolIEEE802154(RAIL_Handle_t railHandle);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Indicate whether this chip supports the IEEE 802.15.4 2 Mbps PHY.
  *
@@ -7557,7 +7635,7 @@ bool RAIL_SupportsProtocolIEEE802154(RAIL_Handle_t railHandle);
  * Runtime refinement of compile-time \ref RAIL_IEEE802154_SUPPORTS_2MBPS_PHY.
  */
 bool RAIL_IEEE802154_Supports2MbpsPhy(RAIL_Handle_t railHandle);
-#endif //DOXYGEN_SHOULD_SKIP_THIS
+#endif //DOXYGEN_UNDOCUMENTED
 
 /**
  * Indicate whether this chip supports the IEEE 802.15.4 Wi-Fi Coexistence PHY.
@@ -7888,9 +7966,21 @@ bool RAIL_SupportsTrustZoneSecurePeripherals(RAIL_Handle_t railHandle);
  */
 bool RAIL_SupportsPrsLnaBypass(RAIL_Handle_t railHandle);
 
+/**
+ * Indicate whether RAIL supports the BTC protocol on this chip.
+ *
+ * @param[in] railHandle A radio-generic or real RAIL instance handle.
+ * @return true if BTC is supported; false otherwise.
+ *
+ * Runtime refinement of compile-time \ref RAIL_SUPPORTS_PROTOCOL_BTC.
+ */
+bool RAIL_SupportsProtocolBTC(RAIL_Handle_t railHandle);
+
 /** @} */ // end of group Features
 
 /** @} */ // end of group RAIL_API
+
+#endif//SLI_LIBRAIL_ALIAS
 
 #ifdef __cplusplus
 }

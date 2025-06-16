@@ -158,7 +158,7 @@ extern const uint32_t testHarnessOriginalChannelMask;
 extern sl_status_t sl_zigbee_add_child(sl_802154_short_addr_t shortId,
                                        sl_802154_long_addr_t longId,
                                        uint8_t childType);
-#if !defined(EZSP_HOST) && defined(SL_ZIGBEE_TEST)
+#if !defined(EZSP_HOST)
 extern void sli_zigbee_set_stack_compliance_revision(uint8_t revision);
 #endif
 
@@ -1088,11 +1088,9 @@ void sl_zigbee_af_test_harness_set_node_descriptor_compliance_revision(SL_CLI_CO
   if (status == SL_STATUS_OK) {
     sl_zigbee_app_debug_println("The compliance revision of the device has been changed to R%d (0x%02X)", val, status);
   }
-#elif defined(SL_ZIGBEE_TEST)
+#else
   sli_zigbee_set_stack_compliance_revision(val);
   sl_zigbee_app_debug_println("The compliance revision of the device has been changed to R%d", val);
-#else
-  (void)val;
 #endif
 }
 

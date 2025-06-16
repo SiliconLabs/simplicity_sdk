@@ -27,17 +27,17 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include "sl_rail.h"
 #include "sl_rail_util_sequencer_config.h"
-#include "rail.h"
 
 #if !SL_RAIL_UTIL_SEQUENCER_RUNTIME_IMAGE_SELECTION \
   && defined(SL_RAIL_UTIL_SEQUENCER_IMAGE)
-RAIL_Status_t RAILCb_RadioSequencerImageLoad(void)
+sl_rail_status_t sl_railcb_radio_sequencer_image_load(sl_rail_handle_t radio_handle)
 {
-#if SL_RAIL_UTIL_SEQUENCER_IMAGE == RAIL_SEQ_IMAGE_1
-  return RAIL_LoadSequencerImage1(RAIL_EFR32_HANDLE);
-#elif SL_RAIL_UTIL_SEQUENCER_IMAGE == RAIL_SEQ_IMAGE_2
-  return RAIL_LoadSequencerImage2(RAIL_EFR32_HANDLE);
+#if SL_RAIL_UTIL_SEQUENCER_IMAGE == SL_RAIL_SEQ_IMAGE_0
+  return sl_rail_load_sequencer_image_0(radio_handle);
+#elif SL_RAIL_UTIL_SEQUENCER_IMAGE == SL_RAIL_SEQ_IMAGE_1
+  return sl_rail_load_sequencer_image_1(radio_handle);
 #else
   #error "Must choose a valid sequencer image!"
 #endif

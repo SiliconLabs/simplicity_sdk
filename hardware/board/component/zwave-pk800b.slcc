@@ -1,7 +1,7 @@
 !!omap
 - id: zwave_pk800b
 - label: ZWAVE-PK800B
-- package: platform
+- package: boards
 - description: Kit BSP support for the Z-Wave 800 Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production
@@ -17,9 +17,9 @@
   - name: SL_KIT_NAME
     value: '"ZWAVE-PK800B"'
   - name: SL_KIT_REV
-    value: '"A00"'
+    value: '"A01"'
 - tag:
   - kit:opn:ZWAVE-PK800B
   - kit:pn:PK800
   - kit:variant:B
-  - kit:revision:A00
+  - kit:revision:A01

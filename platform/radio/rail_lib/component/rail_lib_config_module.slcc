@@ -1,16 +1,16 @@
 id: rail_lib_config_module
 label: RAIL Library, Radio Configurations for Modules
 description: Libraries containing radio configurations for RF modules created by Silicon Labs
-package: platform
+package: rail_module
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_lib_config_module
-    name: RAIL Library, Radio Configurations for Modules
-    license: MSLA
+    sbom:
+        id: rail_lib_config_module
+        name: RAIL Library, Radio Configurations for Modules
+        license: MSLA
 ui_hints:
-  visibility: never
+    visibility: never
 requires:
   - name: rail_lib
 provides:
@@ -308,6 +308,10 @@ library:
     condition:
       - toolchain_iar
       - bgm260pb32vna
+  - path: platform/radio/rail_lib/autogen/librail_release/librail_config_mgm270sc32sna_iar.a
+    condition:
+      - toolchain_iar
+      - mgm270sc32sna
 
   - path: platform/radio/rail_lib/autogen/librail_release/librail_config_bgm210l022jif_gcc.a
     condition:
@@ -601,3 +605,7 @@ library:
     condition:
       - toolchain_gcc
       - bgm260pb32vna
+  - path: platform/radio/rail_lib/autogen/librail_release/librail_config_mgm270sc32sna_gcc.a
+    condition:
+      - toolchain_gcc
+      - mgm270sc32sna

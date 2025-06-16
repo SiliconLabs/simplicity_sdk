@@ -19,18 +19,18 @@ define:
 - name: ZAF_VERSION_MAJOR
   value: 10
 - name: ZAF_VERSION_MINOR
-  value: 23
+  value: 24
 - name: ZAF_VERSION_PATCH
-  value: 2
+  value: 0
 - name: ZAF_BUILD_NO
   value: 0xABCD
 # SDK
 - name: SDK_VERSION_MAJOR
   value: 7
 - name: SDK_VERSION_MINOR
-  value: 23
+  value: 24
 - name: SDK_VERSION_PATCH
-  value: 2
+  value: 0
 include:
   - path: "protocol/z-wave/ZAF/ApplicationUtilities/"
     file_list:

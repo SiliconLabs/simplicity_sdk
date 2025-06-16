@@ -9,9 +9,7 @@
 #include <string.h>
 #include <assert.h>
 #include "MfgTokens.h"
-#include "DebugPrintConfig.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "AppTimer.h"
 #include "ZW_system_startup_api.h"
 #include "CC_BinarySwitch.h"
@@ -23,22 +21,19 @@
 #include "ZAF_network_learn.h"
 #include "events.h"
 #include "zpal_watchdog.h"
-#include "app_hw.h"
 #include "board_indicator.h"
 #include "zw_region_config.h"
 #include "ZAF_ApplicationEvents.h"
 #include "zaf_event_distributor_soc.h"
 #include "zpal_misc.h"
 #include "zaf_protocol_config.h"
-#ifdef DEBUGPRINT
 #include "ZAF_PrintAppInfo.h"
-#endif
 
 #ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
+#if (!defined(UNIT_TEST))
 #include "app_hw.h"
 #endif
 
@@ -53,10 +48,6 @@ static int32_t level_change_direction = 1;
 
 uint8_t supportedEvents = NOTIFICATION_EVENT_POWER_MANAGEMENT_OVERLOADED_DETECTED;
 
-#ifdef DEBUGPRINT
-static uint8_t m_aDebugPrintBuffer[96];
-#endif
-
 void ApplicationTask(SApplicationHandles* pAppHandles);
 void ZCB_JobStatus(TRANSMISSION_RESULT * pTransmissionResult);
 void ZCB_NotificationTimerCallback(SSwTimer *pTimer);
@@ -67,7 +58,7 @@ zaf_event_distributor_app_zw_command_status(SZwaveCommandStatusPackage *Status)
 {
   switch (Status->eStatusType) {
     case EZWAVECOMMANDSTATUS_LEARN_MODE_STATUS:
-      DPRINTF("Learn status %d\r\n", Status->Content.LearnModeStatus.Status);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Learn status %d\r\n", Status->Content.LearnModeStatus.Status);
       if (ELEARNSTATUS_ASSIGN_COMPLETE == Status->Content.LearnModeStatus.Status) {
         if ((EINCLUSIONSTATE_EXCLUDED == ZAF_GetInclusionState())) {
           if (ESWTIMER_STATUS_FAILED != notificationOverLoadTimerStatus) {
@@ -91,13 +82,11 @@ ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 {
   SRadioConfig_t* RadioConfig;
 
-  DPRINT("Enabling watchdog\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
-#endif
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
 
   RadioConfig = zaf_get_radio_config();
 
@@ -148,12 +137,9 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   uint32_t unhandledEvents = 0;
   ZAF_Init(xTaskGetCurrentTaskHandle(), pAppHandles);
 
-#ifdef DEBUGPRINT
   ZAF_PrintAppInfo();
-#endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
-  /* This preprocessor statement can be deleted from the source code */
+#if (!defined(UNIT_TEST))
   app_hw_init();
 #endif
 
@@ -164,11 +150,11 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION_SMARTSTART);
 
   // Wait for and process events
-  DPRINT("PowerStrip Event processor Started\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "PowerStrip Event processor Started\r\n");
   for (;; ) {
     unhandledEvents = zaf_event_distributor_distribute();
     if (0 != unhandledEvents) {
-      DPRINTF("Unhandled Events: 0x%08lx\n", unhandledEvents);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Unhandled Events: 0x%08lx\n", unhandledEvents);
 #ifdef UNIT_TEST
       return;
 #endif
@@ -183,7 +169,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 void
 zaf_event_distributor_app_event_manager(const uint8_t event)
 {
-  DPRINTF("zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
   cc_multilevel_switch_t *switches;
 
   switch (event) {
@@ -200,7 +186,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       break;
     }
     case EVENT_APP_OUTLET2_DIMMER_SHORT_PRESS:
-      DPRINT("\nDimmer press");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\nDimmer press");
       switches = cc_multilevel_switch_support_config_get_switches();
       cc_multilevel_switch_stop_level_change(&switches[0]);
 
@@ -211,13 +197,13 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       }
       break;
     case EVENT_APP_OUTLET2_DIMMER_RELEASE:
-      DPRINT("\nDimmer up");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\nDimmer up");
       switches = cc_multilevel_switch_support_config_get_switches();
       cc_multilevel_switch_stop_level_change(&switches[0]);
       break;
 
     case EVENT_APP_OUTLET2_DIMMER_HOLD:
-      DPRINT("\nDimmer hold");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\nDimmer hold");
       switches = cc_multilevel_switch_support_config_get_switches();
       cc_multilevel_switch_start_level_change(&switches[0], (level_change_direction > 0 ? false : true), true, 0, 10);
       if (-1 == level_change_direction) {
@@ -225,7 +211,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
       } else if (1 == level_change_direction) {
         level_change_direction = -1;
       }
-      DPRINTF("\ndir: %d", level_change_direction);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\ndir: %d", level_change_direction);
       break;
     case EVENT_APP_NOTIFICATION_TOGGLE:
       /*
@@ -246,7 +232,7 @@ zaf_event_distributor_app_event_manager(const uint8_t event)
 void
 ZCB_JobStatus(TRANSMISSION_RESULT * pTransmissionResult)
 {
-  DPRINTF("\r\nTX CB for N %u", pTransmissionResult->nodeId);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nTX CB for N %u", pTransmissionResult->nodeId);
 
   if (TRANSMISSION_RESULT_FINISHED == pTransmissionResult->isFinished) {
     zaf_event_distributor_enqueue_app_event(EVENT_APP_FINISH_EVENT_JOB);
@@ -261,7 +247,7 @@ ZCB_NotificationTimerCallback(__attribute__((unused)) SSwTimer *pTimer)
 {
   JOB_STATUS jobStatus;
 
-  DPRINT("\r\nNtfctn timer");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn timer");
 
   uint8_t *pEventParameters;
   uint8_t eventParamLength;
@@ -269,14 +255,14 @@ ZCB_NotificationTimerCallback(__attribute__((unused)) SSwTimer *pTimer)
 
   // Trigger all notifications
   if (false == notificationOverLoadActiveState) {
-    DPRINTF("\r\nNtfctn[%u] enable", notification_to_trigger);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn[%u] enable", notification_to_trigger);
 
     notificationOverLoadActiveState = true;
     event = NOTIFICATION_EVENT_POWER_MANAGEMENT_OVERLOADED_DETECTED;
     pEventParameters = NULL;
     eventParamLength = 0;
   } else {
-    DPRINTF("\r\nNtfctn[%u] disable", notification_to_trigger);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn[%u] disable", notification_to_trigger);
 
     notificationOverLoadActiveState = false;
     event = NOTIFICATION_EVENT_POWER_MANAGEMENT_NO_EVENT;
@@ -302,7 +288,7 @@ ZCB_NotificationTimerCallback(__attribute__((unused)) SSwTimer *pTimer)
   if (JOB_STATUS_SUCCESS != jobStatus) {
     TRANSMISSION_RESULT transmissionResult;
 
-    DPRINTF("\r\nX%u", jobStatus);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nX%u", jobStatus);
 
     transmissionResult.status = false;
     transmissionResult.nodeId = 0;
@@ -317,10 +303,10 @@ ZCB_NotificationTimerCallback(__attribute__((unused)) SSwTimer *pTimer)
  */
 static void notificationToggle(void)
 {
-  DPRINT("\r\nNtfctn toggle");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn toggle");
 
   if (ESWTIMER_STATUS_FAILED == notificationOverLoadTimerStatus) {
-    DPRINT("\r\nNtfctn start");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn start");
 
     notificationOverLoadActiveState = false;
 
@@ -333,7 +319,7 @@ static void notificationToggle(void)
      */
     ZCB_NotificationTimerCallback(NULL);
   } else {
-    DPRINT("\r\nNtfctn stop");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nNtfctn stop");
     /* Deactivate overload timer */
     TimerStop(&NotificationTimer);
     notificationOverLoadTimerStatus = ESWTIMER_STATUS_FAILED;

@@ -307,6 +307,17 @@ sl_status_t sl_event_queue_get(sl_event_queue_t event_queue,
 
 /*******************************************************************************
  * @brief
+ *  Get the current number of events in queue.
+ *
+ * @param[in]  event_queue  The identifier of an event queue.
+ *
+ * @return
+ *    The current number of events in the queue.
+ ******************************************************************************/
+uint32_t sl_event_queue_get_count(sl_event_queue_t event_queue);
+
+/*******************************************************************************
+ * @brief
  *  Get the size of the event publisher structure.
  *
  * @return              Size of the event publisher structure.

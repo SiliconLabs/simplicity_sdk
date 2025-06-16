@@ -34,13 +34,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include "sl_core.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_component_catalog.h"
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
 #include "sl_rail_util_init.h"
 #endif
-#include "rail_ieee802154.h"
-#include "rail_ble.h"
+#include "sl_rail_ieee802154.h"
+#include "sl_rail_ble.h"
 #include "app_measurement.h"
 #if defined(SL_CATALOG_GLIB_PRESENT)
 #include "app_graphics.h"
@@ -50,10 +50,11 @@
 #include "app_assert.h"
 #include "sl_rail_util_pa_config.h"
 #include "sl_common.h"
-#include "pa_curve_types_efr32.h"
-#include "pa_conversions_efr32.h"
+#include "sl_rail_util_pa_curve_types_efr32.h"
+#include "sl_rail_util_pa_conversions_efr32.h"
 #include "printf.h"
 #include "sl_rail_sdk_fifo_size_config.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
 #include "rail_config.h"
@@ -76,7 +77,6 @@
 #include "sl_rail_sdk_packet_assistant.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 
 // -----------------------------------------------------------------------------
@@ -85,7 +85,7 @@
 /// Macro to print out variable name
 #define GET_VARIABLE_NAME(NAME) #NAME
 
-/// Macro to easily print out errors from RAIL_Handler
+/// Macro to easily print out errors from rail_handle
 #define PRINT_AND_CLEAR_FLAG(flag)  if (flag) { flag = 0; app_log_info(" %s\n", GET_VARIABLE_NAME(flag)); }
 
 /// Time between send in microseconds
@@ -115,7 +115,7 @@ typedef struct error_flags_t {
 /*******************************************************************************
  * @brief Modify the currently configured fixed frame length in bytes.
  ******************************************************************************/
-static void set_fixed_length(RAIL_Handle_t rail_handle, uint16_t length);
+static void set_fixed_length(sl_rail_handle_t rail_handle, uint16_t length);
 
 /*******************************************************************************
  * @brief Function to generate the payload of the packet to be sent.
@@ -184,9 +184,6 @@ volatile range_test_settings_t range_test_settings;
 /// All data regarding the range test
 volatile range_test_measurement_t range_test_measurement;
 
-/// Memory allocation for RAIL TX FIFO
-__ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rail_tx_buffer[SL_RAIL_SDK_TX_FIFO_SIZE] = { 0x00 };
-
 /// Flag indication if a service packet is received
 extern volatile bool service_received;
 
@@ -205,13 +202,10 @@ static uint8_t range_test_settings_current_phy_tmp = 0;
 static uint8_t range_test_settings_payload_length_tmp = 5;
 
 /// Scheduling setting for TX part of the range test
-static RAIL_ScheduleTxConfig_t schedule = {
-  .mode = RAIL_TIME_DELAY,
+static sl_rail_scheduled_tx_config_t schedule = {
+  .mode = SL_RAIL_TIME_DELAY,
   .when = RANGE_TEST_SEND_TIME,
 };
-
-/// Receive FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[SL_RAIL_SDK_RX_FIFO_SIZE] = { 0x00 };
 
 /// Flag for TX, shows if the sending was successful and happened
 static volatile bool schedule_is_ready = false;
@@ -229,32 +223,35 @@ static volatile uint8_t rx_packet_received = 0;
 static volatile bool logging_needed = false;
 
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = 0;
+static volatile sl_rail_status_t calibration_status = 0;
 
 /// Contains the last RAIL Rx/Tx error events
 static volatile uint64_t current_rail_err = 0;
 
 /// RAIL Rx packet handle
-static volatile RAIL_RxPacketHandle_t rx_packet_handle;
+static volatile sl_rail_rx_packet_handle_t rx_packet_handle;
 
 /// Variable to store received packet info
-static RAIL_RxPacketInfo_t packet_info;
+static sl_rail_rx_packet_info_t packet_info;
 
 /// Variable to store received packet details
-static RAIL_RxPacketDetails_t packet_details;
+static sl_rail_rx_packet_details_t packet_details;
 
 /// Number of the user defined phys
 static uint8_t number_of_custom_phys = 0;
 
-/// variable to hold all rail rx and tx errors from RAIL_Handle
+/// variable to hold all rail rx and tx errors from rail_handle
 static error_flags_t error_flags = { 0 };
+
+static uint8_t tx_buffer[128];
+static uint8_t rx_buffer[128];
 
 /// Scheduler setting for dmp case
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-static RAIL_SchedulerInfo_t scheduler_info = {
+static sl_rail_scheduler_info_t scheduler_info = {
   .priority = 100,
-  .slipTime = 100000,
-  .transactionTime = 2500
+  .slip_time = 100000,
+  .transaction_time = 2500
 };
 
 #endif
@@ -293,7 +290,7 @@ SL_WEAK uint8_t current_phy_standard_value(void)
  * @brief This function is defined in app_measurement_standard.c
  *         If that file is not present then it is an only custom phy range test
  ******************************************************************************/
-SL_WEAK RAIL_Handle_t get_standard_rail_handler(void)
+SL_WEAK sl_rail_handle_t get_standard_rail_handler(void)
 {
   return NULL;
 }
@@ -391,23 +388,28 @@ SL_WEAK range_test_packet_t* get_start_of_payload_for_standard(uint8_t* received
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-SL_WEAK uint16_t unpack_packet(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+SL_WEAK uint16_t unpack_packet(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   *start_of_payload = rx_destination;
-  return packet_information->packetBytes;
+  return packet_information->packet_bytes;
 }
 
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-SL_WEAK void prepare_packet(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+SL_WEAK void prepare_packet(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, out_data, length, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, out_data, length, true);
   app_assert(bytes_written_in_fifo == length,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              length);
 }
@@ -439,17 +441,26 @@ SL_WEAK bool is_phy_standard(uint8_t index)
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 /*******************************************************************************
- * Get the minimum Power Amplifier setting in deci-dBm units
- * @return minimum PA value in deci-dBm
+ * Get the minimum and maximum Power Amplifier setting in deci-dBm units
+ * @param[out] min_power_deci_dbm: pointer to store minimum PA value in deci-dBm (can be NULL)
+ * @param[out] max_power_deci_dbm: pointer to store maximum PA value in deci-dBm (can be NULL)
  ******************************************************************************/
-int16_t get_min_tx_power_deci_dbm(void)
+void get_tx_power_deci_dbm_range(int16_t *min_power_deci_dbm, int16_t *max_power_deci_dbm)
 {
-  RAIL_Handle_t rail_handle;
-  RAIL_TxPowerConfig_t tx_power_config;
-  RAIL_Status_t status;
-  RAIL_TxPowerMode_t tx_power_mode;
-  const RAIL_TxPowerCurves_t *tx_power_curve_ptr = NULL;
+  sl_rail_handle_t rail_handle;
+  sl_rail_tx_power_config_t tx_power_config;
+  sl_rail_status_t status;
+  sl_rail_tx_power_mode_t tx_power_mode;
+  sl_rail_tx_power_level_t min_power = 0;
+  sl_rail_tx_power_level_t max_power = 0;
+  sl_rail_tx_power_t min_power_ddbm = 0;
+  sl_rail_tx_power_t max_power_ddbm = 0;
+#if ((_SILICON_LABS_32B_SERIES_2_CONFIG == 5) \
+  || (_SILICON_LABS_32B_SERIES_3_CONFIG >= 300))
+  sl_rail_tx_power_level_t p_step_ddbm = 0;
+#endif
   bool rail_init_ready = true;
+  bool support_mode = false;
 
 #ifdef  SL_CATALOG_RANGE_TEST_STD_COMPONENT_PRESENT
   rail_init_ready = is_init_range_test_standard_ready();
@@ -457,70 +468,42 @@ int16_t get_min_tx_power_deci_dbm(void)
 
   if (rail_init_ready) {
     rail_handle = get_current_rail_handler();
-    status = RAIL_GetTxPowerConfig(rail_handle, &tx_power_config);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("get_min_tx_power_deci_dbm:RAIL_GetTxPowerConfig failed with %lu\n", status);
+    status = sl_rail_get_tx_power_config(rail_handle, &tx_power_config);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("get_tx_power_deci_dbm_range: sl_rail_get_tx_power_config failed with %lu\n", status);
     }
+
     tx_power_mode = tx_power_config.mode;
-    tx_power_curve_ptr = RAIL_GetTxPowerCurve(tx_power_mode);
-    if (tx_power_curve_ptr == NULL) {
-      app_log_error("get_min_tx_power_deci_dbm:RAIL_GetTxPowerCurve failed with NULL pointer.\n");
+    support_mode = sl_rail_supports_tx_power_mode(rail_handle, &tx_power_mode, &max_power, &min_power);
+    if (!support_mode) {
+      app_log_warning("sl_rail_supports_tx_power_mode tx_power_mode not supported\n");
     }
-  }
-  if (tx_power_curve_ptr == NULL) {
-    int16_t minPower;
-    minPower = -260;
-    return minPower;   // if not yet initialized return the possible lowest value
-  }
-  return tx_power_curve_ptr->minPower;
-}
-
-/*******************************************************************************
- * Get the maximum Power Amplifier setting in deci-dBm units
- * @return maximum PA value in deci-dBm
- ******************************************************************************/
-int16_t get_max_tx_power_deci_dbm(void)
-{
-  RAIL_Handle_t rail_handle;
-  RAIL_TxPowerConfig_t tx_power_config;
-  RAIL_Status_t status;
-  RAIL_TxPowerMode_t tx_power_mode;
-  const RAIL_TxPowerCurves_t *tx_power_curve_ptr = NULL;
-  bool rail_init_ready = true;
-
-#ifdef  SL_CATALOG_RANGE_TEST_STD_COMPONENT_PRESENT
-  rail_init_ready = is_init_range_test_standard_ready();
+#if ((_SILICON_LABS_32B_SERIES_2_CONFIG == 5) \
+    || (_SILICON_LABS_32B_SERIES_3_CONFIG >= 300))
+    // Use sl_rail_util_pa_get_power_setting_table to get min/max power in deci-dBm
+    sl_rail_util_pa_get_power_setting_table(rail_handle, tx_power_mode, &min_power_ddbm, &max_power_ddbm, &p_step_ddbm);
+#else
+    min_power_ddbm = sl_rail_util_pa_convert_raw_to_dbm(rail_handle, tx_power_mode, min_power);
+    max_power_ddbm = sl_rail_util_pa_convert_raw_to_dbm(rail_handle, tx_power_mode, max_power);
 #endif
-  if (rail_init_ready) {
-    rail_handle = get_current_rail_handler();
-    status = RAIL_GetTxPowerConfig(rail_handle, &tx_power_config);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("get_max_tx_power_deci_dbm:RAIL_GetTxPowerConfig failed with %lu\n", status);
-    }
-    tx_power_mode = tx_power_config.mode;
-    tx_power_curve_ptr = RAIL_GetTxPowerCurve(tx_power_mode);
-    if (tx_power_curve_ptr == NULL) {
-      app_log_error("get_max_tx_power_deci_dbm:RAIL_GetTxPowerCurve failed with NULL pointer.\n");
-    }
   }
-  if (tx_power_curve_ptr == NULL) {
-    int16_t maxPower;
-    maxPower = 200;
-    return maxPower;   // if not yet initialized return the possible highest value
+  if (min_power_deci_dbm != NULL) {
+    *min_power_deci_dbm = min_power_ddbm;
   }
-  return tx_power_curve_ptr->maxPower;
+  if (max_power_deci_dbm != NULL) {
+    *max_power_deci_dbm = max_power_ddbm;
+  }
 }
-
 /*******************************************************************************
  * Helper function to apply the new power level from the range test settings
  ******************************************************************************/
 void update_tx_power(void)
 {
-  RAIL_Status_t power_status = RAIL_STATUS_NO_ERROR;
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  power_status = RAIL_SetTxPowerDbm(rail_handle, range_test_settings.tx_power);
-  if (power_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_SetTxPowerDbm failed with %lu\n", power_status);
+  sl_rail_status_t power_status = SL_RAIL_STATUS_NO_ERROR;
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  power_status = sl_rail_set_tx_power_dbm(rail_handle, range_test_settings.tx_power);
+  if (power_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_set_tx_power_dbm failed with %lu\n", power_status);
   }
 }
 
@@ -545,9 +528,9 @@ bool is_current_phy_standard(void)
 
 /*******************************************************************************
  * Get the rail handler which is selected in the phy selection
- * @return RAIL_Handle_t a pointer to the will be used handler
+ * @return sl_rail_handle_t a pointer to the will be used handler
  ******************************************************************************/
-RAIL_Handle_t get_current_rail_handler(void)
+sl_rail_handle_t get_current_rail_handler(void)
 {
   if (is_current_phy_standard()) {
     return get_standard_rail_handler();
@@ -567,16 +550,18 @@ RAIL_Handle_t get_current_rail_handler(void)
  ******************************************************************************/
 void set_power_level_to_max(bool init)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  RAIL_TxPowerConfig_t tx_power_config_original;
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  sl_rail_tx_power_config_t tx_power_config_original;
   bool tx_power_needs_reinit = false;
-
-  RAIL_GetTxPowerConfig(rail_handle, &tx_power_config_original);
+  sl_rail_get_tx_power_config(rail_handle, &tx_power_config_original);
 
   #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
   if (!is_current_phy_standard()) {
-    RAIL_ConfigChannels(rail_handle,
-                        channelConfigs[range_test_settings.current_phy], NULL);
+    sl_rail_config_channels(rail_handle,
+                            (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
+    uint16_t channel_first = sl_rail_get_first_channel(rail_handle,
+                                                       (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy]);
+    sl_rail_prepare_channel(rail_handle, channel_first);
     uint16_t channel = range_test_settings.channel;
     if ((channel
          > channelConfigs[range_test_settings.current_phy]->configs[0U].channelNumberEnd)
@@ -592,7 +577,7 @@ void set_power_level_to_max(bool init)
         tx_power_config_original.mode = SL_RAIL_UTIL_PA_SELECTION_SUBGHZ;
         tx_power_needs_reinit = true;
       }
-#if RAIL_SUPPORTS_OFDM_PA
+#if SL_RAIL_SUPPORTS_OFDM_PA
       if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == CONNECT
           || channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == WISUN) {
         if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] >= 0x20) {
@@ -608,14 +593,19 @@ void set_power_level_to_max(bool init)
     }
   }
   #endif
-
   if (tx_power_needs_reinit || init) {
-    if (RAIL_ConfigTxPower(rail_handle, &tx_power_config_original) != RAIL_STATUS_NO_ERROR) {
-      // Error: The PA could not be initialized due to an improper configuration.
-      // Please ensure your configuration is valid for the selected part.
-      while (1) ;
+    if (sl_rail_supports_tx_power_mode(rail_handle,
+                                       (sl_rail_tx_power_mode_t*)&tx_power_config_original.mode,
+                                       NULL, NULL)) {
+      if (sl_rail_config_tx_power(rail_handle, &tx_power_config_original) != SL_RAIL_STATUS_NO_ERROR) {
+        // Error: The PA could not be initialized due to an improper configuration.
+        // Please ensure your configuration is valid for the selected part.
+        while (1) ;
+      }
     }
-    RAIL_SetTxPowerDbm(rail_handle, get_max_tx_power_deci_dbm());
+    int16_t  max_power_deci_dbm = 0;
+    get_tx_power_deci_dbm_range(NULL, &max_power_deci_dbm);
+    sl_rail_set_tx_power_dbm(rail_handle, max_power_deci_dbm);
   }
 }
 
@@ -628,8 +618,8 @@ void set_power_level_to_max(bool init)
  ******************************************************************************/
 void get_rail_config_data(uint32_t *base_frequency, uint32_t *channel_spacing, int16_t *power)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  int16_t power_buffer = RAIL_GetTxPowerDbm(rail_handle);
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  int16_t power_buffer = sl_rail_get_tx_power_dbm(rail_handle);
 
   *power = power_buffer;
   if (is_current_phy_standard()) {
@@ -708,7 +698,6 @@ void init_range_test_phys(void)
       break;
     }
   }
-  RAIL_SetTxFifo(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0), rail_tx_buffer, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
 #endif
   number_of_phys = number_of_custom_phys;
   init_range_test_standard_phys(&number_of_phys);
@@ -720,7 +709,7 @@ void init_range_test_phys(void)
  ******************************************************************************/
 void range_test_init(void)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
   range_test_reset_values();
   set_fixed_length(rail_handle, range_test_settings.payload_length);
 }
@@ -796,20 +785,20 @@ void set_all_radio_handlers_to_idle(void)
  ******************************************************************************/
 void receive_setup_radio(void)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  RAIL_Status_t status = 0;
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  sl_rail_status_t status = 0;
 
   range_test_measurement.tx_is_running = false;
 
 #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
   deactivate_bluetooth();
-  scheduler_info = (RAIL_SchedulerInfo_t){.priority = 200 };
-  status = RAIL_StartRx(rail_handle, range_test_settings.channel, &scheduler_info);
+  scheduler_info = (sl_rail_scheduler_info_t){.priority = 200 };
+  status = sl_rail_start_rx(rail_handle, range_test_settings.channel, &scheduler_info);
 #else
-  status = RAIL_StartRx(rail_handle, range_test_settings.channel, NULL);
+  status = sl_rail_start_rx(rail_handle, range_test_settings.channel, NULL);
 #endif
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_StartRx failed with code 0x%lx", status);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_start_rx failed with code 0x%lx", status);
   }
   rx_crc_error_happened = false;
   rx_packet_received = 0;
@@ -823,8 +812,8 @@ void receive_setup_radio(void)
  ******************************************************************************/
 void stop_receive_measurement(void)
 {
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
 #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
   activate_bluetooth();
 #endif
@@ -839,9 +828,9 @@ bool receive_measurement(void)
 {
   range_test_packet_t *rx_packet = NULL;
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
   bool refresh_screen_is_needed = false;
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
   static uint32_t last_received_packet_count = 0U;
   int8_t rssi_value = 0;
 
@@ -853,15 +842,15 @@ bool receive_measurement(void)
     }
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-    scheduler_info = (RAIL_SchedulerInfo_t){.priority = 200 };
-    rail_status = RAIL_StartRx(rail_handle, range_test_settings.channel, &scheduler_info);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartRx failed with %lu", rail_status);
+    scheduler_info = (sl_rail_scheduler_info_t){.priority = 200 };
+    rail_status = sl_rail_start_rx(rail_handle, range_test_settings.channel, &scheduler_info);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_rx failed with %lu", rail_status);
     }
     #else
-    rail_status = RAIL_StartRx(rail_handle, range_test_settings.channel, NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartRx failed with %lu", rail_status);
+    rail_status = sl_rail_start_rx(rail_handle, range_test_settings.channel, NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_rx failed with %lu", rail_status);
     }
     #endif
   }
@@ -877,26 +866,26 @@ bool receive_measurement(void)
     }
 #endif
     // read packet details
-    rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                            RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
-    RAIL_GetRxPacketDetails(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_details);
+    rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                                  SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+    sl_rail_get_rx_packet_details(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_details);
     if (is_current_phy_standard()) {
       // copy the content of the packet
-      RAIL_CopyRxPacket(rx_fifo, &packet_info);
-      RAIL_ReleaseRxPacket(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
-      rx_packet = get_start_of_payload_for_standard(rx_fifo);
+      rail_status = sl_rail_copy_rx_packet(rail_handle, rx_buffer, &packet_info);
+      sl_rail_release_rx_packet(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
+      rx_packet = get_start_of_payload_for_standard(rx_buffer);
     } else {
       uint8_t *start_of_packet = 0;
-      (void)unpack_packet(rx_fifo, &packet_info, &start_of_packet);
-      rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
+      (void)unpack_packet(rail_handle, rx_buffer, &packet_info, &start_of_packet);
+      rail_status = sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
       rx_packet = (range_test_packet_t*) start_of_packet;
     }
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-    scheduler_info = (RAIL_SchedulerInfo_t){.priority = 200 };
-    RAIL_StartRx(rail_handle, range_test_settings.channel, &scheduler_info);
+    scheduler_info = (sl_rail_scheduler_info_t){.priority = 200 };
+    sl_rail_start_rx(rail_handle, range_test_settings.channel, &scheduler_info);
 #else
-    RAIL_StartRx(rail_handle, range_test_settings.channel, NULL);
+    sl_rail_start_rx(rail_handle, range_test_settings.channel, NULL);
 #endif
 
     // Make sure the packet addressed to me
@@ -940,7 +929,7 @@ bool receive_measurement(void)
     }
 
     range_test_measurement.packets_received_counter = rx_packet->packet_counter - range_test_measurement.first_received_packet_offset;
-    range_test_measurement.rssi_latch_value = packet_details.rssi;
+    range_test_measurement.rssi_latch_value = packet_details.rssi_dbm;
 
     // Store RSSI value from the latch
     rssi_value = range_test_measurement.rssi_latch_value;
@@ -1004,80 +993,80 @@ void print_log(void)
 /******************************************************************************
 * RAIL callback, called if a RAIL event occurs
 ******************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   (void) rail_handle;
 #if defined(SL_CATALOG_KERNEL_PRESENT)
   if (range_test_settings.radio_mode == RADIO_MODE_TX) {
-    if (events & RAIL_EVENT_SCHEDULER_STATUS) {
+    if (events & SL_RAIL_EVENT_SCHEDULER_STATUS) {
       send_failed = true;
-      RAIL_YieldRadio(rail_handle);
+      sl_rail_yield_radio(rail_handle);
     }
   }
 #endif
   // Handle Tx events
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       schedule_is_ready = true;
-    } else if (events & RAIL_EVENT_TX_ABORTED) {
+    } else if (events & SL_RAIL_EVENT_TX_ABORTED) {
       error_flags.tx_errors.tx_aborted = 1;
-    } else if (events & RAIL_EVENT_TX_BLOCKED) {
+    } else if (events & SL_RAIL_EVENT_TX_BLOCKED) {
       error_flags.tx_errors.tx_blocked = 1;
-    } else if (events & RAIL_EVENT_TX_UNDERFLOW) {
+    } else if (events & SL_RAIL_EVENT_TX_UNDERFLOW) {
       error_flags.tx_errors.tx_underflow = 1;
-    } else if (events & RAIL_EVENT_TX_CHANNEL_BUSY) {
+    } else if (events & SL_RAIL_EVENT_TX_CHANNEL_BUSY) {
       error_flags.tx_errors.tx_channel_busy = 1;
-    } else if (events & RAIL_EVENT_TX_SCHEDULED_TX_MISSED) {
+    } else if (events & SL_RAIL_EVENT_TX_SCHEDULED_TX_MISSED) {
       error_flags.tx_errors.tx_scheduled_tx_missed = 1;
       send_failed = true;
     }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-    RAIL_YieldRadio(rail_handle);
+    sl_rail_yield_radio(rail_handle);
 #endif
   }
 
   // Handle Rx events
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
     if (waiting_service_packet) {
-      if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+      if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
         service_received = true;
-        RAIL_HoldRxPacket(rail_handle);
+        sl_rail_hold_rx_packet(rail_handle);
       }
       waiting_service_packet = false;
     } else {
-      if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+      if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
         CORE_ATOMIC_SECTION(
           rx_packet_received++;
           )
-        RAIL_HoldRxPacket(rail_handle);
-      } else if (events & RAIL_EVENT_RX_FRAME_ERROR) {
+        sl_rail_hold_rx_packet(rail_handle);
+      } else if (events & SL_RAIL_EVENT_RX_FRAME_ERROR) {
         rx_crc_error_happened = true;
         error_flags.rx_errors.rx_frame_error = 1;
-      } else if (events & RAIL_EVENT_RX_PACKET_ABORTED) {
+      } else if (events & SL_RAIL_EVENT_RX_PACKET_ABORTED) {
         error_flags.rx_errors.rx_aborted = 1;
-      } else if (events & RAIL_EVENT_RX_FIFO_OVERFLOW) {
+      } else if (events & SL_RAIL_EVENT_RX_FIFO_OVERFLOW) {
         error_flags.rx_errors.rx_fifo_overflow = 1;
-      } else if (events & RAIL_EVENT_RX_ADDRESS_FILTERED) {
+      } else if (events & SL_RAIL_EVENT_RX_ADDRESS_FILTERED) {
         error_flags.rx_errors.rx_address_filtered = 1;
-      } else if (events & RAIL_EVENT_RX_SCHEDULED_RX_MISSED) {
+      } else if (events & SL_RAIL_EVENT_RX_SCHEDULED_RX_MISSED) {
         error_flags.rx_errors.rx_scheduled_rx_missed = 1;
       }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
       if (range_test_settings.radio_mode == RADIO_MODE_RX) {
-        RAIL_YieldRadio(rail_handle);
+        sl_rail_yield_radio(rail_handle);
       }
 #endif
     }
   }
 
   // Perform all calibrations when needed
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL, RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
-      current_rail_err = (events & RAIL_EVENT_CAL_NEEDED);
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL, SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
+      current_rail_err = (events & SL_RAIL_EVENT_CAL_NEEDED);
     }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-    RAIL_YieldRadio(rail_handle);
+    sl_rail_yield_radio(rail_handle);
 #endif
   }
 
@@ -1087,7 +1076,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 }
 
 /*******************************************************************************
- * @brief Prints out the errors that happened during RAIL_Handle on RX or TX
+ * @brief Prints out the errors that happened during sl_rail_handle_t on RX or TX
  ******************************************************************************/
 void print_errors_from_rail_handler(void)
 {
@@ -1123,44 +1112,43 @@ uint8_t safe_strlen(char *src)
  ******************************************************************************/
 void send_service_packet(void)
 {
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   service_data_t *tx_data;
-  RAIL_Handle_t rail_handle;
+  sl_rail_handle_t rail_handle;
   uint16_t tx_length = 0;
   uint16_t temp_channel = 0;
-
-  __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t send_buffer[SL_RAIL_SDK_TX_FIFO_SIZE] = { 0 };
 
   range_test_settings_current_phy_tmp = current_phy_standard_value();
   range_test_settings.current_phy = range_test_settings.service_phy;
   menu_set_std_phy(false);
 
   rail_handle = get_current_rail_handler();
+  memset(tx_buffer, 0, sizeof(tx_buffer));
 
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  RAIL_ConfigChannels(rail_handle,
-                      channelConfigs[range_test_settings.current_phy], NULL);
+  sl_rail_config_channels(rail_handle,
+                          (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
 #endif
   range_test_settings_payload_length_tmp = range_test_settings.payload_length;
   range_test_settings.payload_length = sizeof(range_test_packet_t) + sizeof(service_data_t);
   set_fixed_length(rail_handle, range_test_settings.payload_length);
 
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  prepare_radio_config_packet(0, send_buffer);
+  prepare_radio_config_packet(0, tx_buffer);
   tx_length = range_test_settings.payload_length;
-  tx_data = (service_data_t*)(&(send_buffer[sizeof(range_test_packet_t)]));
+  tx_data = (service_data_t*)(&(tx_buffer[sizeof(range_test_packet_t)]));
 #else
   if (!is_current_phy_ble()) {
     data_frame_format_t* data_frame;
-    prepare_ieee802154_data_frame(0, send_buffer);
+    prepare_ieee802154_data_frame(0, tx_buffer);
     tx_length = get_ieee802154_data_frame_length();
-    data_frame = (data_frame_format_t*) &send_buffer[1];
+    data_frame = (data_frame_format_t*) &tx_buffer[1];
     tx_data = (service_data_t*)(data_frame->remainder);
   } else {
-    prepare_ble_advertising_channel_pdu(0, send_buffer);
-    advertising_nonconnectable_undirected_t* ble_tx_pdu = (advertising_nonconnectable_undirected_t*)send_buffer;
+    prepare_ble_advertising_channel_pdu(0, tx_buffer);
+    advertising_nonconnectable_undirected_t* ble_tx_pdu = (advertising_nonconnectable_undirected_t*)tx_buffer;
     tx_data = (service_data_t*)(ble_tx_pdu->manufactSpec.remainder);
-    tx_length = send_buffer[1] + 2;
+    tx_length = tx_buffer[1] + 2;
   }
 #endif
 
@@ -1170,12 +1158,12 @@ void send_service_packet(void)
   tx_data->payload_length = range_test_settings_payload_length_tmp;
   tx_data->tx_power = range_test_settings.tx_power;
 
-  prepare_packet(rail_handle, send_buffer, tx_length);
+  prepare_packet(rail_handle, tx_buffer, tx_length);
   temp_channel = range_test_settings.channel;
   set_power_level_to_max(false);
-  rail_status = RAIL_StartTx(rail_handle, range_test_settings.service_channel, RAIL_TX_OPTIONS_DEFAULT, NULL);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_StartTx() error 0x%0lX\n", rail_status);
+  rail_status = sl_rail_start_tx(rail_handle, range_test_settings.service_channel, SL_RAIL_TX_OPTIONS_DEFAULT, NULL);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_start_tx() error 0x%0lX\n", rail_status);
   }
   set_all_radio_handlers_to_idle();
 
@@ -1183,8 +1171,8 @@ void send_service_packet(void)
   range_test_settings.channel = temp_channel;
   rail_handle = get_current_rail_handler();
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  RAIL_ConfigChannels(rail_handle,
-                      channelConfigs[range_test_settings.current_phy], NULL);
+  sl_rail_config_channels(rail_handle,
+                          (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
 #endif
   menu_set_std_phy(false);
   update_tx_power();
@@ -1197,8 +1185,8 @@ void send_service_packet(void)
  ******************************************************************************/
 void receive_service_packet(void)
 {
-  RAIL_Status_t rail_status;
-  RAIL_Handle_t rail_handle;
+  sl_rail_status_t rail_status;
+  sl_rail_handle_t rail_handle;
 
   range_test_settings_current_phy_tmp = range_test_settings.current_phy;
   range_test_settings.current_phy = range_test_settings.service_phy;
@@ -1206,8 +1194,8 @@ void receive_service_packet(void)
   menu_set_std_phy(false);
   update_tx_power();
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  RAIL_ConfigChannels(rail_handle,
-                      channelConfigs[range_test_settings.current_phy], NULL);
+  sl_rail_config_channels(rail_handle,
+                          (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
 #endif
   set_all_radio_handlers_to_idle();
   range_test_settings_payload_length_tmp = range_test_settings.payload_length;
@@ -1215,13 +1203,13 @@ void receive_service_packet(void)
   set_fixed_length(rail_handle, range_test_settings.payload_length);
 
 #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
-  scheduler_info = (RAIL_SchedulerInfo_t){.priority = 200 };
-  rail_status = RAIL_StartRx(rail_handle, range_test_settings.service_channel, &scheduler_info);
+  scheduler_info = (sl_rail_scheduler_info_t){.priority = 200 };
+  rail_status = sl_rail_start_rx(rail_handle, range_test_settings.service_channel, &scheduler_info);
 #else
-  rail_status = RAIL_StartRx(rail_handle, range_test_settings.service_channel, NULL);
+  rail_status = sl_rail_start_rx(rail_handle, range_test_settings.service_channel, NULL);
 #endif
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_StartRx() error 0x%0lX\n", rail_status);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_start_rx() error 0x%0lX\n", rail_status);
   }
   waiting_service_packet = true;
 }
@@ -1235,9 +1223,9 @@ void undo_service_config(void)
   range_test_settings.current_phy = range_test_settings_current_phy_tmp;
   menu_set_std_phy(false);
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
-  RAIL_ConfigChannels(rail_handle,
-                      channelConfigs[range_test_settings.current_phy], NULL);
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
+  sl_rail_config_channels(rail_handle,
+                          (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
 #endif
 #if defined(SL_CATALOG_RAIL_PACKET_ASSISTANT_PRESENT)
   update_assistant_pointers(range_test_settings.current_phy);
@@ -1256,21 +1244,21 @@ bool service_packet_received(void)
     range_test_packet_t *rx_packet;
     const service_data_t *rx_data;
     uint8_t *start_of_packet;
-    RAIL_Handle_t rail_handle = get_current_rail_handler();
+    sl_rail_handle_t rail_handle = get_current_rail_handler();
 
     // read packet details
-    rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                            RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+    rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                                  SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
 
     if (is_current_phy_standard()) {
       // copy the content of the packet
-      RAIL_CopyRxPacket(rx_fifo, &packet_info);
-      RAIL_ReleaseRxPacket(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
-      rx_packet = get_start_of_payload_for_standard(rx_fifo);
+      sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_buffer, &packet_info);
+      sl_rail_release_rx_packet(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
+      rx_packet = get_start_of_payload_for_standard(rx_buffer);
       start_of_packet = (uint8_t*) rx_packet;
     } else {
-      (void)unpack_packet(rx_fifo, &packet_info, &start_of_packet);
-      RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
+      (void)unpack_packet(rail_handle, rx_buffer, &packet_info, &start_of_packet);
+      sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
       rx_packet = (range_test_packet_t*) start_of_packet;
     }
 
@@ -1310,32 +1298,32 @@ bool service_packet_received(void)
 void set_custom_handler_to_idle(void)
 {
   #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
-  RAIL_Handle_t rail_handle_custom = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-  RAIL_Idle(rail_handle_custom, RAIL_IDLE, true);
+  sl_rail_handle_t rail_handle_custom = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_idle(rail_handle_custom, SL_RAIL_IDLE, true);
   #endif
 }
 
 /*******************************************************************************
  * @brief Modify the currently configured fixed frame length in bytes.
  *
- * @param[in] rail_handle: RAIL_Handle_t that needs to be configured.
+ * @param[in] rail_handle: sl_rail_handle_t that needs to be configured.
  *
  * @param[in] length: Fixed frame length in bytes
  ******************************************************************************/
-static void set_fixed_length(RAIL_Handle_t rail_handle, uint16_t length)
+static void set_fixed_length(sl_rail_handle_t rail_handle, uint16_t length)
 {
   if (!is_current_phy_standard()) {
 #ifdef  SL_CATALOG_RAIL_PACKET_ASSISTANT_PRESENT
     update_assistant_pointers(range_test_settings.current_phy);
     if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo == NULL) {
-      RAIL_SetFixedLength(rail_handle, length);
+      sl_rail_set_fixed_length(rail_handle, length);
     } else {
       if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == 0x00 && channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] == 0x00) {
-        RAIL_SetFixedLength(rail_handle, length);
+        sl_rail_set_fixed_length(rail_handle, length);
       } else if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == CONNECT && channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] != 0x50) {
-        RAIL_SetFixedLength(rail_handle, length + 2);  // Add header as well
+        sl_rail_set_fixed_length(rail_handle, length);
       } else {
-        RAIL_SetFixedLength(rail_handle, RAIL_SETFIXEDLENGTH_INVALID);
+        sl_rail_set_fixed_length(rail_handle, SL_RAIL_SET_FIXED_LENGTH_INVALID);
       }
     }
 #endif
@@ -1386,44 +1374,44 @@ static void range_test_generate_payload(uint8_t *data, uint16_t data_length)
  ******************************************************************************/
 static void send_packet(uint16_t packet_number)
 {
-  RAIL_Status_t rail_status;
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  sl_rail_status_t rail_status;
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
   bool set_tx_failed = false;
-  __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t send_buffer[SL_RAIL_SDK_TX_FIFO_SIZE] = { 0 };
   uint16_t tx_length = 0;
+  memset(tx_buffer, 0, sizeof(tx_buffer));
 
   if (is_current_phy_standard()) {
     if (!is_current_phy_ble()) {
-      prepare_ieee802154_data_frame(packet_number, send_buffer);
+      prepare_ieee802154_data_frame(packet_number, tx_buffer);
       tx_length = get_ieee802154_data_frame_length();
     } else {
-      prepare_ble_advertising_channel_pdu(packet_number, send_buffer);
-      tx_length = send_buffer[1] + 2;
+      prepare_ble_advertising_channel_pdu(packet_number, tx_buffer);
+      tx_length = tx_buffer[1] + 2;
     }
   } else {
-    prepare_radio_config_packet(packet_number, send_buffer);
+    prepare_radio_config_packet(packet_number, tx_buffer);
     tx_length = range_test_settings.payload_length;
   }
 
-  prepare_packet(rail_handle, send_buffer, tx_length);
+  prepare_packet(rail_handle, tx_buffer, tx_length);
 
   if (!set_tx_failed) {
 #if defined(SL_CATALOG_KERNEL_PRESENT)
-    scheduler_info = (RAIL_SchedulerInfo_t){ .priority = 100,
-                                             .slipTime = 100000,
-                                             .transactionTime = 2500 };
+    scheduler_info = (sl_rail_scheduler_info_t){ .priority = 100,
+                                                 .slip_time = 100000,
+                                                 .transaction_time = 2500 };
 
-    rail_status = RAIL_StartScheduledTx(rail_handle,
-                                        range_test_settings.channel, RAIL_TX_OPTIONS_DEFAULT,
-                                        &schedule,
-                                        &scheduler_info);
+    rail_status = sl_rail_start_scheduled_tx(rail_handle,
+                                             range_test_settings.channel, SL_RAIL_TX_OPTIONS_DEFAULT,
+                                             &schedule,
+                                             &scheduler_info);
 #else
-    rail_status = RAIL_StartScheduledTx(rail_handle,
-                                        range_test_settings.channel, RAIL_TX_OPTIONS_DEFAULT, &schedule,
-                                        NULL);
+    rail_status = sl_rail_start_scheduled_tx(rail_handle,
+                                             range_test_settings.channel, SL_RAIL_TX_OPTIONS_DEFAULT, &schedule,
+                                             NULL);
 #endif
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartTx() error 0x%0lX\n", rail_status);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_tx() error 0x%0lX\n", rail_status);
     }
   }
 }

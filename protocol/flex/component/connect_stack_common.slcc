@@ -104,6 +104,7 @@ source:
       - path: "stack/core/sli-connect-api.c"
         unless:
           - connect_cmsis_stack_ipc
+      - path: stack/core/sl-connect-rail-assert.c
 config_file:
   - path: "stack/config/component_config/stack-common-config.h"
 define:
@@ -124,6 +125,7 @@ define:
     value: "\"stack/core/ember-stack.h\""
     condition:
       - "device_host"
+  - name: "SL_RAIL_3_API" # rail_util_pa is both 2 and 3
 template_contribution:
   - name: component_catalog
     value: connect_stack_common
@@ -131,13 +133,6 @@ template_contribution:
     value: "APPLICATION_TYPE_FLEX"
     condition:
       - bootloader_interface
-  - name: event_handler
-    value:
-      event: service_init
-      include: sl-connect-watchdog.h
-      handler: sl_connect_watchdog_init
-    unless:
-       - legacy_hal
   - name: power_manager_handler
     value:
       event: is_ok_to_sleep
@@ -152,6 +147,28 @@ template_contribution:
       handler: sl_connect_sleep_on_isr_exit
     unless:
        - legacy_hal
+  - name: event_handler
+    value:
+      event: service_init
+      include: sl-connect-watchdog.h
+      handler: sl_connect_watchdog_init
+    unless:
+       - legacy_hal
+    condition: [sl_system]
+  - name: event_handler
+    value:
+      event: service_init
+      include: sl-connect-watchdog.h
+      handler: sl_connect_watchdog_init
+    unless:
+       - legacy_hal
+    condition: [sl_main]
+  # - name: event_handler
+  #   value:
+  #     event: service_permanent_allocation
+  #     include: sl-connect-watchdog.h
+  #     handler: sl_connect_watchdog_permanent_allocation
+  #     condition: [sl_main]
 
 documentation:
   docset: connect-stack

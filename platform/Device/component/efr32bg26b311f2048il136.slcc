@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32BG26B311F2048IL136
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32BG26B311F2048IL136.
 - category: Platform|Device|EFR32BG26
 - quality: production

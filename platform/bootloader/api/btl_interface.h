@@ -478,6 +478,7 @@ typedef struct Bootloader_inOutVec {
 #define BTL_MAIN_STAGE_MAX_SIZE           (BTL_APPLICATION_BASE    \
                                            - (BTL_FIRST_STAGE_BASE \
                                               + BTL_FIRST_STAGE_SIZE))
+#elif defined(MAIN_BOOTLOADER_TEST)
 #else
 #error "This part is not supported in this bootloader version."
 #endif

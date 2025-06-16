@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Application logic for DMP with proprietary protocols.
  *******************************************************************************
@@ -28,7 +28,7 @@
  *
  ******************************************************************************/
 #include "os.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_assert.h"
 #include "app_bluetooth.h"
@@ -100,17 +100,17 @@ static uint8_t data_packet[] =
 };
 
 /// Receive FIFO
-static SL_ALIGN(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[RAIL_FIFO_SIZE] SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+static SL_RAIL_DECLARE_FIFO_BUFFER(rx_fifo, APP_RAIL_FIFO_SIZE);
 
 /// Transmit FIFO
-static SL_ALIGN(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[RAIL_FIFO_SIZE] SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+static SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, APP_RAIL_FIFO_SIZE);
 
 static uint8_t proprietary_rx_buf[PROP_RX_BUF_SIZE];
 
 /// Contains the last RAIL Rx/Tx error events
 static volatile uint64_t current_rail_err = 0;
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = 0;
+static volatile sl_rail_status_t calibration_status = 0;
 
 /// Notify reception of packet
 static volatile bool rail_packet_received = false;
@@ -123,69 +123,68 @@ static prop_msg_t proprietary_queue_pend(void);
 /*******************************************************************************
  * Handle received packets in loop
  ******************************************************************************/
-static void handle_receive(RAIL_Handle_t rail_handle)
+static void handle_receive(sl_rail_handle_t rail_handle)
 {
-  RAIL_RxPacketHandle_t rx_packet_handle;
-  RAIL_RxPacketDetails_t packet_details;
-  RAIL_RxPacketInfo_t packet_info;
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
-  uint8_t rx_tmp_buff[RAIL_FIFO_SIZE];
+  sl_rail_rx_packet_handle_t rx_packet_handle;
+  sl_rail_rx_packet_details_t packet_details;
+  sl_rail_rx_packet_info_t packet_info;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
+  uint8_t rx_tmp_buff[APP_RAIL_FIFO_SIZE];
 
   app_log_info("RX event triggered handle:%lu", rail_status);
   app_log_nl();
 
-  rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
-  while (rx_packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
-    (void)RAIL_GetRxPacketDetails(rail_handle, rx_packet_handle, &packet_details);
+  rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+  while (rx_packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    (void)sl_rail_get_rx_packet_details(rail_handle, rx_packet_handle, &packet_details);
     // copies the data in the RX Buffer
-    RAIL_CopyRxPacket(rx_tmp_buff, &packet_info);
+    sl_rail_copy_rx_packet(rail_handle, rx_tmp_buff, &packet_info);
     // after the copy of the packet, the RX packet can be release for RAIL
-    rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_warning("RAIL_ReleaseRxPacket() result:%lu", rail_status);
+    rail_status = sl_rail_release_rx_packet(rail_handle, rx_packet_handle);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_warning("sl_rail_release_rx_packet() result:%lu", rail_status);
       app_log_nl();
     }
 
     // Read packet data into our packet structure
-    uint16_t length = packet_info.packetBytes;
+    uint16_t length = packet_info.packet_bytes;
     Mem_Copy(proprietary_rx_buf,
-             packet_info.firstPortionData,
-             packet_info.firstPortionBytes);
-    Mem_Copy(proprietary_rx_buf + packet_info.firstPortionBytes,
-             packet_info.lastPortionData,
-             length - packet_info.firstPortionBytes);
+             packet_info.p_first_portion_data,
+             packet_info.first_portion_bytes);
+    Mem_Copy(proprietary_rx_buf + packet_info.first_portion_bytes,
+             packet_info.p_last_portion_data,
+             length - packet_info.first_portion_bytes);
 
-    rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+    rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
   }
 }
 
-/*******************************************************************************
- * Initialize TX FIFO
- ******************************************************************************/
-static void set_up_tx_fifo(RAIL_Handle_t rail_handle)
+/******************************************************************************
+ * RAIL callback, called if a RAIL event occurs.
+ *****************************************************************************/
+static void set_up_tx_fifo(sl_rail_handle_t rail_handle)
 {
-  uint16_t allocated_tx_fifo_size = 0;
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle,
-                                          tx_fifo,
-                                          0,
-                                          RAIL_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == RAIL_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%u bytes instead of %u bytes)" APP_LOG_NEW_LINE,
-             allocated_tx_fifo_size,
-             RAIL_FIFO_SIZE);
+  sl_status_t status = sl_rail_set_tx_fifo(rail_handle,
+                                           tx_fifo,
+                                           APP_RAIL_FIFO_SIZE,
+                                           0,
+                                           0);
+
+  app_assert(status == SL_STATUS_OK,
+             "sl_rail_set_tx_fifo() failed to allocate %u bytes)" APP_LOG_NEW_LINE,
+             APP_RAIL_FIFO_SIZE);
 }
 
 // -----------------------------------------------------------------------------
 // Public functions
 
-/**************************************************************************//**
+/******************************************************************************
  * Init proprietary application
  *
  *****************************************************************************/
 void init_prop_app(void)
 {
   RTOS_ERR err;
-
   // Initialize TX FIFO
   set_up_tx_fifo(sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0));
 
@@ -219,7 +218,7 @@ void init_prop_app(void)
                &err);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Proprietary post queue.
  *
  * @param msg message type
@@ -265,7 +264,7 @@ static prop_msg_t proprietary_queue_pend(void)
 // -----------------------------------------------------------------------------
 // Private functions
 
-/**************************************************************************//**
+/******************************************************************************
  * Proprietary timer callback.
  *
  * @param p_tmr is pointer to the user-allocated timer.
@@ -281,7 +280,7 @@ static void proprietary_timer_callback(void *p_tmr, void *p_arg)
   proprietary_queue_post(PROP_TIMER_EXPIRED);
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Proprietary packet send.
  *
  * @param pktType Packet type
@@ -290,15 +289,15 @@ static void proprietary_timer_callback(void *p_tmr, void *p_arg)
  *****************************************************************************/
 static void proprietaryTxPacket(prop_pkt pktType)
 {
-  RAIL_SchedulerInfo_t schedulerInfo;
-  RAIL_Status_t res;
-  RAIL_Handle_t rail_handle =
+  sl_rail_scheduler_info_t scheduler_info;
+  sl_rail_status_t res;
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // This assumes the Tx time is around 200us
-  schedulerInfo = (RAIL_SchedulerInfo_t){ .priority = 100,
-                                          .slipTime = 100000,
-                                          .transactionTime = 200 };
+  scheduler_info = (sl_rail_scheduler_info_t){ .priority = 100,
+                                               .slip_time = 100000,
+                                               .transaction_time = 200 };
 
   // address of light
   Mem_Copy((void *)&data_packet[PACKET_HEADER_LEN],
@@ -328,32 +327,32 @@ static void proprietaryTxPacket(prop_pkt pktType)
   } else {
   }
 
-  RAIL_WriteTxFifo((RAIL_Handle_t)rail_handle,
-                   data_packet,
-                   sizeof(data_packet),
-                   true);
+  sl_rail_write_tx_fifo((sl_rail_handle_t)rail_handle,
+                        data_packet,
+                        sizeof(data_packet),
+                        true);
 
-  res = RAIL_StartTx((RAIL_Handle_t)rail_handle,
-                     0,
-                     RAIL_TX_OPTIONS_DEFAULT,
-                     &schedulerInfo);
+  res = sl_rail_start_tx((sl_rail_handle_t)rail_handle,
+                         0,
+                         SL_RAIL_TX_OPTIONS_DEFAULT,
+                         &scheduler_info);
 
-  if (res != RAIL_STATUS_NO_ERROR) {
+  if (res != SL_RAIL_STATUS_NO_ERROR) {
     // Try once to resend the packet 100ms later in case of error
-    RAIL_ScheduleTxConfig_t scheduledTxConfig =
-    { .when = RAIL_GetTime() + 100000,
-      .mode = RAIL_TIME_ABSOLUTE };
+    sl_rail_scheduled_tx_config_t scheduled_tx_config =
+    { .when = sl_rail_get_time(rail_handle) + 100000,
+      .mode = SL_RAIL_TIME_ABSOLUTE };
 
     // Transmit this packet at the specified time or up to 50 ms late
-    res = RAIL_StartScheduledTx((RAIL_Handle_t)sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0),
-                                0,
-                                RAIL_TX_OPTIONS_DEFAULT,
-                                &scheduledTxConfig,
-                                &schedulerInfo);
+    res = sl_rail_start_scheduled_tx((sl_rail_handle_t)sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0),
+                                     0,
+                                     SL_RAIL_TX_OPTIONS_DEFAULT,
+                                     &scheduled_tx_config,
+                                     &scheduler_info);
   }
 }
 
-/**************************************************************************//**
+/******************************************************************************
  * Proprietary Application task.
  *
  * @param p_arg Pointer to an optional data area which can pass parameters to
@@ -368,10 +367,10 @@ static void proprietary_app_task(void *p_arg)
   RTOS_ERR err;
   prop_msg_t propMsg;
 
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Start reception
-  RAIL_StartRx((RAIL_Handle_t)rail_handle, 0, NULL);
+  sl_rail_start_rx((sl_rail_handle_t)rail_handle, 0, NULL);
 
   proprietary.state = PROP_STATE_ADVERTISE;
   OSTmrStart(&proprietary_timer, &err);
@@ -477,36 +476,35 @@ static void proprietary_app_task(void *p_arg)
 /******************************************************************************
  * RAIL callback, called while the RAIL is initializing.
  *****************************************************************************/
-RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle)
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle)
 {
-  uint16_t rxFifoSize = RAIL_FIFO_SIZE;
-  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, rx_fifo, &rxFifoSize);
-  if (rxFifoSize != RAIL_FIFO_SIZE) {
-    // We set up an incorrect FIFO size
-    return RAIL_STATUS_INVALID_PARAMETER;
-  }
-  if (status == RAIL_STATUS_INVALID_STATE) {
-    // Allow failures due to multiprotocol
-    return RAIL_STATUS_NO_ERROR;
-  }
-  return status;
+  uint16_t rx_fifo_size = APP_RAIL_FIFO_SIZE;
+  (void)sl_rail_set_rx_fifo(rail_handle,
+                            rx_fifo,
+                            &rx_fifo_size);
+
+  app_assert(rx_fifo_size == APP_RAIL_FIFO_SIZE,
+             "sl_rail_set_rx_fifo() failed to allocate a large enough fifo (%u bytes instead of %u bytes)" APP_LOG_NEW_LINE,
+             rx_fifo_size,
+             APP_RAIL_FIFO_SIZE);
 }
 
-/**************************************************************************//**
- * RAIL callback, called if a RAIL event occurs.
+/******************************************************************************
+ * RAIL util callback, called if a RAIL event occurs.
  *
  * @param[in] rail_handle RAIL handle
  * @param[in] events RAIL events
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   //----------------- RX --------------------------
   // Handle Rx events
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer,
       // download it later at the state machine
-      (void)RAIL_HoldRxPacket(rail_handle);
+      (void)sl_rail_hold_rx_packet(rail_handle);
       rail_packet_received = true;
       proprietary_queue_post(PROP_PROCESS_RXD);
     }
@@ -514,19 +512,19 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 
   //----------------- TX --------------------------
   // Handle Tx events
-  if ( events & RAIL_EVENTS_TX_COMPLETION) {
-    if (!(events & RAIL_EVENT_TX_PACKET_SENT)) {
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (!(events & SL_RAIL_EVENT_TX_PACKET_SENT)) {
       // nothing to do for these events - handle errors could take place, though
     }
 
-    RAIL_YieldRadio(rail_handle);
+    sl_rail_yield_radio(rail_handle);
   }
 
   // Perform all calibrations when needed
-  if ( events & RAIL_EVENT_CAL_NEEDED ) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL, RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
-      current_rail_err = (events & RAIL_EVENT_CAL_NEEDED);
+  if ( events & SL_RAIL_EVENT_CAL_NEEDED ) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL, SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
+      current_rail_err = (events & SL_RAIL_EVENT_CAL_NEEDED);
     }
   }
 }

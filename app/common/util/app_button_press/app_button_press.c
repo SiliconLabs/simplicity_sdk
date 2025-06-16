@@ -46,6 +46,12 @@
 #include "app_assert.h"
 #endif // SL_CATALOG_APP_ASSERT_PRESENT
 
+#ifdef SL_CATALOG_APP_EM4H_RESET_PRESENT
+#include "em_rmu.h"
+#include "em_gpio.h"
+#include "sl_hal_gpio.h"
+#endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
+
 // -----------------------------------------------------------------------------
 // Definitions
 
@@ -89,6 +95,10 @@ static app_rta_context_t ctx = APP_RTA_INVALID_CONTEXT;
 static uint32_t cli_button_timestamps[SL_SIMPLE_BUTTON_COUNT];
 static uint8_t cli_button_states[SL_SIMPLE_BUTTON_COUNT];
 #endif // SL_CATALOG_CLI_PRESENT
+
+#ifdef SL_CATALOG_APP_EM4H_RESET_PRESENT
+static bool wakeup_buttons[SL_SIMPLE_BUTTON_COUNT] = { false };
+#endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
 
 // -----------------------------------------------------------------------------
 // Forward declaration of private functions
@@ -180,11 +190,27 @@ sl_status_t app_button_press_enable(void)
   if (sc == SL_STATUS_OK) {
     // Check if buttons are pressed now
     for (uint8_t i = 0; i < SL_SIMPLE_BUTTON_COUNT; i++) {
-      if (sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(i))
-          == SL_SIMPLE_BUTTON_PRESSED) {
+      sl_button_state_t button_state = sl_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(i));
+
+      if (button_state == SL_SIMPLE_BUTTON_PRESSED) {
         // Set timestamp
         state.buttons[i].timestamp = sl_sleeptimer_get_tick_count();
       }
+#ifdef SL_CATALOG_APP_EM4H_RESET_PRESENT
+      else if (wakeup_buttons[i]) {
+        // This button caused an EM4 wakeup but it was released in the meantime.
+        // Fire a short press event.
+        button_event_t evt = {
+          .duration = sl_sleeptimer_get_tick_count(),
+          .index = i
+        };
+        sl_status_t sc = app_rta_queue_push(ctx, (uint8_t *)&evt, sizeof(evt));
+        if (sc != SL_STATUS_OK) {
+          app_button_press_error(sc);
+        }
+        wakeup_buttons[i] = false;
+      }
+#endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
     }
     // Clear disabled state
     disabled = false;
@@ -213,6 +239,33 @@ sl_status_t app_button_press_disable(void)
   }
   return sc;
 }
+
+#ifdef SL_CATALOG_APP_EM4H_RESET_PRESENT
+/******************************************************************************
+* Check if the device was woken up from EM4 by a button press
+******************************************************************************/
+void app_button_press_check_wakeup_cause(void)
+{
+  // Check if the device was woken up from EM4 by an external interrupt
+  if ((RMU_ResetCauseGet() & EMU_RSTCAUSE_EM4)) {
+    for (uint8_t i = 0; i < SL_SIMPLE_BUTTON_COUNT; i++) {
+      // Determine the interrupt number for the button
+      const sl_button_t *button = SL_SIMPLE_BUTTON_INSTANCE(i);
+      sl_gpio_t gpio = {
+        .port = SL_SIMPLE_BUTTON_GET_PORT(button->context),
+        .pin = SL_SIMPLE_BUTTON_GET_PIN(button->context)
+      };
+      int32_t int_no = sl_hal_gpio_get_em4_interrupt_number(&gpio);
+
+      // Check if the interrupt was caused by the button
+      if (int_no != SL_GPIO_INTERRUPT_UNAVAILABLE) {
+        wakeup_buttons[i] = !!(GPIO_EM4GetPinWakeupCause()
+                               & (1 << (int_no + _GPIO_IF_EM4WU_SHIFT)));
+      }
+    }
+  }
+}
+#endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
 
 // -----------------------------------------------------------------------------
 // Weak implementation of callbacks
@@ -266,6 +319,14 @@ void sl_button_on_change(const sl_button_t *handle)
       }
       // Push event
       evt.duration = sl_sleeptimer_get_tick_count() - state.buttons[i].timestamp;
+#ifdef SL_CATALOG_APP_EM4H_RESET_PRESENT
+      if (wakeup_buttons[i]) {
+        // This button caused an EM4 wakeup
+        evt.duration = sl_sleeptimer_get_tick_count()
+                       + sl_sleeptimer_ms_to_tick(APP_BUTTON_PRESS_WAKEUP_DELAY);
+        wakeup_buttons[i] = false;
+      }
+#endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
       evt.index = i;
       if ((evt.duration > sl_sleeptimer_ms_to_tick(MIN_VALID_BUTTON_PRESS_DURATION))
           || (state.buttons[i].press == APP_BUTTON_PRESS_PRESSED_DOWN)) {

@@ -1,6 +1,6 @@
 id: zigbee_pro_stack_basic
 label: Pro Stack (Basic)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: Uses the main Zigbee PRO Stack library variant (without support for high-datarate PHY or RAIL MUX).

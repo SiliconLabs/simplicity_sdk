@@ -44,9 +44,10 @@ extern "C" {
 #include <stdbool.h>
 #include "sl_hal_sysrtc_compat.h"
 #include "sl_enum.h"
+#include "sl_assert.h"
 
 /***************************************************************************//**
- * @addtogroup sysrtc
+ * @addtogroup sysrtc SYSRTC - System RTC
  * @{
  ******************************************************************************/
 
@@ -57,14 +58,14 @@ extern "C" {
 /// Minimum compare channels for SYSRTC group.
 #define SYSRTC_GROUP_MIN_CHANNEL_COMPARE  1u
 /// Maximum compare channels for SYSRTC group.
-#define SYSRTC_GROUP_MAX_CHANNEL_COMPARE  2u
+#define SYSRTC_GROUP_MAX_CHANNEL_COMPARE  3u
 
 /// Minimum capture channels for SYSRTC group.
 #define SYSRTC_GROUP_MIN_CHANNEL_CAPTURE  0u
 /// Maximum capture channels for SYSRTC group.
 #define SYSRTC_GROUP_MAX_CHANNEL_CAPTURE  1u
 
-/// Sysrtc group number.
+/// SYSRTC group number.
 #if !defined(SYSRTC_GROUP_NUMBER)
 #define SYSRTC_GROUP_NUMBER   1u
 #endif
@@ -119,12 +120,14 @@ typedef struct {
 
 /// Group configuration structure.
 typedef struct {
-  bool compare_channel0_enable;                                                  ///< Enable/Disable compare channel 0
-  bool compare_channel1_enable;                                                  ///< Enable/Disable compare channel 1
-  bool capture_channel0_enable;                                                  ///< Enable/Disable capture channel 0
-  sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel0_config; ///< Pointer to compare channel 0 config
-  sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel1_config; ///< Pointer to compare channel 1 config
-  sl_hal_sysrtc_group_channel_capture_config_t const *p_capture_channel0_config; ///< Pointer to capture channel 0 config
+  bool compare_channel0_enable;                                                  ///< Enable/Disable compare channel 0.
+  bool compare_channel1_enable;                                                  ///< Enable/Disable compare channel 1.
+  bool compare_channel2_enable;                                                  ///< Enable/Disable compare channel 2.
+  bool capture_channel0_enable;                                                  ///< Enable/Disable capture channel 0.
+  sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel0_config; ///< Pointer to compare channel 0 config.
+  sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel1_config; ///< Pointer to compare channel 1 config.
+  sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel2_config; ///< Pointer to compare channel 2 config.
+  sl_hal_sysrtc_group_channel_capture_config_t const *p_capture_channel0_config; ///< Pointer to capture channel 0 config.
 } sl_hal_sysrtc_group_config_t;
 
 /// Suggested default values for compare channel configuration structure.
@@ -146,106 +149,168 @@ typedef struct {
   }
 
 /// Suggested default values for SYSRTC group configuration structure.
-#define SYSRTC_GROUP_CONFIG_DEFAULT                                          \
-  {                                                                          \
-    true, /* Enable compare channel 0. */                                    \
-    false, /* Disable compare channel 1. */                                  \
-    false, /* Disable capture channel 0. */                                  \
-    NULL, /* NULL Pointer to configuration structure for compare channel 0*/ \
-    NULL, /* NULL Pointer to configuration structure for compare channel 1*/ \
-    NULL /* NULL Pointer to configuration structure for capture channel 0*/  \
+#define SYSRTC_GROUP_CONFIG_DEFAULT                                             \
+  {                                                                             \
+    true,  /* Enable compare channel 0. */                                      \
+    false, /* Disable compare channel 1. */                                     \
+    false, /* Disable compare channel 2. */                                     \
+    false, /* Disable capture channel 0. */                                     \
+    NULL,  /* NULL Pointer to configuration structure for compare channel 0. */ \
+    NULL,  /* NULL Pointer to configuration structure for compare channel 1. */ \
+    NULL,  /* NULL Pointer to configuration structure for compare channel 2. */ \
+    NULL   /* NULL Pointer to configuration structure for capture channel 0. */ \
   }
+
+#ifdef _SYSRTC_GRP0_PRETRIG_MASK
+/// Pre-trigger configuration structure.
+typedef struct {
+  bool enable;   ///< Enable/Disable the pre-trigger.
+  uint8_t ticks; ///< Number of LF clock ticks the pre-trigger occurs before the counter reach the compare channel.
+} sl_hal_sysrtc_pretrigger_config_t;
+
+/// Group pre-trigger configuration structure.
+typedef struct {
+  sl_hal_sysrtc_pretrigger_config_t emu_wakeup; ///< Pre-trigger to wake up EMU.
+  sl_hal_sysrtc_pretrigger_config_t hfxo_start; ///< Pre-trigger to start HFXO.
+  uint8_t compare_channel;                      ///< Compare channel used for the pre-triggers.
+} sl_hal_sysrtc_group_pretrigger_config_t;
+
+/// Suggested default values for pre-trigger configuration structure.
+#define SYSRTC_PRETRIGGER_CONFIG_DEFAULT                               \
+  {                                                                    \
+    false, /* Disable the pre-trigger. */                              \
+    0,     /* The pre-trigger occurs 0 LF ticks before the compare. */ \
+  }
+
+/// Suggested default values for group pre-trigger configuration structure.
+#define SYSRTC_GROUP_PRETRIGGER_CONFIG_DEFAULT                                                \
+  {                                                                                           \
+    SYSRTC_PRETRIGGER_CONFIG_DEFAULT, /* Default pre-trigger configuration to wake up EMU. */ \
+    SYSRTC_PRETRIGGER_CONFIG_DEFAULT, /* Default pre-trigger configuration to start HFXO. */  \
+    0                                 /* Compare channel used by the pre-triggers. */         \
+  }
+#endif
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
 /***************************************************************************//**
- * Initializes SYSRTC module.
+ * @brief
+ *   Initializes SYSRTC module.
  *
- * Note that the compare values must be set separately with
+ * @Note
+ *   that the compare values must be set separately with
  * (sl_hal_sysrtc_set_group_compare_channel_value()), which should probably be
  * done prior to the use of this function if configuring the SYSRTC to start
  * when initialization is completed.
  *
- * @param[in] p_config  A pointer to the SYSRTC initialization structure
- *                      variable.
+ * @param[in] p_config
+ *   A pointer to the SYSRTC initialization structure
+ *   variable.
  ******************************************************************************/
 void sl_hal_sysrtc_init(const sl_hal_sysrtc_config_t *p_config);
 
 /***************************************************************************//**
- * Enables SYSRTC counting.
+ * @brief
+ *   Enables the SYSRTC module and starts the counter.
  ******************************************************************************/
 void sl_hal_sysrtc_enable(void);
 
 /***************************************************************************//**
- * Disables SYSRTC counting.
+ * @brief
+ *   Stops the counter and disables the SYSRTC.
  ******************************************************************************/
 void sl_hal_sysrtc_disable(void);
 
 /***************************************************************************//**
- * Waits for the SYSRTC to complete all synchronization of register changes
- * and commands.
+ * @brief
+ *   Waits for the SYSRTC to complete all synchronization of register changes
+ *   and commands.
+ *
+ * @brief
+ *   Wait for synchronization of register changes to low frequency domain.
+ *
+ * @note
+ *   This function will stall execution until the synchronization is complete.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 __INLINE void sl_hal_sysrtc_wait_sync(void)
 {
   while ((SYSRTC0->EN & SYSRTC_EN_EN) && (SYSRTC0->SYNCBUSY != 0U)) {
-    // Wait for all synchronizations to finish
+    // Wait for all synchronizations to finish.
   }
 }
 
 /***************************************************************************//**
- * Waits for the SYSRTC to complete reseting or disabling procedure.
+ * @brief
+ *   Waits for the SYSRTC to complete resetting or disabling procedure.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_wait_ready(void)
 {
   while ((SYSRTC0->SWRST & _SYSRTC_SWRST_RESETTING_MASK) || (SYSRTC0->EN & _SYSRTC_EN_DISABLING_MASK) || (SYSRTC0->SYNCBUSY != 0U)) {
-    // Wait for all synchronizations to finish
+    // Wait for all synchronizations to finish.
   }
 }
 
 /***************************************************************************//**
- * Starts SYSRTC counter.
+ * @brief
+ *   Starts SYSRTC counter.
  *
- * This function will send a start command to the SYSRTC peripheral. The SYSRTC
- * peripheral will use some LF clock ticks before the command is executed.
- * The sl_hal_sysrtc_wait_sync() function can be used to wait for the start
- * command to be executed.
+ *   This function will send a start command to the SYSRTC peripheral. The SYSRTC
+ *   peripheral will use some LF clock ticks before the command is executed.
+ *   The sl_hal_sysrtc_wait_sync() function can be used to wait for the start
+ *   command to be executed.
  *
- * @note  This function requires the SYSRTC to be enabled.
+ * @note
+ *   This function requires the SYSRTC to be enabled.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_start(void)
 {
+  // Make sure module is enabled.
+  EFM_ASSERT(SYSRTC0->EN & SYSRTC_EN_EN);
+
+  // Wait to synchronize before sending the command.
   sl_hal_sysrtc_wait_sync();
+
   SYSRTC0->CMD = SYSRTC_CMD_START;
 }
 
 /***************************************************************************//**
- * Stops the SYSRTC counter.
+ * @brief
+ *   Stops the SYSRTC counter.
  *
- * This function will send a stop command to the SYSRTC peripheral. The SYSRTC
- * peripheral will use some LF clock ticks before the command is executed.
- * The sl_hal_sysrtc_wait_sync() function can be used to wait for the stop
- * command to be executed.
+ *   This function will send a stop command to the SYSRTC peripheral. The SYSRTC
+ *   peripheral will use some LF clock ticks before the command is executed.
+ *   The sl_hal_sysrtc_wait_sync() function can be used to wait for the stop
+ *   command to be executed.
  *
- * @note  This function requires the SYSRTC to be enabled.
+ * @note
+ *   This function requires the SYSRTC to be enabled.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_stop(void)
 {
+  // Make sure module is enabled.
+  EFM_ASSERT(SYSRTC0->EN & SYSRTC_EN_EN);
+
+  // Wait to synchronize before sending the command.
   sl_hal_sysrtc_wait_sync();
+
   SYSRTC0->CMD = SYSRTC_CMD_STOP;
 }
 
 /***************************************************************************//**
- * Restores SYSRTC to its reset state.
+ * @brief
+ *   Restores SYSRTC to its reset state.
  ******************************************************************************/
 void sl_hal_sysrtc_reset(void);
 
 /***************************************************************************//**
- * Gets SYSRTC STATUS register value.
+ * @brief
+ *   Gets SYSRTC STATUS register value.
  *
- * @return  Current STATUS register value.
+ * @return
+ *   Current STATUS register value.
  ******************************************************************************/
 __INLINE uint32_t sl_hal_sysrtc_get_status(void)
 {
@@ -253,11 +318,13 @@ __INLINE uint32_t sl_hal_sysrtc_get_status(void)
 }
 
 /***************************************************************************//**
- * Locks SYSRTC registers.
+ * @brief
+ *   Locks SYSRTC registers.
  *
- * @note  When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
- *        SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written
- *        to.
+ * @note
+ *   When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
+ *   SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written
+ *   to.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_lock(void)
 {
@@ -265,160 +332,421 @@ __INLINE void sl_hal_sysrtc_lock(void)
 }
 
 /***************************************************************************//**
- * Unlocks SYSRTC registers.
+ * @brief
+ *   Unlocks SYSRTC registers.
  *
- * @note  When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
- *        SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written
- *        to.
+ * @note
+ *   When SYSRTC registers are locked SYSRTC_EN, SYSRTC_CFG, SYSRTC_CMD,
+ *   SYSRTC_SWRST, SYSRTC_CNT and SYSRTC_TOPCNT registers cannot be written
+ *   to.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_unlock(void)
 {
   SYSRTC0->LOCK = SYSRTC_LOCK_LOCKKEY_UNLOCK;
 }
 
+#ifdef _SYSRTC_IF_MASK
 /***************************************************************************//**
- * Gets SYSRTC counter value.
+ * @brief
+ *   Enables one or more SYSRTC interrupts.
  *
- * @return  Current SYSRTC counter value.
+ * @note
+ *   Depending on the use, a pending interrupt may already be set prior to
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   sl_hal_sysrtc_clear_interrupts() prior to enabling the interrupt.
+ *
+ * @param[in] flags
+ *   SYSRTC interrupt sources to enable.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources for SYSRTC.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_enable_interrupts(uint32_t flags)
+{
+  SYSRTC0->IEN_SET = flags;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Disables one or more SYSRTC interrupts for.
+ *
+ * @param[in] flags
+ *   SYSRTC interrupt sources to disable.
+ *   Use a set of interrupt flags OR-ed together to disable
+ *   multiple interrupt sources for SYSRTC.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_disable_interrupts(uint32_t flags)
+{
+  SYSRTC0->IEN_CLR = flags;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Clears one or more pending SYSRTC interrupts.
+ *
+ * @param[in] flags
+ *   SYSRTC interrupt sources to clear.
+ *   Use a set of interrupt flags OR-ed together to clear
+ *   multiple interrupt sources for SYSRTC.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_clear_interrupts(uint32_t flags)
+{
+  SYSRTC0->IF_CLR = flags;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets pending SYSRTC interrupt flags.
+ *
+ * @note
+ *   Event bits are not cleared by using this function.
+ *
+ * @return
+ *   Pending SYSRTC interrupt sources.
+ *   Returns a set of interrupt flags OR-ed together for multiple
+ *   interrupt sources in SYSRTC.
+ ******************************************************************************/
+__INLINE uint32_t sl_hal_sysrtc_get_interrupts(void)
+{
+  return SYSRTC0->IF;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets enabled and pending SYSRTC interrupt flags.
+ *
+ * Useful
+ *   for handling more interrupt sources in the same interrupt handler.
+ *
+ * @note
+ *   Interrupt flags are not cleared by using this function.
+ *
+ * @return
+ *   Pending and enabled SYSRTC interrupt sources.
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in SYSRTC_IEN and
+ *   - the pending interrupt flags SYSRTC_IF.
+ ******************************************************************************/
+__INLINE uint32_t sl_hal_sysrtc_get_enabled_interrupts(void)
+{
+  uint32_t ien = SYSRTC0->IEN;
+  return SYSRTC0->IF & ien;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Sets one or more pending SYSRTC interrupts from Software.
+ *
+ * @param[in] flags
+ *   SYSRTC interrupt sources to set to pending.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources for SYSRTC.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_set_interrupts(uint32_t flags)
+{
+  SYSRTC0->IF_SET = flags;
+}
+#endif
+
+/***************************************************************************//**
+ * @brief
+ *   Gets SYSRTC counter value.
+ *
+ * @return
+ *   Current SYSRTC counter value.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 __INLINE uint32_t sl_hal_sysrtc_get_counter(void)
 {
-  // Wait for Counter to synchronize before getting value
+  // Wait for Counter to synchronize before getting the value.
   sl_hal_sysrtc_wait_sync();
 
   return SYSRTC0->CNT;
 }
 
 /***************************************************************************//**
- * Sets the SYSRTC counter value.
+ * @brief
+ *   Sets the SYSRTC counter value.
  *
- * @param[in] value   The new SYSRTC counter value.
+ * @param[in] value
+ *   The new SYSRTC counter value.
  ******************************************************************************/
 __INLINE void sl_hal_sysrtc_set_counter(uint32_t value)
 {
-  // Wait for Counter to synchronize before getting value
+  // Wait for Counter to synchronize before setting the value.
   sl_hal_sysrtc_wait_sync();
 
   SYSRTC0->CNT = value;
 }
 
+#ifdef _SYSRTC_MSCNT_MASK
 /***************************************************************************//**
- * Initializes the selected SYSRTC group.
+ * @brief
+ *   Starts the SYSRTC MS counter.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @note
+ *   This function requires the SYSRTC to be enabled.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_start_ms(void)
+{
+  // Make sure module is enabled.
+  EFM_ASSERT(SYSRTC0->EN & SYSRTC_EN_EN);
+
+  // Wait to synchronize before sending the command.
+  sl_hal_sysrtc_wait_sync();
+
+  SYSRTC0->CMD = SYSRTC_CMD_MSSTART;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Stops the SYSRTC MS counter.
  *
- * @param[in] p_group_config  Pointer to group configuration structure
- *                            variable.
+ * @note
+ *   This function requires the SYSRTC to be enabled.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_stop_ms(void)
+{
+  // Make sure module is enabled.
+  EFM_ASSERT(SYSRTC0->EN & SYSRTC_EN_EN);
+
+  // Wait to synchronize before sending the command.
+  sl_hal_sysrtc_wait_sync();
+
+  SYSRTC0->CMD = SYSRTC_CMD_MSSTOP;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets SYSRTC MS counter value.
+ *
+ * @return
+ *   Current SYSRTC MS counter value.
+ ******************************************************************************/
+__INLINE uint32_t sl_hal_sysrtc_get_ms_counter(void)
+{
+  // Wait to synchronize before before getting the value.
+  sl_hal_sysrtc_wait_sync();
+
+  return SYSRTC0->MSCNT;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Sets the SYSRTC MS compare value.
+ *
+ * @param[in] value
+ *   The new SYSRTC MS compare value.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_set_ms_compare(uint32_t value)
+{
+  // Wait to synchronize before before setting the value.
+  sl_hal_sysrtc_wait_sync();
+
+  SYSRTC0->MSCMPVAL = value;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets the SYSRTC MS compare value.
+ *
+ * @return
+ *   Current SYSRTC MS compare value.
+ ******************************************************************************/
+__INLINE uint32_t sl_hal_sysrtc_get_ms_compare(void)
+{
+  // Wait to synchronize before before getting the value.
+  sl_hal_sysrtc_wait_sync();
+
+  return SYSRTC0->MSCMPVAL;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Sets the SYSRTC MS counter compare value buffer.
+ *
+ * @details
+ *  The compare value buffer holds the value which will be written to
+ *  MSCMPVAL on an update event if the buffer has been updated since
+ *  the last event.
+ *
+ * @param[in] value
+ *   The new SYSRTC MS compare value buffer.
+ ******************************************************************************/
+__INLINE void sl_hal_sysrtc_set_ms_compare_buffer(uint32_t value)
+{
+  SYSRTC0->MSCMPBUF = value;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets the SYSRTC MS compare value buffer.
+ *
+ * @return
+ *   Current SYSRTC MS compare value buffer.
+ ******************************************************************************/
+__INLINE uint32_t sl_hal_sysrtc_get_ms_compare_buffer(void)
+{
+  return SYSRTC0->MSCMPBUF;
+}
+#endif
+
+/***************************************************************************//**
+ * @brief
+ *   Waits for the SYSRTC group to complete all synchronization of register
+ *   changes and commands.
+ *
+ * @param[in] group_number
+ *   SYSRTC group number to use.
+ ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
+void sl_hal_sysrtc_wait_sync_group(uint8_t group_number);
+
+/***************************************************************************//**
+ * @brief
+ *   Initializes the selected SYSRTC group.
+ *
+ * @param[in] group_number
+ *   SYSRTC group number to use.
+ *
+ * @param[in] p_group_config
+ *   Pointer to group configuration structure variable.
  ******************************************************************************/
 void sl_hal_sysrtc_init_group(uint8_t group_number,
                               sl_hal_sysrtc_group_config_t const *p_group_config);
 
 /***************************************************************************//**
- * Enables one or more SYSRTC interrupts for the given group.
+ * @brief
+ *   Enables one or more SYSRTC interrupts for the given group.
  *
- * @note  Depending on the use, a pending interrupt may already be set prior to
- *        enabling the interrupt. To ignore a pending interrupt, consider using
- *        sl_hal_sysrtc_clear_group_interrupts() prior to enabling the interrupt.
+ * @note
+ *   Depending on the use, a pending interrupt may already be set prior to
+ *   enabling the interrupt. To ignore a pending interrupt, consider using
+ *   sl_hal_sysrtc_clear_group_interrupts() prior to enabling the interrupt.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] flags   SYSRTC interrupt sources to enable.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources for the given SYSRTC group.
+ * @param[in] flags
+ *   SYSRTC interrupt sources to enable.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources for the given SYSRTC group.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_hal_sysrtc_enable_group_interrupts(uint8_t group_number,
                                            uint32_t flags);
 
 /***************************************************************************//**
- * Disables one or more SYSRTC interrupts for the given group.
+ * @brief
+ *   Disables one or more SYSRTC interrupts for the given group.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] flags   SYSRTC interrupt sources to disable.
- *                    Use a set of interrupt flags OR-ed together to disable
- *                    multiple interrupt sources for the given SYSRTC group.
+ * @param[in] flags
+ *   SYSRTC interrupt sources to disable.
+ *   Use a set of interrupt flags OR-ed together to disable
+ *   multiple interrupt sources for the given SYSRTC group.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_hal_sysrtc_disable_group_interrupts(uint8_t group_number,
                                             uint32_t flags);
 
 /***************************************************************************//**
- * Clears one or more pending SYSRTC interrupts for the given group.
+ * @brief
+ *   Clears one or more pending SYSRTC interrupts for the given group.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] flags   SYSRTC interrupt sources to clear.
- *                    Use a set of interrupt flags OR-ed together to clear
- *                    multiple interrupt sources for the given SYSRTC group.
+ * @param[in] flags
+ *   SYSRTC interrupt sources to clear.
+ *   Use a set of interrupt flags OR-ed together to clear
+ *   multiple interrupt sources for the given SYSRTC group.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_hal_sysrtc_clear_group_interrupts(uint8_t group_number,
                                           uint32_t flags);
 
 /***************************************************************************//**
- * Gets pending SYSRTC interrupt flags for the given group.
+ * @brief
+ *   Gets pending SYSRTC interrupt flags for the given group.
  *
- * @note  Event bits are not cleared by using this function.
+ * @note
+ *   Event bits are not cleared by using this function.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @return  Pending SYSRTC interrupt sources.
- *          Returns a set of interrupt flags OR-ed together for multiple
- *          interrupt sources in the SYSRTC group.
+ * @return
+ *   Pending SYSRTC interrupt sources.
+ *   Returns a set of interrupt flags OR-ed together for multiple
+ *   interrupt sources in the SYSRTC group.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 uint32_t sl_hal_sysrtc_get_group_interrupts(uint8_t group_number);
 
 /***************************************************************************//**
- * Gets enabled and pending SYSRTC interrupt flags.
- * Useful for handling more interrupt sources in the same interrupt handler.
+ * @brief
+ *   Gets enabled and pending SYSRTC interrupt flags for the given group.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
  *
- * @note  Interrupt flags are not cleared by using this function.
+ * @note
+ *   Interrupt flags are not cleared by using this function.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @return  Pending and enabled SYSRTC interrupt sources.
- *          The return value is the bitwise AND of
- *          - the enabled interrupt sources in SYSRTC_GRPx_IEN and
- *          - the pending interrupt flags SYSRTC_GRPx_IF.
+ * @return
+ *   Pending and enabled SYSRTC interrupt sources.
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in SYSRTC_GRPx_IEN and
+ *   - the pending interrupt flags SYSRTC_GRPx_IF.
  ******************************************************************************/
 uint32_t sl_hal_sysrtc_get_group_enabled_interrupts(uint8_t group_number);
 
 /***************************************************************************//**
- * Sets one or more pending SYSRTC interrupts for the given group from Software.
+ * @brief
+ *   Sets one or more pending SYSRTC interrupts for the given group from Software.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] flags   SYSRTC interrupt sources to set to pending.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources for the SYSRTC group.
+ * @param[in] flags
+ *   SYSRTC interrupt sources to set to pending. Use a set of interrupt flags
+ *   OR-ed together to set multiple interrupt sources for the SYSRTC group.
  ******************************************************************************/
 void sl_hal_sysrtc_set_group_interrupts(uint8_t group_number,
                                         uint32_t flags);
 
 /***************************************************************************//**
- * Gets SYSRTC compare register value for selected channel of given group.
+ * @brief
+ *   Gets SYSRTC compare register value for selected channel of given group.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] channel   Channel selector.
+ * @param[in] channel
+ *   Channel selector.
  *
- * @return  Compare register value.
+ * @return
+ *   Compare register value.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 uint32_t sl_hal_sysrtc_get_group_compare_channel_value(uint8_t group_number,
                                                        uint8_t channel);
 
 /***************************************************************************//**
- * Sets SYSRTC compare register value for selected channel of given group.
+ * @brief
+ *   Sets SYSRTC compare register value for selected channel of given group.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @param[in] channel   Channel selector.
+ * @param[in] channel
+ *   Channel selector.
  *
- * @param[in] value   Compare register value.
+ * @param[in] value
+ *   Compare register value.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_hal_sysrtc_set_group_compare_channel_value(uint8_t group_number,
@@ -426,20 +754,134 @@ void sl_hal_sysrtc_set_group_compare_channel_value(uint8_t group_number,
                                                    uint32_t value);
 
 /***************************************************************************//**
- * Gets SYSRTC input capture register value for capture channel of given group.
+ * @brief
+ *   Gets SYSRTC input capture register value for capture channel of given group.
  *
- * @param[in] group_number  SYSRTC group number to use.
+ * @param[in] group_number
+ *   SYSRTC group number to use.
  *
- * @return  Capture register value.
+ * @return
+ *   Capture register value.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 uint32_t sl_hal_sysrtc_get_group_capture_channel_value(uint8_t group_number);
+
+#ifdef _SYSRTC_GRP0_PRETRIG_MASK
+/***************************************************************************//**
+ * @brief
+ *   Sets the pre-triggers for a given group.
+ *
+ * @param[in] group_number
+ *   SYSRTC group number to use.
+ *
+ * @param[in] p_group_pretrigger_config
+ *   Pointer to group pre-trigger configuration structure variable.
+ ******************************************************************************/
+void sl_hal_sysrtc_set_group_pretrigger(uint8_t group_number,
+                                        sl_hal_sysrtc_group_pretrigger_config_t const *p_group_pretrigger_config);
+
+/***************************************************************************//**
+ * @brief
+ *   Gets the status of the pre-triggers for a given group.
+ *
+ * @param[in]  group_number
+ *   SYSRTC group number to use.
+ *
+ * @return
+ *   Pre-trigger status flags for a given group.
+ ******************************************************************************/
+uint32_t sl_hal_sysrtc_get_group_pretrigger_status(uint8_t group_number);
+
+/***************************************************************************//**
+ * @brief
+ *   Clears the status of the pre-triggers for a given group.
+ *
+ * @details
+ *   The ACTIVE status must be cleared from Software.
+ *
+ * @param[in]  group_number
+ *   SYSRTC group number to use.
+ *
+ * @param[out] flags
+ *   Pre-trigger status flags for a given group.
+ ******************************************************************************/
+void sl_hal_sysrtc_clear_group_pretrigger_status(uint8_t group_number,
+                                                 uint32_t flags);
+#endif
 
 /** @} (end addtogroup sysrtc) */
 
 #ifdef __cplusplus
 }
 #endif
+
+/****************************************************************************//**
+ * @addtogroup sysrtc SYSRTC - System RTC
+ * @{
+ *
+ *@n @section sysrtc_example Example
+ *  This example demonstrates how to configure and use the System Real-Time Counter (SYSRTC)
+ *  to generate periodic interrupts.
+ *
+ * @code
+ * #include "sl_hal_sysrtc.h"
+ *
+ * // SYSRTC interrupt handler
+ * void SYSRTC_IRQHandler(void)
+ * {
+ *   uint32_t flags = sl_hal_sysrtc_get_interrupt_flags();
+ *
+ *   if (flags & SL_HAL_SYSRTC_IF_COMP0) {
+ *     // Handle compare match 0 interrupt
+ *     sl_hal_sysrtc_clear_interrupt_flags(SL_HAL_SYSRTC_IF_COMP0);
+ *
+ *     // Add your application code here
+ *     // For example, toggle an LED
+ *   }
+ * }
+ *
+ * void sysrtc_example(void)
+ * {
+ *   // Initialize SYSRTC configuration with default values
+ *   sl_hal_sysrtc_config_t sysrtcConfig = SL_HAL_SYSRTC_CONFIG_DEFAULT;
+ *
+ *   // Customize configuration
+ *   sysrtcConfig.enable = true;
+ *   sysrtcConfig.debug_run = false;           // Stop counter during debug
+ *   sysrtcConfig.prescaler = 0;               // No prescaling (32.768 kHz)
+ *
+ *   // Initialize SYSRTC
+ *   sl_hal_sysrtc_init(&sysrtcConfig);
+ *
+ *   // Configure compare channel 0
+ *   sl_hal_sysrtc_compare_config_t compareConfig = SL_HAL_SYSRTC_COMPARE_CONFIG_DEFAULT;
+ *   compareConfig.enable = true;
+ *   compareConfig.comp_value = 32768;         // Compare after 1 second (32.768 kHz clock)
+ *
+ *   // Set up compare channel 0
+ *   sl_hal_sysrtc_init_compare(0, &compareConfig);
+ *
+ *   // Enable compare interrupt
+ *   sl_hal_sysrtc_enable_interrupts(SL_HAL_SYSRTC_IEN_COMP0);
+ *
+ *   // Enable SYSRTC interrupt in NVIC
+ *   sl_interrupt_manager_clear_pending_irq(SYSRTC_IRQn);
+ *   sl_interrupt_manager_enable_irq(SYSRTC_IRQn);
+ *
+ *   // Start SYSRTC
+ *   sl_hal_sysrtc_enable();
+ *
+ *   // Application main loop
+ *   while (1) {
+ *     // Read current counter value if needed
+ *     uint32_t count = sl_hal_sysrtc_get_count();
+ *
+ *     // Sleep or perform other tasks
+ *   }
+ * }
+ * @endcode
+ * @} (end addtogroup sysrtc)
+ *******************************************************************************/
 
 #endif /* defined(SYSRTC_COUNT) && (SYSRTC_COUNT > 0) */
 #endif /* SL_HAL_SYSRTC_H */

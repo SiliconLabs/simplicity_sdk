@@ -39,7 +39,7 @@
 #include <stdint.h>
 #include <string.h>
 
-static sl_slist_node_t *power_manager_debug_requirement_em_table[SLI_POWER_MANAGER_EM_TABLE_SIZE];
+static sl_slist_node_t *power_manager_debug_requirement_em1;
 static sli_power_debug_requirement_entry_t  power_debug_entry_table[SL_POWER_MANAGER_DEBUG_POOL_SIZE];
 static sl_slist_node_t *power_debug_free_entry_list = NULL;
 static bool power_debug_ran_out_of_entry = false;
@@ -54,7 +54,6 @@ static void power_manager_log_add_requirement(sl_slist_node_t **p_list,
  ******************************************************************************/
 void sl_power_manager_debug_print_em_requirements(void)
 {
-  uint8_t i;
   sli_power_debug_requirement_entry_t *entry;
 
   if (power_debug_ran_out_of_entry) {
@@ -63,16 +62,14 @@ void sl_power_manager_debug_print_em_requirements(void)
   printf("------------------------------------------\n");
   printf("| EM requirements\n");
   printf("------------------------------------------\n");
-  for (i = 0; i < SLI_POWER_MANAGER_EM_TABLE_SIZE; i++) {
-    if (power_manager_debug_requirement_em_table[i] != NULL) {
-      printf("| EM%d requirement module owners:\n", i + 1);
-    }
-    SL_SLIST_FOR_EACH_ENTRY(power_manager_debug_requirement_em_table[i], entry, sli_power_debug_requirement_entry_t, node) {
-      printf("|     %s\n", entry->module_name);
-    }
-    if (power_manager_debug_requirement_em_table[i] != NULL) {
-      printf("------------------------------------------\n");
-    }
+  if (power_manager_debug_requirement_em1 != NULL) {
+    printf("| EM1 requirement module owners:\n");
+  }
+  SL_SLIST_FOR_EACH_ENTRY(power_manager_debug_requirement_em1, entry, sli_power_debug_requirement_entry_t, node) {
+    printf("|     %s\n", entry->module_name);
+  }
+  if (power_manager_debug_requirement_em1 != NULL) {
+    printf("------------------------------------------\n");
   }
 }
 
@@ -154,8 +151,8 @@ void sli_power_manager_debug_log_em_requirement(sl_power_manager_em_t em,
                                                 const char            *name)
 {
 #if (SL_POWER_MANAGER_DEBUG == 1)
-  if (em != SL_POWER_MANAGER_EM0) {
-    power_manager_log_add_requirement(&power_manager_debug_requirement_em_table[em - 1], add, name);
+  if (em == SL_POWER_MANAGER_EM1) {
+    power_manager_log_add_requirement(&power_manager_debug_requirement_em1, add, name);
   }
 #else
   (void)em;

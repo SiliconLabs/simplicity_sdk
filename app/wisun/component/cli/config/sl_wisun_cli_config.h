@@ -70,6 +70,14 @@
 // <i> If enabled, App Status CLI functions are available
 #define SL_WISUN_APP_STATUS_CLI_ENABLED           1
 
+// <q SL_WISUN_RTT_LOGGER_CLI_ENABLED> Enable Wi-SUN RTT Logger component specific CLI functions
+// <i> If enabled, RTT Logger CLI functions are available
+#define SL_WISUN_RTT_LOGGER_CLI_ENABLED           1
+
+// <q SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED> Enable Wi-SUN trace level control specific CLI functions
+// <i> If enabled, trace level control CLI functions are available
+#define SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED  0
+
 // </h>
 
 // <<< end of configuration section >>>

@@ -1,5 +1,5 @@
 id: psa_se_driver
-package: platform
+package: security_mbedtls
 label: PSA SE Driver Source Code
 description: >-
   This component includes the Silicon Labs PSA SE drivers source code files.

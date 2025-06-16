@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Provides APIs for generating cryptographically-strong random numbers using radio hardware.
 label: Strong Random Api (Radio)
 id: zigbee_strong_random_api_radio

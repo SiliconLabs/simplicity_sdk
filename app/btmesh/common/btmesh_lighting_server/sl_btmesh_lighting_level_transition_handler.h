@@ -31,6 +31,11 @@
 #ifndef SL_BTMESH_LIGHTING_LEVEL_TRANSITION_H
 #define SL_BTMESH_LIGHTING_LEVEL_TRANSITION_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_lighting_server
+ * @{
+ ******************************************************************************/
+
 #define LED_STATE_OFF    0   /**< light off (both LEDs turned off) */
 #define LED_STATE_ON     1   /**< light on (both LEDs turned on) */
 #define LED_STATE_PROV   2   /**< provisioning (LEDs blinking) */
@@ -76,5 +81,14 @@ void sl_btmesh_lighting_level_pwm_cb(uint16_t level);
  * @param[in] lightness_level lightness level (0x0001 - FFFE)
  ******************************************************************************/
 void sl_btmesh_lighting_server_on_ui_update(uint16_t lightness_level);
+
+/***************************************************************************//**
+ * @brief Stop the lighting level transition timer.
+ *
+ * @return Status code indicating success or error.
+ ******************************************************************************/
+sl_status_t sl_btmesh_stop_transition_timer(void);
+
+/** @} (end addtogroup btmesh_lighting_server) */
 
 #endif // SL_BTMESH_LIGHTING_LEVEL_TRANSITION_H

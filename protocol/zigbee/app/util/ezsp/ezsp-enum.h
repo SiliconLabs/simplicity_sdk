@@ -341,9 +341,11 @@ enum {
   // The maximum number of NWK retries that will be attempted.
   SL_ZIGBEE_EZSP_VALUE_MAX_NWK_RETRIES          = 0x46,
   // Policies for allowing/disallowing rejoins.
-  SL_ZIGBEE_EZSP_VALUE_REJOIN_MODE              = 0x47
+  SL_ZIGBEE_EZSP_VALUE_REJOIN_MODE              = 0x47,
+  // Controls whether devices must use an install code when joining.
+  SL_ZIGBEE_EZSP_VALUE_JOIN_USE_INSTALL_CODE_ENABLE = 0x48
 };
-#define SL_ZIGBEE_EZSP_VALUE_ID_MAX  0x47
+#define SL_ZIGBEE_EZSP_VALUE_ID_MAX  0x48
 
 //------------------------------------------------------------------------------
 // Identifies a value based on specified characteristics. Each set of
@@ -362,9 +364,12 @@ enum {
   SL_ZIGBEE_EZSP_EXTENDED_VALUE_LAST_LEAVE_REASON = 0x01,
   // This number of bytes of overhead required in the network frame for source
   // routing to a particular destination.
-  SL_ZIGBEE_EZSP_EXTENDED_VALUE_GET_SOURCE_ROUTE_OVERHEAD = 0x02
+  SL_ZIGBEE_EZSP_EXTENDED_VALUE_GET_SOURCE_ROUTE_OVERHEAD = 0x02,
+  // These values are current or boot-time metrics gathered by the memory
+  // manager/buffer manager.
+  SL_ZIGBEE_EZSP_EXTENDED_VALUE_MEMORY_USAGE_DATA = 0x03
 };
-#define SL_ZIGBEE_EZSP_EXTENDED_VALUE_ID_MAX  0x02
+#define SL_ZIGBEE_EZSP_EXTENDED_VALUE_ID_MAX  0x03
 
 //------------------------------------------------------------------------------
 // Flags associated with the endpoint data configured on the NCP.
@@ -783,7 +788,7 @@ enum {
   SL_ZIGBEE_EZSP_READ_AND_CLEAR_COUNTERS        = 0x0065,
   SL_ZIGBEE_EZSP_READ_COUNTERS                  = 0x00F1,
   SL_ZIGBEE_EZSP_COUNTER_ROLLOVER_HANDLER       = 0x00F2,
-  SL_ZIGBEE_EZSP_MUX_INVALID_RX_HANDLER         = 0x005D,
+  SL_ZIGBEE_EZSP_MUX_INVALID_RX_HANDLER         = 0x0062,
   SL_ZIGBEE_EZSP_DELAY_TEST                     = 0x009D,
   SL_ZIGBEE_EZSP_GET_LIBRARY_STATUS             = 0x0001,
   SL_ZIGBEE_EZSP_GET_XNCP_INFO                  = 0x0013,
@@ -1066,6 +1071,8 @@ enum {
   SL_ZIGBEE_EZSP_GPEP_INCOMING_MESSAGE_HANDLER  = 0x00C5,
   SL_ZIGBEE_EZSP_GP_PROXY_TABLE_GET_ENTRY       = 0x00C8,
   SL_ZIGBEE_EZSP_GP_PROXY_TABLE_LOOKUP          = 0x00C0,
+  SL_ZIGBEE_EZSP_GP_PROXY_TABLE_REMOVE_ENTRY    = 0x005D,
+  SL_ZIGBEE_EZSP_GP_CLEAR_PROXY_TABLE           = 0x005F,
   SL_ZIGBEE_EZSP_GP_SINK_TABLE_GET_ENTRY        = 0x00DD,
   SL_ZIGBEE_EZSP_GP_SINK_TABLE_LOOKUP           = 0x00DE,
   SL_ZIGBEE_EZSP_GP_SINK_TABLE_SET_ENTRY        = 0x00DF,

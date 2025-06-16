@@ -87,6 +87,7 @@ sl_status_t sl_gpio_init()
 {
   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
 
+#if defined(SL_HAL_GPIO_IRQN_SUPPORTED)
   if (sl_interrupt_manager_is_irq_disabled(GPIO_ODD_IRQn)) {
     sl_interrupt_manager_clear_irq_pending(GPIO_ODD_IRQn);
     sl_interrupt_manager_enable_irq(GPIO_ODD_IRQn);
@@ -95,6 +96,7 @@ sl_status_t sl_gpio_init()
     sl_interrupt_manager_clear_irq_pending(GPIO_EVEN_IRQn);
     sl_interrupt_manager_enable_irq(GPIO_EVEN_IRQn);
   }
+#endif
 
   return SL_STATUS_OK;
 }
@@ -667,47 +669,46 @@ sl_status_t sl_gpio_set_pin_em4_retention(bool enable)
 /***************************************************************************//**
  * Sets slewrate for selected port.
  ******************************************************************************/
-sl_status_t sl_gpio_set_slew_rate(sl_gpio_port_t port,
+sl_status_t sl_gpio_set_slew_rate(const sl_gpio_t *gpio,
                                   uint8_t slewrate)
 {
+  sl_status_t status = SL_STATUS_OK;
   CORE_DECLARE_IRQ_STATE;
 
-  if (!SL_HAL_GPIO_PORT_IS_VALID(port)) {
-    EFM_ASSERT(false);
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  CORE_ENTER_ATOMIC();
-
-  sl_hal_gpio_set_slew_rate(port, slewrate);
-
-  CORE_EXIT_ATOMIC();
-  return SL_STATUS_OK;
-}
-
-/***************************************************************************//**
- * Gets slewrate for selected port.
- ******************************************************************************/
-sl_status_t sl_gpio_get_slew_rate(sl_gpio_port_t port,
-                                  uint8_t *slewrate)
-{
-  CORE_DECLARE_IRQ_STATE;
-
-  if (!SL_HAL_GPIO_PORT_IS_VALID(port)) {
-    EFM_ASSERT(false);
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-  if (slewrate == NULL) {
+  if (gpio == NULL) {
     EFM_ASSERT(false);
     return SL_STATUS_NULL_POINTER;
   }
 
   CORE_ENTER_ATOMIC();
 
-  *slewrate = sl_hal_gpio_get_slew_rate(port);
+  status = sl_hal_gpio_set_slew_rate(gpio, slewrate);
 
   CORE_EXIT_ATOMIC();
-  return SL_STATUS_OK;
+  return status;
+}
+
+/***************************************************************************//**
+ * Gets slewrate for selected port.
+ ******************************************************************************/
+sl_status_t sl_gpio_get_slew_rate(const sl_gpio_t *gpio,
+                                  uint8_t *slewrate)
+{
+  sl_status_t status = SL_STATUS_OK;
+  CORE_DECLARE_IRQ_STATE;
+
+  if (gpio == NULL || slewrate == NULL) {
+    EFM_ASSERT(false);
+    status = SL_STATUS_NULL_POINTER;
+  }
+
+  CORE_ENTER_ATOMIC();
+
+  status = sl_hal_gpio_get_slew_rate(gpio, slewrate);
+
+  CORE_EXIT_ATOMIC();
+
+  return status;
 }
 
 /***************************************************************************//**

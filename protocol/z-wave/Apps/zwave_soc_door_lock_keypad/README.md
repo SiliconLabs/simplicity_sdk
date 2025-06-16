@@ -86,7 +86,7 @@ The Basic Command Class is mapped according to the table below.
 | ----------------------------------- | ---------------------------------------------------|
 | Basic Set (Value)                   | Door Lock Operation Set (Door Lock Mode)           |
 | Basic Report (Current Value = 0x00) | Door Lock Operation Report (Door Lock Mode = 0x00) |
-| Basic Report (Current Value = 0xFF) | Door Lock Operation Set (Door Lock Mode)           |
+| Basic Report (Current Value = 0xFF) | Door Lock Operation Report (Door Lock Mode = 0xFF) |
 
 ## Association Groups
 
@@ -214,7 +214,9 @@ This section will describe backward compatibility when upgrading the Door Lock a
 
 ## CLI Support
 
-In case CLI support is needed pelase install zw_cli_common component to the project. Please note the zw_cli_common component will modify the power consumption in case of sleeping applications. Like door lock keypad, sensor pir or multilevel sensor. CLI cannot work with sleep mode, after a reset the application stays awake until the user issues the enable_sleeping command. From that point CLI won't work  and sleep mode will be reached until the next reset.
+In case CLI support is needed, please install zw_cli_common component to the project. Please note that the zw_cli_common component will modify the power consumption for every application.
+
+### Available CLI commands
 
 <table>
 <tr>
@@ -223,8 +225,13 @@ In case CLI support is needed pelase install zw_cli_common component to the proj
     <th>Description</th>
 </tr>
 <tr>
+    <th>help</th>
+    <th>-</th>
+    <th>Printing all supported CLI commands and their description.</th>
+</tr>
+<tr>
     <th>set_learn_mode</th>
-    <td></td>
+    <td>-</td>
     <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen, learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>
@@ -261,11 +268,6 @@ In case CLI support is needed pelase install zw_cli_common component to the proj
     <th>set_doorhandle_state</th>
     <td>State of the door handle as string. Possible values are deactivate and activate</td>
     <td>Updating the doorhandle state to locked or unlocked</td>
-</tr>
-<tr>
-    <th>sleeping</th>
-    <td>[string] "enable" or "disable"</td>
-    <td>Enable or disable sleeping. After pushing the reset button (or resetting with commander) the device will be awake for a given amount of time if the CLI component is added to the project. During this time the user can prevent the sleeping. For more information check the `zw_cli_sleeping` component.</td>
 </tr>
 <tr>
     <th>get_doorhandle_state</th>

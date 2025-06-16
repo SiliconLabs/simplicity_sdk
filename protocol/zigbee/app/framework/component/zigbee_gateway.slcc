@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Software that supports a CLI-based application running on a gateway-style device that has a POSIX compatible operating system. This component is NOT compatible with an system-on-a-chip (SoC) platform.
 label: Gateway Support
 quality: production

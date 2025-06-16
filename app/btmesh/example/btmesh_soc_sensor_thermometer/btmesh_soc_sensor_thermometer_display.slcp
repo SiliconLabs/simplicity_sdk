@@ -26,12 +26,13 @@ component:
   - id: bt_post_build
   - id: btmesh_factory_reset
   - id: btmesh_lpn
-  - id: btmesh_stack_gatt_prov_bearer
-  - id: btmesh_stack_relay
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
   - id: btmesh_sensor_server
+  - id: btmesh_stack_gatt_prov_bearer
+  - id: btmesh_stack_relay
   - id: btmesh_target_node
   - id: btmesh_iv_update
   - id: btmesh_wstk_lcd
@@ -40,7 +41,7 @@ component:
     - example
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: i2cspm
     instance:
       - sensor
@@ -50,7 +51,7 @@ component:
   - id: sensor_rht
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
@@ -58,7 +59,6 @@ source:
   - path: app_bm.c
   - path: app_out_lcd.c
   - path: local_cli_commands.c
-  - path: main.c
 
 include:
   - path: .
@@ -93,7 +93,7 @@ other_file:
 
 configuration:
   - name: EMDRV_DMADRV_DMA_CH_COUNT
-    value: 1
+    value: 2
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
   - name: NVM3_DEFAULT_CACHE_SIZE
@@ -140,6 +140,10 @@ template_contribution:
       help: "Prints info about BT address and mesh UUID"
     condition:
       - cli
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:sdid:!205

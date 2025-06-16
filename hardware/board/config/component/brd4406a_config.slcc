@@ -2,7 +2,7 @@
 - id: brd4406a_config
 - label: brd4406a config
 - description: Configuration files for BRD4406A
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: production
 - metadata:
@@ -116,34 +116,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd4406a_brd4001a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd4406a_brd4001a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd4406a_brd4001a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd4406a_brd4001a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd4406a_brd4001a/iot_uart_cfg_loopback.h
   - condition:
     - brd4001a
     override:
@@ -288,34 +260,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd4406a_brd4002a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd4406a_brd4002a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd4406a_brd4002a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd4406a_brd4002a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd4406a_brd4002a/iot_uart_cfg_loopback.h
   - condition:
     - brd4002a
     override:

@@ -71,7 +71,7 @@ void sl_wisun_app_core_util_project_info_init(const char * app_name)
     printf("[Project Info is not available]\n");
     return;
   }
-  
+
   _app_project_info.project_name = app_name;
 
   // print app name

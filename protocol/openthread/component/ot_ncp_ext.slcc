@@ -1,6 +1,6 @@
 id: ot_ncp_vendor_extension
 label: NCP Vendor Extensions
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component extends the behavior of the OpenThread NCP controller to allow the processing and handling of vendor defined Spinel attributes.

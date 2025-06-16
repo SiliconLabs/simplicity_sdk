@@ -13,8 +13,7 @@
 #include "cc_user_credential_io.h"
 #include "cc_user_credential_config_api.h"
 #include "cc_user_credential_io_config.h"
-#include "ZAF_Common_interface.h"
-#include "ZW_TransportSecProtocol.h"
+#include "cc_user_credential_tx.h"
 #include "assert.h"
 #include <string.h>
 
@@ -25,7 +24,7 @@
 /****************************************************************************/
 
 static bool is_identical_to_admin_pin_code(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options
   )
 {
   if (!cc_user_credential_get_admin_code_supported()) {
@@ -85,7 +84,7 @@ static bool is_identical_to_admin_pin_code(
  *
  * @return true if the Credential is valid
  */
-static bool validate_pin_code(u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+static bool validate_pin_code(u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   // If the Admin Code is supported, the PIN Code must not match the Admin Code
   // CC:0083.01.1A.13.005
@@ -124,8 +123,8 @@ static u3c_credential_type_validator_t u3c_credential_validator_functions[CREDEN
 /****************************************************************************/
 
 ZW_WEAK bool find_existing_credential(
-  const u3c_credential * const p_credential,
-  u3c_credential_metadata * p_existing_metadata)
+  const u3c_credential_t * const p_credential,
+  u3c_credential_metadata_t * p_existing_metadata)
 {
   // Iterate through each User
   uint16_t uuid = CC_UserCredential_get_next_user(0);
@@ -159,7 +158,7 @@ ZW_WEAK bool find_existing_credential(
   return false;
 }
 
-ZW_WEAK bool validate_credential_data(u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+ZW_WEAK bool validate_credential_data(u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (u3c_credential_validator_functions[p_credential->metadata.type]) {
     return (
@@ -178,7 +177,7 @@ ZW_WEAK bool validate_associated_uuid(
 }
 
 ZW_WEAK bool validate_new_credential_metadata(
-  const u3c_credential_metadata * const p_metadata)
+  const u3c_credential_metadata_t * const p_metadata)
 {
   if (!p_metadata) {
     assert(false);
@@ -205,7 +204,7 @@ ZW_WEAK bool validate_new_credential_metadata(
 }
 
 ZW_WEAK bool validate_new_credential_data(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   // Valiate the credential data against the rules in the specification
   if (!validate_credential_data(p_credential, p_rx_options)) {
@@ -213,7 +212,7 @@ ZW_WEAK bool validate_new_credential_data(
   }
 
   // CC:0083.01.0A.11.018: no duplicate credentials within a Credential Type
-  u3c_credential existing_credential = {
+  u3c_credential_t existing_credential = {
     .metadata = { 0 },
     .data = p_credential->data
   };
@@ -254,14 +253,12 @@ ZW_WEAK bool validate_new_credential_data(
   return true;
 }
 
-ZW_WEAK bool validate_admin_pin_code(u3c_admin_code_metadata_t * data)
+ZW_WEAK bool validate_admin_pin_code(u3c_admin_code_metadata_t * const data)
 {
   /**
    * CC:0083.01.1A.13.004 - Ensure that the pin code provided is different than the existing one
    */
   u3c_admin_code_metadata_t current_code = { 0 };
-  uint8_t temp_code[AC_MAX_LENGTH] = { 0 };
-  current_code.code_data = (uint8_t*)temp_code;
 
   if (U3C_DB_OPERATION_RESULT_SUCCESS
       == CC_UserCredential_get_admin_code_info(&current_code)) {
@@ -276,7 +273,7 @@ ZW_WEAK bool validate_admin_pin_code(u3c_admin_code_metadata_t * data)
   }
 
   // Temporary credential wrapper
-  u3c_credential credential = {
+  u3c_credential_t credential = {
     .data = data->code_data,
     .metadata = {
       .length = data->code_length,
@@ -287,7 +284,7 @@ ZW_WEAK bool validate_admin_pin_code(u3c_admin_code_metadata_t * data)
   /**
    * CC:0083.01.1A.13.005 - Ensure that there is not a duplicate PIN code in the database
    */
-  u3c_credential_metadata existing_credential = { 0 };
+  u3c_credential_metadata_t existing_credential = { 0 };
   if (find_existing_credential(&credential, &existing_credential)) {
     data->result = ADMIN_CODE_OPERATION_RESULT_FAIL_DUPLICATE_CRED;
     return false;
@@ -297,24 +294,6 @@ ZW_WEAK bool validate_admin_pin_code(u3c_admin_code_metadata_t * data)
    * CC:0083.01.1A.11.011 - Check manufacturer and application specific requirements
    */
   return CC_UserCredential_manufacturer_validate_admin_pin_code(data);
-}
-
-ZW_WEAK bool is_rx_frame_initiated_locally(const RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
-{
-  return p_rx_options->destNode.nodeId == 0 || p_rx_options->sourceNode.nodeId == 0;
-}
-
-ZW_WEAK void fill_rx_frame_with_local(RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
-{
-  /**
-   * If an operation was initiated locally, there is no incoming
-   * frame to parse the receive options from.
-   * Use the Controller's ID as the source and the node's own ID as the
-   * destination.
-   */
-  p_rx_options->sourceNode.nodeId = ZAF_GetSucNodeId();
-  p_rx_options->destNode.nodeId = ZAF_GetNodeID();
-  p_rx_options->securityKey = GetHighestSecureLevel(ZAF_GetSecurityKeys());
 }
 
 ZW_WEAK bool validate_user_name_encoding(const uint8_t * p_name, uint8_t p_name_length, u3c_user_name_encoding p_name_encoding)

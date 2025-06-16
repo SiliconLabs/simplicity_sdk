@@ -14,8 +14,7 @@
 #include <ZW_TransportLayer.h>
 #include <string.h>
 #include <assert.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include <ZAF_TSE.h>
 #include <CC_Supervision.h>
 #include "cc_multilevel_switch_support_io.h"
@@ -46,12 +45,12 @@ static cc_multilevel_switch_t * mp_switches;
 static uint8_t m_switch_count;
 
 static void CC_MultilevelSwitch_report_stx(
-    zaf_tx_options_t *tx_options,
-    void * p_switch);
+  zaf_tx_options_t *tx_options,
+  void * p_switch);
 static e_cmd_handler_return_code_t cc_multilevel_switch_set_handler(
-    uint8_t value,
-    uint8_t duration,
-    uint8_t endpoint);
+  uint8_t value,
+  uint8_t duration,
+  uint8_t endpoint);
 
 /**
  * Return index of color given by colorId in the array s_colorComponents
@@ -65,10 +64,8 @@ static cc_multilevel_switch_t * find_switch_by_endpoint(uint8_t endpoint)
   assert(NULL != mp_switches);
   assert(0 != m_switch_count);
   cc_multilevel_switch_t * p_switch = mp_switches;
-  for(uint8_t i = 0; i < m_switch_count; i++, p_switch++)
-  {
-    if (endpoint == p_switch->endpoint)
-    {
+  for (uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
+    if (endpoint == p_switch->endpoint) {
       return p_switch;
     }
   }
@@ -80,7 +77,7 @@ static int16_t find_switch_index_by_actuator(s_Actuator * p_actuator)
   assert(NULL != mp_switches);
   assert(0 != m_switch_count);
   cc_multilevel_switch_t * p_switch = mp_switches;
-  for(uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
+  for (uint8_t i = 0; i < m_switch_count; i++, p_switch++) {
     if (p_actuator == &p_switch->actuator) {
       return i;
     }
@@ -93,17 +90,17 @@ static void actuator_callback(s_Actuator * p_actuator)
   cc_multilevel_switch_t * p_switch;
   int16_t multilevel_component_id;
 
-  DPRINT("\nactuator_callback()");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_MULTILEVEL_SWITCH, "\nactuator_callback()");
   multilevel_component_id = find_switch_index_by_actuator(p_actuator);
   p_switch = &mp_switches[multilevel_component_id];
 
   cc_multilevel_switch_support_cb(p_switch);
   if (ZAF_Actuator_GetCurrentValue(p_actuator) == ZAF_Actuator_GetTargetValue(p_actuator)) {
     cc_multilevel_switch_write((uint8_t) multilevel_component_id, p_switch);
-    DPRINT("\nCurrent value == Target value");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_MULTILEVEL_SWITCH, "\nCurrent value == Target value");
     // Reached the final value => Trigger True Status
     if (!ZAF_TSE_Trigger(CC_MultilevelSwitch_report_stx, (void *)p_switch, true)) {
-      DPRINT("\nTSE fail");
+      ZPAL_LOG_WARNING(ZPAL_LOG_CC_MULTILEVEL_SWITCH, "\nTSE fail");
     }
 
     if (p_switch->rxOpt.bSupervisionActive && p_switch->rxOpt.statusUpdate && !is_multicast(&p_switch->rxOpt)) {
@@ -114,7 +111,7 @@ static void actuator_callback(s_Actuator * p_actuator)
                                     p_switch->rxOpt.sessionId, // This is last status update, no need to set anything.
                                     CC_SUPERVISION_STATUS_SUCCESS,
                                     0); // durationRemaining should always be 0 at this point
-      DPRINTF("\n%s: TX Supervision Report", __func__);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_MULTILEVEL_SWITCH, "\n%s: TX Supervision Report", __func__);
     }
 
     zaf_event_distributor_enqueue_cc_event(
@@ -135,13 +132,12 @@ static void init_and_reset(bool force_write)
   min_value = cc_multilevel_switch_get_min_value();
   max_value = cc_multilevel_switch_get_max_value();
 
-  for (uint8_t i = 0; i < m_switch_count; i++)
-  {
+  for (uint8_t i = 0; i < m_switch_count; i++) {
     // Set the rxStatus to Multicast to prevent True Status
     mp_switches[i].rxOpt.rxStatus = RECEIVE_STATUS_TYPE_MULTI;
     ZAF_Actuator_Init(&(mp_switches[i].actuator), min_value, max_value, 20, default_duration, actuator_callback);
     ZAF_Actuator_Set(&(mp_switches[i].actuator), max_value, 0);
-    if(force_write || !cc_multilevel_switch_read(i, &mp_switches[i])) {
+    if (force_write || !cc_multilevel_switch_read(i, &mp_switches[i])) {
       cc_multilevel_switch_write((uint8_t) i, &mp_switches[i]);
     }
   }
@@ -158,17 +154,15 @@ static void reset(void)
 }
 
 static received_frame_status_t CC_MultilevelSwitch_handler(
-    cc_handler_input_t * input,
-    cc_handler_output_t * output)
+  cc_handler_input_t * input,
+  cc_handler_output_t * output)
 {
   e_cmd_handler_return_code_t return_code;
 
-  switch (input->frame->ZW_Common.cmd)
-  {
+  switch (input->frame->ZW_Common.cmd) {
     case SWITCH_MULTILEVEL_GET:
 
-      if (true == Check_not_legal_response_job(input->rx_options))
-      {
+      if (true == Check_not_legal_response_job(input->rx_options)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -214,12 +208,11 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
       }
 
       return_code = cc_multilevel_switch_set_handler(input->frame->ZW_SwitchMultilevelSetV3Frame.value,
-                                       input->frame->ZW_SwitchMultilevelSetV3Frame.duration,
-                                       input->rx_options->destNode.endpoint);
+                                                     input->frame->ZW_SwitchMultilevelSetV3Frame.duration,
+                                                     input->rx_options->destNode.endpoint);
 
       if (E_CMD_HANDLER_RETURN_CODE_WORKING == return_code
           && p_switch->rxOpt.bSupervisionActive && !is_multicast(&p_switch->rxOpt)) {
-
         output->duration =  ZAF_Actuator_GetDurationRemaining(&p_switch->actuator);
         return RECEIVED_FRAME_STATUS_WORKING;
       } else if (E_CMD_HANDLER_RETURN_CODE_FAIL == return_code) {
@@ -228,7 +221,7 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
         // Do nothing. The CC handler returns success per default.
       }
     }
-      break;
+    break;
 
     case SWITCH_MULTILEVEL_START_LEVEL_CHANGE:
     {
@@ -237,7 +230,7 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
       }
 
       ZW_SWITCH_MULTILEVEL_START_LEVEL_CHANGE_V4_FRAME * p_frame =
-            (ZW_SWITCH_MULTILEVEL_START_LEVEL_CHANGE_V4_FRAME *)input->frame;
+        (ZW_SWITCH_MULTILEVEL_START_LEVEL_CHANGE_V4_FRAME *)input->frame;
 
       bool ignore_start_level = (0 != (p_frame->properties1 & SWITCH_MULTILEVEL_START_LEVEL_CHANGE_LEVEL_IGNORE_START_LEVEL_BIT_MASK));
       cc_multilevel_switch_t * p_switch = find_switch_by_endpoint(input->rx_options->destNode.endpoint);
@@ -254,28 +247,21 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
       if (input->length == 6) {
         // Version 3
 
-        if (!(input->frame->ZW_SwitchMultilevelStartLevelChangeV3Frame.properties1&
-            SWITCH_MULTILEVEL_START_LEVEL_CHANGE_PROPERTIES1_UP_DOWN_MASK_V3))
-        {
+        if (!(input->frame->ZW_SwitchMultilevelStartLevelChangeV3Frame.properties1
+              & SWITCH_MULTILEVEL_START_LEVEL_CHANGE_PROPERTIES1_UP_DOWN_MASK_V3)) {
           direction = DIRECTION_UP;
-        }
-        else if  ((input->frame->ZW_SwitchMultilevelStartLevelChangeV3Frame.properties1 &
-            SWITCH_MULTILEVEL_START_LEVEL_CHANGE_PROPERTIES1_UP_DOWN_MASK_V3) > 0x40)
-        {
+        } else if ((input->frame->ZW_SwitchMultilevelStartLevelChangeV3Frame.properties1
+                    & SWITCH_MULTILEVEL_START_LEVEL_CHANGE_PROPERTIES1_UP_DOWN_MASK_V3) > 0x40) {
           /*We should ignore the frame if the  up/down primary switch bit field value is either reserved or no up/down motion*/
           break;
         }
-      }
-      else
-      {
-        if (input->length == 4) /*version 1*/
-        {
+      } else {
+        if (input->length == 4) { /*version 1*/
           // Use the default duration set by the application when CC version doesn't support it.
           input->frame->ZW_SwitchMultilevelStartLevelChangeV3Frame.dimmingDuration = 0xFF;
         }
         if (!(input->frame->ZW_SwitchMultilevelStartLevelChangeFrame.level
-            & SWITCH_MULTILEVEL_START_LEVEL_CHANGE_LEVEL_UP_DOWN_BIT_MASK))
-        {
+              & SWITCH_MULTILEVEL_START_LEVEL_CHANGE_LEVEL_UP_DOWN_BIT_MASK)) {
           direction = DIRECTION_UP;
         }
       }
@@ -294,14 +280,13 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
       p_switch->rxOpt.bSupervisionActive = 0;
 
       zaf_event_distributor_enqueue_cc_event(
-        COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_START_LEVEL_CHANGE , (void *)p_switch);
+        COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_START_LEVEL_CHANGE, (void *)p_switch);
     }
     break;
 
     case SWITCH_MULTILEVEL_STOP_LEVEL_CHANGE:
     {
-      if (2 != input->length)
-      {
+      if (2 != input->length) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -315,13 +300,12 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
         ZAF_TSE_Trigger(CC_MultilevelSwitch_report_stx, (void *)p_switch, true);
 
         zaf_event_distributor_enqueue_cc_event(
-          COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_STOP_LEVEL_CHANGE , (void *)p_switch);
+          COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_STOP_LEVEL_CHANGE, (void *)p_switch);
       }
     }
-      break;
+    break;
     case SWITCH_MULTILEVEL_SUPPORTED_GET_V3:
-      if(Check_not_legal_response_job(input->rx_options))
-      {
+      if (Check_not_legal_response_job(input->rx_options)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -343,10 +327,10 @@ static received_frame_status_t CC_MultilevelSwitch_handler(
   return RECEIVED_FRAME_STATUS_SUCCESS;
 }
 
-static void 
+static void
 CC_MultilevelSwitch_report_stx(zaf_tx_options_t *tx_options, void* p_switch)
 {
-  DPRINT("\nCC_MultilevelSwitch_report_stx()");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_MULTILEVEL_SWITCH, "\nCC_MultilevelSwitch_report_stx()");
   /* Prepare payload for report */
   cc_multilevel_switch_t *p_switch_data = (cc_multilevel_switch_t *)p_switch;
 
@@ -464,7 +448,7 @@ void cc_multilevel_switch_start_level_change(cc_multilevel_switch_t * p_switch,
                            duration);
 
   zaf_event_distributor_enqueue_cc_event(
-    COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_START_LEVEL_CHANGE , (void *)p_switch);
+    COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_START_LEVEL_CHANGE, (void *)p_switch);
 }
 
 void cc_multilevel_switch_set_level(cc_multilevel_switch_t * p_switch,
@@ -488,7 +472,7 @@ void cc_multilevel_switch_stop_level_change(cc_multilevel_switch_t * p_switch)
     ZAF_TSE_Trigger(CC_MultilevelSwitch_report_stx, (void *)p_switch, false);
 
     zaf_event_distributor_enqueue_cc_event(
-      COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_STOP_LEVEL_CHANGE , (void *)p_switch);
+      COMMAND_CLASS_SWITCH_MULTILEVEL, CC_MULTILEVEL_SWITCH_EVENT_STOP_LEVEL_CHANGE, (void *)p_switch);
   }
 }
 

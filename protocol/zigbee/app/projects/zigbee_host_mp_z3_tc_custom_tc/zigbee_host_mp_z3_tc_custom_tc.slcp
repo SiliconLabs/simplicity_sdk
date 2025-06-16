@@ -1,6 +1,6 @@
 project_name: zigbee_host_mp_z3_tc_custom_tc
 label: Zigbee - Host MpZ3TcCustomTc
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: production
 
@@ -9,6 +9,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -44,6 +45,7 @@ include:
   - path: ./
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -86,11 +88,11 @@ configuration:
     value: sl_iostream_get_default()
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_gatt_server"
 label: "GATT Server"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   GATT Server feature
 

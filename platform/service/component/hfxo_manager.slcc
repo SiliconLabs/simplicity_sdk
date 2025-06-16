@@ -1,12 +1,12 @@
 id: hfxo_manager
-label: "HFXO Manager"
-package: platform
+label: HFXO Manager
+package: platform_core
 description: HFXO Manager - Manager for the High Frequency Crystal Oscillator
 category: Services|Clocks
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 config_file:
   - path: platform/service/hfxo_manager/config/sl_hfxo_manager_config.h
 source:
@@ -29,15 +29,15 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_hfxo_manager.h
-      handler: sl_hfxo_manager_init_hardware
+        event: platform_init
+        include: sl_hfxo_manager.h
+        handler: sl_hfxo_manager_init_hardware
     priority: -9675
   - name: event_handler
     value:
-      event: service_init
-      include: sl_hfxo_manager.h
-      handler: sl_hfxo_manager_init
+        event: service_init
+        include: sl_hfxo_manager.h
+        handler: sl_hfxo_manager_init
     priority: -5
   - name: component_catalog
     value: hfxo_manager
@@ -46,5 +46,5 @@ conflicts:
 validation_helper:
   - path: platform/service/hfxo_manager/hfxo_manager_validation.lua
 documentation:
-  docset: gecko-platform
-  document: platform-service/hfxo-manager
+    docset: gecko-platform
+    document: platform-service/hfxo-manager

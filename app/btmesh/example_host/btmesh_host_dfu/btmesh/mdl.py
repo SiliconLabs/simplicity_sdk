@@ -197,7 +197,7 @@ class NamedModelID(enum.Enum):
     @classmethod
     def get_id_by_name(cls, name, ignore_case=True):
         name = name.upper() if ignore_case else name
-        return cls.__members__[name.upper()]
+        return cls.__members__[name]
 
     @property
     def pretty_name(self):

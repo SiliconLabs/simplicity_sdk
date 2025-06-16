@@ -1,6 +1,6 @@
 id: "btmesh_stack_scene_server"
 label: "Scene Server Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Scene Server model.
   This model holds a list of scenes, and exposes the functionality for storing and recalling the state of these scenes.
   It is used to support the control and reporting functionality of a node that can participate in a scene."

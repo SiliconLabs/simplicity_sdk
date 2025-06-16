@@ -1,6 +1,6 @@
 id: ot_ncp_source
 label: NCP
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides both the NCP and RCP support for the OpenThread stack. It requires that an OpenThread stack component be included with the project. If no OpenThread stack component is chosen, it will default to using the OpenThread stack for a Full Thread Device (FTD). Currently, the NCP suport is experimental and the RCP support is production quaility.
@@ -13,6 +13,9 @@ recommends:
 root_path: util/third_party/openthread/src
 include:
   - path: .
+  - path: cli
+    file_list:
+      - path: cli_config.h
   - path: ncp
     file_list:
       - path: changed_props_set.hpp
@@ -46,7 +49,6 @@ include:
     file_list:
       - path: endian.hpp
       - path: math.hpp
-      - path: utils.hpp
 source:
       - path: ../examples/apps/ncp/ncp.c
         unless:
@@ -75,7 +77,18 @@ source:
 define:
   - name: SPINEL_PLATFORM_HEADER
     value: "\"spinel_platform.h\""
+  - name: OPENTHREAD_PROJECT_LIB_CONFIG_FILE
+    value: "\"sl_openthread_features_config.h\""
+    unless: [ot_stack_full]
+  - name: OPENTHREAD_PROJECT_LIB_CONFIG_FILE
+    value: "\"sl_openthread_features_ncp_config.h\""
+    condition: [ot_stack_full]
   - name: _GNU_SOURCE
+toolchain_settings:
+  - option: gcc_compiler_option
+    value: "-fno-strict-aliasing"
+    condition:
+      - toolchain_lto
 template_contribution:
   - name: component_catalog
     value: openthread_ncp

@@ -33,16 +33,10 @@ component:
       - vcom
   - id: mpu
   - id: rail_util_pti
-  - id: sl_system
-  
+  - id: sl_main
+
 source:
   - path: app.c
-  - path: main.c
-
-include:
-  - path: .
-    file_list:
-    - path: app.h
 
 config_file:
   - override:
@@ -84,6 +78,10 @@ configuration:
       - psa_crypto
   - name: SL_STACK_SIZE
     value: "0x1000"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:flash:512

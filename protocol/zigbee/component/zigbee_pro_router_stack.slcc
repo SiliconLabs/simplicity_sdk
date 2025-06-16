@@ -1,6 +1,6 @@
 id: zigbee_pro_router_stack
 label: Pro Router Stack (Common)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: evaluation
 description: The main Zigbee PRO Stack component for routers only for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.  It includes stubs for code only needed on end devices or coordinators.

@@ -3,7 +3,7 @@
  * @brief Debug trace.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -33,8 +33,9 @@
 
 #include "sl_component_catalog.h"
 #include "app_log.h"
+#include "app_config.h"
 
-#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT) && defined(SL_CATALOG_BGAPI_TRACE_PRESENT)
+#if defined(SL_CATALOG_BGAPI_TRACE_PRESENT) && CS_INITIATOR_UART_LOG
 #include "sl_iostream.h"
 #include "sl_iostream_handles.h"
 // Forward messages to 2 iostream instances.
@@ -58,10 +59,5 @@
  * Initialize debug trace.
  *****************************************************************************/
 void trace_init(void);
-
-/**************************************************************************//**
- * Debug trace task.
- *****************************************************************************/
-void trace_step(void);
 
 #endif // TRACE_H

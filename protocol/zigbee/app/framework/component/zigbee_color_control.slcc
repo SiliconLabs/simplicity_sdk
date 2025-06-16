@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Legacy Ember implementation of color control cluster.  This only implements manipulation of HUE and saturation, and does not implement the CIE 1931 color standard.
 id: zigbee_color_control
 label: Color Control Cluster (deprecated)

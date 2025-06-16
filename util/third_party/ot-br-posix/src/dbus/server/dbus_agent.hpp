@@ -48,7 +48,7 @@
 #include "dbus/server/dbus_object.hpp"
 #include "dbus/server/dbus_thread_object_ncp.hpp"
 #include "dbus/server/dbus_thread_object_rcp.hpp"
-#include "ncp/thread_host.hpp"
+#include "host/thread_host.hpp"
 
 namespace otbr {
 namespace DBus {
@@ -59,15 +59,14 @@ public:
     /**
      * The constructor of dbus agent.
      *
-     * @param[in] aHost           A reference to the Thread host.
-     * @param[in] aPublisher      A reference to the MDNS publisher.
+     * @param[in]  aDeps   A reference to the DBus server dependent components.
      */
-    DBusAgent(otbr::Ncp::ThreadHost &aHost, Mdns::Publisher &aPublisher);
+    DBusAgent(const DependentComponents &aDeps);
 
     /**
      * This method initializes the dbus agent.
      */
-    void Init(otbr::BorderAgent &aBorderAgent);
+    void Init(void);
 
     void Update(MainloopContext &aMainloop) override;
     void Process(const MainloopContext &aMainloop) override;
@@ -87,8 +86,7 @@ private:
     std::string                 mInterfaceName;
     std::unique_ptr<DBusObject> mThreadObject;
     UniqueDBusConnection        mConnection;
-    otbr::Ncp::ThreadHost      &mHost;
-    Mdns::Publisher            &mPublisher;
+    DependentComponents         mDeps;
 
     /**
      * This map is used to track DBusWatch-es.

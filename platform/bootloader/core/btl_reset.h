@@ -20,7 +20,12 @@
 #include "core/btl_util.h"
 
 MISRAC_DISABLE
+#include "em_device.h"
+#if defined (_SILICON_LABS_32B_SERIES_3)
+#include "sl_common.h"
+#else
 #include "em_common.h"
+#endif
 MISRAC_ENABLE
 
 /***************************************************************************//**

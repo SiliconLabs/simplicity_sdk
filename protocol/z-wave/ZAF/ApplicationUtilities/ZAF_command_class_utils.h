@@ -17,7 +17,6 @@
  * @{
  */
 
-
 /**
  * Returns whether a given command is supported based on command class lists and different rules.
  *
@@ -38,7 +37,6 @@ CmdClassSupported(security_key_t eKey,
                   uint8_t securelistLen,
                   uint8_t* pNonSecurelist,
                   uint8_t nonSecurelistLen);
-
 
 /**
  * @} // CC_UTILS

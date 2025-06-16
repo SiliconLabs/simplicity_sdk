@@ -61,7 +61,7 @@ void autoAckConfig(sl_cli_command_arg_t *args)
   RAIL_TransitionTime_t timing;
   RAIL_StateTiming_t timings = { 0U, };
 
-  timing = (RAIL_TransitionTime_t)sl_cli_get_argument_uint16(args, 1);
+  timing = (RAIL_TransitionTime_t)sl_cli_get_argument_uint32(args, 1);
   if (timing > RAIL_MAXIMUM_TRANSITION_US) {
     responsePrintError(sl_cli_get_command_string(args, 0), 0x21, "Invalid idle timing.");
     return;
@@ -70,7 +70,7 @@ void autoAckConfig(sl_cli_command_arg_t *args)
     timings.idleToRx = timing;
   }
 
-  timing = (RAIL_TransitionTime_t)sl_cli_get_argument_uint16(args, 2);
+  timing = (RAIL_TransitionTime_t)sl_cli_get_argument_uint32(args, 2);
   if (timing > RAIL_MAXIMUM_TRANSITION_US) {
     responsePrintError(sl_cli_get_command_string(args, 0), 0x22, "Invalid turnaround timing");
     return;

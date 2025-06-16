@@ -18,8 +18,26 @@ extern const sli_bt_gattdb_t gattdb;
 #define gattdb_manufacturer_name_string       16
 #define gattdb_system_id                      18
 #define gattdb_ras                            19
-#define gattdb_ras_control_point              21
-#define gattdb_ras_procedure_enable_data      24
-#define gattdb_ras_subevent_ranging_data      27
+#define gattdb_ras_features                   21
+#define gattdb_ras_real_time_ranging_data     23
+#define gattdb_ras_real_time_cccd             24
+#define gattdb_ras_on_demand_ranging_data     26
+#define gattdb_ras_on_demand_cccd             27
+#define gattdb_ras_cp                         29
+#define gattdb_ras_cp_cccd                    30
+#define gattdb_ras_ranging_data_ready         32
+#define gattdb_ras_ranging_data_ready_cccd    33
+#define gattdb_ras_ranging_data_overwritten   35
+#define gattdb_ras_ranging_data_overwritten_cccd 36
+
+#define gattdb_generic_attribute_len          2
+#define gattdb_service_changed_char_len       4
+#define gattdb_database_hash_len              16
+#define gattdb_client_support_features_len    1
+#define gattdb_device_name_len                8
+#define gattdb_device_information_len         2
+#define gattdb_manufacturer_name_string_len   12
+#define gattdb_system_id_len                  8
+#define gattdb_ras_len                        2
 
 #endif // __GATT_DB_H

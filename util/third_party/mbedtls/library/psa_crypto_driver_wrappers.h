@@ -122,6 +122,7 @@
 #define SLI_CRYPTOACC_TRANSPARENT_DRIVER_ID (6)
 #define SLI_CRYPTO_TRANSPARENT_DRIVER_ID (7)
 #define SLI_HOSTCRYPTO_TRANSPARENT_DRIVER_ID (8)
+#define SLI_CRYPTO_SI91X_DRIVER_ID (9)
 #endif
 
 /* END-driver id */
@@ -2003,6 +2004,18 @@ static inline psa_status_t psa_driver_wrapper_cipher_encrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+            status = sli_si91x_crypto_cipher_encrypt_setup(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx,
+                        attributes,
+                        key_buffer,
+                        key_buffer_size,
+                        alg );
+            if( status == PSA_SUCCESS )
+                operation->id = SLI_CRYPTO_SI91X_DRIVER_ID;
+            if( status != PSA_ERROR_NOT_SUPPORTED )
+                return( status );
+#endif /* SLI_CIPHER_DEVICE_SI91X */
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
 
 #if defined(MBEDTLS_PSA_BUILTIN_CIPHER)
@@ -2165,6 +2178,18 @@ static inline psa_status_t psa_driver_wrapper_cipher_decrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+            status = sli_si91x_crypto_cipher_decrypt_setup(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx,
+                        attributes,
+                        key_buffer,
+                        key_buffer_size,
+                        alg );
+            if( status == PSA_SUCCESS )
+                operation->id = SLI_CRYPTO_SI91X_DRIVER_ID;
+            if( status != PSA_ERROR_NOT_SUPPORTED )
+                return( status );
+#endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
 
 #if defined(MBEDTLS_PSA_BUILTIN_CIPHER)
@@ -2305,6 +2330,12 @@ static inline psa_status_t psa_driver_wrapper_cipher_set_iv(
                         &operation->ctx.sli_se_opaque_ctx,
                         iv, iv_length ) );
 #endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+        case SLI_CRYPTO_SI91X_DRIVER_ID:
+            return( sli_si91x_crypto_cipher_set_iv(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx,
+                        iv, iv_length ) );
+#endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
     }
 
@@ -2383,6 +2414,13 @@ static inline psa_status_t psa_driver_wrapper_cipher_update(
                         input, input_length,
                         output, output_size, output_length ) );
 #endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+        case SLI_CRYPTO_SI91X_DRIVER_ID:
+            return( sli_si91x_crypto_cipher_update(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx,
+                        input, input_length,
+                        output, output_size, output_length ) );
+#endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
     }
 
@@ -2453,6 +2491,12 @@ static inline psa_status_t psa_driver_wrapper_cipher_finish(
                         &operation->ctx.sli_se_opaque_ctx,
                         output, output_size, output_length ) );
 #endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+        case SLI_CRYPTO_SI91X_DRIVER_ID:
+            return( sli_si91x_crypto_cipher_finish(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx,
+                        output, output_size, output_length ) );
+#endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
     }
 
@@ -2517,6 +2561,11 @@ static inline psa_status_t psa_driver_wrapper_cipher_abort(
         case SLI_SE_OPAQUE_DRIVER_ID:
             return( sli_se_opaque_cipher_abort(
                         &operation->ctx.sli_se_opaque_ctx ) );
+#endif
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+        case SLI_CRYPTO_SI91X_DRIVER_ID:
+            return( sli_si91x_crypto_cipher_abort(
+                        &operation->ctx.sli_si91x_crypto_cipher_ctx  ) );
 #endif
 #endif /* PSA_CRYPTO_ACCELERATOR_DRIVER_PRESENT */
     }

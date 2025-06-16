@@ -12,7 +12,6 @@
 #include <ZW_basis_api.h>
 #include <NodeMask.h>
 
-
 /**
  * @addtogroup ZWaveAPI
  * @{
@@ -21,10 +20,9 @@
  */
 
 /* Mode parameters to ZW_AddNodeToNetwork */
-typedef enum _ADD_NODE_MODE_
-{
+typedef enum _ADD_NODE_MODE_{
   ADD_NODE_ANY = 1,
-  ADD_NODE_CONTROLLER ,
+  ADD_NODE_CONTROLLER,
   ADD_NODE_SLAVE,
   ADD_NODE_EXISTING,
   ADD_NODE_STOP,
@@ -35,15 +33,13 @@ typedef enum _ADD_NODE_MODE_
   ADD_NODE_MAX
 } ADD_NODE_MODE;
 
-typedef enum _REMOVE_NODE_MODE_
-{
+typedef enum _REMOVE_NODE_MODE_{
   REMOVE_NODE_ANY = ADD_NODE_ANY,
   REMOVE_NODE_CONTROLLER = ADD_NODE_CONTROLLER,
   REMOVE_NODE_SLAVE = ADD_NODE_SLAVE,
   REMOVE_NODE_STOP = ADD_NODE_STOP,
   REMOVE_NODE_MAX = REMOVE_NODE_STOP + 1
 } REMOVE_NODE_MODE;
-
 
 #define ADD_NODE_MODE_MASK                   0x0F
 #define ADD_NODE_OPTION_NORMAL_POWER         0x80
@@ -114,7 +110,6 @@ typedef enum _REMOVE_NODE_MODE_
 #define NEIGHBORS_ID_INVALID          0xFE
 #define NEIGHBORS_COUNT_FAILED        0xFF  /* Could not access routing info try again later */
 
-
 /* ZW_RemoveFailedNode and ZW_ReplaceFailedNode return value definitions */
 #define  NOT_PRIMARY_CONTROLLER             1 /* The removing process was */
                                               /* aborted because the controller */
@@ -148,7 +143,6 @@ typedef enum _REMOVE_NODE_MODE_
 #define ZW_FAILED_NODE_REPLACE_DONE         4 /* The failed node has been replaced */
 #define ZW_FAILED_NODE_REPLACE_FAILED       5 /* The failed node has not been replaced */
 
-
 /* ZW_RequestNetworkUpdate callback values*/
 #define ZW_SUC_UPDATE_DONE      0x00
 #define ZW_SUC_UPDATE_ABORT     0x01
@@ -164,15 +158,14 @@ typedef enum _REMOVE_NODE_MODE_
 
 /* Defines for ZW_GetControllerCapabilities */
 
-typedef struct __attribute__((packed)) _CONTROLLER_CONFIGURATION_
-{
-  uint8_t  controller_is_secondary:1;
-  uint8_t  controller_on_other_network:1;
-  uint8_t  controller_nodeid_server_present:1;
-  uint8_t  controller_is_real_primary:1;
-  uint8_t  controller_is_suc:1;
-  uint8_t  no_nodes_included:1;
-  uint8_t  reserved:2;
+typedef struct __attribute__((packed)) _CONTROLLER_CONFIGURATION_ {
+  uint8_t  controller_is_secondary : 1;
+  uint8_t  controller_on_other_network : 1;
+  uint8_t  controller_nodeid_server_present : 1;
+  uint8_t  controller_is_real_primary : 1;
+  uint8_t  controller_is_suc : 1;
+  uint8_t  no_nodes_included : 1;
+  uint8_t  reserved : 2;
 } CONTROLLER_CONFIGURATION;
 
 /* Z-Wave RF speed definitions */
@@ -180,7 +173,7 @@ typedef struct __attribute__((packed)) _CONTROLLER_CONFIGURATION_
 #define ZW_RF_SPEED_9600                        0x0001
 #define ZW_RF_SPEED_40K                         0x0002
 #define ZW_RF_SPEED_100K                        0x0003
-#define ZW_RF_SPEED_100KLR						          0x0004
+#define ZW_RF_SPEED_100KLR                      0x0004
 #define ZW_RF_SPEED_MASK                        0x0007
 
 /* Z-Wave Long Range Channel */
@@ -195,7 +188,7 @@ typedef struct __attribute__((packed)) _CONTROLLER_CONFIGURATION_
 #define ZW_GET_ROUTING_INFO_9600                ZW_RF_SPEED_9600
 #define ZW_GET_ROUTING_INFO_40K                 ZW_RF_SPEED_40K
 #define ZW_GET_ROUTING_INFO_100K                ZW_RF_SPEED_100K
-#define ZW_GET_ROUTING_INFO_100KLR				      ZW_RF_SPEED_100KLR
+#define ZW_GET_ROUTING_INFO_100KLR              ZW_RF_SPEED_100KLR
 #define ZW_GET_ROUTING_INFO_SPEED_MASK          ZW_RF_SPEED_MASK
 
 /* Listening bit in the NODEINFO capability byte */
@@ -211,8 +204,7 @@ typedef struct __attribute__((packed)) _CONTROLLER_CONFIGURATION_
 #define NODEINFO_ZWAVE_SENSOR_MODE_WAKEUP_250    0x20
 
 /* Learn node state information passed by the call back function */
-typedef struct _LEARN_INFO_T_
-{
+typedef struct _LEARN_INFO_T_{
   uint8_t  bStatus;      /* Status of learn mode */
   node_id_t bSource;      /* Node id of the node that send node info */
   uint8_t  *pCmd;        /* Pointer to Application Node information */
@@ -222,8 +214,7 @@ typedef struct _LEARN_INFO_T_
 /* Learn node "Application Node information" passed by call back function */
 /* to Application when controller is in SMART START mode and an aspiring */
 /* nodeinformation frame is received */
-typedef struct _LEARN_INFO_SMARTSTART_
-{
+typedef struct _LEARN_INFO_SMARTSTART_{
   uint8_t      homeID[HOMEID_LENGTH];  /* HomeID the Nodeinfo was received with */
   uint8_t      nodeInfoLength;         /* Length of NodeInfo parameters */
   NODE_TYPE    nodeType;               /* Basic, Generic and Specific Device Type */
@@ -240,12 +231,10 @@ typedef void (*learn_mode_callback_t)(LEARN_INFO_T *);
 /**
  *
  */
-typedef struct _CONTROLLER_UPDATE_INCLUDED_NODE_INFORMATION_FRAME_
-{
+typedef struct _CONTROLLER_UPDATE_INCLUDED_NODE_INFORMATION_FRAME_{
   uint8_t  bINIFrxStatus;
   uint8_t  abINIFsmartStartNWIHomeID[HOMEID_LENGTH]; /* homeID used when using Smart Start */
 } CONTROLLER_UPDATE_INCLUDED_NODE_INFORMATION_FRAME;
-
 
 /* Route definitions defining Route structure used in  */
 /* ZW_GetPriorityRoute/ZW_GetLastWorkingRoute and ZW_SetPriorityRoute/ZW_SetLastWorkingRoute */
@@ -280,7 +269,8 @@ typedef struct _CONTROLLER_UPDATE_INCLUDED_NODE_INFORMATION_FRAME_
 ///@}
 ///@}
 
+void GetIncludedNLSNodes(uint8_t *node_id_list, uint8_t bitmask_offset, bool *more_nodes, uint8_t *output_length);
+
 #endif /* ZW_CONTROLLER */
 
 #endif /* _ZW_CONTROLLER_API_H_ */
-

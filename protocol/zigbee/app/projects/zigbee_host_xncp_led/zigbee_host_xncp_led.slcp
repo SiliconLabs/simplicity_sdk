@@ -1,6 +1,6 @@
 project_name: zigbee_host_xncp_led
 label: Zigbee - Host XncpLed
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: production
 
@@ -9,6 +9,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -56,6 +57,7 @@ configuration:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -109,11 +111,11 @@ template_contribution:
       help: Display the XNCP information on the CLI.
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

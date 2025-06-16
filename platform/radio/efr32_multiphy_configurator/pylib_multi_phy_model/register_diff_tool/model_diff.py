@@ -3,6 +3,7 @@ import traceback
 
 from pylib_multi_phy_model.multi_phy_configuration_model import overrideType
 from pylib_multi_phy_model.register_diff_tool.model_diff_codes import ModelDiffCodes
+from pylib_multi_phy_model.multi_phy_configuration_model import register_groupsType, register_groupType
 from pyradioconfig import CalcManager
 from pycalcmodel.core.output import ModelOutputType
 from pyradioconfig.calculator_model_framework.Utils.CalcStatus import CalcStatus
@@ -19,6 +20,7 @@ from py_2_and_3_compatibility import *
 from pyradioconfig.calculator_model_framework.Utils.LogMgr import LogMgr
 from rail_scripts.rail_adapter_multi_phy import RAIL_ConcPhy
 from rail_scripts.rail_adapter_multi_phy import RAIL_OptArgInput
+import copy
 
 class ModelDiff(object):
     @staticmethod
@@ -47,6 +49,7 @@ class ModelDiff(object):
                 # Loop through each channel config entry
                 for channel_config_entry in base_channel_configuration.channel_config_entries.channel_config_entry:
                     channel_config_entry_registers = dict()  # Init dictionary
+                    chcfg_entry_dontcare_bitmasks = dict()
 
                     # Create default register model for the part_family
                     if (multi_phy_model.part_revision == 'ANY'
@@ -74,6 +77,15 @@ class ModelDiff(object):
                         var._access_write.clear()
 
                     channel_config_entry.radio_configurator_output_model = radio_config_model
+                    alias_map = ModelDiff._build_alias_map(radio_config_model, register_model)
+
+                    fastsw_phys = RAIL_ConcPhy.RAIL_IsConcPhyFastSw(base_channel_configuration.optional_arguments.argument)
+                    if fastsw_phys:
+                        build_register_groups = True
+                        register_groups_dict = dict()
+                    else:
+                        build_register_groups = False
+                        register_groups_dict = None
 
                     # Loop through radio configurator profile outputs that match
                     # "register type" (i.e. SVD_REG_FIELD or SEQ_REG_FIELD)
@@ -81,26 +93,59 @@ class ModelDiff(object):
                                                                                   ModelOutputType.SEQ_REG_FIELD]):
                         reg_var = radio_config_model.vars.get_var(profile_output.var_name)
                         field_name = reg_var.svd_mapping
-                        if profile_output.var_value is not None:
-                            if profile_output._var.value_do_not_care != True:
-                                # Load profile output value into register model
-                                try:
-                                    field = register_model.getObjectByName(field_name)
-                                    field.io = profile_output.var_value
-                                except BaseException as e:
-                                    error_message = "Error Executing field write: {}".format(e)
-                                    LogMgr.Error(error_message)
-                                    if hasattr(e, 'message'):
-                                        e.message = error_message + '\r\n' + e.message
-                                    else:
-                                        e.message = error_message
-                                    raise e
-                        # Get register object
                         register_name = ModelDiff._getRegNameFromFieldName(field_name)
                         register = register_model.getObjectByName(register_name)
+                        field = register_model.getObjectByName(field_name)
+
+                        if profile_output.var_value is not None and profile_output._var.value_do_not_care != True:
+                            # Load profile output value into register model
+                            try:
+                                field.io = profile_output.var_value
+                            except BaseException as e:
+                                error_message = "Error Executing field write: {}".format(e)
+                                LogMgr.Error(error_message)
+                                if hasattr(e, 'message'):
+                                    e.message = error_message + '\r\n' + e.message
+                                else:
+                                    e.message = error_message
+                                raise e
+
+                        elif profile_output._var.value_do_not_care == True:
+                            # Create dont-care bitmask model
+                            try:
+                                if register_name not in chcfg_entry_dontcare_bitmasks:
+                                    chcfg_entry_dontcare_bitmasks[register_name] = 0xFFFFFFFF       # Initialize with 1's (all-care)
+
+                                # Create a bitmask with the given bitwidth
+                                dont_care_reg_bitmask = (1 << field.bitWidth) - 1
+                                # Shift the bitmask to the correct bitoffset
+                                dont_care_reg_bitmask <<= field.bitOffset
+                                inverted_bitmask = ~dont_care_reg_bitmask & 0xFFFFFFFF
+                                chcfg_entry_dontcare_bitmasks[register_name] &= inverted_bitmask
+                            except BaseException as e:
+                                error_message = "Error writing to don't care mask: {}".format(e)
+                                LogMgr.Error(error_message)
+                                if hasattr(e, 'message'):
+                                    e.message = error_message + '\r\n' + e.message
+                                else:
+                                    e.message = error_message
+                                raise e
 
                         # Save register for later diff use
                         channel_config_entry_registers[register_name] = register
+
+                        # Build register groups if required
+                        if build_register_groups:
+                            group_list = profile_output.groups
+                            for group in group_list:
+                                if group not in register_groups_dict:
+                                    register_groups_dict[group] = []
+                                if register_name not in register_groups_dict[group]:
+                                    register_groups_dict[group].append(register_name)
+
+                    # Store completed dont-care bitmasks in multiPHY model
+                    channel_config_entry.phy_config_dont_care_bitmasks = chcfg_entry_dontcare_bitmasks
+                    channel_config_entry.phy_config_chosen_aliases = alias_map
 
                     if channel_config_entry_counter == 0:
                         # if this is the first entry in collection (e.g. this is the first iteration) then use this as the base configuration set of registers
@@ -108,7 +153,8 @@ class ModelDiff(object):
                         channel_config_entry.phy_config_delta_add = dict()
                     else:
                         # find differences in [base_channel_config.phy_config_base] vs [channel_config_entry_registers]
-                        add_registers, subtract_registers = ModelDiff._find_diff_and_reset_values_from_reference(base_channel_configuration.phy_config_base, channel_config_entry_registers)
+                        add_registers, subtract_registers = ModelDiff._find_diff_and_reset_values_from_reference(base_channel_configuration.phy_config_base,
+                                                                                                                 channel_config_entry_registers)
 
                         # store [register] differences into [channel_config_entry.phy_config_delta_add]
                         channel_config_entry.phy_config_delta_add = add_registers
@@ -119,6 +165,14 @@ class ModelDiff(object):
                     channel_config_entry_counter += 1  # increment loop counter
 
                 if base_channel_configuration.force_empty_phy_config_delta_subtract:
+                    """ Some info on phy_config_delta_add v.s. phy_config_delta_subtract
+                    PHY-switching (e.g. From PHY1 to PHY2) can be done in 2 ways:
+                        1) We can switch twice: switch back to base PHY every time, then switch to new PHY. 
+                            This is done by applying PHY1.phy_config_delta_subtract, which configures device to PHY_base
+                            After that, we apply PHY2.phy_config_delta_add, which configures device to PHY2
+                        2) We can switch just once (PHY1 to PHY2), provided we modify phy_config_delta_add
+                            The modification is shown below.
+                    """
                     # When true, copy all missing values back into "add" dictionary.  And then empty out "subtract" dictionary.
                     # This is used as a speed optimization, at the cost of a larger "add" size.
                     # Remove registers from "baseline" that already exist in the "add" collection.
@@ -134,6 +188,62 @@ class ModelDiff(object):
                             del phy_config_base[key]
 
                     base_channel_configuration.phy_config_delta_subtract.clear()
+
+
+                if base_channel_configuration.force_empty_phy_config_delta_subtract and base_channel_configuration.apply_dontcares_across_deltas:
+                    ## The add and subtract algorithm does not accomodate don't care registers, hence we apply don't cares after phy_delta has been prepared
+                    ## We apply don't care mask to the same registers of all channel configs' phy deltas
+                    ## If all register values are the same, then we can safely remove the register from the phy delta
+                    ## This algorithm does not work if force_empty_phy_config_delta_subtract=false
+
+                    new_phy_delta_dict = dict()
+                    for chcfg_num, chcfg_entry in enumerate(base_channel_configuration.channel_config_entries.channel_config_entry):
+                        new_phy_delta_dict[chcfg_num] = copy.deepcopy(chcfg_entry.phy_config_delta_add)                    ## Since we cannot remove registers during the comparison, we have to rebuild them
+                        for reg_with_dont_cares, bitmask in chcfg_entry.phy_config_dont_care_bitmasks.items():
+                            all_regvals_masked = set()
+                            for tmp_chcfg_num, tmp_chcfg_entry in enumerate(base_channel_configuration.channel_config_entries.channel_config_entry):
+                                if reg_with_dont_cares in tmp_chcfg_entry.phy_config_delta_add:
+                                    all_regvals_masked.add(tmp_chcfg_entry.phy_config_delta_add[reg_with_dont_cares].io & bitmask)
+                            if len(all_regvals_masked) == 1:        # Only 1 value in set, which means we can safely remove register in copy
+                                del new_phy_delta_dict[chcfg_num][reg_with_dont_cares]
+
+                    # Rebuild phy deltas
+                    for chcfg_num, chcfg_entry in enumerate(
+                        base_channel_configuration.channel_config_entries.channel_config_entry):
+                        chcfg_entry.phy_config_delta_add = new_phy_delta_dict[chcfg_num]
+
+                if base_channel_configuration.prune_aliases_in_deltas:
+                    ## Now prune registers not chosen for aliasing
+                    for chcfg_num, chcfg_entry in enumerate(
+                            base_channel_configuration.channel_config_entries.channel_config_entry):
+                        phy_config_delta_add_copy = copy.deepcopy(chcfg_entry.phy_config_delta_add)
+                        for regname, register in chcfg_entry.phy_config_delta_add.items():
+                            if register.address not in chcfg_entry.phy_config_chosen_aliases or regname != chcfg_entry.phy_config_chosen_aliases[register.address]:
+                                del phy_config_delta_add_copy[regname]
+                        chcfg_entry.phy_config_delta_add = phy_config_delta_add_copy
+
+                ## REGISTER GROUPS ##
+                # See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2616
+                # If build_register_groups, we shall "move" registers from phy_config_delta_add into phy_config_delta_grouped_add
+                if build_register_groups:
+                    for channel_config_entry in base_channel_configuration.channel_config_entries.channel_config_entry:
+                        phy_config_delta_add = channel_config_entry.phy_config_delta_add
+                        register_groups = register_groupsType()
+                        channel_config_entry.register_groups = register_groups
+                        for group in register_groups_dict:
+                            phy_config_delta_grouped_add = dict()
+                            for register_name in phy_config_delta_add:
+                                if register_name in register_groups_dict[group]:
+                                    phy_config_delta_grouped_add[register_name] = phy_config_delta_add[
+                                        register_name]  # Copy regs from phy_config_delta_add into phy_config_delta_grouped_add
+
+                            register_group = register_groupType(name=group,
+                                                                phy_config_delta_grouped_add=phy_config_delta_grouped_add)
+                            register_groups.add_register_group(register_group)
+
+                            # Now remove registers from phy_config_delta_add
+                            for register_name in phy_config_delta_grouped_add:
+                                phy_config_delta_add.pop(register_name, None)
 
             # Now that we've gone through and calculated all the base channel configs, let's ee if we need to do optimize any base_channel_references
             base_channel_diffs = dict()
@@ -157,7 +267,7 @@ class ModelDiff(object):
 
                             # merge lists
                             base_channel_diffs[base_channel_reference_name] = list(set().union(base_channel_diffs[base_channel_reference_name], ind_base_channel_diffs[base_channel_reference_name][base_channel_configuration.name]))
-                            #LogMgr.Debug("register {} diff merge: {}, original {}".format(base_channel_configuration.phy.name, len(ind_base_channel_diffs[base_channel_reference_name][base_channel_configuration.name]), len(base_channel_diffs[base_channel_reference_name])))
+                            # LogMgr.Debug("register {} diff merge: {}, original {}".format(base_channel_configuration.phy.name, len(ind_base_channel_diffs[base_channel_reference_name][base_channel_configuration.name]), len(base_channel_diffs[base_channel_reference_name])))
 
             for base_channel_reference_name, list_diff_reg_names in base_channel_diffs.items():
                 for base_channel_configuration in multi_phy_model.base_channel_configurations.base_channel_configuration:
@@ -180,15 +290,17 @@ class ModelDiff(object):
                                     phy_config_delta_add = channel_config_entry.phy_config_delta_add
                                     if not list_diff_reg in phy_config_delta_add:
                                         phy_config_delta_add[list_diff_reg] = phy_config_base[list_diff_reg]
-                                del phy_config_base[list_diff_reg]
+                                if list_diff_reg in phy_config_base:                    # If reg in ref_base_delta, delete (since they are all now in ref_chx_deltas)
+                                    del phy_config_base[list_diff_reg]
                         else:
                             # if non-(virtual concurrent) PHY, apply the diff compare to the list_diff_reg_names
                             for list_diff_reg in list_diff_reg_names:
                                 for channel_config_entry in base_channel_configuration.channel_config_entries.channel_config_entry:
                                     phy_config_delta_add = channel_config_entry.phy_config_delta_add
-                                    if not list_diff_reg in phy_config_delta_add:
+                                    if not list_diff_reg in phy_config_delta_add:       # If reg not in ref_ch1_delta, add from ref_base_delta
                                         phy_config_delta_add[list_diff_reg] = phy_config_base[list_diff_reg]
-                                del phy_config_base[list_diff_reg]
+                                if list_diff_reg in phy_config_base:                    # If reg in ref_base_delta, delete (since they are all now in ref_chx_deltas)
+                                    del phy_config_base[list_diff_reg]
 
                         #LogMgr.Debug("register base {} orig: {}, final: {}".format(base_channel_configuration.phy.name, phy_config_base_orig_len, len(phy_config_base)))
                         if base_channel_configuration.base_channel_reference == base_channel_reference_name:
@@ -360,6 +472,15 @@ class ModelDiff(object):
             if base_reg_name in base_channel_configuration:
                 if base_reg.io != base_channel_configuration[base_reg_name].io:
                     list_diff_reg_names.append(base_reg_name)
+            else:
+                list_diff_reg_names.append(base_reg_name)
+
+        for base_reg_name, base_reg in base_channel_configuration.items():
+            if base_reg_name in base_channel_config_ref:
+                if base_reg.io != base_channel_config_ref[base_reg_name].io:
+                    list_diff_reg_names.append(base_reg_name)
+            else:
+                list_diff_reg_names.append(base_reg_name)
 
         return list_diff_reg_names
 
@@ -406,4 +527,24 @@ class ModelDiff(object):
             if nameStr[0].isdigit():
                 nameStr = "_" + nameStr
         return nameStr
+
+    @staticmethod
+    def _build_alias_map(radio_config_model, reg_model):
+        """Iterate through calculator model. For each register field used, add to an alias map (dictionary), whose keys are the register addresses and values are the alias chosen for the address."""
+        alias_map = dict()
+        for profile_output in radio_config_model.profile.get_outputs([ModelOutputType.SVD_REG_FIELD,
+                                                                      ModelOutputType.SEQ_REG_FIELD]):
+            var = radio_config_model.vars.get_var(profile_output.var_name)
+            field_name = var.svd_mapping
+            register_name = ModelDiff._getRegNameFromFieldName(field_name)
+            register = reg_model.getObjectByName(register_name)
+
+            if profile_output.var_value is not None and profile_output._var.value_do_not_care != True:
+                if register.address not in alias_map:
+                    alias_map[register.address] = register_name
+                elif register_name != alias_map[register.address]:
+                    raise Exception(f">1 valid aliases for register address: {register.address}. Aliases: f{register_name}, f{alias_map[register.address]}".format())
+
+        return alias_map
+
 

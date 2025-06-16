@@ -33,6 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <stdlib.h>
 #include "em_cmu.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_init.h"
 #include "app_process.h"
@@ -57,7 +58,7 @@ uint16_t rx_channel = 0U;
 uint8_t access_number = 0U;
 
 /// Time for calculation for the proper sending timing
-extern RAIL_Time_t last_tx_start_time;
+extern sl_rail_time_t last_tx_start_time;
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -71,10 +72,10 @@ static const uint8_t crypto_key[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Initialization of Wireless M-Bus
   sl_rail_sdk_wmbus_init();
@@ -86,11 +87,11 @@ RAIL_Handle_t app_init(void)
   clear_send_led();
 
   if ( sl_rail_sdk_wmbus_get_accessibility() == WMBUS_ACCESSIBILITY_UNLIMITED_ACCESS ) {
-    RAIL_StateTransitions_t transitions = {
-      .error = RAIL_RF_STATE_RX,
-      .success = RAIL_RF_STATE_RX,
+    sl_rail_state_transitions_t transitions = {
+      .error = SL_RAIL_RF_STATE_RX,
+      .success = SL_RAIL_RF_STATE_RX,
     };
-    RAIL_SetRxTransitions(rail_handle, &transitions);
+    sl_rail_set_rx_transitions(rail_handle, &transitions);
   }
 
   if ( mode == WMBUS_MODE_T_METER || mode == WMBUS_MODE_T_COLLECTOR || mode == WMBUS_MODE_C ) {
@@ -100,8 +101,11 @@ RAIL_Handle_t app_init(void)
   }
 
   //calibrate IR on rx channel before starting the main loop, since it takes longer than most rx operation
-  RAIL_PrepareChannel(rail_handle, rx_channel);
-  RAIL_CalibrateIr(rail_handle, NULL);
+  sl_rail_prepare_channel(rail_handle, rx_channel);
+  sl_rail_ir_cal_values_t image_rejection;
+  sl_rail_antenna_sel_t rf_path;
+  sl_rail_get_rf_path(rail_handle, &rf_path);
+  sl_rail_calibrate_ir(rail_handle, &image_rejection, rf_path);
 
   sl_rail_sdk_wmbus_frame_crypto5_init();
   sl_rail_sdk_wmbus_frame_crypto5_set_key(crypto_key);
@@ -109,9 +113,16 @@ RAIL_Handle_t app_init(void)
   access_number = (uint8_t)(rand() % 256);
 
   set_next_state(S_SCHEDULE_TX);
-  last_tx_start_time = RAIL_GetTime();
+  last_tx_start_time = sl_rail_get_time(rail_handle);
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

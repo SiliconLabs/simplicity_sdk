@@ -38,12 +38,11 @@
 #include "CC_UserCode.h"
 #include "app_button_handler.h"
 #include "ZAF_nvm_app.h"
+#include "zpal_log.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -114,7 +113,7 @@ void app_button_press_btn_0_handler(uint8_t duration)
        * default user code the lock can no longer be secured/unsecured by
        * this event.
        */
-      DPRINT("\r\nUser code entered!\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nUser code entered!\r\n");
       command_class = COMMAND_CLASS_USER_CODE;
       cc_event = CC_USER_CODE_EVENT_VALIDATE;
       cc_data = &user_code_event_validate_data;

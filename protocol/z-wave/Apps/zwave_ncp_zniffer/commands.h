@@ -1,7 +1,7 @@
-  /**
-  * @file commands.h
-  * @copyright 2022 Silicon Laboratories Inc.
-  */
+/**
+ * @file commands.h
+ * @copyright 2022 Silicon Laboratories Inc.
+ */
 
 #ifndef _COMMANDS_H_
 

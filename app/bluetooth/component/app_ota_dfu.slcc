@@ -1,6 +1,6 @@
 id: app_ota_dfu
 label: Application OTA DFU
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
  Component that provides over-the-air (OTA) device firmware update (DFU)
  functionality in user application during runtime. No need to enter
@@ -32,15 +32,18 @@ conflicts:
 requires:
   - name: app_assert
   - name: app_rta
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_gatt_server
   - name: bluetooth_feature_system
   - name: bluetooth_stack
   - name: bootloader_interface
+  - name: component_catalog
   - name: gatt_configuration
   - name: power_manager
   - name: sl_common
 template_contribution:
+  - name: component_catalog
+    value: app_ota_dfu
   - name: app_rta_init
     value:
       include: sli_bt_app_ota_dfu.h

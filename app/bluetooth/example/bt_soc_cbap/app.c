@@ -29,7 +29,6 @@
  ******************************************************************************/
 #include <stdio.h>
 #include <stdbool.h>
-#include "sl_common.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
 #include "app_assert.h"
@@ -39,6 +38,7 @@
 #include "sl_bt_cbap.h"
 #include "cbap_config.h"
 #include "app.h"
+#include "sl_main_init.h"
 
 #if SL_BT_CONFIG_MAX_CONNECTIONS < 1
   #error At least 1 connection has to be enabled!
@@ -225,7 +225,7 @@ void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/

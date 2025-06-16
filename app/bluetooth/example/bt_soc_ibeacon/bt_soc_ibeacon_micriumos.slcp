@@ -22,20 +22,17 @@ component:
   - id: memory_manager
   - id: bluetooth_stack
   - id: bluetooth_feature_legacy_advertiser
-  - id: bluetooth_feature_connection
   - id: bluetooth_feature_sm
   - id: bluetooth_feature_system
   - id: app_assert
   - id: mpu
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
-  - path: app_micriumos.c
 
 include:
   - path: .
@@ -86,7 +83,6 @@ post_build:
     condition: [device_series_2, bootloader_app_properties]
 
 tag:
-  - prebuilt_demo
   - hardware:rf:band:2400
 
 ui_hints:

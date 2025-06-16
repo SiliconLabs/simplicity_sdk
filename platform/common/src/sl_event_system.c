@@ -41,6 +41,7 @@ extern "C" {
 static bool is_event_system_initialized = false;
 static sl_slist_node_t *publishers;
 
+static sl_status_t sli_event_publish(sl_event_publisher_t *publisher, uint32_t event_mask, uint8_t event_prio, sl_event_t* event, void *event_data);
 static sl_event_publisher_t* sli_event_find_publisher(sl_event_class_t event_class);
 static sl_event_subscriber_t* sli_event_find_subscriber(sl_event_publisher_t* publisher, sl_event_queue_t event_queue);
 static sl_status_t sli_event_push_to_subscriber_queues(sl_event_publisher_t* publisher, sl_event_t *event, uint32_t event_mask);
@@ -132,44 +133,7 @@ sl_status_t sl_event_publish(sl_event_publisher_t *publisher,
                              uint8_t event_prio,
                              void *event_data)
 {
-  // Implementation doesn't currently use message priorities.
-  (void)event_prio;
-  sl_status_t status = SL_STATUS_OK;
-  sl_event_t *event;
-
-  // Only publish events if the event system has been initialized
-  EFM_ASSERT(is_event_system_initialized == true);
-
-  // The event data cannot be NULL.
-  if (publisher == NULL || event_mask == 0 || event_data == NULL) {
-    return SL_STATUS_INVALID_PARAMETER;
-  }
-
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_ATOMIC();
-
-  if (publisher->is_registered) {
-    // Event context is allocated.
-    status = sl_memory_alloc(sizeof(sl_event_t), BLOCK_TYPE_SHORT_TERM,
-                             (void **)&event);
-    if (status != SL_STATUS_OK) {
-      CORE_EXIT_ATOMIC();
-      return status;
-    }
-
-    // Initialize event context
-    event->pre_allocated = false;
-    event->free_data_callback = publisher->free_data_callback;
-    event->event_data = event_data;
-    event->reference_count = publisher->subscriber_count;
-
-    status = sli_event_push_to_subscriber_queues(publisher, event, event_mask);
-  } else {
-    status = SL_STATUS_NOT_FOUND;
-  }
-
-  CORE_EXIT_ATOMIC();
-  return status;
+  return sli_event_publish(publisher, event_mask, event_prio, NULL, event_data);
 }
 
 /*******************************************************************************
@@ -183,43 +147,12 @@ sl_status_t sl_event_publish_static(sl_event_publisher_t *publisher,
                                     sl_event_t* event,
                                     void *event_data)
 {
-  // Implementation doesn't currently use message priorities.
-  (void)event_prio;
-  sl_status_t status = SL_STATUS_OK;
-
-  // Only publish events if the event system has been initialized
-  EFM_ASSERT(is_event_system_initialized == true);
-
-  // The event data cannot be NULL.
-  if (event == NULL || publisher == NULL || event_mask == 0 || event_data == NULL) {
+  // The pre-allocated event handle cannot be NULL.
+  if (event == NULL) {
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_ATOMIC();
-
-  // Set the pre-allocated flag.
-  event->pre_allocated = true;
-
-  if (event->reference_count > 0) {
-    // The event is still waiting to be consumed by all subscribers.
-    CORE_EXIT_ATOMIC();
-    return SL_STATUS_NOT_READY;
-  }
-
-  if (publisher->is_registered) {
-    // Initialize event context
-    event->free_data_callback = publisher->free_data_callback;
-    event->event_data = event_data;
-    event->reference_count = publisher->subscriber_count;
-
-    status = sli_event_push_to_subscriber_queues(publisher, event, event_mask);
-  } else {
-    status = SL_STATUS_NOT_FOUND;
-  }
-
-  CORE_EXIT_ATOMIC();
-  return status;
+  return sli_event_publish(publisher, event_mask, event_prio, event, event_data);
 }
 
 /*******************************************************************************
@@ -315,6 +248,8 @@ sl_status_t sl_event_unsubscribe(sl_event_class_t event_class,
       subscriber->event_mask = subscriber->event_mask & ~event_mask;
       if (subscriber->event_mask == 0x0UL) {
         sl_slist_remove(&publisher->subscribers, &subscriber->node);
+        publisher->subscriber_count--;
+        sl_memory_free(subscriber);
       }
     }
   } else {
@@ -467,6 +402,15 @@ sl_status_t sl_event_queue_get(sl_event_queue_t event_queue,
 
 /*******************************************************************************
  * @brief
+ *  Get the current number of events in queue.
+ ******************************************************************************/
+uint32_t sl_event_queue_get_count(sl_event_queue_t event_queue)
+{
+  return osMessageQueueGetCount(event_queue);
+}
+
+/*******************************************************************************
+ * @brief
  *  Get the size of the event publisher structure.
  ******************************************************************************/
 size_t sl_event_publisher_get_size(void)
@@ -561,6 +505,69 @@ sl_status_t sl_event_free(sl_event_t *event)
   CORE_EXIT_ATOMIC();
 
   return sl_memory_free((void *)event);
+}
+
+/*******************************************************************************
+ *  Publish an event, with data, within the event class of the publisher.
+ *  Handle with or without a pre-allocated event handle.
+ ******************************************************************************/
+static sl_status_t sli_event_publish(sl_event_publisher_t *publisher,
+                                     uint32_t event_mask,
+                                     uint8_t event_prio,
+                                     sl_event_t* event,
+                                     void *event_data)
+{
+  // Implementation doesn't currently use message priorities.
+  (void)event_prio;
+  sl_status_t status = SL_STATUS_OK;
+  bool event_pre_allocated = (event == NULL) ? false : true;
+
+  // Only publish events if the event system has been initialized
+  EFM_ASSERT(is_event_system_initialized == true);
+
+  // The event data cannot be NULL.
+  if (publisher == NULL || event_mask == 0 || event_data == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_ATOMIC();
+
+  if (event_pre_allocated && (event->reference_count > 0)) {
+    // The event is still waiting to be consumed by all subscribers.
+    CORE_EXIT_ATOMIC();
+    return SL_STATUS_NOT_READY;
+  }
+
+  if (publisher->is_registered) {
+    if (publisher->subscriber_count) {
+      if (!event_pre_allocated) {
+        // Event context is allocated.
+        status = sl_memory_alloc(sizeof(sl_event_t), BLOCK_TYPE_SHORT_TERM,
+                                 (void **)&event);
+        if (status != SL_STATUS_OK) {
+          CORE_EXIT_ATOMIC();
+          return status;
+        }
+      }
+
+      // Initialize event context
+      event->free_data_callback = publisher->free_data_callback;
+      event->event_data = event_data;
+      event->reference_count = publisher->subscriber_count;
+      event->pre_allocated = event_pre_allocated;
+
+      status = sli_event_push_to_subscriber_queues(publisher, event, event_mask);
+    } else {
+      // No subscribers are listening, so the publish is skipped.
+      publisher->free_data_callback(event_data);
+    }
+  } else {
+    status = SL_STATUS_NOT_FOUND;
+  }
+
+  CORE_EXIT_ATOMIC();
+  return status;
 }
 
 /*******************************************************************************

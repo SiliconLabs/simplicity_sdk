@@ -117,81 +117,174 @@ static const uint8_t ciphertext[16] = {
 /// Strings for tamper sources
 static const char *tamper_source[SL_SE_TAMPER_SIGNAL_NUM_SIGNALS] = {
 #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
-  NULL,
-  "Filter counter         : ",
-  "SE watchdog            : ",
-  NULL,
-  "SE RAM CRC             : ",
-  "SE hard fault          : ",
-  NULL,
-  "SE software assertion  : ",
-  "SE secure boot         : ",
-  "User secure boot       : ",
-  "Mailbox authorization  : ",
-  "DCI authorization      : ",
-  "OTP read               : ",
-  NULL,
-  "Self test              : ",
-  "TRNG monitor           : ",
-  "PRS0                   : ",
-  "PRS1                   : ",
-  "PRS2                   : ",
-  "PRS3                   : ",
-  "PRS4                   : ",
-  "PRS5                   : ",
-  "PRS6                   : ",
-  "PRS7                   : ",
-  "Decouple BOD           : ",
-  "Temperature sensor     : ",
-  "Voltage glitch falling : ",
-  "Voltage glitch rising  : ",
-  "Secure lock            : ",
-  "SE debug               : ",
-  "Digital glitch         : ",
-  "SE ICACHE              : "
-#else
-  NULL,
-  "Filter counter        : ",
-  "SE watchdog           : ",
-  NULL,
-  "SE RAM ECC 2          : ",
-  "SE hard fault         : ",
-  NULL,
-  "SE software assertion : ",
-  "SE secure boot        : ",
-  "User secure boot      : ",
-  "Mailbox authorization : ",
-  "DCI authorization     : ",
-  "OTP Read              : ",
-  NULL,
-  "Self test             : ",
-  "TRNG monitor          : ",
-  "Secure lock           : ",
-  "Digital glitch        : ",
-  "Voltage glitch        : ",
-  "SE ICACHE             : ",
-  "SE RAM ECC 1          : ",
-  "BOD                   : ",
-  "Temperature sensor    : ",
-  "DPLL lock fail low    : ",
-  "DPLL lock fail high   : ",
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
-  "ETAMPDET              : ",
-  "PRS0                  : ",
-  "PRS1                  : ",
-  "PRS2                  : ",
-  "PRS3                  : ",
-  "PRS4                  : ",
-  "PRS5                  : ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_1] = NULL,
+  [SL_SE_TAMPER_SIGNAL_FILTER_COUNTER]
+    = "Filter counter         ",
+  [SL_SE_TAMPER_SIGNAL_WATCHDOG]
+    = "SE watchdog            ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_2] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SE_RAM_CRC]
+    = "SE RAM CRC             ",
+  [SL_SE_TAMPER_SIGNAL_SE_HARDFAULT]
+    = "SE hard fault          ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_3] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SE_SOFTWARE_ASSERTION]
+    = "SE software assertion  ",
+  [SL_SE_TAMPER_SIGNAL_SE_SECURE_BOOT_FAILED]
+    = "SE secure boot         ",
+  [SL_SE_TAMPER_SIGNAL_USER_SECURE_BOOT_FAILED]
+    = "User secure boot       ",
+  [SL_SE_TAMPER_SIGNAL_MAILBOX_AUTHORIZATION_ERROR]
+    = "Mailbox authorization  ",
+  [SL_SE_TAMPER_SIGNAL_DCI_AUTHORIZATION_ERROR]
+    = "DCI authorization      ",
+  [SL_SE_TAMPER_SIGNAL_FLASH_INTEGRITY_ERROR]
+    = "OTP read               ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_4] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SELFTEST_FAILED]
+    = "Self test              ",
+  [SL_SE_TAMPER_SIGNAL_TRNG_MONITOR]
+    = "TRNG monitor           ",
+  [SL_SE_TAMPER_SIGNAL_PRS0] = "PRS0                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS1] = "PRS1                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS2] = "PRS2                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS3] = "PRS3                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS4] = "PRS4                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS5] = "PRS5                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS6] = "PRS6                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS7] = "PRS7                   ",
+  [SL_SE_TAMPER_SIGNAL_DECOUPLE_BOD]
+    = "Decouple BOD           ",
+  [SL_SE_TAMPER_SIGNAL_TEMPERATURE_SENSOR]
+    = "Temperature sensor     ",
+  [SL_SE_TAMPER_SIGNAL_VOLTAGE_GLITCH_FALLING]
+    = "Voltage glitch falling ",
+  [SL_SE_TAMPER_SIGNAL_VOLTAGE_GLITCH_RISING]
+    = "Voltage glitch rising  ",
+  [SL_SE_TAMPER_SIGNAL_SECURE_LOCK_ERROR]
+    = "Secure lock            ",
+  [SL_SE_TAMPER_SIGNAL_SE_DEBUG_GRANTED]
+    = "SE debug               ",
+  [SL_SE_TAMPER_SIGNAL_DIGITAL_GLITCH]
+    = "Digital glitch         ",
+  [SL_SE_TAMPER_SIGNAL_SE_ICACHE_ERROR]
+    = "SE ICACHE              ",
+#elif defined(_SILICON_LABS_32B_SERIES_2)
+  [SL_SE_TAMPER_SIGNAL_RESERVED_1] = NULL,
+  [SL_SE_TAMPER_SIGNAL_FILTER_COUNTER]
+    = "Filter counter         ",
+  [SL_SE_TAMPER_SIGNAL_WATCHDOG]
+    = "SE watchdog            ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_2] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SE_RAM_ECC_2]
+    = "SE RAM ECC 2           ",
+  [SL_SE_TAMPER_SIGNAL_SE_HARDFAULT]
+    = "SE hard fault          ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_3] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SE_SOFTWARE_ASSERTION]
+    = "SE software assertion  ",
+  [SL_SE_TAMPER_SIGNAL_SE_SECURE_BOOT_FAILED]
+    = "SE secure boot         ",
+  [SL_SE_TAMPER_SIGNAL_USER_SECURE_BOOT_FAILED]
+    = "User secure boot       ",
+  [SL_SE_TAMPER_SIGNAL_MAILBOX_AUTHORIZATION_ERROR]
+    = "Mailbox authorization  ",
+  [SL_SE_TAMPER_SIGNAL_DCI_AUTHORIZATION_ERROR]
+    = "DCI authorization      ",
+  [SL_SE_TAMPER_SIGNAL_FLASH_INTEGRITY_ERROR]
+    = "OTP read               ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_4] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SELFTEST_FAILED]
+    = "Self test              ",
+  [SL_SE_TAMPER_SIGNAL_TRNG_MONITOR]
+    = "TRNG monitor           ",
+  [SL_SE_TAMPER_SIGNAL_SECURE_LOCK_ERROR]
+    = "Secure lock            ",
+  [SL_SE_TAMPER_ATAMPDET_EMPGD]
+    = "Digital glitch        ",
+  [SL_SE_TAMPER_ATAMPDET_SUPGD]
+    = "Voltage glitch        ",
+  [SL_SE_TAMPER_SE_ICACHE_ERROR]
+    = "SE ICACHE              ",
+  [SL_SE_TAMPER_SIGNAL_SE_RAM_ECC_1]
+    = "SE RAM ECC 1           ",
+  [SL_SE_TAMPER_SIGNAL_BOD]  = "BOD                    ",
+  [SL_SE_TAMPER_SIGNAL_TEMPERATURE_SENSOR]
+    = "Temperature sensor     ",
+  [SL_SE_TAMPER_SIGNAL_DPLL_LOCK_FAIL_LOW]
+    = "DPLL lock fail low    ",
+  [SL_SE_TAMPER_SIGNAL_DPLL_LOCK_FAIL_HIGH]
+    = "DPLL lock fail high   ",
+  [SL_SE_TAMPER_SIGNAL_PRS0] = "PRS0                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS1] = "PRS1                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS2] = "PRS2                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS3] = "PRS3                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS4] = "PRS4                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS5] = "PRS5                   ",
+  #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+  [SL_SE_TAMPER_SIGNAL_ETAMPDET]
+    = "ETAMPDET               ",
   #else
-  "PRS0                  : ",
-  "PRS1                  : ",
-  "PRS2                  : ",
-  "PRS3                  : ",
-  "PRS4                  : ",
-  "PRS5                  : ",
-  "PRS6                  : "
-#endif
+  [SL_SE_TAMPER_SIGNAL_PRS6] = "PRS6                   ",
+  #endif
+
+#elif defined(_SILICON_LABS_32B_SERIES_3)
+  [SL_SE_TAMPER_SIGNAL_RESERVED_1] = NULL,
+  [SL_SE_TAMPER_SIGNAL_FILTER_COUNTER]
+    = "Filter counter         ",
+  [SL_SE_TAMPER_SIGNAL_WATCHDOG]
+    = "SE watchdog            ",
+  [SL_SE_TAMPER_SIGNAL_CRYPTO_ERROR]
+    = "Crypto error           ",
+  [SL_SE_TAMPER_SIGNAL_SE_RAM_ECC_2]
+    = "SE RAM ECC 2           ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_2] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SE_MAJOR_FAULT]
+    = "Major fault            ",
+  [SL_SE_TAMPER_SIGNAL_L2ICACHE]
+    = "L2 ICACHE              ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_3] = NULL,
+  [SL_SE_TAMPER_SIGNAL_USER_SECURE_BOOT_FAILED]
+    = "User secure boot       ",
+  [SL_SE_TAMPER_SIGNAL_MAILBOX_AUTHORIZATION_ERROR]
+    = "Mailbox authorization  ",
+  [SL_SE_TAMPER_SIGNAL_DCI_AUTHORIZATION_ERROR]
+    = "DCI authorization      ",
+  [SL_SE_TAMPER_SIGNAL_SE_SOFTWARE_ASSERTION]
+    = "SE software assertion  ",
+  [SL_SE_TAMPER_SIGNAL_RESERVED_4] = NULL,
+  [SL_SE_TAMPER_SIGNAL_SELFTEST_FAILED]
+    = "Self test              ",
+  [SL_SE_TAMPER_SIGNAL_TRNG_MONITOR]
+    = "TRNG monitor           ",
+  [SL_SE_TAMPER_SIGNAL_SECURE_LOCK_ERROR]
+    = "Secure lock            ",
+  [SL_SE_TAMPER_ATAMPDET]
+    = "ATAMPDET               ",
+  [SL_SE_TAMPER_SIGNAL_OTP_ALARM]
+    = "OTP alarm              ",
+  [SL_SE_TAMPER_SE_ICACHE_ERROR]
+    = "SE ICACHE              ",
+  [SL_SE_TAMPER_SIGNAL_SE_RAM_ECC_1]
+    = "SE RAM ECC 1           ",
+  [SL_SE_TAMPER_SIGNAL_BOD]  = "BOD                    ",
+  [SL_SE_TAMPER_SIGNAL_TEMPERATURE_SENSOR]
+    = "Temperature sensor     ",
+  [SL_SE_TAMPER_SIGNAL_DPLL_LOCK_FAIL]
+    = "DPLL lock fail         ",
+  [SL_SE_TAMPER_SIGNAL_SOC_PLL_FAIL]
+    = "SOC PLL lock fail      ",
+  [SL_SE_TAMPER_SIGNAL_ETAMPDET]
+    = "ETAMPDET               ",
+  [SL_SE_TAMPER_SIGNAL_KSU_ECC_1]
+    = "KSU ECC 1              ",
+  [SL_SE_TAMPER_SIGNAL_KSU_ECC_2]
+    = "KSU ECC 2              ",
+  [SL_SE_TAMPER_SIGNAL_QSPI_RESEED_ERR]
+    = "QSPI reseed error      ",
+  [SL_SE_TAMPER_SIGNAL_PRS0] = "PRS0                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS1] = "PRS1                   ",
+  [SL_SE_TAMPER_SIGNAL_PRS2] = "PRS2                   ",
 #endif
 };
 #endif
@@ -591,6 +684,7 @@ static void print_otp_conf(void)
     printf("Disabled\n");
   }
 
+#if !defined(_SILICON_LABS_32B_SERIES_3)
   printf("  + Secure boot page lock narrow   : ");
   if (get_se_otp_conf_buf_ptr()->secure_boot_page_lock_narrow) {
     printf("Enabled\n");
@@ -604,6 +698,7 @@ static void print_otp_conf(void)
   } else {
     printf("Disabled\n");
   }
+#endif
 }
 
 /***************************************************************************//**

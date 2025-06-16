@@ -32,11 +32,11 @@
 #include "coexistence-ble.h"
 #include "coexistence-ble-ll.h"
 #include "coexistence-hal.h"
-#include "rail_ble.h"
-#include "rail.h"
+#include "sl_rail_ble.h"
+#include "sl_rail.h"
 
 extern const char * titleStrings[];
-extern RAIL_Handle_t railHandle;
+extern sl_rail_handle_t railHandle;
 
 static uint16_t fastRandom(void)
 {
@@ -45,12 +45,12 @@ static uint16_t fastRandom(void)
 
 static void abortTxCallback(void)
 {
-  (void)RAIL_StopTx(railHandle, RAIL_STOP_MODE_ACTIVE);
+  (void)sl_rail_stop_tx(railHandle, SL_RAIL_STOP_MODE_ACTIVE);
 }
 
 void cli_coex_ble_init(sl_cli_command_arg_t *args)
 {
-  bool bleEnabled = RAIL_BLE_IsEnabled(railHandle);
+  bool bleEnabled = sl_rail_ble_is_enabled(railHandle);
   if (bleEnabled) {
     sl_bt_ll_coex_set_context(railHandle,
                               &abortTxCallback,
@@ -77,7 +77,7 @@ void cli_coex_ble_print_counters(sl_cli_command_arg_t *args)
                             titleStrings[id],
                             counters[id]);
     }
-    responsePrintEnd("Status:0x%x", RAIL_STATUS_NO_ERROR);
+    responsePrintEnd("Status:0x%x", SL_RAIL_STATUS_NO_ERROR);
   } else {
     responsePrint(sl_cli_get_command_string(args, 0), "Status:0x%x", SL_STATUS_FAIL);
   }

@@ -222,7 +222,7 @@ class Profile_Connect_OFDM_Sol(IProfile):
         # AGC - from Wisun OFDM
         model.vars.RAC_LNAMIXTRIM4_LNAMIXRFPKDTHRESHSELHI.value_forced = 5  # 60mVrms
         model.vars.RAC_PGACTRL_PGATHRPKDHISEL.value_forced = 3  # 125mV
-        model.vars.RAC_PGACTRL_PGATHRPKDLOSEL.value_forced = 0  # 100mV
+        model.vars.RAC_PGACTRL_PGATHRPKDLOSEL.value_forced = 1  # 75mV per pg_sol_book_v2
         model.vars.AGC_GAINSTEPLIM1_PNINDEXMAX.value_forced = 17  # Per Yang Gao 10/1/20
         model.vars.AGC_GAINRANGE_PNGAINSTEP.value_forced = 3
         model.vars.AGC_AGCPERIOD0_PERIODHI.value_forced = 44

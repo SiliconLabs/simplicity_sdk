@@ -61,10 +61,10 @@ typedef CONCRETE_TLV_DEFINE (SL_ZIGBEE_DIRECT_DLK_TLV_PUBLIC_KEY_P256_MAX_LEN) s
  * @return                 SL_STATUS_OK if sending the response was successful,
  *                         SL_STATUS_INVALID_CONFIGURATION otherwise
  */
-sl_status_t sli_zigbee_handle_incoming_dlk_negotiation_request(uint8_t messageLength,
-                                                               uint8_t* messageContents,
-                                                               uint16_t payloadIndex,
-                                                               sl_802154_short_addr_t partnerId,
-                                                               uint16_t characteristic);
+sl_status_t sli_zigbee_direct_handle_incoming_dlk_negotiation_request(uint8_t messageLength,
+                                                                      uint8_t* messageContents,
+                                                                      uint16_t payloadIndex,
+                                                                      sl_802154_short_addr_t partnerId,
+                                                                      uint16_t characteristic);
 
 #endif //SILABS_ZIGBEE_DIRECT_SESSION_KEY_NEGOTIATION_H

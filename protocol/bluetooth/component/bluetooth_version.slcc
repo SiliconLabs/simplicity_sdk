@@ -1,6 +1,6 @@
 id: "bluetooth_version"
 label: "Bluetooth Version"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth Low Energy stack and controller version information
 category: Bluetooth|Bluetooth Host (Stack)

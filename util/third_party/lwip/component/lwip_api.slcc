@@ -1,6 +1,6 @@
 id: lwip_api
 label: "LightWeight IP (LWIP) API"
-package: platform
+package: lwip
 description: >
     The LightWeight IP (LWIP) API component implements the code for the high-level wrapper API.
     Not needed if you use the low-level call-back/raw API.

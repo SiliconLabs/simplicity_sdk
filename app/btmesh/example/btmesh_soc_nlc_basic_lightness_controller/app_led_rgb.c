@@ -96,6 +96,17 @@ static uint16_t light_color = 0;
 // -----------------------------------------------------------------------------
 // Private function definitions
 
+static uint8_t clamp(double value, uint8_t min, uint8_t max)
+{
+  if (value <= min) {
+    return min;
+  } else if (value >= max) {
+    return max;
+  } else {
+    return (uint8_t)(value + 0.5);
+  }
+}
+
 /*******************************************************************************
  * Convert temperature to RGB color using approximation functions
  ******************************************************************************/
@@ -135,10 +146,9 @@ static RGB_t Temperature_to_RGB(uint16_t temperature)
   temp_G = temp_G * 255 / temp_max;
   temp_B = temp_B * 255 / temp_max;
 
-  color.R = temp_R > 255 ? 255 : (temp_R >= 0 ? (int)(temp_R + 0.5) : 0);
-  color.G = temp_G > 255 ? 255 : (temp_G >= 0 ? (int)(temp_G + 0.5) : 0);
-  color.B = temp_B > 255 ? 255 : (temp_B >= 0 ? (int)(temp_B + 0.5) : 0);
-
+  color.R = clamp(temp_R, 0, 255);
+  color.G = clamp(temp_G, 0, 255);
+  color.B = clamp(temp_B, 0, 255);
   return color;
 }
 
@@ -147,14 +157,14 @@ static RGB_t Temperature_to_RGB(uint16_t temperature)
  ******************************************************************************/
 static RGB_t RGB_to_LightnessRGB(RGB_t color, uint16_t level)
 {
-  uint32_t temp_level;
+  uint8_t temp_level;
   RGB_t new_color;
 
-  temp_level = color.R * (uint32_t) level / 65535;
+  temp_level = (uint8_t)(color.R * (uint32_t) level / 65535);
   new_color.R = temp_level;
-  temp_level = color.G * (uint32_t) level / 65535;
+  temp_level = (uint8_t)(color.G * (uint32_t) level / 65535);
   new_color.G = temp_level;
-  temp_level = color.B * (uint32_t) level / 65535;
+  temp_level = (uint8_t)(color.B * (uint32_t) level / 65535);
   new_color.B = temp_level;
 
   return new_color;
@@ -215,4 +225,6 @@ void app_led_init(void)
  ******************************************************************************/
 void app_led_change_buttons_to_leds(void)
 {
+  //No need to change the pin configuration as the LED and the buttons don't share pins.
+  return;
 }

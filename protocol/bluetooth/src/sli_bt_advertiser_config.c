@@ -26,7 +26,7 @@
 // component's configuration file. The top-level Bluetooth stack configuration
 // calculates a sum of all advertiser needs, and that value is used to configure
 // the advertiser feature.
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, advertiser, sli_bt_advertiser_config_t) = {
+const sli_bt_advertiser_config_t sli_bt_advertiser_config = {
   .max_advertisers = SL_BT_CONFIG_MAX_ADVERTISERS
 };
 

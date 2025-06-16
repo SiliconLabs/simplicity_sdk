@@ -3,7 +3,7 @@
  * @brief Wi-SUN application keychain
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -22,32 +22,14 @@
 #include "sl_status.h"
 
 /**************************************************************************//**
- * @addtogroup SL_WISUN_KEYCHAIN Wi-SUN Keychain API
- *
- * Wi-SUN Keychain API is an interface for retrieving device credentials and
- * trusted CA certificates from a set of keychains. Since certificates are
- * considered public information, both trusted CA certificates and device
- * certificates are stored in plaintext, regardless of the keychain.
- *
- * Supported keychain types:
- *   - *built-in*
- *
- *     Built-in keychain is added during compilation time and cannot be changed.
- *     Device private keys are stored unecrypted.
- *
- *   - *NVM*
- *
- *     NVM keychain is dynamically provisioned either during device production
- *     or while on the field. Device private keys are either stored unencrypted
- *     in NVM or in PSA ITS. Depending on the device capabilities, PSA ITS may
- *     be encrypted.
- *
+ * @addtogroup SL_WISUN_KEYCHAIN Keychain
  * @{
  *****************************************************************************/
 
 /// Enumeration for keychain
 typedef enum {
-  /// Automatic keychain selection
+  /// Automatic keychain selection. If SL_WISUN_KEYCHAIN_NVM does not have
+  /// any credentials, SL_WISUN_KEYCHAIN_BUILTIN is used instead.
   SL_WISUN_KEYCHAIN_AUTOMATIC,
   /// Built-in keychain
   SL_WISUN_KEYCHAIN_BUILTIN,
@@ -58,10 +40,12 @@ typedef enum {
 /// Data structure for a keychain entry
 typedef struct {
   /// Pointer to data. When freeing a keychain entry, this pointer must not
-  /// need to be freed.
+  /// be freed.
   const void *data;
   /// Amount of data in bytes
   size_t data_length;
+  /// Keychain were the entry is stored
+  sl_wisun_keychain_t keychain;
 } sl_wisun_keychain_entry_t;
 
 /// Enumeration for private key type
@@ -76,6 +60,8 @@ typedef enum {
 typedef struct {
   /// Type of the private key
   sl_wisun_keychain_key_type_t type;
+  /// Keychain were the private keý is stored
+  sl_wisun_keychain_t keychain;
   /// Private key
   union {
     /// Private key when type is SL_WISUN_KEYCHAIN_KEY_TYPE_PLAINTEXT
@@ -100,7 +86,7 @@ typedef struct {
  *   - #SL_WISUN_KEYCHAIN_AUTOMATIC: Use NVM keychain if available, built-in otherwise
  *   - #SL_WISUN_KEYCHAIN_BUILTIN: Use built-in keychain
  *   - #SL_WISUN_KEYCHAIN_NVM: Use NVM keychain
- * @param[in] index Built-in credential index
+ * @param[in] index Built-in credential index (0...max)
  * @return Pointer to the device credential on success, NULL otherwise.
  *
  * This function retrieves a device credential from the given keychain. Calling

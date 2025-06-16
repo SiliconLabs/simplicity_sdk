@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_rb4115b
 - label: XG24-RB4115B
-- package: platform
+- package: boards
 - description: Kit BSP support for the BG24 2.4 GHz 4 dBm WLCSP Radio Board kit.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

@@ -41,7 +41,8 @@ class ModelOutputType(Enum):
 class ModelOutput(object):
     def __init__(self, var, category, output_type, readable_name=None,
                  value_limit_min=None, value_limit_max=None, override=None,
-                 fractional_digits=None, in_public_log=False):
+                 fractional_digits=None, in_public_log=False,
+                 groups=None):
         # assert isinstance(var, ModelVariable), "FATAL ERROR: var is not ModelVariable"
         self._var = var
         if readable_name is None:
@@ -57,6 +58,13 @@ class ModelOutput(object):
         self.value_limit_max = value_limit_max
         self.fractional_digits = fractional_digits
         self.in_public_log = in_public_log
+
+        if groups is None:
+            self.groups = list()
+        elif type(groups) == str:
+            self.groups = groups.split(',')
+        else:
+            self.groups = groups
 
     @property
     def var_name(self):
@@ -146,6 +154,21 @@ class ModelOutput(object):
     def var(self):
         return self._var
 
+    @property
+    def groups(self):
+        return self._groups
+
+    @groups.setter
+    def groups(self, value):
+        self._groups = value
+
+    def _groups_to_string(self, groups_string):
+        if groups_string and type(groups_string) is list:
+            groups = ','.join(str(x).strip() for x in groups_string)
+        else:
+            groups = None
+        return groups
+
     def to_type_xml(self):
         return model_type.outputType2(var_name=self.var_name,
                                       readable_name=self.readable_name,
@@ -154,7 +177,8 @@ class ModelOutput(object):
                                       value_limit_min=self.value_limit_min,
                                       value_limit_max=self.value_limit_max,
                                       output_type=self.output_type.name,
-                                      fractional_digits=self.fractional_digits)
+                                      fractional_digits=self.fractional_digits,
+                                      groups=self._groups_to_string(self.groups))
 
     def to_instance_xml(self):
         try:
@@ -174,7 +198,8 @@ class ModelOutput(object):
                                       output_type=self.output_type.name,
                                       var_values=var_values_obj,
                                       var_overrides=var_overrides_obj,
-                                      fractional_digits=self.fractional_digits)
+                                      fractional_digits=self.fractional_digits,
+                                      groups=self._groups_to_string(self.groups))
 
     def __str__(self):
         out = '        Output:\n'
@@ -195,6 +220,11 @@ class ModelOutput(object):
         if self.fractional_digits is not None:
             out += '            fractional_digits: {}\n'.format(self.fractional_digits)
         out += '            in_public_log: {}\n'.format(self.in_public_log)
+        if self.fractional_digits is not None:
+            out += '            fractional_digits: {}\n'.format(self.fractional_digits)
+        out += '            in_public_log: {}\n'.format(self.in_public_log)
+        if self.groups:
+            out += '            groups: {}\n'.format(self._groups_to_string(self.groups))
         return out
 
 

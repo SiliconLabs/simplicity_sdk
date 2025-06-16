@@ -89,9 +89,6 @@ void connect_sleep_init(void)
 
   sl_power_manager_subscribe_em_transition_event(&pm_handle, &pm_event_info);
 
-  // Ensure EM2 is the lowest low power mode
-  sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
-
   // Set initial power requirement to EM1
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
   em1_requirement_set = true;

@@ -42,11 +42,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup SelfProvisioning
- * @{
- ******************************************************************************/
-
 // Key position
 #define KEY_INDEX                     0
 // Old key data. Old key data can be queried only during the key refresh.
@@ -64,11 +59,11 @@
 // Network key index to which the application key is bound
 #define APPKEY_BOUND_TO_NETKEY        0
 
-/***************************************************************************//**
+/*******************************************************************************
    // Static Function Declarations
  ******************************************************************************/
 
-/***************************************************************************//**
+/*******************************************************************************
  * Self provisioning according to input parameters
  *
  * @dev_key[in] - device key
@@ -79,14 +74,14 @@ static void sl_btmesh_self_provisioning(aes_key_128 dev_key,
                                         aes_key_128 net_key,
                                         uint16_t address);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Add an application key locally.
  *
  * @app_key[in] - application key
  ******************************************************************************/
 static void sl_btmesh_add_app_key(aes_key_128 app_key);
 
-/***************************************************************************//**
+/*******************************************************************************
  * CLI Callback
  * @param[in] arguments pointer to CLI arguments
  ******************************************************************************/
@@ -150,7 +145,7 @@ void sl_btmesh_add_app_key_from_cli(sl_cli_command_arg_t *arguments)
 }
 #endif // SL_CATALOG_CLI_PRESENT
 
-/***************************************************************************//**
+/*******************************************************************************
    // Helper functions
  ******************************************************************************/
 void sl_btmesh_self_provisioning(aes_key_128 dev_key,
@@ -224,5 +219,3 @@ void sl_btmesh_add_app_key(aes_key_128 app_key)
 
   log_info("Application key added"NL);
 }
-
-/** @} (end addtogroup SelfProvisioning) */

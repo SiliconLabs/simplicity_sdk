@@ -104,10 +104,10 @@ static sli_psec_osal_lock_t se_lock = { 0 };
 
   #if defined(SL_SE_MANAGER_YIELD_WHILE_WAITING_FOR_COMMAND_COMPLETION)
 // SE command completion.
-static sli_psec_osal_completion_t se_command_completion;
+static volatile sli_psec_osal_completion_t se_command_completion;
 // SE mailbox command response code. This value is read from the SEMAILBOX
 // in ISR in order to clear the command complete interrupt condition.
-static sli_se_mailbox_response_t se_manager_command_response = SLI_SE_RESPONSE_INTERNAL_ERROR;
+static volatile sli_se_mailbox_response_t se_manager_command_response = SLI_SE_RESPONSE_INTERNAL_ERROR;
   #endif // SL_SE_MANAGER_YIELD_WHILE_WAITING_FOR_COMMAND_COMPLETION
 
 #endif // #if defined (SL_SE_MANAGER_THREADING)
@@ -141,7 +141,7 @@ sl_status_t sl_se_init(void)
       #if defined(SL_SE_MANAGER_YIELD_WHILE_WAITING_FOR_COMMAND_COMPLETION)
     if (ret == SL_STATUS_OK) {
       // Initialize command completion object.
-      ret = sli_psec_osal_init_completion(&se_command_completion);
+      ret = sli_psec_osal_init_completion((sli_psec_osal_completion_t *)&se_command_completion);
       if (ret == SL_STATUS_OK) {
         // Enable SE RX mailbox interrupt in NVIC, but not in SEMAILBOX
         // which will be enabled if the yield parameter in
@@ -199,7 +199,7 @@ sl_status_t sl_se_deinit(void)
     NVIC_ClearPendingIRQ(SEMBRX_IRQn);
     NVIC_DisableIRQ(SEMBRX_IRQn);
     // Free command completion object.
-    ret = sli_psec_osal_free_completion(&se_command_completion);
+    ret = sli_psec_osal_free_completion((sli_psec_osal_completion_t *)&se_command_completion);
       #endif // SL_SE_MANAGER_YIELD_WHILE_WAITING_FOR_COMMAND_COMPLETION
 
       #if defined(SL_SE_MANAGER_THREADING)
@@ -325,7 +325,7 @@ void SEMBRX_IRQHandler(void)
   // Check if the SE mailbox is the source of the interrupt.
   if (SEMAILBOX_HOST->RX_STATUS & SEMAILBOX_RX_STATUS_RXINT) {
     // Signal SE mailbox completion.
-    status = sli_psec_osal_complete(&se_command_completion);
+    status = sli_psec_osal_complete((sli_psec_osal_completion_t *)&se_command_completion);
     EFM_ASSERT(status == SL_STATUS_OK);
   }
   // Get command response and clear interrupt condition in SEMAILBOX peripheral
@@ -394,7 +394,7 @@ sl_status_t sli_se_execute_and_wait(sl_se_command_context_t *cmd_ctx)
     sli_se_mailbox_enable_interrupt(SEMAILBOX_CONFIGURATION_RXINTEN);
 
     // Yield and Wait for the command completion signal
-    status = sli_psec_osal_wait_completion(&se_command_completion,
+    status = sli_psec_osal_wait_completion((sli_psec_osal_completion_t *)&se_command_completion,
                                            SLI_PSEC_OSAL_WAIT_FOREVER);
 
     // Disable SEMAILBOX RXINT interrupt.
@@ -531,6 +531,7 @@ sl_status_t sl_se_ack_command(sl_se_command_context_t *cmd_ctx)
 /***************************************************************************//**
  * Initialize an SE command context object
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_se_init_command_context(sl_se_command_context_t *cmd_ctx)
 {
   sl_se_command_context_t v = SL_SE_COMMAND_CONTEXT_INIT;

@@ -1,5 +1,5 @@
 id: mbedtls_asn1
-package: platform
+package: security_mbedtls
 label: ASN.1 Parsing
 description: >-
   This component provides support for ASN.1 parsing and writing using Mbed TLS.

@@ -50,6 +50,11 @@
 #include "sl_btmesh_sensor_people_count.h"
 #endif // SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
 
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+#include "sl_btmesh_sensor_power_consumption_config.h"
+#include "sl_btmesh_sensor_power_consumption.h"
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+
 #include "sl_btmesh_sensor_server.h"
 #include "sli_btmesh_sensor_server_cadence.h"
 
@@ -63,12 +68,16 @@
 #define FAST_CADENCE_DELTA_SHIFT                          8
 /// Length of people count sensor get cadence status buffer
 #define SENSOR_PEOPLE_COUNT_GET_CADENCE_BUF_LEN           10
+/// Length of power consumption sensor get cadence status buffer
+#define SENSOR_POWER_CONSUMPTION_GET_CADENCE_BUF_LEN      17
 /// Length of thermometer (discrete trigger type) get cadence status buffer
 #define SENSOR_THERMOMETER_DISCRETE_GET_CADENCE_BUF_LEN   6
 /// Length of thermometer (percentage trigger type) get cadence status buffer
 #define SENSOR_THERMOMETER_PERCENTAGE_GET_CADENCE_BUF_LEN 8
 /// Length of people count sensor set cadence parameter buffer
 #define SENSOR_PEOPLE_COUNT_CADENCE_PARAM_LEN             9
+/// Length of power consumption sensor set cadence parameter buffer
+#define SENSOR_POWER_CONSUMPTION_CADENCE_PARAM_LEN        16
 /// Length of thermometer (discrete trigger type) set cadence status buffer
 #define SENSOR_THERMOMETER_CADENCE_PERCENTAGE_PARAM_LEN   7
 /// Length of thermometer (percentage trigger type) set cadence status buffer
@@ -90,17 +99,31 @@
 // RHT and people count sensor present
 #if SENSOR_PEOPLE_COUNT_CADENCE
 #define SENSOR_PEOPLE_COUNT_INDEX                         1
+// RHT, people count and power consumption sensor present
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+#define SENSOR_POWER_CONSUMPTION_INDEX                    2
+#endif //SENSOR_POWER_CONSUMPTION_CADENCE
+// RHT and power consumption sensor present
+#elif SENSOR_POWER_CONSUMPTION_CADENCE
+#define SENSOR_POWER_CONSUMPTION_INDEX                    1
 #endif // SENSOR_PEOPLE_COUNT_CADENCE
-
-// RHT sensor not present, people count sensor present
+// RHT not present, people count sensor present
 #elif SENSOR_PEOPLE_COUNT_CADENCE
 #define SENSOR_PEOPLE_COUNT_INDEX                         0
-#endif // SENSOR_PEOPLE_COUNT_CADENCE
+// RHT not present, people count and power consumption sensor present
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+#define SENSOR_POWER_CONSUMPTION_INDEX                    1
+#endif //SENSOR_POWER_CONSUMPTION_CADENCE
+// RHT not present, people count not present,
+//power consumption sensor present
+#elif SENSOR_POWER_CONSUMPTION_CADENCE
+#define SENSOR_POWER_CONSUMPTION_INDEX                    0
+#endif // SENSOR_THERMOMETER_CADENCE
 
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
 // Cadence parameters of supported sensors
 static struct sensort_cadence_state cadences[SENSOR_THERMOMETER_CADENCE
-                                             + SENSOR_PEOPLE_COUNT_CADENCE];
+                                             + SENSOR_PEOPLE_COUNT_CADENCE + SENSOR_POWER_CONSUMPTION_CADENCE];
 
 static int delta_abs (int val);
 #endif
@@ -114,6 +137,15 @@ static bool sensor_people_count_fast_cadence(count16_t people_count);
 static bool sensor_people_count_delta_cadence(count16_t people_count);
 #endif // SENSOR_PEOPLE_COUNT_CADENCE
 
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+/// Previously measured power consumption value
+static energy32_t prev_power_consumption_data;
+
+// Power consumption sensor internals
+static bool sensor_power_consumption_fast_cadence(energy32_t pwr_cons);
+static bool sensor_power_consumption_delta_cadence(energy32_t pwr_cons);
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
+
 #if SENSOR_THERMOMETER_CADENCE
 /// Previously measured temperature value
 static temperature_8_t prev_temp_data;
@@ -122,6 +154,227 @@ static temperature_8_t prev_temp_data;
 static bool sensor_thermometer_fast_cadence(temperature_8_t current_temperature);
 static bool sensor_thermometer_delta_cadence(temperature_8_t current_temperature);
 #endif // SENSOR_THERMOMETER_CADENCE
+
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+void sli_btmesh_sensor_power_consumption_cadence_init(energy32_t pwr_cons)
+{
+  static uint32_t delta_down =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_TRIGGER_DELTA_DOWN_CFG_VAL;
+  static uint32_t delta_up =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_TRIGGER_DELTA_UP_CFG_VAL;
+
+  static uint32_t cadence_low =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_FAST_CADENCE_LOW_CFG_VAL;
+  static uint32_t cadence_high =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_FAST_CADENCE_HIGH_CFG_VAL;
+
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].property_id = PRECISE_TOTAL_DEVICE_ENERGY_USE;
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].period_divisor =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_FAST_CADENCE_PERIOD_DIVISOR_CFG_VAL;
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_type =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_TRIGGER_TYPE_CFG_VAL;
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].min_interval =  SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_MIN_INTERVAL_CFG_VAL;
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.size = sizeof(cadence_low);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value = (uint8_t*)(&cadence_low);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.size = sizeof(cadence_high);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value = (uint8_t*)(&cadence_high);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.size = sizeof(delta_down);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value = (uint8_t*)(&delta_down);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.size = sizeof(delta_up);
+  cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value = (uint8_t*)(&delta_up);
+
+  prev_power_consumption_data = pwr_cons;
+}
+
+uint32_t sli_btmesh_sensor_power_consumption_handle_cadence(energy32_t pwr_cons, sl_btmesh_evt_sensor_server_publish_t publish_period)
+{
+  uint32_t ret_timer_value = publish_period.period_ms;
+
+  // Check if the measured value requires publishing period modification
+  if (sensor_power_consumption_delta_cadence(pwr_cons)
+      || sensor_power_consumption_fast_cadence(pwr_cons)) {
+    // Calculate new publishing timer value
+    ret_timer_value = publish_period.period_ms / (1 << cadences[SENSOR_POWER_CONSUMPTION_INDEX].period_divisor);
+    if (ret_timer_value < (uint32_t)(1 << cadences[SENSOR_POWER_CONSUMPTION_INDEX].min_interval)) {
+      ret_timer_value = (uint32_t)(1 << cadences[SENSOR_POWER_CONSUMPTION_INDEX].min_interval);
+    }
+  }
+  prev_power_consumption_data = pwr_cons;
+
+  return ret_timer_value;
+}
+
+sl_status_t sli_btmesh_sensor_power_consumption_set_cadence(sl_btmesh_evt_sensor_setup_server_set_cadence_request_t* evt)
+{
+  sl_status_t sc = SL_STATUS_FAIL;
+
+  // Check if the received parameters are in valid range
+  if ((SENSOR_POWER_CONSUMPTION_CADENCE_PARAM_LEN == evt->params.len)
+      && (MAX_PERIOD_DIVISOR >= evt->period_divisor)
+      && (MAX_TRIGGER_TYPE >= evt->trigger_type)
+      && (MAX_PUBLISHING_MIN_INTERVAL >= evt->params.data[4])) {
+    sc = SL_STATUS_OK;
+  }
+
+  // Store incoming power consumption sensor cadence parameters
+  if (sc == SL_STATUS_OK) {
+    sc = app_btmesh_rta_acquire();
+    if (sc != SL_STATUS_OK) {
+      return sc;
+    }
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].period_divisor = evt->period_divisor;
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_type = evt->trigger_type;
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[0] = evt->params.data[0];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[1] = evt->params.data[1];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[2] = evt->params.data[2];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[3] = evt->params.data[3];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[0] = evt->params.data[4];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[1] = evt->params.data[5];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[2] = evt->params.data[6];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[3] = evt->params.data[7];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].min_interval = evt->params.data[8];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[0] = evt->params.data[9];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[1] = evt->params.data[10];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[2] = evt->params.data[11];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[3] = evt->params.data[12];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[0] = evt->params.data[13];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[1] = evt->params.data[14];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[2] = evt->params.data[15];
+    cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[3] = evt->params.data[16];
+    (void) app_btmesh_rta_release();
+  }
+  return sc;
+}
+
+sl_status_t sli_btmesh_sensor_power_consumption_get_cadence(uint8_t length, uint8_t* get_cadence_buffer, uint16_t* buffer_len)
+{
+  if (SENSOR_POWER_CONSUMPTION_GET_CADENCE_BUF_LEN <= length) {
+    sl_status_t sc;
+    sc = app_btmesh_rta_acquire();
+    if (sc != SL_STATUS_OK) {
+      return sc;
+    }
+    get_cadence_buffer[0] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].period_divisor
+                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_type << STATUS_TRIGGER_TYPE_SHIFT);
+    get_cadence_buffer[1] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[0];
+    get_cadence_buffer[2] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[1];
+    get_cadence_buffer[3] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[2];
+    get_cadence_buffer[4] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[3];
+    get_cadence_buffer[5] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[0];
+    get_cadence_buffer[6] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[1];
+    get_cadence_buffer[7] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[2];
+    get_cadence_buffer[4] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[3];
+    get_cadence_buffer[9] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].min_interval;
+    get_cadence_buffer[10] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[0];
+    get_cadence_buffer[11] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[1];
+    get_cadence_buffer[12] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[2];
+    get_cadence_buffer[13] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[3];
+    get_cadence_buffer[14] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[0];
+    get_cadence_buffer[15] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[1];
+    get_cadence_buffer[16] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[2];
+    get_cadence_buffer[17] = cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[3];
+    (void) app_btmesh_rta_release();
+    *buffer_len = SENSOR_POWER_CONSUMPTION_GET_CADENCE_BUF_LEN;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * Check if the measured value requires publishing period modification.
+ *
+ * @param[in] pwr_cons    Power consumption sensor data value
+ *
+ * @return True if publishing period modification is required false otherwise
+ ******************************************************************************/
+static bool sensor_power_consumption_fast_cadence(energy32_t pwr_cons)
+{
+  bool ret_val = false;
+  uint32_t fast_cadence_high = (energy32_t)(cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[0]
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[1] << FAST_CADENCE_DELTA_SHIFT)
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[2] << (2 * FAST_CADENCE_DELTA_SHIFT))
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_high.value[2] << (3 * FAST_CADENCE_DELTA_SHIFT)));
+  uint32_t fast_cadence_low  = (energy32_t)(cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[0]
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[1] << FAST_CADENCE_DELTA_SHIFT)
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[2] << (2 * FAST_CADENCE_DELTA_SHIFT))
+                                            | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].fast_cadence_low.value[3] << (3 * FAST_CADENCE_DELTA_SHIFT)));
+
+  // Check if the Fast Cadence High value is equal or higher than the Fast Cadence Low value
+  if (fast_cadence_high >= fast_cadence_low) {
+    // If the measured value is within the closed interval of
+    // [Fast Cadence Low, Fast Cadence High], Sensor Status publishing period
+    // modification is required.
+    if ((pwr_cons >= fast_cadence_low)
+        && (pwr_cons <= fast_cadence_high)) {
+      ret_val = true;
+    }
+    // Check if the Fast Cadence High value is lower than the Fast Cadence Low value
+  } else {
+    // If the measured value is lower than the Fast Cadence High value or is
+    // higher than the Fast Cadence Low value, Sensor Status publishing period
+    // modification is required.
+    if ((pwr_cons < fast_cadence_high)
+        || (pwr_cons > fast_cadence_low)) {
+      ret_val = true;
+    }
+  }
+
+  return ret_val;
+}
+
+/*******************************************************************************
+ * Check if the change of the measured value requires publishing period modification.
+ *
+ * @param[in] pwr_cons    Power consumption sensor data value
+ *
+ * @return True if publishing period modification is required false otherwise
+ ******************************************************************************/
+static bool sensor_power_consumption_delta_cadence(energy32_t pwr_cons)
+{
+  bool ret_val = false;
+  uint16_t delta_percent;
+  uint32_t delta_cadence_up = (uint32_t)(cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[0]
+                                         | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[1] << FAST_CADENCE_DELTA_SHIFT)
+                                         | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[2] << (2 * FAST_CADENCE_DELTA_SHIFT))
+                                         | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_up.value[3] << (3 * FAST_CADENCE_DELTA_SHIFT)));
+  uint32_t delta_cadence_down = (uint32_t)(cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[0]
+                                           | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[1] << FAST_CADENCE_DELTA_SHIFT)
+                                           | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[2] << (2 * FAST_CADENCE_DELTA_SHIFT))
+                                           | (cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_delta_down.value[2] << (3 * FAST_CADENCE_DELTA_SHIFT)));
+
+  // Check the unit and format of the Status Trigger Delta Down and
+  // the Status Trigger Delta Up fields.
+  if (SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_TRIGGER_TYPE_DISCRETE_VALUE_CFG_VAL == cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_type) {
+    // If the power consumption change is rising and the measured quantity change
+    // exceeds the configured Status Trigger Delta Up value, Sensor Status
+    // publishing period modification is required.
+    if ((pwr_cons > prev_power_consumption_data)
+        && ((pwr_cons - prev_power_consumption_data) >= (energy32_t)delta_cadence_up)) {
+      ret_val = true;
+      // If the power consumption change is falling and the measured quantity change
+      // exceeds the configured Status Trigger Delta Down value, Sensor Status
+      // publishing period modification is required.
+    } else if ((pwr_cons < prev_power_consumption_data)
+               && ((prev_power_consumption_data - pwr_cons) >= (energy32_t)delta_cadence_down)) {
+      ret_val = true;
+    } else {
+    }
+    // Same check with measured value represented unitless as percentage
+  } else if ((SL_BTMESH_SENSOR_POWER_CONSUMPTION_STATUS_TRIGGER_TYPE_PERCENTAGE_CFG_VAL == cadences[SENSOR_POWER_CONSUMPTION_INDEX].status_trigger_type)
+             && (prev_power_consumption_data != pwr_cons)) {
+    if (!prev_power_consumption_data) {
+      delta_percent = PERCENTAGE_FULL;
+    } else {
+      delta_percent = delta_abs((delta_abs(prev_power_consumption_data - pwr_cons) * PERCENTAGE_FULL) / prev_power_consumption_data);
+    }
+
+    if ((pwr_cons > prev_power_consumption_data) && (delta_percent >= delta_cadence_up)) {
+      ret_val = true;
+    } else if ((pwr_cons < prev_power_consumption_data) && (delta_percent >= delta_cadence_down)) {
+      ret_val = true;
+    } else {
+    }
+  } else {
+  }
+
+  return ret_val;
+}
+
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
 
 #if SENSOR_PEOPLE_COUNT_CADENCE
 
@@ -227,7 +480,7 @@ sl_status_t sli_btmesh_sensor_people_count_get_cadence(uint8_t length, uint8_t* 
   return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check if the measured value requires publishing period modification.
  *
  * @param[in] people_count    People count sensor data value
@@ -265,7 +518,7 @@ static bool sensor_people_count_fast_cadence(count16_t people_count)
   return ret_val;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check if the change of the measured value requires publishing period modification.
  *
  * @param[in] people_count    People count sensor data value
@@ -458,7 +711,7 @@ sl_status_t sli_btmesh_sensor_thermometer_get_cadence(uint8_t length, uint8_t* g
   return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check if the measured value requires publishing period modification.
  *
  * @param[in] temperature     Thermometer sensor data value.
@@ -493,7 +746,7 @@ static bool sensor_thermometer_fast_cadence(temperature_8_t temperature)
   return ret_val;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check if the change of the measured value requires publishing period modification.
  *
  * @param[in] temperature     Thermometer sensor data value.
@@ -552,7 +805,7 @@ static bool sensor_thermometer_delta_cadence(temperature_8_t temperature)
 
 #endif // SENSOR_THERMOMETER_CADENCE
 
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
 // Return the absolute value of val.
 static int delta_abs(int val)
 {

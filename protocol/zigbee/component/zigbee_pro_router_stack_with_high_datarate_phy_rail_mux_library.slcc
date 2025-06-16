@@ -2,7 +2,7 @@
 #run "sled lib export <FILENAME> to generate
 id: zigbee_pro_router_stack_with_high_datarate_phy_rail_mux_library
 label: Zigbee PRO Router Stack with High datarate PHY and rail mux (Library)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

@@ -1,7 +1,7 @@
 !!omap
 - id: slwrb4308a
 - label: SLWRB4308A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xGM210PA32 Wireless Gecko Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2024 Silicon Laboratories Inc. www.silabs.com
+# Copyright 2025 Silicon Laboratories Inc. www.silabs.com
 #
 # SPDX-License-Identifier: Zlib
 #
@@ -27,17 +27,14 @@
 Create an EC key pair and a certificate for either the Central or an Intermediate Authority of the given level.
 
 Prerequisites:
-Python 3.
+Python 3.9 or higher.
 Python packages contained in `requirements.txt`.
   Run `pip install -r requirements.txt` to install all requirements for the application.
 For intermediate CA creation, the higher level (n-1) CA must be present. (Except for root CA generation.)
-
-Note:
-This script overwrites the existing private key and certificate that belongs to the given level.
 '''
 # Metadata
 __author__ = 'Silicon Laboratories, Inc'
-__copyright__ = 'Copyright 2024, Silicon Laboratories, Inc.'
+__copyright__ = 'Copyright 2025, Silicon Laboratories, Inc.'
 
 import os
 import pathlib
@@ -75,15 +72,17 @@ def main(level,
         name = 'intermediate_' + str(level)
 
     path_dir = os.path.join(os.path.abspath(os.path.join((__file__), '..')), name + '_authority')
+    # Check if certificate authority already exists
+    if os.path.exists(path_dir):
+        raise FileExistsError(f'Directory: {path_dir} already exists. Please remove it first.')
+    os.makedirs(path_dir)
+
     path_key = os.path.join(path_dir, 'private_key.pem')
     path_cert = os.path.join(path_dir, 'certificate.pem')
     path_template = os.path.join(os.path.abspath(os.path.join((__file__), '..')), 'sl_bt_cbap_root_cert.h.jinja')
 
     if level == 0:
         path_database = os.path.join(path_dir, 'issued_certificates.yaml')
-        if os.path.exists(path_database):
-            print(path_database + ' already exists. Removing.')
-            os.remove(path_database)
     else:
         # For intermediate certificate creation, check the existence of the higher certificate.
         if level == 1:
@@ -96,21 +95,8 @@ def main(level,
         path_prev_cert = os.path.join(path_prev_dir, 'certificate.pem')
         path_database = os.path.join(path_prev_dir, 'issued_certificates.yaml')
 
-        if not os.path.exists(path_prev_key) or not os.path.exists(path_prev_cert):
+        if not os.path.exists(path_prev_key) or not os.path.exists(path_prev_cert) or not os.path.exists(path_database):
             raise FileNotFoundError(prev_name + ' authority cannot be found at ' + path_prev_dir)
-
-    # Create directory
-    if not os.path.exists(path_dir):
-        os.makedirs(path_dir)
-
-    # Remove output files
-    if os.path.exists(path_key):
-        print(path_key + ' already exists. Removing.')
-        os.remove(path_key)
-
-    if os.path.exists(path_cert):
-        print(path_cert + ' already exists. Removing.')
-        os.remove(path_cert)
 
     # Generate EC key pair. Use X9.62/SECG curve over a 256 bit prime field (aka prime256v1).
     key = ec.generate_private_key(ec.SECP256R1())
@@ -158,7 +144,7 @@ def main(level,
 
         # Check the validity of the higher authority.
         # Note: if there is a revocation list, it should be also checked if the certificate is revoked or not.
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.now(datetime.timezone.utc)
         if now < root_cert.not_valid_before_utc or root_cert.not_valid_after_utc < now:
             raise Exception('The validity period of ' + path_prev_cert + ' has expired.')
 
@@ -193,7 +179,7 @@ def create_certificate(public_key, subjects, validity, policy_oid, signing_key, 
     cert -- The created certificate.
     '''
     # Create certificate
-    now = datetime.datetime.now(datetime.UTC)
+    now = datetime.datetime.now(datetime.timezone.utc)
     cert = (x509.CertificateBuilder()
         .subject_name(subjects)
         .issuer_name(issuer)
@@ -290,39 +276,32 @@ def load_args():
 
     parser.add_argument('--state',
                         default='Texas',
-                        type=str,
                         help='The state subject of the x509 certificate.')
 
     parser.add_argument('--locality',
                         default='Austin',
-                        type=str,
                         help='The locality subject of the x509 certificate.')
 
     parser.add_argument('--organization',
                         default='Silicon Laboratories',
-                        type=str,
                         help='The organization subject of the x509 certificate.')
 
     parser.add_argument('--organizationalUnit',
                         default='Wireless',
-                        type=str,
                         help='The organizational unit subject of the x509 certificate.',
                         dest='organizational_unit')
 
     parser.add_argument('--commonName',
                         default='Silabs',
-                        type=str,
                         help='The common name unit subject of the x509 certificate.',
                         dest='common_name')
 
     parser.add_argument('--emailAddress',
                         default='support@silabs.com',
-                        type=str,
                         help='The e-mail address unit subject of the x509 certificate.',
                         dest='email_address')
 
     parser.add_argument('-c', '--certificatePolicy',
-                        type=str,
                         help='The optional Certificate Policy Information extension. '\
                              'Only a policy OID is supported.',
                         dest='policy_oid')

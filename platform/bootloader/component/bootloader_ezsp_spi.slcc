@@ -11,6 +11,8 @@ quality: production
 source:
   - path: platform/bootloader/communication/ezsp-spi/btl_ezsp_spi.c
     unless: [bootloader_core_secure]
+  - path: platform/bootloader/communication/ezsp-spi/btl_ezsp_spi_util_s2.c
+    unless: [bootloader_core_secure]
   - path: platform/bootloader/communication/ezsp-spi/btl_ezsp_spi_common.c
     unless: [bootloader_core_secure]
   - path: platform/bootloader/communication/ezsp-spi/btl_ezsp_spi_veneers.c

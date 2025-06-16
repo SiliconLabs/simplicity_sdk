@@ -1,13 +1,15 @@
 id: bt_fp_aoa
 label: Bluetooth Feature Pack - AoA
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
-  Includes selection of Bluetooth stack AoA features.
+  This component is deprecated, its sole purpose is to support backward
+  compatibility with example projects that use it. Please use Bluetooth
+  AoA feature components directly.
 category: Bluetooth|Application|Miscellaneous
 metadata:
   sbom:
     license: Zlib
-quality: production
+quality: deprecated
 root_path: app/bluetooth
 requires:
   - name: bluetooth_stack

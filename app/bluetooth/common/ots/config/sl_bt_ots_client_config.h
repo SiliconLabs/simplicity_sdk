@@ -40,17 +40,18 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <q SL_BT_OTS_CLIENT_CONFIG_READ_REQUEST_QUEUE_SIZE> Read request queue size per connection
+// <o SL_BT_OTS_CLIENT_CONFIG_READ_REQUEST_QUEUE_SIZE> Read request queue size per connection
 // <i> Size of the read request queue.
-#define SL_BT_OTS_CLIENT_CONFIG_READ_REQUEST_QUEUE_SIZE                            5
+#define SL_BT_OTS_CLIENT_CONFIG_READ_REQUEST_QUEUE_SIZE     5
 
-// <q SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_QUEUE_SIZE> Write request queue size per connection
+// <o SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_QUEUE_SIZE> Write request queue size per connection
 // <i> Size of the write request queue.
-#define SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_QUEUE_SIZE                           1
+#define SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_QUEUE_SIZE    1
 
-// <q SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_DATA_SIZE> Maximum write request data length
+// <o SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_DATA_SIZE> Maximum write request data length <258-2049>
 // <i> Maximum length of the write request content.
-#define SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_DATA_SIZE                            255
+// <i> The recommended size is aligned with the ATT MTU size plus sizeof(uint16_t)
+#define SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_DATA_SIZE     521
 
 // <<< end of configuration section >>>
 

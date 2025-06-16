@@ -27,9 +27,9 @@ extern void sli_zigbee_af_reset_attributes(uint8_t endpointId);
 #define ZCL_FIXED_ENDPOINT_COUNT (10)
 #endif
 
-#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
+#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
 #include "sl-matter-attribute-storage.h"
-#endif // defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMOON_PRESENT)
+#endif // defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMOON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
 //------------------------------------------------------------------------------
 // Globals
 // This is not declared CONST in order to handle dynamic endpoint information
@@ -100,10 +100,11 @@ const uint16_t commandManufacturerCodeCount = ZCL_GENERATED_COMMAND_MANUFACTURER
 
 const sl_zigbee_af_attribute_metadata_t generatedAttributes[] = ZCL_GENERATED_ATTRIBUTES;
 // Attribute map between zigbee and matter.
-#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
+#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
 const sl_zigbee_matter_af_multi_protocol_attribute_metadata_t multiProtocolAttributeMap[] = GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING;
-const uint8_t mappedMpAttributeCount = (sizeof(multiProtocolAttributeMap) / sizeof(sl_zigbee_matter_af_multi_protocol_attribute_metadata_t));
-#endif // defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
+const sl_zigbee_matter_af_multi_protocol_cluster_metadata_t multiProtocolClusterMap[] = GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING;
+const uint8_t mappedMpClusterCount = (sizeof(multiProtocolClusterMap) / sizeof(sl_zigbee_matter_af_multi_protocol_cluster_metadata_t));
+#endif // defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
 const sl_zigbee_af_cluster_t generatedClusters[]          = ZCL_GENERATED_CLUSTERS;
 const sl_zigbee_af_endpoint_type_t generatedEmberAfEndpointTypes[]   = ZCL_GENERATED_ENDPOINT_TYPES;
 
@@ -456,11 +457,10 @@ sl_zigbee_af_attribute_metadata_t *sl_zigbee_af_locate_attribute_metadata(uint8_
   record.clusterMask = mask;
   record.attributeId = attributeId;
   record.manufacturerCode = manufacturerCode;
-  sli_zigbee_af_read_or_write_attribute(&record,
-                                        &metadata,
-                                        NULL, // buffer
-                                        0, // buffer size
-                                        false); // write?
+  sli_zigbee_af_read_attribute_from_storage(&record,
+                                            &metadata,
+                                            NULL, // buffer
+                                            0); // buffer size
   return metadata;
 }
 
@@ -486,6 +486,11 @@ static sl_zigbee_af_status_t typeSensitiveMemCopy(uint8_t* dest,
                                                   bool write,
                                                   uint16_t attributeReadDestBufferSize)
 {
+  if (dest == NULL) {
+    // no destination buffer provided, return error
+    return SL_ZIGBEE_ZCL_STATUS_INSUFFICIENT_SPACE;
+  }
+
   sl_zigbee_af_attribute_type_t attributeType = am->attributeType;
   uint16_t size = (attributeReadDestBufferSize == 0) ? am->size : attributeReadDestBufferSize;
 
@@ -594,6 +599,181 @@ bool sli_zigbee_af_match_attribute(sl_zigbee_af_cluster_t *cluster,
                   == attRecord->manufacturerCode)));
 }
 
+/**
+ * @brief Retrieves the endpoint type and storage offset for a given endpoint.
+ *
+ * This function determines the endpoint type and calculates the offset
+ * for attributes associated with the specified endpoint start in sl_zigbee_attribute_data array.
+ *
+ * @param[in]  endpoint          Endpoint number.
+ * @param[out] EpStorageOffset   Pointer to store the calculated storage offset.
+ *
+ * @return the endpoint type address if found; NULL otherwise.
+ */
+sl_zigbee_af_endpoint_type_t* getEndpointTypeAndStorageOffset(uint8_t endpoint, uint16_t* EpStorageOffset)
+{
+  if (EpStorageOffset == NULL) {
+    // invalid parameters we can't continue.
+    return NULL;
+  }
+
+  uint16_t offset = 0;
+  // Iterate over sli_zigbee_af_endpoints until the matching enabled endpoint is found
+  for (uint8_t epIndex = 0; epIndex < sl_zigbee_af_endpoint_count(); epIndex++) {
+    if (sli_zigbee_af_endpoints[epIndex].endpoint != endpoint) {
+      // Not our endpoint. Skip over all its attribute storage range
+      offset += sli_zigbee_af_endpoints[epIndex].endpointType->endpointSize;
+    } else if (sl_zigbee_af_endpoint_index_is_enabled(epIndex)) {
+      *EpStorageOffset = offset;
+      return sli_zigbee_af_endpoints[epIndex].endpointType;
+    }
+  }
+
+  // endpoint not found or is disabled.
+  return NULL;
+}
+
+/**
+ * @brief Retrieves the cluster for a given endpoint matching the attribute record.
+ *
+ * This function locates the cluster associated with the specified endpoint and cluster ID.
+ * It also calculates the storage offset of sl_zigbee_attribute_data array, for attributes within the cluster.
+ *
+ * @param[in]  endpoint          The endpoint number.
+ * @param[in]  attRecord         Pointer to the attribute search record containing search criteria.
+ * @param[out] clStorageOffset   Pointer to store the calculated storage offset.
+ *
+ * @return Pointer to the cluster if successfully retrieved; NULL otherwise.
+ */
+sl_zigbee_af_cluster_t* getClusterAndStorageOffset(sl_zigbee_af_endpoint_type_t* epType, sl_zigbee_af_attribute_search_record_t *attRecord, uint16_t* clStorageOffset)
+{
+  if (epType == NULL || attRecord == NULL || clStorageOffset == NULL) {
+    // invalid parameters we can't continue.
+    return NULL;
+  }
+  // Parse the endpoint's cluster list to find our matching cluster
+  uint16_t offset = 0;
+  for (uint8_t clusterIndex = 0;
+       clusterIndex < epType->clusterCount;
+       clusterIndex++) {
+    sl_zigbee_af_cluster_t* cluster = &(epType->cluster[clusterIndex]);
+    if (sli_zigbee_af_match_cluster(cluster, attRecord)) {
+      // Found the maching cluster. Parse its attribute list for our attribute.
+      *clStorageOffset = offset;
+      return cluster;
+    } else {
+      // This isn't the cluster we looking for, Skip over its attribute storage range
+      offset += cluster->clusterSize;
+    }
+  }
+  //cluster not found
+  return NULL;
+}
+
+/**
+ * @brief Retrieves the attribute metadata and calculates the storage offset for a given attribute.
+ *
+ * This function searches for the attribute metadata within the specified cluster based on the
+ * provided attribute search record. It also calculates the storage offset of sl_zigbee_attribute_data
+ * array for the attribute in the cluster's attribute storage.
+ *
+ * @param[in]  cluster           Pointer to the cluster containing the attributes.
+ * @param[in]  attRecord         Pointer to the attribute search record containing search criteria.
+ * @param[out] attStorageOffset  Pointer to store the calculated storage offset for the attribute.
+ *
+ * @return Pointer to the located attribute metadata if found; NULL otherwise.
+ */
+sl_zigbee_af_attribute_metadata_t* getAttributeMetaDataAndStorageOffset(sl_zigbee_af_cluster_t* cluster, sl_zigbee_af_attribute_search_record_t *attRecord, uint16_t* attStorageOffset)
+{
+  if (cluster == NULL ||  attRecord == NULL || attStorageOffset == NULL) {
+    // invalid parameters we can't continue.
+    return NULL;
+  }
+
+  uint16_t offset = 0;
+  for (uint16_t attrIndex = 0;
+       attrIndex < cluster->attributeCount;
+       attrIndex++) {
+    sl_zigbee_af_attribute_metadata_t* am = &(cluster->attributes[attrIndex]);
+    if (sli_zigbee_af_match_attribute(cluster,
+                                      am,
+                                      attRecord)) {
+      *attStorageOffset = offset;
+      return am;
+    } else if (!sl_zigbee_af_attribute_is_external(am) && !sl_zigbee_af_attribute_is_singleton(am)) {
+      // Not the attribute we are looking for
+      // Increase the attStorageOffset for non-singleton and non-external attributes.
+      offset += sl_zigbee_af_attribute_size(am);
+    }
+  }
+  //attribute not found
+  return NULL;
+}
+
+/**
+ * @brief Retrieves the cluster, attribute metadata, and storage location for a given attribute search record.
+ *
+ * This function searches for the cluster and attribute metadata based on the provided
+ * attribute search record. It also determines the storage location of the attribute,
+ * considering whether it is a singleton, external, or regular attribute.
+ *
+ * @param[in]  attRecord                 Pointer to the attribute search record containing search criteria.
+ * @param[out] cluster                   Pointer to store the located cluster.
+ * @param[out] attributeMetadata         Pointer to store the located attribute metadata.
+ * @param[out] attributeStorageLocation  Pointer to store the attribute's storage location.
+ *
+ * @return True if the cluster and attribute metadata are found; false otherwise.
+ */
+bool sli_retrieve_cluster_attribute_metadata_and_storage_location(
+  sl_zigbee_af_attribute_search_record_t *attRecord,
+  sl_zigbee_af_cluster_t **cluster,
+  sl_zigbee_af_attribute_metadata_t **attributeMetadata,
+  uint8_t **attributeStorageLocation)
+{
+  if (attRecord == NULL || cluster == NULL || attributeMetadata == NULL || attributeStorageLocation == NULL) {
+    // invalid parameters we can't continue.
+    return false;
+  }
+
+  // totalStorageOffset is used to track the offset in sl_zigbee_attribute_data where the non-single, non external attribute is stored.
+  uint16_t totalStorageOffset = 0;
+  uint16_t storageOffset = 0;
+  sl_zigbee_af_endpoint_type_t* endpointType = getEndpointTypeAndStorageOffset(attRecord->endpoint, &storageOffset);
+  if (endpointType == NULL) {
+    // No matching endpoint found
+    return false;
+  }
+
+  totalStorageOffset += storageOffset;
+  sl_zigbee_af_cluster_t* cl = getClusterAndStorageOffset(endpointType, attRecord, &storageOffset);
+  if (cl == NULL) {
+    // No matching cluster found
+    return false;
+  }
+
+  totalStorageOffset += storageOffset;
+  sl_zigbee_af_attribute_metadata_t* am = getAttributeMetaDataAndStorageOffset(cl, attRecord, &storageOffset);
+  if (am) {
+    *cluster = cl;
+    *attributeMetadata =  am;
+    totalStorageOffset += storageOffset;
+
+    // Determine the attribute storage location based on the attribute mask
+    if (sl_zigbee_af_attribute_is_singleton(am)) {
+      *attributeStorageLocation = singletonAttributeLocation(am);
+    } else if (!sl_zigbee_af_attribute_is_external(am)) {
+      *attributeStorageLocation = sl_zigbee_attribute_data + totalStorageOffset;
+    } else {
+      *attributeStorageLocation = NULL;       // External attributes use nvm storage.
+    }
+    // search complete.
+    return true;
+  }
+
+  return false; // Attribute not found
+}
+
+// Read a given attribute's data from storage (external, singleton or attribute storage)
 // When reading non-string attributes, this function returns an error when destination
 // buffer isn't large enough to accommodate the attribute type.  For strings, the
 // function will copy at most readLength bytes.  This means the resulting string
@@ -602,124 +782,108 @@ bool sli_zigbee_af_match_attribute(sl_zigbee_af_cluster_t *cluster,
 // compatibility wrapper functions and we just cross our fingers and hope for
 // the best.
 //
-// When writing attributes, readLength is ignored.  For non-string attributes,
-// this function assumes the source buffer is the same size as the attribute
+sl_zigbee_af_status_t sli_zigbee_af_read_attribute_from_storage(sl_zigbee_af_attribute_search_record_t *attRecord,
+                                                                sl_zigbee_af_attribute_metadata_t **metadata,
+                                                                uint8_t *buffer,
+                                                                uint16_t readLength)
+{
+  sl_zigbee_af_cluster_t *cluster;
+  sl_zigbee_af_attribute_metadata_t *am;
+  uint8_t* storageLocation;
+  if (sli_retrieve_cluster_attribute_metadata_and_storage_location(attRecord, &cluster, &am, &storageLocation)) {
+    // If passed metadata location is not null, populate
+    if (metadata != NULL) {
+      *metadata = am;
+    }
+
+    // If received buffer is null, we don't pursue the attribute data read
+    // Caller was probably just interested in the metadata.
+    if (buffer == NULL) {
+      return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
+    }
+
+    uint16_t mfgCode = sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am);
+    if (!sl_zigbee_af_attribute_read_access_cb(attRecord->endpoint,
+                                               attRecord->clusterId,
+                                               mfgCode,
+                                               am->attributeId)) {
+      return SL_ZIGBEE_ZCL_STATUS_NOT_AUTHORIZED;
+    }
+
+    if (sl_zigbee_af_attribute_is_external(am)) {
+      return sl_zigbee_af_external_attribute_read_cb(attRecord->endpoint,
+                                                     attRecord->clusterId,
+                                                     am,
+                                                     mfgCode,
+                                                     buffer,
+                                                     sl_zigbee_af_attribute_size(am));
+    } else {
+      SL_ZIGBEE_TEST_ASSERT(storageLocation != NULL);
+      return typeSensitiveMemCopy(buffer, storageLocation, am, false /* write */, readLength);
+    }
+  }
+  return SL_ZIGBEE_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE; // Sorry, attribute was not found.
+}
+
+// Write a given attribute's data to it's storage (external, singleton or attribute storage)
+// For non-string attributes, this function assumes the source buffer is the same size as the attribute
 // type.  For strings, the function will copy as many bytes as will fit in the
 // attribute.  This means the resulting string may be truncated.  The length
 // byte(s) in the resulting string will reflect any truncated.
-sl_zigbee_af_status_t sli_zigbee_af_read_or_write_attribute(sl_zigbee_af_attribute_search_record_t *attRecord,
-                                                            sl_zigbee_af_attribute_metadata_t **metadata,
-                                                            uint8_t *buffer,
-                                                            uint16_t readLength,
-                                                            bool write)
+sl_zigbee_af_status_t sli_zigbee_af_write_attribute_to_storage(sl_zigbee_af_attribute_search_record_t *attRecord,
+                                                               uint8_t *buffer,
+                                                               bool syncMultiProtocol)
 {
-  uint8_t i;
-  uint16_t attributeOffsetIndex = 0;
+  (void)syncMultiProtocol; // Could be unused
+  sl_zigbee_af_cluster_t *cluster;
+  sl_zigbee_af_attribute_metadata_t *am;
+  uint8_t* storageLocation;
 
-  for (i = 0; i < sl_zigbee_af_endpoint_count(); i++) {
-    if (sli_zigbee_af_endpoints[i].endpoint == attRecord->endpoint) {
-      sl_zigbee_af_endpoint_type_t *endpointType = sli_zigbee_af_endpoints[i].endpointType;
-      uint8_t clusterIndex;
-      if (!sl_zigbee_af_endpoint_index_is_enabled(i)) {
-        continue;
-      }
-      for (clusterIndex = 0;
-           clusterIndex < endpointType->clusterCount;
-           clusterIndex++) {
-        sl_zigbee_af_cluster_t *cluster = &(endpointType->cluster[clusterIndex]);
-        if (sli_zigbee_af_match_cluster(cluster, attRecord)) { // Got the cluster
-          uint16_t attrIndex;
-          for (attrIndex = 0;
-               attrIndex < cluster->attributeCount;
-               attrIndex++) {
-            sl_zigbee_af_attribute_metadata_t *am = &(cluster->attributes[attrIndex]);
-            if (sli_zigbee_af_match_attribute(cluster,
-                                              am,
-                                              attRecord)) { // Got the attribute
-              // If passed metadata location is not null, populate
-              if (metadata != NULL) {
-                *metadata = am;
-              }
+  if (sli_retrieve_cluster_attribute_metadata_and_storage_location(attRecord, &cluster, &am, &storageLocation)) {
+    uint16_t mfgCode = sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am);
+    if (!sl_zigbee_af_attribute_write_access_cb(attRecord->endpoint,
+                                                attRecord->clusterId,
+                                                mfgCode,
+                                                am->attributeId)) {
+      return SL_ZIGBEE_ZCL_STATUS_NOT_AUTHORIZED;
+    }
 
-              {
-                uint8_t *attributeLocation = (am->mask & ATTRIBUTE_MASK_SINGLETON
-                                              ? singletonAttributeLocation(am)
-                                              : sl_zigbee_attribute_data + attributeOffsetIndex);
-                uint8_t *src, *dst;
-                if (write) {
-                  src = buffer;
-                  dst = attributeLocation;
-                  if (!sl_zigbee_af_attribute_write_access_cb(attRecord->endpoint,
-                                                              attRecord->clusterId,
-                                                              sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am),
-                                                              am->attributeId)) {
-                    return SL_ZIGBEE_ZCL_STATUS_NOT_AUTHORIZED;
-                  }
-                } else {
-                  if (buffer == NULL) {
-                    return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
-                  }
+#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
+    if (syncMultiProtocol) {
+      bool isAttributeSynced = false;
+      uint8_t i = 0;
+      while (!isAttributeSynced && i < mappedMpClusterCount) {
+        if (multiProtocolClusterMap[i].zigbeeClusterId == attRecord->clusterId
+            && multiProtocolClusterMap[i].zigbeeMfgClusterId == mfgCode) {
+          const sl_zigbee_matter_af_multi_protocol_attribute_metadata_t *attributeMpMap = multiProtocolClusterMap[i].zigbeeMatterAttributeMap;
 
-                  src = attributeLocation;
-                  dst = buffer;
-                  if (!sl_zigbee_af_attribute_read_access_cb(attRecord->endpoint,
-                                                             attRecord->clusterId,
-                                                             sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am),
-                                                             am->attributeId)) {
-                    return SL_ZIGBEE_ZCL_STATUS_NOT_AUTHORIZED;
-                  }
-                }
-#if defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
-                if (write) {
-                  for (uint8_t j = 0; j < mappedMpAttributeCount; j++) {
-                    uint16_t attributeMfgId = sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am);
-                    if (multiProtocolAttributeMap[j].zigbeeClusterId == attRecord->clusterId
-                        && multiProtocolAttributeMap[j].zigbeeMfgClusterId == attributeMfgId
-                        && multiProtocolAttributeMap[j].zigbeeAttributeId == attRecord->attributeId
-                        && multiProtocolAttributeMap[j].zigbeeMfgAttributeId == attributeMfgId) {
-                      sli_matter_af_write_attribute(
-                        attRecord->endpoint,
-                        (((uint32_t)multiProtocolAttributeMap[j].matterMfgClusterId << 16) | (uint32_t)multiProtocolAttributeMap[j].matterClusterId),
-                        (((uint32_t)multiProtocolAttributeMap[j].matterMfgAttributeId << 16) | (uint32_t)multiProtocolAttributeMap[j].matterAttributeId),
-                        buffer,
-                        multiProtocolAttributeMap[j].matterAttributeType);
-                    }
-                  }
-                }
-#endif //defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT)
-                return (am->mask & ATTRIBUTE_MASK_EXTERNAL_STORAGE
-                        ? (write)
-                        ? sl_zigbee_af_external_attribute_write_cb(attRecord->endpoint,
-                                                                   attRecord->clusterId,
-                                                                   am,
-                                                                   sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am),
-                                                                   buffer)
-                        : sl_zigbee_af_external_attribute_read_cb(attRecord->endpoint,
-                                                                  attRecord->clusterId,
-                                                                  am,
-                                                                  sli_zigbee_af_get_manufacturer_code_for_attribute(cluster, am),
-                                                                  buffer,
-                                                                  sl_zigbee_af_attribute_size(am))
-                        : typeSensitiveMemCopy(dst,
-                                               src,
-                                               am,
-                                               write,
-                                               readLength));
-              }
-            } else { // Not the attribute we are looking for
-              // Increase the index if attribute is not externally stored
-              if (!(am->mask & ATTRIBUTE_MASK_EXTERNAL_STORAGE)
-                  && !(am->mask & ATTRIBUTE_MASK_SINGLETON) ) {
-                attributeOffsetIndex += sl_zigbee_af_attribute_size(am);
-              }
+          for (uint8_t j = 0; j < multiProtocolClusterMap[i].clusterMappedAttributeCount; j++) {
+            if (attributeMpMap[j].zigbeeAttributeId == attRecord->attributeId
+                && attributeMpMap[j].zigbeeMfgAttributeId == mfgCode) {
+              sli_matter_af_write_attribute(attRecord->endpoint,
+                                            (((uint32_t)multiProtocolClusterMap[i].matterMfgClusterId << 16) | (uint32_t)multiProtocolClusterMap[i].matterClusterId),
+                                            (((uint32_t)attributeMpMap[j].matterMfgAttributeId << 16) | (uint32_t)attributeMpMap[j].matterAttributeId),
+                                            buffer,
+                                            attributeMpMap[j].matterAttributeType);
+              isAttributeSynced = true;
+              break;
             }
           }
-        } else { // Not the cluster we are looking for
-          attributeOffsetIndex += cluster->clusterSize;
         }
+        i++;
       }
-    } else { // Not the endpoint we are looking for
-      attributeOffsetIndex += sli_zigbee_af_endpoints[i].endpointType->endpointSize;
+    }
+#endif //defined(GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING) && defined(SL_CATALOG_MULTIPROTOCOL_ZIGBEE_MATTER_COMMON_PRESENT) && defined(GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING)
+
+    if (sl_zigbee_af_attribute_is_external(am)) {
+      return sl_zigbee_af_external_attribute_write_cb(attRecord->endpoint,
+                                                      attRecord->clusterId,
+                                                      am,
+                                                      mfgCode,
+                                                      buffer);
+    } else {
+      SL_ZIGBEE_TEST_ASSERT(storageLocation != NULL);
+      return typeSensitiveMemCopy(storageLocation, buffer, am, true, 0);
     }
   }
   return SL_ZIGBEE_ZCL_STATUS_UNSUPPORTED_ATTRIBUTE; // Sorry, attribute was not found.
@@ -1084,13 +1248,7 @@ bool sl_zigbee_af_endpoint_enable_disable(uint8_t endpoint, bool enable)
       uint8_t i;
       for (i = 0; i < sli_zigbee_af_endpoints[index].endpointType->clusterCount; i++) {
         sl_zigbee_af_cluster_t* cluster = &((sli_zigbee_af_endpoints[index].endpointType->cluster)[i]);
-//        sl_zigbee_af_core_println("Disabling cluster tick for ep:%d, cluster:0x%04X, %s",
-//                           endpoint,
-//                           cluster->clusterId,
-//                           ((cluster->mask & CLUSTER_MASK_CLIENT)
-//                            ? "client"
-//                            : "server"));
-//        sl_zigbee_af_core_flush();
+
         sl_zigbee_zcl_deactivate_cluster_tick(endpoint,
                                               cluster->clusterId,
                                               (cluster->mask & CLUSTER_MASK_CLIENT
@@ -1439,11 +1597,9 @@ void sli_zigbee_af_load_attribute_defaults(uint8_t endpoint, bool writeTokens)
             ptr++;
           }
 #endif //BIGENDIAN_CPU
-          sli_zigbee_af_read_or_write_attribute(&record,
-                                                NULL, // metadata - unused
-                                                ptr,
-                                                0, // buffer size - unused
-                                                true); // write?
+          sli_zigbee_af_write_attribute_to_storage(&record,
+                                                   ptr,
+                                                   false); // don't sync matter on load default
           if (writeTokens) {
             sli_zigbee_af_save_attribute_to_token(ptr, de->endpoint, record.clusterId, am);
           }

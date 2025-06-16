@@ -126,7 +126,7 @@
 // <i> Default: 4
 #define CC_USER_CREDENTIAL_MAX_HASH_LENGTH_UNSPECIFIED_BIOMETRIC  4
 
-// <o CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE> Minimum length of PIN Code data. This MUST NOT be less than 4. <4..255:1> <f.d>
+// <o CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE> Minimum length of PIN Code data <4..255:1> <f.d>
 // <i> Default: 4
 #define CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE  4
 
@@ -170,7 +170,7 @@
 // <i> Default: 1
 #define CC_USER_CREDENTIAL_MIN_DATA_LENGTH_UNSPECIFIED_BIOMETRIC  1
 
-// <o CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE> Maximum length of PIN Code data. If the end device also supports CC User Code, this MUST NOT be greater than 10. <4..255:1> <f.d>
+// <o CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE> Maximum length of PIN Code data <4..255:1> <f.d>
 // <i> Default: 10
 #define CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE  10
 

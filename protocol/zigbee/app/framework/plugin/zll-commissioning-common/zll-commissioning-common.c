@@ -360,11 +360,11 @@ void sl_zigbee_af_zll_reset_to_factory_new(void)
   // but after a short delay.
   sli_zigbee_af_zll_flags |= RESETTING_TO_FACTORY_NEW;
 
-  debugPrintln("sl_zigbee_af_zll_reset_to_factory_new - flags = %02X, networkState = %02X", sli_zigbee_af_zll_flags, sl_zigbee_network_state());
+  debugPrintln("sl_zigbee_af_zll_reset_to_factory_new - flags = %02X, networkState = %02X", sli_zigbee_af_zll_flags, sl_zigbee_af_network_state());
 
   // Note that we won't get a network down stack status if we
   // are currently trying to join - the leave will complete silently.
-  bool silentLeave = (sl_zigbee_network_state() == SL_ZIGBEE_JOINING_NETWORK) ? true : false;
+  bool silentLeave = (sl_zigbee_af_network_state() == SL_ZIGBEE_JOINING_NETWORK) ? true : false;
   sl_status_t status = sl_zigbee_leave_network(SL_ZIGBEE_LEAVE_NWK_WITH_NO_OPTION);
   if (status != SL_STATUS_OK) {
     sl_zigbee_af_app_println("Error: Failed to leave network, status: 0x%02X", status);
@@ -465,7 +465,7 @@ void sl_zigbee_af_zll_unset_factory_new(void)
 {
   sl_zigbee_tok_type_stack_zll_data_t token;
   sl_zigbee_zll_get_token_stack_zll_data(&token);
-  if ((token.bitmask & SL_ZIGBEE_ZLL_STATE_FACTORY_NEW)) {
+  if (token.bitmask & SL_ZIGBEE_ZLL_STATE_FACTORY_NEW) {
     token.bitmask &= ~SL_ZIGBEE_ZLL_STATE_FACTORY_NEW;
     sl_zigbee_zll_set_token_stack_zll_data(&token);
   }

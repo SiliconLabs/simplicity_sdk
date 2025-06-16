@@ -52,9 +52,10 @@
 #include "common/logging.hpp"
 #include "common/mainloop.hpp"
 #include "common/types.hpp"
-#include "ncp/thread_host.hpp"
+#include "host/thread_host.hpp"
 
 #ifdef OTBR_ENABLE_PLATFORM_ANDROID
+#include <log/log.h>
 #ifndef __ANDROID__
 #error "OTBR_ENABLE_PLATFORM_ANDROID can be enabled for only Android devices"
 #endif
@@ -177,16 +178,21 @@ static void OnAllocateFailed(void)
 
 static otbrLogLevel GetDefaultLogLevel(void)
 {
-    otbrLogLevel level = OTBR_LOG_INFO;
-
 #if OTBR_ENABLE_PLATFORM_ANDROID
-    char value[PROPERTY_VALUE_MAX];
+    // The log level is set to DEBUG by default, the final output log will be filtered by Android log system.
+    otbrLogLevel level = OTBR_LOG_DEBUG;
+    char         value[PROPERTY_VALUE_MAX];
+
+    // Set the Android log level to INFO by default.
+    __android_log_set_minimum_priority(ANDROID_LOG_INFO);
 
     property_get("ro.build.type", value, "user");
     if (!strcmp(value, "user"))
     {
-        level = OTBR_LOG_WARNING;
+        level = OTBR_LOG_NOTICE;
     }
+#else
+    otbrLogLevel level = OTBR_LOG_INFO;
 #endif
 
     return level;
@@ -194,10 +200,10 @@ static otbrLogLevel GetDefaultLogLevel(void)
 
 static void PrintRadioVersionAndExit(const std::vector<const char *> &aRadioUrls)
 {
-    auto host = std::unique_ptr<otbr::Ncp::ThreadHost>(
-        otbr::Ncp::ThreadHost::Create(/* aInterfaceName */ "", aRadioUrls,
-                                      /* aBackboneInterfaceName */ "",
-                                      /* aDryRun */ true, /* aEnableAutoAttach */ false));
+    auto host = std::unique_ptr<otbr::Host::ThreadHost>(
+        otbr::Host::ThreadHost::Create(/* aInterfaceName */ "", aRadioUrls,
+                                       /* aBackboneInterfaceName */ "",
+                                       /* aDryRun */ true, /* aEnableAutoAttach */ false));
     const char *coprocessorVersion;
 
     host->Init();
@@ -298,7 +304,7 @@ static int realmain(int argc, char *argv[])
 
     otbrLogInit(argv[0], logLevel, verbose, syslogDisable);
     otbrLogNotice("Running %s", OTBR_PACKAGE_VERSION);
-    otbrLogNotice("Thread version: %s", otbr::Ncp::RcpHost::GetThreadVersion());
+    otbrLogNotice("Thread version: %s", otbr::Host::RcpHost::GetThreadVersion());
     otbrLogNotice("Thread interface: %s", interfaceName);
 
     if (backboneInterfaceNames.empty())
@@ -329,7 +335,7 @@ static int realmain(int argc, char *argv[])
 #else
         const std::string backboneInterfaceName = backboneInterfaceNames.empty() ? "" : backboneInterfaceNames.front();
 #endif
-        std::unique_ptr<otbr::Ncp::ThreadHost> host = otbr::Ncp::ThreadHost::Create(
+        std::unique_ptr<otbr::Host::ThreadHost> host = otbr::Host::ThreadHost::Create(
             interfaceName, radioUrls, backboneInterfaceName.c_str(), /* aDryRun */ false, enableAutoAttach);
 
         otbr::Application app(*host, interfaceName, backboneInterfaceName, restListenAddress, restListenPort);

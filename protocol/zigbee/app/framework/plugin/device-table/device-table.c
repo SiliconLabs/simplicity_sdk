@@ -431,10 +431,10 @@ void sl_zigbee_af_device_table_stack_status_cb(sl_status_t status)
   // If we leave the network, this plugin needs to clear out all of its device
   // state.
 
-  sl_zigbee_af_core_println("%d %d", status, sl_zigbee_network_state());
+  sl_zigbee_af_core_println("%d %d", status, sl_zigbee_af_network_state());
 
   if (status == SL_STATUS_NETWORK_DOWN
-      && sl_zigbee_network_state() == SL_ZIGBEE_NO_NETWORK) {
+      && sl_zigbee_af_network_state() == SL_ZIGBEE_NO_NETWORK) {
     sl_zigbee_af_core_println("DeviceTable: Clear State");
 
     sl_zigbee_af_device_table_clear();

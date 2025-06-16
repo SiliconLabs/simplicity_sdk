@@ -1,7 +1,7 @@
 !!omap
 - id: brd4414a_a02
 - label: BRD4414A rev A02
-- package: platform
+- package: boards
 - description: Board support for BRD4414A.
 - category: Platform|Board|Radio Board
 - quality: evaluation

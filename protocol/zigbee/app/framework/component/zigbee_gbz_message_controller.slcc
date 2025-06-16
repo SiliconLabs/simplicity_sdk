@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of a GBZ message controller. This component extracts ZCL commands by parsing the elemental GBZ components of the GBZ message. Processing of encrypted GBZ message is not supported.
 label: GBZ Message Controller
 quality: production

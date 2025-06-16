@@ -53,6 +53,7 @@ typedef enum IRQn{
   MemoryManagement_IRQn = -12,              /*!< -12 Cortex-M Memory Management Interrupt */
   BusFault_IRQn         = -11,              /*!< -11 Cortex-M Bus Fault Interrupt         */
   UsageFault_IRQn       = -10,              /*!< -10 Cortex-M Usage Fault Interrupt       */
+  SecureFault_IRQn      = -9,               /*!< -9  Cortex-M Secure Fault Interrupt      */
   SVCall_IRQn           = -5,               /*!< -5  Cortex-M SV Call Interrupt           */
   DebugMonitor_IRQn     = -4,               /*!< -4  Cortex-M Debug Monitor Interrupt     */
   PendSV_IRQn           = -2,               /*!< -2  Cortex-M Pend SV Interrupt           */
@@ -1081,6 +1082,26 @@ typedef enum IRQn{
 #define RDMEM_SEQ_RAM_DATA_WIDTH             0x27UL     /**> SEQ_RAM_DATA_WIDTH */
 #define RDMEM_SEQ_RAM_ECC_EN                 0x1UL      /**> SEQ RAM ECCEN */
 #define PRORTC_CC_NUM                        0x2UL      /**> None */
+
+/* Instance macros for GPCRC */
+#define GPCRC_NUM(ref)                 (((ref) == GPCRC) ? 0 \
+                                        : -1)
+
+/* Instance macros for LDMA */
+#define LDMA_NUM(ref)                  (((ref) == LDMA) ? 0 \
+                                        : -1)
+
+/* Instance macros for LDMAXBAR */
+#define LDMAXBAR_NUM(ref)              (((ref) == LDMAXBAR) ? 0 \
+                                        : -1)
+
+/* Instance macros for LETIMER */
+#define LETIMER(n)                     (((n) == 0) ? LETIMER0 \
+                                        : 0x0UL)
+#define LETIMER_NUM(ref)               (((ref) == LETIMER0) ? 0 \
+                                        : -1)
+#define LETIMER_CNT_WIDTH(n)           (((n) == 0) ? LETIMER0_CNT_WIDTH \
+                                        : 0x0UL)
 
 /* Instance macros for TIMER */
 #define TIMER(n)                       (((n) == 0) ? TIMER0   \

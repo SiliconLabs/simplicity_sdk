@@ -2053,6 +2053,11 @@
           name: "SL_ZIGBEE_EZSP_VALUE_REJOIN_MODE",
           value: "0x47",
           description: "Policies for allowing/disallowing rejoins."
+        },
+        {
+          name: "SL_ZIGBEE_EZSP_VALUE_JOIN_USE_INSTALL_CODE_ENABLE",
+          value: "0x48",
+          description: "Controls whether devices must use an install code when joining."
         }
       ],
     },
@@ -2087,6 +2092,12 @@
           description: "This number of bytes of overhead required in
                         the network frame for source routing to a
                         particular destination.",
+        },
+        {
+          name: "SL_ZIGBEE_EZSP_EXTENDED_VALUE_MEMORY_USAGE_DATA",
+          value: "0x03",
+          description: "These values are current or boot-time metrics
+                        gathered by the memory manager/buffer manager.",
         },
       ],
     },
@@ -5462,7 +5473,7 @@
     },
     ## MUX_INVALID_RX_HANDLER
     {
-      value: "0x005D",
+      value: "0x0062",
       needGeneratedHandler : "no",
       commandName: "mux_invalid_rx_handler",
       description: "This call is fired when mux detects an invalid rx case, 
@@ -12758,6 +12769,88 @@
     },
 
     {
+      name: "sl_zigbee_gp_params_t",
+      description: "GP parameters list.",
+      definition: [
+        {
+          type: "sl_zigbee_gp_status_t",
+          name: "status",
+          description: "The status of the GPDF receive.",
+        },
+        {
+          type: "uint8_t",
+          name: "gpdLink",
+          description: "The gpdLink value of the received GPDF.",
+        },
+        {
+          type: "uint8_t",
+          name: "sequenceNumber",
+          description: "The GPDF sequence number.",
+        },
+        {
+          type: "sl_zigbee_gp_address_t",
+          name: "addr",
+          description: "The address of the source GPD.",
+        },
+        {
+          type: "sl_zigbee_gp_security_level_t",
+          name: "gpdfSecurityLevel",
+          description: "The security level of the received GPDF.",
+        },
+        {
+          type: "sl_zigbee_gp_key_type_t",
+          name: "gpdfSecurityKeyType",
+          description: "The securityKeyType used to decrypt/authenticate the incoming GPDF.",
+        },
+        {
+          type: "bool",
+          name: "autoCommissioning",
+          description: "Whether the incoming GPDF had the auto-commissioning bit set.",
+        },
+        {
+          type: "uint8_t",
+          name: "bidirectionalInfo",
+          description: "Bidirectional information represented in bitfields, where bit0 holds the rxAfterTx of incoming GPDF and bit1 holds if TX queue is available for outgoing GPDF.",
+        },
+        {
+          type: "uint32_t",
+          name: "gpdSecurityFrameCounter",
+          description: "The security frame counter of the incoming GPDF.",
+        },
+        {
+          type: "uint8_t",
+          name: "gpdCommandId",
+          description: "The gpdCommandId of the incoming GPDF.",
+        },
+        {
+          type: "uint32_t",
+          name: "mic",
+          description: "The received MIC of the GPDF.",
+        },
+        {
+          type: "uint8_t",
+          name: "proxyTableIndex",
+          description: "The proxy table index of the corresponding proxy table entry to the incoming GPDF.",
+        },
+        {
+          type: "uint8_t",
+          name: "gpdCommandPayloadLength",
+          description: "The length of the GPD command payload.",
+        },
+        {
+          type: "uint8_t",
+          name: "gpdCommandPayload[SL_ZIGBEE_GP_MAX_APPLICATION_PAYLOAD]",
+          description: "The GPD command payload.",
+        },
+        {
+          type: "sl_zigbee_rx_packet_info_t",
+          name: "packetInfo",
+          description: "Rx packet information.",
+        },
+      ],
+    },
+
+    {
       name: "sl_zigbee_gp_security_level_t",
       description: "The security level of the GPD.",
       definition: "uint8_t",
@@ -13051,8 +13144,6 @@
       ],
     },
 
-
-
     ## GP_EP_INCOMING_MESSAGE
     {
       value: "0x00C5",
@@ -13062,87 +13153,14 @@
                     a GPDF is received.",
       responseArguments: [
         {
-          type: "sl_zigbee_gp_status_t",
-          name: "gp_status",
-          description: "The status of the GPDF receive.",
-        },
-        {
-          type: "uint8_t",
-          name: "gpdLink",
-          description: "The gpdLink value of the received GPDF.",
-        },
-        {
-          type: "uint8_t",
-          name: "sequenceNumber",
-          description: "The GPDF sequence number.",
-        },
-        {
-          type: "sl_zigbee_gp_address_t",
-          name: "addr",
-          description: "The address of the source GPD.",
-        },
-        {
-          type: "sl_zigbee_gp_security_level_t",
-          name: "gpdfSecurityLevel",
-          description: "The security level of the received GPDF.",
-        },
-        {
-          type: "sl_zigbee_gp_key_type_t",
-          name: "gpdfSecurityKeyType",
-          description: "The securityKeyType used to decrypt/authenticate
-                        the incoming GPDF.",
-        },
-        {
-          type: "bool",
-          name: "autoCommissioning",
-          description: "Whether the incoming GPDF had the auto-commissioning
-                        bit set.",
-        },
-        {
-          type: "uint8_t",
-          name: "bidirectionalInfo",
-          description: "Bidirectional information represented in bitfields,
-                        where bit0 holds the rxAfterTx of incoming gpdf and
-                        bit1 holds if tx queue is available for outgoing gpdf.",
-        },
-        {
-          type: "uint32_t",
-          name: "gpdSecurityFrameCounter",
-          description: "The security frame counter of the incoming GDPF.",
-        },
-        {
-          type: "uint8_t",
-          name: "gpdCommandId",
-          description: "The gpdCommandId of the incoming GPDF.",
-        },
-        {
-          type: "uint32_t",
-          name: "mic",
-          description: "The received MIC of the GPDF.",
-        },
-        {
-          type: "uint8_t",
-          name: "proxyTableIndex",
-          description: "The proxy table index of the corresponding proxy
-                        table entry to the incoming GPDF.",
-        },
-        {
-          type: "uint8_t",
-          name: "gpdCommandPayloadLength",
-          description: "The length of the GPD command payload.",
-        },
-        {
-          type: "uint8_t[gpdCommandPayloadLength]",
-          name: "gpdCommandPayload",
-          description: "The GPD command payload.",
-        },
-        {
-          type: "sl_zigbee_rx_packet_info_t",
-          name: "packetInfo",
-          description: "Rx packet information.",
+          type: "sl_zigbee_gp_params_t",
+          name: "param",
+          description: "GP parameters list represented as a macro for GP endpoint 
+                        incoming message handler and callbacks prototypes.",
         }
       ],
     },
+
     ## GP_PROXY_TABLE_GET_ENTRY
     {
       value: "0x00C8",
@@ -13193,6 +13211,35 @@
         },
       ],
     },
+    ## GP_PROXY_TABLE_REMOVE_ENTRY
+    {
+      value: "0x005D",
+      needGeneratedHandler : "yes",
+      commandName: "gpProxyTableRemoveEntry",
+      description: "Removes the proxy table entry stored at the
+                    passed index.",
+      commandArguments: [
+        {
+          type: "uint8_t",
+          name: "proxyIndex",
+          description: "The index of the requested proxy table entry.",
+        },
+      ],
+      responseArguments: [
+      ],
+    },
+    ##GP_CLEAR_PROXY_TABLE
+    {
+      value: "0x005F",
+      needGeneratedHandler : "yes",
+      commandName: "gpClearProxyTable",
+      description: "Clear the entire proxy table",
+      commandArguments: [
+      ],
+      responseArguments: [
+      ],
+    },
+
     ## GP_SINK_TABLE_GET_ENTRY
     {
       value: "0x00DD",

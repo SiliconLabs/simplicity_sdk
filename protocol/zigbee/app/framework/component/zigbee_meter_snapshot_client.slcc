@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component for processing snapshots of the meter state in a Smart Energy network. The component is only intended to assist with debugging, as the implemented callbacks simply parse responses and print the results.
 label: Meter Snapshot Client
 quality: production

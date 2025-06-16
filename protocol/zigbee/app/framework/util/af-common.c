@@ -109,6 +109,91 @@ static void printMessage(sl_zigbee_incoming_message_type_t type,
                          uint16_t messageLength,
                          uint8_t* messageContents);
 
+#define UNKNOWN_NETWORK_STATE 0xFF
+
+typedef struct {
+  sl_802154_short_addr_t node_id;
+  sl_802154_pan_id_t  pan_id;
+  sl_zigbee_network_status_t network_state;
+  uint8_t radio_channel;
+} sli_zigbee_network_cache_t;
+
+static sli_zigbee_network_cache_t network_cache[SL_ZIGBEE_SUPPORTED_NETWORKS];
+
+void sli_zigbee_af_clear_network_cache(uint8_t network_index)
+{
+  if (network_index < SL_ZIGBEE_SUPPORTED_NETWORKS) {
+    network_cache[network_index].node_id = SL_ZIGBEE_NULL_NODE_ID;
+    network_cache[network_index].pan_id = 0xFFFF;
+    network_cache[network_index].network_state = UNKNOWN_NETWORK_STATE;
+    network_cache[network_index].radio_channel = 0xFF;
+  }
+}
+
+sl_zigbee_network_status_t sl_zigbee_af_network_state(void)
+{
+  uint8_t network_index = sl_zigbee_get_current_network();
+  if (network_index < SL_ZIGBEE_SUPPORTED_NETWORKS) {
+    if (network_cache[network_index].network_state == UNKNOWN_NETWORK_STATE) {
+      network_cache[network_index].network_state = sl_zigbee_network_state();
+    }
+    return network_cache[network_index].network_state;
+  }
+  return UNKNOWN_NETWORK_STATE;
+}
+
+bool sli_zigbee_af_stay_awake_network_state(void)
+{
+  for (uint8_t network_index = 0; network_index < SL_ZIGBEE_SUPPORTED_NETWORKS; ++network_index) {
+    if (network_cache[network_index].network_state == UNKNOWN_NETWORK_STATE
+        && sl_zigbee_af_push_network_index(network_index) == SL_STATUS_OK) {
+      network_cache[network_index].network_state = sl_zigbee_network_state();
+      (void) sl_zigbee_af_pop_network_index();
+    }
+    if ((network_cache[network_index].network_state != SL_ZIGBEE_JOINED_NETWORK)
+        && (network_cache[network_index].network_state != SL_ZIGBEE_JOINED_NETWORK_S2S_INITIATOR)
+        && (network_cache[network_index].network_state != SL_ZIGBEE_JOINED_NETWORK_S2S_TARGET)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Because an IPC call can be expensive in terms of bandwidth,
+// we cache the node ID so it can be quickly retrieved by the host.
+sl_802154_short_addr_t sl_zigbee_af_get_node_id(void)
+{
+  uint8_t network_index = sl_zigbee_get_current_network();
+  if (network_cache[network_index].node_id == SL_ZIGBEE_NULL_NODE_ID) {
+    network_cache[network_index].node_id = sl_zigbee_get_node_id();
+  }
+  return network_cache[network_index].node_id;
+}
+
+sl_802154_pan_id_t sl_zigbee_af_get_pan_id(void)
+{
+  uint8_t network_index = sl_zigbee_get_current_network();
+  if (network_cache[network_index].pan_id == 0xFFFF) {
+    sl_zigbee_node_type_t nodeType;
+    sl_zigbee_network_parameters_t parameters;
+    sl_zigbee_af_get_network_parameters(&nodeType, &parameters);
+    network_cache[network_index].pan_id = parameters.panId;
+  }
+  return network_cache[network_index].pan_id;
+}
+
+uint8_t sl_zigbee_af_get_radio_channel(void)
+{
+  uint8_t network_index = sl_zigbee_get_current_network();
+  if (network_cache[network_index].radio_channel == 0xFF) {
+    sl_zigbee_node_type_t nodeType;
+    sl_zigbee_network_parameters_t parameters;
+    sl_zigbee_af_get_network_parameters(&nodeType, &parameters);
+    network_cache[network_index].radio_channel = parameters.radioChannel;
+  }
+  return network_cache[network_index].radio_channel;
+}
+
 //------------------------------------------------------------------------------
 // Internal callbacks
 
@@ -612,6 +697,7 @@ sl_status_t sl_zigbee_af_send_inter_pan(sl_802154_pan_id_t panId,
                                                messageBytes);
 }
 
+#ifdef SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 void sl_zigbee_af_print_message_data(uint8_t* data, uint16_t length)
 {
 #ifdef SL_ZIGBEE_AF_PRINT_APP
@@ -637,6 +723,7 @@ void sli_zigbee_af_print_status(const char * task,
                        status);
   }
 }
+#endif //SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 
 sl_status_t sl_zigbee_af_permit_join(uint8_t duration,
                                      bool broadcastMgmtPermitJoin)
@@ -943,6 +1030,8 @@ bool sli_zigbee_af_process_zdo(sl_802154_short_addr_t sender,
                             ? message[1]
                             : 0));
 
+  // message[0] is the ZCL transaction number
+
   switch (apsFrame->clusterId) {
     case SIMPLE_DESCRIPTOR_RESPONSE:
       sl_zigbee_af_zdo_println("RX: %s Desc Resp", "Simple");
@@ -953,7 +1042,7 @@ bool sli_zigbee_af_process_zdo(sl_802154_short_addr_t sender,
       break;
     case END_DEVICE_ANNOUNCE:
       sl_zigbee_af_zdo_println("Device Announce: 0x%04X",
-                               (uint16_t)(message[1]) + (uint16_t)(message[2] << 8));
+                               length >= END_DEVICE_ANNOUNCE_LENGTH_WITH_NWK_ADDRESS ? ((uint16_t)(message[1]) + (uint16_t)(message[2] << 8)) : SL_ZIGBEE_NULL_NODE_ID);
       break;
     case IEEE_ADDRESS_RESPONSE:
       sl_zigbee_af_zdo_println("RX: IEEE Address Response");
@@ -964,7 +1053,7 @@ bool sli_zigbee_af_process_zdo(sl_802154_short_addr_t sender,
     case NODE_DESCRIPTOR_RESPONSE:
       sl_zigbee_af_zdo_print("RX: %s Desc Resp", "Node");
       sl_zigbee_af_zdo_println(", Matches: 0x%04X",
-                               (uint16_t)(message[1]) + (uint16_t)(message[2] << 8));
+                               length >= NODE_DESCRIPTOR_RESPONSE_LENGTH_WITH_NWK_ADDRESS ? ((uint16_t)(message[2]) + (uint16_t)(message[3] << 8)) : SL_ZIGBEE_NULL_NODE_ID);
       break;
     default:
       break;
@@ -1103,12 +1192,12 @@ static sl_status_t send(sl_zigbee_outgoing_message_type_t type,
   // it to set the appropriate outgoing network as well as the profile id in
   // the APS frame.
   sl_zigbee_af_endpoint_info_struct_t endpointInfo;
-  uint8_t networkIndex = 0;
+  uint8_t network_index = 0;
   if (sl_zigbee_af_get_endpoint_info_cb(apsFrame->sourceEndpoint,
-                                        &networkIndex,
+                                        &network_index,
                                         &endpointInfo)) {
     apsFrame->profileId = endpointInfo.profileId;
-    status = sl_zigbee_af_push_network_index(networkIndex);
+    status = sl_zigbee_af_push_network_index(network_index);
     if (status != SL_STATUS_OK) {
       return status;
     }
@@ -1174,6 +1263,7 @@ static sl_status_t send(sl_zigbee_outgoing_message_type_t type,
 
   if (messageLength
       <= sl_zigbee_af_maximum_aps_payload_length(type, indexOrDestination, apsFrame)) {
+    apsFrame->options &= ~SL_ZIGBEE_APS_OPTION_FRAGMENT;
     status = sli_zigbee_af_send(type,
                                 indexOrDestination,
                                 apsFrame,
@@ -1288,6 +1378,12 @@ sl_zigbee_af_status_t sl_zigbee_af_status(bool wasHandled, bool clusterExists)
   } else {
     return SL_ZIGBEE_ZCL_STATUS_UNSUPPORTED_CLUSTER;
   }
+}
+
+WEAK(sl_status_t sl_zigbee_af_get_network_parameters(sl_zigbee_node_type_t* nodeType,
+                                                     sl_zigbee_network_parameters_t* parameters))
+{
+  return sl_zigbee_get_network_parameters(nodeType, parameters);
 }
 
 //------------------------------------------------------------------------------

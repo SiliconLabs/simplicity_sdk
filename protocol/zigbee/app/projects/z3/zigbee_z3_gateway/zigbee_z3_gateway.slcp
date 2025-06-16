@@ -1,6 +1,6 @@
 project_name: zigbee_z3_gateway
 label: Zigbee - Z3Gateway
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: production
 
@@ -9,6 +9,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -83,6 +84,7 @@ include:
   - path: ./
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -164,11 +166,11 @@ template_contribution:
 
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

@@ -76,6 +76,28 @@ typedef struct {
   } key;
 } sli_crypto_descriptor_t;
 
+/// SLI Crypto descriptor reset values. Some of the values are not initialized.
+/// The user will need to initialize the descriptor members for further use in
+/// the SLI Crypto API. The purpose of these initialisation values is to set
+/// the descriptor objects to a known default device specific state initially
+/// when the context object is declared.
+#define SLI_CRYPTO_DESCRIPTOR_INIT SLI_CRYPTO_DESCRIPTOR_INIT_PLAINTEXT_KEY(NULL, 0)
+
+#define SLI_CRYPTO_DESCRIPTOR_INIT_PLAINTEXT_KEY(ptr, sz) \
+  {                                                       \
+    .location = SLI_CRYPTO_KEY_LOCATION_PLAINTEXT,        \
+    .engine = SLI_CRYPTO_ENGINE_DEFAULT,                  \
+    .key = {                                              \
+      .plaintext_key = {                                  \
+        .buffer = {                                       \
+          .pointer = ptr,                                 \
+          .size = sz,                                     \
+        },                                                \
+        .key_size = sz,                                   \
+      },                                                  \
+    },                                                    \
+  }
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,6 @@
 id: "apploader"
 label: "AppLoader Support for Applications"
-package: "Bluetooth"
+package: bluetooth_apploader
 description: >
   Bluetooth AppLoader application for OTA DFU for series 2 devices.
 

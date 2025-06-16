@@ -1,6 +1,6 @@
 id: zigbee_pro_stack
 label: Pro Stack (Common)
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The main Zigbee PRO Stack component for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.  Common component for all variants of this library.

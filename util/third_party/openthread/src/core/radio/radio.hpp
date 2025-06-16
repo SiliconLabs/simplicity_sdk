@@ -79,58 +79,10 @@ static constexpr uint32_t kMinWakeupListenDuration = 100;
  * @{
  */
 
-/**
- * Implements the radio statistics logic.
- *
- * The radio statistics are the time when the radio in TX/RX/radio state.
- * Since this class collects these statistics from pure software level and no platform API is involved, a simplified
- * model is used to calculate the time of different radio states. The data may not be very accurate, but it's
- * sufficient to provide a general understanding of the proportion of time a device is in different radio states.
- *
- * The simplified model is:
- * - The RadioStats is only aware of 2 states: RX and sleep.
- * - Each time `Radio::Receive` or `Radio::Sleep` is called, it will check the current state and add the time since
- *   last time the methods were called. For example, `Sleep` is first called and `Receive` is called after 1 second,
- *   then 1 second will be added to SleepTime and the current state switches to `Receive`.
- * - The time of TX will be calculated from the callback of TransmitDone. If TX returns OT_ERROR_NONE or
- *   OT_ERROR_NO_ACK, the tx time will be added according to the number of bytes sent. And the SleepTime or RxTime
- *   will be reduced accordingly.
- * - When `GetStats` is called, an operation will be executed to calcute the time for the last state. And the result
- *   will be returned.
- */
-#if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-
-#if !OPENTHREAD_CONFIG_PLATFORM_USEC_TIMER_ENABLE
+#if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD) && \
+    !OPENTHREAD_CONFIG_PLATFORM_USEC_TIMER_ENABLE
 #error "OPENTHREAD_CONFIG_RADIO_STATS_ENABLE requires OPENTHREAD_CONFIG_PLATFORM_USEC_TIMER_ENABLE".
 #endif
-
-class RadioStatistics
-{
-public:
-    enum Status : uint8_t
-    {
-        kDisabled,
-        kSleep,
-        kReceive,
-    };
-
-    explicit RadioStatistics(void);
-
-    void                    RecordStateChange(Status aStatus);
-    void                    HandleReceiveAt(uint32_t aDurationUs);
-    void                    RecordTxDone(otError aError, uint16_t aPsduLength);
-    void                    RecordRxDone(otError aError);
-    const otRadioTimeStats &GetStats(void);
-    void                    ResetTime(void);
-
-private:
-    void UpdateTime(void);
-
-    Status           mStatus;
-    otRadioTimeStats mTimeStats;
-    TimeMicro        mLastUpdateTime;
-};
-#endif // OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
 
 /**
  * Represents an OpenThread radio abstraction.
@@ -262,6 +214,71 @@ public:
         {
         }
     };
+
+#if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
+    /**
+     * Implements the radio statistics logic.
+     *
+     * The radio statistics are the time when the radio in TX/RX/radio state.
+     * Since this class collects these statistics from pure software level
+     * and no platform API is involved, a simplified model is used to
+     * calculate the time of different radio states. The data may not be very
+     * accurate, but it's sufficient to provide a general understanding of
+     * the proportion of time a device is in different radio states.
+     *
+     * The simplified model is:
+     * - The radio statistics is only aware of 2 states: RX and sleep.
+     * - Each time `Radio::Receive` or `Radio::Sleep` is called, it will check
+     *   the current state and add the time since last time the methods were
+     *   called. For example, `Sleep` is first called and `Receive` is called
+     *   after 1 second, then 1 second will be added to SleepTime and the
+     *   current state switches to `Receive`.
+     * - The time of TX will be calculated from the callback of TransmitDone.
+     *   If TX returns kErrorNone or kErrorNoAk, the tx time will be added
+     *   according to the number of bytes sent. And the SleepTime or RxTime
+     *   will be reduced accordingly.
+     * - When `GetStats` is called, an operation will be executed to calculate
+     *   the time for the last state. And the result will be returned.
+     */
+    class Statistics : private NonCopyable
+    {
+        friend class Radio;
+        friend class Callbacks;
+
+    public:
+        using TimeStats = otRadioTimeStats; ///< Radio statistics (time spend in each state).
+
+        /**
+         * Retrieves the current radio statistics.
+         *
+         * @return The current time statistics.
+         */
+        const TimeStats &GetStats(void);
+
+        /**
+         * Resets the radio statistics.
+         */
+        void ResetTime(void);
+
+    private:
+        enum Status : uint8_t{
+            kDisabled,
+            kSleep,
+            kReceive,
+        };
+
+        Statistics(void);
+        void RecordStateChange(Status aStatus);
+        void HandleReceiveAt(uint32_t aDurationUs);
+        void RecordTxDone(otError aError, uint16_t aPsduLength);
+        void RecordRxDone(otError aError);
+        void UpdateTime(void);
+
+        Status    mStatus;
+        TimeStats mTimeStats;
+        TimeMicro mLastUpdateTime;
+    };
+#endif // OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
 
     /**
      * Initializes the `Radio` object.
@@ -523,7 +540,7 @@ public:
      * @retval  kErrorFailed         Other platform specific errors.
      * @retval  kErrorNone           Successfully enabled or disabled CSL.
      */
-    Error EnableCsl(uint32_t aCslPeriod, otShortAddress aShortAddr, const otExtAddress *aExtAddr);
+    Error EnableCsl(uint32_t aCslPeriod, Mac::ShortAddress aShortAddr, const Mac::ExtAddress &aExtAddr);
 
     /**
      * Resets CSL receiver in radio.
@@ -797,7 +814,7 @@ public:
 #endif
 
 #if OPENTHREAD_CONFIG_RADIO_915MHZ_OQPSK_SUPPORT
-        if (aChannelPage == kChannelPage1)
+        if (aChannelPage == kChannelPage2)
         {
             mask = OT_RADIO_915MHZ_OQPSK_CHANNEL_MASK;
         }
@@ -812,12 +829,30 @@ public:
         return mask;
     }
 
+    /**
+     * Get the bus speed in bits/second between the host and the radio chip.
+     *
+     * @returns The bus speed in bits/second between the host and the radio chip.
+     *          Return 0 when the MAC and above layer and Radio layer resides on the same chip.
+     */
+    uint32_t GetBusSpeed(void);
+
+    /**
+     * Get the bus latency in microseconds between the host and the radio chip.
+     *
+     * @param[in]   aInstance    A pointer to an OpenThread instance.
+     *
+     * @returns The bus latency in microseconds between the host and the radio chip.
+     *          Return 0 when the MAC and above layer and Radio layer resides on the same chip.
+     */
+    uint32_t GetBusLatency(void);
+
 private:
     otInstance *GetInstancePtr(void) const { return reinterpret_cast<otInstance *>(&InstanceLocator::GetInstance()); }
 
     Callbacks mCallbacks;
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    RadioStatistics mRadioStatistics;
+    Statistics mStatistics;
 #endif
 };
 
@@ -894,7 +929,7 @@ inline otRadioState Radio::GetState(void) { return otPlatRadioGetState(GetInstan
 inline Error Radio::Enable(void)
 {
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    mRadioStatistics.RecordStateChange(RadioStatistics::kSleep);
+    mStatistics.RecordStateChange(Statistics::kSleep);
 #endif
     return otPlatRadioEnable(GetInstancePtr());
 }
@@ -902,7 +937,7 @@ inline Error Radio::Enable(void)
 inline Error Radio::Disable(void)
 {
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    mRadioStatistics.RecordStateChange(RadioStatistics::kDisabled);
+    mStatistics.RecordStateChange(Statistics::kDisabled);
 #endif
     return otPlatRadioDisable(GetInstancePtr());
 }
@@ -912,7 +947,7 @@ inline bool Radio::IsEnabled(void) { return otPlatRadioIsEnabled(GetInstancePtr(
 inline Error Radio::Sleep(void)
 {
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    mRadioStatistics.RecordStateChange(RadioStatistics::kSleep);
+    mStatistics.RecordStateChange(Statistics::kSleep);
 #endif
     return otPlatRadioSleep(GetInstancePtr());
 }
@@ -920,7 +955,7 @@ inline Error Radio::Sleep(void)
 inline Error Radio::Receive(uint8_t aChannel)
 {
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    mRadioStatistics.RecordStateChange(RadioStatistics::kReceive);
+    mStatistics.RecordStateChange(Statistics::kReceive);
 #endif
     return otPlatRadioReceive(GetInstancePtr(), aChannel);
 }
@@ -932,7 +967,7 @@ inline Error Radio::ReceiveAt(uint8_t aChannel, uint32_t aStart, uint32_t aDurat
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
     if (error == kErrorNone)
     {
-        mRadioStatistics.HandleReceiveAt(aDuration);
+        mStatistics.HandleReceiveAt(aDuration);
     }
 #endif
     return error;
@@ -945,9 +980,9 @@ inline void Radio::UpdateCslSampleTime(uint32_t aCslSampleTime)
     otPlatRadioUpdateCslSampleTime(GetInstancePtr(), aCslSampleTime);
 }
 
-inline Error Radio::EnableCsl(uint32_t aCslPeriod, otShortAddress aShortAddr, const otExtAddress *aExtAddr)
+inline Error Radio::EnableCsl(uint32_t aCslPeriod, Mac::ShortAddress aShortAddr, const Mac::ExtAddress &aExtAddr)
 {
-    return otPlatRadioEnableCsl(GetInstancePtr(), aCslPeriod, aShortAddr, aExtAddr);
+    return otPlatRadioEnableCsl(GetInstancePtr(), aCslPeriod, aShortAddr, &aExtAddr);
 }
 
 inline Error Radio::ResetCsl(void) { return otPlatRadioResetCsl(GetInstancePtr()); }
@@ -986,14 +1021,13 @@ inline Error Radio::ClearSrcMatchShortEntry(Mac::ShortAddress aShortAddress)
     return otPlatRadioClearSrcMatchShortEntry(GetInstancePtr(), aShortAddress);
 }
 
-inline Error Radio::ClearSrcMatchExtEntry(const Mac::ExtAddress &aExtAddress)
-{
-    return otPlatRadioClearSrcMatchExtEntry(GetInstancePtr(), &aExtAddress);
-}
-
 inline void Radio::ClearSrcMatchShortEntries(void) { otPlatRadioClearSrcMatchShortEntries(GetInstancePtr()); }
 
 inline void Radio::ClearSrcMatchExtEntries(void) { otPlatRadioClearSrcMatchExtEntries(GetInstancePtr()); }
+
+inline uint32_t Radio::GetBusSpeed(void) { return otPlatRadioGetBusSpeed(GetInstancePtr()); }
+
+inline uint32_t Radio::GetBusLatency(void) { return otPlatRadioGetBusLatency(GetInstancePtr()); }
 
 #else //----------------------------------------------------------------------------------------------------------------
 
@@ -1053,7 +1087,7 @@ inline Error Radio::ReceiveAt(uint8_t, uint32_t, uint32_t) { return kErrorNone; 
 #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE
 inline void Radio::UpdateCslSampleTime(uint32_t) {}
 
-inline Error Radio::EnableCsl(uint32_t, otShortAddress aShortAddr, const otExtAddress *)
+inline Error Radio::EnableCsl(uint32_t, Mac::ShortAddress aShortAddr, const Mac::ExtAddress &)
 {
     return kErrorNotImplemented;
 }
@@ -1094,6 +1128,10 @@ inline Error Radio::ClearSrcMatchExtEntry(const Mac::ExtAddress &) { return kErr
 inline void Radio::ClearSrcMatchShortEntries(void) {}
 
 inline void Radio::ClearSrcMatchExtEntries(void) {}
+
+inline uint32_t Radio::GetBusSpeed(void) { return 0; }
+
+inline uint32_t Radio::GetBusLatency(void) { return 0; }
 
 #endif // #if OPENTHREAD_CONFIG_RADIO_LINK_IEEE_802_15_4_ENABLE
 

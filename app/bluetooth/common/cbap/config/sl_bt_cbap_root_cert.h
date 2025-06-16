@@ -30,8 +30,10 @@
 #ifndef SL_BT_CBAP_ROOT_CERT_H
 #define SL_BT_CBAP_ROOT_CERT_H
 
+#if !defined(SLI_SUPPRESS_MISSING_CONFIGURATION_WARNING)
 #warning "Please insert the root certificate created with the certificate generator python script." \
   "For more details see the readme of the \"SoC - Certificate Signing Request Generator\" example."
+#endif
 #define SL_BT_CBAP_ROOT_CERT \
   ""
 

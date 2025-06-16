@@ -15,7 +15,7 @@
  *
  ******************************************************************************/
 #include PLATFORM_HEADER
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_zigbee.h"
 #include "app/framework/include/af.h"
 #include "sl_component_catalog.h"
@@ -27,15 +27,17 @@
 #include "stack/include/sl_zigbee_tlv_core.h"
 #include "stack/include/sl_zigbee_stack_specific_tlv.h"
 #include "stack/include/sl_zigbee_address_info.h"
+#include "stack/include/stack-info.h"
+#include "stack/include/zigbee_direct_stack_interface.h"
 #include "stack/include/zigbee-security-manager.h"
 #include "zigbee_direct_tlv.h"
 #include "zigbee_direct_common.h"
 
-#define SL_ZIGBEE_NETWORK_COMMISSIONING_REQUEST  0x0E
 #define LONG_SOURCE_NOT_INCLUDED 0x10
 #define NPDU_INDEX_FLAGS 2
 #define PACKET_LENGTH_INDEX 3
 #define NWK_PACKET_INDEX 4
+#define DESTINATION_NODE_ID_INDEX 6
 #define NODE_ID_INDEX 8
 #define INCOMING_EUI64_INDEX 12
 #define INCOMING_COMMAND_ID_INDEX 20
@@ -44,17 +46,13 @@
 #define NPDU_TLV_OVERHEAD 4
 #define OUTGOING_NPDU_QUEUE_SIZE 1024
 #define MAX_FLAT_PACKET_SIZE 127
+#define TEMP_BUFFER_SIZE 54
+#define TUNNEL_DATA_COMMAND_FRAME_SIZE 9
+#define TUNNEL_DATA_AUX_FRAME_HEADER_SIZE 2
+#define TUNNEL_DATA_FRAME_SIZE 35
+#define ZIGBEE_APS_FRAME_CONTROL_TYPE_ACK         0x02u
+#define ZIGBEE_APS_FRAME_CONTROL_TYPE_MASK        0x03u
 
-//prototypes
-extern void sl_zigbee_direct_send_commissioning_response(uint8_t status, sl_802154_short_addr_t dst, sl_802154_long_addr_t longDest);
-extern bool sl_zigbee_direct_send_ephemeral_key(sl_802154_short_addr_t destinationShortId,
-                                                sl_802154_long_addr_t destinationLongId,
-                                                sl_802154_long_addr_t sourceOrPartnerLongId,
-                                                uint8_t keyType,
-                                                sl_zigbee_key_data_t* keyData,
-                                                uint8_t options);
-extern sl_status_t sl_zigbee_transient_device_mgmt_finish(const sl_zigbee_address_info *device_ids,
-                                                          bool store);
 static void ble_tx_handler(uint8_t * packetData,
                            uint8_t mac_index,
                            uint8_t nwk_index);
@@ -62,7 +60,6 @@ static void ble_tx_handler(uint8_t * packetData,
 //global variables
 extern sli_zigbee_ble_connect_table_t bleConnectionTable[SL_BT_CONFIG_MAX_CONNECTIONS];
 extern sl_802154_long_addr_t zdd_eui;
-static bool commissioning_request_received = false;
 static uint8_t commissioning_tlvs[100];
 static uint8_t commissioning_tlvs_size;
 static uint8_t packet_from_zvd[MAX_MTU];
@@ -72,6 +69,7 @@ static uint16_t outgoing_npdu_queue_index = 0;
 static uint8_t outgoing_flat_packet[MAX_FLAT_PACKET_SIZE];
 static uint8_t in_connection;
 static uint8_t outgoing_unicast[MAX_FLAT_PACKET_SIZE];
+static uint8_t output[TEMP_BUFFER_SIZE];
 
 //local events
 static sl_zigbee_af_event_t zb_incoming_tunnel_data_event;
@@ -81,9 +79,9 @@ static sl_zigbee_af_event_t zb_tunnel_broadcast_to_zvd_event;
 
 //static void sli_zigbee_af_incoming_tunnel_data_event_handler();//sl_zigbee_af_event_t * event) protoype
 //this is called when data is arriving via the BLE tunneling service
-void sl_zigbee_direct_tunnel_write(uint8_t connection, uint8array * writeValue)
+void sli_zigbee_direct_tunnel_write(uint8_t connection, byte_array * writeValue)
 {
-  if (!(sl_zigbee_direct_security_decrypt_packet(sl_zvd_eui, writeValue->data, writeValue->len, gattdb_zigbee_tunnel_2))) {
+  if (!(sli_zigbee_direct_security_decrypt_packet(sl_zvd_eui, writeValue->data, writeValue->len, gattdb_zigbee_tunnel_2))) {
     sl_bt_gatt_server_send_user_write_response(connection, gattdb_zigbee_tunnel_2, ES_ERR_APPLICATION_SPECIFIC);
     return;
   }
@@ -96,7 +94,7 @@ void sl_zigbee_direct_tunnel_write(uint8_t connection, uint8array * writeValue)
     sl_zigbee_app_debug_print(" %02X", writeValue->data[i]);
   }
   sl_zigbee_app_debug_println("]");
-#endif //SL_CATALOG_ZIGBEE_
+#endif //SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 
   if (packet_from_zvd_length == 0) {
     //store incoming data in global variable and trigger event to deal with it in the application task
@@ -171,6 +169,38 @@ static void sli_zigbee_af_incoming_tunnel_data_event_handler(sl_zigbee_af_event_
       incoming_counter = 0;
       sl_bt_gatt_server_send_user_write_response(in_connection, gattdb_zigbee_tunnel_2, ES_WRITE_OK);
       return;
+    } else if (sl_util_fetch_low_high_int16u(&packet_from_zvd[pointer + DESTINATION_NODE_ID_INDEX]) == 0x0000u // Destination is TC
+               && (packet_from_zvd[pointer + PACKET_LENGTH_INDEX + 11] & ZIGBEE_SECURITY_CONTROL_KEY_IDENTIFIER_MASK) == ZIGBEE_SECURITY_CONTROL_LINK_KEY
+               && ((packet_from_zvd[pointer + PACKET_LENGTH_INDEX + 9] & ZIGBEE_APS_FRAME_CONTROL_TYPE_MASK) == ZIGBEE_APS_FRAME_CONTROL_TYPE_ACK)) {
+      sl_zigbee_app_debug_println("Received APS ACK for Update Link key from ZVD!\nTCLK Exchange successful, sending Basic auth key!");
+      // Auth between ZVD and TC is successful, the ZDD sends a transport key message
+      // with the basic authorization key type and the key field containing the
+      // basic authorization key derived for the ZVD’s EUI-64. This transport key message is
+      // encrypted with the default trust center link key ("ZigBeeAlliance09") under the 'key-load key'
+      // (0x03) derivative.
+
+      sl_zigbee_key_data_t basic_key;
+      sli_zigbee_direct_calculate_basic_key(sl_zvd_eui, sl_zigbee_key_contents(&basic_key));
+      sl_zigbee_core_debug_println("Calculated Basic Key:");
+      sl_zigbee_af_print_zigbee_key(sl_zigbee_key_contents(&basic_key));
+
+      sl_zigbee_sec_man_key_t zigbeeAlliance09Key = ZIGBEE_3_CENTRALIZED_SECURITY_LINK_KEY;
+      status = sl_zigbee_sec_man_import_transient_key(sl_zvd_eui, &zigbeeAlliance09Key);
+
+      //message with basic auth key derived for ZVD
+      bool send_status = sl_zigbee_direct_send_ephemeral_key(sl_zvd_node_id,
+                                                             sl_zvd_eui,
+                                                             zdd_eui,
+                                                             KEY_TRANSPORT_BASIC_AUTHORIZATION_KEY,
+                                                             &basic_key, //basic auth key derived for ZVD EUI
+                                                             ENCRYPTION_APS
+                                                             | SEND_APS_COMMAND_TO_CHILD);
+      status = send_status ? SL_STATUS_OK : SL_STATUS_FAIL;
+      if (status == SL_STATUS_OK) {
+        sl_zigbee_app_debug_println("Sent Basic Auth Key to ZVD succesfully!");
+      } else {
+        sl_zigbee_app_debug_println("Failed to send Basic Auth Key to ZVD with Status: %04X", status);
+      }
     }
 
     my_nwk_packet.bitmask = (packet_from_zvd[pointer + NPDU_INDEX_FLAGS] & 0x01);
@@ -247,7 +277,7 @@ void sli_zigbee_af_schedule_indication_event_handler(sl_zigbee_af_event_t * even
   uint8_t channel;
   uint16_t event_counter;
   uint32_t time_to_next_connection_event;
-  RAIL_Time_t rail_time;
+  sl_rail_time_t rail_time;
 
   sl_zigbee_af_event_set_inactive(&zb_schedule_indication_event);
 
@@ -267,8 +297,8 @@ void sli_zigbee_af_schedule_indication_event_handler(sl_zigbee_af_event_t * even
                                           &event_counter,
                                           &time_to_next_connection_event);
 
-  rail_time = RAIL_GetTime();
-  if (RAIL_GetTime() >= time_to_next_connection_event) { //we missed the current one
+  rail_time = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
+  if (sl_rail_get_time(SL_RAIL_EFR32_HANDLE) >= time_to_next_connection_event) { //we missed the current one
     sl_zigbee_af_event_set_inactive(&zb_schedule_indication_event);
     return;
   }
@@ -327,7 +357,7 @@ void sli_zigbee_af_tunnel_indicate_event_handler(sl_zigbee_af_event_t * event)
 
 #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 
-  if (sl_zigbee_direct_security_encrypt_packet(zdd_eui, &outgoing_indication[4], outgoing_indication_length - 4, gattdb_zigbee_tunnel_2) != SL_STATUS_OK) {
+  if (sli_zigbee_direct_security_encrypt_packet(zdd_eui, &outgoing_indication[4], outgoing_indication_length - 4, gattdb_zigbee_tunnel_2) != SL_STATUS_OK) {
     sl_zigbee_app_debug_println("ERROR: Something went wrong during encryption", status);
     return;
   }
@@ -345,75 +375,156 @@ void sli_zigbee_af_tunnel_indicate_event_handler(sl_zigbee_af_event_t * event)
   }
 }
 
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t * packetData,
-                                                                 uint8_t * size_p,
-                                                                 void* data)
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t * packetData,
+                                                                  uint8_t * size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d)
 {
-  /*
-   #ifdef SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
-     sl_zigbee_app_debug_print("Incoming packet type %X:", packetType);
-     for (uint8_t j = 0; j < *size_p; j++) {
-     sl_zigbee_app_debug_print(" %X", packetData[j]);
-     }
-     sl_zigbee_app_debug_println("");
-   #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
-   */
+  UNUSED_VAR(size_d);
   // catch tunneling transport key message for ZVD
   if ((packetType == SL_ZIGBEE_ZIGBEE_PACKET_TYPE_APS_COMMAND)
-      && (packetData[0] == 0x0e)   // 0x0e = APS_CMD_TUNNEL
+      && (packetData[0] == APS_COMMAND_TUNNEL_DATA)
       && (memcmp(&packetData[1], sl_zvd_eui, EUI64_SIZE) == 0)) {
     sl_zigbee_app_debug_println("Caught aps tunnel command for ZVD");
     // If the APS command frame is not using APS layer security, the APSME of the ZDD SHALL examine the APSME command identifier,
     // and in case of a Transport Key message, the StandardKeyType field of that message.
     // If the StandardKeyType equals 'Standard network key' (0x01) the message is considered a Transport Key message conveying
     // an active or prospective network key and the APSME SHALL decline forwarding of this frame to the ZVD.
-    if ((packetData[9] & 0x20) == 0x00) {   // No APS security
-      if ((packetData[11] == 0x05) && (packetData[12] == 0x01)) {    // 0x05 = APS_CMD_TRANSPORT_KEY //0x01 Standard network key
+    if ((packetData[9] & SL_ZIGBEE_APS_OPTION_SECURITY) == ENCRYPTION_NONE) {   // No APS security
+      if ((packetData[11] == APS_COMMAND_TRANSPORT_KEY) && (packetData[12] == KEY_TRANSPORT_RESIDENTIAL_NETWORK_KEY)) {
         sl_zigbee_app_debug_println("Caught unencrypted Transport Key Message with standard key type, dropping and disconnecting!");
         sl_bt_connection_close(sl_my_connection);
         return SL_ZIGBEE_DROP_PACKET;
       }
     } else {   //APS security
-      // If the APS command frame is using APS layer encryption, the APSME of the ZDD SHALL examine the auxiliary security header,
-      // and in particular the Key Identifier sub-field of the Security Control field. If the Key Identifier equals 'key-transport key' (0x02)
-      // the message is already decrypted here, so I am here assuming it was decrypted using the well-known key.
+      /*
+         Tunneled packet structure for transport key message from TC to ZVD:
+         APS command type (1)
+         Dest EUI64 (8)
+         Aux Frame Header (2)
+         Aux Frame
+         Security Control (1)
+         Frame Counter (4)
+         Source EUI (8)
+         Encrypted Tunnelled data (35)
+         MIC (4)
+
+         If the APS command frame is using APS layer encryption, the APSME of the ZDD SHALL examine the auxiliary security header,
+         and in particular the Key Identifier sub-field of the Security Control field. If the Key Identifier equals 'key-transport key' (0x02)
+         we will try to decrypt using the well-known key.
+         If successful, we will drop the packet and send KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY.
+         If unsuccessful, (device uses install code), we will drop the packet and send KEY_TRANSPORT_EPHEMERAL_UNIQUE_LINK_KEY
+       */
       sl_zigbee_app_debug_println("Tunnel command is using APS crypto");
-      uint8_t pkt = packetData[11] & 0x18;
+      uint8_t auth_data_start_index = TUNNEL_DATA_COMMAND_FRAME_SIZE + TUNNEL_DATA_AUX_FRAME_HEADER_SIZE;
+      uint8_t pkt = packetData[auth_data_start_index] & ZIGBEE_SECURITY_CONTROL_KEY_IDENTIFIER_MASK; //Aux frame
       if (sli_zigbee_direct_tc_is_zigbee_direct_aware == false) {
         sl_zigbee_app_debug_println("It is a legacy network");
-        if (pkt == 0x10) {          //key-transport key
+        if (pkt == ZIGBEE_SECURITY_CONTROL_KEY_TRANSPORT_KEY) {
+        #ifdef SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
+          sl_zigbee_app_debug_print("Incoming packet type %X:", packetType);
+          for (uint8_t j = 0; j < *size_p; j++) {
+            sl_zigbee_app_debug_print(" %X", packetData[j]);
+          }
+          sl_zigbee_app_debug_println("");
+        #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
+
           sl_zigbee_app_debug_println("Caught Key Transport Key Message!");
 
           sl_status_t status = SL_STATUS_OK;
-          if (status == SL_STATUS_OK) {
-            sl_zigbee_app_debug_println("Decryption with default key succeeded!");
-          } else {
-            sl_zigbee_app_debug_println("No luck decrypting with default key", status);
+          uint8_t nonce[NONCE_LENGTH];
+          bool haveSourceAddress = packetData[auth_data_start_index] & ZIGBEE_SECURITY_CONTROL_HAVE_EXTENDED_NONCE;
+          if (haveSourceAddress) {
+            sl_zigbee_app_debug_println("Contains source EUI: ");
+            memmove(nonce + STANDALONE_NONCE_SOURCE_ADDR_INDEX, &packetData[auth_data_start_index + SECURITY_CONTROL_SIZE + SECURITY_FRAME_COUNTER_SIZE], EUI64_SIZE);
+          }
+          memmove(nonce + STANDALONE_NONCE_FRAME_COUNTER_INDEX, &packetData[auth_data_start_index + SECURITY_CONTROL_SIZE], SECURITY_FRAME_COUNTER_SIZE);
+          packetData[auth_data_start_index] |= sl_zigbee_security_level();
+          nonce[STANDALONE_NONCE_SECURITY_CONTROL_INDEX] = packetData[auth_data_start_index];
+
+          sl_zigbee_app_debug_println("Nonce:");
+          for (uint8_t j = 0; j < NONCE_LENGTH; j++) {
+            sl_zigbee_app_debug_println(" %X", nonce[j]);
           }
 
+          sl_zigbee_sec_man_context_t context;
+          sl_zigbee_sec_man_init_context(&context);
           sl_zigbee_sec_man_key_t zigbeeAlliance09Key = ZIGBEE_3_CENTRALIZED_SECURITY_LINK_KEY;
-          status = sl_zigbee_sec_man_import_link_key(0xFF,
-                                                     sl_zvd_eui,
-                                                     &zigbeeAlliance09Key);
-          sl_zigbee_app_debug_println("Adding well known key with status: %02X", status);
-          status = sl_zigbee_direct_send_ephemeral_key(sl_zvd_node_id,
-                                                       sl_zvd_eui,
-                                                       NULL,   //should be ok as this is the TC address
-                                                       0xB0,   //KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY
-                                                       NULL,
-                                                       0x02);  //ENCRYPTION_APS
-          sl_zigbee_app_debug_println("Sent transport key with type KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY and status %02X", status);
+
+          context.core_key_type = SL_ZB_SEC_MAN_KEY_TYPE_INTERNAL;
+
+          status = sl_zigbee_sec_man_import_key(&context, &zigbeeAlliance09Key);
+          if (status != SL_STATUS_OK) {
+            sl_zigbee_app_debug_println("Importing Well known key failed! Status: %02X", status);
+          } else {
+            sl_zigbee_app_debug_println("Imported Well known key successfully! Status: %02X", status);
+          }
+
+          context.derived_type = SL_ZB_SEC_MAN_DERIVED_KEY_TYPE_KEY_TRANSPORT_KEY;
+          status = sl_zigbee_sec_man_load_key_context(&context);
+          if (status != SL_STATUS_OK) {
+            sl_zigbee_app_debug_println("Loading key into core failed! Status: %02X", status);
+          } else {
+            sl_zigbee_app_debug_println("Load key successful! Status: %02X", status);
+          }
+
+          uint8_t temp[TEMP_BUFFER_SIZE];
+          memmove(temp, &packetData[TUNNEL_DATA_COMMAND_FRAME_SIZE], TEMP_BUFFER_SIZE);
+
+          uint8_t encryption_start_index = auth_data_start_index + NONCE_LENGTH - TUNNEL_DATA_COMMAND_FRAME_SIZE;
+
+          //length is (encrypted+authenticated data)
+          status = sl_zigbee_sec_man_aes_ccm(nonce, false, temp, encryption_start_index, encryption_start_index + TUNNEL_DATA_FRAME_SIZE, output);
+
+          if (status == SL_STATUS_OK) {
+            // Decryption with well known key successful, send KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY to the ZVD
+            sl_zigbee_app_debug_println("Decryption with default key succeeded! Status: %02X", status);
+            status = sl_zigbee_sec_man_import_transient_key(sl_zvd_eui, &zigbeeAlliance09Key);
+            if (status != SL_STATUS_OK) {
+              sl_zigbee_app_debug_println("Importing default TCLK Failed! Status: %02X", status);
+            } else {
+              sl_zigbee_app_debug_println("Importing default TCLK successful! Status: %02X", status);
+            }
+            bool send_status = sl_zigbee_direct_send_ephemeral_key(sl_zvd_node_id,
+                                                                   sl_zvd_eui,
+                                                                   NULL,   //should be ok as this is the TC address
+                                                                   KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY,
+                                                                   NULL,
+                                                                   (SEND_APS_COMMAND_TO_CHILD
+                                                                    | SEND_APS_COMMAND_NULL_KEY
+                                                                    | ENCRYPTION_APS));
+            status = send_status ? SL_STATUS_OK : SL_STATUS_FAIL;
+            sl_zigbee_app_debug_println("Sent transport key with type KEY_TRANSPORT_EPHEMERAL_GLOBAL_LINK_KEY with status %02X", status);
+          } else {
+            // Decryption with well known key unsuccessful, send KEY_TRANSPORT_EPHEMERAL_UNIQUE_LINK_KEY to ZVD
+            sl_zigbee_app_debug_println("No luck decrypting with default key Status: %02X", status);
+            status = sl_zigbee_sec_man_import_transient_key(sl_zvd_eui, &zigbeeAlliance09Key);
+            if (status != SL_STATUS_OK) {
+              sl_zigbee_app_debug_println("Importing default TCLK Failed! Status: %02X", status);
+            } else {
+              sl_zigbee_app_debug_println("Importing default TCLK successful! Status: %02X", status);
+            }
+            status = sl_zigbee_direct_send_ephemeral_key(sl_zvd_node_id,
+                                                         sl_zvd_eui,
+                                                         NULL,   //should be ok as this is the TC address
+                                                         KEY_TRANSPORT_EPHEMERAL_UNIQUE_LINK_KEY,
+                                                         NULL,
+                                                         (SEND_APS_COMMAND_TO_CHILD
+                                                          | SEND_APS_COMMAND_NULL_KEY
+                                                          | ENCRYPTION_APS));
+            sl_zigbee_app_debug_println("Sent transport key with type KEY_TRANSPORT_EPHEMERAL_UNIQUE_LINK_KEY with status %02X", status);
+          }
           return SL_ZIGBEE_DROP_PACKET;
-        } else if (pkt == 0x20) {         //key-load key
+        } else if (pkt == ZIGBEE_SECURITY_CONTROL_KEY_LOAD_KEY) {         //key-load key
           sl_zigbee_app_debug_println("Caught  Key Load Key Message!");
           sl_zigbee_address_info my_zvd_address_info;
           memcpy(my_zvd_address_info.device_long, sl_zvd_eui, EUI64_SIZE);
           my_zvd_address_info.device_short = sl_zvd_node_id;
-          sl_zigbee_transient_device_mgmt_finish(&my_zvd_address_info, true);
+          sl_zigbee_transient_device_mgmt_finish(&my_zvd_address_info);
         }
       } else {   //TC is Zigbee Direct aware
-        if ( pkt == 0x10) {           //key-transport key
+        if ( pkt == ZIGBEE_SECURITY_CONTROL_KEY_TRANSPORT_KEY) {           //key-transport key
           sl_zigbee_app_debug_println("Caught suspect Transport Key Message, dropping and disconnecting!");
           sl_bt_connection_close(sl_my_connection);
           return SL_ZIGBEE_DROP_PACKET;
@@ -422,7 +533,7 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
           sl_zigbee_address_info my_zvd_address_info;
           memcpy(my_zvd_address_info.device_long, sl_zvd_eui, EUI64_SIZE);
           my_zvd_address_info.device_short = sl_zvd_node_id;
-          sl_zigbee_transient_device_mgmt_finish(&my_zvd_address_info, true);
+          sl_zigbee_transient_device_mgmt_finish(&my_zvd_address_info);
         }
       }
     }
@@ -436,11 +547,13 @@ static void  sli_zigbee_af_tunnel_broadcast_to_zvd_event_handler(sl_zigbee_af_ev
   sli_zigbee_direct_queue_outgoing_npdu(&outgoing_broadcast[1], outgoing_broadcast[0]);
 }
 
-sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t  packetType,
-                                                                 uint8_t * packetData,
-                                                                 uint8_t * size_p,
-                                                                 void* data)
+sl_zigbee_packet_action_t sl_zigbee_pre_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t  packetType,
+                                                                  uint8_t * packetData,
+                                                                  uint8_t * size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d)
 {
+  UNUSED_VAR(size_d);
   if (((packetType == SL_ZIGBEE_ZIGBEE_PACKET_TYPE_NWK_DATA) || (packetType == SL_ZIGBEE_ZIGBEE_PACKET_TYPE_NWK_COMMAND)) && (sl_util_fetch_low_high_int16u(&packetData[2]) == sl_zvd_node_id)) {
     #ifdef SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
     sl_zigbee_app_debug_print("Outgoing Packet Filter NWK");
@@ -460,6 +573,20 @@ sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbe
       sli_zigbee_direct_queue_outgoing_npdu(&outgoing_unicast[1], outgoing_unicast[0]);
       )
     return SL_ZIGBEE_DROP_PACKET;
+  }
+  if ((packetType == SL_ZIGBEE_ZIGBEE_PACKET_TYPE_APS_COMMAND)) {
+    if ((packetData[0] == APS_COMMAND_TRANSPORT_KEY)) {
+      sl_zigbee_app_debug_println("Caught APS Transport Key command!");
+      sl_zigbee_app_debug_print("Outgoing Packet Filter APS");
+      for (uint8_t i = 0; i < *size_p; i++) {
+        sl_zigbee_app_debug_print(" %02X", packetData[i]);
+      }
+      sl_zigbee_app_debug_println("");
+      return SL_ZIGBEE_ACCEPT_PACKET;
+    }
+    if ((packetData[0] == APS_COMMAND_UPDATE_DEVICE)) {
+      sl_zigbee_app_debug_println("Caught Update Device!");
+    }
   }
   return SL_ZIGBEE_ACCEPT_PACKET;
 }

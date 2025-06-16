@@ -47,10 +47,9 @@ extern "C" {
  */
 
 /**
-* @brief Reset reason.
-*/
-typedef enum zpal_reset_reason_t
-{
+ * @brief Reset reason.
+ */
+typedef enum zpal_reset_reason_t{
   ZPAL_RESET_REASON_PIN                = 0,     ///< Reset triggered by reset pin.
   ZPAL_RESET_REASON_DEEP_SLEEP_WUT     = 1,     ///< Reset triggered by wake up by timer from deep sleep state.
   //Legacy: ZW_WAKEUP_SENSOR = 2,   /**< Wake up by a Wakeup Beam */

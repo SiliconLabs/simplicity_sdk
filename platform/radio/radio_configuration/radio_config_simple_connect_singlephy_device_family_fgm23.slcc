@@ -1,6 +1,6 @@
 id: radio_config_simple_connect_singlephy_device_family_fgm23
 label: Custom Radio Configuration for simple connect singlephy application
-package: platform
+package: platform_default_radio_confs
 description: Triggers Radio Configurator UI for setting a proper (Application - Die
   - RF Band) Custom Radio Configurator
 category: Platform|Radio Configuration

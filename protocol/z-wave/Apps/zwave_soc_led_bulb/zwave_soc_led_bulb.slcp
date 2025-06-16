@@ -35,7 +35,7 @@ component:
   - id: zw_cc_version
   - id: zw_cc_zwaveplusinfo
   - id: zw_appshw
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   - id: simple_rgb_pwm_led
@@ -45,17 +45,17 @@ component:
     instance: [led1]
   - id: ZW_MIGRATION_TO_7_19
   - id: zw_cli_common
-    condition: [zw_production]
+    condition: [zw_stack_release_libraries]
   - id: app_button_press
   - id: app_assert
   - id: simple_button
     instance: [btn0, btn1]
   - id: simple_led
     instance: [led0]
+  - id: clock_manager
   
 source:
   - path: app.c
-  - path: main.c
   - path: app_cli.c
     condition: [zw_cli_common]
   - path: app_btn_handler.c
@@ -146,8 +146,8 @@ configuration:
     value: 1
   - name: ZAF_APP_NAME
     value: '"led_bulb"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
+  - name: SL_CLOCK_MANAGER_WDOG0CLK_SOURCE
+    value: CMU_WDOG0CLKCTRL_CLKSEL_LFRCO
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -163,6 +163,10 @@ config_file:
     directory: sample_keys
   - path: ../../platform/SiliconLabs/PAL/BootLoader/sample-keys/sample_sign.key
     directory: sample_keys
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_soc_led_bulb
 
 template_contribution:
   - name: component_catalog

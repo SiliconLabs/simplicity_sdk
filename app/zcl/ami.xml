@@ -3467,7 +3467,7 @@ limitations under the License.
     <!-- Metering Cluster Server - Commands -->
     <command source="server" code="0x00" name="GetProfileResponse" optional="true" disableDefaultResponse="true">
       <description>
-        This command is generated when the Client command GetProfile is received.
+        This command is generated when the Client command GetProfile is received, where intervals is an array with each element being 24 bits in size, and the total length of the intervals array is specified in bytes.
       </description>
       <arg name="endTime" type="UTC_TIME"/>
       <arg name="status" type="AmiGetProfileStatus"/>

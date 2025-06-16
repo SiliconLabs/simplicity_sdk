@@ -6,7 +6,7 @@ description: >
   EC key pair, the signing request for the device certificate, and other related
   data. The generated data can be read out by the Central Authority.
   This example utilizes TrustZone for storing keys.
-  
+
 category: Bluetooth Mesh Examples
 quality: experimental
 
@@ -42,28 +42,26 @@ component:
   - id: psa_crypto_hmac
   - id: psa_crypto_sha256
   - id: psa_crypto_sha1
-  - id: sl_system
+  - id: sl_main
   - id: sleeptimer
   - id: trustzone_nonsecure
   - id: tz_secure_key_library
 
 requires:
   - name: armv8m.main
-  - name: device_has_radio_2g4hz 
+  - name: device_has_radio_2g4hz
 
 conflicts:
   - name: device_security_vault
 
 source:
   - path: app.c
-  - path: main.c
   - path: csr_generator.c
   - path: der.c
 
 include:
   - path: .
     file_list:
-    - path: app.h
     - path: csr_generator.h
     - path: der.h
 
@@ -83,7 +81,7 @@ other_file:
 import:
   # Import the config files from the TZ Secure application
   - id: btmesh_soc_tz_secure_application
-  
+
 configuration:
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
@@ -148,7 +146,6 @@ template_contribution:
     value: 0x20003000
   - name: memory_ram_size
     value: 0x8000
-
 
 tag:
   - hardware:device:flash:512

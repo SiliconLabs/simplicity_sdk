@@ -207,8 +207,28 @@ int32_t bootloader_bgapi_communication_main(ImageProperties_t *imageProps,
           sendPacket(&response);
 
           if (imageProps->imageCompleted && imageProps->imageVerified) {
+#if defined(_SILICON_LABS_32B_SERIES_3)
+            if ((imageProps->contents & BTL_IMAGE_CONTENT_SE) \
+                && (bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion))) {
+              // Install SE upgrade
+              void *address = NULL;
+              size_t size;
+              sl_se_command_context_t cmd_ctx = { 0u };
+              parserContext->seCmdCtxInterface.init(&cmd_ctx);
+              parserContext->flashDataRegionInterface.data_region_get_location(&cmd_ctx, &address, &size);
+              bootload_commitSeUpgrade((uint32_t)address);
+              // If we get here, the SE upgrade failed
+            }
+            if ((imageProps->contents & BTL_IMAGE_CONTENT_MEM_SEC_1) \
+                && (imageProps->bootloaderVersion > bootload_getBootloaderVersion())) {
+              // Install bootloader upgrade
+              bootload_commitBootloaderUpgrade(parserContext->plainBootloaderAddress,
+                                               imageProps->bootloaderUpgradeSize);
+            }
+#else
 #if defined(SEMAILBOX_PRESENT) || defined(CRYPTOACC_PRESENT)
-            if ((imageProps->contents & BTL_IMAGE_CONTENT_SE) && bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion)) {
+            if ((imageProps->contents & BTL_IMAGE_CONTENT_SE) \
+                && (bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion))) {
               // Install SE upgrade
 #if defined(BOOTLOADER_NONSECURE)
               bootload_commitSeUpgrade();
@@ -217,7 +237,8 @@ int32_t bootloader_bgapi_communication_main(ImageProperties_t *imageProps,
 #endif
             }
 #endif
-            if ((imageProps->contents & BTL_IMAGE_CONTENT_BOOTLOADER) && imageProps->bootloaderVersion > bootload_getBootloaderVersion()) {
+            if ((imageProps->contents & BTL_IMAGE_CONTENT_BOOTLOADER) \
+                && (imageProps->bootloaderVersion > bootload_getBootloaderVersion())) {
               // Install bootloader upgrade
 #if defined(BOOTLOADER_NONSECURE)
               bootload_commitBootloaderUpgrade(imageProps->bootloaderUpgradeSize);
@@ -225,6 +246,7 @@ int32_t bootloader_bgapi_communication_main(ImageProperties_t *imageProps,
               bootload_commitBootloaderUpgrade(BTL_UPGRADE_LOCATION, imageProps->bootloaderUpgradeSize);
 #endif
             }
+#endif
           }
           break;
 

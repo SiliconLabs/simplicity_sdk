@@ -1,6 +1,6 @@
 id: "bluetooth_feature_gap"
 label: "GAP"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component provides commands for users to set data channel
   classification, enable or disable the privacy mode and accept list filtering

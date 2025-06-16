@@ -79,14 +79,21 @@ extern "C" {
 /** Synonym of \ref RAIL_EFR32_HANDLE for Series 3 */
 #define RAIL_S3LPW_HANDLE RAIL_EFR32_HANDLE
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
+
+/**
+ * @def RAIL_SIXG301_REDUCED_STATE_BUFFER_BYTES
+ * @brief The SIxx301 series size needed for REDUCE_SEQ_SZ
+ *   \ref RAIL_StateBufferEntry_t::bufferBytes.
+ */
+#define RAIL_SIXG301_REDUCED_STATE_BUFFER_BYTES 624
 
 /**
  * @def RAIL_SIXG301_STATE_BUFFER_BYTES
- * @brief The SIxG301 series size needed for
+ * @brief The SIxx301 series size needed for
  *   \ref RAIL_StateBufferEntry_t::bufferBytes.
  */
-#define RAIL_SIXG301_STATE_BUFFER_BYTES 624
+#define RAIL_SIXG301_STATE_BUFFER_BYTES 640
 
 #ifndef RAIL_STATE_BUFFER_BYTES
 /**
@@ -96,17 +103,22 @@ extern "C" {
  *   larger than what \ref RAIL_GetStateBufferSize() determines at run-time.
  */
 #if (_SILICON_LABS_32B_SERIES_3_CONFIG == 301) || (_SILICON_LABS_32B_SERIES_3_CONFIG == 300)
+#ifdef REDUCE_SEQ_SZ
+#define RAIL_STATE_BUFFER_BYTES RAIL_SIXG301_REDUCED_STATE_BUFFER_BYTES
+#else
 #define RAIL_STATE_BUFFER_BYTES RAIL_SIXG301_STATE_BUFFER_BYTES
+#endif
 #else
 #define RAIL_STATE_BUFFER_BYTES 0 // Sate Doxygen
 #error "Unsupported platform!"
 #endif
 #endif //#ifndef RAIL_STATE_BUFFER_BYTES
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
+
+#ifndef DOXYGEN_UNDOCUMENTED
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-
 /**
  * @typedef RAIL_TimerTick_t
  * @brief Internal RAIL hardware timer tick that drives the RAIL timebase.
@@ -117,6 +129,7 @@ extern "C" {
  *   two \ref RAIL_TimerTick_t values to microseconds.
  */
 typedef uint64_t RAIL_TimerTick_t;
+#endif//DOXYGEN_SHOULD_SKIP_THIS
 
 /**
  * @typedef RAIL_GetTimerTick_t
@@ -133,13 +146,15 @@ typedef RAIL_TimerTick_t (*RAIL_GetTimerTick_t)(RAIL_TimerTickType_t timerTickTy
  */
 extern RAIL_GetTimerTick_t RAIL_GetTimerTick;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * A global pointer to the memory address of the least significant 32 bits
  * of the \ref RAIL_TimerTick_t internal RAIL hardware timer that drives
  * the RAIL timebase.
  * It's 0.125 microsecond tick range is 2^29 microseconds or ~9 minutes.
  */
-extern const volatile uint32_t *RAIL_TimerTick;
+extern volatile uint32_t * const RAIL_TimerTick;
 
 /**
  * A global pointer to the memory address of the least significant 32 bits
@@ -152,7 +167,7 @@ extern const volatile uint32_t *RAIL_TimerTick;
  *   \ref RAIL_RxPacketDetails_t::timeReceived which reflects the actual
  *   on-air time that the packet finished.
  */
-extern const volatile uint32_t *RAIL_RxPacketTimestamp;
+extern volatile uint32_t * const RAIL_RxPacketTimestamp;
 
 /**
  * Get elapsed time, in microseconds, between two \ref RAIL_TimerTick_t ticks.
@@ -173,7 +188,9 @@ RAIL_Time_t RAIL_TimerTicksToUs(RAIL_TimerTick_t startTick,
  */
 RAIL_TimerTick_t RAIL_UsToTimerTicks(RAIL_Time_t microseconds);
 
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//SLI_LIBRAIL_ALIAS
+
+#endif//DOXYGEN_UNDOCUMENTED
 
 /** @} */ // end of group General_SIXX3XX
 
@@ -191,7 +208,7 @@ RAIL_TimerTick_t RAIL_UsToTimerTicks(RAIL_Time_t microseconds);
  * @def TRANSITION_TIME_US
  * @brief Time it takes to take care of protocol switching.
  */
-#define TRANSITION_TIME_US 510
+#define TRANSITION_TIME_US 450
 
 /** @} */ // end of group Multiprotocol_SIXX3XX
 
@@ -209,10 +226,12 @@ RAIL_TimerTick_t RAIL_UsToTimerTicks(RAIL_Time_t microseconds);
  * @def RAIL_RF_PATHS_2P4GIG
  * @brief Indicates the number of 2.4 GHz RF Paths suppported.
  */
+#ifndef RAIL_RF_PATHS_2P4GIG
 #if (_SILICON_LABS_32B_SERIES_3_CONFIG == 301) || (_SILICON_LABS_32B_SERIES_3_CONFIG == 300)
 #define RAIL_RF_PATHS_2P4GIG 1
 #else
 #define RAIL_RF_PATHS_2P4GIG 0
+#endif
 #endif
 
 /**
@@ -270,6 +289,7 @@ struct RAIL_ChannelConfigEntryAttr {
  * @brief Types specific to the SIxx3xx for dealing with the on-chip PAs.
  */
 
+#ifndef RAIL_TX_POWER_LEVEL_2P4_HP_MAX
 #if (_SILICON_LABS_32B_SERIES_3_CONFIG == 301) || (_SILICON_LABS_32B_SERIES_3_CONFIG == 300)
 /**
  * The minimum valid value for the \ref RAIL_TxPowerLevel_t when in \ref
@@ -287,14 +307,17 @@ struct RAIL_ChannelConfigEntryAttr {
 #else
 #error "RAIL_TX_POWER_LEVEL not defined for this device"
 #endif
+#endif
 
 /**
  * The number of PA's on this chip (including Virtual PAs).
  */
+#ifndef RAIL_NUM_PA
 #if (_SILICON_LABS_32B_SERIES_3_CONFIG == 301) || (_SILICON_LABS_32B_SERIES_3_CONFIG == 300)
 #define RAIL_NUM_PA (2U)
 #else
 #error "RAIL_NUM_PA undefined for platform"
+#endif
 #endif
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -354,10 +377,10 @@ struct RAIL_ChannelConfigEntryAttr {
  */
 
 /// Default PRS channel to use when configuring sleep
-#define RAIL_TIMER_SYNC_PRS_CHANNEL_DEFAULT  (7U)
+#define RAILINT_TIMER_SYNC_PRS_CHANNEL_DEFAULT  (7U)
 
 /// Default RTCC channel to use when configuring sleep
-#define RAIL_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (0U)
+#define RAILINT_TIMER_SYNC_RTCC_CHANNEL_DEFAULT (0U)
 
 /** @} */ // end of group Sleep_SIXX3XX
 
@@ -384,6 +407,8 @@ struct RAIL_ChannelConfigEntryAttr {
  * @brief The maximum value for a consistent RAIL transition
  */
 #define RAIL_MAXIMUM_TRANSITION_US (1000000U)
+
+#ifndef DOXYGEN_UNDOCUMENTED
 
 /**
  * @enum RAIL_RadioStateSix3x_t
@@ -441,273 +466,9 @@ RAIL_ENUM(RAIL_RadioStateSix3x_t) {
  */
 typedef RAIL_RadioStateSix3x_t RAIL_RacRadioState_t;
 
+#endif//DOXYGEN_UNDOCUMENTED
+
 /** @} */ // end of group State_Transitions_SIXX3XX
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-
-/******************************************************************************
- * Sequencer User Structures
- *****************************************************************************/
-/**
- * @addtogroup Sequencer_User_SIXX3XX Sequencer User
- * @ingroup RAIL_API
- * @{
- * @brief Types specific to the SIxx3xx for dealing with the Sequencer User.
- */
-
-/**
- * TODO: Document and cleanup.
- */
-typedef struct RAIL_UserCommonGlobal {
-  void *pLocSeqVirtualReg;
-  void *pLocSeqTiming;
-  void *pLocUserSeqConfig;
-  void *pLocRtccsyncConfig;
-  void *pLocStateVarConfig;
-  void *pLocGenericPhyConfig;
-  void *pLocpSeqTimestamp;
-  void *pLocpSeqMisc;
-  void *pLocpNewFeatureConfig;
-} RAIL_UserCommonGlobal_t;
-
-/**
- * TODO: Document and cleanup.
- */
-typedef struct UserSeqShMem {
-  /**
-   * pointer to the start of M33 and sequencer shared memory.
-   * TBD: This part of memory should be moved to user memory instead of in generic_seq_common.h
-   */
-  void *pStart;
-  /**
-   * size of shared memory in bytes.
-   * TBD: This part of memory should be moved to user memory instead of in generic_seq_common.h
-   */
-  uint32_t szBytes;
-} UserSeqShMem_t;
-
-/**
- * TODO: Document and cleanup.
- */
-typedef void (*RAIL_SEQ_UserStartMain_t)(void);
-
-/**
- * @struct RAIL_SeqUserAppInfo_t
- * @brief RAIL sequencer user application structure.
- *
- * This structure describes the user application that is loaded on the sequencer.
- */
-// TBD: Is this the right place for this structure?  This should probably stays internal?????
-typedef struct {
-  /// Version of the structure? do we need this? how would this work?
-  uint32_t version;
-  /// Pointer to the start of user executable in memory.
-  uint8_t *pProgramStartMem;
-  /// Pointer to the start of user executable storage.
-  uint8_t *pProgramStartLoc;
-  /// Size of user executable in bytes.
-  uint32_t programSzB;
-  /// Main user function entry.
-  RAIL_SEQ_UserStartMain_t programInitStart;
-  /// Pointer to the start of user initialized data in memory.
-  uint8_t *pDataStartMem;
-  /// Pointer to the start of user initialized data storage.
-  uint8_t *pDataStartLoc;
-  /// Size of user initialized data in bytes.
-  uint32_t dataSzB;
-  /// Pointer to the start of user un-initialized data in memory.
-  uint8_t *pScratchStartMem;
-  /// Size of user un-initialized data in bytes.
-  uint32_t scratchSzB;
-} RAIL_SeqUserAppInfo_t;
-
-/**
- * @typedef RAIL_UserCpReqCb_t
- * @brief Callback function type used to indicate status of user copy request.
- *
- * @param[in] pCpReq A non-NULL pointer to the user copy request.
- * @param[in] reqStatus The status of the request.
- */
-typedef void(*RAIL_UserCpReqCb_t)(const void *pCpReq,
-                                  RAIL_Status_t reqStatus);
-
-//FIXME: these are not RAIL_Status_t values, and need doxygen
-#define RAIL_USER_CP_REQ_STATUS_FLAG_STARTED           1U
-#define RAIL_USER_CP_REQ_STATUS_FLAG_COMPLETED         2U
-#define RAIL_USER_CP_REQ_STATUS_FLAG_REQ_HOST          4U
-#define RAIL_USER_CP_REQ_STATUS_FLAG_INVALID_PARAMETER 8U
-
-/**
- * @struct RAIL_UserCpReq_t
- * @brief Memory copy request configuration structure.
- *
- * This structure describes the user request to copy contents from one memory area to another.
- */
-typedef struct RAIL_UserCpReq {
-  // Pointer to the next request; NULL if none.
-  struct RAIL_UserCpReq *pNext;
-  // Non-NULL pointer to the location to copy from.
-  const uint8_t *pSrc;
-  // Non-NULL pointer to the location to copy to.
-  uint8_t *pDst;
-  // The number of bytes to copy.
-  uint16_t xferSzBytes;
-  // Status of the request.
-  volatile uint8_t statusFlag;
-  // Reserved.
-  volatile uint8_t reserved;
-  // A pointer to the callback called on completion or error. May be NULL.
-  RAIL_UserCpReqCb_t pCpReqCB;
-} RAIL_UserCpReq_t;
-
-/**
- * Load sequencer user application to memory.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in] pSeqUserApp A pointer to the structure describing the user
- *   sequencer application metadata.
- * @return Status code indicating success of the function call.
- *
- * Attempts to load sequencer user application to the sequencer memory and
- * execute its initialization function.
- */
-RAIL_Status_t RAIL_LoadUserSeqApp(RAIL_Handle_t railHandle,
-                                  const RAIL_SeqUserAppInfo_t *pSeqUserApp);
-
-/**
- * Send a shutdown message to the sequencer user application.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_ShutdownUserSeqApp(RAIL_Handle_t railHandle);
-
-/**
- * Indicate whether this chip supports Sequencer User.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @return true if Sequencer User is supported; false otherwise.
- */
-bool RAIL_SupportsUserSequencer(RAIL_Handle_t railHandle);
-
-/**
- * Get the sequencer user common global variables.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[out] pCommonGlobal A non-NULL pointer to store the common global variables.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_USER_printCommonGlobal(RAIL_Handle_t railHandle,
-                                          RAIL_UserCommonGlobal_t *pCommonGlobal);
-
-/**
- * Get sequencer user mailbox message.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[out] pMsg A non-NULL pointer to the message filled in by the call.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_USER_GetMboxMsg(RAIL_Handle_t railHandle,
-                                   uint32_t *pMsg);
-
-/**
- * Send user mailbox message to the sequencer.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in] msg A message to send.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_USER_SendMbox(RAIL_Handle_t railHandle,
-                                 uint32_t msg);
-
-/**
- * Initialize internal RAIL state used to run a user application on
- * the sequencer.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_USER_startSeqCtrl(RAIL_Handle_t railHandle);
-
-/**
- * Initialize a semaphore.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in,out] pSemaphore A non-NULL pointer to a 32-bit aligned
- *   semaphore location updated to become an unacquired semaphore.
- * @return Status code indicating success of the function call.
- *
- * @note This must be called from the hsot for each semaphore's memory location.
- */
-RAIL_Status_t RAIL_USER_InitSemaphore(RAIL_Handle_t railHandle,
-                                      uint32_t *pSemaphore);
-
-/**
- * Acquire a semaphore lock.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in,out] pSemaphore A non-NULL pointer to the semaphore location
- *   which will be updated if the lock was acquired.
- * @return Status code indicating success of the function call:
- *   \ref RAIL_STATUS_NO_ERROR if lock was acquired;
- *   \ref RAIL_STATUS_INVALID_PARAMETER if the lock is corrupted (the lock need to be initialized with \ref RAIL_USER_InitSemaphore());
- *   \ref RAIL_STATUS_INVALID_CALL if the lock has been acquired by another processor;
- *   \ref RAIL_STATUS_INVALID_STATE if the lock has been acquired before by the current processor;
- *   \ref RAIL_STATUS_SUSPENDED if the lock has been changed recently, user can try to acuire it again
- *
- * This function attempts to acquire (lock) a semaphore that was previously
- * initialized by \ref RAIL_USER_InitSemaphore().
- */
-RAIL_Status_t RAIL_USER_TryLockSemaphore(RAIL_Handle_t railHandle,
-                                         uint32_t *pSemaphore);
-
-/**
- * Release a semaphore.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in,out] pSemaphore A non-NULL pointer to the semaphore location
- *   which will be updated if the semaphore was released.
- * @return Status code indicating success of the function call.
- *
- * This function releases a semaphore that was previously initialized by
- * \ref RAIL_USER_InitSemaphore() and acquired by \ref RAIL_USER_TryLockSemaphore().
- */
-RAIL_Status_t RAIL_USER_ReleaseSemaphore(RAIL_Handle_t railHandle,
-                                         uint32_t *pSemaphore);
-
-/**
- * Initilize which DMA to use to copy user data.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in] dmaChannel The DMA channel to use.
- * @return Status code indicating success of the function call.
- */
-RAIL_Status_t RAIL_USER_InitCp(RAIL_Handle_t railHandle,
-                               uint32_t dmaChannel);
-
-/**
- * Start a request to copy user data.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in,out] pCpReqHead A non-NULL pointer to the start of a chain of user copy request configurations.
- * @param[in,out] pCpReqTail A non-NULL pointer to the last configuration in the chain.
- * @return Status code indicating success of the function call.
- *
- * This function will initiate copy operations for each element in the linked
- * list chain between pCpReqHead and pCpReqTail, inclusive.  The \ref
- * RAIL_UserCpReq_t::statusFlag of each element in the chain will be
- * updated as the operation progresses to completion or failure.
- *
- * @note Before using this function, \ref RAIL_USER_InitCp() must be
- *   called once from the host.
- */
-RAIL_Status_t RAIL_USER_StartCpReq(RAIL_Handle_t railHandle,
-                                   RAIL_UserCpReq_t *pCpReqHead,
-                                   RAIL_UserCpReq_t *pCpReqTail);
-
-/** @} */ // end of group Sequencer_User_SIXX3XX
-
-#endif//DOXYGEN_SHOULD_SKIP_THIS
 
 #ifdef __cplusplus
 }

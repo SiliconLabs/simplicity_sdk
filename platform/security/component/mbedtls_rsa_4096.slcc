@@ -1,5 +1,5 @@
 id: mbedtls_rsa_4096
-package: platform
+package: security_mbedtls
 label: RSA-4096
 description: >-
   This component adds support for 4096-bit RSA operations.

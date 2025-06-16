@@ -110,13 +110,37 @@ upgrade:
       - name: SL_ZIGBEE_KEY_TABLE_SIZE
         replacement: REMOVED_MACRO
       - script: protocol/zigbee/component/scripts/upgrade_key_table_size.lua
+      - name: NVM3_DEFAULT_CACHE_SIZE
+        replacement: NVM3_DEFAULT_CACHE_SIZE
+      - script: protocol/zigbee/component/scripts/upgrade_nvm3_default_cache_size.lua
     component:
       - trigger: zigbee_dmp_tuning
         description: >
           The zigbee_dmp_tuning component has been deprecated. radio_priority_15_4 component has taken its place for adjusting 15_4 dmp radio priority.
         remove:
           - zigbee_dmp_tuning
-    configuration:
-      - name: NVM3_DEFAULT_CACHE_SIZE
-        replacement: NVM3_DEFAULT_CACHE_SIZE
-      - script: protocol/zigbee/component/scripts/upgrade_nvm3_default_cache_size.lua
+
+  - sdk:
+      id: simplicity_sdk
+      version: 2025.6.0
+    component:
+      - trigger: iostream_recommended_stream
+        description: >
+          Switched to iostream_recommended_console from iostream_recommended_stream to enable debug logging. No action is needed.
+        remove:
+          - iostream_recommended_stream
+        add:
+          - iostream_recommended_console
+      - trigger: zigbee_pro_stack_rail_mux
+        description: >
+          The zigbee_pro_stack_rail_mux component has been replaced with a more flexible zigbee_pro_stack component that automatically includes RAIL MUX support when available. No action is needed
+        remove:
+          - zigbee_pro_stack_rail_mux
+        add:
+          - zigbee_pro_stack
+      - script: protocol/zigbee/component/scripts/upgrade_zigbee_sl_system_compatibliity.lua
+        description: >
+          In sisdk-2025.6.0 the sl_system component was deprecated and support for baremetal applications has been removed.
+          For baremetal applications sl_system_compatibility is now used for a seamless transition.
+          For RTOS applications you can manually upgrade your project to sl_main or add the define SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2025_6 to your project to keep sl_system until it is removed.
+          sl_system support for RTOS applications will be removed in sisdk-2026.6.0 and your project will need to upgrade to sl_main.

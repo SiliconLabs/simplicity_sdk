@@ -1,5 +1,5 @@
 id: psa_builtin_key_support_se
-package: platform
+package: security_mbedtls
 label: Built-In Keys
 description: >-
   This component provides support for using OTP-provisioned keys through

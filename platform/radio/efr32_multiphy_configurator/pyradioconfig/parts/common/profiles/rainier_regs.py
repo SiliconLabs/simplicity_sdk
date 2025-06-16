@@ -225,21 +225,22 @@ def build_modem_regs_rainier(model, profile):
     profile.outputs.append(ModelOutput(model.vars.AGC_PNRFATT7_LNAMIXRFATT15, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.PNRFATT7.LNAMIXRFATT15'))
     profile.outputs.append(ModelOutput(model.vars.AGC_PNRFATT7_LNAMIXRFATT16, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.PNRFATT7.LNAMIXRFATT16'))
 
-    if model.part_family.lower() not in []:
-        profile.outputs.append(ModelOutput(model.vars.MODEM_CTRL5_FEFILTCLKSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CTRL5.FEFILTCLKSEL'))
-        profile.outputs.append(ModelOutput(model.vars.MODEM_CTRL5_AFIFOBYP, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CTRL5.AFIFOBYP'))
+    profile.outputs.append(ModelOutput(model.vars.MODEM_CTRL5_FEFILTCLKSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CTRL5.FEFILTCLKSEL'))
+    profile.outputs.append(ModelOutput(model.vars.MODEM_CTRL5_AFIFOBYP, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.CTRL5.AFIFOBYP'))
     profile.outputs.append(ModelOutput(model.vars.MODEM_TXCTRL_TXAFIFOBYP, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.TXCTRL.TXAFIFOBYP'))
 
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_LEGACY_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.LEGACY_EN'))
-    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_SPARE0, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.SPARE0'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_RXDC1CH_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.RXDC1CH_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_TRECS_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.TRECS_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_BCR_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.BCR_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_COHERENT_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.COHERENT_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_LONGRANGE_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.LONGRANGE_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_ENHDSSS_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.ENHDSSS_EN'))
-    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_SPARE1, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.SPARE1'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_FSW_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.FSW_EN'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_SOFTMODEM_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.SOFTMODEM_EN'))
-    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_SPARE2, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.SPARE2'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_BTC_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.BTC_EN'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_RXDC2CH_EN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.RXDC2CH_EN'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_MODEMINFO_SPARE0, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MODEMINFO.SPARE0'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MMDDENOMINIT_CALC_DENOMINIT0, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MMDDENOMINIT_CALC.DENOMINIT0'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MMDDENOMINIT_CALC_DENOMINIT1, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MMDDENOMINIT_CALC.DENOMINIT1'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MMDDENOMINIT_CALC_DOUBLED_DENOMINIT0, '', ModelOutputType.SVD_REG_FIELD, readable_name='SEQ.MMDDENOMINIT_CALC_DOUBLED.DENOMINIT0'))
@@ -253,6 +254,8 @@ def build_modem_regs_rainier(model, profile):
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODINDEX_CALC_MODINDEXE_DOUBLED_FREQGAINE, '', ModelOutputType.SVD_REG_FIELD,readable_name='SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED.FREQGAINE'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MODINDEX_CALC_MODINDEXE_DOUBLED_FREQGAINM, '', ModelOutputType.SVD_REG_FIELD,readable_name='SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED.FREQGAINM'))
     profile.outputs.append(ModelOutput(model.vars.SEQ_MISC_SYNTH_MODE_TX00D_EN, '', ModelOutputType.SVD_REG_FIELD,readable_name='SEQ.MISC.SYNTH_MODE_TX00D_EN'))
+    profile.outputs.append(ModelOutput(model.vars.SEQ_FSWCOREINFO_CONFIG, '', ModelOutputType.SVD_REG_FIELD,readable_name='SEQ.FSWCOREINFO.CONFIG'))
+
     profile.outputs.append(ModelOutput(model.vars.MODEM_SPARE_SPARE, '', ModelOutputType.SVD_REG_FIELD, readable_name='MODEM.SPARE.SPARE'))
 
 ## Synth_IF Series 3 Reigsters
@@ -368,8 +371,7 @@ def build_synth_regs_s3(model, profile):
     profile.outputs.append(ModelOutput(model.vars.MODEM_TRECSCFG_DTIMLOSSTHD, '', ModelOutputType.SVD_REG_FIELD,
                                        readable_name='MODEM.TRECSCFG.DTIMLOSSTHD'))
 
-    # TODO: Add to lpwh72000 and lpwh74000 when available in register map
-    if not (model.part_family.upper() == 'RAINIER' and model.part_revision in ['A0', 'A1', 'A2']):
+    if (not (model.part_family.upper() == 'RAINIER' and model.part_revision in ['A0', 'A1', 'A2'])):
         profile.outputs.append(
             ModelOutput(model.vars.MODEM_SIFASTDETECTCTRL_FASTCWDETECTEN, '', ModelOutputType.SVD_REG_FIELD,
                         readable_name='MODEM.SIFASTDETECTCTRL.FASTCWDETECTEN'))

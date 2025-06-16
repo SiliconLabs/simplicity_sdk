@@ -23,14 +23,14 @@
 import dataclasses
 import enum
 import operator
-from typing import (Callable, ClassVar, Dict, Iterator, List, Mapping,
-                    Optional, Union)
+import re
+from typing import Callable, ClassVar, Dict, Iterator, List, Mapping, Optional, Union
 
 from . import util
 from .event import LocalEvent
 from .mdl import NamedModelID
 from .statedict import StateDictObject
-from .util import ConnectionParams, ConnectionDataLength
+from .util import ConnectionParams, ConnectionDataLength, UUID_PATTERN
 
 
 class Network(StateDictObject):
@@ -40,165 +40,70 @@ class Network(StateDictObject):
         self.appkeys = []
 
 
-class Node(StateDictObject):
-    @classmethod
-    def is_name_valid(cls, node_name):
-        return util.is_name_valid(node_name)
+class ElementRef(StateDictObject):
+    UUID_ELEM_IDX_PATTERN_STR = "".join(["^(", UUID_PATTERN, ")", r"\[(\d+)\]$"])
+    UUID_ELEM_IDX_PATTERN = re.compile(UUID_ELEM_IDX_PATTERN_STR)
 
     @classmethod
     def is_uuid_valid(cls, uuid):
         return util.is_uuid_valid(uuid)
 
     @classmethod
-    def is_addr_valid(cls, addr):
-        return util.is_unicast_address(addr)
+    def is_elem_index_valid(cls, elem_index):
+        return util.is_elem_index_valid(elem_index)
 
-    def __init__(
-        self,
-        uuid,
-        devkey,
-        prim_addr,
-        elem_count,
-        name=None,
-        appkey_indexes=[],
-        dcd=None,
-    ):
-        self.uuid = uuid
-        self.devkey = StateDictObject.to_bytes(devkey)
-        self.prim_addr = prim_addr
-        self.elem_count = elem_count
-        if name:
-            self.name = name
+    @classmethod
+    def create_from_dict(cls, d):
+        if isinstance(d, cls):
+            # Handle gracefully if the d object is instance of the type which
+            # needs to be created.
+            return d
         else:
-            self.name = f"Node_{self.prim_addr:04X}"
-        self._appkey_indexes = []
-        for appkey_index in appkey_indexes:
-            self.add_appkey_index(appkey_index)
-        if dcd is None:
-            self.dcd = dcd
-        elif isinstance(dcd, Mapping):
-            self.dcd = DCD.create_from_dict(dcd)
-        elif isinstance(dcd, DCD):
-            self.dcd = dcd
-        else:
-            self.raise_construction_error("dcd", dcd, type_error=True)
+            if isinstance(d, str):
+                elem_match = cls.UUID_ELEM_IDX_PATTERN.fullmatch(d)
+                if not elem_match:
+                    cls.raise_construction_error("uuid and elem_index", d)
+                uuid = elem_match.group(1)
+                elem_index = int(elem_match.group(2))
+                obj = cls(uuid=uuid, elem_index=elem_index)
+            else:
+                obj = cls(**d)
+            return obj
+
+    def __init__(self, uuid, elem_index):
+        super().__init__()
+        if not self.is_uuid_valid(uuid):
+            self.raise_construction_error("uuid", uuid)
+        if not self.is_elem_index_valid(elem_index):
+            self.raise_construction_error("elem_index", elem_index)
+        self._uuid = StateDictObject.to_bytes(uuid)
+        self._elem_index = elem_index
 
     @property
     def uuid(self):
         return self._uuid
 
-    @uuid.setter
-    def uuid(self, value):
-        if not self.is_uuid_valid(value):
-            self.raise_construction_error("uuid", value)
-        self._uuid = StateDictObject.to_bytes(value)
-
     @property
-    def name(self):
-        return self._name
+    def elem_index(self):
+        return self._elem_index
 
-    @name.setter
-    def name(self, value):
-        if not self.is_name_valid(value):
-            self.raise_construction_error("name", value)
-        self._name = value
-
-    @property
-    def elem_addrs(self):
-        return [
-            addr for addr in range(self.prim_addr, self.prim_addr + self.elem_count)
-        ]
-
-    def is_elem_addr(self, addr):
-        return self.prim_addr <= addr < (self.prim_addr + self.elem_count)
-
-    def get_elem_addrs(self, elem_indexes):
-        if isinstance(elem_indexes, int):
-            elem_indexes = [elem_indexes]
-        elem_addrs = []
-        for elem_idx in elem_indexes:
-            if self.elem_count <= elem_idx:
-                raise ValueError(
-                    f"Node ({self.uuid.hex()}) element index "
-                    f"{elem_idx} does not exits."
-                )
-            elem_addrs.append(self.prim_addr + elem_idx)
-        return elem_addrs
-
-    def get_elem_index(self, addr):
-        if not self.is_elem_addr(addr):
-            raise ValueError(
-                f"Node ({self.uuid.hex()}) does not have 0x{addr:04X} element address."
-            )
-        return addr - self.prim_addr
-
-    def add_appkey_index(self, appkey_index):
-        if appkey_index in self._appkey_indexes:
-            raise ValueError(
-                f"Node ({self.uuid.hex()}) failed to add {appkey_index} "
-                f"appkey_index because it already exists."
-            )
-        self._appkey_indexes.append(appkey_index)
-
-    def remove_appkey_index(self, appkey_index):
-        if appkey_index not in self._appkey_indexes:
-            raise ValueError(
-                f"Node ({self.uuid.hex()}) failed to remove {appkey_index} "
-                f"appkey_index because it does not exists."
-            )
-        self._appkey_indexes.remove(appkey_index)
-
-    def has_appkey_index(self, appkey_index):
-        return appkey_index in self._appkey_indexes
-
-    @property
-    def appkey_indexes(self):
-        return (appkey_index for appkey_index in self._appkey_indexes)
+    def to_dict(self):
+        return str(self)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, self.__class__):
-            return self.uuid == other.uuid
+            return self.uuid == other.uuid and self.elem_index == other.elem_index
         else:
             return False
 
     def __hash__(self) -> int:
-        return hash(self.uuid)
+        return hash((self.uuid, self.elem_index))
 
+    def __str__(self):
+        return f"{self.uuid.hex()}[{self.elem_index}]"
 
-class DCD(StateDictObject):
-    def __init__(self, cid, pid, vid, crpl, relay, proxy, friend, lpn, elements=[]):
-        super().__init__()
-        self.cid = cid
-        self.pid = pid
-        self.vid = vid
-        self.crpl = crpl
-        self.relay = relay
-        self.proxy = proxy
-        self.friend = friend
-        self.lpn = lpn
-        self.elements: List[DCDElement] = []
-        for elem in elements:
-            if isinstance(elem, Mapping):
-                self.elements.append(DCDElement.create_from_dict(elem))
-            elif isinstance(elem, DCDElement):
-                self.elements.append(elem)
-            else:
-                self.raise_construction_error("element", elem, type_error=True)
-
-
-class DCDElement(StateDictObject):
-    def __init__(self, idx, loc, models=[]):
-        super().__init__()
-        self.idx = idx
-        self.loc = loc
-        self.models: List[ModelID] = []
-        for mdl in models:
-            if isinstance(mdl, Mapping):
-                self.models.append(ModelID.create_from_dict(mdl))
-            elif isinstance(mdl, ModelID):
-                self.models.append(mdl)
-            else:
-                self.raise_construction_error("model", mdl, type_error=True)
+    def __repr__(self):
+        return f"ElementRef(uuid: {self.uuid.hex()}, elem_index: {self.elem_index})"
 
 
 class ModelID(StateDictObject):
@@ -264,6 +169,254 @@ class ModelID(StateDictObject):
 
     def __str__(self):
         return f"0x{self.vendor_id:04X}:0x{self.model_id:04X}"
+
+
+class DCDElement(StateDictObject):
+    def __init__(self, idx, loc, models=[]):
+        super().__init__()
+        self.idx = idx
+        self.loc = loc
+        self.models: List[ModelID] = []
+        for mdl in models:
+            if isinstance(mdl, Mapping):
+                self.models.append(ModelID.create_from_dict(mdl))
+            elif isinstance(mdl, ModelID):
+                self.models.append(mdl)
+            else:
+                self.raise_construction_error("model", mdl, type_error=True)
+
+
+class DCD(StateDictObject):
+    def __init__(self, cid, pid, vid, crpl, relay, proxy, friend, lpn, elements=[]):
+        super().__init__()
+        self.cid = cid
+        self.pid = pid
+        self.vid = vid
+        self.crpl = crpl
+        self.relay = relay
+        self.proxy = proxy
+        self.friend = friend
+        self.lpn = lpn
+        self.elements: List[DCDElement] = []
+        for elem in elements:
+            if isinstance(elem, Mapping):
+                self.elements.append(DCDElement.create_from_dict(elem))
+            elif isinstance(elem, DCDElement):
+                self.elements.append(elem)
+            else:
+                self.raise_construction_error("element", elem, type_error=True)
+
+    @property
+    def elem_count(self) -> int:
+        return len(self.elements)
+
+
+class Node(StateDictObject):
+    @classmethod
+    def is_name_valid(cls, node_name):
+        return util.is_name_valid(node_name)
+
+    @classmethod
+    def is_uuid_valid(cls, uuid):
+        return util.is_uuid_valid(uuid)
+
+    @classmethod
+    def is_addr_valid(cls, addr):
+        return util.is_unicast_address(addr)
+
+    def __init__(
+        self,
+        uuid,
+        devkey,
+        prim_addr,
+        elem_count,
+        name=None,
+        appkey_indexes=[],
+        dcd=None,
+        dcd_page_128=None,
+    ):
+        self.uuid = uuid
+        self.devkey = StateDictObject.to_bytes(devkey)
+        self.prim_addr = prim_addr
+        self.elem_count = elem_count
+        if name:
+            self.name = name
+        else:
+            self.name = f"Node_{self.prim_addr:04X}"
+        self._appkey_indexes = []
+        for appkey_index in appkey_indexes:
+            self.add_appkey_index(appkey_index)
+        if dcd is None:
+            self.dcd = dcd
+        elif isinstance(dcd, Mapping):
+            self.dcd = DCD.create_from_dict(dcd)
+        elif isinstance(dcd, DCD):
+            self.dcd = dcd
+        else:
+            self.raise_construction_error("dcd", dcd, type_error=True)
+        if dcd_page_128 is None:
+            self.dcd_page_128 = dcd_page_128
+        elif isinstance(dcd_page_128, Mapping):
+            self.dcd_page_128 = DCD.create_from_dict(dcd_page_128)
+        elif isinstance(dcd_page_128, DCD):
+            self.dcd_page_128 = dcd_page_128
+        else:
+            self.raise_construction_error("dcd_page_128", dcd_page_128, type_error=True)
+
+    @property
+    def uuid(self):
+        return self._uuid
+
+    @uuid.setter
+    def uuid(self, value):
+        if not self.is_uuid_valid(value):
+            self.raise_construction_error("uuid", value)
+        self._uuid = StateDictObject.to_bytes(value)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        if not self.is_name_valid(value):
+            self.raise_construction_error("name", value)
+        self._name = value
+
+    @property
+    def elem_addrs(self):
+        return [
+            addr for addr in range(self.prim_addr, self.prim_addr + self.elem_count)
+        ]
+
+    @property
+    def elem_refs(self):
+        return [
+            ElementRef(self.uuid, elem_index) for elem_index in range(self.elem_count)
+        ]
+
+    def is_elem_addr(self, addr):
+        return self.prim_addr <= addr < (self.prim_addr + self.elem_count)
+
+    def get_elem_addrs(self, elem_indexes):
+        if isinstance(elem_indexes, int):
+            elem_indexes = [elem_indexes]
+        elem_addrs = []
+        for elem_index in elem_indexes:
+            if not self.has_elem_index(elem_index):
+                raise ValueError(
+                    f"Node ({self.uuid.hex()}) element index "
+                    f"{elem_index} does not exits."
+                )
+            elem_addrs.append(self.prim_addr + elem_index)
+        return elem_addrs
+
+    def get_elem_addr(self, elem_index):
+        return self.get_elem_addrs(elem_index)[0]
+
+    def get_last_elem_addr(self):
+        return max(self.elem_addrs)
+
+    def get_elem_ref(
+        self, *, elem_index: Optional[int] = None, elem_addr: Optional[int] = None
+    ) -> ElementRef:
+        if elem_index is not None:
+            return self.get_elem_ref_by_index(elem_index)
+        elif elem_addr is not None:
+            return self.get_elem_ref_by_addr(elem_addr)
+        else:
+            raise ValueError("get_elem_ref() requires either elem_index or elem_addr.")
+
+    def get_elem_ref_by_addr(self, elem_addr: int) -> ElementRef:
+        # The get_elem_index raises ValueError if the address is not valid
+        return ElementRef(self.uuid, self.get_elem_index(elem_addr))
+
+    def get_elem_ref_by_index(self, elem_index: int) -> ElementRef:
+        if not self.has_elem_index(elem_index):
+            raise ValueError(
+                f"Node ({self.uuid.hex()}) element index "
+                f"{elem_index} does not exits."
+            )
+        return ElementRef(self.uuid, elem_index)
+
+    def has_elem_index(self, elem_index):
+        return 0 <= elem_index < self.elem_count
+
+    def get_elem_index(self, addr):
+        if not self.is_elem_addr(addr):
+            raise ValueError(
+                f"Node ({self.uuid.hex()}) does not have 0x{addr:04X} element address."
+            )
+        return addr - self.prim_addr
+
+    def add_appkey_index(self, appkey_index):
+        if appkey_index in self._appkey_indexes:
+            raise ValueError(
+                f"Node ({self.uuid.hex()}) failed to add {appkey_index} "
+                f"appkey_index because it already exists."
+            )
+        self._appkey_indexes.append(appkey_index)
+
+    def remove_appkey_index(self, appkey_index):
+        if appkey_index not in self._appkey_indexes:
+            raise ValueError(
+                f"Node ({self.uuid.hex()}) failed to remove {appkey_index} "
+                f"appkey_index because it does not exists."
+            )
+        self._appkey_indexes.remove(appkey_index)
+
+    def has_appkey_index(self, appkey_index):
+        return appkey_index in self._appkey_indexes
+
+    @property
+    def appkey_indexes(self):
+        return (appkey_index for appkey_index in self._appkey_indexes)
+
+    def has_model(
+        self, elem_index: int, model_id: ModelID, page: int = util.DCD_PAGE_0
+    ) -> bool:
+        if page == util.DCD_PAGE_0:
+            dcd = self.dcd
+        elif page == util.DCD_PAGE_128:
+            dcd = self.dcd_page_128
+        else:
+            raise ValueError(
+                f"Invalid DCD page {page} selection. "
+                f"Valid pages: {util.DCD_PAGE_0}, {util.DCD_PAGE_128}."
+            )
+        if dcd is None:
+            raise ValueError(
+                f"Node ({self.uuid.hex()}) composition data (page {page}) "
+                f"is not available."
+            )
+        if not self.has_elem_index(elem_index):
+            return False
+        return model_id in dcd.elements[elem_index].models
+
+    def start_new_term(
+        self,
+        new_prim_addr: int,
+        new_elem_count: int,
+        new_dcd: Optional[DCD] = None,
+    ):
+        self.prim_addr = new_prim_addr
+        self.elem_count = new_elem_count
+        if new_dcd:
+            self.dcd = new_dcd
+        else:
+            self.dcd = self.dcd_page_128
+        # If new term is started then the dcd page 0 and dcd page 128 are the
+        # same so it has no additional information so it is cleared.
+        self.dcd_page_128 = None
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, self.__class__):
+            return self.uuid == other.uuid
+        else:
+            return False
+
+    def __hash__(self) -> int:
+        return hash(self.uuid)
 
 
 class GapAddrType(util.BtmeshIntEnum):
@@ -367,7 +520,28 @@ class BtmeshDbNodeRemovedEvent(LocalEvent):
     )
 
 
+@dataclasses.dataclass
+class BtmeshDbNodeNewTermEvent(LocalEvent):
+    name: ClassVar[str] = "btmesh_levt_db_node_new_term"
+    node: Node
+    orig_prim_addr: int
+    orig_elem_count: int
+    orig_dcd: Optional[DCD] = None
+
+
+class DatabaseVersion(StateDictObject):
+    def __init__(self, major: int, minor: int):
+        self.major = major
+        self.minor = minor
+
+    @property
+    def version(self) -> int:
+        return (self.major << 16) + self.minor
+
+
 class BtmeshDatabase(StateDictObject):
+    VERSION = DatabaseVersion(1, 0)
+
     def __init__(
         self,
         networks=[],
@@ -376,7 +550,12 @@ class BtmeshDatabase(StateDictObject):
         bt_conn_info_dict={},
         proxy_info_dict={},
         emit: Optional[Callable[[LocalEvent], None]] = None,
+        version: Optional[Union[DatabaseVersion, Dict]] = None,
     ):
+        if version is None:
+            self.version = DatabaseVersion(1, 0)
+        else:
+            self.version = DatabaseVersion.create_from_dict(version)
         self.networks = [nw for nw in networks]
         self.nodes: List[Node] = []
         self.prov_uuid = prov_uuid
@@ -413,6 +592,10 @@ class BtmeshDatabase(StateDictObject):
         pass
 
     @property
+    def prov_node(self) -> Node:
+        return self.get_node_by_uuid(self.prov_uuid)
+
+    @property
     def prov_uuid(self):
         return self._prov_uuid
 
@@ -429,6 +612,7 @@ class BtmeshDatabase(StateDictObject):
         self.emit = emit_func
 
     def clear(self):
+        self.version = self.VERSION
         self.networks.clear()
         self.nodes.clear()
         db_clr_event = BtmeshDbClearedEvent()
@@ -438,45 +622,69 @@ class BtmeshDatabase(StateDictObject):
         if node.uuid not in (n.uuid for n in self.nodes):
             self.nodes.append(node)
 
-    def node_uuid_exists(self, uuid):
+    def node_uuid_exists(self, uuid) -> bool:
         node = next((n for n in self.nodes if n.uuid == uuid), None)
         return node is not None
 
-    def get_node_by_uuid(self, uuid):
+    def get_node_by_uuid(self, uuid) -> Node:
         node = next((n for n in self.nodes if n.uuid == uuid), None)
         if not node:
             raise ValueError(f'Node uuid "{uuid.hex()}" does not exist.')
         return node
 
-    def node_name_exist(self, name):
+    def node_name_exist(self, name) -> bool:
         node = next((n for n in self.nodes if n.name == name), None)
         return node is not None
 
-    def get_node_by_name(self, name):
+    def get_node_by_name(self, name) -> Node:
         node = next((n for n in self.nodes if n.name == name), None)
         if not node:
             raise ValueError(f'Node name "{name}" does not exist.')
         return node
 
-    def node_prim_addr_exist(self, prim_addr):
+    def node_prim_addr_exist(self, prim_addr) -> bool:
         node = next((n for n in self.nodes if n.prim_addr == prim_addr), None)
         return node is not None
 
-    def get_node_by_prim_addr(self, prim_addr):
+    def get_node_by_prim_addr(self, prim_addr) -> Node:
         node = next((n for n in self.nodes if n.prim_addr == prim_addr), None)
         if not node:
             raise ValueError(f"Node primary address 0x{prim_addr:04X} does not exist.")
         return node
 
-    def node_elem_addr_exist(self, elem_addr):
+    def node_elem_addr_exist(self, elem_addr) -> bool:
         node = next((n for n in self.nodes if n.is_elem_addr(elem_addr)), None)
         return node is not None
 
-    def get_node_by_elem_addr(self, elem_addr):
+    def get_node_by_elem_addr(self, elem_addr) -> Node:
         node = next((n for n in self.nodes if n.is_elem_addr(elem_addr)), None)
         if not node:
             raise ValueError(f"Node element address 0x{elem_addr:04X} does not exist.")
         return node
+
+    def node_elem_ref_exist(self, elem_ref: ElementRef) -> bool:
+        if self.node_uuid_exists(elem_ref.uuid):
+            node = self.get_node_by_uuid(elem_ref.uuid)
+            return node.has_elem_index(elem_ref.elem_index)
+        else:
+            return False
+
+    def get_node_by_elem_ref(self, elem_ref: ElementRef) -> Node:
+        node = self.get_node_by_uuid(elem_ref.uuid)
+        if not node.has_elem_index(elem_ref.elem_index):
+            raise ValueError(
+                f"Node {node.uuid.hex()} does not have element "
+                f"index {elem_ref.elem_index}."
+            )
+        return node
+
+    def resolve_elem_ref(self, elem_ref: ElementRef) -> int:
+        node = self.get_node_by_elem_ref(elem_ref)
+        return node.get_elem_addr(elem_ref.elem_index)
+
+    def get_elem_ref(self, elem_addr: int) -> ElementRef:
+        node = self.get_node_by_elem_addr(elem_addr)
+        return node.get_elem_ref_by_addr(elem_addr)
 
     def get_provisioner(self) -> Node:
         return self.get_node_by_uuid(self.prov_uuid)
@@ -487,6 +695,29 @@ class BtmeshDatabase(StateDictObject):
                 f'Node rename failed because "{new_name}" name already exists.'
             )
         node.name = new_name
+
+    def start_new_term(
+        self,
+        node: Node,
+        new_prim_addr: int,
+        new_elem_count: int,
+        new_dcd: Optional[DCD] = None,
+        orig_dcd: Optional[DCD] = None,
+    ):
+        orig_prim_addr = node.prim_addr
+        orig_elem_count = node.elem_count
+        node.start_new_term(
+            new_prim_addr=new_prim_addr,
+            new_elem_count=new_elem_count,
+            new_dcd=new_dcd,
+        )
+        node_new_term_event = BtmeshDbNodeNewTermEvent(
+            node,
+            orig_prim_addr=orig_prim_addr,
+            orig_elem_count=orig_elem_count,
+            orig_dcd=orig_dcd,
+        )
+        self.emit(node_new_term_event)
 
     def remove_node(
         self, node: Node, node_memento: Optional[Dict[str, object]] = None
@@ -517,6 +748,12 @@ class BtmeshDatabase(StateDictObject):
         self, elem_addr: int, node_memento: Optional[Dict[str, object]] = None
     ) -> Node:
         node = self.get_node_by_elem_addr(elem_addr)
+        return self.remove_node(node, node_memento)
+
+    def remove_node_by_elem_ref(
+        self, elem_ref: ElementRef, node_memento: Optional[Dict[str, object]] = None
+    ) -> Node:
+        node = self.get_node_by_elem_ref(elem_ref)
         return self.remove_node(node, node_memento)
 
     def get_node_list(self, nodefilter=None, order_property=None, reverse=False):
@@ -700,3 +937,26 @@ class FWID(StateDictObject):
 
     def __repr__(self):
         return f"FWID(0x{self.company_id:04X},{repr(self.version_info)})"
+
+
+def collect_migrations(cls):
+    migrations = {}
+    pattern = re.compile(r"migrate_to_v(\d+)")
+
+    for name in dir(cls):
+        match = pattern.fullmatch(name)
+        if match and callable(getattr(cls, name)):
+            target_version = int(match.group(1))
+            migrations[target_version] = getattr(cls, name)
+    return migrations
+
+
+class BtmeshDbMigration:
+    @classmethod
+    def migrate(cls, db: Dict, target_version: DatabaseVersion):
+        orig_version = DatabaseVersion.create_from_dict(db["version"])
+        migrations = collect_migrations(cls)
+
+        for major in range(orig_version.major + 1, target_version.major + 1):
+            if major in migrations:
+                migrations[major](db)

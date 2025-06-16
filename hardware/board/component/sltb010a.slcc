@@ -1,7 +1,7 @@
 !!omap
 - id: sltb010a
 - label: SLTB010A
-- package: platform
+- package: boards
 - description: Kit BSP support for the Thunderboard EFR32BG22.
 - category: Platform|Board|Kit|Thunderboard
 - quality: production

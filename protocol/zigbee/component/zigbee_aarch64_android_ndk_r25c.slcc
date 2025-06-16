@@ -1,6 +1,6 @@
 id: zigbee_aarch64_android_ndk_r25c
 label: Zigbee ARM64
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines to build Zigbee apps against ARM64, with Android r25c NDK.

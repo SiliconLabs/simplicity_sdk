@@ -1,6 +1,6 @@
 id: bt_hci_version
 label: HCI Get Version Vendor Specific Command
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides vendor specific commands to HCI to read version information.
   Version information by default is the Bluetooth software version, this can be customized in sl_bt_hci_version_config.h file.

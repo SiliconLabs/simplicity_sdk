@@ -1,6 +1,6 @@
 id: "btmesh_stack"
 label: "Bluetooth Mesh Stack"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth Mesh Stack library."
 category: "Bluetooth Mesh|Stack"
 quality: "production"
@@ -110,7 +110,6 @@ template_contribution:
       count: 3
 requires:
   - name: "btmesh_stack_libraries"
-  - name: "sl_system"
   - name: "bluetooth_stack"
   - name: "bluetooth_feature_system"
   - name: "bluetooth_feature_gap"
@@ -127,10 +126,12 @@ requires:
   - name: "btmesh_stack_health_server"
   - name: "dcd_configuration"
   - name: "btmesh_stack_models"
+  - name: "btmesh_stack_model_storage"
 recommends:
   - id: btmesh_stack_libraries_release
   - id: btmesh_stack_advertiser_legacy
   - id: btmesh_stack_scanner_legacy
+  - id: btmesh_stack_model_storage_v2
 provides:
   - name: "btmesh_stack"
 metadata:

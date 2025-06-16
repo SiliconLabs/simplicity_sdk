@@ -21,25 +21,18 @@ component:
   - id: bluetooth_api_ncp_host
   - id: gatt_configuration
   - id: ncp_gatt
-  - id: ram_interrupt_vector_init
+  - id: interrupt_manager_vector_table_in_ram
   - id: ncp_host_com
   - id: uartdrv_usart
     instance:
       - exp
   - id: mpu
   - id: bootloader_interface
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
-
-include:
-  - path: .
-    file_list:
-      - path: app.h
 
 config_file:
   - override:

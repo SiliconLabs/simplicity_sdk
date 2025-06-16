@@ -74,6 +74,11 @@
 // considered VERY_LONG_BUTTON_PRESS
 #define LONG_BUTTON_PRESS_DURATION   (5000)
 
+// <o APP_BUTTON_PRESS_WAKEUP_DELAY> Duration (ms) from the button press wakeup interrupt to the Sleep Timer initialization
+// <i> Default: 0
+// <i> This value will be added to the button press timestamp if it caused a wakeup from EM4.
+#define APP_BUTTON_PRESS_WAKEUP_DELAY   (0)
+
 // </h>
 
 // <h> Runtime Adaptation

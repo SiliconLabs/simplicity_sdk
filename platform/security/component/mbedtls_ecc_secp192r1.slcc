@@ -1,5 +1,5 @@
 id: mbedtls_ecc_secp192r1
-package: platform
+package: security_mbedtls
 label: secp192r1
 description: >-
   This component adds support for the secp192r1 elliptic curve,

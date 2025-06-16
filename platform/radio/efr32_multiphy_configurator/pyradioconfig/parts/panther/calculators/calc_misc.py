@@ -173,6 +173,12 @@ class CALC_Misc_panther(CALC_Misc_nixi):
             phy_mode_id = 0
 
         if protocol_id in [model.vars.protocol_id.var_enum.BLE, model.vars.protocol_id.var_enum.Zigbee]:
-            model.vars.stack_info.value = [int(protocol_id), int(phy_mode_id)]
+            # phy_mode_id % 1000 = RAIL_phy_id + 1
+            # RAIL phy_id maps are found in /Package/rail_scripts/rail_stack_info_3x.yml
+            # RAIL phy_id maps to specific features.
+            # Multiple radio calculator PHYs can map to 1 RAIL phy_id
+            # We use the thousands place (decimal) to indicate different PHY (different demod) for same feature
+            # See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2862
+            model.vars.stack_info.value = [int(protocol_id), int(phy_mode_id % 1000)]
         else:
             super().calc_stack_info(model)

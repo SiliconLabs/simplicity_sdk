@@ -310,10 +310,18 @@
 #define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING \
 { \
   {{#all_multi_protocol_attributes}}
-  { {{as_hex clusterCode1 4}}, {{as_hex clusterMfgCode1 4}}, {{as_hex clusterCode2 4}}, {{as_hex clusterMfgCode2 4}}, {{as_hex attributeCode1 4}}, {{as_hex attributeMfgCode1 4}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef1}}, {{as_hex attributeCode2 4}}, {{as_hex attributeMfgCode2 4}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef2}} }{{#not_last}},{{/not_last}} /* {{index}}, Zigbee Cluster: {{clusterName1}}, Matter Cluster: {{clusterName2}}, Zigbee Attribute: {{attributeName1}}, Matter Attribute: {{attributeName2}} */ \
+  { {{as_hex attributeCode1 4}}, {{as_hex attributeMfgCode1 4}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef1}}, {{as_hex attributeCode2 4}}, {{as_hex attributeMfgCode2 4}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef2}} }{{#not_last}},{{/not_last}} /* {{index}}, Zigbee Cluster: {{clusterName1}}, Matter Cluster: {{clusterName2}}, Zigbee Attribute: {{attributeName1}}, Matter Attribute: {{attributeName2}} */ \
+  {{/all_multi_protocol_attributes}}
+}
+
+#define GENERATED_MULTI_PROTOCOL_CLUSTER_MAPPING \
+{ \
+  {{#all_multi_protocol_attributes~}}
+	{{~#if_compare ./clusterMappingIndex 1 operator='=='~}}
+	{ {{as_hex clusterCode1 4}}, {{as_hex clusterMfgCode1 4}}, {{as_hex clusterCode2 4}}, {{as_hex clusterMfgCode2 4}}, (sl_zigbee_matter_af_multi_protocol_attribute_metadata_t*)&multiProtocolAttributeMap[{{./index}}], {{./totalClusterMappedAttributes}} }{{#unless isLastPartition}},{{/unless}} /* Zigbee Cluster: {{clusterName1}}, Matter Cluster: {{clusterName2}} */ {{backslash}}{{new_line 1~}}
+	{{~/if_compare~}}
   {{/all_multi_protocol_attributes}}
 }
 {{/if_multi_protocol_attributes_enabled}}
-
 
 #endif // SILABS_AF_ENDPOINT_CONFIG

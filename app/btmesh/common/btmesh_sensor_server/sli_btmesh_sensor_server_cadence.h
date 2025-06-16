@@ -44,6 +44,10 @@
 #include "sl_btmesh_sensor_people_count_config.h"
 #endif // SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
 
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+#include "sl_btmesh_sensor_power_consumption_config.h"
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+
 #if defined(SL_CATALOG_SENSOR_RHT_PRESENT) \
   && defined(SL_BOARD_ENABLE_SENSOR_RHT)   \
   && SL_BOARD_ENABLE_SENSOR_RHT            \
@@ -61,6 +65,58 @@
 #else
 #define SENSOR_PEOPLE_COUNT_CADENCE       0
 #endif
+
+#if defined(SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT) \
+  && SL_BTMESH_SENSOR_POWER_CONSUMPTION_CADENCE_ENABLE_CFG_VAL
+
+#define SENSOR_POWER_CONSUMPTION_CADENCE  1
+#else
+#define SENSOR_POWER_CONSUMPTION_CADENCE  0
+#endif
+
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+/***************************************************************************//**
+ * Initialize power consumption sensor cadence internals.
+ *
+ * @param[in] power_consumption Power consumption sensor data value.
+ *
+ * @return none
+ ******************************************************************************/
+void sli_btmesh_sensor_power_consumption_cadence_init(energy32_t power_consumption);
+
+/***************************************************************************//**
+ * Handle power consumption measured value cadence condition
+ *
+ * @param[in] power_consumption  Power consumption sensor data value.
+ * @param[in] publish_period  Publish event data structure
+ *
+ * @return publishing timer value based on cadence parameters and measured value in ms
+ ******************************************************************************/
+uint32_t sli_btmesh_sensor_power_consumption_handle_cadence(energy32_t power_consumption, sl_btmesh_evt_sensor_server_publish_t publish_period);
+
+/***************************************************************************//**
+ * Update power consumption sensor cadence internal parameters with input cadence data.
+ *
+ * @param[in] evt  Pointer to sensor server set cadence request event.
+ *
+ * @return Status of the operation.
+ *         Returns SL_STATUS_OK(0) if received parameters are in valid range,
+ *         non-zero otherwise.
+ ******************************************************************************/
+sl_status_t sli_btmesh_sensor_power_consumption_set_cadence(sl_btmesh_evt_sensor_setup_server_set_cadence_request_t* evt);
+
+/***************************************************************************//**
+ * Fill the input buffer with power consumption sensor cadence parameters.
+ *
+ * @param[out] get_cadence_buffer Parameters data buffer
+ * @param[out] buffer_len Data buffer length
+ *
+ * @return Status of the operation.
+ *         Returns SL_STATUS_OK(0) if succeeded, non-zero otherwise.
+ ******************************************************************************/
+sl_status_t sli_btmesh_sensor_power_consumption_get_cadence(uint8_t length, uint8_t* get_cadence_buffer, uint16_t* buffer_len);
+
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
 
 #if SENSOR_PEOPLE_COUNT_CADENCE
 /***************************************************************************//**

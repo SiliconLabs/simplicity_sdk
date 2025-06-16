@@ -1,5 +1,5 @@
 id: zigbee_secure_key_storage
-package: Zigbee
+package: zigbee
 label: Zigbee Secure Key Storage
 description: This component will store keys in secure storage on the device by calling PSA APIs. This component also provides crypto routines that operate on PSA key identifiers rather than key values. For this component to be backwards compatible (current images wishing to move their security keys into secure storage), the Zigbee Secure Key Storage Upgrade component must be included as well (this component does not include it by default).
 category: Zigbee|Utility

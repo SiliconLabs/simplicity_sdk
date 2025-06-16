@@ -1,5 +1,5 @@
 id: mbedtls_x509
-package: platform
+package: security_mbedtls
 label: X.509
 description: >-
   This component provides full support for handling X.509 standard-

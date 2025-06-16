@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component implements the server-side functionality of the Smart Energy 1.2 Prepayment cluster.
 label: Prepayment Server
 quality: production

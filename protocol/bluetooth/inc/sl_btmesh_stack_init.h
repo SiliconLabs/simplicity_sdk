@@ -122,6 +122,8 @@ extern const struct sli_bgapi_class sli_bgapi_class_btmesh_silabs_config_server_
 extern const struct sli_bgapi_class sli_bgapi_class_btmesh_silabs_config_server_full;
 extern const struct sli_bgapi_class sli_bgapi_class_btmesh_diagnostic_optimized;
 extern const struct sli_bgapi_class sli_bgapi_class_btmesh_diagnostic_full;
+extern const struct sli_bgapi_class sli_bgapi_class_btmesh_model_migration_optimized;
+extern const struct sli_bgapi_class sli_bgapi_class_btmesh_model_migration_full;
 
 
 /* Macro to get a pointer to a BGAPI class declaration */

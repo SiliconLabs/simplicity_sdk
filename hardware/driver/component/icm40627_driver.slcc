@@ -1,13 +1,13 @@
 id: icm40627_driver
-package: platform
+package: board_drivers
 label: ICM40627 - Motion Sensor
 description: >
-  Driver for the Invensense ICM40627 6-axis motion sensor
+    Driver for the Invensense ICM40627 6-axis motion sensor
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/icm40627
 provides:
   - name: icm40627_driver

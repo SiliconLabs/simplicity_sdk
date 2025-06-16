@@ -164,6 +164,8 @@ void app_led_init(void)
  ******************************************************************************/
 void app_led_change_buttons_to_leds(void)
 {
+  //No need to change the pin configuration as the LED and the buttons don't share pins.
+  return;
 }
 
 // -----------------------------------------------------------------------------
@@ -190,12 +192,12 @@ static double Hue_to_RGB(double v1, double v2, double vH)
     return (v1 + (v2 - v1) * 6 * vH);
   }
   if ((2 * vH) < 1) {
-    return (v2);
+    return v2;
   }
   if ((3 * vH) < 2) {
     return (v1 + (v2 - v1) * (2.0 / 3 - vH) * 6);
   }
-  return (v1);
+  return v1;
 }
 
 static RGB_t HSL_to_RGB(uint16_t hue, uint16_t saturation, uint16_t lightness)

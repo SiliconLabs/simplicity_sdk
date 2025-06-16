@@ -1,6 +1,6 @@
 id: glib
 label: GLIB Graphics Library
-package: platform
+package: glib
 description: GLIB graphics library.
 category: Platform|Driver
 quality: production

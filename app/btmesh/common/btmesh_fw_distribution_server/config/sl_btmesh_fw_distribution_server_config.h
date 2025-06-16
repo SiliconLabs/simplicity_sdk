@@ -74,9 +74,9 @@
 
 // <o SL_BTMESH_FW_DIST_SERVER_FW_LIST_NVM_KEY_CFG_VAL> NVM key of the firmware list
 // <0x0000-0xFFFF>
-// <i> Default: 0x4009
+// <i> Default: 0x400A
 // <i> NVM key of the firmware list
-#define SL_BTMESH_FW_DIST_SERVER_FW_LIST_NVM_KEY_CFG_VAL    (0x4009)
+#define SL_BTMESH_FW_DIST_SERVER_FW_LIST_NVM_KEY_CFG_VAL    (0x400A)
 
 // <q SL_BTMESH_FW_DIST_SERVER_PURGE_FW_LIST_ON_CORRUPTED_ELEM_CFG_VAL> Purge FW list on corruption
 // <i> If integrity or consistency issues are found when building the firmware list from persistent data at initialization,

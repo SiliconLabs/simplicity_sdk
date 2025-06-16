@@ -10,9 +10,7 @@
 
 #include <assert.h>
 #include <ZAF_Common_interface.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 bool
 ZAF_transportSendDataAbort(void)
@@ -21,7 +19,7 @@ ZAF_transportSendDataAbort(void)
     .eCommandType = EZWAVECOMMANDTYPE_SEND_DATA_ABORT
   };
 
-  DPRINT("\nSendDataAbort\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\nSendDataAbort\n");
 
   EQueueNotifyingStatus Status = QueueNotifyingSendToBack(ZAF_getAppHandle()->pZwCommandQueue, (uint8_t*)&CommandPackage, 500);
   assert(EQUEUENOTIFYING_STATUS_SUCCESS == Status);

@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <time.h>
 
-#include "rail.h"
+#include "sl_rail.h"
 
 /*
  * Use BUG() and BUG_ON() in the same ways than assert(). Consider this
@@ -198,7 +198,7 @@ char *bytes_str(const void *in_start, size_t in_len, const void **in_done, char 
 
 #define __PRINT_WITH_TIME(COLOR, MSG, ...) \
     do {                                                             \
-        unsigned int t_us = RAIL_GetTime();                          \
+        unsigned int t_us = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);                          \
         __PRINT(COLOR, "%u.%06u: " MSG, t_us / 1000000, t_us % 1000000, ##__VA_ARGS__); \
     } while (0)
 

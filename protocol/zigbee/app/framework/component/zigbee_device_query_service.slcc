@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component queries new devices for their endpoints and clusters to record information in the Device Database component.
 label: Device Query Service
 quality: production

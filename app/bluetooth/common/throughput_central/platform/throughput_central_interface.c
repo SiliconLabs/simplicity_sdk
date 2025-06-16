@@ -29,12 +29,11 @@
  ******************************************************************************/
 #include "app_timer.h"
 #include "throughput_central_interface.h"
-#include "throughput_types.h"
 #include "app_assert.h"
 #include "sl_sleeptimer.h"
 
 /// Time storage variable
-static throughput_count_t time_storage = 0;
+static uint64_t time_storage = 0;
 
 /// RSSI refresh timer
 static app_timer_t refresh_timer;

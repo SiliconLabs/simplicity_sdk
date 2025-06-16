@@ -59,14 +59,12 @@
 /****************************************************************************/
 
 // Used by application file system
-typedef struct SWakeupCcData
-{
+typedef struct SWakeupCcData{
   uint8_t MasterNodeId;
   uint32_t SleepPeriod;
 } SWakeupCcData;
 
 #define ZAF_FILE_SIZE_WAKEUPCCDATA        (sizeof(SWakeupCcData))
-
 
 /****************************************************************************/
 /*                           EXPORTED FUNCTIONS                             */
@@ -81,7 +79,7 @@ void CC_WakeUp_notification_tx(void (*pCallback)(uint8_t txStatus, TX_STATUS_TYP
 /**
  * @brief Used by the WakeUp Command Class configuration
  * Returns with the default sleep time in second between Wake Up Notifications.
- * 
+ *
  * @return Default sleep time in second between Wake Up Notifications
  */
 uint32_t cc_wake_up_config_get_default_sleep_time_sec(void);
@@ -89,7 +87,7 @@ uint32_t cc_wake_up_config_get_default_sleep_time_sec(void);
 /**
  * @brief Used by the WakeUp Command Class configuration
  * Returns with the minimum sleep time in second between Wake Up Notifications.
- * 
+ *
  * @return Minimum sleep time in second
  */
 uint32_t cc_wake_up_config_get_minimum_sleep_time_sec(void);
@@ -97,7 +95,7 @@ uint32_t cc_wake_up_config_get_minimum_sleep_time_sec(void);
 /**
  * @brief Used by the WakeUp Command Class configuration
  * Returns with the maximum sleep time in second between Wake Up Notifications.
- * 
+ *
  * @return Maximum sleep time in second
  */
 uint32_t cc_wake_up_config_get_maximum_sleep_time_sec(void);
@@ -105,7 +103,7 @@ uint32_t cc_wake_up_config_get_maximum_sleep_time_sec(void);
 /**
  * @brief Used by the WakeUp Command Class configuration
  * Returns with the sleep step time in second.
- * 
+ *
  * @return sleep step time in second
  */
 uint32_t cc_wake_up_config_get_sleep_step_time_sec(void);
@@ -113,6 +111,6 @@ uint32_t cc_wake_up_config_get_sleep_step_time_sec(void);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* _COMMANDCLASSWAKEUP_H_ */

@@ -382,8 +382,8 @@ static int32_t gbl_parseHeader(ParserContext_t  *context,
           || (gblTagHeader->tagId == GBL_TAG_ID_ENC_GBL_DATA)
           || (gblTagHeader->tagId == GBL_TAG_ID_SIGNATURE_ECDSA_P256)
           || (gblTagHeader->tagId == GBL_TAG_ID_END)) {
-        //If Encryption is enabled, count only the lenght of un-encrypted tags.
-        context->gblLength += context->lengthOfTag;  //gblTagHeader->length;
+        //If Encryption is enabled, count only the length of un-encrypted tags.
+        context->gblLength += context->lengthOfTag;
         context->gblLength += 8;   // To account for tag id and length
       }
     } else {
@@ -538,7 +538,7 @@ int32_t gbl_writeProgData(ParserContext_t *context,
     (void) memset(&buffer[withholdSrcOffset], 0xFF, 4U);
   }
 
-#if BTL_PARSER_SUPPORT_DELTA_DFU
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
   //Check if the delta patch extraction won't overstep the storage slot
   //Check this only in case of a delta upgrade. Skip this in scenarios
   //where the bootloader supports delta DFU but it's parsing a regular
@@ -994,7 +994,7 @@ int32_t parser_verifyCertificate(void *context,
 static int32_t parser_determineGblVersion(ParserContext_t  *parserContext,
                                           GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   GblTagHeader_t gblTagHeader;
 
   // First, get tag/length combo
@@ -1034,7 +1034,7 @@ static int32_t parser_determineGblVersion(ParserContext_t  *parserContext,
 static int32_t parser_parseGblHeader(ParserContext_t  *parserContext,
                                      GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint32_t temporaryWord;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
@@ -1111,7 +1111,7 @@ static int32_t parser_parseGblHeader(ParserContext_t  *parserContext,
 static int32_t parser_parseVersionDependency(ParserContext_t  *parserContext,
                                              GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
   const uint32_t numberOfStatements = parserContext->lengthOfTag / sizeof(VersionDependency_t);
   uint32_t currentStatementNumber = 0UL;
@@ -1128,7 +1128,7 @@ static int32_t parser_parseVersionDependency(ParserContext_t  *parserContext,
   uint8_t connective;
   uint8_t connectiveType;
   uint8_t connectiveNegatorBit;
-  VersionDependency_t *versionDependency = NULL;
+  const VersionDependency_t *versionDependency = NULL;
 
   while (parserContext->offsetInTag < parserContext->lengthOfTag) {
     // Parse the version dependency structs one-by-one
@@ -1285,7 +1285,7 @@ static int32_t parser_parseVersionDependency(ParserContext_t  *parserContext,
 static int32_t parser_parseNewTagHeader(ParserContext_t  *parserContext,
                                         GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   GblTagHeader_t gblTagHeader;
 
   // First, get tag/length combo, for which we need 8 bytes
@@ -1376,7 +1376,7 @@ static int32_t parser_parseNewTagHeader(ParserContext_t  *parserContext,
 static int32_t parser_encryptionInit(ParserContext_t  *parserContext,
                                      GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
   // This is a fixed size header, so let's get it all at once.
@@ -1424,7 +1424,7 @@ static int32_t parser_parseApplicationInfo(ParserContext_t   *parserContext,
                                            GblInputBuffer_t  *input,
                                            ImageProperties_t *imageProperties)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE] = { 0 };
 
   while (parserContext->offsetInTag < parserContext->lengthOfTag) {
@@ -1487,7 +1487,7 @@ static int32_t parser_parseSe(ParserContext_t                   *parserContext,
                               ImageProperties_t                 *imageProperties,
                               const BootloaderParserCallbacks_t *callbacks)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
   while (parserContext->offsetInTag < 8UL) {
@@ -1561,7 +1561,7 @@ static int32_t parser_parseBootloader(ParserContext_t   *parserContext,
                                       GblInputBuffer_t  *input,
                                       ImageProperties_t *imageProperties)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint32_t temporaryWord;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
@@ -1624,7 +1624,7 @@ static int32_t parser_parseBootloader(ParserContext_t   *parserContext,
 static int32_t parser_parseProg(ParserContext_t  *parserContext,
                                 GblInputBuffer_t *input)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint32_t temporaryWord;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
@@ -1668,7 +1668,7 @@ static int32_t parser_parseDelta(ParserContext_t  *parserContext,
                                  GblInputBuffer_t *input,
                                  ImageProperties_t *imageProperties)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint32_t temporaryWord;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
@@ -1719,7 +1719,7 @@ static int32_t parser_parseData(ParserContext_t                   *parserContext
                                 ImageProperties_t                 *imageProperties,
                                 const BootloaderParserCallbacks_t *callbacks)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
   size_t tmpSize;
 
@@ -1727,11 +1727,10 @@ static int32_t parser_parseData(ParserContext_t                   *parserContext
     // Get amount of bytes left in this tag
     tmpSize = parserContext->lengthOfTag - parserContext->offsetInTag;
 #if defined (BTL_PARSER_SUPPORT_DELTA_DFU)
-    if (parserContext->lengthOfPatch == 0) {
-      if ((parserContext->internalState == GblParserStateDelta)
-          || (parserContext->internalState == GblParserStateDeltaData)) {
-        parserContext->lengthOfPatch = tmpSize;
-      }
+    if (parserContext->lengthOfPatch == 0
+        && (parserContext->internalState == GblParserStateDelta
+            || parserContext->internalState == GblParserStateDeltaData)) {
+      parserContext->lengthOfPatch = tmpSize;
     }
 #endif
     // Check buffer size vs. bytes we want to parse
@@ -1887,7 +1886,7 @@ static int32_t parser_parseCustomTag(ParserContext_t                   *parserCo
                                      ImageProperties_t                 *imageProperties,
                                      const BootloaderParserCallbacks_t *callbacks)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
   size_t tmpSize;
   const GblCustomTag_t *customTag = NULL;
@@ -1990,7 +1989,7 @@ static int32_t parser_checkSignature(ParserContext_t   *parserContext,
                                      GblInputBuffer_t  *input,
                                      ImageProperties_t *imageProperties)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
 #if defined(_SILICON_LABS_32B_SERIES_2)
@@ -2016,82 +2015,78 @@ static int32_t parser_checkSignature(ParserContext_t   *parserContext,
   }
 #endif
 
-  // Signature tag
-  if (parserContext->internalState == GblParserStateSignature) {
-    // Make sure we have the necessary data
-    if (!(parserContext->gotSignature)) {
-      // Get data
-      // No hashing (tag is unhashed), obviously no decryption
-      retval = gbl_getData(parserContext,
-                           input,
-                           tagBuffer,
-                           GBL_PARSER_BUFFER_SIZE,
-                           64UL,
-                           false,
-                           false);
-      if (retval != BOOTLOADER_ERROR_PARSER_PARSED) {
-        return retval;
-      }
+  if (parserContext->internalState == GblParserStateSignature && !(parserContext->gotSignature)) {
+    // Get data
+    // No hashing (tag is unhashed), obviously no decryption
+    retval = gbl_getData(parserContext,
+                         input,
+                         tagBuffer,
+                         GBL_PARSER_BUFFER_SIZE,
+                         64UL,
+                         false,
+                         false);
+    if (retval != BOOTLOADER_ERROR_PARSER_PARSED) {
+      return retval;
+    }
 
-      btl_finalizeSha256(parserContext->shaContext);
+    btl_finalizeSha256(parserContext->shaContext);
 
 #if defined(_SILICON_LABS_32B_SERIES_2)
-      if (parserContext->gotCertificate) {
-        retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
-                                       &tagBuffer[0],
-                                       &tagBuffer[32],
-                                       &(parserContext->certificate.key[0]),
-                                       &(parserContext->certificate.key[32]));
-      } else {
-        // Received direct signed GBL
-        // Here we have two options.
-        // 1. The bootloader is configured to use public key of its certificate.
-        // 2. The bootloader is configured to use either public key from the "lock bits" page or platform key.
-        if (PARSER_REQUIRE_CERTIFICATE_AUTHENTICITY) {
-          // The bootloader is configured to use public key of its certificate.
-          retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
-                                         &tagBuffer[0],
-                                         &tagBuffer[32],
-                                         &(blProperties->cert->key[0]),
-                                         &(blProperties->cert->key[32]));
-#if defined(SEMAILBOX_PRESENT)
-          if (retval != BOOTLOADER_OK) {
-            // Check if the OTP platform key can verify the certificate.
-            // The OTP platform key has higher level of trust.
-            retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
-                                           &tagBuffer[0],
-                                           &tagBuffer[32],
-                                           NULL,
-                                           NULL);
-          }
-#endif
-        } else {
-          // The bootloader is configured to use either public key from the "lock bits" page or platform key.
-          retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
-                                         &tagBuffer[0],
-                                         &tagBuffer[32],
-                                         btl_getSignedBootloaderKeyXPtr(),
-                                         btl_getSignedBootloaderKeyYPtr());
-        }
-      }
-#else
+    if (parserContext->gotCertificate) {
       retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
                                      &tagBuffer[0],
                                      &tagBuffer[32],
-                                     btl_getSignedBootloaderKeyXPtr(),
-                                     btl_getSignedBootloaderKeyYPtr());
+                                     &(parserContext->certificate.key[0]),
+                                     &(parserContext->certificate.key[32]));
+    } else {
+      // Received direct signed GBL
+      // Here we have two options.
+      // 1. The bootloader is configured to use public key of its certificate.
+      // 2. The bootloader is configured to use either public key from the "lock bits" page or platform key.
+      if (PARSER_REQUIRE_CERTIFICATE_AUTHENTICITY) {
+        // The bootloader is configured to use public key of its certificate.
+        retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
+                                       &tagBuffer[0],
+                                       &tagBuffer[32],
+                                       &(blProperties->cert->key[0]),
+                                       &(blProperties->cert->key[32]));
+#if defined(SEMAILBOX_PRESENT)
+        if (retval != BOOTLOADER_OK) {
+          // Check if the OTP platform key can verify the certificate.
+          // The OTP platform key has higher level of trust.
+          retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
+                                         &tagBuffer[0],
+                                         &tagBuffer[32],
+                                         NULL,
+                                         NULL);
+        }
 #endif
-      if (retval != BOOTLOADER_OK) {
-        BTL_DEBUG_PRINTLN("GBL verify fail");
-        imageProperties->imageVerified = false;
-        parserContext->internalState = GblParserStateError;
-        return BOOTLOADER_ERROR_PARSER_SIGNATURE;
       } else {
-        imageProperties->imageVerified = true;
+        // The bootloader is configured to use either public key from the "lock bits" page or platform key.
+        retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
+                                       &tagBuffer[0],
+                                       &tagBuffer[32],
+                                       btl_getSignedBootloaderKeyXPtr(),
+                                       btl_getSignedBootloaderKeyYPtr());
       }
-
-      parserContext->gotSignature = true;
     }
+#else
+    retval = btl_verifyEcdsaP256r1(parserContext->shaContext,
+                                   &tagBuffer[0],
+                                   &tagBuffer[32],
+                                   btl_getSignedBootloaderKeyXPtr(),
+                                   btl_getSignedBootloaderKeyYPtr());
+#endif
+    if (retval != BOOTLOADER_OK) {
+      BTL_DEBUG_PRINTLN("GBL verify fail");
+      imageProperties->imageVerified = false;
+      parserContext->internalState = GblParserStateError;
+      return BOOTLOADER_ERROR_PARSER_SIGNATURE;
+    } else {
+      imageProperties->imageVerified = true;
+    }
+
+    parserContext->gotSignature = true;
   }
 
   parserContext->internalState = GblParserStateIdle;
@@ -2119,7 +2114,7 @@ static int32_t parser_finalize(ParserContext_t                   *parserContext,
                                ImageProperties_t                 *imageProperties,
                                const BootloaderParserCallbacks_t *callbacks)
 {
-  volatile int32_t retval;
+  int32_t retval;
   uint32_t temporaryWord;
   uint8_t tagBuffer[GBL_PARSER_BUFFER_SIZE];
 
@@ -2179,10 +2174,9 @@ static int32_t parser_finalize(ParserContext_t                   *parserContext,
     }
   }
 #endif
-  if (parserContext->receivedFlags & BTL_PARSER_RECEIVED_BOOTLOADER) {
-    if (bootload_getBootloaderVersion() == imageProperties->bootloaderVersion) {
-      skipVersionDependencyCheck = true;
-    }
+  if (parserContext->receivedFlags & BTL_PARSER_RECEIVED_BOOTLOADER
+      && bootload_getBootloaderVersion() == imageProperties->bootloaderVersion) {
+    skipVersionDependencyCheck = true;
   }
 
   if ((skipVersionDependencyCheck == false)

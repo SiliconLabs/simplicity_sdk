@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32FG28A122F1024GM68
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32FG28A122F1024GM68.
 - category: Platform|Device|EFR32FG28
 - quality: production

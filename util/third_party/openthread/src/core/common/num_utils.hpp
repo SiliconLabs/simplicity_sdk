@@ -149,6 +149,25 @@ template <typename IntType> int8_t ClampToInt8(IntType aValue)
 }
 
 /**
+ * This template function checks whether a given value is in a given closed range [min, max].
+ *
+ * Uses `operator<=` to compare the values. The behavior is undefined if the value of @p aMin is greater than @p aMax.
+ *
+ * @tparam Type   The value type.
+ *
+ * @param[in] aValue   The value to check
+ * @param[in] aMin     The minimum value.
+ * @param[in] aMax     The maximum value.
+ *
+ * @retval TRUE  If @p aValue is within `[aMin, aMax]` (inclusive).
+ * @retval FALSE If @p aValue is not within `[aMin, aMax]` (inclusive).
+ */
+template <typename Type> Type IsValueInRange(Type aValue, Type aMin, Type aMax)
+{
+    return (aMin <= aValue) && (aValue <= aMax);
+}
+
+/**
  * This template function performs a three-way comparison between two values.
  *
  * @tparam Type   The value type.
@@ -193,6 +212,21 @@ template <> inline int ThreeWayCompare(bool aFirst, bool aSecond)
 template <typename IntType> inline IntType DivideAndRoundToClosest(IntType aDividend, IntType aDivisor)
 {
     return (aDividend + (aDivisor / 2)) / aDivisor;
+}
+
+/**
+ * This template function divides two numbers and always rounds the result up.
+ *
+ * @tparam IntType   The integer type.
+ *
+ * @param[in] aDividend   The dividend value.
+ * @param[in] aDivisor    The divisor value.
+ *
+ * @return The result of division and rounding up.
+ */
+template <typename IntType> inline IntType DivideAndRoundUp(IntType aDividend, IntType aDivisor)
+{
+    return (aDividend + (aDivisor - 1)) / aDivisor;
 }
 
 /**

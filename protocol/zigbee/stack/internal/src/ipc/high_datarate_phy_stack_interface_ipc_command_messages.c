@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'high_datarate_phy_stack_interface' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -52,7 +52,7 @@ void sli_mac_stack_set_mode_switch_sync_detect_process_ipc_command(sli_zigbee_ip
 
 // public entrypoints
 
-void sl_mac_lower_mac_set_high_datarate_csma_params(RAIL_CsmaConfig_t *csma_params)
+void sl_mac_lower_mac_set_high_datarate_csma_params(sl_rail_csma_config_t *csma_params)
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
@@ -88,14 +88,14 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_message(uint8_t nwk_index,
   sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_raw_high_datarate_phy_message.request.nwk_index = nwk_index;
 
-  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+  if (((payload[1] << 8) + payload[0] + 2) > MAX_HIGH_DATARATE_PHY_PACKET_LENGTH) {
     assert(false); // "vector payload length exceeds expected maximum
   }
 
   memmove(msg.data.send_raw_high_datarate_phy_message.request.payload, payload, sizeof(uint8_t) * ((payload[1] << 8) + payload[0] + 2));
   sli_zigbee_send_ipc_cmd(sli_mac_stack_send_raw_high_datarate_phy_message_process_ipc_command, &msg);
 
-  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+  if (((payload[1] << 8) + payload[0] + 2) > MAX_HIGH_DATARATE_PHY_PACKET_LENGTH) {
     assert(false); // "vector payload length exceeds expected maximum
   }
 
@@ -105,12 +105,12 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_message(uint8_t nwk_index,
 
 sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_index,
                                                                 uint8_t *payload,
-                                                                RAIL_Time_t timestamp)
+                                                                sl_rail_time_t timestamp)
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.send_raw_high_datarate_phy_scheduled_message.request.nwk_index = nwk_index;
 
-  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+  if (((payload[1] << 8) + payload[0] + 2) > MAX_HIGH_DATARATE_PHY_PACKET_LENGTH) {
     assert(false); // "vector payload length exceeds expected maximum
   }
 
@@ -118,7 +118,7 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_inde
   msg.data.send_raw_high_datarate_phy_scheduled_message.request.timestamp = timestamp;
   sli_zigbee_send_ipc_cmd(sli_mac_stack_send_raw_high_datarate_phy_scheduled_message_process_ipc_command, &msg);
 
-  if (((payload[1] << 8) + payload[0] + 2) > (MAX_HIGH_DATARATE_PHY_PACKET_LENGTH)) {
+  if (((payload[1] << 8) + payload[0] + 2) > MAX_HIGH_DATARATE_PHY_PACKET_LENGTH) {
     assert(false); // "vector payload length exceeds expected maximum
   }
 
@@ -126,7 +126,7 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_inde
   return msg.data.send_raw_high_datarate_phy_scheduled_message.response.result;
 }
 
-RAIL_Status_t sl_mac_set_mode_switch_sync_detect(bool enable_f)
+sl_rail_status_t sl_mac_set_mode_switch_sync_detect(bool enable_f)
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
   msg.data.set_mode_switch_sync_detect.request.enable_f = enable_f;

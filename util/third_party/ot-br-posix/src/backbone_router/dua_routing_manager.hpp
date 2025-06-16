@@ -31,8 +31,8 @@
  *   This file includes definition for DUA routing functionalities.
  */
 
-#ifndef BACKBONE_ROUTER_DUA_ROUTING_MANAGER
-#define BACKBONE_ROUTER_DUA_ROUTING_MANAGER
+#ifndef BACKBONE_ROUTER_DUA_ROUTING_MANAGER_HPP_
+#define BACKBONE_ROUTER_DUA_ROUTING_MANAGER_HPP_
 
 #include "openthread-br/config.h"
 
@@ -43,7 +43,7 @@
 #include <openthread/backbone_router_ftd.h>
 
 #include "common/code_utils.hpp"
-#include "ncp/rcp_host.hpp"
+#include "host/rcp_host.hpp"
 #include "utils/system_utils.hpp"
 
 namespace otbr {
@@ -105,4 +105,4 @@ private:
 
 #endif // OTBR_ENABLE_DUA_ROUTING
 
-#endif // BACKBONE_ROUTER_DUA_ROUTING_MANAGER
+#endif // BACKBONE_ROUTER_DUA_ROUTING_MANAGER_HPP_

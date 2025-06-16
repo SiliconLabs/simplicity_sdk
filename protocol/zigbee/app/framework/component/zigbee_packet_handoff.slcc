@@ -1,5 +1,5 @@
-package: Zigbee
-description: This component hooks directly into the stack and provides a mechanism to intercept packets and hand them off to other components as a flat buffer.  Required for components and applications implementing sl_zigbee_af_incoming_packet_filter_cb/sl_zigbee_af_outgoing_packet_filter_cb.
+package: zigbee
+description: This component hooks directly into the stack and provides a mechanism to intercept packets and hand them off to other components as a flat buffer.  Required for components and applications implementing sl_zigbee_pre_incoming_packet_filter_cb/sl_zigbee_pre_outgoing_packet_filter_cb.
 label: Packet Handoff
 quality: production
 id: zigbee_packet_handoff

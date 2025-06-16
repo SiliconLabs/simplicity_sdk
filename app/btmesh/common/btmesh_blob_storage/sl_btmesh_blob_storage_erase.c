@@ -58,18 +58,18 @@ struct {
   bool all : 1; ///< Erase All Slots state flag
 } blob_storage_erase;
 
-/***************************************************************************//**
+/*******************************************************************************
  * Starts erase separation timer
  ******************************************************************************/
 static void blob_storage_start_delete_separation_timer(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Erase separation time elapsed callback
  ******************************************************************************/
 static void blob_storage_on_delete_separation_time_elapsed(app_timer_t *timer,
                                                            void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Forcibly delete a erase data from slot identified
  *
  * @param[in] slot_id Identifier of the slot to be erased
@@ -81,14 +81,14 @@ static void blob_storage_on_delete_separation_time_elapsed(app_timer_t *timer,
  ******************************************************************************/
 static sl_status_t blob_storage_force_delete_slot(uint32_t slot_id);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Starts deleting slot identified
  *
  * @param[in] slot_id Identifier of the slot to be erased
  ******************************************************************************/
 static void blob_storage_force_delete_slot_start(uint32_t slot_id);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Helper function for delete functions to reduce code duplication
  *
  * @param[in] slot_id Identifier of the slot to be erased
@@ -262,76 +262,99 @@ sl_btmesh_blob_storage_delete_state_t sl_btmesh_blob_storage_get_erase_error_cod
   return SL_BTMESH_BLOB_STORAGE_DELETE_BUSY;
 }
 
+static void sl_btmesh_blob_storage_erase_chunk(void)
+{
+  if ((BOOTLOADER_ERROR_STORAGE_CONTINUE == blob_storage_erase.error_code) && blob_storage_erase.separation_time_elapsed) {
+    blob_storage_erase.error_code =
+      bootloader_chunkedEraseStorageSlot(&blob_storage_erase.status);
+    // The async delete separation timer shall be started to introduce a
+    // delay between two consecutive async delete steps. It is important to
+    // start the timer even if the last chunk of the storage slot is erased
+    // because other slots may be deleted as well after this one.
+    if ((BOOTLOADER_ERROR_STORAGE_CONTINUE == blob_storage_erase.error_code)
+        || (BOOTLOADER_OK == blob_storage_erase.error_code)) {
+      blob_storage_start_delete_separation_timer();
+    }
+  }
+  if (BOOTLOADER_ERROR_STORAGE_CONTINUE != blob_storage_erase.error_code) {
+    blob_storage_erase.erase_started = false;
+    // Resync without app footer checks because the erased slot shall be empty
+    // so the blank check shall be sufficient
+    sli_btmesh_blob_storage_sync(SLI_BTMESH_BLOB_STORAGE_CHECK_IGNORE);
+  }
+}
+
+static void sl_btmesh_blob_storage_erase_invalid(void)
+{
+  if (sl_btmesh_blob_storage_get_max_blob_count() == blob_storage_erase.slot_id) {
+    // clear flags
+    blob_storage_erase.erasing = false;
+    blob_storage_erase.invalid = false;
+  } else {
+    if (sli_btmesh_blob_storage_has_slot_garbage(blob_storage_erase.slot_id)) {
+      blob_storage_force_delete_slot_start(blob_storage_erase.slot_id);
+    }
+    blob_storage_erase.slot_id++;
+  }
+}
+
+static void sl_btmesh_blob_storage_erase_unmanaged(void)
+{
+  if (sl_btmesh_blob_storage_get_max_blob_count() == blob_storage_erase.slot_id) {
+    // clear flags
+    blob_storage_erase.erasing = false;
+    blob_storage_erase.unmanaged = false;
+  } else {
+    if (!sli_btmesh_blob_storage_is_managed(blob_storage_erase.slot_id)) {
+      blob_storage_force_delete_slot_start(blob_storage_erase.slot_id);
+    }
+    blob_storage_erase.slot_id++;
+  }
+}
+
+static void sl_btmesh_blob_storage_erase_by_owner(void)
+{
+  if (sl_btmesh_blob_storage_get_max_blob_count() == blob_storage_erase.slot_id) {
+    // clear flags
+    blob_storage_erase.erasing = false;
+    blob_storage_erase.owner = UINT16_MAX;
+  } else {
+    if (sli_btmesh_blob_storage_is_managed_by_owner(blob_storage_erase.slot_id,
+                                                    blob_storage_erase.owner)) {
+      blob_storage_force_delete_slot_start(blob_storage_erase.slot_id);
+    }
+    blob_storage_erase.slot_id++;
+  }
+}
+
+static void sl_btmesh_blob_storage_erase_all(void)
+{
+  if (sl_btmesh_blob_storage_get_max_blob_count() == blob_storage_erase.slot_id) {
+    // clear flags
+    blob_storage_erase.erasing = false;
+    blob_storage_erase.all = false;
+  } else {
+    blob_storage_force_delete_slot_start(blob_storage_erase.slot_id);
+    blob_storage_erase.slot_id++;
+  }
+}
+
 void sl_btmesh_blob_storage_delete_step_handle(void)
 {
   if (!blob_storage_erase.erasing) {
     return;
   }
   if (blob_storage_erase.erase_started) {
-    if (BOOTLOADER_ERROR_STORAGE_CONTINUE == blob_storage_erase.error_code) {
-      if (blob_storage_erase.separation_time_elapsed) {
-        blob_storage_erase.error_code =
-          bootloader_chunkedEraseStorageSlot(&blob_storage_erase.status);
-        // The async delete separation timer shall be started to introduce a
-        // delay between two consecutive async delete steps. It is important to
-        // start the timer even if the last chunk of the storage slot is erased
-        // because other slots may be deleted as well after this one.
-        if ((BOOTLOADER_ERROR_STORAGE_CONTINUE == blob_storage_erase.error_code)
-            || (BOOTLOADER_OK == blob_storage_erase.error_code)) {
-          blob_storage_start_delete_separation_timer();
-        }
-      }
-    }
-    if (BOOTLOADER_ERROR_STORAGE_CONTINUE != blob_storage_erase.error_code) {
-      blob_storage_erase.erase_started = false;
-      // Resync without app footer checks because the erased slot shall be empty
-      // so the blank check shall be sufficient
-      sli_btmesh_blob_storage_sync(SLI_BTMESH_BLOB_STORAGE_CHECK_IGNORE);
-    }
+    sl_btmesh_blob_storage_erase_chunk();
   } else {
     if (blob_storage_erase.invalid) {
-      if (sl_btmesh_blob_storage_get_max_blob_count()
-          == blob_storage_erase.slot_id) {
-        // clear flags
-        blob_storage_erase.erasing = false;
-        blob_storage_erase.invalid = false;
-      } else if (sli_btmesh_blob_storage_has_slot_garbage(blob_storage_erase.slot_id)) {
-        blob_storage_force_delete_slot_start(blob_storage_erase.slot_id++);
-      } else {
-        blob_storage_erase.slot_id++;
-      }
+      sl_btmesh_blob_storage_erase_invalid();
     } else if (blob_storage_erase.unmanaged) {
-      if (sl_btmesh_blob_storage_get_max_blob_count()
-          == blob_storage_erase.slot_id) {
-        // clear flags
-        blob_storage_erase.erasing = false;
-        blob_storage_erase.unmanaged = false;
-      } else if (!sli_btmesh_blob_storage_is_managed(blob_storage_erase.slot_id)) {
-        blob_storage_force_delete_slot_start(blob_storage_erase.slot_id++);
-      } else {
-        blob_storage_erase.slot_id++;
-      }
+      sl_btmesh_blob_storage_erase_unmanaged();
     } else if (blob_storage_erase.owner != UINT16_MAX) {
-      if (sl_btmesh_blob_storage_get_max_blob_count()
-          == blob_storage_erase.slot_id) {
-        // clear flags
-        blob_storage_erase.erasing = false;
-        blob_storage_erase.owner = UINT16_MAX;
-      } else if (sli_btmesh_blob_storage_is_managed_by_owner(blob_storage_erase.slot_id,
-                                                             blob_storage_erase.owner)) {
-        blob_storage_force_delete_slot_start(blob_storage_erase.slot_id++);
-      } else {
-        blob_storage_erase.slot_id++;
-      }
+      sl_btmesh_blob_storage_erase_by_owner();
     } else if (blob_storage_erase.all) {
-      if (sl_btmesh_blob_storage_get_max_blob_count()
-          == blob_storage_erase.slot_id) {
-        // clear flags
-        blob_storage_erase.erasing = false;
-        blob_storage_erase.all = false;
-      } else {
-        blob_storage_force_delete_slot_start(blob_storage_erase.slot_id++);
-      }
+      sl_btmesh_blob_storage_erase_all();
     } else {
       blob_storage_erase.erasing = false;
     }

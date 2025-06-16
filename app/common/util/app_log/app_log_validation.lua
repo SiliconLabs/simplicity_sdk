@@ -1,7 +1,7 @@
 component_table = {
     SL_IOSTREAM_TYPE_SWO = 'iostream_swo',
     SL_IOSTREAM_TYPE_RTT = 'iostream_rtt',
-    SL_IOSTREAM_TYPE_UART = 'iostream_usart',
+    SL_IOSTREAM_TYPE_UART = {'iostream_usart', 'iostream_eusart'},
     SL_IOSTREAM_TYPE_VUART = 'iostream_vuart',
 }
 
@@ -37,10 +37,16 @@ end
 
 -- checks a stream-type if its a known type and the selected components type or not
 function check_type(project, stream_type)
-    if table_contains(component_table, stream_type) == true then
-        local component_name = component_table[stream_type]
-        if component_name ~= nil then
-            return project.is_selected(component_name)
+    local components = component_table[stream_type]
+    if components ~= nil then
+        if type(components) == "table" then
+            for _, component_name in ipairs(components) do
+                if project.is_selected(component_name) then
+                    return true
+                end
+            end
+        elseif project.is_selected(components) then
+            return true
         end
     end
     return false
@@ -48,8 +54,17 @@ end
 
 -- gets the selected component based on the stream-type
 function get_selected_component(project, stream_type)
-    if check_type(project, stream_type) == true then
-        return project.component(component_table[stream_type])
+    local components = component_table[stream_type]
+    if components ~= nil then
+        if type(components) == "table" then
+            for _, component_name in ipairs(components) do
+                if project.is_selected(component_name) then
+                    return project.component(component_name)
+                end
+            end
+        elseif project.is_selected(components) then
+            return project.component(components)
+        end
     end
     return nil
 end
@@ -58,11 +73,15 @@ end
 function get_types(project)
     local result_types = {}
     for stream_type, component_name in pairs(component_table) do
-        if component_name ~= nil then
-            local c = project.is_selected(component_name)
-            if c == true then
-                table.insert(result_types, stream_type)
+        if type(component_name) == "table" then
+            for _, name in ipairs(component_name) do
+                if project.is_selected(name) then
+                    table.insert(result_types, stream_type)
+                    break
+                end
             end
+        elseif project.is_selected(component_name) then
+            table.insert(result_types, stream_type)
         end
     end
     return result_types

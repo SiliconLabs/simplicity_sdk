@@ -24,11 +24,14 @@ class ProfileIEEE802154OQPSKBobcat(ProfileIEEE802154Ocelot):
 
         if zigbee_feature == model.vars.zigbee_feature.var_enum.COHERENT:
             self._copy_model_variables_from_phy(model, 'PHY_IEEE802154_2p4GHz_cohdsa')
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_COEX):
             self._copy_model_variables_from_phy(model, 'PHY_IEEE802154_2p4GHz_diversity')
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.FEM:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.FEM or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.COEX_FEM):
             self._copy_model_variables_from_phy(model, 'PHY_IEEE802154_2p4GHz_cohdsa_fem')
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_FEM:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_FEM or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_COEX_FEM):
             self._copy_model_variables_from_phy(model, 'PHY_IEEE802154_2p4GHz_diversity_fem')
         elif zigbee_feature == model.vars.zigbee_feature.var_enum.FCS:
             self._copy_model_variables_from_phy(model, 'PHY_IEEE802154_2p4GHz_antdiv_fastswitch')
@@ -41,17 +44,20 @@ class ProfileIEEE802154OQPSKBobcat(ProfileIEEE802154Ocelot):
             model.vars.rx_eof_delay_ns.value_forced = 6125
             model.vars.tx_sync_delay_ns.value_forced = 500
             model.vars.tx_eof_delay_ns.value_forced = 0
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_COEX):
             model.vars.rx_sync_delay_ns.value_forced = 6625
             model.vars.rx_eof_delay_ns.value_forced = 6625
             model.vars.tx_sync_delay_ns.value_forced = 500
             model.vars.tx_eof_delay_ns.value_forced = 0
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.FEM:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.FEM or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.COEX_FEM):
             model.vars.rx_sync_delay_ns.value_forced = 6125
             model.vars.rx_eof_delay_ns.value_forced = 6125
             model.vars.tx_sync_delay_ns.value_forced = 500
             model.vars.tx_eof_delay_ns.value_forced = 0
-        elif zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_FEM:
+        elif (zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_FEM or
+              zigbee_feature == model.vars.zigbee_feature.var_enum.ANTDIV_COEX_FEM):
             model.vars.rx_sync_delay_ns.value_forced = 6625
             model.vars.rx_eof_delay_ns.value_forced = 6625
             model.vars.tx_sync_delay_ns.value_forced = 500

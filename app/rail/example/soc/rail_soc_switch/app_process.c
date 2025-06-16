@@ -35,8 +35,9 @@
 #include "sl_component_catalog.h"
 #include "printf.h"
 #include "app_log.h"
+#include "sl_rail_util_init.h"
 #include "sl_simple_led_instances.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "app_process.h"
 #include "sl_simple_button_instances.h"
 #include "demo-ui.h"
@@ -51,12 +52,12 @@
 #include "sl_rail_sdk_packet_assistant.h"
 #include "sl_rail_sdk_fifo_size_config.h"
 #include "sl_rail_sdk_channel_selector.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 
 // -----------------------------------------------------------------------------
@@ -69,7 +70,7 @@
 /// this structure contains the Light module's details
 typedef struct {
   uint8_t addr[8];
-  int8_t rssi;
+  int8_t rssi_dbm;
   light_state_t light_state;
   demo_control_command_type_t light_mode;
   light_mode_t communication_state;
@@ -101,7 +102,7 @@ static void copy_light_address_to_payload(void);
  * Check if an advertise message come from the Light device
  * @return the advertisement type came from the Light device
  *****************************************************************************/
-static demo_control_command_type_t get_light_response_type(void);
+static demo_control_command_type_t get_light_response_type(uint8_t* rx_fifo);
 
 /**************************************************************************//**
  * Get light mode from the rx_fifo
@@ -121,21 +122,21 @@ static void update_light_RSSI(void);
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void  handle_scan_state(RAIL_Handle_t rail_handle);
+static void  handle_scan_state(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * The LINKED state's function in the state machine
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void  handle_linked_state(RAIL_Handle_t rail_handle);
+static void  handle_linked_state(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Receive the wireless packet, and save it in a buffer
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void save_received_packet(RAIL_Handle_t rail_handle);
+static void save_received_packet(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Set the actual state in the transmit buffer
@@ -151,7 +152,7 @@ static void display_all_information(void);
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void transmit_packet(RAIL_Handle_t rail_handle);
+static void transmit_packet(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Get the communication state of the Light node, if possible (if it is a new Light)
@@ -197,7 +198,7 @@ bool cli_change_state_required = false;
 // -----------------------------------------------------------------------------
 static light_t light_module = {
   .addr = { 0 },
-  .rssi = -128,
+  .rssi_dbm = -128,
   .light_state = LIGHT_STATE_OFF,
 };
 
@@ -214,11 +215,7 @@ state_t state = S_SCAN_STATE;
 static volatile uint64_t current_rail_err = 0;
 
 /// Contains the received packet's details
-static RAIL_RxPacketDetails_t rxPacketDetails;
-
-/// Receive and Send FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[SL_RAIL_SDK_RX_FIFO_SIZE];
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[SL_RAIL_SDK_TX_FIFO_SIZE];
+static sl_rail_rx_packet_details_t rxPacketDetails;
 
 /// Transmit packet
 static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
@@ -226,7 +223,8 @@ static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
   0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0x00, 0x00,
 };
 
-static uint8_t *start_of_packet = &rx_fifo[0];
+static uint8_t rx_buffer[SL_RAIL_SDK_RX_FIFO_SIZE];
+static uint8_t *start_of_packet = &rx_buffer[0];
 
 /// App_name used in LCD functions
 static uint8_t app_name[7] = "Switch";
@@ -241,32 +239,22 @@ static bool state_change_required = false;
 // Indicates a button push on the board
 static bool button_was_pushed = false;
 // Hold information about the incoming message
-static RAIL_RxPacketInfo_t packet_info;
+static sl_rail_rx_packet_info_t packet_info;
 // Status indicator of the RAIL API calls
-static RAIL_Status_t rail_status;
+static sl_rail_status_t rail_status;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-/******************************************************************************
- * Set up the rail TX fifo for later usage
- * @param[in] rail_handle Which rail handler should be updated
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle)
-{
-  uint16_t allocated_tx_fifo_size = 0;
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle, tx_fifo, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == SL_RAIL_SDK_TX_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             SL_RAIL_SDK_TX_FIFO_SIZE);
-}
 
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
   if (current_rail_err != 0) {
     app_log_error("RAIL Error occurred\nEvents: %lld\n", current_rail_err);
     current_rail_err = 0;
@@ -285,26 +273,26 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   // Handle Rx events
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer, download it later at the state machine
-      RAIL_HoldRxPacket(rail_handle);
+      sl_rail_hold_rx_packet(rail_handle);
       CORE_ATOMIC_SECTION(
         packet_received++;
         )
     } else {
       // Handle Rx error
-      current_rail_err |= (events & RAIL_EVENTS_RX_COMPLETION);
+      current_rail_err |= (events & SL_RAIL_EVENTS_RX_COMPLETION);
     }
   }
   // Handle Tx events
-  if ( events & RAIL_EVENTS_TX_COMPLETION) {
-    if (!(events & RAIL_EVENT_TX_PACKET_SENT)) {
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (!(events & SL_RAIL_EVENT_TX_PACKET_SENT)) {
       // Handle Tx error
-      current_rail_err |= (events & RAIL_EVENTS_TX_COMPLETION);
+      current_rail_err |= (events & SL_RAIL_EVENTS_TX_COMPLETION);
     }
   }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -315,7 +303,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 /******************************************************************************
  * Button callback, called if any button is pressed or released.
  *****************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   // Check if any button was pressed
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
@@ -347,7 +335,7 @@ void init_display(void)
 /******************************************************************************
  * Handle SCAN-state related tasks
  *****************************************************************************/
-static void handle_scan_state(RAIL_Handle_t rail_handle)
+static void handle_scan_state(sl_rail_handle_t rail_handle)
 {
   // Enter actual state, code just runs once
   if (state_changed) {
@@ -393,7 +381,7 @@ static void handle_scan_state(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * Handle LINKED-state related tasks
  *****************************************************************************/
-static void handle_linked_state(RAIL_Handle_t rail_handle)
+static void handle_linked_state(sl_rail_handle_t rail_handle)
 {
   // Enter actual state, code just runs once
   if (state_changed) {
@@ -416,11 +404,11 @@ static void handle_linked_state(RAIL_Handle_t rail_handle)
       cli_switch_side_light_bulb_toggle();
       // If not, but according to the incoming message,
       // light bulb should toggle
-    } else if (light_module.light_state != get_light_mode(start_of_packet)) {
+    } else if (light_module.light_state != get_light_mode(rx_buffer)) {
       cli_light_side_light_bulb_toggle();
     }
     button_was_pushed = false;
-    light_module.light_state = get_light_mode(start_of_packet);
+    light_module.light_state = get_light_mode(rx_buffer);
     display_all_information();
   }
 
@@ -538,7 +526,7 @@ static void cli_light_side_light_bulb_toggle(void)
 /******************************************************************************
  * Send a wireless pocket
  *****************************************************************************/
-static void transmit_packet(RAIL_Handle_t rail_handle)
+static void transmit_packet(sl_rail_handle_t rail_handle)
 {
   // Encode the control role in the message
   set_role(&out_packet[DEMO_CONTROL_PAYLOAD_BYTE], DEMO_CONTROL_ROLE_SWITCH);
@@ -547,32 +535,36 @@ static void transmit_packet(RAIL_Handle_t rail_handle)
   set_command_type(&out_packet[DEMO_CONTROL_PAYLOAD_BYTE], LIGHT_TOGGLE);
   set_switch_state_in_payload();
   prepare_packet(rail_handle, out_packet, sizeof(out_packet));
-  rail_status = RAIL_StartTx(rail_handle, get_selected_channel(), RAIL_TX_OPTIONS_DEFAULT, NULL);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_StartTx() result: %lu\n ", rail_status);
+  rail_status = sl_rail_start_tx(rail_handle, get_selected_channel(), SL_RAIL_TX_OPTIONS_DEFAULT, NULL);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_start_tx() result: %lu\n ", rail_status);
   }
 }
 
 /******************************************************************************
  * Receive the wireless packet, and save it in a buffer
  *****************************************************************************/
-static void save_received_packet(RAIL_Handle_t rail_handle)
+static void save_received_packet(sl_rail_handle_t rail_handle)
 {
-  RAIL_RxPacketHandle_t rx_packet_handle;
-  rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
-  if (rx_packet_handle == RAIL_RX_PACKET_HANDLE_INVALID) {
-    app_log_error("RAIL_GetRxPacketInfo() error: RAIL_RX_PACKET_HANDLE_INVALID\n");
+  sl_rail_rx_packet_handle_t rx_packet_handle;
+  rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+  if (rx_packet_handle == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    app_log_error("sl_rail_get_rx_packet_info() error: SL_RAIL_RX_PACKET_HANDLE_INVALID\n");
   }
-  RAIL_GetRxPacketDetails(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &rxPacketDetails);
-  uint16_t packet_size = unpack_packet(rx_fifo, &packet_info, &start_of_packet);
-  if (packet_size == 0) {
-    app_log_warning("Packet size is:%d", packet_size);
+  sl_rail_get_rx_packet_details(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &rxPacketDetails);
+  if (packet_info.packet_bytes <= SL_RAIL_SDK_RX_FIFO_SIZE) {
+    uint16_t packet_size = unpack_packet(rail_handle, rx_buffer, &packet_info, &start_of_packet);
+    if (packet_size == 0) {
+      app_log_warning("Packet size is:%d", packet_size);
+    }
   }
-  rail_status = RAIL_ReleaseRxPacket(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_ReleaseRxPacket() result: %lu\n", rail_status);
+  rail_status = sl_rail_release_rx_packet(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_release_rx_packet() result: %lu\n", rail_status);
   }
-  light_module.light_mode = get_light_response_type();
+  if (packet_info.packet_bytes <= SL_RAIL_SDK_RX_FIFO_SIZE) {
+    light_module.light_mode = get_light_response_type(rx_buffer);
+  }
 }
 
 /******************************************************************************
@@ -638,12 +630,12 @@ static void update_light_RSSI(void)
 {
   // Same Light, update RSSI value
   if (!memcmp((void*)light_module.addr, (void*)&start_of_packet[2], sizeof(light_module.addr))) {
-    light_module.rssi = rxPacketDetails.rssi;
+    light_module.rssi_dbm = rxPacketDetails.rssi_dbm;
   } else {
     // Other Light with stronger signal: save ID and RSSI
-    if (rxPacketDetails.rssi > light_module.rssi) {
+    if (rxPacketDetails.rssi_dbm > light_module.rssi_dbm) {
       memcpy((void*)light_module.addr, (void*)&start_of_packet[2], sizeof(light_module.addr));
-      light_module.rssi = rxPacketDetails.rssi;
+      light_module.rssi_dbm = rxPacketDetails.rssi_dbm;
     }
   }
 }
@@ -674,7 +666,7 @@ static void copy_light_address_to_payload(void)
 /******************************************************************************
  * Check if an advertise message come from the Light device
  *****************************************************************************/
-static demo_control_command_type_t get_light_response_type(void)
+static demo_control_command_type_t get_light_response_type(uint8_t* rx_fifo)
 {
   return (demo_control_command_type_t)(((rx_fifo[DEMO_CONTROL_PAYLOAD_BYTE]) & DEMO_CONTROL_PAYLOAD_CMD_MASK) >> DEMO_CONTROL_PAYLOAD_CMD_MASK_SHIFT);
 }

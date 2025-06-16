@@ -1,6 +1,6 @@
 project_name: rail_soc_railtest
 label: "RAIL - SoC RAILtest"
-package: "Rail"
+package: "rail_sdk_sample_applications"
 description: >
   The RAILtest application provides a simple tool for testing the radio and the
   functionality of the RAIL library via CLI. For more advanced usage, developers
@@ -124,7 +124,7 @@ configuration:
                    # to true adds an EM1 requirement to the Power Manager.
     condition: [iostream_eusart]
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
     condition: [iostream_eusart]
   - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
     value: "0"
@@ -234,6 +234,13 @@ configuration:
       - a_radio_config
       - device_is_module
       - device_family_mgm26
+    # MGM27 Modules override default phy, choosing 802.15.4
+  - name: SL_RAIL_UTIL_INIT_PROTOCOL_INST0_DEFAULT
+    value: "SL_RAIL_UTIL_PROTOCOL_IEEE802154_2P4GHZ"
+    condition:
+      - a_radio_config
+      - device_is_module
+      - device_family_mgm27
 #------------- RAIL init, Calibrations ---------------
   - name: SL_RAIL_UTIL_INIT_CALIBRATIONS_INST0_ENABLE
     value: "1"

@@ -35,7 +35,7 @@
 #include "dmd.h"
 #include "glib.h"
 #include "printf.h"
-#include "rail.h"
+#include "sl_rail.h"
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
 #include "sl_rail_util_init.h"
 #endif
@@ -570,7 +570,7 @@ static inline uint8_t graphics_draw_constants_info(uint8_t row)
 
   get_rail_config_data(&base_frequency, &channel_spacing, &power);
 
-  RAIL_Handle_t rail_handle = get_current_rail_handler();
+  sl_rail_handle_t rail_handle = get_current_rail_handler();
 
   if (RADIO_MODE_TX == range_test_settings.radio_mode) {
     // Variables for the requested and actual radio output power
@@ -603,7 +603,7 @@ static inline uint8_t graphics_draw_constants_info(uint8_t row)
     GLIB_drawString(&glib_context, ptr, safe_strlen(ptr), 1U, row, false);
     row += GRAPHICS_FONT_HEIGHT;
 
-    power = RAIL_GetTxPowerDbm(rail_handle);
+    power = sl_rail_get_tx_power_dbm(rail_handle);
     reqpower = range_test_settings.tx_power;
     // Since power is coming in 0.1 dBm units, integer and fraction digits are split
     snprintf(buff, sizeof(buff),

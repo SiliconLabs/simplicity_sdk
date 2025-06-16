@@ -53,6 +53,7 @@ typedef enum IRQn{
   MemoryManagement_IRQn = -12,              /*!< -12 Cortex-M Memory Management Interrupt */
   BusFault_IRQn         = -11,              /*!< -11 Cortex-M Bus Fault Interrupt         */
   UsageFault_IRQn       = -10,              /*!< -10 Cortex-M Usage Fault Interrupt       */
+  SecureFault_IRQn      = -9,               /*!< -9  Cortex-M Secure Fault Interrupt      */
   SVCall_IRQn           = -5,               /*!< -5  Cortex-M SV Call Interrupt           */
   DebugMonitor_IRQn     = -4,               /*!< -4  Cortex-M Debug Monitor Interrupt     */
   PendSV_IRQn           = -2,               /*!< -2  Cortex-M Pend SV Interrupt           */
@@ -1171,6 +1172,10 @@ typedef enum IRQn{
                                         : ((n) == 1) ? ACMP1_EXT_OVR_IF \
                                         : 0x0UL)
 
+/* Instance macros for GPCRC */
+#define GPCRC_NUM(ref)                 (((ref) == GPCRC) ? 0 \
+                                        : -1)
+
 /* Instance macros for I2C */
 #define I2C(n)                         (((n) == 0) ? I2C0   \
                                         : ((n) == 1) ? I2C1 \
@@ -1183,6 +1188,36 @@ typedef enum IRQn{
                                         : 0x0UL)
 #define I2C_DELAY_CHAIN_NUM(n)         (((n) == 0) ? I2C0_DELAY_CHAIN_NUM   \
                                         : ((n) == 1) ? I2C1_DELAY_CHAIN_NUM \
+                                        : 0x0UL)
+
+/* Instance macros for IADC */
+#define IADC(n)                        (((n) == 0) ? IADC0 \
+                                        : 0x0UL)
+#define IADC_NUM(ref)                  (((ref) == IADC0) ? 0 \
+                                        : -1)
+#define IADC_CONFIGNUM(n)              (((n) == 0) ? IADC0_CONFIGNUM \
+                                        : 0x0UL)
+#define IADC_FULLRANGEUNIPOLAR(n)      (((n) == 0) ? IADC0_FULLRANGEUNIPOLAR \
+                                        : 0x0UL)
+#define IADC_SCANBYTES(n)              (((n) == 0) ? IADC0_SCANBYTES \
+                                        : 0x0UL)
+#define IADC_ENTRIES(n)                (((n) == 0) ? IADC0_ENTRIES \
+                                        : 0x0UL)
+
+/* Instance macros for LDMA */
+#define LDMA_NUM(ref)                  (((ref) == LDMA) ? 0 \
+                                        : -1)
+
+/* Instance macros for LDMAXBAR */
+#define LDMAXBAR_NUM(ref)              (((ref) == LDMAXBAR) ? 0 \
+                                        : -1)
+
+/* Instance macros for LETIMER */
+#define LETIMER(n)                     (((n) == 0) ? LETIMER0 \
+                                        : 0x0UL)
+#define LETIMER_NUM(ref)               (((ref) == LETIMER0) ? 0 \
+                                        : -1)
+#define LETIMER_CNT_WIDTH(n)           (((n) == 0) ? LETIMER0_CNT_WIDTH \
                                         : 0x0UL)
 
 /* Instance macros for TIMER */

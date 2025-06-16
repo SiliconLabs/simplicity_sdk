@@ -1,6 +1,6 @@
 id: ot_gp_interface
 label: Green Power Interface
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: |-

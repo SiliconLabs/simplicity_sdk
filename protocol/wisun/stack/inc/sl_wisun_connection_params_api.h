@@ -37,7 +37,7 @@
 #include "sl_status.h"
 
 /// API version used to check compatibility (do not edit when using this header)
-#define SL_WISUN_PARAMS_API_VERSION  6
+#define SL_WISUN_PARAMS_API_VERSION  7
 
 /**************************************************************************//**
  * @addtogroup SL_WISUN_TYPES
@@ -103,8 +103,6 @@ typedef struct {
   /// Factor by which the active LGTK lifetime is reduced during node
   /// revocation procedures.
   uint32_t lfn_revocation_lifetime_reduction;
-  /// Reserved, set to zero
-  uint8_t reserved[3];
 } SL_ATTRIBUTE_PACKED sl_wisun_key_lifetimes_params_t;
 SL_PACK_END()
 
@@ -135,37 +133,41 @@ typedef struct sl_wisun_params_discovery_s sl_wisun_params_discovery_t;
 /// Authentication parameter set
 SL_PACK_START(1)
 struct sl_wisun_params_eapol_s {
-  /// Security protocol trickle timer
+  /// Deprecated
   sl_wisun_trickle_params_t sec_prot_trickle;
   /// PMK lifetime (minutes)
   uint32_t pmk_lifetime_m;
   /// PTK lifetime (minutes)
   uint32_t ptk_lifetime_m;
-  /// Security protocol retry timeout (seconds)
+  /// Deprecated
   uint16_t sec_prot_retry_timeout_s;
-  /// Initial EAPOL-Key first Tx min delay (seconds)
+  /// Deprecated
   uint16_t initial_key_min_s;
-  /// Initial EAPOL-Key first Tx max delay (seconds)
+  /// Max delay of first key request (seconds)
   uint16_t initial_key_max_s;
-  /// Initial EAPOL-Key retry exponential backoff min (seconds)
+  /// Initial retransmission time (seconds)
   uint16_t initial_key_retry_min_s;
-  /// Initial EAPOL-Key retry exponential backoff max (seconds)
+  /// Deprecated
   uint16_t initial_key_retry_max_s;
-  /// Initial EAPOL-Key retry exponential backoff max limit (seconds)
+  /// Maximum duration for retransmissions (seconds)
   uint16_t initial_key_retry_max_limit_s;
-  /// Temporary neighbor link minimum timeout (seconds)
+  /// Deprecated
   uint16_t temp_min_timeout_s;
-  /// GTK_REQUEST_IMIN (minutes)
+  /// Deprecated
   uint16_t gtk_request_imin_m;
-  /// GTK_REQUEST_IMAX (minutes)
+  /// Deprecated
   uint16_t gtk_request_imax_m;
   /// GTK_MAX_MISMATCH (minutes)
+  /// Maximum time between a SUP detecting a GTKHASH mismatch and the SUP
+  /// initiating Msg1 of the authentication flow
   uint16_t gtk_max_mismatch_m;
   /// LGTK_MAX_MISMATCH (minutes)
+  /// Maximum time between a SUP detecting a LGTKHASH mismatch and the SUP
+  /// initiating Msg1 of the authentication flow
   uint16_t lgtk_max_mismatch_m;
-  /// Security protocol trickle timer expirations
+  /// Deprecated
   uint8_t sec_prot_trickle_expirations;
-  /// Initial EAPOL-Key retry limit
+  /// Maximum retransmission count
   uint8_t initial_key_retry_limit;
   /// If true, allow join state 2 to be skipped using cached credentials
   /// from the previous connection.
@@ -285,6 +287,20 @@ typedef struct sl_wisun_params_misc_s sl_wisun_params_misc;
 /// Misc parameter set
 typedef struct sl_wisun_params_misc_s sl_wisun_params_misc_t;
 
+/// Traffic parameter set
+SL_PACK_START(1)
+typedef struct sl_wisun_params_traffic_s {
+  /// Maximum Transmission Unit (MTU) for 6LoWPAN packets in bytes. A larger packet will be fragmented using 6LoWPAN fragmentation.
+  uint16_t lowpan_mtu;
+  /// Maximum Receive Unit (MRU) for fragmented IPv6 packets in bytes. A larger packet will be silently discarded.
+  uint16_t ipv6_mru;
+  /// Maximum number of 6LoWPAN/IPv6 fragments to send in a single EDFE transaction (0 to 10). 0 disables EDFE for fragmented packets.
+  uint8_t max_edfe_fragment_count;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
+} SL_ATTRIBUTE_PACKED sl_wisun_params_traffic_t;
+SL_PACK_END()
+
 /// FFN parameter set
 SL_PACK_START(1)
 typedef struct {
@@ -311,6 +327,8 @@ typedef struct {
   sl_wisun_params_misc_t misc;
   /// Direct Connect Authentication parameter set
   sl_wisun_params_eapol_t direct_connect_eapol;
+  /// Traffic parameter set
+  sl_wisun_params_traffic_t traffic;
 } SL_ATTRIBUTE_PACKED sl_wisun_connection_params_t;
 SL_PACK_END()
 
@@ -356,30 +374,30 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_TEST = {
   },
   .eapol = {
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0,
     },
-    .pmk_lifetime_m = MONTH_TO_MIN(4),
-    .ptk_lifetime_m = MONTH_TO_MIN(2),
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 2,
+    .pmk_lifetime_m = 0,
+    .ptk_lifetime_m = 0,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 18,
-    .initial_key_retry_max_s = 42,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 42,
-    .temp_min_timeout_s = 330,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .temp_min_timeout_s = 0,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
     .lgtk_max_mismatch_m = 60,
-    .sec_prot_trickle_expirations = 4,
-    .initial_key_retry_limit = 2,
+    .sec_prot_trickle_expirations = 0,
+    .initial_key_retry_limit = 3,
     .allow_skip = true
   },
   .rpl = {
     .dis_max_delay_first_s = 2,
-    .dis_max_delay_s = 5,
+    .dis_max_delay_s = 60,
     .init_parent_selection_s = 1,
     .etx_probe_period_max_s = 4,
     .address_registration_lifetime_s = 2220,
@@ -410,17 +428,22 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_TEST = {
   .direct_connect_eapol = {
     .pmk_lifetime_m = 0,
     .ptk_lifetime_m = 0,
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 1,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 10,
-    .initial_key_retry_max_s = 30,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 30,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
-    .initial_key_retry_limit = 2,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   }
 };
 
@@ -431,12 +454,12 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_CERTIF = {
     .trickle_pa = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 1
+      .k = 3
     },
     .trickle_pas = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 1
+      .k = 3
     },
     .eapol_target_min_sens = 255,
     .allow_skip = false
@@ -445,35 +468,35 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_CERTIF = {
     .trickle_pc = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 1
+      .k = 3
     },
     .trickle_pcs = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 1
+      .k = 3
     }
   },
   .eapol = {
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0,
     },
-    .pmk_lifetime_m = MONTH_TO_MIN(4),
-    .ptk_lifetime_m = MONTH_TO_MIN(2),
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 3,
+    .pmk_lifetime_m = 0,
+    .ptk_lifetime_m = 0,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 30,
     .initial_key_retry_min_s = 180,
-    .initial_key_retry_max_s = 420,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 420,
-    .temp_min_timeout_s = 330,
-    .gtk_request_imin_m = 4,
-    .gtk_request_imax_m = 64,
+    .temp_min_timeout_s = 0,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 1,
     .lgtk_max_mismatch_m = 60,
-    .sec_prot_trickle_expirations = 4,
-    .initial_key_retry_limit = 2,
+    .sec_prot_trickle_expirations = 0,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
   },
   .rpl = {
@@ -509,17 +532,22 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_CERTIF = {
   .direct_connect_eapol = {
     .pmk_lifetime_m = 0,
     .ptk_lifetime_m = 0,
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 1,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 10,
-    .initial_key_retry_max_s = 30,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 30,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
-    .initial_key_retry_limit = 2,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   }
 };
 
@@ -554,25 +582,25 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_SMALL = {
   },
   .eapol = {
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0,
     },
-    .pmk_lifetime_m = MONTH_TO_MIN(4),
-    .ptk_lifetime_m = MONTH_TO_MIN(2),
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 3,
+    .pmk_lifetime_m = 0,
+    .ptk_lifetime_m = 0,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 30,
     .initial_key_retry_min_s = 180,
-    .initial_key_retry_max_s = 420,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 420,
-    .temp_min_timeout_s = 330,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .temp_min_timeout_s = 0,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
     .lgtk_max_mismatch_m = 60,
-    .sec_prot_trickle_expirations = 4,
-    .initial_key_retry_limit = 2,
+    .sec_prot_trickle_expirations = 0,
+    .initial_key_retry_limit = 3,
     .allow_skip = true
   },
   .rpl = {
@@ -608,17 +636,22 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_SMALL = {
   .direct_connect_eapol = {
     .pmk_lifetime_m = 0,
     .ptk_lifetime_m = 0,
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 1,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 10,
-    .initial_key_retry_max_s = 30,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 30,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
-    .initial_key_retry_limit = 2,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   }
 };
 
@@ -653,24 +686,24 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_MEDIUM = {
   },
   .eapol = {
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0,
     },
-    .pmk_lifetime_m = MONTH_TO_MIN(4),
-    .ptk_lifetime_m = MONTH_TO_MIN(2),
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 3,
+    .pmk_lifetime_m = 0,
+    .ptk_lifetime_m = 0,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 30,
     .initial_key_retry_min_s = 180,
-    .initial_key_retry_max_s = 420,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 720,
-    .temp_min_timeout_s = 330,
-    .gtk_request_imin_m = 4,
-    .gtk_request_imax_m = 64,
+    .temp_min_timeout_s = 0,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
     .lgtk_max_mismatch_m = 60,
-    .sec_prot_trickle_expirations = 4,
+    .sec_prot_trickle_expirations = 0,
     .initial_key_retry_limit = 4,
     .allow_skip = true
   },
@@ -707,17 +740,22 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_MEDIUM = {
   .direct_connect_eapol = {
     .pmk_lifetime_m = 0,
     .ptk_lifetime_m = 0,
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 1,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 10,
-    .initial_key_retry_max_s = 30,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 30,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
-    .initial_key_retry_limit = 2,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   }
 };
 
@@ -752,25 +790,25 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_LARGE = {
   },
   .eapol = {
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 240,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0,
     },
-    .pmk_lifetime_m = MONTH_TO_MIN(4),
-    .ptk_lifetime_m = MONTH_TO_MIN(2),
-    .sec_prot_retry_timeout_s = 750,
-    .initial_key_min_s = 3,
+    .pmk_lifetime_m = 0,
+    .ptk_lifetime_m = 0,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 30,
     .initial_key_retry_min_s = 300,
-    .initial_key_retry_max_s = 600,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 900,
-    .temp_min_timeout_s = 750,
-    .gtk_request_imin_m = 4,
-    .gtk_request_imax_m = 64,
+    .temp_min_timeout_s = 0,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
     .lgtk_max_mismatch_m = 60,
-    .sec_prot_trickle_expirations = 4,
-    .initial_key_retry_limit = 4,
+    .sec_prot_trickle_expirations = 0,
+    .initial_key_retry_limit = 5,
     .allow_skip = true
   },
   .rpl = {
@@ -806,17 +844,22 @@ static const sl_wisun_connection_params_t SL_WISUN_PARAMS_PROFILE_LARGE = {
   .direct_connect_eapol = {
     .pmk_lifetime_m = 0,
     .ptk_lifetime_m = 0,
-    .sec_prot_retry_timeout_s = 450,
-    .initial_key_min_s = 1,
+    .sec_prot_retry_timeout_s = 0,
+    .initial_key_min_s = 0,
     .initial_key_max_s = 3,
     .initial_key_retry_min_s = 10,
-    .initial_key_retry_max_s = 30,
+    .initial_key_retry_max_s = 0,
     .initial_key_retry_max_limit_s = 30,
-    .gtk_request_imin_m = 1,
-    .gtk_request_imax_m = 4,
+    .gtk_request_imin_m = 0,
+    .gtk_request_imax_m = 0,
     .gtk_max_mismatch_m = 64,
-    .initial_key_retry_limit = 2,
+    .initial_key_retry_limit = 3,
     .allow_skip = false
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   }
 };
 

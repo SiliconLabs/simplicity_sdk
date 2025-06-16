@@ -1,5 +1,5 @@
 id: mbedtls_pki
-package: platform
+package: security_mbedtls
 label: Public-Key Abstraction Layer
 description: >-
   This component provides support for the Public Key (PK) abstraction layer in

@@ -1,7 +1,7 @@
 !!omap
 - id: mgm260p_rb4351a
 - label: MGM260P-RB4351A
-- package: platform
+- package: boards
 - description: Kit BSP support for the MGM260P 20 dBm Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

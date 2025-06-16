@@ -29,22 +29,58 @@
 
 #ifndef _SL_BTCTRL_LINKLAYER_H_
 #define _SL_BTCTRL_LINKLAYER_H_
-#include "sl_status.h"
-#include <stdint.h>
-
-void sl_bt_controller_init(void);
-
-void sl_bt_controller_deinit(void);
-
-void sl_btctrl_init(void);
+#include "sl_btctrl_linklayer_defs.h"
 
 /**
- * Allocate memory buffers for controller
- *
- * @param memsize size of memory to allocate
- * @returns number of memory buffers allocated
+ * Link Layer init
  */
-uint32_t sl_btctrl_init_mem(uint32_t memsize);
+sl_status_t sl_btctrl_init(void);
+sl_status_t sl_btctrl_init_internal(struct sl_btctrl_config *config);
+void sl_btctrl_deinit(void);
+
+/**
+ * Allocate controller memory
+ *
+ * @returns Status indicating success of allocation
+ */
+sl_status_t sl_btctrl_init_mem(const struct sl_btctrl_config *config);
+
+/**
+ * Release all memory allocated by controller
+ */
+void sl_btctrl_deinit_mem(void);
+
+/**
+ * Perform functional initialization of the controller
+ *
+ * This function requires that controller memory has been successfully allocated
+ * with a prior call to @ref sl_btctrl_init_mem.
+ *
+ * @returns Status indicating success of initialization
+ */
+sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config);
+
+/**
+ * Perform functional de-initialization of the controller
+ *
+ * To release all memory allocated by the controller, call @ref
+ * sl_btctrl_deinit_mem after this function.
+ */
+void sl_btctrl_deinit_functional(void);
+
+/**
+ * Bgbuf init and link layer init
+ *
+ * @returns Status indicating success of allocation
+ */
+sl_status_t sl_btctrl_init_ll(const struct sl_btctrl_config *config);
+
+/**
+ * Bgbuf deinit and link layer deinit
+ *
+ * @returns Status indicating success of allocation
+ */
+sl_status_t sl_btctrl_deinit_ll(void);
 
 /**
  *  Configures how many maximum sized ACL data packets
@@ -52,14 +88,7 @@ uint32_t sl_btctrl_init_mem(uint32_t memsize);
  */
 void sl_btctrl_configure_le_buffer_size(uint8_t count);
 
-/**
- * Release all memory allocated by controller
- */
-void sli_btctrl_deinit_mem(void);
-
-void sli_btctrl_set_interrupt_priorities();
-
-sl_status_t sl_btctrl_init_ll(void);
+void sli_btctrl_set_interrupt_priorities(const struct sl_btctrl_config *config);
 
 void sli_btctrl_set_address(uint8_t *address);
 
@@ -68,11 +97,6 @@ void sli_btctrl_set_address(uint8_t *address);
 sl_status_t sl_btctrl_init_basic(uint8_t connections, uint8_t adv_sets, uint8_t whitelist);
 
 void sli_btctrl_events_init(void);
-
-enum sl_btctrl_channelmap_flags{
-  SL_BTCTRL_CHANNELMAP_FLAG_ACTIVE_ADAPTIVITY = 0x01,
-  SL_BTCTRL_CHANNELMAP_FLAG_PASSIVE_ADAPTIVITY= 0x02,
-};
 
 /**
  * Initialize and enable adaptive frequency hopping
@@ -95,38 +119,15 @@ void sl_btctrl_init_periodic_adv();
 void sl_btctrl_init_periodic_scan();
 
 /**
- * Configuration for Periodic Advertising with Responses.
- */
-struct sl_btctrl_pawr_advertiser_config {
-  /**
-   * Number of advertising sets supporting PAwR.
-   * If set to zero, previously allocated PAwR sets are only freed. */
-  uint8_t max_pawr_sets;
-  /**
-   * Hint to the controller what will be the maximum advertised data length.
-   * The value does not prevent using longer advertising data. Value zero means
-   * that maximum data length can expected to be up to the length of Periodic
-   * Advertising Delay. */
-  uint8_t max_advertised_data_length_hint;
-  /**
-   * The number of subevent advertising packets requested from the host
-   * at once. */
-  uint8_t subevent_data_request_count;
-  /**
-   * How many subevents before airing a subevent its data is requested from
-   * the host. */
-  uint8_t subevent_data_request_advance;
-};
-
-/**
- * Configuration of synchronizer for Periodic Advertising with Responses.
- */
-struct sl_btctrl_pawr_synchronizer_config {
-  /**
-   * Number of advertising sets supporting PArR.
-   * If set to zero, previously allocated PArR sets are only freed. */
-  uint8_t max_pawr_sets;
-};
+ * @brief Configure transmit power to the radio.
+ * The new transmit power becomes effective immediately. Configuration includes
+ * power mode (amplifier) configuration if necessary. The configuration is not
+ * permanent and the active Bluetooth procedures may change it at any time.
+ * Therefore, this function is useful only for testing purposes.
+ * @param[in] tx_power_ddbm The power level in units of deci-dBm to be used for
+ *       transmission. The value must *not* be RF path compensated since
+ *       compensation will be applied automatically. */
+void sl_btctrl_set_tx_power(int16_t power_ddbm);
 
 /**
  * @brief Enable and initialize support for the PAwR advertiser.
@@ -156,11 +157,6 @@ sl_status_t sl_btctrl_alloc_periodic_scan(uint8_t num_scan);
 sl_status_t sl_btctrl_alloc_periodic_adv(uint8_t num_adv);
 
 /**
- * Call to import the conn scheduler state variables in the binary
- */
-void sli_btctrl_enable_conn_scheduler_state(void);
-
-/**
  * @brief Set maximum number of advertisement reports allowed to be queued
  *
  * @param num_adv Maximum number of advertisement reports allowed to be queued
@@ -172,18 +168,6 @@ void sl_btctrl_configure_max_queued_adv_reports(uint8_t num_reports);
  * This function should be called before link layer initialization.
  */
 void sl_btctrl_enable_even_connsch();
-
-/**
- * Call to enable the PAwR aware connection scheduling algorithm.
- * This function should be called before link layer initialization.
- */
-void sl_btctrl_enable_pawr_connsch();
-
-/**
- * Call to enable the legacy connection scheduling algorithm.
- * This function should be called before link layer initialization.
- */
-void sl_btctrl_enable_legacy_connsch();
 
 /**
  * Call to enable connection statistics collection.
@@ -200,6 +184,15 @@ void sl_btctrl_init_multiprotocol();
  * Link with symbol to enable radio watchdog
  */
 void sl_btctrl_enable_radio_watchdog();
+
+/**
+ * Get radio counters for troubleshooting purposes.
+ * @return Pointer to the radio counters. */
+const struct sl_btctrl_radio_counters *sl_btctrl_radio_get_counters(void);
+
+/**
+ * Reset radio counters. */
+void sl_btctrl_radio_reset_counters(void);
 
 /**
  * Initialize CTE receiver
@@ -223,13 +216,6 @@ sl_status_t sl_btctrl_init_cte();
 /**
  * Initialize Channel Sounding
  */
-struct sl_btctrl_cs_config {
-  /** number of channel sounding configurations per connection */
-  uint8_t configs_per_connection;
-  /** number of simultaneous channel sounding procedures */
-  uint8_t procedures;
-};
-
 sl_status_t sl_btctrl_init_cs(const struct sl_btctrl_cs_config *config);
 
 /**
@@ -237,6 +223,18 @@ sl_status_t sl_btctrl_init_cs(const struct sl_btctrl_cs_config *config);
  * @return bool pending events
  */
 bool sli_pending_btctrl_events(void);
+
+/**
+ * Check if the controller supports Coded PHY.
+ * @return True if Coded PHY is supported, false otherwise.
+ */
+bool sl_btctrl_radio_supports_coded_phy();
+
+/**
+ * Check if the controller supports 2M PHY.
+ * @return True if 2M PHY is supported, false otherwise.
+ */
+bool sl_btctrl_radio_supports_2m_phy();
 
 /**
  * Disable the support for Coded and Simulscan PHYs.
@@ -259,6 +257,10 @@ void sl_btctrl_init_subrate(void);
 
 sl_status_t sl_btctrl_allocate_conn_subrate_memory(uint8_t connectionsCount);
 
+void sl_btctrl_init_channel_classification(void);
+
+sl_status_t sl_btctrl_allocate_channel_classification_memory(uint8_t connectionsCount);
+
 void sl_btctrl_init_phy(void);
 
 void sl_btctrl_init_adv_ext(void);
@@ -267,11 +269,21 @@ void sl_btctrl_init_privacy(void);
 
 sl_status_t sl_btctrl_allocate_resolving_list_memory(uint8_t resolvingListSize);
 
+void sl_btctrl_init_even_anchor_selection(void);
+
+void sl_btctrl_init_empty_center_anchor_selection(void);
+
 /**
  * @brief Initialize extended scanner state
  *
  */
 void sl_btctrl_init_scan_ext(void);
+
+/**
+ * @brief Initialize radio early rx abort
+ *
+ */
+void sl_btctrl_init_radio_early_rx_abort(void);
 
 void sl_btctrl_init_scan(void);
 
@@ -307,5 +319,87 @@ void sl_btctrl_init_past_receiver(void);
  * all the transmitted packets, then it will send the Number Of Completed Packets HCI event to the host.
  */
 void sl_btctrl_configure_completed_packets_reporting(uint8_t packets, uint8_t events);
+
+/**
+ * @brief Configure the power control configuration. This configuration is used when the power control
+ * feature is present.
+ * @param[in] power_ctrl_cfg The power control configuration.
+ */
+sl_status_t sl_btctrl_init_power_control(const uint8_t *power_ctrl_cfg);
+
+sl_status_t sl_bt_init_app_controlled_tx_power(void);
+
+/**
+ * Initial sniff, open to customer
+ */
+sl_status_t sl_btctrl_init_sniff(uint8_t num);
+/**
+ * Deinitial sniff, open to customer
+ */
+void sl_btctrl_deinit_sniff(void);
+
+void sl_btctrl_init_config(struct sl_btctrl_config *config);
+
+/**
+ * @brief Configure the minimum and maximum TX power levels used by the device.
+ * @param[in] min_power The maximum TX power level.
+ * @param[in] max_power The minimum TX power level.
+ */
+sl_status_t sli_btctrl_set_min_max_tx_power(int16_t *min_power, int16_t *max_power);
+
+void sli_btctrl_enable_peripheral_feature_exchange(bool enable);
+
+/**
+ * Get the radio context handle for Bluetooth
+ * @return The radio context handle
+ */
+void* sli_btctrl_get_radio_context_handle(void);
+
+/**
+ * Get a snapshot of Link layer configuration flags
+ * @param flags only flags specified here is returned
+ */
+uint32_t sl_btctrl_get_config_flags(uint32_t flags);
+
+/**
+ * Set Link Layer configuration flags
+ */
+void sl_btctrl_set_config_flags(uint32_t flags);
+
+/**
+ * Clear Link Layer configuration flags
+ */
+void sl_btctrl_clear_config_flags(uint32_t flags);
+
+/**
+ * For backward compatibility
+ */
+static inline uint32_t BTLE_LL_GetFlags(uint32_t flags)
+{
+  return sl_btctrl_get_config_flags(flags);
+}
+
+static inline void BTLE_LL_SetFlags(uint32_t flags)
+{
+  sl_btctrl_set_config_flags(flags);
+}
+
+static inline void BTLE_LL_ClearFlags(uint32_t flags)
+{
+  sl_btctrl_clear_config_flags(flags);
+}
+/**
+ * @brief Set new radio priorities from config parameter
+ * @param priorities priority table to copy parameters from
+ * */
+void sl_btctrl_configure_scheduler_priorities(sl_btctrl_ll_priorities *priorities);
+
+/**
+ * Liniklayer tasklet initialization
+ */
+void sl_btctrl_init_tasklets(void);
+void sl_btctrl_init_adv_tasklet(void);
+void sl_btctrl_init_conn_tasklet(void);
+void sl_btctrl_init_scan_tasklet(void);
 
 #endif

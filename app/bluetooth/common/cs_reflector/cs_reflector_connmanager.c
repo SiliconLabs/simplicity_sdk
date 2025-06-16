@@ -32,7 +32,7 @@
 #include "cs_reflector_config.h"
 #include "sl_bt_api.h"
 
-static connection_ctx_t connections[CS_REFLECTOR_MAX_CONNECTIONS] = { {
+static connection_ctx_t connections[SL_BT_CONFIG_MAX_CONNECTIONS] = { {
                                                                         .conn_handle = UINT8_MAX,
                                                                         .in_use = false,
                                                                         .ras_control_point_indication_enabled = false,
@@ -49,7 +49,7 @@ static bool cs_rcm_get_idx_for_conn_handle(const uint8_t conn_handle, uint8_t *c
   if (idx == NULL) {
     return false;
   }
-  for (uint8_t i = 0; i < CS_REFLECTOR_MAX_CONNECTIONS; i++) {
+  for (uint8_t i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
     if (connections[i].conn_handle == conn_handle) {
       *idx = i;
       return true;
@@ -72,7 +72,7 @@ sl_status_t cs_rcm_add_new_initiator_connection(const uint8_t conn_handle)
   // Find the first empty spot
   bool found = false;
   uint8_t i;
-  for (i = 0; i < CS_REFLECTOR_MAX_CONNECTIONS; i++) {
+  for (i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
     if (!connections[i].in_use) {
       found = true;
       break;
@@ -114,7 +114,7 @@ void cs_rcm_remove_initiator_connection(const uint8_t conn_handle)
 
 bool cs_rcm_can_accept_new_connection(void)
 {
-  for (uint8_t i = 0; i < CS_REFLECTOR_MAX_CONNECTIONS; i++) {
+  for (uint8_t i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
     if (!connections[i].in_use) {
       return true;
     }
@@ -125,7 +125,7 @@ bool cs_rcm_can_accept_new_connection(void)
 uint8_t cs_rcm_get_number_of_connections(void)
 {
   uint8_t num_of_connections = 0u;
-  for (uint8_t i = 0; i < CS_REFLECTOR_MAX_CONNECTIONS; i++) {
+  for (uint8_t i = 0; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
     if (connections[i].in_use) {
       num_of_connections++;
     }

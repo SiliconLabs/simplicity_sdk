@@ -14,7 +14,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: segment_lcd_app.c
 include:
   - path: .
@@ -23,7 +22,7 @@ include:
     - path: segment_lcd_app.h
 component:
   - id: emlib_lcd
-  - id: sl_system
+  - id: sl_main
   - id: emlib_ldma
   - id: device_init
   - id: clock_manager
@@ -38,4 +37,4 @@ tag:
   - hardware:component:segment_lcd_driver:cl010-1087-04
 configuration:
   - name: SL_SEGMENT_LCD_LDMA_MODE
-    value: lcdDmaModeFrameCounterEvent    
+    value: lcdDmaModeFrameCounterEvent

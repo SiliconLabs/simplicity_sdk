@@ -1,7 +1,7 @@
 !!omap
 - id: brd4205b
 - label: BRD4205B
-- package: platform
+- package: boards
 - description: Board support for BRD4205B.
 - category: Platform|Board|Radio Board
 - quality: production
@@ -81,7 +81,7 @@
   - name: SL_BOARD_NAME
     value: '"BRD4205B"'
   - name: SL_BOARD_REV
-    value: '"A00"'
+    value: '"A01"'
   - name: HARDWARE_BOARD_SUPPORTS_RF_BAND_868
   - name: HARDWARE_BOARD_SUPPORTS_RF_BAND_914
   - name: HARDWARE_BOARD_SUPPORTS_RF_BAND_924
@@ -90,7 +90,7 @@
 - tag:
   - board:pn:BRD4205
   - board:variant:B
-  - board:revision:A00
+  - board:revision:A01
   - board:device:zgm230sb27hgn
   - hardware:has:vcom
   - hardware:has:pti

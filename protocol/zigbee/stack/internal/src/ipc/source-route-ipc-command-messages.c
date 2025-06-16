@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'source-route' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -36,11 +36,13 @@ void sli_zigbee_stack_concentrator_note_route_error_process_ipc_command(sli_zigb
 
 void sli_zigbee_stack_concentrator_start_discovery_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_concentrator_start_discovery();
 }
 
 void sli_zigbee_stack_concentrator_stop_discovery_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_concentrator_stop_discovery();
 }
 

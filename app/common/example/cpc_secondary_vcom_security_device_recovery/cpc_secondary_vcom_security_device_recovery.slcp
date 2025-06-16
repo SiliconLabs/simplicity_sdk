@@ -15,7 +15,6 @@ filter:
     value: ["Advanced"]
 source:
   - path: app.c
-  - path: main.c
   - path: cpc_app.c
 include:
   - path: .
@@ -23,11 +22,11 @@ include:
     - path: app.h
     - path: cpc_app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: cpc_secondary
-  - id: cpc_secondary_recommended_interface
+  - id: cpc_secondary_recommended_uart_interface
   - id: cpc_security_secondary
 define:
   - name: DEBUG_EFM

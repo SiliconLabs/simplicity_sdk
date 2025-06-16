@@ -1,6 +1,6 @@
 id: "btmesh_stack_sensor_setup_server"
 label: "Sensor Setup Server Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Sensor Setup Server model.
   It is used to support the configuration functionality of a node with a set of sensors whose data is available on the network."
 category: "Bluetooth Mesh|Stack|Models|Sensors"

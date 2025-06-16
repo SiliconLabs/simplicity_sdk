@@ -1,6 +1,6 @@
 !!omap
 - id: BGM240PB32VNN
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for BGM240PB32VNN.
 - category: Platform|Device|BGM24
 - quality: production

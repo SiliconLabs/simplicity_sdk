@@ -77,6 +77,9 @@ extern "C" {
   } while (0)
 #endif
 
+// Due to SW migration
+#define app_wisun_trace_util_evt_notfiy_chs app_wisun_trace_util_evt_notify_chs
+
 /// Structure for using enum on the CLI
 typedef struct {
   /// String value
@@ -164,12 +167,12 @@ extern const sl_wisun_mac_address_t APP_BROADCAST_MAC;
  * @brief App wisun malloc wrapper
  * @details Wrapper for cover operating systems
  * @param size Size of expected allocation
- * @return void* Allocatod memory start address on success, NULL on error
+ * @return void* Allocated memory start address on success, NULL on error
  *****************************************************************************/
 void *app_wisun_malloc(size_t size);
 
 /**************************************************************************//**
- * @brief App wisun free warpper
+ * @brief App wisun free wrapper
  * @details Wrapper for cover operating systems
  * @param addr Address on heap to set free
  *****************************************************************************/
@@ -260,7 +263,7 @@ const char * app_wisun_trace_util_lfn_profile_to_str(const uint32_t val);
 /**************************************************************************//**
  * @brief Swapping short unsigned integer endianess
  * @details It swaps the value pointed.
- * @param[in] num The swappng number
+ * @param[in] num The swapping number
  * @return uint16_t integer
  *****************************************************************************/
 __STATIC_INLINE uint16_t app_wisun_trace_swap_u16(uint16_t num)
@@ -361,7 +364,7 @@ __STATIC_INLINE void app_wisun_trace_util_destroy_time_str(const char *str)
 
 /**************************************************************************//**
  * @brief Get elapsed time in milliseconds
- * @details This function returns the ellapsed time in milliseconds.
+ * @details This function returns the elapsed time in milliseconds.
  * @param[out] ms elapsed time in milliseconds
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
@@ -379,7 +382,7 @@ sl_status_t app_wisun_trace_util_evt_notify_init(app_wisun_trace_util_evt_notify
 
 /**************************************************************************//**
  * @brief Clear notifications
- * @details Clear subsrcibed channels (represented by bits) in osEventFlags
+ * @details Clear subscribed channels (represented by bits) in osEventFlags
  * @param[in,out] evt_notify Event notification
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
@@ -411,13 +414,13 @@ sl_status_t app_wisun_trace_util_evt_notify_unsubscribe_ch(app_wisun_trace_util_
  * @param[in] evt_notify Event notification
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
-sl_status_t app_wisun_trace_util_evt_notfiy_chs(const app_wisun_trace_util_evt_notify_t * const evt_notify);
+sl_status_t app_wisun_trace_util_evt_notify_chs(const app_wisun_trace_util_evt_notify_t * const evt_notify);
 
 /**************************************************************************//**
  * @brief Waiting for notification
  * @details Using osEventFlagsWait for waiting event flags described by ch_mask
  * @param[in] ch_mask Channel mask for waiting
- * @param[in] timeout Timeout
+ * @param[in] timeout Timeout in kernel ticks
  * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t app_wisun_trace_util_evt_notify_wait(const app_wisun_trace_util_evt_notify_t * const evt_notify,

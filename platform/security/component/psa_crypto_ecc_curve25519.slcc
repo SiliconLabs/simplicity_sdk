@@ -1,5 +1,5 @@
 id: psa_crypto_ecc_curve25519
-package: platform
+package: security_mbedtls
 label: Curve25519
 description: >-
   This component adds support for the curve25519 elliptic curve,

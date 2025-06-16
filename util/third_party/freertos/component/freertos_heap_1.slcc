@@ -1,6 +1,6 @@
 id: freertos_heap_1
 label: FreeRTOS Heap 1
-package: platform
+package: freertos
 description: >
   A heap implementation for FreeRTOS.
 
@@ -10,7 +10,7 @@ category: RTOS|FreeRTOS
 quality: production
 metadata:
   sbom:
-    license: MSLA
+    reference: freertos
 source:
   - path: util/third_party/freertos/kernel/portable/MemMang/heap_1.c
 provides:

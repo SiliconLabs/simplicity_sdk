@@ -769,13 +769,15 @@ sl_status_t sl_zigbee_set_passive_ack_config(sl_passive_ack_config_enum_t config
  * @parma index  The starting index of the relevant packet data.  The plugin\
  * will receive a flat copy of the packet starting from this index.
  * @param data  Auxiliary data pointer
+ * @param data_len The size of the auxiliary data.
  *
  * @return  See ::sl_zigbee_packet_action_t
  */
 sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_zigbee_zigbee_packet_type_t packetType,
                                                                              sli_buffer_manager_buffer_t packetBuffer,
                                                                              uint8_t index,
-                                                                             void *data);
+                                                                             void *data,
+                                                                             uint8_t data_len);
 
 /** @brief Intercept an outgoing packet from the stack and hands off to a plugin
  * for further processing
@@ -786,13 +788,15 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
  * @param index  The starting index of the relevant packet data.  The plugin\
  * will receive a flat copy of the packet starting from this index.
  * @param data  Auxiliary data pointer
+ * @param data_len The size of the auxiliary data.
  *
  * @return  See ::sl_zigbee_packet_action_t
  */
 sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_zigbee_zigbee_packet_type_t packetType,
                                                                              sli_buffer_manager_buffer_t packetBuffer,
                                                                              uint8_t index,
-                                                                             void *data);
+                                                                             void *data,
+                                                                             uint8_t data_len);
 
 /** @brief Intercept an outgoing packet from the Zigbee stack and hands it off
  * to the relevant plugins for possible further processing and forwarding to
@@ -833,16 +837,57 @@ void sl_zigbee_redirect_outgoing_message_handler(uint8_t mac_index,
  * the buffer starts with the command id followed by the payload
  * @param size_p a pointer to the size of the packet data
  * @param data This is a pointer to auxiliary data for the command.
+ * @param size_d The size of the auxiliary data.
  *
  * @return a ::sl_zigbee_packet_action_t indicating what action should be taken for
  * the packet, SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
  */
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void *data);
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void *data,
+                                                                  uint8_t size_d);
 
-/** @brief The stack is preparing to send a protocol layer packet.
+/** @brief Called after the stack has processed an incoming packet that was meant
+ * for one of the protocol layers specified in ::sl_zigbee_zigbee_packet_type_t.
+ *
+ * This function is called over IPC after the packet has been received and processed
+ * by the privileged pre-filter callback. It is meant to be informative for the application
+ * task and doesn't affect the packet handling, which has already occurred.
+ *
+ * The packetType argument is one of the values of the
+ * ::sl_zigbee_zigbee_packet_type_t enum. If the stack receives an 802.15.4
+ * MAC beacon, it will call this function with the packetType argument
+ * set to ::SL_ZIGBEE_ZIGBEE_PACKET_TYPE_BEACON.
+ *
+ * Unlike the pre-filter callback, this function cannot alter the packet processing
+ * as it is called after the packet has already been handled.
+ *
+ * @param packetType The type of packet received. See
+ * ::sl_zigbee_zigbee_packet_type_t.
+ * @param packetData A flat buffer containing the packet contents.
+ * The buffer starts with the command id followed by the payload.
+ * @param size_p The size of the packet data.
+ * @param data Additional auxiliary data associated with the packet.
+ * @param size_d The size of the auxiliary data.
+ * @param action The action that the pre-filter callback took for this packet
+ * SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
+ *
+ * @return void This function does not return a value as it is informative only.
+ *
+ * @internal SL_ZIGBEE_IPC_ARGS
+ * {# packetData | length: size_p | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ * {# data | length: size_d | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ */
+void sl_zigbee_post_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                              uint8_t* packetData,
+                                              uint8_t size_p,
+                                              uint8_t *data,
+                                              uint8_t size_d,
+                                              sl_zigbee_packet_action_t action);
+
+/** @brief The stack is preparing to send a protocol layer packet
+ * and a ::sl_zigbee_packet_action_t action has been decided.
  *
  * This is called when the stack is preparing to send a packet from one
  * of the protocol layers specified in ::sl_zigbee_zigbee_packet_type_t.
@@ -865,55 +910,59 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
  * @param data This is a pointer to auxiliary data for the command. ZDO
  * commands pass the ::sl_zigbee_aps_frame_t associated with the packet here. Otherwise,
  * this value is NULL.
+ * @param size_d The size of the auxiliary data.
  *
  * @return a ::sl_zigbee_packet_action_t indicating what action should be taken for
  * the packet, SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
  */
-sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void* data);
+sl_zigbee_packet_action_t sl_zigbee_pre_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d);
+
+/** @brief The stack is preparing to send a protocol layer packet.
+ *
+ * This function is called over IPC after the packet has been handled
+ * by the privileged pre-filter callback. It is meant to be informative for the application
+ * task and doesn't affect the packet handling, which has already occurred.
+ *
+ * The packetType argument is one of the values of the
+ * ::sl_zigbee_zigbee_packet_type_t enum. If the stack is preparing to send an
+ * 802.15.4 MAC beacon, it will call this function with the packetType
+ * argument set to ::SL_ZIGBEE_ZIGBEE_PACKET_TYPE_BEACON.
+ *
+ * Unlike the pre-filter callback, this function cannot alter the packet processing
+ * as it is called after the packet has already been handled.
+ *
+ * @param packetType The type of sending packet. See
+ * ::sl_zigbee_zigbee_packet_type_t.
+ * @param packetData A flat buffer containing the packet contents
+ * the buffer starts with the command id followed by the payload
+ * @param size_p the size of the packet data
+ * @param data This is a pointer to auxiliary data for the command. ZDO
+ * commands pass the ::sl_zigbee_aps_frame_t associated with the packet here. Otherwise,
+ * this value is NULL.
+ * @param size_d The size of the auxiliary data.
+ * @param action The action that the pre-filter callback took for this packet
+ * SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
+ *
+ * @internal SL_ZIGBEE_IPC_ARGS
+ * {# packetData | length: size_p | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ * {# data | length: size_d | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ */
+void sl_zigbee_post_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                              uint8_t* packetData,
+                                              uint8_t size_p,
+                                              uint8_t* data,
+                                              uint8_t size_d,
+                                              sl_zigbee_packet_action_t action);
 
 /** @brief A callback invoked by the ZigBee GP stack when a GPDF is received..
  *
- * @param status The status of the GPDF receive.
- * @param gpdLink The gpdLink value of the received GPDF.
- * @param sequenceNumber The GPDF sequence number.
- * @param addr The address of the source GPD.
-
- * @param gpdfSecurityLevel The security level of the received GPDF.
- * @param gpdfSecurityKeyType The securityKeyType used to decrypt/authenticate the incoming GPDF.
- * @param autoCommissioning Whether the incoming GPDF had the auto-commissioning bit set.
- * @param bidirectionalInfo Bidirectional information represented in bitfields, where bit0 holds
- * the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
- * for outgoing gpdf.
- * @param gpdSecurityFrameCounter The security frame counter of the incoming GDPF.
- * @param gpdCommandId The gpdCommandId of the incoming GPDF.
- * @param mic The received MIC of the GPDF.
- * @param proxyTableIndex The proxy table index of the corresponding proxy table entry to the
- * incoming GPDF.
- * @param gpdCommandPayloadLength The length of the GPD command payload.
- * @param gpdCommandPayload The GPD command payload.
- * @param packetInfo Rx packet information.
- * @internal SL_ZIGBEE_IPC_ARGS
- * {# gpdCommandPayload | length: gpdCommandPayloadLength | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ * @param params The GPDF parameters. See ::sl_zigbee_gp_params_t.
  */
-void sl_zigbee_gpep_incoming_message_handler(
-  sl_zigbee_gp_status_t status,
-  uint8_t gpdLink,
-  uint8_t sequenceNumber,
-  sl_zigbee_gp_address_t *addr,
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-  bool autoCommissioning,
-  uint8_t bidirectionalInfo,
-  uint32_t gpdSecurityFrameCounter,
-  uint8_t gpdCommandId,
-  uint32_t mic,
-  uint8_t proxyTableIndex,
-  uint8_t gpdCommandPayloadLength,
-  uint8_t *gpdCommandPayload,
-  sl_zigbee_rx_packet_info_t *packetInfo);
+void sl_zigbee_gpep_incoming_message_handler(sl_zigbee_gp_params_t *params);
 
 /** @brief Add a network packet into the incoming network queue.
  *

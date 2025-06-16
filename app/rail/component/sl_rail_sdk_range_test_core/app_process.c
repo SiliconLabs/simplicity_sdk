@@ -108,9 +108,8 @@ void request_refresh_screen(void)
  *
  * @param[in] pointer Null pointer to keep style with other sample apps
  ******************************************************************************/
-void app_process_action(RAIL_Handle_t pointer)
+void app_process_action(void)
 {
-  (void)pointer;
   switch (state) {
     case INFO_SCREEN:
       if (refresh_screen) {
@@ -283,6 +282,37 @@ void app_process_action(RAIL_Handle_t pointer)
           }
         }
 #endif
+      }
+#else
+      if (service_received) {
+        if (service_received) {
+          service_received = false;
+          range_test_measurement.tx_is_running = !service_packet_received();
+        }
+        range_test_measurement.tx_is_running = !range_test_measurement.tx_is_running;
+      #if defined(SL_CATALOG_KERNEL_PRESENT)
+        app_task_notify();
+      #endif
+        if (range_test_settings.remote_config_enable) {
+          undo_service_config();
+        }
+        range_test_init();
+
+      #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
+        add_bluetooth_indication(gattdb_isRunning);
+      #endif
+        refresh_screen = true;
+      #if defined(SL_CATALOG_RANGE_TEST_DMP_COMPONENT_PRESENT)
+        if (range_test_measurement.tx_is_running) {
+          if (!is_bluetooth_connected()) {
+            deactivate_bluetooth();
+          }
+        } else {
+          if (!is_bluetooth_connected()) {
+            activate_bluetooth();
+          }
+        }
+      #endif
       }
 #endif
       break;

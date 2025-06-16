@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of polling for end devices.  Note that the Poll Control Server component sets the long and short poll intervals at startup.  If both components are enabled, the long and short poll intervals set here will not be used.
 label: End Device Support
 quality: production

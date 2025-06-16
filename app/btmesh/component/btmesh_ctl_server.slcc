@@ -1,6 +1,6 @@
 id: "btmesh_ctl_server"
 label: "CTL Server"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Color Tunable Lighting (CTL) Server model. Used to support the control and
   reporting functionality of a node with a light source that is dimmable and whose
@@ -71,3 +71,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-ctl-server

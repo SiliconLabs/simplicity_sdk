@@ -540,7 +540,7 @@ typedef enum
                                                                                         are
                                                                                         updated.
                                                                                         See
-                                                                                        sl_bt_bluetooth_ll_priorities
+                                                                                        sl_btctrl_ll_priorities
                                                                                         struct
                                                                                         for
                                                                                         the
@@ -984,8 +984,8 @@ typedef enum
  * @{
  * @brief Indicates that the device has started and the radio is ready
  *
- * This event carries the firmware build number and other software and hardware
- * identification codes.
+ * This event carries the Bluetooth stack version and other software and
+ * hardware identification codes.
  */
 
 /** @brief Identifier of the boot event */
@@ -999,7 +999,7 @@ PACKSTRUCT( struct sl_bt_evt_system_boot_s
   uint16_t major;      /**< Major release version */
   uint16_t minor;      /**< Minor release version */
   uint16_t patch;      /**< Patch release number */
-  uint16_t build;      /**< Build number */
+  uint16_t build;      /**< This parameter is unused. Set to 0 always. */
   uint32_t bootloader; /**< Bootloader version if a bootloader is present in the
                             application. Set to 0 if bootloader is not present. */
   uint16_t hw;         /**< Hardware type: the major chip revision number in the
@@ -1301,7 +1301,7 @@ sl_status_t sl_bt_system_forcefully_stop_bluetooth();
 
 /***************************************************************************//**
  *
- * Get the firmware version information.
+ * Get the Bluetooth stack version information.
  *
  * <b>NOTE:</b> This command is available even if the Bluetooth stack has not
  * been started. See @ref sl_bt_system_start_bluetooth for description of how
@@ -1310,7 +1310,7 @@ sl_status_t sl_bt_system_forcefully_stop_bluetooth();
  * @param[out] major Major release version
  * @param[out] minor Minor release version
  * @param[out] patch Patch release number
- * @param[out] build Build number
+ * @param[out] build This parameter is unused. Set to 0 always.
  * @param[out] bootloader Unused. Ignore this field.
  * @param[out] hash Version hash
  *
@@ -1414,8 +1414,8 @@ sl_status_t sl_bt_system_halt(uint8_t halt);
  *     - <b>sl_bt_system_linklayer_config_key_set_priority_table (0x9):</b> The
  *       value contains a priority table to be copied over the existing table.
  *       If the value is smaller than the full table, only those values are
- *       updated. See sl_bt_bluetooth_ll_priorities struct for the definition of
- *       a priority table.
+ *       updated. See sl_btctrl_ll_priorities struct for the definition of a
+ *       priority table.
  *     - <b>sl_bt_system_linklayer_config_key_set_rx_packet_filtering (0xa):</b>
  *       Configure and enable or disable RX packet filtering feature. Value: >=
  *       5 bytes.
@@ -4500,11 +4500,16 @@ sl_status_t sl_bt_sync_scanner_open(bd_addr address,
 /* Command and Response IDs */
 #define sl_bt_cmd_past_receiver_set_default_sync_receive_parameters_id 0x00510020
 #define sl_bt_cmd_past_receiver_set_sync_receive_parameters_id       0x01510020
+#define sl_bt_cmd_past_receiver_set_default_sync_receive_over_sync_parameters_id 0x02510020
+#define sl_bt_cmd_past_receiver_set_sync_receive_over_sync_parameters_id 0x03510020
 #define sl_bt_rsp_past_receiver_set_default_sync_receive_parameters_id 0x00510020
 #define sl_bt_rsp_past_receiver_set_sync_receive_parameters_id       0x01510020
+#define sl_bt_rsp_past_receiver_set_default_sync_receive_over_sync_parameters_id 0x02510020
+#define sl_bt_rsp_past_receiver_set_sync_receive_over_sync_parameters_id 0x03510020
 
 /**
- * @brief Specifies the mode for receiving synchronization transfers
+ * @brief Specifies the mode for receiving synchronization transfers over
+ * connections
  */
 typedef enum
 {
@@ -4529,6 +4534,74 @@ typedef enum
                                                    handle. */
 } sl_bt_past_receiver_mode_t;
 
+/**
+ * @brief Specifies the mode for receiving synchronization transfers over
+ * periodic advertising trains
+ */
+typedef enum
+{
+  sl_bt_past_receiver_over_sync_mode_ignore  = 0x0, /**< (0x0) No attempt is
+                                                         made to synchronize to
+                                                         a periodic advertising
+                                                         train that changed
+                                                         parameters (see command
+                                                         @ref
+                                                         sl_bt_pawr_advertiser_change_parameters),
+                                                         or to synchronize to
+                                                         another train for which
+                                                         synchronization
+                                                         information was
+                                                         received (see command
+                                                         @ref
+                                                         sl_bt_advertiser_past_transfer_over_pawr_advertiser).
+                                                         If a parameter change
+                                                         for the current train
+                                                         or the sync info of
+                                                         another train is
+                                                         received on an
+                                                         established sync, the
+                                                         receiving sync will be
+                                                         closed, and the event
+                                                         @ref
+                                                         sl_bt_evt_sync_closed
+                                                         will be triggered. */
+  sl_bt_past_receiver_over_sync_mode_replace = 0x1  /**< (0x1) Attempt to
+                                                         maintain
+                                                         synchronization to a
+                                                         periodic advertising
+                                                         train that changed
+                                                         parameters (see command
+                                                         @ref
+                                                         sl_bt_pawr_advertiser_change_parameters),
+                                                         or to synchronize to
+                                                         another train for which
+                                                         synchronization
+                                                         information was
+                                                         received (see command
+                                                         @ref
+                                                         sl_bt_advertiser_past_transfer_over_pawr_advertiser).
+                                                         On successful
+                                                         synchronization, the
+                                                         new train replaces the
+                                                         old train in the same
+                                                         sync object and the
+                                                         event @ref
+                                                         sl_bt_evt_pawr_sync_transfer_received
+                                                         will be triggered with
+                                                         the same handle as the
+                                                         synchronization over
+                                                         which the sync info was
+                                                         received. If
+                                                         synchronization with
+                                                         the new info cannot be
+                                                         obtained, the
+                                                         synchronization to the
+                                                         current train is lost
+                                                         and the event @ref
+                                                         sl_bt_evt_sync_closed
+                                                         will be triggered. */
+} sl_bt_past_receiver_over_sync_mode_t;
+
 /***************************************************************************//**
  *
  * Set the default parameters for receiving Periodic Advertising Synchronization
@@ -4549,7 +4622,8 @@ typedef enum
  *
  * @param[in] mode @parblock
  *   Enum @ref sl_bt_past_receiver_mode_t. The mode to specify how the Bluetooth
- *   stack reacts when synchronization information is received. Values:
+ *   stack reacts when synchronization information is received over a
+ *   connection. Values:
  *     - <b>sl_bt_past_receiver_mode_ignore (0x0):</b> No attempt is made to
  *       synchronize to a periodic advertising train for which the
  *       synchronization information was received. No event will be triggered
@@ -4598,12 +4672,16 @@ typedef enum
  *
  * @b Events
  *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
- *     synchronization transfer is received for a periodic advertising train
- *     that does not have subevents or response slots.
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
  *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
  *     the bluetooth_feature_pawr_sync component, triggered after
  *     synchronization transfer is received for a Periodic Advertising with
- *     Responses (PAwR) train.
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
  *
  ******************************************************************************/
 sl_status_t sl_bt_past_receiver_set_default_sync_receive_parameters(uint8_t mode,
@@ -4630,7 +4708,8 @@ sl_status_t sl_bt_past_receiver_set_default_sync_receive_parameters(uint8_t mode
  *   sync transfer
  * @param[in] mode @parblock
  *   Enum @ref sl_bt_past_receiver_mode_t. The mode to specify how the Bluetooth
- *   stack reacts when synchronization information is received. Values:
+ *   stack reacts when synchronization information is received over a
+ *   connection. Values:
  *     - <b>sl_bt_past_receiver_mode_ignore (0x0):</b> No attempt is made to
  *       synchronize to a periodic advertising train for which the
  *       synchronization information was received. No event will be triggered
@@ -4679,12 +4758,16 @@ sl_status_t sl_bt_past_receiver_set_default_sync_receive_parameters(uint8_t mode
  *
  * @b Events
  *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
- *     synchronization transfer is received for a periodic advertising train
- *     that does not have subevents or response slots.
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
  *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
  *     the bluetooth_feature_pawr_sync component, triggered after
  *     synchronization transfer is received for a Periodic Advertising with
- *     Responses (PAwR) train.
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
  *
  ******************************************************************************/
 sl_status_t sl_bt_past_receiver_set_sync_receive_parameters(uint8_t connection,
@@ -4692,6 +4775,178 @@ sl_status_t sl_bt_past_receiver_set_sync_receive_parameters(uint8_t connection,
                                                             uint16_t skip,
                                                             uint16_t timeout,
                                                             uint8_t reporting_mode);
+
+/***************************************************************************//**
+ *
+ * Set the default parameters for receiving Periodic Advertising Synchronization
+ * Transfers (PAST) over periodic advertising trains that the local device has
+ * synchronized to. The default parameters will be in effect for all subsequent
+ * periodic advertising syncs, unless overridden by command @ref
+ * sl_bt_past_receiver_set_sync_receive_over_sync_parameters after the sync is
+ * established.
+ *
+ * Irrespective of the value of the @p skip parameter, the Controller stops
+ * skipping packets if the skipping would cause a timeout.
+ *
+ * @param[in] mode @parblock
+ *   Enum @ref sl_bt_past_receiver_over_sync_mode_t. The mode to specify how the
+ *   Bluetooth stack reacts when synchronization information is received over
+ *   periodic advertising. Values:
+ *     - <b>sl_bt_past_receiver_over_sync_mode_ignore (0x0):</b> No attempt is
+ *       made to synchronize to a periodic advertising train that changed
+ *       parameters (see command @ref sl_bt_pawr_advertiser_change_parameters),
+ *       or to synchronize to another train for which synchronization
+ *       information was received (see command @ref
+ *       sl_bt_advertiser_past_transfer_over_pawr_advertiser). If a parameter
+ *       change for the current train or the sync info of another train is
+ *       received on an established sync, the receiving sync will be closed, and
+ *       the event @ref sl_bt_evt_sync_closed will be triggered.
+ *     - <b>sl_bt_past_receiver_over_sync_mode_replace (0x1):</b> Attempt to
+ *       maintain synchronization to a periodic advertising train that changed
+ *       parameters (see command @ref sl_bt_pawr_advertiser_change_parameters),
+ *       or to synchronize to another train for which synchronization
+ *       information was received (see command @ref
+ *       sl_bt_advertiser_past_transfer_over_pawr_advertiser). On successful
+ *       synchronization, the new train replaces the old train in the same sync
+ *       object and the event @ref sl_bt_evt_pawr_sync_transfer_received will be
+ *       triggered with the same handle as the synchronization over which the
+ *       sync info was received. If synchronization with the new info cannot be
+ *       obtained, the synchronization to the current train is lost and the
+ *       event @ref sl_bt_evt_sync_closed will be triggered.
+ *
+ *   Default: @ref sl_bt_past_receiver_over_sync_mode_ignore (No attempt is made
+ *   to synchronize)
+ *   @endparblock
+ * @param[in] skip @parblock
+ *   The maximum number of periodic advertising packets that can be skipped
+ *   after a successful receive.
+ *     - <b>Range:</b> 0x0000 to 0x01F3
+ *
+ *     - <b>Default</b> : 0
+ *   @endparblock
+ * @param[in] timeout @parblock
+ *   The maximum permitted time between successful receives. If this time is
+ *   exceeded, synchronization is lost. Unit: 10 ms.
+ *     - <b>Range:</b> 0x000A to 0x4000
+ *
+ *     - Unit: 10 ms
+ *     - Time range: 100 ms to 163.84 s
+ *
+ *     - <b>Default</b> : 1000 ms
+ *   @endparblock
+ * @param[in] reporting_mode @parblock
+ *   Enum @ref sl_bt_sync_reporting_mode_t. Specifies the initial mode for
+ *   reporting data received in the periodic advertising train after it has
+ *   achieved synchronization. Values:
+ *     - <b>sl_bt_sync_report_none (0x0):</b> Data received in periodic
+ *       advertising trains is not reported to the application.
+ *     - <b>sl_bt_sync_report_all (0x1):</b> Data received in periodic
+ *       advertising trains is reported to the application.
+ *
+ *   Default: @ref sl_bt_sync_report_all (Data received in periodic advertising
+ *   trains is reported to the application)
+ *   @endparblock
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ * @b Events
+ *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
+ *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
+ *     the bluetooth_feature_pawr_sync component, triggered after
+ *     synchronization transfer is received for a Periodic Advertising with
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_past_receiver_set_default_sync_receive_over_sync_parameters(uint8_t mode,
+                                                                              uint16_t skip,
+                                                                              uint16_t timeout,
+                                                                              uint8_t reporting_mode);
+
+/***************************************************************************//**
+ *
+ * Set the parameters for receiving Periodic Advertising Synchronization
+ * Transfers (PAST) over the specified periodic advertising synchronization.
+ *
+ * Irrespective of the value of the @p skip parameter, the Controller stops
+ * skipping packets if the skipping would cause a timeout.
+ *
+ * @param[in] sync Synchronization handle of the periodic advertising sync used
+ *   to receive the sync transfer
+ * @param[in] mode @parblock
+ *   Enum @ref sl_bt_past_receiver_mode_t. The mode to specify how the Bluetooth
+ *   stack reacts when synchronization information is received over periodic
+ *   advertising. Values:
+ *     - <b>sl_bt_past_receiver_mode_ignore (0x0):</b> No attempt is made to
+ *       synchronize to a periodic advertising train for which the
+ *       synchronization information was received. No event will be triggered
+ *       towards the application.
+ *     - <b>sl_bt_past_receiver_mode_synchronize (0x1):</b> Attempt to
+ *       synchronize to a periodic advertising train for which the
+ *       synchronization information was received. When the information is
+ *       received, an event will be triggered to indicate success or failure and
+ *       to provide the application with the periodic advertising
+ *       synchronization handle.
+ *
+ *   Default: @ref sl_bt_past_receiver_mode_ignore (Do not attempt to
+ *   synchronize)
+ *   @endparblock
+ * @param[in] skip @parblock
+ *   The maximum number of periodic advertising packets that can be skipped
+ *   after a successful receive.
+ *     - <b>Range:</b> 0x0000 to 0x01F3
+ *
+ *     - <b>Default</b> : 0
+ *   @endparblock
+ * @param[in] timeout @parblock
+ *   The maximum permitted time between successful receives. If this time is
+ *   exceeded, synchronization is lost. Unit: 10 ms.
+ *     - <b>Range:</b> 0x000A to 0x4000
+ *
+ *     - Unit: 10 ms
+ *     - Time range: 100 ms to 163.84 s
+ *
+ *     - <b>Default</b> : 1000 ms
+ *   @endparblock
+ * @param[in] reporting_mode @parblock
+ *   Enum @ref sl_bt_sync_reporting_mode_t. Specifies the initial mode for
+ *   reporting data received in the periodic advertising train after it has
+ *   achieved synchronization. Values:
+ *     - <b>sl_bt_sync_report_none (0x0):</b> Data received in periodic
+ *       advertising trains is not reported to the application.
+ *     - <b>sl_bt_sync_report_all (0x1):</b> Data received in periodic
+ *       advertising trains is reported to the application.
+ *
+ *   Default: @ref sl_bt_sync_report_all (Data received in periodic advertising
+ *   trains is reported to the application)
+ *   @endparblock
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ * @b Events
+ *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
+ *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
+ *     the bluetooth_feature_pawr_sync component, triggered after
+ *     synchronization transfer is received for a Periodic Advertising with
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_past_receiver_set_sync_receive_over_sync_parameters(uint16_t sync,
+                                                                      uint8_t mode,
+                                                                      uint16_t skip,
+                                                                      uint16_t timeout,
+                                                                      uint8_t reporting_mode);
 
 /** @} */ // end addtogroup sl_bt_past_receiver
 
@@ -4708,12 +4963,15 @@ sl_status_t sl_bt_past_receiver_set_sync_receive_parameters(uint8_t connection,
 
 /* Command and Response IDs */
 #define sl_bt_cmd_advertiser_past_transfer_id                        0x00520020
+#define sl_bt_cmd_advertiser_past_transfer_over_pawr_advertiser_id   0x01520020
 #define sl_bt_rsp_advertiser_past_transfer_id                        0x00520020
+#define sl_bt_rsp_advertiser_past_transfer_over_pawr_advertiser_id   0x01520020
 
 /***************************************************************************//**
  *
  * Transfer the synchronization information of an advertising set that is
- * actively performing periodic advertising.
+ * actively performing periodic advertising. The transfer happens over a
+ * connection.
  *
  * @param[in] connection Connection handle of the connection used to transmit
  *   the sync transfer
@@ -4727,6 +4985,37 @@ sl_status_t sl_bt_past_receiver_set_sync_receive_parameters(uint8_t connection,
 sl_status_t sl_bt_advertiser_past_transfer(uint8_t connection,
                                            uint16_t service_data,
                                            uint8_t advertising_set);
+
+/***************************************************************************//**
+ *
+ * Transfer the synchronization information of an advertising set that is
+ * actively performing periodic advertising. The transfer happens over a
+ * Periodic Advertising with Responses (PAwR) train.
+ *
+ * @param[in] transferring_advertising_set The handle of the PAwR advertising
+ *   set used to transfer the synchronization information to the synchronized
+ *   devices.
+ * @param[in] service_data A value provided by the application for use by the
+ *   peer device.
+ * @param[in] advertising_set Handle of the periodic advertising set to transfer
+ * @param[in] repeat_count The number of times the synchronization information
+ *   is sent on the specified subevents of @p transferring_advertising_set.
+ *     - <b>Range:</b> 0x01 to 0xFF
+ * @param[in] subevents_len Length of data in @p subevents
+ * @param[in] subevents Array of subevent indexes in which to send the
+ *   synchronization information. If a zero-length array is provided, the
+ *   synchronization information is sent in all subevents of @p
+ *   transferring_advertising_set.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_advertiser_past_transfer_over_pawr_advertiser(uint8_t transferring_advertising_set,
+                                                                uint16_t service_data,
+                                                                uint8_t advertising_set,
+                                                                uint8_t repeat_count,
+                                                                size_t subevents_len,
+                                                                const uint8_t* subevents);
 
 /** @} */ // end addtogroup sl_bt_advertiser_past
 
@@ -4857,8 +5146,10 @@ typedef struct sl_bt_evt_periodic_sync_opened_s sl_bt_evt_periodic_sync_opened_t
 /**
  * @addtogroup sl_bt_evt_periodic_sync_transfer_received sl_bt_evt_periodic_sync_transfer_received
  * @{
- * @brief Indicates that synchronization information for a periodic advertising
- * train that does not have subevents or response slots has been received
+ * @brief Indicates that the device has either successfully synchronized or
+ * timed out while trying to synchronize after Periodic Advertising
+ * Synchronization Transfer (PAST) was received for a periodic advertising train
+ * that does not have subevents or response slots
  *
  * See @ref sl_bt_past_receiver.
  */
@@ -5107,8 +5398,10 @@ typedef struct sl_bt_evt_pawr_sync_opened_s sl_bt_evt_pawr_sync_opened_t;
 /**
  * @addtogroup sl_bt_evt_pawr_sync_transfer_received sl_bt_evt_pawr_sync_transfer_received
  * @{
- * @brief Indicates that synchronization information for Periodic Advertising
- * with Responses (PAwR) train has been received
+ * @brief Indicates that the device has either successfully synchronized or
+ * timed out while trying to synchronize after Periodic Advertising
+ * Synchronization Transfer (PAST) was received for a Periodic Advertising with
+ * Responses (PAwR) train
  *
  * See @ref sl_bt_past_receiver.
  */
@@ -5126,8 +5419,18 @@ PACKSTRUCT( struct sl_bt_evt_pawr_sync_transfer_received_s
                                        the sync failed to get established. */
   uint16_t sync;                  /**< PAwR synchronization handle */
   uint16_t service_data;          /**< A value provided by the peer device. */
-  uint8_t  connection;            /**< Connection handle of the connection that
-                                       transferred the sync info */
+  uint8_t  connection;            /**< The connection handle of the connection
+                                       that transferred the sync info, if the
+                                       sync info was received over a connection.
+                                       Values:
+                                         - <b>SL_BT_INVALID_CONNECTION_HANDLE
+                                           (0xff):</b> The synchronization
+                                           information was received over a
+                                           periodic advertising sync identified
+                                           by @p receiving_sync.
+                                         - <b>Other:</b> The connection handle
+                                           of the connection that transferred
+                                           the synchronization information. */
   uint8_t  adv_sid;               /**< Advertising set identifier */
   bd_addr  address;               /**< Address of the advertiser */
   uint8_t  address_type;          /**< Enum @ref sl_bt_gap_address_type_t.
@@ -5199,6 +5502,20 @@ PACKSTRUCT( struct sl_bt_evt_pawr_sync_transfer_received_s
                                          - <b>SL_BT_INVALID_BONDING_HANDLE
                                            (0xff):</b> No bonding
                                          - <b>Other:</b> Bonding handle */
+  uint16_t receiving_sync;        /**< The sync handle of the periodic
+                                       advertising train that transferred the
+                                       synchronization information, if the sync
+                                       info was received over periodic
+                                       advertising. Values:
+                                         - <b>SL_BT_INVALID_SYNC_HANDLE
+                                           (0xffff):</b> The synchronization
+                                           information was received over a
+                                           connection identified by @p
+                                           connection.
+                                         - <b>Other:</b> The sync handle of the
+                                           periodic advertising train that
+                                           transferred the synchronization
+                                           information. */
 });
 
 typedef struct sl_bt_evt_pawr_sync_transfer_received_s sl_bt_evt_pawr_sync_transfer_received_t;
@@ -5347,10 +5664,12 @@ sl_status_t sl_bt_pawr_sync_set_response_data(uint16_t sync,
 
 /* Command and Response IDs */
 #define sl_bt_cmd_pawr_advertiser_start_id                           0x00550020
+#define sl_bt_cmd_pawr_advertiser_change_parameters_id               0x04550020
 #define sl_bt_cmd_pawr_advertiser_set_subevent_data_id               0x01550020
 #define sl_bt_cmd_pawr_advertiser_create_connection_id               0x02550020
 #define sl_bt_cmd_pawr_advertiser_stop_id                            0x03550020
 #define sl_bt_rsp_pawr_advertiser_start_id                           0x00550020
+#define sl_bt_rsp_pawr_advertiser_change_parameters_id               0x04550020
 #define sl_bt_rsp_pawr_advertiser_set_subevent_data_id               0x01550020
 #define sl_bt_rsp_pawr_advertiser_create_connection_id               0x02550020
 #define sl_bt_rsp_pawr_advertiser_stop_id                            0x03550020
@@ -5574,6 +5893,97 @@ sl_status_t sl_bt_pawr_advertiser_start(uint8_t advertising_set,
                                         uint8_t response_slot_delay,
                                         uint8_t response_slot_spacing,
                                         uint8_t response_slots);
+
+/***************************************************************************//**
+ *
+ * Change the parameters of an active PAwR advertising train.
+ *
+ * Use this command to change the parameters of an active PAwR advertising
+ * train. Changing the parameters is considered a form of Periodic Advertising
+ * Synchronization Transfer (PAST). The sync information for the new parameters
+ * will be sent over the current PAwR train @p repeat_count times to the synced
+ * devices that listen to the specifiec subevents. If a device that has
+ * synchronized to the train has chosen not to synchronize to sync info received
+ * over the train (see commands @ref
+ * sl_bt_past_receiver_set_default_sync_receive_over_sync_parameters and @ref
+ * sl_bt_past_receiver_set_sync_receive_over_sync_parameters) or fails to
+ * receive every transmission of the new sync info, the synchronized device will
+ * lose sync and needs to re-acquire it by scanning for sync (see @ref
+ * sl_bt_sync_scanner) or by receiving Periodic Advertising Synchronization
+ * Transfer (see @ref sl_bt_past_receiver).
+ *
+ * To stop PAwR advertising, use @ref sl_bt_pawr_advertiser_stop command.
+ *
+ * @param[in] advertising_set The PAwR advertising set handle
+ * @param[in] interval_min @parblock
+ *   The new value for minimum periodic advertising interval. Value in units of
+ *   1.25 ms.
+ *     - <b>Range:</b> 0x06 to 0xFFFF
+ *
+ *     - Time range: 7.5 ms to 81.92 s
+ *
+ *     - <b>Default</b> : 100 ms
+ *   @endparblock
+ * @param[in] interval_max The new value for maximum periodic advertising
+ *   interval. Value in units of 1.25 ms.
+ *     - Time range: 7.5 ms to 81.92 s
+ *     - Note: interval_max should be bigger than interval_min
+ * @param[in] flags Additional periodic advertising options. Value: 0 or bitmask
+ *   of @ref sl_bt_periodic_advertiser_flags. The following flags are valid for
+ *   this command:
+ *     - <b>@ref SL_BT_PERIODIC_ADVERTISER_INCLUDE_TX_POWER (0x1):</b> Include
+ *       the TX power in advertising packets.
+ * @param[in] num_subevents The new value for the number of subevents.
+ *     - <b>Range:</b> 0x01 to 0x80
+ * @param[in] subevent_interval @parblock
+ *   The new value for subevent interval. Value in units of 1.25 ms.
+ *     - <b>Range:</b> 0x06 to 0xFF
+ *
+ *     - Time range: 7.5 ms to 318.75 ms
+ *   @endparblock
+ * @param[in] response_slot_delay @parblock
+ *   The new value for time between the advertising packet in a subevent and the
+ *   first response slot. Value in units of 1.25 ms.
+ *     - <b>Range:</b> 0x01 to 0xFE
+ *
+ *     - Time range: 1.25 ms to 317.5 ms
+ *   @endparblock
+ * @param[in] response_slot_spacing @parblock
+ *   The new value for time between response slots. Value in units of 0.125 ms.
+ *     - <b>Range:</b> 0x02 to 0xFF
+ *
+ *     - Time range: 0.25 ms to 31.875 ms
+ *   @endparblock
+ * @param[in] response_slots The new value for number of subevent response
+ *   slots.
+ *     - <b>Range:</b> 0x01 to 0xFF
+ * @param[in] phy @parblock
+ *   Enum @ref sl_bt_gap_phy_t. The new PHY on which the periodic advertising
+ *   packets will be transmitted. Values:
+ *     - <b>sl_bt_gap_phy_1m (0x1):</b> 1M PHY
+ *     - <b>sl_bt_gap_phy_2m (0x2):</b> 2M PHY
+ *     - <b>sl_bt_gap_phy_coded (0x4):</b> Coded PHY, 125k (S=8)
+ *
+ *     - <b>Default</b> : @ref sl_bt_gap_phy_1m
+ *   @endparblock
+ * @param[in] repeat_count The number of times the new train parameters are sent
+ *   on all subevents before the new parameters are taken into use.
+ *     - <b>Range:</b> 0x06 to 0xFF
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_pawr_advertiser_change_parameters(uint8_t advertising_set,
+                                                    uint16_t interval_min,
+                                                    uint16_t interval_max,
+                                                    uint32_t flags,
+                                                    uint8_t num_subevents,
+                                                    uint8_t subevent_interval,
+                                                    uint8_t response_slot_delay,
+                                                    uint8_t response_slot_spacing,
+                                                    uint8_t response_slots,
+                                                    uint8_t phy,
+                                                    uint8_t repeat_count);
 
 /***************************************************************************//**
  *
@@ -7390,8 +7800,10 @@ sl_status_t sl_bt_connection_get_remote_address(uint8_t connection,
  *
  *     - Time = Value x 10 ms
  *     - Time Range: 100 ms to 32 s
- *     - The value in milliseconds must be larger than (1 + @p max_latency) * @p
- *       max_interval * 2, where @p max_interval is given in milliseconds
+ *     - The value in milliseconds must be larger than (1 + @p max_latency) *
+ *       factor * @p max_interval * 1.25 * 2. The factor is @p max_subrate if
+ *       the central requests the subrating, or @p min_subrate if the peripheral
+ *       requests the subrating.
  *
  *   Set the supervision timeout at a value which allows communication attempts
  *   over at least a few connection intervals.
@@ -7501,16 +7913,16 @@ sl_status_t sl_bt_connection_forcefully_close(uint8_t connection);
 #define sl_bt_cmd_gatt_send_characteristic_confirmation_id           0x0d090020
 #define sl_bt_cmd_gatt_read_characteristic_value_id                  0x07090020
 #define sl_bt_cmd_gatt_read_characteristic_value_from_offset_id      0x12090020
-#define sl_bt_cmd_gatt_read_multiple_characteristic_values_id        0x11090020
-#define sl_bt_cmd_gatt_read_variable_length_characteristic_values_id 0x16090020
+#define sl_bt_cmd_gatt_read_multiple_characteristic_values_id        0x17090020
+#define sl_bt_cmd_gatt_read_variable_length_characteristic_values_id 0x18090020
 #define sl_bt_cmd_gatt_read_characteristic_value_by_uuid_id          0x08090020
-#define sl_bt_cmd_gatt_write_characteristic_value_id                 0x09090020
-#define sl_bt_cmd_gatt_write_characteristic_value_without_response_id 0x0a090020
-#define sl_bt_cmd_gatt_prepare_characteristic_value_write_id         0x0b090020
-#define sl_bt_cmd_gatt_prepare_characteristic_value_reliable_write_id 0x13090020
+#define sl_bt_cmd_gatt_write_characteristic_value_id                 0x19090020
+#define sl_bt_cmd_gatt_write_characteristic_value_without_response_id 0x1a090020
+#define sl_bt_cmd_gatt_prepare_characteristic_value_write_id         0x1b090020
+#define sl_bt_cmd_gatt_prepare_characteristic_value_reliable_write_id 0x1c090020
 #define sl_bt_cmd_gatt_execute_characteristic_value_write_id         0x0c090020
 #define sl_bt_cmd_gatt_read_descriptor_value_id                      0x0e090020
-#define sl_bt_cmd_gatt_write_descriptor_value_id                     0x0f090020
+#define sl_bt_cmd_gatt_write_descriptor_value_id                     0x1d090020
 #define sl_bt_cmd_gatt_get_mtu_id                                    0x15090020
 #define sl_bt_rsp_gatt_set_max_mtu_id                                0x00090020
 #define sl_bt_rsp_gatt_discover_primary_services_id                  0x01090020
@@ -7524,16 +7936,16 @@ sl_status_t sl_bt_connection_forcefully_close(uint8_t connection);
 #define sl_bt_rsp_gatt_send_characteristic_confirmation_id           0x0d090020
 #define sl_bt_rsp_gatt_read_characteristic_value_id                  0x07090020
 #define sl_bt_rsp_gatt_read_characteristic_value_from_offset_id      0x12090020
-#define sl_bt_rsp_gatt_read_multiple_characteristic_values_id        0x11090020
-#define sl_bt_rsp_gatt_read_variable_length_characteristic_values_id 0x16090020
+#define sl_bt_rsp_gatt_read_multiple_characteristic_values_id        0x17090020
+#define sl_bt_rsp_gatt_read_variable_length_characteristic_values_id 0x18090020
 #define sl_bt_rsp_gatt_read_characteristic_value_by_uuid_id          0x08090020
-#define sl_bt_rsp_gatt_write_characteristic_value_id                 0x09090020
-#define sl_bt_rsp_gatt_write_characteristic_value_without_response_id 0x0a090020
-#define sl_bt_rsp_gatt_prepare_characteristic_value_write_id         0x0b090020
-#define sl_bt_rsp_gatt_prepare_characteristic_value_reliable_write_id 0x13090020
+#define sl_bt_rsp_gatt_write_characteristic_value_id                 0x19090020
+#define sl_bt_rsp_gatt_write_characteristic_value_without_response_id 0x1a090020
+#define sl_bt_rsp_gatt_prepare_characteristic_value_write_id         0x1b090020
+#define sl_bt_rsp_gatt_prepare_characteristic_value_reliable_write_id 0x1c090020
 #define sl_bt_rsp_gatt_execute_characteristic_value_write_id         0x0c090020
 #define sl_bt_rsp_gatt_read_descriptor_value_id                      0x0e090020
-#define sl_bt_rsp_gatt_write_descriptor_value_id                     0x0f090020
+#define sl_bt_rsp_gatt_write_descriptor_value_id                     0x1d090020
 #define sl_bt_rsp_gatt_get_mtu_id                                    0x15090020
 
 /**
@@ -7715,7 +8127,7 @@ typedef struct sl_bt_evt_gatt_descriptor_s sl_bt_evt_gatt_descriptor_t;
  */
 
 /** @brief Identifier of the characteristic_value event */
-#define sl_bt_evt_gatt_characteristic_value_id                       0x040900a0
+#define sl_bt_evt_gatt_characteristic_value_id                       0x070900a0
 
 /***************************************************************************//**
  * @brief Data structure of the characteristic_value event
@@ -7730,7 +8142,7 @@ PACKSTRUCT( struct sl_bt_evt_gatt_characteristic_value_s
                                   opcode, which indicates the GATT transaction
                                   used. */
   uint16_t   offset;         /**< Value offset */
-  uint8array value;          /**< Characteristic value */
+  byte_array value;          /**< Characteristic value */
 });
 
 typedef struct sl_bt_evt_gatt_characteristic_value_s sl_bt_evt_gatt_characteristic_value_t;
@@ -7747,7 +8159,7 @@ typedef struct sl_bt_evt_gatt_characteristic_value_s sl_bt_evt_gatt_characterist
  */
 
 /** @brief Identifier of the descriptor_value event */
-#define sl_bt_evt_gatt_descriptor_value_id                           0x050900a0
+#define sl_bt_evt_gatt_descriptor_value_id                           0x080900a0
 
 /***************************************************************************//**
  * @brief Data structure of the descriptor_value event
@@ -7757,7 +8169,7 @@ PACKSTRUCT( struct sl_bt_evt_gatt_descriptor_value_s
   uint8_t    connection; /**< Connection handle */
   uint16_t   descriptor; /**< GATT characteristic descriptor handle */
   uint16_t   offset;     /**< Value offset */
-  uint8array value;      /**< Descriptor value */
+  byte_array value;      /**< Descriptor value */
 });
 
 typedef struct sl_bt_evt_gatt_descriptor_value_s sl_bt_evt_gatt_descriptor_value_t;
@@ -9220,17 +9632,19 @@ sl_status_t sl_bt_gattdb_get_attribute_state(uint16_t attribute,
 #define sl_bt_cmd_gatt_server_get_mtu_id                             0x0b0a0020
 #define sl_bt_cmd_gatt_server_find_attribute_id                      0x060a0020
 #define sl_bt_cmd_gatt_server_find_primary_service_id                0x090a0020
-#define sl_bt_cmd_gatt_server_read_attribute_value_id                0x000a0020
+#define sl_bt_cmd_gatt_server_read_attribute_value_id                0x160a0020
 #define sl_bt_cmd_gatt_server_read_attribute_type_id                 0x010a0020
 #define sl_bt_cmd_gatt_server_read_attribute_properties_id           0x050a0020
-#define sl_bt_cmd_gatt_server_write_attribute_value_id               0x020a0020
-#define sl_bt_cmd_gatt_server_send_user_read_response_id             0x030a0020
+#define sl_bt_cmd_gatt_server_write_attribute_value_id               0x170a0020
+#define sl_bt_cmd_gatt_server_send_user_read_response_id             0x180a0020
 #define sl_bt_cmd_gatt_server_send_user_write_response_id            0x040a0020
-#define sl_bt_cmd_gatt_server_send_notification_id                   0x0f0a0020
-#define sl_bt_cmd_gatt_server_send_indication_id                     0x100a0020
-#define sl_bt_cmd_gatt_server_notify_all_id                          0x110a0020
+#define sl_bt_cmd_gatt_server_send_notification_id                   0x190a0020
+#define sl_bt_cmd_gatt_server_send_notification_with_options_id      0x1d0a0020
+#define sl_bt_cmd_gatt_server_send_indication_id                     0x1a0a0020
+#define sl_bt_cmd_gatt_server_send_indication_with_options_id        0x1e0a0020
+#define sl_bt_cmd_gatt_server_notify_all_id                          0x1b0a0020
 #define sl_bt_cmd_gatt_server_read_client_configuration_id           0x120a0020
-#define sl_bt_cmd_gatt_server_send_user_prepare_write_response_id    0x140a0020
+#define sl_bt_cmd_gatt_server_send_user_prepare_write_response_id    0x1c0a0020
 #define sl_bt_cmd_gatt_server_set_capabilities_id                    0x080a0020
 #define sl_bt_cmd_gatt_server_enable_capabilities_id                 0x0c0a0020
 #define sl_bt_cmd_gatt_server_disable_capabilities_id                0x0d0a0020
@@ -9240,17 +9654,19 @@ sl_status_t sl_bt_gattdb_get_attribute_state(uint16_t attribute,
 #define sl_bt_rsp_gatt_server_get_mtu_id                             0x0b0a0020
 #define sl_bt_rsp_gatt_server_find_attribute_id                      0x060a0020
 #define sl_bt_rsp_gatt_server_find_primary_service_id                0x090a0020
-#define sl_bt_rsp_gatt_server_read_attribute_value_id                0x000a0020
+#define sl_bt_rsp_gatt_server_read_attribute_value_id                0x160a0020
 #define sl_bt_rsp_gatt_server_read_attribute_type_id                 0x010a0020
 #define sl_bt_rsp_gatt_server_read_attribute_properties_id           0x050a0020
-#define sl_bt_rsp_gatt_server_write_attribute_value_id               0x020a0020
-#define sl_bt_rsp_gatt_server_send_user_read_response_id             0x030a0020
+#define sl_bt_rsp_gatt_server_write_attribute_value_id               0x170a0020
+#define sl_bt_rsp_gatt_server_send_user_read_response_id             0x180a0020
 #define sl_bt_rsp_gatt_server_send_user_write_response_id            0x040a0020
-#define sl_bt_rsp_gatt_server_send_notification_id                   0x0f0a0020
-#define sl_bt_rsp_gatt_server_send_indication_id                     0x100a0020
-#define sl_bt_rsp_gatt_server_notify_all_id                          0x110a0020
+#define sl_bt_rsp_gatt_server_send_notification_id                   0x190a0020
+#define sl_bt_rsp_gatt_server_send_notification_with_options_id      0x1d0a0020
+#define sl_bt_rsp_gatt_server_send_indication_id                     0x1a0a0020
+#define sl_bt_rsp_gatt_server_send_indication_with_options_id        0x1e0a0020
+#define sl_bt_rsp_gatt_server_notify_all_id                          0x1b0a0020
 #define sl_bt_rsp_gatt_server_read_client_configuration_id           0x120a0020
-#define sl_bt_rsp_gatt_server_send_user_prepare_write_response_id    0x140a0020
+#define sl_bt_rsp_gatt_server_send_user_prepare_write_response_id    0x1c0a0020
 #define sl_bt_rsp_gatt_server_set_capabilities_id                    0x080a0020
 #define sl_bt_rsp_gatt_server_enable_capabilities_id                 0x0c0a0020
 #define sl_bt_rsp_gatt_server_disable_capabilities_id                0x0d0a0020
@@ -9294,6 +9710,25 @@ typedef enum
 } sl_bt_gatt_server_characteristic_status_flag_t;
 
 /**
+ * @addtogroup sl_bt_gatt_server_send_option GATT Send Options
+ * @{
+ *
+ * Defines the option flags used with @ref
+ * sl_bt_gatt_server_send_notification_with_options and @ref
+ * sl_bt_gatt_server_send_indication_with_options.
+ */
+
+/** Perform the standard notification or indication procedure. */
+#define SL_BT_GATT_SERVER_SEND_OPTION_NONE        0x0       
+
+/** Send the notification or indication regardless of whether the corresponding
+ * configuration in the Client Characteristic Configuration of the connected
+ * client has been set. */
+#define SL_BT_GATT_SERVER_SEND_OPTION_IGNORE_CCCD 0x1       
+
+/** @} */ // end GATT Send Options
+
+/**
  * @addtogroup sl_bt_evt_gatt_server_attribute_value sl_bt_evt_gatt_server_attribute_value
  * @{
  * @brief Indicates that the value of an attribute in the local GATT database
@@ -9304,7 +9739,7 @@ typedef enum
  */
 
 /** @brief Identifier of the attribute_value event */
-#define sl_bt_evt_gatt_server_attribute_value_id                     0x000a00a0
+#define sl_bt_evt_gatt_server_attribute_value_id                     0x070a00a0
 
 /***************************************************************************//**
  * @brief Data structure of the attribute_value event
@@ -9317,7 +9752,7 @@ PACKSTRUCT( struct sl_bt_evt_gatt_server_attribute_value_s
                               opcode that informs the procedure from which the
                               value was received. */
   uint16_t   offset;     /**< Value offset */
-  uint8array value;      /**< Value */
+  byte_array value;      /**< Value */
 });
 
 typedef struct sl_bt_evt_gatt_server_attribute_value_s sl_bt_evt_gatt_server_attribute_value_t;
@@ -9385,7 +9820,7 @@ typedef struct sl_bt_evt_gatt_server_user_read_request_s sl_bt_evt_gatt_server_u
  */
 
 /** @brief Identifier of the user_write_request event */
-#define sl_bt_evt_gatt_server_user_write_request_id                  0x020a00a0
+#define sl_bt_evt_gatt_server_user_write_request_id                  0x080a00a0
 
 /***************************************************************************//**
  * @brief Data structure of the user_write_request event
@@ -9400,7 +9835,7 @@ PACKSTRUCT( struct sl_bt_evt_gatt_server_user_write_request_s
                                   opcode that informs the procedure from which
                                   the value was received. */
   uint16_t   offset;         /**< Value offset */
-  uint8array value;          /**< Value */
+  byte_array value;          /**< Value */
 });
 
 typedef struct sl_bt_evt_gatt_server_user_write_request_s sl_bt_evt_gatt_server_user_write_request_t;
@@ -9821,15 +10256,21 @@ sl_status_t sl_bt_gatt_server_send_user_write_response(uint8_t connection,
 
 /***************************************************************************//**
  *
- * Send a notification to a remote GATT client. At most, ATT_MTU - 3 number of
- * bytes can be sent in a notification. An error SL_STATUS_COMMAND_TOO_LONG is
- * returned if the value length exceeds ATT_MTU - 3.
+ * Send a standard notification to a remote GATT client. Use @ref
+ * sl_bt_gatt_server_send_notification_with_options to send a notification with
+ * specific options.
+ *
+ * At most, ATT_MTU - 3 number of bytes can be sent in a notification. The error
+ * SL_STATUS_COMMAND_TOO_LONG is returned if the value length exceeds ATT_MTU -
+ * 3.
+ *
+ * The error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does
+ * not have the notification property.
  *
  * A notification is sent only if the client has enabled it by setting the
- * corresponding flag to the Client Characteristic Configuration descriptor. The
- * error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does not
- * have the notification property. The error SL_STATUS_INVALID_STATE is returned
- * if the client has not enabled the notification.
+ * corresponding flag to the Client Characteristic Configuration Descriptor. The
+ * error SL_STATUS_INVALID_STATE is returned if the client has not enabled the
+ * notification.
  *
  * @param[in] connection A handle of the connection over which the notification
  *   is sent.
@@ -9847,21 +10288,63 @@ sl_status_t sl_bt_gatt_server_send_notification(uint8_t connection,
 
 /***************************************************************************//**
  *
- * Send an indication to a remote GATT client. At most, ATT_MTU - 3 number of
- * bytes can be sent in an indication. An error SL_STATUS_COMMAND_TOO_LONG is
- * returned if the value length exceeds ATT_MTU - 3.
+ * Send a notification to a remote GATT client with specific options. This
+ * command behaves identically to @ref sl_bt_gatt_server_send_notification if @p
+ * options is set to @p SL_BT_GATT_SERVER_SEND_OPTION_NONE.
+ *
+ * At most, ATT_MTU - 3 number of bytes can be sent in a notification. The error
+ * SL_STATUS_COMMAND_TOO_LONG is returned if the value length exceeds ATT_MTU -
+ * 3.
+ *
+ * The error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does
+ * not have the notification property.
+ *
+ * If @ref SL_BT_GATT_SERVER_SEND_OPTION_IGNORE_CCCD is set in @p options, the
+ * notification is sent regardless of whether the client has enabled it. If @ref
+ * SL_BT_GATT_SERVER_SEND_OPTION_IGNORE_CCCD is not set in @p options, the error
+ * SL_STATUS_INVALID_STATE is returned if the client has not enabled the
+ * notification by setting the corresponding flag to the Client Characteristic
+ * Configuration Descriptor.
+ *
+ * @param[in] connection A handle of the connection over which the notification
+ *   is sent.
+ * @param[in] characteristic Characteristic handle
+ * @param[in] options Options for sending the notification. This value is a
+ *   bitmask of @ref sl_bt_gatt_server_send_option flags.
+ * @param[in] value_len Length of data in @p value
+ * @param[in] value Value to be notified
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_gatt_server_send_notification_with_options(uint8_t connection,
+                                                             uint16_t characteristic,
+                                                             uint32_t options,
+                                                             size_t value_len,
+                                                             const uint8_t* value);
+
+/***************************************************************************//**
+ *
+ * Send a standard indication to a remote GATT client. Use @ref
+ * sl_bt_gatt_server_send_indication_with_options to send an indication with
+ * specific options.
+ *
+ * At most, ATT_MTU - 3 number of bytes can be sent in an indication. The error
+ * SL_STATUS_COMMAND_TOO_LONG is returned if the value length exceeds ATT_MTU -
+ * 3.
+ *
+ * The error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does
+ * not have the indication property.
  *
  * An indication is sent only if the client has enabled it by setting the
- * corresponding flag to the Client Characteristic Configuration descriptor. The
- * error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does not
- * have the indication property. The error SL_STATUS_INVALID_STATE is returned
- * if the client has not enabled the indication.
+ * corresponding flag to the Client Characteristic Configuration Descriptor. The
+ * error SL_STATUS_INVALID_STATE is returned if the client has not enabled the
+ * indication.
  *
  * A new indication to a GATT client can't be sent until an outstanding
  * indication procedure with the same client has completed. The procedure is
  * completed when a confirmation from the client is received. The confirmation
- * is indicated by @ref sl_bt_evt_gatt_server_characteristic_status.
- *
+ * is reported by the @ref sl_bt_evt_gatt_server_characteristic_status event.
  * The error SL_STATUS_IN_PROGRESS is returned if an indication procedure with
  * the same client is outstanding. Always wait for confirmation for previous
  * indication before sending a new indication.
@@ -9890,17 +10373,63 @@ sl_status_t sl_bt_gatt_server_send_indication(uint8_t connection,
 
 /***************************************************************************//**
  *
- * Send notifications or indications to all connected remote GATT clients. At
- * most, ATT_MTU - 3 number of bytes can be sent in a notification or
+ * Send an indication to a remote GATT client with specific options. This
+ * command behaves identically to @ref sl_bt_gatt_server_send_indication if @p
+ * options is set to @p SL_BT_GATT_SERVER_SEND_OPTION_NONE (0).
+ *
+ * At most, ATT_MTU - 3 number of bytes can be sent in an indication. The error
+ * SL_STATUS_COMMAND_TOO_LONG is returned if the value length exceeds ATT_MTU -
+ * 3.
+ *
+ * The error SL_STATUS_INVALID_PARAMETER is returned if the characteristic does
+ * not have the indication property.
+ *
+ * If @ref SL_BT_GATT_SERVER_SEND_OPTION_IGNORE_CCCD is set in @p options, the
+ * indication is sent regardless of whether the client has enabled it. If @ref
+ * SL_BT_GATT_SERVER_SEND_OPTION_IGNORE_CCCD is not set in @p options, the error
+ * SL_STATUS_INVALID_STATE is returned if the client has not enabled the
+ * indication by setting the corresponding flag to the Client Characteristic
+ * Configuration Descriptor.
+ *
+ * A new indication to a GATT client can't be sent until an outstanding
+ * indication procedure with the same client has completed. The procedure is
+ * completed when a confirmation from the client is received. The confirmation
+ * is reported by the @ref sl_bt_evt_gatt_server_characteristic_status event.
+ * The error SL_STATUS_IN_PROGRESS is returned if an indication procedure with
+ * the same client is outstanding. Always wait for confirmation for previous
+ * indication before sending a new indication.
+ *
+ * @param[in] connection A handle of the connection over which the indication is
+ *   sent.
+ * @param[in] characteristic Characteristic handle
+ * @param[in] options Options for sending the indication. This value is a
+ *   bitmask of @ref sl_bt_gatt_server_send_option flags.
+ * @param[in] value_len Length of data in @p value
+ * @param[in] value Value to be indicated
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_gatt_server_send_indication_with_options(uint8_t connection,
+                                                           uint16_t characteristic,
+                                                           uint32_t options,
+                                                           size_t value_len,
+                                                           const uint8_t* value);
+
+/***************************************************************************//**
+ *
+ * Send notifications or indications to all connected remote GATT clients.
+ *
+ * At most, ATT_MTU - 3 number of bytes can be sent in a notification or
  * indication. If the value length exceeds the limit on a connection, the first
  * ATT_MTU - 3 bytes will be sent and rest of data is ignored.
  *
  * A notification or indication is sent only if the client has enabled it by
  * setting the corresponding flag to the Client Characteristic Configuration
- * descriptor. If the Client Characteristic Configuration descriptor supports
+ * Descriptor. If the Client Characteristic Configuration Descriptor supports
  * both notifications and indications, the stack will always send a notification
  * even when the client has enabled both. This command will not return an error
- * if some clients fail to be notified. Iterate @ref
+ * if some clients fail to be notified or indicated. Iterate @ref
  * sl_bt_gatt_server_send_notification or @ref sl_bt_gatt_server_send_indication
  * on each connection if the application needs to check that the notification or
  * indication was sent to each client.
@@ -9908,8 +10437,8 @@ sl_status_t sl_bt_gatt_server_send_indication(uint8_t connection,
  * A new indication to a GATT client can't be sent until an outstanding
  * indication procedure with the same client has completed, and the operation
  * will continue for the next client. The procedure is completed when a
- * confirmation from the client is received. The confirmation is indicated by
- * @ref sl_bt_evt_gatt_server_characteristic_status.
+ * confirmation from the client is received. The confirmation is reported by the
+ * @ref sl_bt_evt_gatt_server_characteristic_status event.
  *
  * @param[in] characteristic Characteristic handle
  * @param[in] value_len Length of data in @p value
@@ -11302,7 +11831,7 @@ sl_status_t sl_bt_sm_set_remote_oob(uint8_t enable,
  * (bluetooth_feature_builtin_bonding_database) and the address resolving in the
  * Bluetooth stack are excluded. The user application and external bonding
  * database are responsible for the following functionalities:
- *   - The external bonding database must be able to reliably and permanently
+ *   - The external bonding database must be able to reliably and persistently
  *     store the bonding data and type tuples that are provided by the stack in
  *     the @ref sl_bt_evt_external_bondingdb_data_request event. Data types @ref
  *     sl_bt_external_bondingdb_data_remote_address and @ref
@@ -11335,6 +11864,12 @@ sl_status_t sl_bt_sm_set_remote_oob(uint8_t enable,
  *     possible until all requested bonding data has been sent to the stack. The
  *     stack will send @ref sl_bt_evt_external_bondingdb_data_ready when it has
  *     received all the necessary bonding data from the application.
+ *   - If external local IRK option has been enabled in the component
+ *     configuration, the application is also responsible for storing the local
+ *     IRK. When the Bluetooth stack requires local IRK, it will send an @ref
+ *     sl_bt_evt_external_bondingdb_local_irk_request event. The application
+ *     must respond to the request by sending the data value using the @ref
+ *     sl_bt_external_bondingdb_set_local_irk command.
  *
  * In this configuration, the value of @p bonding parameter in @ref
  * sl_bt_evt_advertiser_scan_request, @ref sl_bt_evt_connection_opened, @ref
@@ -11355,7 +11890,9 @@ sl_status_t sl_bt_sm_set_remote_oob(uint8_t enable,
 
 /* Command and Response IDs */
 #define sl_bt_cmd_external_bondingdb_set_data_id                     0x005c0020
+#define sl_bt_cmd_external_bondingdb_set_local_irk_id                0x015c0020
 #define sl_bt_rsp_external_bondingdb_set_data_id                     0x005c0020
+#define sl_bt_rsp_external_bondingdb_set_local_irk_id                0x015c0020
 
 /**
  * @brief These values define the bonding data types, which are stored in the
@@ -11379,17 +11916,22 @@ typedef enum
                                                                  device address
                                                                  and 1 is static
                                                                  device address */
-  sl_bt_external_bondingdb_data_remote_ltk           = 0x2, /**< (0x2) Long Term
-                                                                 Key (LTK) used
-                                                                 as central
+  sl_bt_external_bondingdb_data_remote_ltk           = 0x2, /**< (0x2) 16-byte
+                                                                 Long Term Key
+                                                                 (LTK) in little
+                                                                 endian format
+                                                                 used as central
                                                                  device. The
                                                                  value of this
                                                                  type must be
                                                                  stored
                                                                  securely. */
-  sl_bt_external_bondingdb_data_local_ltk            = 0x3, /**< (0x3) Long Term
-                                                                 Key (LTK) used
-                                                                 as peripheral
+  sl_bt_external_bondingdb_data_local_ltk            = 0x3, /**< (0x3) 16-byte
+                                                                 Long Term Key
+                                                                 (LTK) in little
+                                                                 endian format
+                                                                 used as
+                                                                 peripheral
                                                                  device. The
                                                                  value of this
                                                                  type must be
@@ -11403,10 +11945,13 @@ typedef enum
                                                                  Identification
                                                                  info used as a
                                                                  central device */
-  sl_bt_external_bondingdb_data_irk                  = 0x6, /**< (0x6) Identity
+  sl_bt_external_bondingdb_data_irk                  = 0x6, /**< (0x6) 16-byte
+                                                                 Identity
                                                                  Resolving Key
                                                                  (IRK) of the
                                                                  remote device
+                                                                 in little
+                                                                 endian format
                                                                  that is used
                                                                  for resolving
                                                                  its RPA
@@ -11474,13 +12019,13 @@ PACKSTRUCT( struct sl_bt_evt_external_bondingdb_data_request_s
                                address. Value 0 is public device address and 1
                                is static device address
                              - <b>sl_bt_external_bondingdb_data_remote_ltk
-                               (0x2):</b> Long Term Key (LTK) used as central
-                               device. The value of this type must be stored
-                               securely.
+                               (0x2):</b> 16-byte Long Term Key (LTK) in little
+                               endian format used as central device. The value
+                               of this type must be stored securely.
                              - <b>sl_bt_external_bondingdb_data_local_ltk
-                               (0x3):</b> Long Term Key (LTK) used as peripheral
-                               device. The value of this type must be stored
-                               securely.
+                               (0x3):</b> 16-byte Long Term Key (LTK) in little
+                               endian format used as peripheral device. The
+                               value of this type must be stored securely.
                              - <b>sl_bt_external_bondingdb_data_remote_central_inf
                                (0x4):</b> Identification info used as a central
                                device
@@ -11488,10 +12033,11 @@ PACKSTRUCT( struct sl_bt_evt_external_bondingdb_data_request_s
                                (0x5):</b> Identification info used as a central
                                device
                              - <b>sl_bt_external_bondingdb_data_irk (0x6):</b>
-                               Identity Resolving Key (IRK) of the remote device
-                               that is used for resolving its RPA addresses when
-                               the device is in privacy mode. The value of this
-                               type must be stored securely.
+                               16-byte Identity Resolving Key (IRK) of the
+                               remote device in little endian format that is
+                               used for resolving its RPA addresses when the
+                               device is in privacy mode. The value of this type
+                               must be stored securely.
                              - <b>sl_bt_external_bondingdb_data_meta (0x7):</b>
                                Metadata about the bonding
                              - <b>sl_bt_external_bondingdb_data_gatt_client_config
@@ -11515,7 +12061,7 @@ typedef struct sl_bt_evt_external_bondingdb_data_request_s sl_bt_evt_external_bo
  * @{
  * @brief Indicates that updated bonding data of a connection is available
  *
- * The application must store it in the external bonding database permanently.
+ * The application must store it in the external bonding database persistently.
  */
 
 /** @brief Identifier of the data event */
@@ -11538,13 +12084,15 @@ PACKSTRUCT( struct sl_bt_evt_external_bondingdb_data_s
                                   address. Value 0 is public device address and
                                   1 is static device address
                                 - <b>sl_bt_external_bondingdb_data_remote_ltk
-                                  (0x2):</b> Long Term Key (LTK) used as central
-                                  device. The value of this type must be stored
+                                  (0x2):</b> 16-byte Long Term Key (LTK) in
+                                  little endian format used as central device.
+                                  The value of this type must be stored
                                   securely.
                                 - <b>sl_bt_external_bondingdb_data_local_ltk
-                                  (0x3):</b> Long Term Key (LTK) used as
-                                  peripheral device. The value of this type must
-                                  be stored securely.
+                                  (0x3):</b> 16-byte Long Term Key (LTK) in
+                                  little endian format used as peripheral
+                                  device. The value of this type must be stored
+                                  securely.
                                 - <b>sl_bt_external_bondingdb_data_remote_central_inf
                                   (0x4):</b> Identification info used as a
                                   central device
@@ -11552,10 +12100,11 @@ PACKSTRUCT( struct sl_bt_evt_external_bondingdb_data_s
                                   (0x5):</b> Identification info used as a
                                   central device
                                 - <b>sl_bt_external_bondingdb_data_irk
-                                  (0x6):</b> Identity Resolving Key (IRK) of the
-                                  remote device that is used for resolving its
-                                  RPA addresses when the device is in privacy
-                                  mode. The value of this type must be stored
+                                  (0x6):</b> 16-byte Identity Resolving Key
+                                  (IRK) of the remote device in little endian
+                                  format that is used for resolving its RPA
+                                  addresses when the device is in privacy mode.
+                                  The value of this type must be stored
                                   securely.
                                 - <b>sl_bt_external_bondingdb_data_meta
                                   (0x7):</b> Metadata about the bonding
@@ -11598,6 +12147,46 @@ typedef struct sl_bt_evt_external_bondingdb_data_ready_s sl_bt_evt_external_bond
 
 /** @} */ // end addtogroup sl_bt_evt_external_bondingdb_data_ready
 
+/**
+ * @addtogroup sl_bt_evt_external_bondingdb_local_irk_request sl_bt_evt_external_bondingdb_local_irk_request
+ * @{
+ * @brief Indicates that the Bluetooth stack requests the local Identity
+ * Resolving Key (IRK) data from the external bonding database
+ *
+ * The application must respond by setting local IRK data using the @ref
+ * sl_bt_external_bondingdb_set_local_irk command.
+ */
+
+/** @brief Identifier of the local_irk_request event */
+#define sl_bt_evt_external_bondingdb_local_irk_request_id            0x035c00a0
+
+/** @} */ // end addtogroup sl_bt_evt_external_bondingdb_local_irk_request
+
+/**
+ * @addtogroup sl_bt_evt_external_bondingdb_local_irk sl_bt_evt_external_bondingdb_local_irk
+ * @{
+ * @brief Indicates that updated local Identity Resolving Key (IRK) data is
+ * available
+ *
+ * The application must store it in the external bonding database persistently.
+ */
+
+/** @brief Identifier of the local_irk event */
+#define sl_bt_evt_external_bondingdb_local_irk_id                    0x045c00a0
+
+/***************************************************************************//**
+ * @brief Data structure of the local_irk event
+ ******************************************************************************/
+PACKSTRUCT( struct sl_bt_evt_external_bondingdb_local_irk_s
+{
+  uint8array data; /**< 16-byte local Identity Resolving Key (IRK) in little
+                        endian format. */
+});
+
+typedef struct sl_bt_evt_external_bondingdb_local_irk_s sl_bt_evt_external_bondingdb_local_irk_t;
+
+/** @} */ // end addtogroup sl_bt_evt_external_bondingdb_local_irk
+
 /***************************************************************************//**
  *
  * Set bonding data of a connection from the external bonding database. When the
@@ -11609,6 +12198,14 @@ typedef struct sl_bt_evt_external_bondingdb_data_ready_s sl_bt_evt_external_bond
  * Send 0 length data to the stack with this command if the requested data is
  * not available in the external bonding database.
  *
+ * If no bonding data was provided to the stack when requested, it is possible
+ * to send such data later using this command. However, this is only allowed if
+ * no data was given earlier. Once data has been provided, it cannot be updated
+ * or replaced by sending new data. The first bonding data set this way must be
+ * @ref sl_bt_external_bondingdb_data_remote_ltk if the device has central role
+ * or @ref sl_bt_external_bondingdb_data_local_ltk if it has peripheral role.
+ * The Bluetooth stack will request the remaining data normally.
+ *
  * @param[in] connection Connection handle
  * @param[in] type Enum @ref sl_bt_external_bondingdb_data_t. Bonding data type.
  *   Values:
@@ -11618,20 +12215,20 @@ typedef struct sl_bt_evt_external_bondingdb_data_ready_s sl_bt_evt_external_bond
  *     - <b>sl_bt_external_bondingdb_data_remote_address_type (0x1):</b> Type of
  *       the remote device identity address. Value 0 is public device address
  *       and 1 is static device address
- *     - <b>sl_bt_external_bondingdb_data_remote_ltk (0x2):</b> Long Term Key
- *       (LTK) used as central device. The value of this type must be stored
- *       securely.
- *     - <b>sl_bt_external_bondingdb_data_local_ltk (0x3):</b> Long Term Key
- *       (LTK) used as peripheral device. The value of this type must be stored
- *       securely.
+ *     - <b>sl_bt_external_bondingdb_data_remote_ltk (0x2):</b> 16-byte Long
+ *       Term Key (LTK) in little endian format used as central device. The
+ *       value of this type must be stored securely.
+ *     - <b>sl_bt_external_bondingdb_data_local_ltk (0x3):</b> 16-byte Long Term
+ *       Key (LTK) in little endian format used as peripheral device. The value
+ *       of this type must be stored securely.
  *     - <b>sl_bt_external_bondingdb_data_remote_central_inf (0x4):</b>
  *       Identification info used as a central device
  *     - <b>sl_bt_external_bondingdb_data_local_central_inf (0x5):</b>
  *       Identification info used as a central device
- *     - <b>sl_bt_external_bondingdb_data_irk (0x6):</b> Identity Resolving Key
- *       (IRK) of the remote device that is used for resolving its RPA addresses
- *       when the device is in privacy mode. The value of this type must be
- *       stored securely.
+ *     - <b>sl_bt_external_bondingdb_data_irk (0x6):</b> 16-byte Identity
+ *       Resolving Key (IRK) of the remote device in little endian format that
+ *       is used for resolving its RPA addresses when the device is in privacy
+ *       mode. The value of this type must be stored securely.
  *     - <b>sl_bt_external_bondingdb_data_meta (0x7):</b> Metadata about the
  *       bonding
  *     - <b>sl_bt_external_bondingdb_data_gatt_client_config (0x8):</b> The
@@ -11651,6 +12248,34 @@ sl_status_t sl_bt_external_bondingdb_set_data(uint8_t connection,
                                               uint8_t type,
                                               size_t data_len,
                                               const uint8_t* data);
+
+/***************************************************************************//**
+ *
+ * Set local Identity Resolving Key (IRK) data from the external bonding
+ * database. When the Bluetooth stack needs local IRK data, it will send the
+ * request to user application with a @ref
+ * sl_bt_evt_external_bondingdb_local_irk_request event. The application must
+ * respond to the request by sending data using this command.
+ *
+ * Send 0 length data to the stack with this command to generate a new local IRK
+ * if the local IRK data is not available in the external bonding database.
+ *
+ * It is possible to call this function again to replace the local IRK used by
+ * the Bluetooth stack. The application can either give the new key data or send
+ * 0 length data to generate a new key.
+ *
+ * If a new key is generated the stack will send it to the application to be
+ * stored persistently with a @ref sl_bt_evt_external_bondingdb_local_irk event.
+ *
+ * @param[in] irk_len Length of data in @p irk
+ * @param[in] irk 16-byte local Identity Resolving Key (IRK) in little endian
+ *   format or 0 bytes to generate a new key.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_bt_external_bondingdb_set_local_irk(size_t irk_len,
+                                                   const uint8_t* irk);
 
 /** @} */ // end addtogroup sl_bt_external_bondingdb
 
@@ -12764,10 +13389,6 @@ PACKSTRUCT( struct sl_bt_evt_cs_result_s
                                             - <b>Range:</b> 1 to 160 */
   uint8array data;                   /**< The result data is structured as
                                           follows:
-                                            - step_status: 1 octet for each
-                                              num_steps. 0x00 for step scheduled
-                                              and reported. 0xFE for step
-                                              aborted.
                                             - step_mode: 1 octet for each
                                               num_steps. Mode type. Range 0 to
                                               3.
@@ -15026,7 +15647,8 @@ sl_status_t sl_bt_cte_receiver_set_sync_cte_type(uint8_t sync_cte_type);
  *
  * @param[in] mode @parblock
  *   Enum @ref sl_bt_past_receiver_mode_t. The mode to specify how the Bluetooth
- *   stack reacts when synchronization information is received. Values:
+ *   stack reacts when synchronization information is received over a
+ *   connection. Values:
  *     - <b>sl_bt_past_receiver_mode_ignore (0x0):</b> No attempt is made to
  *       synchronize to a periodic advertising train for which the
  *       synchronization information was received. No event will be triggered
@@ -15090,12 +15712,16 @@ sl_status_t sl_bt_cte_receiver_set_sync_cte_type(uint8_t sync_cte_type);
  *
  * @b Events
  *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
- *     synchronization transfer is received for a periodic advertising train
- *     that does not have subevents or response slots.
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
  *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
  *     the bluetooth_feature_pawr_sync component, triggered after
  *     synchronization transfer is received for a Periodic Advertising with
- *     Responses (PAwR) train.
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
  *
  ******************************************************************************/
 sl_status_t sl_bt_cte_receiver_set_default_sync_receive_parameters(uint8_t mode,
@@ -15122,7 +15748,8 @@ sl_status_t sl_bt_cte_receiver_set_default_sync_receive_parameters(uint8_t mode,
  * @param[in] connection Connection handle
  * @param[in] mode @parblock
  *   Enum @ref sl_bt_past_receiver_mode_t. The mode to specify how the Bluetooth
- *   stack reacts when synchronization information is received. Values:
+ *   stack reacts when synchronization information is received over a
+ *   connection. Values:
  *     - <b>sl_bt_past_receiver_mode_ignore (0x0):</b> No attempt is made to
  *       synchronize to a periodic advertising train for which the
  *       synchronization information was received. No event will be triggered
@@ -15186,12 +15813,16 @@ sl_status_t sl_bt_cte_receiver_set_default_sync_receive_parameters(uint8_t mode,
  *
  * @b Events
  *   - @ref sl_bt_evt_periodic_sync_transfer_received - Triggered after
- *     synchronization transfer is received for a periodic advertising train
- *     that does not have subevents or response slots.
+ *     synchronization transfer has been received for a periodic advertising
+ *     train that does not have subevents or response slots. The event is
+ *     triggered when the local device has either successfully synchronized to
+ *     the train or timed out while attempting to synchronize.
  *   - @ref sl_bt_evt_pawr_sync_transfer_received - If the application includes
  *     the bluetooth_feature_pawr_sync component, triggered after
  *     synchronization transfer is received for a Periodic Advertising with
- *     Responses (PAwR) train.
+ *     Responses (PAwR) train. The event is triggered when the local device has
+ *     either successfully synchronized to the train or timed out while
+ *     attempting to synchronize.
  *
  ******************************************************************************/
 sl_status_t sl_bt_cte_receiver_set_sync_receive_parameters(uint8_t connection,
@@ -15764,6 +16395,7 @@ PACKSTRUCT( struct sl_bt_msg {
     sl_bt_evt_external_bondingdb_data_request_t                  evt_external_bondingdb_data_request; /**< Data field for external_bondingdb data_request event*/
     sl_bt_evt_external_bondingdb_data_t                          evt_external_bondingdb_data; /**< Data field for external_bondingdb data event*/
     sl_bt_evt_external_bondingdb_data_ready_t                    evt_external_bondingdb_data_ready; /**< Data field for external_bondingdb data_ready event*/
+    sl_bt_evt_external_bondingdb_local_irk_t                     evt_external_bondingdb_local_irk; /**< Data field for external_bondingdb local_irk event*/
     sl_bt_evt_cs_security_enable_complete_t                      evt_cs_security_enable_complete; /**< Data field for cs security_enable_complete event*/
     sl_bt_evt_cs_config_complete_t                               evt_cs_config_complete; /**< Data field for cs config_complete event*/
     sl_bt_evt_cs_procedure_enable_complete_t                     evt_cs_procedure_enable_complete; /**< Data field for cs procedure_enable_complete event*/
@@ -15840,6 +16472,12 @@ void sl_bt_run();
 /**
  * Handle an API command in binary format.
  *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
+ *
  * This is provided to NCP target applications for processing commands received
  * from NCP transport. This function is a synonym for a generic BGAPI function
  * @ref sl_bgapi_handle_command. If the NCP application uses an RTOS, use the
@@ -15849,18 +16487,38 @@ void sl_bt_run();
  * @param hdr the command header
  * @param data the command payload in a byte array
  */
-void sl_bt_handle_command(uint32_t hdr, void* data);
+SL_BGAPI_DEPRECATED void sl_bt_handle_command(uint32_t hdr, void* data);
 
 /**
- * Get the response to the command currently been handled.
+ * Get the response to the command currently being handled.
+ *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
  *
  * This is provided to NCP target applications for processing commands received
  * from NCP transport. This function is a synonym for a generic BGAPI function
  * @ref sl_bgapi_get_command_response.
  */
-static inline sl_bt_msg_t* sl_bt_get_command_response()
+SL_BGAPI_DEPRECATED static inline sl_bt_msg_t* sl_bt_get_command_response()
 {
+  // We intentionally call a deprecated function, so ignore the warning
+#if defined(__IAR_SYSTEMS_ICC__)
+  _Pragma("diag_suppress=Pe1215")
+#elif defined(__GNUC__)
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
   return (sl_bt_msg_t*) sl_bgapi_get_command_response();
+
+#if defined(__IAR_SYSTEMS_ICC__)
+  _Pragma("diag_default=Pe1215")
+#elif defined(__GNUC__)
+  #pragma GCC diagnostic pop
+#endif
 }
 
 /**
@@ -15922,6 +16580,37 @@ void sl_bt_send_system_error(uint16_t reason, uint8_t data_len, const uint8_t *d
  * @return 1 if the message is sensitive; otherwise 0
  */
 uint8_t sl_bt_is_sensitive_message(uint32_t message_header);
+
+/**
+ * Set the response buffer to use for responses to user commands.
+ *
+ * This a utility helping a NCP host and target application to exchange user
+ * data. Do not use it in SoC mode.
+ *
+ * User commands are a special case in BGAPI as they are not handled via the
+ * normal BGAPI command handling but are executed with a direct function call to
+ * the application from the NCP/CPC components. If any of the `sl_bt_send_rsp_*`
+ * functions provided in `sl_bt_api.h` are used to set the user command
+ * response, the NCP/CPC component should set the response buffer with this
+ * function before executing user commands.
+ *
+ * If the response buffer has not been set when one of the `sl_bt_send_rsp_*`
+ * functions is called, the caller is assumed to be using the deprecated command
+ * handling APIs that use a shared buffer. In that case the caller must have
+ * obtained the BGAPI lock with the deprecated `sl_bgapi_lock` function before
+ * handling the user command. In this case the user response will be set to the
+ * shared message buffer that is returned by `sl_bgapi_get_command_response`.
+ *
+ * If the caller later needs to free the supplied buffer, call this function
+ * again with @p user_response_buffer set to `NULL` and @p
+ * user_response_buffer_size set to 0 to indicate that the previously set buffer
+ * is no longer available.
+ *
+ * @param[in] user_response_buffer The buffer to use for user responses
+ * @param[in] user_response_buffer_size The total size of the buffer
+ */
+void sl_bt_set_user_response_buffer(void *user_response_buffer,
+                                    size_t user_response_buffer_size);
 
 /**
  * Sends the NCP host a message whose SL_BT_MSG_ID is

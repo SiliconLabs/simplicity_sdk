@@ -1,7 +1,7 @@
 !!omap
 - id: brd2900a
 - label: BRD2900A
-- package: platform
+- package: boards
 - description: Board support for BRD2900A.
 - category: Platform|Board|Starter Kit
 - quality: production

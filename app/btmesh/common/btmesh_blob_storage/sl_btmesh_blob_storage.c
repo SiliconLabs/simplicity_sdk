@@ -55,11 +55,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup blob_storage BLOB Storage
- * @{
- ******************************************************************************/
-
 // -----------------------------------------------------------------------------
 // Macros
 
@@ -205,7 +200,7 @@ static sl_status_t blob_storage_get_footer(uint32_t slot_id,
  ******************************************************************************/
 static sl_status_t blob_storage_get_blob_size_from_footer(uint32_t slot_id, uint32_t *blob_size);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check the validity of the application footer data in the selected storage slot
  * at the given offset
  *
@@ -221,7 +216,7 @@ static sl_status_t blob_storage_check_app_footer_data(uint32_t slot_id,
                                                       uint32_t footer_offset,
                                                       uint16_t length);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check the validity of the application footer metadata
  *
  * @param[in] metadata The metadata to be checked
@@ -232,7 +227,7 @@ static sl_status_t blob_storage_check_app_footer_data(uint32_t slot_id,
  ******************************************************************************/
 static sl_status_t blob_storage_check_app_footer_metadata(sli_btmesh_blob_storage_app_footer_metadata_t *metadata);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Retrieve the content and offset of footer metadata contained in the selected
  * storage slot and having the given application identifier. The offset of the
  * whole app footer and previous app footer metadata is retrieved as well.
@@ -283,7 +278,7 @@ static sl_status_t blob_storage_get_app_footer_metadata(uint32_t slot_id,
                                                         uint32_t *prev_metadata_offset,
                                                         uint32_t *footer_offset);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Provide the supported maximum BLOB size in the slot
  *
  * @param[in] slot_id Index of the slot inquired about
@@ -626,17 +621,19 @@ sl_status_t sl_btmesh_blob_storage_invalidate_by_owner(uint16_t owner_id)
 
   for (uint32_t slot_id = 0; slot_id < blob_storage.cache_length; ++slot_id) {
     slot_status = blob_storage.slot_cache[slot_id].status;
-    if (SL_BTMESH_BLOB_STORAGE_STATUS_OCCUPIED == slot_status) {
-      sl_bt_uuid_64_t *blob_id = &blob_storage.slot_cache[slot_id].blob_id;
-      // Invalidate only those BLOBs which belongs to the specific owner
-      if (sl_btmesh_blob_storage_is_managed_by_owner(blob_id, owner_id)) {
-        sl_status_t sc = sli_blob_storage_invalidate_slot(slot_id, false);
-        // The first error code is returned but all storage slot invalidation
-        // is requested because other slot invalidation might succeed
-        if ((SL_STATUS_OK != sc) && (SL_STATUS_OK == sc_all)) {
-          sc_all = sc;
-        }
-      }
+    if (SL_BTMESH_BLOB_STORAGE_STATUS_OCCUPIED != slot_status) {
+      continue;
+    }
+    sl_bt_uuid_64_t *blob_id = &blob_storage.slot_cache[slot_id].blob_id;
+    // Invalidate only those BLOBs which belongs to the specific owner
+    if (!(sl_btmesh_blob_storage_is_managed_by_owner(blob_id, owner_id))) {
+      continue;
+    }
+    sl_status_t sc = sli_blob_storage_invalidate_slot(slot_id, false);
+    // The first error code is returned but all storage slot invalidation
+    // is requested because other slot invalidation might succeed
+    if ((SL_STATUS_OK != sc) && (SL_STATUS_OK == sc_all)) {
+      sc_all = sc;
     }
   }
   return sc_all;
@@ -680,8 +677,7 @@ sl_status_t sl_btmesh_blob_storage_write_app_footer(sl_bt_uuid_64_t const * blob
   BootloaderStorageSlot_t slot;
   sli_btmesh_blob_storage_app_footer_metadata_t metadata;
   sli_btmesh_blob_storage_app_footer_checksum_t metadata_checksum;
-  uint32_t slot_id, metadata_offset, prev_metadata_offset, footer_offset, checksum;
-  uint16_t write_length;
+  uint32_t slot_id, metadata_offset, prev_metadata_offset, footer_offset, checksum, write_length;
   sl_status_t sc;
   const uint16_t remainder_length = sli_btmesh_blob_storage_word_align_remainder(length);
   const uint16_t aligned_length = sli_btmesh_blob_storage_align_to_prev_word(length);
@@ -747,7 +743,7 @@ sl_status_t sl_btmesh_blob_storage_write_app_footer(sl_bt_uuid_64_t const * blob
   }
 
   // Calculate checksum over app footer data
-  checksum = sl_btmesh_blob_storage_calculate_checksum((uint8_t *) footer, length, 0);
+  checksum = sl_btmesh_blob_storage_calculate_checksum((const uint8_t *) footer, length, 0);
 
   // Assemble footer metadata
   metadata.app_id = app_id;
@@ -802,7 +798,7 @@ sl_status_t sl_btmesh_blob_storage_write_app_footer(sl_bt_uuid_64_t const * blob
 
     // Copy remainder data into padded buffer
     memcpy(buffer,
-           ((uint8_t *)footer) + aligned_length,
+           ((const uint8_t *)footer) + aligned_length,
            remainder_length);
 
     // // Write the remainder part of app footer data
@@ -812,7 +808,6 @@ sl_status_t sl_btmesh_blob_storage_write_app_footer(sl_bt_uuid_64_t const * blob
                                                  SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL)) {
       return SL_STATUS_FLASH_PROGRAM_FAILED;
     }
-    footer_offset += SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL;
   }
 
   // Write app footer metadata
@@ -1345,6 +1340,8 @@ static sl_btmesh_blob_storage_status_t blob_storage_check_slot_status(uint32_t s
         // There is no free space between BLOB data and the last app footer.
         // This is a valid scenario when the last app footer barely fits.
         break;
+      default:
+        break;
     }
   }
 
@@ -1433,7 +1430,7 @@ sl_status_t sli_blob_storage_invalidate_slot(uint32_t slot_id, bool force)
   return SL_STATUS_OK;
 }
 
-uint32_t sli_blob_storage_count_bits(uint8_t *data, uint16_t length)
+uint32_t sli_blob_storage_count_bits(const uint8_t *data, uint16_t length)
 {
   uint32_t count = 0;
   for (uint16_t idx = 0; idx < length; idx++) {
@@ -1445,7 +1442,7 @@ uint32_t sli_blob_storage_count_bits(uint8_t *data, uint16_t length)
   return count;
 }
 
-SL_WEAK uint32_t sl_btmesh_blob_storage_calculate_checksum(uint8_t *data,
+SL_WEAK uint32_t sl_btmesh_blob_storage_calculate_checksum(const uint8_t *data,
                                                            uint16_t length,
                                                            uint32_t initial_value)
 {
@@ -1517,7 +1514,7 @@ static sl_status_t blob_storage_check_app_footer_data(uint32_t slot_id,
   uint8_t chunk_buffer[APP_FOOTER_DATA_CHUNK_SIZE];
   sli_btmesh_blob_storage_app_footer_checksum_t checksum;
   uint32_t offset = footer_offset;
-  uint32_t remaining_length = length;
+  uint16_t remaining_length = length;
   uint32_t chunk_offset = 0;
   uint32_t checksum_calculated = 0;
 
@@ -1535,7 +1532,7 @@ static sl_status_t blob_storage_check_app_footer_data(uint32_t slot_id,
   offset += sizeof(sli_btmesh_blob_storage_app_footer_checksum_t);
 
   while (0 < remaining_length) {
-    uint32_t chunk_size = (remaining_length < APP_FOOTER_DATA_CHUNK_SIZE)
+    uint16_t chunk_size = (remaining_length < APP_FOOTER_DATA_CHUNK_SIZE)
                           ? remaining_length : APP_FOOTER_DATA_CHUNK_SIZE;
 
     if (BOOTLOADER_OK != bootloader_readStorage(slot_id,
@@ -1761,5 +1758,3 @@ static sl_status_t blob_storage_compare(uint32_t slot_id,
   *comparison_result = 0;
   return SL_STATUS_OK;
 }
-
-/** @} end blob_storage */

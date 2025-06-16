@@ -37,7 +37,8 @@ component:
       - device_series_3
   - id: board_control
   - id: bluetooth_controller
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_central
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_legacy_advertiser
   - id: bluetooth_feature_extended_advertiser
   - id: bluetooth_feature_periodic_advertiser
@@ -48,15 +49,13 @@ component:
     condition:
       - device_series_2
   - id: app_assert
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
-  - path: app_freertos.c
 
 include:
   - path: .

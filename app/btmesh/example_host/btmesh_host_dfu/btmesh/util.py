@@ -23,7 +23,7 @@
 import dataclasses
 import enum
 import re
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Iterable, List, Optional
 
 from bgapix.bglibx import BGLibExtRetryParams
 
@@ -69,8 +69,14 @@ FIXED_GROUP_ADDR_BASE = 0xFF00
 MAX_ADDR = 0xFFFF
 VIRTUAL_LABEL_UUID_LEN = 16
 
+# DCD constants
+DCD_PAGE_0 = 0
+DCD_PAGE_128 = 128
+
 # BT Mesh element constants
 PRIM_ELEM_INDEX = 0
+ELEM_INDEX_MIN = 0
+ELEM_INDEX_MAX = UNICAST_ADDR_MAX - UNICAST_ADDR_MIN
 
 APPKEY_INDEX_MAX = 0xFFFF
 MIN_FWID_LEN = 2
@@ -90,6 +96,8 @@ PUB_RETRANSMIT_INT_MS_MIN = 50
 PUB_RETRANSMIT_INT_MS_MAX = 1600
 PUB_RETRANSMIT_INT_MS_DISABLED = 0
 FW_INDEX_MAX = 0xFF
+LINK_OPEN_TIMEOUT_S_MIN = 1
+LINK_OPEN_TIMEOUT_S_MAX = 60
 
 SEP_PATTERN = r"[-/:]"
 INTEGER_PATTERN = r"\d+|0[bB][01]+|0[oO][0-7]+|0[xX][a-fA-F0-9]+"
@@ -177,6 +185,7 @@ class BtmeshRetryParams(BGLibExtRetryParams):
         if self.retry_interval_lpn < 0.0:
             raise ValueError(f"The retry interval LPN is negative.")
 
+
 @dataclasses.dataclass
 class BtmeshMulticastRetryParams(BtmeshRetryParams):
     multicast_threshold: int = 2
@@ -247,6 +256,7 @@ class ConnectionParams(StateDictObject):
         if not isinstance(self.security_mode, BleSecurityMode):
             self.security_mode = BleSecurityMode.from_int(self.security_mode)
 
+
 @dataclasses.dataclass
 class ConnectionDataLength(StateDictObject):
     tx_data_len: int
@@ -254,7 +264,7 @@ class ConnectionDataLength(StateDictObject):
     send"""
 
     tx_time_us: int
-    """The maximum time in microseconds that the local Controller will take 
+    """The maximum time in microseconds that the local Controller will take
     to send a data packet"""
 
     rx_data_len: int
@@ -264,6 +274,7 @@ class ConnectionDataLength(StateDictObject):
     rx_time_us: int
     """The maximum time in microseconds that the local Controller expects to
     take to receive a data packet"""
+
 
 @dataclasses.dataclass
 class RawConnectionParamsRange:
@@ -549,8 +560,47 @@ def bytes_to_int_list(b: bytes, n: int, byteorder="little"):
     return int_list
 
 
+def concat_bytes_from_objects(
+    objects: Iterable[object],
+    get_bytes: Callable[[object], bytes],
+    object_filter: Optional[Callable[[object], bool]] = None,
+) -> bytes:
+    object_filter = object_filter or (lambda obj: True)
+    barr = bytearray()
+    for evt in filter(object_filter, objects):
+        barr.extend(get_bytes(evt))
+    return bytes(barr)
+
+
+def concat_bytes_from_objects_by_attr(
+    objects: Iterable[object],
+    attr: str,
+    object_filter: Optional[Callable[[object], bool]] = None,
+) -> bytes:
+    return concat_bytes_from_objects(
+        objects,
+        get_bytes=lambda obj: getattr(obj, attr),
+        object_filter=object_filter,
+    )
+
+
+def bytes_to_ints(
+    data: bytes, int_size: int = 2, byteorder: str = "little"
+) -> List[int]:
+    if len(data) % int_size != 0:
+        raise ValueError(
+            f"The length of bytes ({len(data)}) shall be "
+            f"divisible by integer size ({int_size})."
+        )
+    int_list = []
+    for idx in range(0, len(data), int_size):
+        value = int.from_bytes(data[idx : idx + int_size], byteorder=byteorder)
+        int_list.append(value)
+    return int_list
+
+
 def pretty_name(name: str, sep: str = " ", prettifier: Callable = str.lower):
-    ABBREVIATIONS = set(("BLOB", "FW", "FWID", "ID", "URI", "PB-ADV", "PB-GATT"))
+    ABBREVIATIONS = set(("BLOB", "FW", "FWID", "ID", "URI", "PB-ADV", "PB-GATT", "PDU"))
     name_parts = []
     for part in name.split("_"):
         if part.upper() in ABBREVIATIONS:
@@ -590,6 +640,20 @@ def validate_nw_pdu_size(nw_pdu_size, error_msg="", add_hint=True):
         error_hint = (
             f"Network PDU size shall be in [{NW_PDU_LEN_MIN},{NW_PDU_LEN_MAX}] "
             f"range but it is {nw_pdu_size}."
+        )
+        err_text = validation_error_msg(error_msg, error_hint, add_hint)
+        raise ValueError(err_text)
+
+
+def is_elem_index_valid(elem_index: int):
+    return ELEM_INDEX_MIN <= elem_index <= ELEM_INDEX_MAX
+
+
+def validate_elem_index(elem_index: int, error_msg="", add_hint=True):
+    if not is_elem_index_valid(elem_index):
+        error_hint = (
+            f"Element index shall be in [{ELEM_INDEX_MIN},{ELEM_INDEX_MAX}] "
+            f"range but it is {elem_index}."
         )
         err_text = validation_error_msg(error_msg, error_hint, add_hint)
         raise ValueError(err_text)
@@ -901,6 +965,21 @@ def prov_failure_reason_str(reason):
         8: "Unable to assign address",
     }
     return reason2str.get(reason, unknown_value(reason))
+
+
+def is_link_open_timeout_valid(timeout_s):
+    return LINK_OPEN_TIMEOUT_S_MIN <= timeout_s <= LINK_OPEN_TIMEOUT_S_MAX
+
+
+def validate_link_open_timeout(timeout_s, error_msg="", add_hint=True):
+    if not is_link_open_timeout_valid(timeout_s):
+        error_hint = (
+            f"The link open timeout in seconds shall be in "
+            f"[{LINK_OPEN_TIMEOUT_S_MIN},{LINK_OPEN_TIMEOUT_S_MAX}] range "
+            f"but it is {timeout_s}s."
+        )
+        err_text = validation_error_msg(error_msg, error_hint, add_hint)
+        raise ValueError(err_text)
 
 
 def dfu_calc_client_timeout(timeout_base: int, ttl: int) -> float:

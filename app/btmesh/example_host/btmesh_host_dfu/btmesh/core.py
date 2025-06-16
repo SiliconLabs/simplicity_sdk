@@ -223,11 +223,11 @@ class EventSelectorMulticastComposite(EventSelectorComposite):
 
 
 class DCDIf:
-    def __init__(self, get_dcd: Callable[[Node], DCD]):
+    def __init__(self, get_dcd: Callable[[Node, Optional[int]], DCD]):
         self._get_dcd = get_dcd
 
-    def get_dcd(self, node: Node) -> DCD:
-        return self._get_dcd(node)
+    def get_dcd(self, node: Node, page=util.DCD_PAGE_0) -> DCD:
+        return self._get_dcd(node, page=page)
 
 
 class BtmeshCore:

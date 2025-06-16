@@ -21,8 +21,8 @@ class RM_Peripheral_SEQ_S(Base_RM_Peripheral):
         self.zz_rdict['MODINDEX_CALC'] = self.MODINDEX_CALC
         self.MODINDEX_CALC_MODINDEXE_DOUBLED = RM_Register_SEQ_S_MODINDEX_CALC_MODINDEXE_DOUBLED(self.zz_rmio, self.zz_label)
         self.zz_rdict['MODINDEX_CALC_MODINDEXE_DOUBLED'] = self.MODINDEX_CALC_MODINDEXE_DOUBLED
-        self.SPARE4 = RM_Register_SEQ_S_SPARE4(self.zz_rmio, self.zz_label)
-        self.zz_rdict['SPARE4'] = self.SPARE4
+        self.FSWCOREINFO = RM_Register_SEQ_S_FSWCOREINFO(self.zz_rmio, self.zz_label)
+        self.zz_rdict['FSWCOREINFO'] = self.FSWCOREINFO
         self.MODEMINFO = RM_Register_SEQ_S_MODEMINFO(self.zz_rmio, self.zz_label)
         self.zz_rdict['MODEMINFO'] = self.MODEMINFO
         self.MISC = RM_Register_SEQ_S_MISC(self.zz_rmio, self.zz_label)

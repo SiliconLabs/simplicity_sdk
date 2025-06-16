@@ -58,9 +58,7 @@
  */
 
 #include "ZAF_Actuator.h"
-
-//#define DEBUGPRINT
-#include <DebugPrint.h>
+#include "zpal_log.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <math.h>
@@ -69,7 +67,7 @@
 // valueCurrent, valueTarget and singleStepValue are saved as 10 times higher.
 // Use these defines as getters/setters
 #define CONVERT_TO_INTERNAL(x) (10 * (x))
-#define CONVERT_FROM_INTERNAL(x) ((x)/10)
+#define CONVERT_FROM_INTERNAL(x) ((x) / 10)
 
 static void ZAF_Actuator_TimerExpired(SSwTimer *timer);
 static void initiateTimedChange(s_Actuator *pActuator, uint8_t duration);
@@ -78,36 +76,34 @@ static inline void updateCurrentValue(s_Actuator *pActuator);
 static inline void updateLastOnValue(s_Actuator *pActuator);
 
 void ZAF_Actuator_Init(s_Actuator *pActuator,
-                          uint8_t minValue,
-                          uint8_t maxValue,
-                          uint16_t refreshRate,
-                          uint8_t durationDefault,
-                          zaf_actuator_callback_t cc_callback)
+                       uint8_t minValue,
+                       uint8_t maxValue,
+                       uint16_t refreshRate,
+                       uint8_t durationDefault,
+                       zaf_actuator_callback_t cc_callback)
 {
-  DPRINTF("%s min:%u, max:%u, durationDefault:%u, refreshRate:%u\n",
-          __func__, minValue, maxValue, durationDefault, refreshRate);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "%s min:%u, max:%u, durationDefault:%u, refreshRate:%u\n",
+                 __func__, minValue, maxValue, durationDefault, refreshRate);
 
   if (minValue > maxValue) {
-    DPRINTF("Minimum %X must be less than maximum: %X\n", minValue, maxValue);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Minimum %X must be less than maximum: %X\n", minValue, maxValue);
     assert(minValue < maxValue);
   }
   pActuator->min = minValue;
   pActuator->max = maxValue;
 
   if (!refreshRate) {
-    DPRINTF("Refresh rate must be greater than 0: %x\n", refreshRate);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Refresh rate must be greater than 0: %x\n", refreshRate);
   }
-  if (20 > refreshRate)
-  {
+  if (20 > refreshRate) {
     // Refresh rates lower than 20 causes watchdog reset. Set to 20.
     refreshRate = 20;
     assert(false);
   }
   pActuator->defaultRefreshRate = refreshRate;
   pActuator->refreshRate = pActuator->defaultRefreshRate;
-  if (durationDefault == 0xFF)
-  {
-    DPRINTF("Invalid duration: %x\n", durationDefault);
+  if (durationDefault == 0xFF) {
+    ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_ACTUATOR, "Invalid duration: %x\n", durationDefault);
     assert(durationDefault != 0xFF);
   }
   pActuator->durationDefault = durationDefault;
@@ -125,28 +121,28 @@ void ZAF_Actuator_Init(s_Actuator *pActuator,
 
 eActuatorState ZAF_Actuator_Set(s_Actuator *pActuator, uint8_t value, uint8_t duration)
 {
-  DPRINTF("%s target value: %X, duration: %X, currentValue=%X\n", __func__, value, duration, pActuator->valueCurrent);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "%s target value: %X, duration: %X, currentValue=%X\n", __func__, value, duration, pActuator->valueCurrent);
 
   if (value < pActuator->min || value > pActuator->max) {
-    DPRINTF("Invalid value %X. It must be between %X and %X\n", value, pActuator->min, pActuator->max);
+    ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_ACTUATOR, "Invalid value %X. It must be between %X and %X\n", value, pActuator->min, pActuator->max);
     return EACTUATOR_FAILED;
   }
   if (value == ZAF_Actuator_GetCurrentValue(pActuator)) {
-    DPRINTF("Already at target value %X, done\n", pActuator->valueCurrent);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Already at target value %X, done\n", pActuator->valueCurrent);
     return EACTUATOR_NOT_CHANGING;
   }
   pActuator->valueTarget = CONVERT_TO_INTERNAL(value);
 
   if ((0 == duration) || (0xFF == duration && 0 == pActuator->durationDefault)) {
-    DPRINTF("Instant change from %x to %x\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent),
-                                              CONVERT_FROM_INTERNAL(pActuator->valueTarget));
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Instant change from %x to %x\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent),
+                   CONVERT_FROM_INTERNAL(pActuator->valueTarget));
     pActuator->valueCurrent = pActuator->valueTarget;
     updateLastOnValue(pActuator);
     triggerCCCallback(pActuator);
     return EACTUATOR_NOT_CHANGING;
   } else {
     pActuator->directionUp = pActuator->valueTarget > pActuator->valueCurrent;
-    DPRINTF("directionUp = %X\n", pActuator->directionUp);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "directionUp = %X\n", pActuator->directionUp);
 
     initiateTimedChange(pActuator, duration);
     return EACTUATOR_CHANGING;
@@ -159,8 +155,8 @@ eActuatorState ZAF_Actuator_StartChange(s_Actuator *pActuator,
                                         uint8_t startLevel,
                                         uint8_t duration)
 {
-  DPRINTF("%s ignoreStartLevel:%s, %s, startLevel:%X duration:%X, currentValue:%X\n",
-          __func__, ignoreStartLevel ? "True":"False", upDown ? "Down":"Up", startLevel, duration, pActuator->valueCurrent);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "%s ignoreStartLevel:%s, %s, startLevel:%X duration:%X, currentValue:%X\n",
+                 __func__, ignoreStartLevel ? "True":"False", upDown ? "Down":"Up", startLevel, duration, pActuator->valueCurrent);
 
   pActuator->directionUp = !upDown;
   pActuator->valueTarget = (pActuator->directionUp) ? pActuator->max : pActuator->min;
@@ -168,7 +164,7 @@ eActuatorState ZAF_Actuator_StartChange(s_Actuator *pActuator,
 
   if (!ignoreStartLevel) {
     if (startLevel < pActuator->min || startLevel > pActuator->max) {
-      DPRINTF("Invalid start level %X. It must be between %X and %X\n", startLevel, pActuator->min, pActuator->max);
+      ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_ACTUATOR, "Invalid start level %X. It must be between %X and %X\n", startLevel, pActuator->min, pActuator->max);
       return EACTUATOR_FAILED;
     }
     pActuator->valueCurrent = CONVERT_TO_INTERNAL(startLevel);
@@ -183,19 +179,19 @@ eActuatorState ZAF_Actuator_StartChange(s_Actuator *pActuator,
     duration = roundf((float)(duration * fabs(calculated_slope)));
   }
   if (pActuator->valueCurrent == pActuator->valueTarget) {
-    DPRINTF("Already at target value %X, done\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent));
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Already at target value %X, done\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent));
     return EACTUATOR_NOT_CHANGING;
   }
 
   if ((0 == duration) || (0xFF == duration && 0 == pActuator->durationDefault)) {
-    DPRINTF("Instant change from %x to %x\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent),
-                                              CONVERT_FROM_INTERNAL(pActuator->valueTarget));
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Instant change from %x to %x\n", CONVERT_FROM_INTERNAL(pActuator->valueCurrent),
+                   CONVERT_FROM_INTERNAL(pActuator->valueTarget));
     pActuator->valueCurrent = pActuator->valueTarget;
     triggerCCCallback(pActuator);
     return EACTUATOR_NOT_CHANGING;
   }
-  DPRINTF("Going %s to targetValue=%u\n", (pActuator->directionUp)?"UP":"DOWN",
-                                          CONVERT_FROM_INTERNAL(pActuator->valueTarget));
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Going %s to targetValue=%u\n", (pActuator->directionUp)?"UP":"DOWN",
+                 CONVERT_FROM_INTERNAL(pActuator->valueTarget));
   initiateTimedChange(pActuator, duration);
   return EACTUATOR_CHANGING;
 }
@@ -232,7 +228,7 @@ uint8_t ZAF_Actuator_GetDurationRemaining(s_Actuator *pActuator)
   if (difference > 0) {
     if (0 == pActuator->singleStepValue) {
       // singleStepValue unknown at the moment. Shouldn't ever happen if change is in progress
-      DPRINTF("%s WARNING: step size unknown\n", __func__);
+      ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_ACTUATOR, "%s WARNING: step size unknown\n", __func__);
       assert(pActuator->singleStepValue);
     }
     // duration in milliseconds = (numberOfSteps * refreshRate)
@@ -247,7 +243,7 @@ uint8_t ZAF_Actuator_GetDurationRemaining(s_Actuator *pActuator)
        * unit is second. Above that, convert to minutes */
       duration  = duration / 60 + 0x7F;
     }
-    DPRINTF("%s duration Coded value= %#X\n", __func__, duration);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "%s duration Coded value= %#X\n", __func__, duration);
   }
   return (uint8_t)duration;
 }
@@ -256,13 +252,13 @@ uint32_t getDurationInMs(uint8_t duration)
 {
   uint32_t durationMs = 0;
   if (duration > 0 && duration <= 0x7F) {
-    DPRINT("Duration in seconds ");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Duration in seconds ");
     durationMs = duration * 1000;
   } else if (duration > 0x7F && duration <= 0xFE) {
-    DPRINT("Duration in minutes ");
-    durationMs = (uint32_t)((duration-0x7F) * 60 * 1000);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Duration in minutes ");
+    durationMs = (uint32_t)((duration - 0x7F) * 60 * 1000);
   }
-  DPRINTF("= %uMS = %u sec (%X)\n", durationMs, durationMs/1000, duration);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "= %uMS = %u sec (%X)\n", durationMs, durationMs / 1000, duration);
   return durationMs;
 }
 
@@ -287,12 +283,9 @@ static void ZAF_Actuator_TimerExpired(SSwTimer *timer)
   s_Actuator *pActuator = timer->ptr;
 
   /* Target value has been reached */
-  if(pActuator->valueCurrent == pActuator->valueTarget)
-  {
+  if (pActuator->valueCurrent == pActuator->valueTarget) {
     TimerStop(timer);
-  }
-  else
-  {
+  } else {
     updateCurrentValue(pActuator);
     triggerCCCallback(pActuator);
   }
@@ -302,13 +295,13 @@ static void initiateTimedChange(s_Actuator *pActuator, uint8_t duration)
 {
   if (0xFF == duration) {
     duration = pActuator->durationDefault;
-    DPRINTF("Using factory default duration  = %u sec\n", duration);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Using factory default duration  = %u sec\n", duration);
   }
-  uint32_t numberOfSteps = (duration *1000) / pActuator->defaultRefreshRate;
+  uint32_t numberOfSteps = (duration * 1000) / pActuator->defaultRefreshRate;
   uint16_t maxNumberOfSteps = (uint16_t)abs(pActuator->valueTarget - pActuator->valueCurrent);
   maxNumberOfSteps = CONVERT_FROM_INTERNAL(maxNumberOfSteps);
   if (numberOfSteps > maxNumberOfSteps) {
-    DPRINTF("Adjust numberOfSteps from %u to %u\n", numberOfSteps, maxNumberOfSteps);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Adjust numberOfSteps from %u to %u\n", numberOfSteps, maxNumberOfSteps);
     numberOfSteps = maxNumberOfSteps;
     uint32_t durationMs = getDurationInMs(duration);
     pActuator->refreshRate = durationMs / numberOfSteps; // Find max possible value of refreshRate
@@ -316,20 +309,20 @@ static void initiateTimedChange(s_Actuator *pActuator, uint8_t duration)
       // Refresh rates lower than 20 causes watchdog reset. Set to 20.
       pActuator->refreshRate = 20;
     }
-    DPRINTF("Using RefreshRate %u = %u/%u\n", pActuator->refreshRate, durationMs, numberOfSteps);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Using RefreshRate %u = %u/%u\n", pActuator->refreshRate, durationMs, numberOfSteps);
     pActuator->singleStepValue = CONVERT_TO_INTERNAL(1);
   } else {
-    pActuator->singleStepValue = (uint16_t)((uint32_t)abs(pActuator->valueTarget - pActuator->valueCurrent)/ numberOfSteps);
+    pActuator->singleStepValue = (uint16_t)((uint32_t)abs(pActuator->valueTarget - pActuator->valueCurrent) / numberOfSteps);
     pActuator->refreshRate = pActuator->defaultRefreshRate;
-    DPRINTF("Using default RefreshRate=%u and numberOfSteps=%u\n", pActuator->refreshRate, numberOfSteps);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Using default RefreshRate=%u and numberOfSteps=%u\n", pActuator->refreshRate, numberOfSteps);
   }
-  DPRINTF("current=%X, target=%X, STEPVALUE=%X, directionUp = %X \n",
-          pActuator->valueCurrent, pActuator->valueTarget, pActuator->singleStepValue, pActuator->directionUp);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "current=%X, target=%X, STEPVALUE=%X, directionUp = %X \n",
+                 pActuator->valueCurrent, pActuator->valueTarget, pActuator->singleStepValue, pActuator->directionUp);
 
   if (!TimerIsActive(&pActuator->timer)) {
     TimerStart(&pActuator->timer, pActuator->refreshRate);
   } else {
-    DPRINT("Timer already active, restarting\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Timer already active, restarting\n");
     TimerRestart(&pActuator->timer);
   }
 }
@@ -338,7 +331,7 @@ static inline void triggerCCCallback(s_Actuator *pActuator)
 {
   if (NULL != pActuator->cc_cb) {
     zaf_actuator_callback_t cb = pActuator->cc_cb;
-    //DPRINT("Triggering CC callback\n");
+    //ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_ACTUATOR, "Triggering CC callback\n");
     cb(pActuator);
   }
 }
@@ -352,22 +345,20 @@ static inline void updateCurrentValue(s_Actuator *pActuator)
   /* difference is less then size of next step */
   if (abs(pActuator->valueTarget - pActuator->valueCurrent) < pActuator->singleStepValue) {
     pActuator->valueCurrent = pActuator->valueTarget;
-  }  else {
+  } else {
     pActuator->valueCurrent = (pActuator->directionUp) ? (pActuator->valueCurrent + pActuator->singleStepValue)
-                                                       : (pActuator->valueCurrent - pActuator->singleStepValue);
+                              : (pActuator->valueCurrent - pActuator->singleStepValue);
   }
-  if(pActuator->valueCurrent == pActuator->valueTarget)
-  {
+  if (pActuator->valueCurrent == pActuator->valueTarget) {
     // We have reached the target value. Update the "Last On" value.
     updateLastOnValue(pActuator);
   }
-
 }
 
 static inline void updateLastOnValue(s_Actuator *pActuator)
 {
   // Set "Last On" only if the value doesn't translate to "off". (I.e. if greater than pActuator->min).
-  if (pActuator->valueCurrent > pActuator->min)  {
+  if (pActuator->valueCurrent > pActuator->min) {
     pActuator->lastOnValue = ZAF_Actuator_GetCurrentValue(pActuator);
   }
 }

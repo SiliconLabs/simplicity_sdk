@@ -1,6 +1,6 @@
 id: "app_btmesh_util"
 label: "App Utility"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   The App BT Mesh Utility provides collection of stateless utility functions and
   macros to solve recurring tasks in the BT Mesh components and examples. This
@@ -28,3 +28,6 @@ requires:
   - name: "btmesh_stack"
   - name: "component_catalog"
   - name: "status"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/app-btmesh-util

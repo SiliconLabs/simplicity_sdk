@@ -39,7 +39,6 @@
  * @{
  */
 
-
 /**
  * @brief Handler for Association Set command.
  * @param[in] ep A given endpoint.
@@ -51,10 +50,10 @@
  * @private
  */
 extern e_cmd_handler_return_code_t handleAssociationSet(
-    uint8_t ep,
-    ZW_MULTI_CHANNEL_ASSOCIATION_SET_1BYTE_V2_FRAME* pCmd,
-    uint8_t cmdLength,
-    uint8_t commandClass);
+  uint8_t ep,
+  ZW_MULTI_CHANNEL_ASSOCIATION_SET_1BYTE_V2_FRAME* pCmd,
+  uint8_t cmdLength,
+  uint8_t commandClass);
 
 /**
  * @}

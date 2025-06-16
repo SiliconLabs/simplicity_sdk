@@ -1,4 +1,3 @@
-
 /**
  * @file
  * Command Class Notification I/O interface
@@ -34,6 +33,6 @@ bool cc_notification_read(void);
  * @}
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_NOTIFICATION_IO_H */

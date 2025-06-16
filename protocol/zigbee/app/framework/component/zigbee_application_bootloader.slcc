@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 id: zigbee_application_bootloader
 label: Zigbee Application Bootloader
 description: "This component should be added in order to use the Gecko Bootloader for Zigbee applications. Refer to the \"Bootloader Application Interface\" for more details.\n"

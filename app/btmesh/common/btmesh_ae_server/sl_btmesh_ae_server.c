@@ -36,28 +36,39 @@
 
 #include "sl_btmesh_ae_server.h"
 
-/***************************************************************************//**
- * @addtogroup ae_server BT Mesh Advertisement Extension Server
- * @{
- ******************************************************************************/
 void sl_btmesh_ae_server_on_event(const sl_btmesh_msg_t *const evt)
 {
   sl_status_t sc;
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
+
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_provisioned_id: {
-      sc = sl_btmesh_silabs_config_server_init();
-      app_assert_status_f(sc, "Failed to init AE server");
+      if (!booted) {
+        sc = sl_btmesh_silabs_config_server_init();
+        // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+        // Allow continuing, the error shall disappear after DCD update.
+        if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+          app_assert_status_f(sc, "Failed to init AE server");
+        }
+        booted = true;
+      }
       break;
     }
     case sl_btmesh_evt_node_initialized_id: {
       if (0 != evt->data.evt_node_initialized.provisioned) {
         sc = sl_btmesh_silabs_config_server_init();
-        app_assert_status_f(sc, "Failed to init AE server");
+        if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+          app_assert_status_f(sc, "Failed to init AE server");
+        }
+        booted = true;
       }
+
       break;
     }
   }
 }
-
-/** @} end ae_server */

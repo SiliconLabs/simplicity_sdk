@@ -1,12 +1,12 @@
 id: micriumos_common_core
 label: Micrium OS Common Module Core
-package: micrium-krnx
+package: micriumos
 description: Micrium OS Common Module Core
 category: Services|Micrium|Common
 quality: production
 metadata:
-  sbom:
-    license: MSLA
+    sbom:
+        license: MSLA
 component_root_path: platform/micrium_os/common
 config_file:
   - path: ../cfg/common_cfg.h

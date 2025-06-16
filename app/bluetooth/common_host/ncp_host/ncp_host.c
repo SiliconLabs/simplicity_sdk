@@ -72,7 +72,7 @@ typedef struct {
 static buf_ncp_host_t buf_ncp_raw = { 0 };
 static buf_ncp_host_t buf_ncp_in = { 0 };
 
-static bool booted;
+static bool wait_for_boot;
 static uint8_t boot_retry_count;
 static app_timer_t boot_timer;
 
@@ -109,8 +109,9 @@ sl_status_t ncp_host_init(void)
   }
 #endif // defined(SECURITY) && SECURITY == 1
 
+#if defined(WAIT_FOR_SYSTEM_BOOT) && WAIT_FOR_SYSTEM_BOOT == 1
   if (sc == SL_STATUS_OK) {
-    booted = false;
+    wait_for_boot = true;
     boot_retry_count = 0;
     sc = app_timer_start(&boot_timer,
                          NCP_REBOOT_TIMEOUT_INIT_MS,
@@ -118,6 +119,9 @@ sl_status_t ncp_host_init(void)
                          NULL,
                          false);
   }
+  #else
+  wait_for_boot = false;
+  #endif //defined(WAIT_FOR_SYSTEM_BOOT) && WAIT_FOR_SYSTEM_BOOT == 1
   return sc;
 }
 
@@ -179,7 +183,7 @@ int32_t ncp_host_rx(uint32_t len, uint8_t* data)
   int32_t ret;
   static uint16_t read_offset = 0;
 
-  if (!booted) {
+  if (wait_for_boot) {
     // Wait for the boot event if the target haven't booted yet.
     ret = ncp_host_get_boot_event();
     read_offset = 0;
@@ -213,7 +217,7 @@ int32_t ncp_host_rx(uint32_t len, uint8_t* data)
  *****************************************************************************/
 void ncp_host_reboot(void)
 {
-  booted = false;
+  wait_for_boot = true;
   boot_retry_count = 0;
   on_boot_timer_expire(&boot_timer, NULL);
 }
@@ -370,7 +374,7 @@ static int32_t ncp_host_get_boot_event(void)
     return -1;
   }
   buf_ncp_in.len = SL_BGAPI_MSG_HEADER_LEN + msg_len;
-  booted = true;
+  wait_for_boot = false;
   (void)app_timer_stop(&boot_timer);
 
 #if defined(SECURITY) && SECURITY == 1

@@ -34,7 +34,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @addtogroup iv_update
+ * @addtogroup btmesh_iv_update
  * @{
  ******************************************************************************/
 
@@ -44,7 +44,7 @@
  ******************************************************************************/
 void sl_btmesh_iv_update_age_backup_on_event(sl_btmesh_msg_t *evt);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Component node reset handler.
  * Clearing component specific nvm content during node reset.
  * This function is called automatically by Universal Configurator after
@@ -52,6 +52,6 @@ void sl_btmesh_iv_update_age_backup_on_event(sl_btmesh_msg_t *evt);
  ******************************************************************************/
 void sl_btmesh_iv_update_on_node_reset(void);
 
-/** @} (end addtogroup iv_update) */
+/** @} (end addtogroup btmesh_iv_update) */
 
 #endif /* SL_BTMESH_IV_UPDATE_AGE_BACKUP_H */

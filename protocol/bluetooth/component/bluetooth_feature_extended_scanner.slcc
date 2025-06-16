@@ -1,6 +1,6 @@
 id: "bluetooth_feature_extended_scanner"
 label: "Scanner for extended advertisements"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component brings in necessary functionalities for scanning the advertisements
   that use legacy or extended advertising PDUs.

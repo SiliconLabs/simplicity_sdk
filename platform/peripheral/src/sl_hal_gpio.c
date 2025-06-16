@@ -44,12 +44,15 @@ extern __INLINE void sl_hal_gpio_set_port(sl_gpio_port_t port,
 extern __INLINE void sl_hal_gpio_set_port_value(sl_gpio_port_t port,
                                                 uint32_t val,
                                                 uint32_t mask);
-extern __INLINE void sl_hal_gpio_set_slew_rate(sl_gpio_port_t port,
-                                               uint8_t slewrate);
+extern __INLINE sl_status_t sl_hal_gpio_set_slew_rate(const sl_gpio_t *gpio,
+                                                      uint8_t slewrate);
+extern __INLINE sl_status_t sl_hal_gpio_get_slew_rate(const sl_gpio_t *gpio,
+                                                      uint8_t *slewrate);
+#if defined(_GPIO_P_CTRL_SLEWRATEALT_MASK)
 extern __INLINE void sl_hal_gpio_set_slew_rate_alternate(sl_gpio_port_t port,
                                                          uint8_t slewrate_alt);
-extern __INLINE uint8_t sl_hal_gpio_get_slew_rate(sl_gpio_port_t port);
 extern __INLINE uint8_t sl_hal_gpio_get_slew_rate_alternate(sl_gpio_port_t port);
+#endif
 extern __INLINE void sl_hal_gpio_clear_pin(const sl_gpio_t *gpio);
 extern __INLINE void sl_hal_gpio_clear_port(sl_gpio_port_t port,
                                             uint32_t pins);
@@ -86,7 +89,10 @@ void sl_hal_gpio_set_pin_mode(const sl_gpio_t *gpio,
 {
   sl_gpio_mode_t gpio_mode = SL_GPIO_MODE_DISABLED;
 
+#if !defined(SL_HAL_GPIO_SKIP_VALIDATION)
   EFM_ASSERT(SL_HAL_GPIO_PORT_PIN_IS_VALID(gpio->port, gpio->pin));
+#endif
+
   EFM_ASSERT(sl_hal_gpio_get_lock_status() == 0);
 
   switch (mode) {

@@ -19,10 +19,10 @@ requires:
 recommends:
   - id: cpc_secondary_driver_uart_eusart
     instance: [vcom]
-    unless: [device_has_usart]
+    condition: [device_has_eusart]
   - id: cpc_secondary_driver_uart_usart
     instance: [vcom]
-    condition: [device_has_usart]
+    unless: [device_has_eusart]
 
 define:
   - name: DEBUG_EFM_USER

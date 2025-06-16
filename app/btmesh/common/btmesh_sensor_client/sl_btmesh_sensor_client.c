@@ -44,16 +44,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup SensorClient
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup SensorClient
- * @{
- ******************************************************************************/
-
 /// Number of supported properties
 #define PROPERTIES_NUMBER       3
 /// Parameter ignored for publishing
@@ -138,6 +128,17 @@ SL_WEAK void sl_btmesh_sensor_client_on_new_illuminance_data(uint8_t sensor_idx,
   (void) illuminance;
 }
 
+SL_WEAK void sl_btmesh_sensor_client_on_new_power_consumption_data(uint8_t sensor_idx,
+                                                                   uint16_t address,
+                                                                   sl_btmesh_sensor_client_data_status_t status,
+                                                                   energy32_t energy_usage)
+{
+  (void) sensor_idx;
+  (void) address;
+  (void) status;
+  (void) energy_usage;
+}
+
 /*******************************************************************************
  * Publishing of sensor client get descriptor request for currently displayed
  * property id. It also resets the registered devices counter.
@@ -161,7 +162,7 @@ sl_status_t sl_btmesh_sensor_client_update_registered_devices(mesh_device_proper
                                               BTMESH_SENSOR_CLIENT_MAIN,
                                               IGNORED,
                                               NO_FLAGS,
-                                              property);
+                                              (uint16_t)property);
   if (SL_STATUS_OK == sc) {
     log_info("Registration of devices for property ID %4.4x started" NL, property);
   } else {
@@ -173,7 +174,7 @@ sl_status_t sl_btmesh_sensor_client_update_registered_devices(mesh_device_proper
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor client descriptor status event.
  *
  * @param[in] evt  Pointer to sensor client descriptor status event.
@@ -216,7 +217,7 @@ sl_status_t sl_btmesh_sensor_client_get_sensor_data(mesh_device_properties_t pro
                                    BTMESH_SENSOR_CLIENT_MAIN,
                                    IGNORED,
                                    NO_FLAGS,
-                                   property);
+                                   (uint16_t)property);
 
   if (SL_STATUS_OK == sc) {
     log_info("Get Sensor Data from property ID %4.4x started" NL, property);
@@ -226,6 +227,104 @@ sl_status_t sl_btmesh_sensor_client_get_sensor_data(mesh_device_properties_t pro
                         property);
   }
   return sc;
+}
+
+static void handle_people_count_sensor_status_event(const uint8_t* property_data, uint8_t property_len, uint8_t sensor_idx, uint16_t address)
+{
+  count16_t people_count = SL_BTMESH_SENSOR_CLIENT_PEOPLE_COUNT_UNKNOWN;
+  sl_btmesh_sensor_client_data_status_t status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+
+  if (property_len == 2) {
+    mesh_device_property_t new_property = mesh_sensor_data_from_buf(PEOPLE_COUNT,
+                                                                    property_data);
+    people_count = new_property.count16;
+
+    if (people_count == SL_BTMESH_SENSOR_CLIENT_PEOPLE_COUNT_UNKNOWN) {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
+    } else {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
+    }
+  } else {
+    status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+  }
+
+  sl_btmesh_sensor_client_on_new_people_count_data(sensor_idx,
+                                                   address,
+                                                   status,
+                                                   people_count);
+}
+
+static void handle_ambient_temperature_sensor_status_event(const uint8_t* property_data, uint8_t property_len, uint8_t sensor_idx, uint16_t address)
+{
+  temperature_8_t temperature = SL_BTMESH_SENSOR_CLIENT_TEMPERATURE_UNKNOWN;
+  sl_btmesh_sensor_client_data_status_t status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+
+  if (property_len == 1) {
+    mesh_device_property_t new_property = mesh_sensor_data_from_buf(PRESENT_AMBIENT_TEMPERATURE,
+                                                                    property_data);
+    temperature = new_property.temperature_8;
+
+    if (temperature == SL_BTMESH_SENSOR_CLIENT_TEMPERATURE_UNKNOWN) {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
+    } else {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
+    }
+  } else {
+    status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+  }
+
+  sl_btmesh_sensor_client_on_new_temperature_data(sensor_idx,
+                                                  address,
+                                                  status,
+                                                  temperature);
+}
+
+static void handle_illuminance_sensor_status_event(const uint8_t* property_data, uint8_t property_len, uint8_t sensor_idx, uint16_t address)
+{
+  illuminance_t illuminance = SL_BTMESH_SENSOR_CLIENT_ILLUMINANCE_UNKNOWN;
+  sl_btmesh_sensor_client_data_status_t status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+
+  if (property_len == 3) {
+    mesh_device_property_t new_property = mesh_sensor_data_from_buf(PRESENT_AMBIENT_LIGHT_LEVEL,
+                                                                    property_data);
+    illuminance = new_property.illuminance;
+
+    if (illuminance == SL_BTMESH_SENSOR_CLIENT_ILLUMINANCE_UNKNOWN) {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
+    } else {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
+    }
+  } else {
+    status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+  }
+
+  sl_btmesh_sensor_client_on_new_illuminance_data(sensor_idx,
+                                                  address,
+                                                  status,
+                                                  illuminance);
+}
+
+static void handle_energy_monitor_sensor_status_event(const uint8_t* property_data, uint8_t property_len, uint8_t sensor_idx, uint16_t address)
+{
+  energy32_t power_consumption = SL_BTMESH_SENSOR_POWER_CONSUMPTION_UNKNOWN;
+  sl_btmesh_sensor_client_data_status_t status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+
+  if (property_len == 4) {
+    mesh_device_property_t new_property = mesh_sensor_data_from_buf(PRECISE_TOTAL_DEVICE_ENERGY_USE,
+                                                                    property_data);
+    power_consumption = new_property.energy32;
+    if (power_consumption == SL_BTMESH_SENSOR_POWER_CONSUMPTION_UNKNOWN) {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
+    } else {
+      status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
+    }
+  } else {
+    status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
+  }
+  sl_btmesh_sensor_client_on_new_power_consumption_data(sensor_idx,
+                                                        address,
+                                                        status,
+                                                        power_consumption);
 }
 
 /***************************************************************************//**
@@ -245,115 +344,57 @@ static void handle_sensor_client_status(sl_btmesh_evt_sensor_client_status_t *ev
     return;
   }
   devices.count = registered_devices.count;
+  if (registered_devices.count == 0) {
+    return;
+  }
   for (int i = 0; i < registered_devices.count; i++) {
     devices.address_table[i] = registered_devices.address_table[i];
   }
   (void) app_btmesh_rta_release();
   while (pos < data_len) {
-    if (data_len - pos > PROPERTY_ID_SIZE) {
-      mesh_device_properties_t property_id = (mesh_device_properties_t)(sensor_data[pos]
-                                                                        + (sensor_data[pos + 1] << 8));
-      uint8_t property_len = sensor_data[pos + PROPERTY_ID_SIZE];
-      uint8_t *property_data = NULL;
-
-      if (mesh_address_already_exists(&devices, evt->server_address)) {
-        sl_btmesh_sensor_client_data_status_t status;
-        uint16_t address;
-        uint8_t sensor_idx;
-
-        if (property_len && (data_len - pos > PROPERTY_HEADER_SIZE)) {
-          property_data = &sensor_data[pos + PROPERTY_HEADER_SIZE];
-        }
-
-        address = evt->server_address;
-        sensor_idx = mesh_get_sensor_index(&devices, address);
-        status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
-
-        switch (property_id) {
-          case PEOPLE_COUNT:
-          {
-            count16_t people_count = SL_BTMESH_SENSOR_CLIENT_PEOPLE_COUNT_UNKNOWN;
-
-            if (property_len == 2) {
-              mesh_device_property_t new_property = mesh_sensor_data_from_buf(PEOPLE_COUNT,
-                                                                              property_data);
-              people_count = new_property.count16;
-
-              if (people_count == SL_BTMESH_SENSOR_CLIENT_PEOPLE_COUNT_UNKNOWN) {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
-              } else {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
-              }
-            } else {
-              status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
-            }
-
-            sl_btmesh_sensor_client_on_new_people_count_data(sensor_idx,
-                                                             address,
-                                                             status,
-                                                             people_count);
-            break;
-          }
-
-          case PRESENT_AMBIENT_TEMPERATURE:
-          {
-            temperature_8_t temperature = SL_BTMESH_SENSOR_CLIENT_TEMPERATURE_UNKNOWN;
-
-            if (property_len == 1) {
-              mesh_device_property_t new_property = mesh_sensor_data_from_buf(PRESENT_AMBIENT_TEMPERATURE,
-                                                                              property_data);
-              temperature = new_property.temperature_8;
-
-              if (temperature == SL_BTMESH_SENSOR_CLIENT_TEMPERATURE_UNKNOWN) {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
-              } else {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
-              }
-            } else {
-              status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
-            }
-
-            sl_btmesh_sensor_client_on_new_temperature_data(sensor_idx,
-                                                            address,
-                                                            status,
-                                                            temperature);
-            break;
-          }
-
-          case PRESENT_AMBIENT_LIGHT_LEVEL:
-          {
-            illuminance_t illuminance = SL_BTMESH_SENSOR_CLIENT_ILLUMINANCE_UNKNOWN;
-
-            if (property_len == 3) {
-              mesh_device_property_t new_property = mesh_sensor_data_from_buf(PRESENT_AMBIENT_LIGHT_LEVEL,
-                                                                              property_data);
-              illuminance = new_property.illuminance;
-
-              if (illuminance == SL_BTMESH_SENSOR_CLIENT_ILLUMINANCE_UNKNOWN) {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN;
-              } else {
-                status = SL_BTMESH_SENSOR_CLIENT_DATA_VALID;
-              }
-            } else {
-              status = SL_BTMESH_SENSOR_CLIENT_DATA_NOT_AVAILABLE;
-            }
-
-            sl_btmesh_sensor_client_on_new_illuminance_data(sensor_idx,
-                                                            address,
-                                                            status,
-                                                            illuminance);
-            break;
-          }
-
-          default:
-            log_info("Unsupported property id %4.4x" NL, property_id);
-            break;
-        }
-      }
-      pos += PROPERTY_HEADER_SIZE + property_len;
-    } else {
+    if (!(data_len - pos > PROPERTY_ID_SIZE)) {
       pos = data_len;
+      continue;
     }
+    mesh_device_properties_t property_id = (mesh_device_properties_t)(sensor_data[pos]
+                                                                      + (sensor_data[pos + 1] << 8));
+    uint8_t property_len = sensor_data[pos + PROPERTY_ID_SIZE];
+    uint8_t *property_data = NULL;
+
+    if (mesh_address_already_exists(&devices, evt->server_address)) {
+      uint16_t address;
+      uint8_t sensor_idx;
+
+      if (property_len && (data_len - pos > PROPERTY_HEADER_SIZE)) {
+        property_data = &sensor_data[pos + PROPERTY_HEADER_SIZE];
+      }
+
+      address = evt->server_address;
+      sensor_idx = mesh_get_sensor_index(&devices, address);
+
+      switch (property_id) {
+        case PEOPLE_COUNT:
+          handle_people_count_sensor_status_event(property_data, property_len, sensor_idx, address);
+          break;
+
+        case PRESENT_AMBIENT_TEMPERATURE:
+          handle_ambient_temperature_sensor_status_event(property_data, property_len, sensor_idx, address);
+          break;
+
+        case PRESENT_AMBIENT_LIGHT_LEVEL:
+          handle_illuminance_sensor_status_event(property_data, property_len, sensor_idx, address);
+          break;
+
+        case PRECISE_TOTAL_DEVICE_ENERGY_USE:
+          handle_energy_monitor_sensor_status_event(property_data, property_len, sensor_idx, address);
+          break;
+
+        default:
+          log_info("Unsupported property id %4.4x" NL, property_id);
+          break;
+      }
+    }
+    pos += PROPERTY_HEADER_SIZE + property_len;
   }
 }
 
@@ -391,19 +432,29 @@ void sl_btmesh_handle_sensor_client_on_event(sl_btmesh_msg_t *evt)
   if (NULL == evt) {
     return;
   }
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
 
   // Handle events
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         mesh_sensor_client_init();
+        booted = true;
       }
       break;
 
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      mesh_sensor_client_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        mesh_sensor_client_init();
+        booted = true;
+      }
       break;
+    }
 
     case sl_btmesh_evt_sensor_client_descriptor_status_id:
     case sl_btmesh_evt_sensor_client_status_id:
@@ -415,7 +466,7 @@ void sl_btmesh_handle_sensor_client_on_event(sl_btmesh_msg_t *evt)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Check if the mesh address already exists or not.
  *
  * @param[in] property Pointer to registered devices' properties
@@ -429,7 +480,7 @@ static bool mesh_address_already_exists(mesh_registered_device_properties_addres
 {
   bool address_exists = false;
   if (property != NULL) {
-    for (int i = 0; i < SL_BTMESH_SENSOR_CLIENT_DISPLAYED_SENSORS_CFG_VAL; i++) {
+    for (uint8_t i = 0; i < property->count; i++) {
       if (address == property->address_table[i]) {
         address_exists = true;
         break;
@@ -439,7 +490,7 @@ static bool mesh_address_already_exists(mesh_registered_device_properties_addres
   return address_exists;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Gets the sensor index.
  *
  * @param[in] property Pointer to registered devices' properties
@@ -452,7 +503,7 @@ static uint8_t mesh_get_sensor_index(mesh_registered_device_properties_address_t
 {
   uint8_t sensor_index = SENSOR_INDEX_NOT_FOUND;
   if (property != NULL) {
-    for (int i = 0; i < SL_BTMESH_SENSOR_CLIENT_DISPLAYED_SENSORS_CFG_VAL; i++) {
+    for (uint8_t i = 0; i < SL_BTMESH_SENSOR_CLIENT_DISPLAYED_SENSORS_CFG_VAL; i++) {
       if (address == property->address_table[i]) {
         sensor_index = i;
         break;
@@ -462,14 +513,16 @@ static uint8_t mesh_get_sensor_index(mesh_registered_device_properties_address_t
   return sensor_index;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initializes sensor client component
  ******************************************************************************/
 static void mesh_sensor_client_init(void)
 {
   sl_status_t sc = sl_btmesh_sensor_client_init();
 
-  app_assert_status_f(sc, "Failed to initialize sensor client");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Failed to initialize sensor client");
+  }
 }
-
-/** @} (end addtogroup SensorClient) */

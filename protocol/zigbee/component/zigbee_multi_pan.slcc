@@ -1,6 +1,6 @@
 id: zigbee_multi_pan
 label: Multi PAN
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: 'Provides the ability for a single device to operate on two simultaneous receiver-on-when-idle networks. The device may configure two independent coordinator networks operating on the same radio channel. Visit AN724: Designing for Multiple Networks on a Single Zigbee Chip for more information.'

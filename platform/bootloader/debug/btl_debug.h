@@ -25,11 +25,14 @@
 
 #include "core/btl_util.h"
 MISRAC_DISABLE
+#if defined(_SILICON_LABS_32B_SERIES_3)
+#include "sl_common.h"
+#else
 #include "em_common.h"
+#endif
 MISRAC_ENABLE
 
 #include "stdint.h"
-#include "em_common.h"
 
 /***************************************************************************//**
  * @addtogroup Components
@@ -79,7 +82,6 @@ void btl_debugWriteWordHex(uint32_t number);
 void btl_debugWriteInt(int number);
 void btl_debugWriteNewline(void);
 
-
 #define BTL_DEBUG_INIT()                  (btl_debugInit())
 #define BTL_DEBUG_PRINT(str)              (btl_debugWriteString(str))
 #define BTL_DEBUG_PRINTLN(str)            (btl_debugWriteLine(str))
@@ -89,7 +91,6 @@ void btl_debugWriteNewline(void);
 #define BTL_DEBUG_PRINT_SHORT_HEX(number) (btl_debugWriteShortHex(number))
 #define BTL_DEBUG_PRINT_WORD_HEX(number)  (btl_debugWriteWordHex(number))
 #define BTL_DEBUG_PRINT_LF()              (btl_debugWriteNewline())
-
 
 #else // No debug prints
 

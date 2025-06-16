@@ -1,5 +1,5 @@
 id: demo_ui
-package: platform
+package: platform_core
 label: UI Demo Functions
 description: |-
   Utility for drawing graphics for demo applications.

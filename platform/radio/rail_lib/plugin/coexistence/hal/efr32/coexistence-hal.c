@@ -15,7 +15,7 @@
  *
  ******************************************************************************/
 
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_core.h"
 #include "sl_gpio.h"
 #include "sl_hal_gpio.h"
@@ -540,7 +540,7 @@ uint16_t COEX_HAL_GetPseudoRandom(uint16_t min_value, uint16_t max_value)
 
 static void randomDelayCallback(uint16_t randomDelayMaskUs)
 {
-  RAIL_DelayUs(getPseudoRandom() & randomDelayMaskUs);
+  sl_rail_delay_us(SL_RAIL_EFR32_HANDLE, getPseudoRandom() & randomDelayMaskUs);
 }
 #endif //SL_RAIL_UTIL_COEX_REQ_BACKOFF
 
@@ -555,7 +555,7 @@ void COEX_HAL_Init(void)
   COEX_SetHalCallbacks(&coexHalCallbacks);
   COEX_InitHalConfigOptions();
   GPIOINT_Init();
-  RAIL_ConfigMultiTimer(true);
+  sl_rail_config_multi_timer(SL_RAIL_EFR32_HANDLE, true);
 
   #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
   #if SL_RAIL_UTIL_COEX_REQ_BACKOFF

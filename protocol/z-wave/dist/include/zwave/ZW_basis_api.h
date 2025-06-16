@@ -24,11 +24,10 @@
  * @addtogroup BASIS Z-Wave Basis API
  * This section defines functions that are implemented in all Z Wave nodes.
  * @{
-*/
+ */
 
 /** Return values of @ref ApplicationInit */
-typedef enum _APPLICATION_STATUS_
-{
+typedef enum _APPLICATION_STATUS_{
   APPLICATION_RUNNING,    ///< Application started normally
   APPLICATION_POWER_DOWN, ///< Application started in special mode:
                           ///< Scheduler started, but Z-Wave protocol task did not.
@@ -36,41 +35,33 @@ typedef enum _APPLICATION_STATUS_
 } ZW_APPLICATION_STATUS;
 
 ///  Node type structure used in ApplicationNodeInformation
-typedef struct _APPL_NODE_TYPE_
-{
+typedef struct _APPL_NODE_TYPE_{
   uint8_t generic;  ///< Generic Device Type
   uint8_t specific; ///< Specific Device Type
 } APPL_NODE_TYPE;
 
-typedef struct _NODE_TYPE_
-{
+typedef struct _NODE_TYPE_{
   uint8_t basic;     ///< Basic Device Type, is it a Controller, Controller_Static,
                      ///< Slave or a Slave_Routing Device Type
   uint8_t generic;   ///< Generic Device Type
   uint8_t specific;  ///< Specific Device Type
 } NODE_TYPE;
 
-
 /** Node info stored within the non-volatile memory
-* This are the first (protocol part) payload bytes from the Node Infomation frame */
-typedef struct _NODEINFO_
-{
+ * This are the first (protocol part) payload bytes from the Node Infomation frame */
+typedef struct _NODEINFO_{
   uint8_t    capability;  ///< Network capabilities
   uint8_t    security;    ///< Network security
   uint8_t    reserved;
   NODE_TYPE  nodeType;    ///< Basic, Generic and Specific Device types - Basic is generated...
 } NODEINFO;
 
-
-typedef struct
-{
+typedef struct {
   signed char rssi_dBm[ZPAL_RADIO_NUM_CHANNELS_LR_CH_CFG_1_2];
 } RSSI_LEVELS;
 
-
 /** Network modes that can be set by @ref ZAF_setNetworkLearnMode */
-typedef enum _E_NETWORK_LEARN_MODE_ACTION_
-{
+typedef enum _E_NETWORK_LEARN_MODE_ACTION_{
   E_NETWORK_LEARN_MODE_DISABLE =  0,       ///< Disable learn process
   E_NETWORK_LEARN_MODE_INCLUSION  = 1,     ///< Enable the learn process to do an inclusion
   E_NETWORK_LEARN_MODE_EXCLUSION  = 2,     ///< Enable the learn process to do an exclusion
@@ -95,8 +86,7 @@ typedef enum _E_NETWORK_LEARN_MODE_ACTION_
 ///@}
 
 /// @deprecated Use @ref APP_NODEINFO instead
-typedef enum _E_SYSTEM_TYPE_
-{
+typedef enum _E_SYSTEM_TYPE_{
   E_SYSTEM_TYPE_NON_LISTENING = APPLICATION_NODEINFO_NOT_LISTENING,     /* 0x00 */
   E_SYSTEM_TYPE_LISTENING = APPLICATION_NODEINFO_LISTENING,     /* 0x01 */
   E_SYSTEM_TYPE_FLIRS = 0x02,                                       /* 0x02 */
@@ -127,7 +117,7 @@ typedef enum _E_SYSTEM_TYPE_
 extern  ZW_APPLICATION_STATUS
 ApplicationInit(
   zpal_reset_reason_t eResetReason
-);
+  );
 
 /**
  * Initialize the Z-Wave protocol stack.
@@ -155,7 +145,7 @@ const uint8_t* ZW_GetProtocolGitHash(void);
 #ifdef ZW_CONTROLLER
 /**
  * Notify the Z-Wave task with the configured status
- * 
+ *
  * @param[in] status Status to notify the task with
  */
 
@@ -168,4 +158,3 @@ void ZW_RequestEncryptionStatus(uint32_t status);
  */
 
 #endif /* _ZW_BASIS_API_H_ */
-

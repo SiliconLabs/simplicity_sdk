@@ -1,5 +1,5 @@
 id: tz_common
-package: platform
+package: security_trustzone
 category: Platform|Security|TrustZone
 description: >-
   This component provides includes files and functionality common for TZ Secure and NonSecure applications.

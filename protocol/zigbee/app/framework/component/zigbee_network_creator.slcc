@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component performs the necessary steps to create a network according to the Base Device Behavior specification. The component performs an active scan followed by an energy scan across a primary channel set to decide which channel(s) are valid candidates for network formation. If the component fails to form a network on any primary channels, it moves to a secondary channel mask. Before every attempt at network formation, this component sets up the stack to use Zigbee 3.0 security.
 label: Network Creator
 quality: production

@@ -1,21 +1,21 @@
 id: emlib_system
 label: SYSTEM
-package: platform
+package: platform_core
 description: >
-  System peripheral API
-category: Platform|Peripheral
+  System peripheral API.
+category: Platform|Peripheral|EMLIB
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-component_root_path: "platform/emlib"
+    sbom:
+        license: Zlib
+component_root_path: platform/emlib
 source:
-  - path: "src/em_system.c"
+  - path: src/em_system.c
 include:
-  - path: "inc"
+  - path: inc
     file_list:
-    - path: "em_system.h"
-    - path: "em_system_generic.h"
+      - path: em_system.h
+      - path: em_system_generic.h
 provides:
   - name: emlib_system
   - name: hal_generic_system
@@ -48,3 +48,5 @@ documentation:
       condition: [device_sdid_230]
     - page: platform-emlib-efr32xg28/system
       condition: [device_sdid_235]
+    - page: platform-emlib-efr32xg29/system
+      condition: [device_sdid_240]

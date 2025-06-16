@@ -1,6 +1,6 @@
 id: "btmesh_iv_update"
 label: "Btmesh Automatic IV update"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   This component provides 3 optional functionalities:
    - periodic IV Update age backup. Restore on reset.
@@ -57,3 +57,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-iv-update

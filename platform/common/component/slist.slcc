@@ -1,12 +1,12 @@
 id: slist
-label: "Single Link List"
-package: platform
+label: Single Link List
+package: platform_common
 description: Component that provides single link list functionality.
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 include:
   - path: inc
@@ -17,8 +17,8 @@ source:
 provides:
   - name: slist
 requires:
-  - name: hal_generic_common
-    condition: [device_efx]
+  - name: status
+  - name: sl_assert
 documentation:
-  docset: gecko-platform
-  document: platform-common/slist
+    docset: gecko-platform
+    document: platform-common/slist

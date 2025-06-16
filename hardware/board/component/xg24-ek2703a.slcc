@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_ek2703a
 - label: XG24-EK2703A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG24 Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

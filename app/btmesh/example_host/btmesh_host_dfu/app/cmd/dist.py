@@ -1,4 +1,4 @@
-# Copyright 2022 Silicon Laboratories Inc. www.silabs.com
+# Copyright 2025 Silicon Laboratories Inc. www.silabs.com
 #
 # SPDX-License-Identifier: Zlib
 #
@@ -26,18 +26,24 @@ from typing import List, Optional, Tuple, Union
 
 import btmesh.util
 from bgapix.bglibx import BGLibExtSyncSignalException
-from btmesh.dfu import FwReceiver
-from btmesh.dist import (FwDistDistributionProgressEvent, FwDistFwStatus,
-                         FwDistPhase, FwDistStatus, FwDistUploadProgressEvent,
-                         FwReceiverPhase)
+from btmesh.dfu import FwReceiver, FwUpdateStatus, FwUpdateAdditionalInfo
+from btmesh.dist import (
+    FwDistDistributionProgressEvent,
+    FwDistFwStatus,
+    FwDistPhase,
+    FwDistStatus,
+    FwDistUploadProgressEvent,
+    FwReceiverPhase,
+)
 from btmesh.mbt import BlobTransferMode
 
+from .cmd import BtmeshCmd, FWParams
 from ..btmesh import app_btmesh
 from ..cfg import app_cfg
 from ..db import app_db
+from ..term import app_term
 from ..ui import app_ui
 from ..util.argparsex import ArgumentParserExt
-from .cmd import BtmeshCmd
 
 
 class BtmeshDistCmd(BtmeshCmd):
@@ -211,14 +217,38 @@ class BtmeshDistCmd(BtmeshCmd):
             exit_on_error_ext=False,
         )
         self.dist_upload_parser.set_defaults(dist_subcmd=self.dist_upload_cmd)
-        self.dist_upload_parser.add_argument(
-            "fw_image_path",
-            type=Path,
-            help="Path of FW image file which shall be uploaded.",
+
+        # Create mutually exclusive group for firmware sources
+        fw_source_group = self.dist_upload_parser.add_mutually_exclusive_group(
+            required=True
         )
+
+        # Regular firmware image path
+        fw_source_group.add_argument(
+            "--fw-image",
+            dest="fw_image_path",
+            type=Path,
+            help="Path of FW image file (.gbl) which shall be used for firmware upload.",
+        )
+
+        # Firmware archive option
+        fw_source_group.add_argument(
+            "--firmware-archive",
+            "-z",
+            dest="firmware_archive_path",
+            type=Path,
+            help=(
+                "Path to a .gz archive containing firmware files including a .gbl firmware "
+                "image, manifest.json, and metadata.bin."
+            ),
+        )
+
         self.add_distributor_arg(self.dist_upload_parser)
-        self.add_fwid_arg(self.dist_upload_parser)
-        self.add_metadata_arg(self.dist_upload_parser)
+
+        # Make fwid and metadata optional since they can be derived from the firmware archive
+        self.add_fwid_arg(self.dist_upload_parser, required=False)
+        self.add_metadata_arg(self.dist_upload_parser, required=False)
+
         self.dist_upload_parser.add_argument(
             "--timeout-base",
             "-T",
@@ -436,6 +466,7 @@ class BtmeshDistCmd(BtmeshCmd):
             self.dist_start_parser,
             add_elem_arg=True,
             add_elem_addrs_arg=True,
+            add_group_addr_arg=True,
             elem_default=0,
             group_addr_help=(
                 f"Group address used for the Firmware Distribution procedure. "
@@ -482,6 +513,9 @@ class BtmeshDistCmd(BtmeshCmd):
                 f"If {self.ELEM_ADDRS_OPTS} is used then {self.NODES_OPTS} and "
                 f"{self.GROUP_OPTS} and {self.ELEM_OPTS} shall not be used."
             ),
+        )
+        self.add_auto_new_term_args(
+            self.dist_start_parser, app_cfg.dist_clt.dist_auto_new_term
         )
         return SUBPARSER_NAME, self.dist_start_parser
 
@@ -593,15 +627,47 @@ class BtmeshDistCmd(BtmeshCmd):
             app_ui.table_info(rows)
 
     def dist_upload_cmd(self, pargs):
-        if not pargs.fw_image_path.exists():
-            self.current_parser.error(
-                f'The FW image file does not exists on "{pargs.fw_image_path}" path.'
+        # Handle either firmware image file or firmware archive
+        if hasattr(pargs, "firmware_archive_path") and pargs.firmware_archive_path:
+            # Process firmware archive (.gz file)
+            if not pargs.firmware_archive_path.exists():
+                self.current_parser.error(
+                    f'The firmware archive file does not exist at "{pargs.firmware_archive_path}" path.'
+                )
+
+            # Extract and process the archive contents
+            fw_params = self.process_firmware_archive(pargs.firmware_archive_path)
+
+        elif hasattr(pargs, "fw_image_path") and pargs.fw_image_path:
+            # Process regular firmware image file (.gbl file)
+            if not pargs.fw_image_path.exists():
+                self.current_parser.error(
+                    f'The FW image file does not exist at "{pargs.fw_image_path}" path.'
+                )
+
+            with open(pargs.fw_image_path, "rb") as content_file:
+                fw_data = content_file.read()
+            app_ui.info(
+                f"FW data ({len(fw_data)} bytes) is loaded from {pargs.fw_image_path}."
             )
-        with open(pargs.fw_image_path, "rb") as content_file:
-            fw_data = content_file.read()
-        app_ui.info(
-            f"FW data ({len(fw_data)} bytes) is loaded from " f"{pargs.fw_image_path}."
-        )
+
+            # Ensure FWID and metadata are provided when using regular firmware image
+            if not pargs.fwid:
+                self.current_parser.error(
+                    "When using --fw-image, you must specify fwid"
+                )
+
+            fw_params = FWParams(
+                fw_data=fw_data, fwid=pargs.fwid, metadata=pargs.metadata
+            )
+            if not fw_params:
+                self.current_parser.error("FWParams object is None")
+
+        else:
+            self.current_parser.error(
+                "Either --fw-image or --firmware-archive must be provided"
+            )
+
         nodes = app_db.btmesh_db.get_node_list(order_property="name")
         dist_addr = self.parse_elemspecs(pargs.distributor, nodes)[0]
         retry_params_default = app_cfg.common.retry_params_default
@@ -624,9 +690,9 @@ class BtmeshDistCmd(BtmeshCmd):
             app_btmesh.dist_clt.upload(
                 elem_index=app_cfg.dist_clt.elem_index,
                 dist_addr=dist_addr,
-                fwid=pargs.fwid,
-                fw_data=fw_data,
-                metadata=pargs.metadata,
+                fwid=fw_params.fwid,
+                fw_data=fw_params.fw_data,
+                metadata=fw_params.metadata,
                 timeout_base=pargs.timeout_base,
                 chunk_size_pref=pargs.chunk_size,
                 appkey_index=pargs.appkey_idx,
@@ -634,10 +700,10 @@ class BtmeshDistCmd(BtmeshCmd):
                 retry_interval=retry_params.retry_interval,
                 retry_cmd_interval=retry_params.retry_cmd_interval,
             )
-            app_db.add_fwid_metadata_pair(pargs.fwid, pargs.metadata)
+            app_db.add_fwid_metadata_pair(fw_params.fwid, fw_params.metadata)
             app_ui.info(
-                f"Firmware with {app_ui.fwid_str(pargs.fwid)} FWID is uploaded "
-                f"to Distributor (0x{dist_addr:04X})."
+                f"Firmware with {app_ui.fwid_str(fw_params.fwid)} FWID is "
+                f"uploaded to Distributor (0x{dist_addr:04X})."
             )
         except BGLibExtSyncSignalException as e:
             app_btmesh.dist_clt.cancel_upload(
@@ -700,6 +766,9 @@ class BtmeshDistCmd(BtmeshCmd):
         retry_params = self.process_btmesh_multicast_retry_params(
             pargs, retry_params_default
         )
+        auto_new_term = self.process_auto_new_term_args(
+            pargs, default=app_cfg.dist_clt.dist_auto_new_term
+        )
         fw_list_idx = pargs.fw_list_idx
         fwid = pargs.fwid
         if fwid:
@@ -754,7 +823,7 @@ class BtmeshDistCmd(BtmeshCmd):
         # Firmware Distribution Firmware Status message contains the FWID only.
         metadata = app_db.get_metadata_by_fwid(fwid=fwid, default=bytes())
         try:
-            dist_status, receivers_info = app_btmesh.dist_clt.distribution(
+            dist_status, receivers_result = app_btmesh.dist_clt.distribution(
                 elem_index=app_cfg.dist_clt.elem_index,
                 dist_addr=dist_addr,
                 group_addr=group_addr,
@@ -782,16 +851,28 @@ class BtmeshDistCmd(BtmeshCmd):
                     f"(0x{dist_addr:04X})."
                 )
                 rows = []
-                for rec_info in receivers_info:
-                    rec_info_dict = {
-                        "Address": f"0x{rec_info.server_addr:04X}",
-                        "FW Idx": f"{rec_info.fw_index}",
-                        "Phase": rec_info.phase.pretty_name,
-                        "BLOB status": rec_info.mbt_status.pretty_name,
-                        "DFU status": rec_info.dfu_status.pretty_name,
+                for rec_result in receivers_result:
+                    rec_result_dict = {
+                        "Address": f"0x{rec_result.server_addr:04X}",
+                        "FW Idx": f"{rec_result.fw_index}",
+                        "Phase": rec_result.phase.pretty_name,
+                        "BLOB status": rec_result.mbt_status.pretty_name,
+                        "DFU status": rec_result.dfu_status.pretty_name,
                     }
-                    rows.append(rec_info_dict)
+                    rows.append(rec_result_dict)
                 app_ui.table_info(rows)
+                if auto_new_term:
+                    nodes_updated_cd_changed = [
+                        app_db.btmesh_db.get_node_by_elem_addr(rec_result.server_addr)
+                        for rec_result in receivers_result
+                        if rec_result.phase == FwReceiverPhase.APPLY_SUCCESS
+                        if rec_result.additional_info
+                        == FwUpdateAdditionalInfo.CD_CHANGED_RPR_SUPPORTED
+                    ]
+                    app_term.start_new_terms(
+                        nodes_updated_cd_changed,
+                        sync_dcd=True,
+                    )
         except BGLibExtSyncSignalException:
             # If an target node does not respond then the cancellation might
             # be as long as the distribution client timeout. The distributor is
@@ -838,9 +919,9 @@ class BtmeshDistCmd(BtmeshCmd):
             self.last_dist_phase = event.dist_status.phase
         if event.dist_status.phase not in (FwDistPhase.IDLE, FwDistPhase.UNKNOWN_VALUE):
             active_receivers_progress = [
-                r.progress
-                for r in event.receivers_info
-                if r.phase == FwReceiverPhase.TRANSFER_IN_PROGRESS
+                receiver_info.progress
+                for receiver_info in event.receivers_info
+                if receiver_info.phase == FwReceiverPhase.TRANSFER_IN_PROGRESS
             ]
             if active_receivers_progress:
                 progress = min(active_receivers_progress)

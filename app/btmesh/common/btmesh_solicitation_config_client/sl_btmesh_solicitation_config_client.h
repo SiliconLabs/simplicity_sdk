@@ -36,7 +36,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup solicitation_config_client BT Mesh Solicitation PDU RPL Config Client
+ * @addtogroup btmesh_solicitation_config_client
  * @{
  ******************************************************************************/
 
@@ -50,7 +50,7 @@ extern "C" {
  ******************************************************************************/
 void sl_btmesh_solicitation_config_client_on_event(const sl_btmesh_msg_t *const evt);
 
-/** @} end solicitation_config_client */
+/** @} end btmesh_solicitation_config_client */
 
 #ifdef __cplusplus
 }

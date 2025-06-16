@@ -29,6 +29,6 @@ uint16_t cc_door_lock_get_max_hold_and_release_time(void);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_DOOR_LOCK_CONFIG_API_H */

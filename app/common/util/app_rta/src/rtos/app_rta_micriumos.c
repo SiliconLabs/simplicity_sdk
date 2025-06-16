@@ -116,7 +116,7 @@ sl_status_t app_rta_runtime_init_context(app_rta_internal_context_t *ctx)
       return sc;
     }
   }
-  // Create mutex for quard
+  // Create mutex for guard
   if (ctx->config.requirement.guard) {
     sc = create_mutex(ctx);
     if (sc != SL_STATUS_OK) {
@@ -203,6 +203,7 @@ sl_status_t app_rta_runtime_init(app_rta_runtime_t *runtime)
   memset(runtime->runtime_data, 0, sizeof(runtime_data_t));
 
   runtime_data_t *rt_data = (runtime_data_t *)runtime->runtime_data;
+  size_t stack_size = runtime->stack_size;
 
   // Create common semaphore
   rt_data->common_semaphore = (OS_SEM *)sl_malloc(sizeof(OS_SEM));
@@ -220,8 +221,6 @@ sl_status_t app_rta_runtime_init(app_rta_runtime_t *runtime)
   }
 
   // Calculate stack size
-  size_t stack_size = runtime->stack_size;
-
   rt_data->task_stack = (CPU_STK *)sl_malloc(stack_size);
   if (rt_data->task_stack == NULL) {
     sc = SL_STATUS_ALLOCATION_FAILED;

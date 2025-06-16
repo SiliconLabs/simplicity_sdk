@@ -3,7 +3,7 @@
  * @brief Application Over-the-Air Device Firmware Update
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -98,14 +98,8 @@ static app_ota_t app_ota;
 // Application OTA DFU initialization.
 void sli_bt_app_ota_dfu_init(void)
 {
-  sl_status_t sc;
-
-  // Initialize state
-  if (!init_state(true)) {
-    return;
-  }
-
   // Create context
+  sl_status_t sc;
   app_rta_config_t config = {
     .requirement.runtime = true,
     .requirement.guard   = true,
@@ -127,6 +121,12 @@ void sli_bt_app_ota_dfu_init(void)
 // Finalize initialization. (App RTA calls that requires scheduler.)
 void sli_bt_app_ota_dfu_rta_ready(void)
 {
+  // Initialize state
+  if (!init_state(true)) {
+    on_runtime_error(APP_RTA_ERROR_RUNTIME_INIT_FAILED, SL_STATUS_FAIL);
+    return;
+  }
+
   sl_status_t sc;
   sc = app_rta_acquire(app_ota.ctx);
   if (sc == SL_STATUS_OK) {

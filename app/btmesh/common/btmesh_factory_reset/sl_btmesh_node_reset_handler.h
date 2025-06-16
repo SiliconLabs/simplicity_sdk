@@ -32,9 +32,15 @@
 #define SL_BTMESH_NODE_RESET_HANDLER_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_factory_reset
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * This function is called to clear nvm used by application components
  * after node reset.
  ******************************************************************************/
 void sl_btmesh_app_node_reset_handler(void);
 
+/** @} (end addtogroup btmesh_factory_reset) */
 #endif // SL_BTMESH_NODE_RESET_HANDLER_H

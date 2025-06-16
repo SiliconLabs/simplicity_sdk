@@ -16,7 +16,6 @@
 
 #include "sli_bt_host_adaptation.h"
 #include "sl_bluetooth_config.h"
-#include "sl_bt_host_adaptation_config.h"
 #include "sl_bt_api.h"
 #include "sl_assert.h"
 #include "sl_core.h"
@@ -59,45 +58,6 @@ sli_bt_linklayer_wakeup_t *const sli_bt_host_adaptation_linklayer_wakeup = sli_b
 sli_bt_host_wakeup_t *const sli_bt_host_adaptation_host_wakeup = NULL;
 
 #endif // defined(SL_CATALOG_KERNEL_PRESENT)
-
-// Initialize the device interrupts in a baremetal app
-void sli_bt_host_adaptation_init_interrupts(void)
-{
-  // The Bluetooth host stack system adaptation initializates the interrupt
-  // configuration only when an RTOS kernel is not present in the application,
-  // i.e. when the application is a baremetal application. When an RTOS is
-  // present, the interrupts are configured by the RTOS.
-#if !defined(SL_CATALOG_KERNEL_PRESENT)
-
-  // Perform a compile-time validity check for the configuration. If BASEPRI is
-  // used as the method for atomic sections, the atomic level must be higher
-  // than or equal to the priority of the radio and link layer interrupts to
-  // ensure proper atomic sections in the Bluetooth stack. A lower number means
-  // higher priority.
-#if (CORE_ATOMIC_METHOD == CORE_ATOMIC_METHOD_BASEPRI)
-#if (CORE_ATOMIC_BASE_PRIORITY_LEVEL > SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY)
-#error Bluetooth EFR32 HAL: Invalid configuration CORE_ATOMIC_BASE_PRIORITY_LEVEL > SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY
-#endif
-#if (CORE_ATOMIC_BASE_PRIORITY_LEVEL > SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY)
-#error Bluetooth EFR32 HAL: Invalid configuration CORE_ATOMIC_BASE_PRIORITY_LEVEL > SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY
-#endif
-#endif // (CORE_ATOMIC_METHOD == CORE_ATOMIC_METHOD_BASEPRI)
-
-  // Set the priorities to the NVIC
-  NVIC_SetPriority(FRC_PRI_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(FRC_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(MODEM_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(RAC_SEQ_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(RAC_RSM_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(BUFC_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(PROTIMER_IRQn, SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY);
-  NVIC_SetPriority(PendSV_IRQn, SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY);
-
-  // Clear the PendSV interrupt
-  NVIC_ClearPendingIRQ(PendSV_IRQn);
-
-#endif // !defined(SL_CATALOG_KERNEL_PRESENT)
-}
 
 // Get the bootloader version information
 sl_status_t sli_bt_host_adaptation_get_bootloader_version(uint32_t *bootloader_version)

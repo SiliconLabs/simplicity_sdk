@@ -233,4 +233,10 @@ void sl_debug_printf(const char *formatString, ...)
     va_end(args);
 }
 
+void sl_debug_binary_write(sl_iostream_swo_itm_8_msg_type_t debugType, const void *buffer, size_t buffer_length)
+{
+    sl_iostream_set_debug_type(debugType);
+    sl_iostream_write(sl_iostream_debug_handle, buffer, buffer_length);
+}
+
 #endif // SL_CATALOG_OT_DEBUG_CHANNEL_PRESENT

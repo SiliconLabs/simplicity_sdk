@@ -1,6 +1,6 @@
 id: "btmesh_stack_vendor_model"
 label: "Vendor Model"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides functionality to send and receive vendor-specific messages."
 category: "Bluetooth Mesh|Stack|Models"
 quality: "production"

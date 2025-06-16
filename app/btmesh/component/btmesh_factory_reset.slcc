@@ -1,6 +1,6 @@
 id: "btmesh_factory_reset"
 label: "Factory Reset"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
  The Factory Reset is an application-level software module that
  manages two types of device resets. The Factory Reset provides possibility
@@ -80,3 +80,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-factory-reset

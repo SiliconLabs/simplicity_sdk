@@ -306,7 +306,8 @@ void esl_lib_pawr_on_bt_event(sl_bt_msg_t *evt)
                                  ESL_LIB_LOG_PTR(pawr_ptr),
                                  pawr_ptr->pawr_handle);
           sc = esl_lib_storage_append(pawr_ptr->storage_handle,
-                                      &evt->data.evt_pawr_advertiser_response_report.data);
+                                      evt->data.evt_pawr_advertiser_response_report.data.len,
+                                      evt->data.evt_pawr_advertiser_response_report.data.data);
           if (sc == SL_STATUS_OK
               && (data_status == PAWR_RESPONSE_COMPLETE
                   || data_status == PAWR_RESPONSE_TRUNCATED)) {
@@ -671,20 +672,23 @@ static sl_status_t run_command(esl_lib_command_list_cmd_t *cmd)
 
   if (sc != SL_STATUS_OK && pawr != NULL) {
     if (!(pawr->command->cmd_code == ESL_LIB_CMD_PAWR_SET_DATA
-          && (sc == SL_STATUS_BT_CTRL_COMMAND_DISALLOWED
-              || sc == SL_STATUS_BT_CTRL_PAWR_TOO_LATE
+          && (sc == SL_STATUS_BT_CTRL_CONTROLLER_BUSY
               || sc == SL_STATUS_BT_CTRL_PAWR_TOO_EARLY))) {
       esl_lib_log_pawr_error(PAWR_FMT "Command error, PAwR handle = %u, sc = 0x%04x" APP_LOG_NL,
                              ESL_LIB_LOG_PTR(pawr),
                              pawr->pawr_handle,
                              sc);
-      // Send pawr error event immediately in almost all cases, but various set data issues
+      // Send pawr error event immediately in almost all cases, but these two set data issues above
       (void)send_pawr_error(pawr,
                             lib_status,
                             sc,
                             error_data);
     } else {
-      sc = SL_STATUS_TRANSMIT; // Convert to common status code for those set of failures
+      esl_lib_log_pawr_debug(PAWR_FMT "PAwR set data not possible, PAwR handle = %u, sc = 0x%04x" APP_LOG_NL,
+                             ESL_LIB_LOG_PTR(pawr),
+                             pawr->pawr_handle,
+                             sc);
+      sc = SL_STATUS_TRANSMIT; // Convert to common status code for those two failures -> internal retry will take place
     }
   }
 

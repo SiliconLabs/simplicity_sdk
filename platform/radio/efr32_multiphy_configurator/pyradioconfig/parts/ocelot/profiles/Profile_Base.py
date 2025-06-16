@@ -96,7 +96,7 @@ class Profile_Base_Ocelot(Profile_Base):
         IProfile.make_required_input(profile, model.vars.deviation, "modem", readable_name="Deviation",
                                      value_limit_min=0, value_limit_max=1000000, units_multiplier=UnitsMultiplier.KILO)
         IProfile.make_required_input(profile, model.vars.bitrate, "modem", readable_name="Bitrate", value_limit_min=100,
-                                     value_limit_max=2000000, units_multiplier=UnitsMultiplier.KILO)
+                                     value_limit_max=4_000_000, units_multiplier=UnitsMultiplier.KILO)
         IProfile.make_required_input(profile, model.vars.baudrate_tol_ppm, "modem", readable_name="Baudrate Tolerance",
                                      value_limit_min=0, value_limit_max=200000)
         IProfile.make_required_input(profile, model.vars.shaping_filter, "modem", readable_name="Shaping Filter")

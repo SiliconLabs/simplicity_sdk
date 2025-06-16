@@ -1,5 +1,5 @@
 id: psa_driver_common
-package: platform
+package: security_mbedtls
 label: PSA Driver Common Source Code
 description: >-
   This component includes the Silicon Labs PSA common drivers source code files.

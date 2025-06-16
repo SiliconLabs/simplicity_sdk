@@ -50,21 +50,6 @@ class CALC_Demodulator_lynx(CALC_Demodulator_panther):
         self._addModelActual(model, 'digmix_res', float, ModelVariableFormat.DECIMAL)
         self._addModelActual(model, 'digmixfreq', int, ModelVariableFormat.DECIMAL)
 
-        member_data = [
-            ['NONE', 0, 'None'],
-            ['LE_1M', 1, 'Bluetooth LE 1Mbps'],
-            ['LE_2M', 2, 'Bluetooth LE 2Mbps'],
-            ['CODED_500K', 3, 'Bluetooth LE Coded 500Kbps'],
-            ['CODED_125K', 4, 'Bluetooth LE Coded 125Kbps'],
-            ['AOX_1M', 5, 'Bluetooth LE AoX 1Mbps'],
-            ['AOX_2M', 6, 'Bluetooth LE AoX 2Mbps'],
-            ['CONCURRENT', 7, 'Bluetooth Concurrent'],
-        ]
-        model.vars.ble_feature.var_enum = CreateModelVariableEnum(
-            'BleFeatureEnum',
-            'List of supported Bluetooth LE PHY features',
-            member_data)
-
     def calc_init_advanced(self, model):
         trecs_enabled = model.vars.trecs_enabled.value
         if trecs_enabled:

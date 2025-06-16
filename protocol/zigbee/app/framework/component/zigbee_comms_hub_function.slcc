@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Comms Hub Function (CHF).
 label: Comms Hub Function (CHF)
 quality: production

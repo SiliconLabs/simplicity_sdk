@@ -1,5 +1,5 @@
 id: psa_crypto_aes
-package: platform
+package: security_mbedtls
 label: AES Block Cipher
 description: >-
   This component provides support for AES key type in PSA Crypto.

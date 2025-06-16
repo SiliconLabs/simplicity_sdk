@@ -1,6 +1,6 @@
 project_name: ot-tz-secure-application
 label: Sample project for TrustZone Secure Key Library
-package: OpenThread
+package: openthread
 description: >
   This is a trustzone enabled application used to manage security operations from trustzone aware OpenThread applications.
 
@@ -25,6 +25,9 @@ requires:
   - name: armv8m.main # Armv8-M Supports TrustZone
 
 configuration:
+  - name: SL_MAIN_START_TASK_STACK_SIZE_BYTES
+    value: 3072
+    condition: [sl_main]
   - name: SL_STACK_SIZE
     value: 3072
   - name: SL_HEAP_SIZE

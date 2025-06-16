@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is the implementation of the EmberZNet Serial Protocol (EZSP) for communicating to an EFR32 chip configured as an NCP.  This protocol serializes the Zigbee stack calls that operate below the Application Framework.
 label: EZSP Common
 quality: production
@@ -19,8 +19,6 @@ requires:
   - name: zigbee_zcl_framework_core
   - name: zigbee_host_framework_common
   - name: silabs_core_event_queue
-  - name: sl_system_init
-  - name: sl_system_process_action
   - name: toolchain_gcc
   - name: zigbee_security_manager_host
 
@@ -129,7 +127,7 @@ include:
   - path: platform/service/legacy_common_ash/inc/
     file_list:
       - path: ash-common.h
-  - path: platform/service/token_manager/inc/
+  - path: platform/service/token_manager/legacy/inc/
   - path: platform/emlib/inc/
     file_list:
       - path: em_core.h

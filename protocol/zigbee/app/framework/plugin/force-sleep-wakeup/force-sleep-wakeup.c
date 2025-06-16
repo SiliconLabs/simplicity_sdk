@@ -16,7 +16,7 @@
 
 #include "app/framework/include/af.h"
 #include "force-sleep-wakeup.h"
-#include "rail.h"
+#include "sl_rail.h"
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
 #endif

@@ -95,8 +95,7 @@ public:
     void Stop(void);
 
     /**
-     * Updates the value of `mTxRequestAheadTimeUs`, based on bus speed, bus latency and
-     * `OPENTHREAD_CONFIG_MAC_CSL_REQUEST_AHEAD_US`.
+     * Updates the value of `mTxRequestAheadTimeUs`, based on bus speed, bus latency and `Mac::kCslRequestAhead`.
      */
     void UpdateFrameRequestAhead(void);
 
@@ -104,6 +103,7 @@ private:
     constexpr static uint8_t  kConnectionRetryInterval = OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_CONNECTION_RETRY_INTERVAL;
     constexpr static uint8_t  kConnectionRetryCount    = OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_CONNECTION_RETRY_COUNT;
     constexpr static uint32_t kWakeupFrameLength       = 54; // Includes SHR
+    constexpr static bool     kWakeupFrameTxCca        = OPENTHREAD_CONFIG_WAKEUP_FRAME_TX_CCA_ENABLE;
     constexpr static uint32_t kParentRequestLength     = 78; // Includes SHR
 
     // Called by the MAC layer when a wake-up frame transmission is about to be started.

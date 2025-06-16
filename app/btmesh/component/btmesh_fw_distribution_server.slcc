@@ -1,6 +1,6 @@
 id: btmesh_fw_distribution_server
 label: Firmware Distribution Server
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides BT Mesh Firmware Distribution Server functionality, defined in mesh
   specification.
@@ -66,3 +66,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-fw-distribution-server

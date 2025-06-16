@@ -1,7 +1,7 @@
 !!omap
 - id: pg28_pk2506a
 - label: PG28-PK2506A
-- package: platform
+- package: boards
 - description: Kit BSP support for the PG28 Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

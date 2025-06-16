@@ -1,0 +1,20 @@
+id: sl_rail_util_power_manager_init
+label: SL_ RAIL Utility, Power manager init
+description: Utility to aid with RAIL power manager initialization
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_power_manager_init
+        name: SL RAIL Utility, Power manager init
+        license: Zlib
+ui_hints:
+    visibility: never
+provides:
+  - name: sl_rail_util_power_manager_init
+requires:
+  - name: rail_util_power_manager_init
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

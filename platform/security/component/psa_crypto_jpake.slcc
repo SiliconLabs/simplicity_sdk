@@ -1,5 +1,5 @@
 id: psa_crypto_jpake
-package: platform
+package: security_mbedtls
 label: J-PAKE over Elliptic Curves
 description: >-
   This component provides support for Elliptic Curve (EC) J-PAKE in PSA Crypto.

@@ -821,6 +821,80 @@ typedef union {
     uint32_t                : 17; // B79-95
   } bits;
   uint32_t word[3];
+#elif defined (_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+    uint32_t SETAMPERHOST_IRQn      : 1;  /*!<  0 EFR32 SETAMPERHOST Interrupt */
+    uint32_t SEMBRX_IRQn            : 1;  /*!<  1 EFR32 SEMBRX Interrupt */
+    uint32_t SEMBTX_IRQn            : 1;  /*!<  2 EFR32 SEMBTX Interrupt */
+    uint32_t SMU_SECURE_IRQn        : 1;  /*!<  3 EFR32 SMU_SECURE Interrupt */
+    uint32_t SMU_S_PRIVILEGED_IRQn  : 1;  /*!<  4 EFR32 SMU_S_PRIVILEGED Interrupt */
+    uint32_t SMU_NS_PRIVILEGED_IRQn : 1;  /*!<  5 EFR32 SMU_NS_PRIVILEGED Interrupt */
+    uint32_t EMU_IRQn               : 1;  /*!<  6 EFR32 EMU Interrupt */
+    uint32_t EMUEFP_IRQn            : 1;  /*!<  7 EFR32 EMUEFP Interrupt */
+    uint32_t DCDC_IRQn              : 1;  /*!<  8 EFR32 DCDC Interrupt */
+    uint32_t ETAMPDET_IRQn          : 1;  /*!<  9 EFR32 ETAMPDET Interrupt */
+    uint32_t TIMER0_IRQn            : 1;  /*!< 10 EFR32 TIMER0 Interrupt */
+    uint32_t TIMER1_IRQn            : 1;  /*!< 11 EFR32 TIMER1 Interrupt */
+    uint32_t TIMER2_IRQn            : 1;  /*!< 12 EFR32 TIMER2 Interrupt */
+    uint32_t TIMER3_IRQn            : 1;  /*!< 13 EFR32 TIMER3 Interrupt */
+    uint32_t TIMER4_IRQn            : 1;  /*!< 14 EFR32 TIMER4 Interrupt */
+    uint32_t RTCC_IRQn              : 1;  /*!< 15 EFR32 RTCC Interrupt */
+    uint32_t USART0_RX_IRQn         : 1;  /*!< 16 EFR32 USART0_RX Interrupt */
+    uint32_t USART0_TX_IRQn         : 1;  /*!< 17 EFR32 USART0_TX Interrupt */
+    uint32_t USART1_RX_IRQn         : 1;  /*!< 18 EFR32 USART1_RX Interrupt */
+    uint32_t USART1_TX_IRQn         : 1;  /*!< 19 EFR32 USART1_TX Interrupt */
+    uint32_t EUSART0_RX_IRQn        : 1;  /*!< 20 EFR32 EUSART0_RX Interrupt */
+    uint32_t EUSART0_TX_IRQn        : 1;  /*!< 21 EFR32 EUSART0_TX Interrupt */
+    uint32_t ICACHE0_IRQn           : 1;  /*!< 22 EFR32 ICACHE0 Interrupt */
+    uint32_t BURTC_IRQn             : 1;  /*!< 23 EFR32 BURTC Interrupt */
+    uint32_t LETIMER0_IRQn          : 1;  /*!< 24 EFR32 LETIMER0 Interrupt */
+    uint32_t SYSCFG_IRQn            : 1;  /*!< 25 EFR32 SYSCFG Interrupt */
+    uint32_t LDMA_IRQn              : 1;  /*!< 26 EFR32 LDMA Interrupt */
+    uint32_t LFXO_IRQn              : 1;  /*!< 27 EFR32 LFXO Interrupt */
+    uint32_t LFRCO_IRQn             : 1;  /*!< 28 EFR32 LFRCO Interrupt */
+    uint32_t ULFRCO_IRQn            : 1;  /*!< 29 EFR32 ULFRCO Interrupt */
+    uint32_t GPIO_ODD_IRQn          : 1;  /*!< 30 EFR32 GPIO_ODD Interrupt */
+    uint32_t GPIO_EVEN_IRQn         : 1;  /*!< 31 EFR32 GPIO_EVEN Interrupt */
+    uint32_t I2C0_IRQn              : 1;  /*!< 32 EFR32 I2C0 Interrupt */
+    uint32_t I2C1_IRQn              : 1;  /*!< 33 EFR32 I2C1 Interrupt */
+    uint32_t EMUDG_IRQn             : 1;  /*!< 34 EFR32 EMUDG Interrupt */
+    uint32_t EMUSE_IRQn             : 1;  /*!< 35 EFR32 EMUSE Interrupt */
+    uint32_t AGC_IRQn               : 1;  /*!< 36 EFR32 AGC Interrupt */
+    uint32_t BUFC_IRQn              : 1;  /*!< 37 EFR32 BUFC Interrupt */
+    uint32_t FRC_PRI_IRQn           : 1;  /*!< 38 EFR32 FRC_PRI Interrupt */
+    uint32_t FRC_IRQn               : 1;  /*!< 39 EFR32 FRC Interrupt */
+    uint32_t MODEM_IRQn             : 1;  /*!< 40 EFR32 MODEM Interrupt */
+    uint32_t PROTIMER_IRQn          : 1;  /*!< 41 EFR32 PROTIMER Interrupt */
+    uint32_t RAC_RSM_IRQn           : 1;  /*!< 42 EFR32 RAC_RSM Interrupt */
+    uint32_t RAC_SEQ_IRQn           : 1;  /*!< 43 EFR32 RAC_SEQ Interrupt */
+    uint32_t RDMAILBOX_IRQn         : 1;  /*!< 44 EFR32 RDMAILBOX Interrupt */
+    uint32_t RFSENSE_IRQn           : 1;  /*!< 45 EFR32 RFSENSE Interrupt */
+    uint32_t SYNTH_IRQn             : 1;  /*!< 46 EFR32 SYNTH Interrupt */
+    uint32_t PRORTC_IRQn            : 1;  /*!< 47 EFR32 PRORTC Interrupt */
+    uint32_t ACMP0_IRQn             : 1;  /*!< 48 EFR32 ACMP0 Interrupt */
+    uint32_t WDOG0_IRQn             : 1;  /*!< 49 EFR32 WDOG0 Interrupt */
+    uint32_t HFXO0_IRQn             : 1;  /*!< 50 EFR32 HFXO0 Interrupt */
+    uint32_t HFRCO0_IRQn            : 1;  /*!< 51 EFR32 HFRCO0 Interrupt */
+    uint32_t CMU_IRQn               : 1;  /*!< 52 EFR32 CMU Interrupt */
+    uint32_t AES_IRQn               : 1;  /*!< 53 EFR32 AES Interrupt */
+    uint32_t IADC_IRQn              : 1;  /*!< 54 EFR32 IADC Interrupt */
+    uint32_t MSC_IRQn               : 1;  /*!< 55 EFR32 MSC Interrupt */
+    uint32_t DPLL0_IRQn             : 1;  /*!< 56 EFR32 DPLL0 Interrupt */
+    uint32_t PDM_IRQn               : 1;  /*!< 57 EFR32 PDM Interrupt */
+    uint32_t SW0_IRQn               : 1;  /*!< 58 EFR32 SW0 Interrupt */
+    uint32_t SW1_IRQn               : 1;  /*!< 59 EFR32 SW1 Interrupt */
+    uint32_t SW2_IRQn               : 1;  /*!< 60 EFR32 SW2 Interrupt */
+    uint32_t SW3_IRQn               : 1;  /*!< 61 EFR32 SW3 Interrupt */
+    uint32_t KERNEL0_IRQn           : 1;  /*!< 62 EFR32 KERNEL0 Interrupt */
+    uint32_t KERNEL1_IRQn           : 1;  /*!< 63 EFR32 KERNEL1 Interrupt */
+    uint32_t M33CTI0_IRQn           : 1;  /*!< 64 EFR32 M33CTI0 Interrupt */
+    uint32_t M33CTI1_IRQn           : 1;  /*!< 65 EFR32 M33CTI1 Interrupt */
+    uint32_t FPUEXH_IRQn            : 1;  /*!< 66 EFR32 FPUEXH Interrupt */
+    uint32_t MPAHBRAM_IRQn          : 1;  /*!< 67 EFR32 MPAHBRAM Interrupt */
+    uint32_t EUSART1_RX_IRQn        : 1;  /*!< 68 EFR32 EUSART1_RX Interrupt */
+    uint32_t EUSART1_TX_IRQn        : 1;  /*!< 69 EFR32 EUSART1_TX Interrupt */
+    uint32_t                : 26; // B70-95
+  } bits;
+  uint32_t word[3];
 #elif defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
     // These come from sixg301m114lih.h
     uint32_t SETAMPERHOST_IRQn      : 1;  /*!<  0 Si SETAMPERHOST Interrupt */

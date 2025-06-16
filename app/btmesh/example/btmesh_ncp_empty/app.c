@@ -27,16 +27,28 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
 #include "sl_ncp.h"
 
 #include "ncp_btmesh_user_cmd.h"
 #include "app.h"
+#include "sl_main_init.h"
+
+/*******************************************************************************
+ * Application Early Init
+ ******************************************************************************/
+void app_init_early(void)
+{
+  /////////////////////////////////////////////////////////////////////////////
+  // Put your additional application init code here!                         //
+  // This is called once before the OS is initialized if RTOS is used.       //
+  // This function precedes permanent memory allocations.                    //
+  /////////////////////////////////////////////////////////////////////////////
+}
 
 /***************************************************************************//**
  * Application Init.
  ******************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -47,7 +59,7 @@ SL_WEAK void app_init(void)
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   if (app_is_process_required()) {
     /////////////////////////////////////////////////////////////////////////////

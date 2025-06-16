@@ -36,17 +36,11 @@ component:
   - id: rail_util_pti
   - id: trustzone_nonsecure
   - id: nvm3_default
-  - id: tz_secure_key_library  
-  - id: sl_system
+  - id: tz_secure_key_library
+  - id: sl_main
 
 source:
   - path: app.c
-  - path: main.c
-
-include:
-  - path: .
-    file_list:
-    - path: app.h
 
 config_file:
   - override:
@@ -70,7 +64,7 @@ other_file:
 import:
   # Import the config files from the TZ Secure application
   - id: btmesh_soc_tz_secure_application
-  
+
 configuration:
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
@@ -127,7 +121,6 @@ template_contribution:
     value: 0x20003000
   - name: memory_ram_size
     value: 0x8000
-
 
 tag:
   - hardware:device:flash:512

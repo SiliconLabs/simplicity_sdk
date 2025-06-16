@@ -1,6 +1,6 @@
 id: lwip_port_micriumos
 label: "LwIP MicriumOS port "
-package: platform
+package: lwip
 description: >
   The LwIP MicriumOS port component can be used for LwIP port contribution for MicriumOS.
 category: Third Party|LwIP|OS

@@ -1,7 +1,7 @@
 !!omap
 - id: brd2506a
 - label: BRD2506A
-- package: platform
+- package: boards
 - description: Board support for BRD2506A.
 - category: Platform|Board|Starter Kit
 - quality: production

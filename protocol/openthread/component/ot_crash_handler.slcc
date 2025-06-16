@@ -1,6 +1,6 @@
 id: ot_crash_handler
 label: Crash Handler
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: |-

@@ -1,7 +1,7 @@
 !!omap
 - id: xg22_rb4415a
 - label: XG22-RB4415A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG22E 2.4 GHz 6 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

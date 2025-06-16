@@ -1,6 +1,6 @@
 !!omap
 - id: MGM240L022VNF
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM240L022VNF.
 - category: Platform|Device|MGM24
 - quality: production

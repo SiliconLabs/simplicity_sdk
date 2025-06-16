@@ -35,9 +35,9 @@
  *         Otherwise, the return value from the handler is passed through.
  */
 received_frame_status_t ZAF_CC_invoke_specific(
-    CC_handler_map_latest_t const * const p_cc_entry,
-    cc_handler_input_t *input,
-    cc_handler_output_t *output);
+  CC_handler_map_latest_t const * const p_cc_entry,
+  cc_handler_input_t *input,
+  cc_handler_output_t *output);
 
 /**
  * Invokes a handler based on the command class in the given frame.
@@ -57,7 +57,7 @@ received_frame_status_t invoke_cc_handler(cc_handler_input_t * input,
 
 /**
  * Initializes a specific command class.
- * 
+ *
  * @param cmdClass The CC to initialize
  */
 void ZAF_CC_init_specific(uint8_t cmdClass);
@@ -97,7 +97,7 @@ void ZAF_CC_foreach(zaf_cc_invoker_callback_t callback, zaf_cc_context_t context
 
 /**
  * Returns the size of the handler map
- * 
+ *
  * @return size_t Handler map size
  */
 size_t ZAF_CC_handler_map_size(void);
@@ -106,7 +106,7 @@ size_t ZAF_CC_handler_map_size(void);
  * Invokes callback for each registered CC configuration.
  *
  * Will stop if the callback returns true.
- * 
+ *
  * @param callback Callback function to invoke.
  * @param context Context to pass on to the callback function.
  */
@@ -114,7 +114,7 @@ void ZAF_CC_config_foreach(zaf_cc_config_invoker_callback_t callback, void *cont
 
 /**
  * Returns the size of the config entry
- * 
+ *
  * @return size_t Config entry size
  */
 size_t ZAF_CC_config_entry_size(void);
@@ -123,6 +123,5 @@ size_t ZAF_CC_config_entry_size(void);
  * @} // CC_Invoker
  * @} // ZAF
  */
-
 
 #endif /* ZAF_CC_INVOKER_H_ */

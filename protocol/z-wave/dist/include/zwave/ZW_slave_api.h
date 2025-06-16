@@ -31,7 +31,6 @@
 #define UPDATE_STATE_REQUEST_NODE_INFO_RECEIVED 0x82
 ///@}
 
-
 /**
  * @addtogroup ZW_ROUTE_UPDATE
  * ZW_REQUEST_NETWORK_UPDATE callback values
@@ -48,4 +47,3 @@
 #endif /* ZW_SLAVE */
 
 #endif /* _ZW_SLAVE_API_H_ */
-

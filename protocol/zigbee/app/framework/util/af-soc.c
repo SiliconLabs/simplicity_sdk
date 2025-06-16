@@ -248,26 +248,6 @@ void sl_zigbee_af_get_mfg_string(uint8_t* returnData)
   halCommonGetMfgToken(returnData, TOKEN_MFG_STRING);
 }
 
-sl_802154_short_addr_t sl_zigbee_af_get_node_id(void)
-{
-  return sl_zigbee_get_node_id();
-}
-
-sl_802154_pan_id_t sl_zigbee_af_get_pan_id(void)
-{
-  return sl_zigbee_get_pan_id();
-}
-
-sl_zigbee_network_status_t sl_zigbee_af_network_state(void)
-{
-  return sl_zigbee_network_state();
-}
-
-uint8_t sl_zigbee_af_get_radio_channel(void)
-{
-  return sl_zigbee_get_radio_channel();
-}
-
 uint8_t sl_zigbee_af_get_stack_profile(void)
 {
   return sl_zigbee_stack_profile();

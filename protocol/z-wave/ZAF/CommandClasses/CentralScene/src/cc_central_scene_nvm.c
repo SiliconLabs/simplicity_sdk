@@ -10,8 +10,6 @@
 #include <ZAF_nvm.h>
 #include <ZAF_file_ids.h>
 #include <zpal_misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 // Matches FILE_ID_APPLICATIONDATA from WallController sample app
 #define CENTRAL_SCENE_DATA_LEGACY_FILE_ID      (0x00000)

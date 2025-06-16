@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief CS Initiator Client API
+ * @brief CS initiator - client header
  *******************************************************************************
  * # License
  * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
@@ -35,18 +35,17 @@
 // Includes
 
 #include <stdbool.h>
-#include "sl_bt_api.h"
-#include "sl_rtl_clib_api.h"
+#include <stdint.h>
 #include "sl_enum.h"
 #include "sl_common.h"
-#include "cs_initiator_config.h"
+#include "sl_bt_api.h"
+#include "sl_rtl_clib_api.h"
 
+#include "cs_initiator_config.h"
 // -----------------------------------------------------------------------------
 // Macros
 
-#define INITIATOR_DEVICE_NAME "CS RFLCT"
-
-#define SUBMODE_NOT_USED                              0xff
+#define REFLECTOR_DEVICE_NAME "CS RFLCT"
 
 // The number of times the channel_map field will
 // be cycled through for non-Mode 0 steps within a CS procedure.
@@ -59,16 +58,27 @@
 // Default: 3 Range: 2-160
 #define CS_INITIATOR_DEFAULT_MAX_MAIN_MODE_STEPS      5
 
+#define CS_INITIATOR_MIXED_MODE_MAIN_MODE_STEPS       2
+
 // The number of main mode steps taken from the end of the last CS subevent
 // to be repeated at the beginning of the current CS subevent directly after
 // the last Mode 0 step of that event.
 // Default: 0 Range: 0-3
 #define CS_INITIATOR_DEFAULT_MAIN_MODE_REPETITION      0
 
+// Added for backward compatibility
+#ifndef CS_INITIATOR_DEFAULT_CS_MAIN_MODE
+#define CS_INITIATOR_DEFAULT_CS_MAIN_MODE CS_INITIATOR_DEFAULT_CS_MODE
+#endif
+
+#define CS_INITIATOR_DEFAULT_CHANNEL_MAP \
+  { 0xFC, 0xFF, 0x7F, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1F }
+
 #define INITIATOR_CONFIG_DEFAULT                                                           \
   {                                                                                        \
-    .cs_mode =                        CS_INITIATOR_DEFAULT_CS_MODE,                        \
-    .submode =                        SUBMODE_NOT_USED,                                    \
+    .procedure_scheduling =           CS_INITIATOR_DEFAULT_PROCEDURE_SCHEDULING,           \
+    .cs_main_mode =                   CS_INITIATOR_DEFAULT_CS_MAIN_MODE,                   \
+    .cs_sub_mode =                    CS_INITIATOR_DEFAULT_CS_SUB_MODE,                    \
     .min_subevent_len =               CS_INITIATOR_DEFAULT_MIN_SUBEVENT_LEN,               \
     .max_subevent_len =               CS_INITIATOR_DEFAULT_MAX_SUBEVENT_LEN,               \
     .min_procedure_interval =         CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL,         \
@@ -97,38 +107,39 @@
     .rssi_ref_tx_power =              CS_INITIATOR_DEFAULT_RSSI_REF_TX_POWER,              \
     .latency =                        CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY,  \
     .timeout =                        CS_INITIATOR_DEFAULT_TIMEOUT,                        \
+    .mtu =                            23,                                                  \
     .min_ce_length =                  CS_INITIATOR_DEFAULT_MIN_CE_LENGTH,                  \
     .max_ce_length =                  CS_INITIATOR_DEFAULT_MAX_CE_LENGTH,                  \
     .cs_sync_antenna =                CS_SYNC_SWITCHING,                                   \
-    .rtt_type =                       sl_bt_cs_rtt_type_fractional_96_bit_sounding,        \
+    .rtt_type =                       CS_INITIATOR_DEFAULT_RTT_TYPE,                       \
     .channel_selection_type =         CS_INITIATOR_DEFAULT_CHANNEL_SELECTION_TYPE,         \
     .ch3c_shape =                     CS_INITIATOR_DEFAULT_CH3C_SHAPE,                     \
     .reserved =                       0,                                                   \
     .snr_control_initiator =          sl_bt_cs_snr_control_adjustment_not_applied,         \
-    .snr_control_reflector =          sl_bt_cs_snr_control_adjustment_not_applied          \
+    .snr_control_reflector =          sl_bt_cs_snr_control_adjustment_not_applied,         \
+    .use_real_time_ras_mode =         CS_INITIATOR_RAS_MODE_USE_REAL_TIME_MODE,            \
+    .channel_map.data =               CS_INITIATOR_DEFAULT_CHANNEL_MAP,                    \
+    .channel_map_preset =             CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET              \
   }
 
-#define RTL_CONFIG_DEFAULT                                             \
-  {                                                                    \
-    .algo_mode =               CS_INITIATOR_DEFAULT_ALGO_MODE,         \
-    .rtl_logging_enabled =     CS_INITIATOR_RTL_LOG,                   \
-    .channel_map_preset =      CS_INITIATOR_DEFAULT_CHANNEL_MAP_PRESET \
+#define RTL_CONFIG_DEFAULT                       \
+  {                                              \
+    .algo_mode = CS_INITIATOR_DEFAULT_ALGO_MODE, \
+    .rtl_logging_enabled = CS_INITIATOR_RTL_LOG, \
   }
 
 // -----------------------------------------------------------------------------
 // Enums, structs, typedefs
 
-// TX power type
-typedef int8_t cs_tx_power_t;
-
-typedef enum {
+// CS channel map preset
+SL_ENUM(cs_channel_map_preset_t) {
   CS_CHANNEL_MAP_PRESET_LOW,
   CS_CHANNEL_MAP_PRESET_MEDIUM,
   CS_CHANNEL_MAP_PRESET_HIGH,
   CS_CHANNEL_MAP_PRESET_CUSTOM
-} cs_channel_map_preset_t;
+};
 
-// cs antenna configuration index
+// CS antenna configuration index
 SL_ENUM(cs_tone_antenna_config_index_t) {
   CS_ANTENNA_CONFIG_INDEX_SINGLE_ONLY = 0,
   CS_ANTENNA_CONFIG_INDEX_DUAL_I_SINGLE_R = 1,
@@ -143,6 +154,14 @@ SL_ENUM(cs_sync_antenna_t) {
   CS_SYNC_SWITCHING = 0xfe
 };
 
+// Parameters optimization for energy or frequency
+// Has an effect on procedure and connection intervals
+SL_ENUM(cs_procedure_scheduling_t) {
+  CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY = 0,
+  CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_ENERGY,
+  CS_PROCEDURE_SCHEDULING_CUSTOM
+};
+
 SL_ENUM(cs_error_event_t) {
   CS_ERROR_EVENT_UNHANDLED,
   CS_ERROR_EVENT_TIMER_HANDLE_NULL_REFERENCE,
@@ -150,15 +169,31 @@ SL_ENUM(cs_error_event_t) {
   CS_ERROR_EVENT_TIMER_ELAPSED,
   CS_ERROR_EVENT_TIMER_STOP_ERROR,
   CS_ERROR_EVENT_START_SERVICE_DISCOVERY,
+  CS_ERROR_EVENT_RAS_SERVICE_DISCOVERY_FAILED,
   CS_ERROR_EVENT_GATT_PROCEDURE_FAILED,
   CS_ERROR_EVENT_START_CHARACTERISTIC_DISCOVERY_FAILED,
+  CS_ERROR_EVENT_RAS_REAL_TIME_RANGING_DATA_CHARACTERISTIC_NOT_FOUND,
+  CS_ERROR_EVENT_RAS_CLIENT_CREATE_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_INIT_FEATURE_NOT_SUPPORTED,
+  CS_ERROR_EVENT_RAS_CLIENT_INIT_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_CONFIG_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_MODE_CHANGE_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_SCOOP_DATA_OUT_OF_BOUNDS,
+  CS_ERROR_EVENT_RAS_CLIENT_DATA_RECEPTION_FINISH_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_RANGING_DATA_READY_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_GET_RANGING_DATA_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_RANGING_DATA_OVERWRITTEN_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_ABORT_FINISHED_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_ACK_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_REQUEST_LOST_SEGMENTS_FAILED,
+  CS_ERROR_EVENT_RAS_CLIENT_ON_ACK_FINISHED_FAILED,
   CS_ERROR_EVENT_SEND_NOTIFICATION_FAILED,
   CS_ERROR_EVENT_SEND_INDICATION_FAILED,
   CS_ERROR_EVENT_SEND_CONTROL_POINT_RESPONSE_FAILED,
   CS_ERROR_EVENT_WRITE_CHARACTERISTIC_FAILED,
   CS_ERROR_EVENT_SEND_CHARACTERISTIC_CONFIRMATION_FAILED,
   CS_ERROR_EVENT_CS_SET_PROCEDURE_PARAMETERS_FAILED,
-  CS_ERROR_EVENT_CS_PROCEDURE_SET_STARTTIME_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_ENABLE_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_START_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_START_TIMER_FAILED,
@@ -166,13 +201,9 @@ SL_ENUM(cs_error_event_t) {
   CS_ERROR_EVENT_CS_PROCEDURE_STOP_FAILED,
   CS_ERROR_EVENT_CS_PROCEDURE_UNEXPECTED_DATA,
   CS_ERROR_EVENT_CS_PROCEDURE_COMPLETE_FAILED,
-  CS_ERROR_EVENT_CS_PROCEDURE_COMPLETE_MISSING_INITIATOR_COMPLETE,
   CS_ERROR_EVENT_CS_PROCEDURE_COUNTER_MISMATCH,
   CS_ERROR_EVENT_INITIATOR_INSTANCE_NULL,
-  CS_ERROR_EVENT_INITIATOR_INSTANCE_SLOTS_FULL,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_DEFAULT_CS_SETTINGS,
-  CS_ERROR_EVENT_INITIATOR_FAILED_TO_GET_CS_CONTROLLER_REMOTE_CAPABILITIES,
-  CS_ERROR_EVENT_INITIATOR_FAILED_TO_GET_CS_CONTROLLER_LOCAL_CAPABILITIES,
   CS_ERROR_EVENT_INITIATOR_PBR_ANTENNA_USAGE_NOT_SUPPORTED,
   CS_ERROR_EVENT_INITIATOR_RTT_ANTENNA_USAGE_NOT_SUPPORTED,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_CREATE_CONFIG,
@@ -182,24 +213,24 @@ SL_ENUM(cs_error_event_t) {
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_INIT_RTL_LIB,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_GET_CHANNEL_MAP,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_CONNECTION_PARAMETERS,
+  CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_INTERVALS,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_CONNECTION_PHY,
   CS_ERROR_EVENT_FILE_LOGGER_INIT_FAILED,
   CS_ERROR_EVENT_STATE_MACHINE_FAILED,
   CS_ERROR_EVENT_INIT_FAILED,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_DELETE_INSTANCE,
   CS_ERROR_EVENT_INITIATOR_FAILED_TO_FINALIZE_CLEANUP,
-  CS_ERROR_EVENT_STEP_DATA_EXCEEDS_MAX,
-  CS_ERROR_EVENT_SUBEVENT_INDEX_EXCEEDS_MAX,
   CS_ERROR_EVENT_RTL_ERROR,
   CS_ERROR_EVENT_RTL_PROCESS_ERROR
 };
 
 SL_PACK_START(1)
 typedef struct {
+  uint8_t procedure_scheduling;
   uint8_t conn_phy;
   uint8_t cs_sync_phy;
-  uint8_t cs_mode;
-  uint8_t submode;
+  uint8_t cs_main_mode;
+  uint8_t cs_sub_mode;
   uint8_t max_main_mode_steps;
   uint8_t min_main_mode_steps;
   uint8_t main_mode_repetition;
@@ -231,19 +262,21 @@ typedef struct {
   uint16_t max_procedure_count;
   uint16_t latency;
   uint16_t timeout;
+  uint16_t mtu;
   uint16_t min_ce_length;
   uint16_t max_ce_length;
   uint8_t snr_control_initiator;
   uint8_t snr_control_reflector;
+  uint8_t use_real_time_ras_mode;
+  uint8_t channel_map_preset;
+  sl_bt_cs_channel_map_t channel_map;
 } SL_ATTRIBUTE_PACKED cs_initiator_config_t;
 SL_PACK_END()
 
 SL_PACK_START(1)
 typedef struct {
   uint8_t algo_mode;
-  sl_rtl_cs_params cs_parameters;
   bool rtl_logging_enabled;
-  uint8_t channel_map_preset;
 } SL_ATTRIBUTE_PACKED rtl_config_t;
 SL_PACK_END()
 
@@ -260,6 +293,29 @@ extern "C" {
  * @param[out] channel_map Channel map to be filled.
  *****************************************************************************/
 void cs_initiator_apply_channel_map_preset(cs_channel_map_preset_t preset, uint8_t *channel_map);
+
+/**************************************************************************//**
+ * Get the connection and procedure intervals
+ * @param[in] main_mode CS main mode.
+ * @param[in] sub_mode CS sub mode.
+ * @param[in] procedure_scheduling Procedure scheduling.
+ * @param[in] channel_map_preset Channel map preset.
+ * @param[in] algo_mode Algorithm mode.
+ * @param[in] antenna_path Antenna path.
+ * @param[in] use_real_time_ras_mode Use real-time RAS mode.
+ * @param[out] conn_interval Connection interval.
+ * @param[out] proc_interval CS procedure interval.
+ * @return Status of the operation.
+ *****************************************************************************/
+sl_status_t cs_initiator_get_intervals(uint8_t main_mode,
+                                       uint8_t sub_mode,
+                                       cs_procedure_scheduling_t procedure_scheduling,
+                                       uint8_t channel_map_preset,
+                                       uint8_t algo_mode,
+                                       uint8_t antenna_path,
+                                       uint8_t use_real_time_ras_mode,
+                                       uint16_t *conn_interval,
+                                       uint16_t *proc_interval);
 
 #ifdef __cplusplus
 };

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 id: zigbee_green_power_adapter
 label: Green Power Adapter
 category: Zigbee|Green Power
@@ -73,11 +73,9 @@ include:
       - path: config.h
       - path: global-callback.h
       - path: global-other-callback.h
-      - path: print.h
       - path: service-discovery.h
       - path: time-util.h
       - path: util.h
-      - path: zcl-debug-print.h
   - path: protocol/zigbee/app/framework/security
     file_list:
       - path: af-security.h

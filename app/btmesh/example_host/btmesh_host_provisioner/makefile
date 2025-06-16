@@ -6,8 +6,6 @@ PROJECTNAME = btmesh_host_provisioner
 PROJ_DIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SDK_DIR := $(realpath $(PROJ_DIR)/../../../..)
 
-# Disable threading as handling more than a few mesh devices can cause data loss
-HOST_THREADING = 0
 # Flag to include Certificate-Based Provisioning
 CBP ?= 0
 RPR ?= 0
@@ -56,7 +54,8 @@ override INCLUDEPATHS += $(PROJ_DIR) \
 $(SDK_DIR)/app/bluetooth/common/ncp_evt_filter \
 $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/platform/common/inc \
-$(SDK_DIR)/protocol/bluetooth/inc
+$(SDK_DIR)/protocol/bluetooth/inc \
+$(SDK_DIR)/protocol/bluetooth/config
 
 
 ################################################################################

@@ -21,9 +21,12 @@
 #include "sl_core.h"
 #include "sl_bluetooth.h"
 #include "sli_bgapi.h"
+#include "sli_bt_api.h"
 #include "sl_bt_stack_config.h"
 #include "sl_bt_rtos_config.h"
 #include "sl_bt_rtos_adaptation.h"
+#include "sli_bgapi_rtos_adaptation.h"
+#include "sl_common.h"
 #include "sl_component_catalog.h"
 #include "sl_memory_manager.h"
 
@@ -35,14 +38,19 @@
 #include "sli_bt_event_system.h"
 #endif
 
+#if defined(SL_CATALOG_BGAPI_TRACE_PRESENT)
+#include "sli_bgapi_trace.h"
+#endif
+
 // Definitions for Bluetooth state flags that are needed already before the RTOS
 // kernel has been started, i.e. if the application calls
 // `sl_bt_system_start_bluetooth()` from `app_init()`. These flags are used with
 // the static state variable `bluetooth_state_flags`.
-#define SLI_BT_RTOS_STATE_FLAG_KERNEL_STARTED  0x01U  // The RTOS kernel has been started
-#define SLI_BT_RTOS_STATE_FLAG_STARTING        0x02U  // The Bluetooth stack is starting
-#define SLI_BT_RTOS_STATE_FLAG_STARTED         0x04U  // The Bluetooth stack has successfully started
-#define SLI_BT_RTOS_STATE_FLAG_STOPPING        0x08U  // The Bluetooth stack is stopping
+#define SLI_BT_RTOS_STATE_FLAG_KERNEL_STARTED         0x01U  // The RTOS kernel has been started
+#define SLI_BT_RTOS_STATE_FLAG_STARTING               0x02U  // The Bluetooth stack is starting
+#define SLI_BT_RTOS_STATE_FLAG_STARTED                0x04U  // The Bluetooth stack has successfully started
+#define SLI_BT_RTOS_STATE_FLAG_STOPPING               0x08U  // The Bluetooth stack is stopping
+#define SLI_BT_RTOS_STATE_FLAG_INTERNAL_CALLS_ENABLED 0x10U  // Task internal calls have been enabled
 
 // The event flags defined below are specific to a thread and are used with the
 // thread context's `event_flags` field. The values would not necessarily need
@@ -53,10 +61,11 @@
 #define SLI_BT_RTOS_EVENT_FLAG_ERROR                       0x80000000U  // An error has occurred while waiting for events
 
 // Event flags for the Bluetooth thread
-#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_WAKEUP           0x00000001U  // Bluetooth task needs an update
-#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_COMMAND_WAITING  0x00000002U  // Bluetooth command is waiting to be processed
-#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_EVENT_HANDLED    0x00000004U  // Bluetooth event posted to the event handler thread has been handled
-#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_STOPPED          0x00000008U  // Bluetooth stack has been stopped
+#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_START            0x00000001U  // Bluetooth task is instructed to start
+#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_WAKEUP           0x00000002U  // Bluetooth task needs an update
+#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_COMMAND_WAITING  0x00000004U  // Bluetooth command is waiting to be processed
+#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_EVENT_HANDLED    0x00000008U  // Bluetooth event posted to the event handler thread has been handled
+#define SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_STOPPED          0x00000010U  // Bluetooth stack has been stopped
 
 // Event flags for the Link Layer thread
 #define SLI_BT_RTOS_LINKLAYER_THREAD_FLAG_WAKEUP           0x00000100U  // Linklayer task needs an update
@@ -68,9 +77,14 @@ static volatile uint8_t bluetooth_state_flags = 0;
 
 static volatile sl_bt_msg_t bluetooth_evt_instance;
 
-static volatile uint32_t command_header;
-static volatile void* command_data;
-static volatile sl_bgapi_handler command_handler_func = NULL;
+// When we commit to processing a BGAPI command, we store the relevant
+// information while running in the calling task's context. This information is
+// read by the Bluetooth stack task when it executes the command.
+static volatile sl_bgapi_handler current_bgapi_handler = NULL;
+static volatile const void *current_command_buf = NULL;
+static volatile void *current_response_buf = NULL;
+static volatile size_t current_response_buf_size = 0;
+static volatile sl_status_t current_command_execution_status;
 
 /**
  * @brief Structure to represent a thread in the Bluetooth RTOS adaptation
@@ -137,8 +151,6 @@ static const osSemaphoreAttr_t bgapi_response_semaphore_attr = {
   .name = "BGAPI response"
 };
 
-static uint32_t bgapi_command_recursion_count = 0;
-
 /**
  * @brief Convert CMSIS-RTOS2 osStatus_t to @ref sl_status_t
  */
@@ -195,27 +207,18 @@ static void delete_bluetooth_rtos_thread(sli_bt_rtos_thread_t *thread)
  * In this case the thread is not created, but the wakeup semaphore and the
  * event flags can be used by any calling thread to wait for an event.
  *
- * Note that this function does not automatically assign `thread_id` in @p
- * thread. To avoid race conditions between the calling thread and the thread
- * that is created, some thread creation calls need special consideration in
- * assigning the handle. This function gives the callers the flexibility to
- * choose when to assign `thread_id` in @p thread.
- *
  * @param[out] thread          The thread structure that records the info for this thread
- * @param[out] thread_id       Set to the thread ID for the created thread
  * @param[in]  semaphore_attr  Attributes of the wakeup semaphore
  * @param[in]  thread_func     Thread function
  * @param[in]  thread_attr     Attributes of the thread to create
  */
 static sl_status_t create_bluetooth_rtos_thread(sli_bt_rtos_thread_t    *thread,
-                                                osThreadId_t            *thread_id,
                                                 const osSemaphoreAttr_t *semaphore_attr,
                                                 osThreadFunc_t           thread_func,
                                                 const osThreadAttr_t    *thread_attr)
 {
   // Parameters must have been supplied and we can't yet have the RTOS objects
   EFM_ASSERT(thread != NULL);
-  EFM_ASSERT(thread_id != NULL);
   EFM_ASSERT(thread->thread_id == NULL);
   EFM_ASSERT(thread->wakeup_semaphore_id == NULL);
 
@@ -231,14 +234,14 @@ static sl_status_t create_bluetooth_rtos_thread(sli_bt_rtos_thread_t    *thread,
 
   // Create the thread itself, if a function was supplied
   if (thread_func != NULL) {
-    *thread_id = osThreadNew(thread_func, thread, thread_attr);
-    if (*thread_id == NULL) {
+    thread->thread_id = osThreadNew(thread_func, thread, thread_attr);
+    if (thread->thread_id == NULL) {
       (void) osSemaphoreDelete(thread->wakeup_semaphore_id);
       thread->wakeup_semaphore_id = NULL;
       return SL_STATUS_FAIL;
     }
   } else {
-    *thread_id = NULL;
+    thread->thread_id = NULL;
   }
 
   return SL_STATUS_OK;
@@ -347,76 +350,9 @@ static uint32_t wait_bluetooth_rtos_thread_event_flags(sli_bt_rtos_thread_t *thr
   }
 }
 
-static sl_status_t start_rtos_adaptation()
+// Make permanent memory allocations for Bluetooth RTOS adaptation.
+sl_status_t sli_bt_rtos_adaptation_permanent_allocation(void)
 {
-  // This function is called internally in this file. Callers guarantee the
-  // necessary locking, so we can manipulate the flags safely.
-
-  // If the Bluetooth stack is stopping, we cannot accept a new request to start
-  // the stack until the previous stopping has finished
-  if (bluetooth_state_flags & SLI_BT_RTOS_STATE_FLAG_STOPPING) {
-    return SL_STATUS_INVALID_STATE;
-  }
-
-  // If the stack is already starting or started, the new request to start
-  // requires no actions
-  if (bluetooth_state_flags & (SLI_BT_RTOS_STATE_FLAG_STARTING | SLI_BT_RTOS_STATE_FLAG_STARTED)) {
-    return SL_STATUS_OK;
-  }
-
-  // We need to start the stack now. First create the mutex for Bluetooth stack.
-  sl_status_t status = SL_STATUS_FAIL;
-  EFM_ASSERT(bluetooth_mutex_id == NULL);
-  bluetooth_mutex_id = osMutexNew(&bluetooth_mutex_attr);
-  if (bluetooth_mutex_id == NULL) {
-    goto cleanup;
-  }
-
-  // We have committed to starting the stack and we expect
-  // `bluetooth_thread()` to continue the start-up.
-  bluetooth_state_flags |= SLI_BT_RTOS_STATE_FLAG_STARTING;
-
-  // Create thread for Bluetooth stack. Note that we specifically do *not*
-  // assign `thread_bluetooth.thread_id` here. When the thread is created, its
-  // priority may be higher than the current thread, so Bluetooth starts running
-  // before this thread has a chance to set the thread ID. To solve this
-  // potential race condition, we let the Bluetooth thread itself set
-  // `thread_bluetooth.thread_id` when it starts running. This way setting the
-  // thread ID is always synchronous to starting the stack inside the thread.
-  osThreadId_t host_stack_tid = NULL;
-  status = create_bluetooth_rtos_thread(&thread_bluetooth,
-                                        &host_stack_tid,
-                                        &semaphore_bluetooth_attr,
-                                        bluetooth_thread,
-                                        &thread_bluetooth_attr);
-  if (status != SL_STATUS_OK) {
-    // We failed to create the thread, so the start won't be able to proceed.
-    // Clear the starting flag to keep the state consistent.
-    bluetooth_state_flags &= ~SLI_BT_RTOS_STATE_FLAG_STARTING;
-    goto cleanup;
-  }
-
-  // Now we're ready to handle BGAPI commands via the RTOS adaptation. Set the
-  // BGAPI delegate.
-  sli_bgapi_set_cmd_handler_delegate(sli_bt_cmd_handler_rtos_delegate);
-
-  return SL_STATUS_OK;
-
-  cleanup:
-  // Cleanup everything we managed to create
-  if (bluetooth_mutex_id != NULL) {
-    (void) osMutexDelete(bluetooth_mutex_id);
-    bluetooth_mutex_id = NULL;
-  }
-
-  return status;
-}
-
-sl_status_t sl_bt_rtos_init()
-{
-  // Initialize the Bluetooth stack
-  sl_bt_init();
-
   // The Bluetooth stack including its RTOS adaptation is started with a BGAPI
   // command. The BGAPI synchronization primitives are therefore always created
   // already at init-time and are never deleted.
@@ -428,31 +364,121 @@ sl_status_t sl_bt_rtos_init()
   }
 
   bgapi_mutex_id = osMutexNew(&bgapi_mutex_attr);
-  bgapi_command_recursion_count = 0;
   if (bgapi_mutex_id == NULL) {
     (void) osSemaphoreDelete(bgapi_response_semaphore_id);
     bgapi_response_semaphore_id = NULL;
     return SL_STATUS_FAIL;
   }
 
-  // When Event System IPC is in use, let it initialize itself
-#if defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
-  sl_status_t event_system_status =  sli_bt_init_event_system();
-  if (event_system_status != SL_STATUS_OK) {
-    return event_system_status;
-  }
-#endif
+  return SL_STATUS_OK;
+}
 
-  // When Bluetooth on-demand start feature is not present, the RTOS adaptation
-  // is always started already at init-time.
-#if !defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
-  sl_status_t status = start_rtos_adaptation();
+// BGAPI component initialization function for Bluetooth RTOS adaptation
+sl_status_t sli_bt_rtos_adaptation_init(const void *feature_config)
+{
+  // RTOS adaptation configuration is read directly from the configuration
+  // header and the `feature_config` pointer is not used
+  (void) feature_config;
+
+  // Ccreate the mutex for Bluetooth stack
+  sl_status_t status = SL_STATUS_FAIL;
+  EFM_ASSERT(bluetooth_mutex_id == NULL);
+  bluetooth_mutex_id = osMutexNew(&bluetooth_mutex_attr);
+  if (bluetooth_mutex_id == NULL) {
+    return SL_STATUS_FAIL;
+  }
+
+  // Create thread for Bluetooth stack
+  status = create_bluetooth_rtos_thread(&thread_bluetooth,
+                                        &semaphore_bluetooth_attr,
+                                        bluetooth_thread,
+                                        &thread_bluetooth_attr);
   if (status != SL_STATUS_OK) {
     return status;
   }
-#endif // defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+  // Create thread for Linklayer
+  status = create_bluetooth_rtos_thread(&thread_linklayer,
+                                        &semaphore_linklayer_attr,
+                                        linklayer_thread,
+                                        &thread_linklayer_attr);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  // Create thread for Bluetooth event handler when Event System IPC is not used
+#if !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+  status = create_bluetooth_rtos_thread(&thread_event_handler,
+                                        &semaphore_event_handler_attr,
+                                        event_handler_thread,
+                                        &thread_event_handler_attr);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+#endif // !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+
+#if defined(SL_CATALOG_BTMESH_PRESENT)
+  // Bluetooth Mesh calls Bluetooth's BGAPI commands internally. Enable
+  // task-internal calls on the host stack BGAPI device.
+  status = sli_bgapi_enable_task_internal_calls(sl_bgapi_dev_type_bt);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+  bluetooth_state_flags |= SLI_BT_RTOS_STATE_FLAG_INTERNAL_CALLS_ENABLED;
+#endif
+
+  // Now we're ready to handle BGAPI commands via the RTOS adaptation. Set the
+  // BGAPI delegate.
+  sli_bgapi_set_cmd_handler_delegate(sli_bt_cmd_handler_rtos_delegate);
 
   return SL_STATUS_OK;
+}
+
+// Internal de-init called when we're ready to shutdown the stack task
+static void deinit_rtos_adaptation(void)
+{
+  #if defined(SL_CATALOG_BTMESH_PRESENT)
+  // The Bluetooth task is about to be deleted, so Mesh stack won't be running
+  // in the task anymore. If task-internal calls were enabled successfully,
+  // disable them now.
+  if (bluetooth_state_flags & SLI_BT_RTOS_STATE_FLAG_INTERNAL_CALLS_ENABLED) {
+    sli_bgapi_disable_task_internal_calls(sl_bgapi_dev_type_bt);
+    bluetooth_state_flags &= ~SLI_BT_RTOS_STATE_FLAG_INTERNAL_CALLS_ENABLED;
+  }
+#endif
+
+  // Delete the threads that we created for the link layer and for the event
+  // handler
+  delete_bluetooth_rtos_thread(&thread_linklayer);
+#if !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+  delete_bluetooth_rtos_thread(&thread_event_handler);
+#endif
+
+  // Delete the synchronization primitives
+  if (bluetooth_mutex_id != NULL) {
+    (void) osMutexDelete(bluetooth_mutex_id);
+    bluetooth_mutex_id = NULL;
+  }
+}
+
+// BGAPI component de-initialization function for Bluetooth RTOS adaptation
+void sli_bt_rtos_adaptation_deinit(void)
+{
+  // If the host stack task has been created and we're in it, we need to let the
+  // task itself trigger the deinitialization when the task has finished.
+  // Exiting the processing loop is triggered by `sli_bt_rtos_adaptation_stop()`
+  // and no de-init happens here.
+  if ((thread_bluetooth.thread_id != NULL)
+      && (osThreadGetId() == thread_bluetooth.thread_id)) {
+    return;
+  }
+
+  // We're not in the host stack task, so de-init is happening because
+  // initialization has failed and we didn't have a chance to start the task
+  // yet. Clear the state flag and de-init here directly.
+  bluetooth_state_flags &= ~SLI_BT_RTOS_STATE_FLAG_STARTING;
+  deinit_rtos_adaptation();
+  delete_bluetooth_rtos_thread(&thread_bluetooth);
 }
 
 // This callback is called from interrupt context (Kernel Aware) to wake up the
@@ -488,13 +514,6 @@ void sli_bt_rtos_set_event_handled()
  */
 extern uint32_t sli_bt_can_sleep_ticks();
 
-/**
- * Internal stack function to start the Bluetooth stack.
- *
- * @return SL_STATUS_OK if the stack was successfully started
- */
-extern sl_status_t sli_bt_system_start_bluetooth();
-
 #if defined(SL_CATALOG_BTMESH_PRESENT)
 // This is to avoid casting a function pointer to a different type in the
 // event_types table.
@@ -522,52 +541,25 @@ static const bgapi_device_type bgapi_device_table[] = {
 //Bluetooth task, it waits for events from bluetooth and handles them
 void bluetooth_thread(void *p_arg)
 {
-  (void)p_arg;
+  // The input parameter is our thread structure
+  sli_bt_rtos_thread_t *thread = (sli_bt_rtos_thread_t *) p_arg;
 
-  // Set the Bluetooth thread ID now that we're running
-  thread_bluetooth.thread_id = osThreadGetId();
-
-  uint8_t next_evt_index_to_check = 0;
   uint32_t flags = SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_EVENT_HANDLED;
 
-  // Create thread for Linklayer
-  sl_status_t start_status = create_bluetooth_rtos_thread(&thread_linklayer,
-                                                          &thread_linklayer.thread_id,
-                                                          &semaphore_linklayer_attr,
-                                                          linklayer_thread,
-                                                          &thread_linklayer_attr);
-
-  // Create thread for Bluetooth event handler when Event System IPC is not used
-#if !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
-  if (start_status == SL_STATUS_OK) {
-    start_status = create_bluetooth_rtos_thread(&thread_event_handler,
-                                                &thread_event_handler.thread_id,
-                                                &semaphore_event_handler_attr,
-                                                event_handler_thread,
-                                                &thread_event_handler_attr
-                                                );
+  // Wait until the init sequence has completed and we've been instructed to
+  // start the host stack
+  while ((flags & SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_START) == 0) {
+    flags |= wait_bluetooth_rtos_thread_event_flags(thread);
   }
-#endif // !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
 
   // Start the Bluetooth stack
-  if (start_status == SL_STATUS_OK) {
-    start_status = sli_bt_system_start_bluetooth();
-  }
-
-#if defined(SL_CATALOG_BTMESH_PRESENT)
-  // Bluetooth Mesh calls Bluetooth's BGAPI commands internally. In order to not
-  // collide with external commands, a temporary BGAPI buffer needs to be used.
-  void *tmp_bgapi_buffer = sl_malloc(SLI_BGAPI_BUFFER_SIZE);
-  if (tmp_bgapi_buffer == NULL) {
-    start_status = SL_STATUS_ALLOCATION_FAILED;
-  }
-#endif
-
+  sl_status_t start_status = sli_bt_start_bgapi_device();
   if (start_status == SL_STATUS_OK) {
     // bluetooth mesh must have bluetooth started before it is initalizes
-    #if defined(SL_CATALOG_BTMESH_PRESENT)
+#if defined(SL_CATALOG_BTMESH_PRESENT)
     sl_btmesh_init();
-    #endif
+#endif
+
     // Starting the stack has succeeded and we update the state accordingly.
     uint8_t updated_state_flags = bluetooth_state_flags;
     updated_state_flags &= ~SLI_BT_RTOS_STATE_FLAG_STARTING;
@@ -582,22 +574,20 @@ void bluetooth_thread(void *p_arg)
   }
 
   // We run the command processing loop as long as the stack has not been stopped
+  uint8_t next_evt_index_to_check = 0;
   while ((flags & SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_STOPPED) == 0) {
-    //Command needs to be sent to Bluetooth stack
+    // Command needs to be sent to Bluetooth stack
     if (flags & SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_COMMAND_WAITING) {
-      uint32_t header = command_header;
-      sl_bgapi_handler cmd_handler = command_handler_func;
-      sli_bgapi_cmd_handler_delegate(header, cmd_handler, (void*)command_data);
-      command_handler_func = NULL;
+      const void *command_buf = (const void *)current_command_buf;
+      void *response_buf = (void *)current_response_buf;
+      size_t response_buf_size = current_response_buf_size;
+      current_command_execution_status = sli_bgapi_cmd_handler_delegate(current_bgapi_handler,
+                                                                        command_buf,
+                                                                        response_buf,
+                                                                        response_buf_size);
       flags &= ~SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_COMMAND_WAITING;
       osSemaphoreRelease(bgapi_response_semaphore_id);
     }
-
-#if defined(SL_CATALOG_BTMESH_PRESENT)
-    // Set a temporary BGAPI buffer for the section in which internal BGAPI
-    // calls might occur.
-    void *orig_bgapi_buffer = sli_bgapi_set_buffer(tmp_bgapi_buffer);
-#endif
 
     //Run Bluetooth stack. Pop the next event for application
     sl_bt_run();
@@ -650,12 +640,6 @@ void bluetooth_thread(void *p_arg)
       }
     }
 
-#if defined(SL_CATALOG_BTMESH_PRESENT)
-    // Restore the original BGAPI buffer after the section in which internal BGAPI
-    // calls might occur.
-    sli_bgapi_set_buffer(orig_bgapi_buffer);
-#endif
-
     uint32_t timeout = sli_bt_can_sleep_ticks();
     if (timeout == 0 && (flags & SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_EVENT_HANDLED)) {
       continue;
@@ -670,18 +654,11 @@ void bluetooth_thread(void *p_arg)
     }
   }
 
-  // The stack has stopped processing commands and has already finished its own
-  // cleanup of resources. It's now time for the RTOS adaptation to cleanup its
-  // own resources. First delete the threads that we created for the link layer
-  // and for the event handler.
-  delete_bluetooth_rtos_thread(&thread_linklayer);
-#if !defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
-  delete_bluetooth_rtos_thread(&thread_event_handler);
-#endif
+  // De-initialize the host stack BGAPI device
+  sli_bt_deinit_bgapi_device();
 
-  // Delete the synchronization primitives
-  (void) osMutexDelete(bluetooth_mutex_id);
-  bluetooth_mutex_id = NULL;
+  // De-initialize RTOS adaptation except this thread itself
+  deinit_rtos_adaptation();
 
   // In case we've failed to start, we will directly deliver a system error
   // event to the application in the code below. To allow the application to
@@ -710,6 +687,13 @@ void bluetooth_thread(void *p_arg)
     // event-specific fields, so only the header needs to be set.
     bluetooth_evt_instance.header = sl_bt_evt_system_stopped_id;
   }
+
+  // Make the event visible in BGAPI Trace, if included in the build
+#if defined(SL_CATALOG_BGAPI_TRACE_PRESENT)
+  sli_bgapi_trace_output_message(sli_bgapi_trace_message_type_event,
+                                 bluetooth_evt_instance.header,
+                                 (const void *)&bluetooth_evt_instance.data);
+#endif
 
   // Publish via event system or call the application directly
 #if defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
@@ -775,22 +759,28 @@ static void event_handler_thread(void *p_arg)
 
 //hooks for API
 //called from tasks using Bluetooth API
-void sli_bt_cmd_handler_rtos_delegate(uint32_t header, sl_bgapi_handler handler, const void* payload)
+sl_status_t sli_bt_cmd_handler_rtos_delegate(sl_bgapi_handler handler,
+                                             const void *command_buf,
+                                             void *response_buf,
+                                             size_t response_buf_size)
 {
-  command_header = header;
-  command_handler_func = handler;
-  command_data = (void*)payload;
   if (osThreadGetId() == thread_bluetooth.thread_id) {
     // If we're already in the Bluetooth stack thread, the BGAPI command will be handled as a direct
     // function call; as opposed to signalling ourselves that there's a command waiting, like what
     // would happen in all other threads
-    handler(payload);
-    return;
+    return sli_bgapi_cmd_handler_delegate(handler, command_buf, response_buf, response_buf_size);
   }
 
   // We're starting a new command. The response semaphore cannot have an
   // available token yet.
   EFM_ASSERT(osSemaphoreGetCount(bgapi_response_semaphore_id) == 0);
+
+  // Remember the command we're about to execute in the Bluetooth stack thread
+  current_bgapi_handler = handler;
+  current_command_buf = command_buf;
+  current_response_buf = response_buf;
+  current_response_buf_size = response_buf_size;
+  current_command_execution_status = SL_STATUS_IN_PROGRESS;
 
   // Command structure is filled, notify the stack
   set_bluetooth_rtos_thread_event_flags(&thread_bluetooth,
@@ -798,10 +788,27 @@ void sli_bt_cmd_handler_rtos_delegate(uint32_t header, sl_bgapi_handler handler,
 
   // Wait for response
   osSemaphoreAcquire(bgapi_response_semaphore_id, osWaitForever);
+
+  return current_command_execution_status;
 }
 
-// Lock the BGAPI for exclusive access
-sl_status_t sl_bgapi_lock(void)
+// Obtain a buffer that can be used to execute BGAPI or user commands.
+sl_status_t sl_bgapi_obtain_message_buffer(size_t max_payload_size,
+                                           void **buffer)
+{
+  return sl_memory_alloc(SL_BGAPI_MSG_HEADER_LEN + max_payload_size,
+                         BLOCK_TYPE_LONG_TERM,
+                         buffer);
+}
+
+// Release a buffer that was obtained with @ref sl_bgapi_obtain_message_buffer.
+void sl_bgapi_release_message_buffer(void *buffer)
+{
+  sl_memory_free(buffer);
+}
+
+// Used internally by BGAPI to lock the BGAPI for exclusive access
+sl_status_t sli_bgapi_lock(uint32_t command_hdr)
 {
   // The BGAPI is not allowed to be called from an ISR
   if (CORE_InIrqContext()) {
@@ -815,25 +822,21 @@ sl_status_t sl_bgapi_lock(void)
     return SL_STATUS_OK;
   }
 
-  osStatus_t ret = osMutexAcquire(bgapi_mutex_id, 0);
-  if (ret == osOK) {
-    // Able to immediately acquire
-    return SL_STATUS_OK;
-  } else if ((ret != osOK)
-             && (osThreadGetId() == thread_bluetooth.thread_id)) {
-    // No need to re-acquire, but increment recursion counter since the Bluetooth thread
-    // is allowed to call BGAPI commands recursively
-    bgapi_command_recursion_count++;
-    return SL_STATUS_OK;
-  } else {
-    // Otherwise wait for the mutex
-    ret = osMutexAcquire(bgapi_mutex_id, osWaitForever);
-    return os2sl_status(ret);
+  // If the calling task is the one that will process the command, return
+  // without locking
+  if (osThreadGetId() == thread_bluetooth.thread_id) {
+    return SL_STATUS_IS_OWNER;
   }
+
+  // Bluetooth locking is not command-specific. Always acquire the singleton
+  // BGAPI mutex.
+  (void) command_hdr;
+  osStatus_t ret = osMutexAcquire(bgapi_mutex_id, osWaitForever);
+  return os2sl_status(ret);
 }
 
-// Release the lock obtained by @ref sl_bgapi_lock
-void sl_bgapi_unlock(void)
+// Used internally by BGAPI to release the lock obtained by @ref sli_bgapi_lock
+void sli_bgapi_unlock(uint32_t command_hdr)
 {
   // If the kernel has not been started yet, the lock has not been obtained and
   // the unlock is ignored
@@ -841,12 +844,15 @@ void sl_bgapi_unlock(void)
     return;
   }
 
-  if (bgapi_command_recursion_count > 0) {
-    // Do not release the mutex if we are in a recursive call.
-    bgapi_command_recursion_count--;
+  // If the calling task is the one that processed the command, the lock has not
+  // been obtained and the unlock is ignored
+  if (osThreadGetId() == thread_bluetooth.thread_id) {
     return;
   }
 
+  // Bluetooth locking is not command-specific. Always release the singleton
+  // BGAPI mutex that we acquired.
+  (void) command_hdr;
   (void) osMutexRelease(bgapi_mutex_id);
 }
 
@@ -857,13 +863,32 @@ void sli_bt_rtos_adaptation_kernel_start()
 }
 
 // Start the Bluetooth RTOS adaptation
-sl_status_t sli_bt_start_rtos_adaptation()
+sl_status_t sli_bt_rtos_adaptation_start(void)
 {
-  return start_rtos_adaptation();
+  // If the Bluetooth stack is stopping, we cannot accept a new request to start
+  // the stack until the previous stopping has finished
+  if (bluetooth_state_flags & SLI_BT_RTOS_STATE_FLAG_STOPPING) {
+    return SL_STATUS_INVALID_STATE;
+  }
+
+  // If the stack is already starting or started, the new request to start
+  // requires no actions
+  if (bluetooth_state_flags & (SLI_BT_RTOS_STATE_FLAG_STARTING | SLI_BT_RTOS_STATE_FLAG_STARTED)) {
+    return SL_STATUS_OK;
+  }
+
+  // We have committed to starting the stack and we expect
+  // `bluetooth_thread()` to continue the start-up.
+  bluetooth_state_flags |= SLI_BT_RTOS_STATE_FLAG_STARTING;
+
+  // Signal the Bluetooth thread to start the stack
+  set_bluetooth_rtos_thread_event_flags(&thread_bluetooth,
+                                        SLI_BT_RTOS_BLUETOOTH_THREAD_FLAG_START);
+  return SL_STATUS_OK;
 }
 
 // Prepare for stopping the Bluetooth RTOS adaptation
-void sli_bt_prepare_to_stop_rtos_adaptation()
+void sli_bt_rtos_adaptation_prepare_to_stop(void)
 {
   // This function is called in the context of the Bluetooth thread when
   // processing the command sl_bt_system_stop_bluetooth(). The BGAPI lock is
@@ -883,7 +908,7 @@ void sli_bt_prepare_to_stop_rtos_adaptation()
 }
 
 // Stop the Bluetooth RTOS adaptation
-void sli_bt_stop_rtos_adaptation()
+void sli_bt_rtos_adaptation_stop(void)
 {
   // Set the event flag to indicate that the stack has been stopped. The
   // Bluetooth thread will cleanup and exit.

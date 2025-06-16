@@ -36,11 +36,6 @@
 #include "app_assert.h"
 #include "sl_btmesh_scene_server.h"
 
-/***************************************************************************//**
- * @addtogroup Scene Server
- * @{
- ******************************************************************************/
-
 /*******************************************************************************
  * Scenes initialization.
  * This should be called at each boot if provisioning is already done.
@@ -49,17 +44,23 @@
  * @param[in] element  Index of the element where scenes models are initialized.
  *
  * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
+ *         Returns SL_STATUS_OK (0) if successful. Error code otherwise.
  ******************************************************************************/
-uint16_t sl_btmesh_scenes_init(void)
+sl_status_t sl_btmesh_scenes_init(void)
 {
   // Initialize scenes server models
   sl_status_t result;
   result = sl_btmesh_scene_server_init(BTMESH_SCENE_SERVER_MAIN);
-  app_assert_status_f(result, "Failed to init scene server model");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (result != SL_STATUS_OK && result != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(result, "Failed to init scene server model");
+  }
 
   result = sl_btmesh_scene_setup_server_init(BTMESH_SCENE_SERVER_MAIN);
-  app_assert_status_f(result, "Failed to init scene setup server model");
+  if (result != SL_STATUS_OK && result != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(result, "Failed to init scene setup server model");
+  }
 
   return result;
 }
@@ -73,17 +74,28 @@ uint16_t sl_btmesh_scenes_init(void)
  ******************************************************************************/
 void sl_btmesh_scene_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_scenes_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_scenes_init();
+        booted = true;
+      }
       break;
-    case sl_btmesh_evt_node_initialized_id:
+    }
+    case sl_btmesh_evt_node_initialized_id: {
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_scenes_init();
+        booted = true;
       }
+      break;
+    }
+    default:
       break;
   }
 }
-
-/** @} (end addtogroup Scene Server) */

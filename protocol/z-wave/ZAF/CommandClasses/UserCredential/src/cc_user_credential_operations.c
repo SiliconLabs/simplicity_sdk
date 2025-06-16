@@ -8,6 +8,7 @@
 #include "cc_user_credential_operations.h"
 #include "cc_user_credential_io_config.h"
 #include "cc_user_credential_validation.h"
+#include "cc_user_credential_tx.h"
 #include "zaf_transport_tx.h"
 #include "assert.h"
 
@@ -24,7 +25,7 @@
  * @return The result of getting the associated user from the database
  */
 static u3c_db_operation_result check_and_report_nonexistent_user(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_credential || !p_rx_options) {
     assert(false);
@@ -100,7 +101,7 @@ ZW_WEAK void CC_UserCredential_delete_all_credentials_of_type(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_add_user_and_report(
-  u3c_user * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_user_t * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_user || !p_name || !p_rx_options) {
     assert(false);
@@ -140,7 +141,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_add_user_and_report(
 
     case U3C_DB_OPERATION_RESULT_FAIL_FULL: {
       // Send report of a blank user with the User Unchanged report type
-      memset(p_user, 0, sizeof(u3c_user));
+      memset(p_user, 0, sizeof(u3c_user_t));
       p_user->credential_rule = CREDENTIAL_RULE_SINGLE;
       CC_UserCredential_UserReport_tx(
         USER_REP_TYPE_UNCHANGED, p_user, NULL, 0, p_rx_options);
@@ -166,7 +167,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_add_user_and_report(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_modify_user_and_report(
-  u3c_user * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_user_t * p_user, uint8_t * p_name, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_user || !p_name || !p_rx_options) {
     assert(false);
@@ -235,7 +236,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_modify_user_and_report(
 ZW_WEAK u3c_db_operation_result CC_UserCredential_delete_user_and_report(
   uint16_t uuid, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
-  u3c_user user = {
+  u3c_user_t user = {
     .unique_identifier = uuid,
     .credential_rule = CREDENTIAL_RULE_SINGLE
   };
@@ -277,7 +278,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_delete_user_and_report(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_add_credential_and_report(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_credential || !p_rx_options) {
     assert(false);
@@ -372,7 +373,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_add_credential_and_report(
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_modify_credential_and_report(
-  u3c_credential * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  u3c_credential_t * p_credential, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_credential || !p_rx_options) {
     assert(false);
@@ -476,7 +477,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_delete_credential_and_report(
     return U3C_DB_OPERATION_RESULT_ERROR;
   }
 
-  u3c_credential credential = { 0 };
+  u3c_credential_t credential = { 0 };
   uint8_t credential_data[U3C_BUFFER_SIZE_CREDENTIAL_DATA];
   // Read existing data pending deletion for use in Notification Report
   bool credential_exists = CC_UserCredential_get_credential(
@@ -518,8 +519,8 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_delete_credential_and_report(
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
   u3c_credential_type credential_type,
-  uint16_t source_credential_slot, uint16_t destination_uuid,
-  uint16_t destination_credential_slot, RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
+  uint16_t credential_slot, uint16_t destination_uuid,
+  RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
 {
   if (!p_rx_options) {
     assert(false);
@@ -527,13 +528,13 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
   }
 
   u3c_db_operation_result operation_result;
-  u3c_credential_metadata source_metadata = {
+  u3c_credential_metadata_t source_metadata = {
     .type = credential_type,
-    .slot = source_credential_slot
+    .slot = credential_slot
   };
-  u3c_credential_metadata destination_metadata = {
+  u3c_credential_metadata_t destination_metadata = {
     .uuid = destination_uuid,
-    .slot = destination_credential_slot
+    .slot = credential_slot
   };
 
   bool local_initiative = is_rx_frame_initiated_locally(p_rx_options);
@@ -551,7 +552,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
 
   /**
    * Attempt to execute the move operation. If the source Credential does not
-   * exist or the destination slot is occupied, send an error report.
+   * exist, send an error report.
    */
   operation_result = CC_UserCredential_move_credential(
     source_metadata.type, source_metadata.slot,
@@ -563,10 +564,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
       status = U3C_UCAR_STATUS_SUCCESS;
       break;
     case U3C_DB_OPERATION_RESULT_FAIL_DNE:
-      status = U3C_UCAR_STATUS_SOURCE_CREDENTIAL_SLOT_EMPTY;
-      break;
-    case U3C_DB_OPERATION_RESULT_FAIL_OCCUPIED:
-      status = U3C_UCAR_STATUS_DESTINATION_CREDENTIAL_SLOT_OCCUPIED;
+      status = U3C_UCAR_STATUS_CREDENTIAL_SLOT_EMPTY;
       break;
     default:
       // Database error
@@ -581,8 +579,8 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
 }
 
 ZW_WEAK bool CC_UserCredential_send_association_report(
-  u3c_credential_metadata const * const p_source_metadata,
-  u3c_credential_metadata const * const p_destination_metadata,
+  u3c_credential_metadata_t const * const p_source_metadata,
+  u3c_credential_metadata_t const * const p_destination_metadata,
   u3c_user_credential_association_report_status_t const status,
   RECEIVE_OPTIONS_TYPE_EX * const p_rx_options
   )
@@ -597,13 +595,11 @@ ZW_WEAK bool CC_UserCredential_send_association_report(
 
   p_cmd->cmdClass                         = COMMAND_CLASS_USER_CREDENTIAL;
   p_cmd->cmd                              = USER_CREDENTIAL_ASSOCIATION_REPORT;
-  p_cmd->credentialType             = (uint8_t)p_source_metadata->type;
-  p_cmd->sourceCredentialSlot1            = (uint8_t)(p_source_metadata->slot >> 8); // MSB
-  p_cmd->sourceCredentialSlot2            = (uint8_t)p_source_metadata->slot; // LSB
+  p_cmd->credentialType                   = (uint8_t)p_source_metadata->type;
+  p_cmd->credentialSlot1                  = (uint8_t)(p_source_metadata->slot >> 8); // MSB
+  p_cmd->credentialSlot2                  = (uint8_t)p_source_metadata->slot; // LSB
   p_cmd->destinationUserUniqueIdentifier1 = (uint8_t)(p_destination_metadata->uuid >> 8); // MSB
   p_cmd->destinationUserUniqueIdentifier2 = (uint8_t)p_destination_metadata->uuid; // LSB
-  p_cmd->destinationCredentialSlot1       = (uint8_t)(p_destination_metadata->slot >> 8); // MSB
-  p_cmd->destinationCredentialSlot2       = (uint8_t)p_destination_metadata->slot; // LSB
   p_cmd->userCredentialAssociationStatus  = (uint8_t)status;
 
   zaf_tx_options_t tx_options;

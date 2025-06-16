@@ -29,6 +29,7 @@
  ******************************************************************************/
 #include <stdlib.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include "app.h"
 #include "ncp_host.h"
 #include "app_log.h"
@@ -138,7 +139,7 @@ void app_interrupt(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -200,11 +201,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // This event indicates the device has started and the radio is ready.
     case sl_bt_evt_system_boot_id:
       // Print boot message.
-      app_log_info("Bluetooth stack booted: v%d.%d.%d-b%d" APP_LOG_NL,
+      app_log_info("Bluetooth stack booted: v%d.%d.%d+%08" PRIx32 APP_LOG_NL,
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
       app_deinit();
       if (dfu_done) {
         // The new application has started.

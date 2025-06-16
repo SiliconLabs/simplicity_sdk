@@ -408,7 +408,9 @@ void sl_zigbee_ezsp_counter_rollover_handler(
   sl_zigbee_counter_type_t type);
 
 // Callback
-// This call is fired when mux detects an invalid rx
+// This call is fired when mux detects an invalid rx case, which would be
+// different rx channels for different protocol contexts, when fast cahnnel
+// switching is not enabled
 void sl_zigbee_ezsp_mux_invalid_rx_handler(
   uint8_t new_rx_channel,
   uint8_t old_rx_channel);
@@ -3050,39 +3052,9 @@ void sl_zigbee_ezsp_d_gp_sent_handler(
 // Callback
 // A callback invoked by the ZigBee GP stack when a GPDF is received.
 void sl_zigbee_ezsp_gpep_incoming_message_handler(
-  // The status of the GPDF receive.
-  sl_zigbee_gp_status_t gp_status,
-  // The gpdLink value of the received GPDF.
-  uint8_t gpdLink,
-  // The GPDF sequence number.
-  uint8_t sequenceNumber,
-  // The address of the source GPD.
-  sl_zigbee_gp_address_t *addr,
-  // The security level of the received GPDF.
-  sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-  // The securityKeyType used to decrypt/authenticate the incoming GPDF.
-  sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-  // Whether the incoming GPDF had the auto-commissioning bit set.
-  bool autoCommissioning,
-  // Bidirectional information represented in bitfields, where bit0 holds
-  // the rxAfterTx of incoming gpdf and bit1 holds if tx queue is available
-  // for outgoing gpdf.
-  uint8_t bidirectionalInfo,
-  // The security frame counter of the incoming GDPF.
-  uint32_t gpdSecurityFrameCounter,
-  // The gpdCommandId of the incoming GPDF.
-  uint8_t gpdCommandId,
-  // The received MIC of the GPDF.
-  uint32_t mic,
-  // The proxy table index of the corresponding proxy table entry to the
-  // incoming GPDF.
-  uint8_t proxyTableIndex,
-  // The length of the GPD command payload.
-  uint8_t gpdCommandPayloadLength,
-  // The GPD command payload.
-  uint8_t *gpdCommandPayload,
-  // Rx packet information.
-  sl_zigbee_rx_packet_info_t *packetInfo);
+  // GP parameters list represented as a macro for GP endpoint incoming
+  // message handler and callbacks prototypes.
+  sl_zigbee_gp_params_t *param);
 
 // Retrieves the proxy table entry stored at the passed index.
 // Return: An sl_status_t value indicating success or the reason for failure.
@@ -3098,6 +3070,14 @@ sl_status_t sl_zigbee_ezsp_gp_proxy_table_get_entry(
 uint8_t sl_zigbee_ezsp_gp_proxy_table_lookup(
   // The address to search for
   sl_zigbee_gp_address_t *addr);
+
+// Removes the proxy table entry stored at the passed index.
+void sl_zigbee_ezsp_gp_proxy_table_remove_entry(
+  // The index of the requested proxy table entry.
+  uint8_t proxyIndex);
+
+// Clear the entire proxy table
+void sl_zigbee_ezsp_gp_clear_proxy_table(void);
 
 // Retrieves the sink table entry stored at the passed index.
 // Return: An sl_status_t value indicating success or the reason for failure.

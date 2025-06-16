@@ -1,6 +1,6 @@
 id: zigbee_debug_print
 label: Debug Print
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: Provides APIs for adding serial debugging capability.

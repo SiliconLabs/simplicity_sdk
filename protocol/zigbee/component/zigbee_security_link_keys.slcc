@@ -1,6 +1,6 @@
 id: zigbee_security_link_keys
 label: Security Link Keys
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides management of APS link keys in the key table.  It is used by a trust center (coordinator) to manage link keys of devices in the network, or by non-trust-center devices wishing to manage partner link keys.

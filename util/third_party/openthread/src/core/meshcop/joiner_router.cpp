@@ -61,7 +61,7 @@ void JoinerRouter::HandleNotifierEvents(Events aEvents)
 
 void JoinerRouter::Start(void)
 {
-    VerifyOrExit(Get<Mle::MleRouter>().IsFullThreadDevice());
+    VerifyOrExit(Get<Mle::Mle>().IsFullThreadDevice());
 
     if (Get<NetworkData::Leader>().IsJoiningAllowed())
     {
@@ -69,7 +69,7 @@ void JoinerRouter::Start(void)
 
         VerifyOrExit(!mSocket.IsBound());
 
-        IgnoreError(mSocket.Open());
+        IgnoreError(mSocket.Open(Ip6::kNetifThreadInternal));
         IgnoreError(mSocket.Bind(port));
         IgnoreError(Get<Ip6::Filter>().AddUnsecurePort(port));
         LogInfo("Joiner Router: start");
@@ -132,7 +132,7 @@ void JoinerRouter::HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &a
 
     SuccessOrExit(error = Tlv::Append<JoinerUdpPortTlv>(*message, aMessageInfo.GetPeerPort()));
     SuccessOrExit(error = Tlv::Append<JoinerIidTlv>(*message, aMessageInfo.GetPeerAddr().GetIid()));
-    SuccessOrExit(error = Tlv::Append<JoinerRouterLocatorTlv>(*message, Get<Mle::MleRouter>().GetRloc16()));
+    SuccessOrExit(error = Tlv::Append<JoinerRouterLocatorTlv>(*message, Get<Mle::Mle>().GetRloc16()));
 
     offsetRange.InitFromMessageOffsetToEnd(aMessage);
 
@@ -309,7 +309,7 @@ exit:
 void JoinerRouter::HandleJoinerEntrustResponse(void                *aContext,
                                                otMessage           *aMessage,
                                                const otMessageInfo *aMessageInfo,
-                                               Error                aResult)
+                                               otError              aResult)
 {
     static_cast<JoinerRouter *>(aContext)->HandleJoinerEntrustResponse(AsCoapMessagePtr(aMessage),
                                                                        AsCoreTypePtr(aMessageInfo), aResult);

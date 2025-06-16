@@ -78,9 +78,11 @@ static uint32_t monitor_samples[MONITOR_NUM_SAMPLES * 2];
 uint32_t initialState = false;
 #endif
 
+#if defined(_SILICON_LABS_32B_SERIES_2)
 static int8_t monitor_prs_free_channel_0 = INVALID_PRS_CHANNEL;
 static int8_t monitor_prs_free_channel_1 = INVALID_PRS_CHANNEL;
 static int8_t monitor_prs_free_channel_2 = INVALID_PRS_CHANNEL;
+#endif
 
 static unsigned int dma_ch0;
 static unsigned int dma_ch1;

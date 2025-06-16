@@ -31,7 +31,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail_types.h"
+#include "sl_rail_types.h"
 #include "sl_duty_cycle_utility.h"
 #include "sl_duty_cycle_config.h"
 #include "sl_component_catalog.h"
@@ -70,13 +70,13 @@
  *
  * @param[in] bit_length: address of function output (preamble bit length)
  *
- * @return RAIL_Status_t: status code
+ * @return sl_rail_status_t: status code
  ******************************************************************************/
-RAIL_Status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
-                                                      RAIL_RxDutyCycleConfig_t *duty_cycle_config,
-                                                      uint16_t *bit_length)
+sl_rail_status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
+                                                         sl_rail_rx_duty_cycle_config_t *duty_cycle_config,
+                                                         uint16_t *bit_length)
 {
-  RAIL_Status_t ret_val = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t ret_val = SL_RAIL_STATUS_NO_ERROR;
 
   float on_time = 0.0F;
   float off_time = 0.0F;
@@ -87,15 +87,15 @@ RAIL_Status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
       || (duty_cycle_config == NULL)
       || (bit_rate == 0U)
       || (duty_cycle_config->parameter == 0U)
-      || (duty_cycle_config->delay == 0U)) {
-    ret_val = RAIL_STATUS_INVALID_PARAMETER;
+      || (duty_cycle_config->delay_us == 0U)) {
+    ret_val = SL_RAIL_STATUS_INVALID_PARAMETER;
 
     if (bit_length != NULL) {
       *bit_length = 0U;
     }
   } else {
     on_time = (float)duty_cycle_config->parameter;
-    off_time = (float)duty_cycle_config->delay;
+    off_time = (float)duty_cycle_config->delay_us;
 
     preamble_time = ((float)(PREAMBLE_PATTERN_LENGTH * PREAMBLE_PATTERN * PREAMBLE_OVERSAMPLING) * U_SEC) / (float)bit_rate;
 
@@ -115,7 +115,7 @@ RAIL_Status_t calculate_preamble_bit_length_from_time(const uint32_t bit_rate,
       app_log_warning("Duty Cycle Off time was changed to ensure stable working\n");
     }
 
-    duty_cycle_config->delay = (uint32_t) off_time;
+    duty_cycle_config->delay_us = (uint32_t) off_time;
 
     *bit_length = (uint16_t)preamble_bit_length;
   }

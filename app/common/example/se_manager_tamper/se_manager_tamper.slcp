@@ -13,7 +13,6 @@ filter:
   - name: "Project Difficulty"
     value: ["Advanced"]
 source:
-  - path: main.c
   - path: app_init.c
   - path: app_process.c
   - path: app_se_manager_tamper.c
@@ -36,9 +35,10 @@ component:
   - id: sl_string
   - id: status_string
   - id: se_manager
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
+  - id: udelay
   - id: printf
   - id: iostream_retarget_stdio
   - id: iostream_recommended_stream

@@ -274,7 +274,7 @@ void setPower(sl_cli_command_arg_t *args)
 #if RAIL_SUPPORTS_DBM_POWERSETTING_MAPPING_TABLE
     RAIL_TxPowerConfig_t tempCfg;
     RAIL_GetTxPowerConfig(railHandle, &tempCfg);
-#if IS_XG25
+#ifdef _SILICON_LABS_32B_SERIES_2
     if (RAIL_POWER_MODE_IS_ANY_DBM_POWERSETTING_MAPPING_TABLE(tempCfg.mode)) {
       // dBm-to-powerSetting mode does not support raw power setting
       responsePrintError(sl_cli_get_command_string(args, 0), RAIL_STATUS_INVALID_PARAMETER, "%s does not support setting raw power.", paStrings[tempCfg.mode]);
@@ -851,3 +851,189 @@ void resetCrcInitVal(sl_cli_command_arg_t *args)
                 "status:%s",
                 (status == RAIL_STATUS_NO_ERROR) ? "Success" : "Fail");
 }
+
+#if     SL_RAIL_UTIL_PA_NVM_ENABLED
+
+#include "sl_rail_util_pa_nvm_configs.h"
+#include "nvm3_default.h"
+
+extern RAIL_TxPowerCurvesConfigAlt_t powerCurvesState;
+
+void printPowerCurves(sl_cli_command_arg_t *args)
+{
+  char where = sl_cli_get_argument_string(args, 0)[0];
+  char format = 'u'; // Unserialized C
+  if (sl_cli_get_argument_count(args) > 1) {
+    format = sl_cli_get_argument_string(args, 1)[0];
+  }
+  RAIL_TxPowerCurvesConfigAlt_t *p_deserialized_curves = &powerCurvesState;
+  sl_rail_nvm_pa_config_t pa_config;
+  sl_status_t status;
+  switch (where) {
+    case 'c':
+      break;
+    case 'n':
+      status = sl_rail_util_pa_nvm_read_config(&pa_config);
+      if (status != SL_STATUS_OK) {
+        responsePrintError(sl_cli_get_command_string(args, 0), status,
+                           "Missing or invalid PA config in NVM");
+        return;
+      }
+      // switch unserialized to deserialized for an NVM config
+      if (format == 'u') {
+        format = 'd';
+      }
+      break;
+    default:
+      responsePrintError(sl_cli_get_command_string(args, 0), 0x11,
+                         "Unrecognized location %s, expected 'chip' or 'nvm'",
+                         sl_cli_get_argument_string(args, 0));
+      return;
+      break;
+  }
+  switch (format) {
+    case 'u': // unserialized C
+      sli_rail_util_pa_nvm_print_deserialized(p_deserialized_curves);
+      break;
+    case 's': // serialized C
+    case 'o': // serialized C with offsets
+    case 'j': // serialized JSON
+    case 'd': // deserialized C
+      if (where == 'c') {
+        status = sli_rail_util_pa_nvm_serialize_config(p_deserialized_curves, &pa_config);
+        if (status != SL_STATUS_OK) {
+          responsePrintError(sl_cli_get_command_string(args, 0), status,
+                             "Chip power curves failed to serialize");
+          return;
+        }
+      }
+      if (format == 's') {
+        sli_rail_util_pa_nvm_print_serialized(&pa_config, false);
+      } else if (format == 'o') {
+        sli_rail_util_pa_nvm_print_serialized(&pa_config, true);
+      } else if (format == 'j') {
+        sli_rail_util_pa_nvm_print_serialized_json(&pa_config);
+      } else {
+        p_deserialized_curves
+          = sli_rail_util_pa_nvm_deserialize_config(&pa_config);
+        if (p_deserialized_curves == NULL) {
+          responsePrintError(sl_cli_get_command_string(args, 0), 0x11,
+                             "Serialized power curves failed to deserialize");
+          return;
+        }
+        sli_rail_util_pa_nvm_print_deserialized(p_deserialized_curves);
+      }
+      break;
+    default:
+      responsePrintError(sl_cli_get_command_string(args, 0), 0x11,
+                         "Unrecognized format %s", sl_cli_get_argument_string(args, 1));
+      break;
+  }
+  responsePrint(sl_cli_get_command_string(args, 0),
+                "sizeof(sl_rail_nvm_pa_config_t):%u,status:Success",
+                sizeof(sl_rail_nvm_pa_config_t));
+}
+
+void testNvmPaMode(sl_cli_command_arg_t *args)
+{
+  sl_status_t status;
+  RAIL_TxPowerMode_t pa_mode = getPowerModeIndexFromString(sl_cli_get_argument_string(args, 0));
+  if (pa_mode == 0xFFU) {
+    // If the string doesn't match a powerMode, attempt to convert it to a RAIL_TxPowerMode_t.
+    char *strtoulEnd;
+    pa_mode = (RAIL_TxPowerMode_t)strtoul(sl_cli_get_argument_string(args, 0), &strtoulEnd, 0);
+    //check that strtoul didn't fail but allow an invalid power mode
+    if (strtoulEnd == sl_cli_get_argument_string(args, 0)) {
+      responsePrintError(sl_cli_get_command_string(args, 0), 0x13, "Invalid PA enum value selected: %s", sl_cli_get_argument_string(args, 0));
+      return;
+    }
+  }
+  if (pa_mode == 0xFFU) {
+    // No API for this, so use native NVM3 APIs
+    status = nvm3_deleteObject(nvm3_defaultHandle,
+                               SL_RAIL_UTIL_PA_NVM_MODE_TAG);
+    responsePrint(sl_cli_get_command_string(args, 0), "nvmTag:0x%x,deleteNvmStatus:%u",
+                  SL_RAIL_UTIL_PA_NVM_MODE_TAG, status);
+    return;
+  }
+  status = sl_rail_util_pa_nvm_write_mode(pa_mode);
+  if (status != SL_STATUS_OK) {
+    responsePrintError(sl_cli_get_command_string(args, 0), status,
+                       "Failed to write PA mode %u", pa_mode);
+    return;
+  }
+  RAIL_TxPowerMode_t read_pa_mode = sl_rail_util_pa_nvm_read_mode();
+  responsePrint(sl_cli_get_command_string(args, 0),
+                "writePaMode:%u,readPaMode:%u,readPaString:%s",
+                pa_mode, read_pa_mode, paStrings[read_pa_mode]);
+}
+
+void testNvmPowerCurves(sl_cli_command_arg_t *args)
+{
+  sl_rail_nvm_pa_config_t pa_config;
+  char operation = 'w'; // Write a modified curve to NVM
+  sl_status_t status;
+  if (sl_cli_get_argument_count(args) > 0) {
+    operation = sl_cli_get_argument_string(args, 0)[0];
+  }
+  switch (operation) {
+    case 'w': // write modified curve to NVM
+    {
+      RAIL_TxPowerCurvesConfigAlt_t new_curves = powerCurvesState; // struct copy
+      // Change it by swapping the curves
+      new_curves.curves[0] = powerCurvesState.curves[1]; // struct copy
+      new_curves.curves[1] = powerCurvesState.curves[0]; // struct copy
+      status = sli_rail_util_pa_nvm_serialize_config(&new_curves, &pa_config);
+      if (status != SL_STATUS_OK) {
+        responsePrintError(sl_cli_get_command_string(args, 0), status,
+                           "Failed to serialize modified curve");
+        return;
+      }
+      status = sl_rail_util_pa_nvm_write_config(&pa_config);
+      responsePrint(sl_cli_get_command_string(args, 0), "writeNvmStatus:%u", status);
+      break;
+    }
+    case 'c': // corrupt curve in NVM (by changing its version)
+      // Start by reading curve from NVM
+      status = sl_rail_util_pa_nvm_read_config(&pa_config);
+      if (status != SL_STATUS_OK) {
+        responsePrintError(sl_cli_get_command_string(args, 0), status,
+                           "Missing or invalid PA config in NVM");
+        return;
+      }
+      pa_config.version = 0U;
+      status = sl_rail_util_pa_nvm_write_config(&pa_config);
+      responsePrint(sl_cli_get_command_string(args, 0), "writeNvmStatus:%u", status);
+      break;
+    case 'd': // delete curve in NVM
+      // No API for this, so use native NVM3 APIs
+      status = nvm3_deleteObject(nvm3_defaultHandle,
+                                 SL_RAIL_UTIL_PA_NVM_CONFIG_TAG);
+      responsePrint(sl_cli_get_command_string(args, 0), "nvmTag:0x%x,deleteNvmStatus:%u",
+                    SL_RAIL_UTIL_PA_NVM_CONFIG_TAG, status);
+      break;
+    default:
+      responsePrintError(sl_cli_get_command_string(args, 0), 0x11,
+                         "Unrecognized operation %s", sl_cli_get_argument_string(args, 0));
+      break;
+  }
+}
+
+#else//!SL_RAIL_UTIL_PA_NVM_ENABLED
+
+void printPowerCurves(sl_cli_command_arg_t *args)
+{
+  responsePrintError(sl_cli_get_command_string(args, 0), 0x11, "This command is not supported on this platform");
+}
+
+void testNvmPaMode(sl_cli_command_arg_t *args)
+{
+  responsePrintError(sl_cli_get_command_string(args, 0), 0x11, "This command is not supported on this platform");
+}
+
+void testNvmPowerCurves(sl_cli_command_arg_t *args)
+{
+  responsePrintError(sl_cli_get_command_string(args, 0), 0x11, "This command is not supported on this platform");
+}
+
+#endif//SL_RAIL_UTIL_PA_NVM_ENABLED

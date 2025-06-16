@@ -86,9 +86,15 @@ typedef __PACKED_STRUCT {
 
 typedef __PACKED_STRUCT {
   uint8_t endpoint_id;
-  uint8_t session_id[7];
+  uint8_t session_id[SLI_SECURITY_SESSION_ID_LENGTH_BYTES];
   uint32_t frame_counter;
 } sli_cpc_security_nonce_t;
+
+typedef struct {
+  uint8_t session_id_primary[SLI_SECURITY_SESSION_ID_LENGTH_BYTES];
+  uint8_t session_id_secondary[SLI_SECURITY_SESSION_ID_LENGTH_BYTES];
+  uint32_t count;
+} sli_cpc_security_context_t;
 
 /***************************************************************************//**
  * Typedef for callback function to let the core know when a state change

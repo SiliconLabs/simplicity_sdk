@@ -1,5 +1,5 @@
 id: mbedtls_cipher_cbc
-package: platform
+package: security_mbedtls
 label: CBC Mode
 description: >-
   This component provides support for CBC cipher modes in mbed TLS.

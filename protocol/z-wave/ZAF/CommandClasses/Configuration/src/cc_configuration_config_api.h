@@ -34,4 +34,4 @@ const cc_configuration_t *cc_configuration_get_configuration(void);
  * @}
  */
 
-#endif  // CC_CONFIGURATION_CONFIG_API_H
+#endif // CC_CONFIGURATION_CONFIG_API_H

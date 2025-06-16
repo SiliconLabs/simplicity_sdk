@@ -67,9 +67,15 @@ typedef struct {
   uint8_t crc_type;
   uint8_t preamble_length;
   uint8_t stf_length;
-  uint8_t neighbor_table_size;
+  uint8_t max_neighbor_count;
+  uint8_t max_child_count;
+  uint16_t max_security_neighbor_count;
   uint8_t keychain;
   uint8_t keychain_index;
+  uint16_t lowpan_mtu;
+  uint16_t ipv6_mru;
+  uint8_t max_edfe_fragment_count;
+  uint16_t socket_rx_buffer_size;
 } app_settings_wisun_t;
 
 typedef struct {

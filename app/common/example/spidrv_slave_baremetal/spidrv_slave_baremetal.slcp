@@ -14,7 +14,6 @@ filter:
     value: ["Advanced"]
 source:
   - path: app.c
-  - path: main.c
   - path: spidrv_slave_baremetal.c
 include:
   - path: .
@@ -22,7 +21,7 @@ include:
     - path: app.h
     - path: spidrv_slave_baremetal.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: spidrv

@@ -108,8 +108,7 @@ static void on_power_manager_event(sl_power_manager_em_t from,
 
 static sl_power_manager_em_transition_event_info_t on_power_manager_event_info =
 {
-  .event_mask = (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2 \
-                 | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3),
+  .event_mask = (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2),
   .on_event = on_power_manager_event,
 };
 
@@ -367,7 +366,11 @@ static Ecode_t SPIDRV_InitUsart(SPIDRV_Handle_t handle, SPIDRV_Init_t *initData)
 
   if ((initData->type == spidrvMaster)
       && (initData->csControl == spidrvCsControlAuto)) {
+    #if defined(USART_HAS_SET_CLEAR)
+    handle->peripheral.usartPort->CTRL_SET = USART_CTRL_AUTOCS;
+    #else
     handle->peripheral.usartPort->CTRL |= USART_CTRL_AUTOCS;
+    #endif
   }
 
   if (initData->csControl == spidrvCsControlAuto) {

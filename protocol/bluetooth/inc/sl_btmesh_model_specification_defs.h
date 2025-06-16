@@ -564,6 +564,7 @@ typedef enum {
   sl_btmesh_model_attributes_none       =                      0, /**< No attribute flags */
   sl_btmesh_model_supports_subscription =               (1 << 0), /**< Subscription supported */
   sl_btmesh_model_supports_publication  =               (1 << 1), /**< Publication supported */
+  sl_btmesh_model_supports_appkey       =               (1 << 2), /**< Model security is based on appkeys */
 } sl_btmesh_model_attributes_bitmask_t;
 
 /**

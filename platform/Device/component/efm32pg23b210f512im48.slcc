@@ -1,6 +1,6 @@
 !!omap
 - id: EFM32PG23B210F512IM48
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFM32PG23B210F512IM48.
 - category: Platform|Device|EFM32PG23
 - quality: production

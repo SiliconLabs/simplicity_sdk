@@ -41,8 +41,7 @@
  * on the call and after NODE_LIST_STATUS_ERROR_LIST deliver an error identifiers pointing
  * to a problem in application AGI/association configuarion.
  */
-typedef enum
-{
+typedef enum {
   NODE_LIST_STATUS_SUCCESS = 0,
   NODE_LIST_STATUS_NO_MORE_NODES,
   NODE_LIST_STATUS_ASSOCIATION_LIST_EMPTY,
@@ -122,10 +121,10 @@ AssociationRemove(
  */
 void
 AssociationGet(
-    uint8_t endpoint,
-    uint8_t * incomingFrame,
-    uint8_t * outgoingFrame,
-    uint8_t * outgoingFrameLength);
+  uint8_t endpoint,
+  uint8_t * incomingFrame,
+  uint8_t * outgoingFrame,
+  uint8_t * outgoingFrameLength);
 
 /**
  * @brief Associates a given node in the given group for a given endpoint.
@@ -142,10 +141,10 @@ AssociationGet(
  * @private
  */
 bool AssociationAddNode(
-    uint8_t groupID,
-    uint8_t endpoint,
-    MULTICHAN_DEST_NODE_ID* pNode,
-    bool multiChannelAssociation);
+  uint8_t groupID,
+  uint8_t endpoint,
+  MULTICHAN_DEST_NODE_ID* pNode,
+  bool multiChannelAssociation);
 
 /***********************************************************************************
  * Functions used while doing transmission to association groups.
@@ -294,9 +293,9 @@ uint8_t ApplicationGetLastActiveGroupId(void);
  * wrong.
  */
 TRANSMIT_OPTIONS_TYPE_EX * ReqNodeList(
-                                       AGI_PROFILE const * const pProfile,
-                                       cc_group_t const * const pCurrentCmdGrp,
-                                       const uint8_t sourceEndpoint);
+  AGI_PROFILE const * const pProfile,
+  cc_group_t const * const pCurrentCmdGrp,
+  const uint8_t sourceEndpoint);
 
 /**
  * @}

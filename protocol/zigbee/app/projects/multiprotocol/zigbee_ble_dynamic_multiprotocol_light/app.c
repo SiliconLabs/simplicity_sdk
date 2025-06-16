@@ -48,18 +48,6 @@
 #include "sl_dmp_ui_stub.h"
 #endif // SL_CATALOG_ZIGBEE_DISPLAY_PRESENT
 
-#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
-#include "sl_simple_button.h"
-#include "sl_simple_button_instances.h"
-
-#define BUTTON0         0
-#define BUTTON1         1
-
-static uint8_t lastButton;
-static bool longPress = false;
-static sl_zigbee_af_event_t button_event;
-#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
-
 #if defined(SL_CATALOG_LED0_PRESENT)
 #include "sl_led.h"
 #include "sl_simple_led_instances.h"
@@ -76,6 +64,18 @@ static sl_zigbee_af_event_t button_event;
 #define led_toggle(led)
 #endif // SL_CATALOG_LED0_PRESENT
 
+#if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
+#include "sl_simple_button.h"
+#include "sl_simple_button_instances.h"
+
+#define BUTTON0         0
+#define BUTTON1         1
+
+static uint8_t lastButton;
+static bool longPress = false;
+static sl_zigbee_af_event_t button_event;
+#endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
+
 #define SOURCE_ADDRESS_LEN 8
 static sl_802154_long_addr_t SwitchEUI;
 
@@ -87,6 +87,7 @@ static void setDefaultReportEntry(void);
 #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
 static void startIdentifyOnAllChildNodes(uint16_t identifyTime);
 static bool startPjoinAndIdentifying(uint16_t identifyTime);
+static void startJoiningOnNetwork(void);
 static void toggleOnoffAttribute(void);
 #endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
 
@@ -96,7 +97,7 @@ static void toggleOnoffAttribute(void);
 #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
 static void button_event_handler(sl_zigbee_af_event_t *event)
 {
-  sl_status_t status;
+  (void)event;
 
   if (lastButton == BUTTON0) {
     toggleOnoffAttribute();
@@ -104,24 +105,11 @@ static void button_event_handler(sl_zigbee_af_event_t *event)
     sl_zigbee_network_status_t state = sl_zigbee_af_network_state();
     if (state != SL_ZIGBEE_JOINED_NETWORK) {
       sl_dmp_ui_display_zigbee_state(DMP_UI_FORMING);
-      status = sl_zigbee_af_network_creator_start(true); // centralized
+      sl_status_t status = sl_zigbee_af_network_creator_start(true); // centralized
       sl_zigbee_app_debug_print("%s network %s: 0x%02X\n", "Form centralized", "start", status);
     } else {
       // joined on NWK
-      if (longPress == false) {
-        if (sl_zigbee_get_permit_joining()) {
-          sl_zigbee_permit_joining(0);
-        } else {
-          if (startPjoinAndIdentifying(180)) {
-            sl_dmp_ui_zigbee_permit_join(true);
-            sl_zigbee_app_debug_print("pJoin for 180 sec\n");
-          }
-        }
-      } else {
-        status = sl_zigbee_leave_network(SL_ZIGBEE_LEAVE_NWK_WITH_NO_OPTION);
-        sl_zigbee_clear_binding_table();
-        sl_zigbee_app_debug_print("leave NWK: 0x%02X\n", status);
-      }
+      startJoiningOnNetwork();
     }
   }
 }
@@ -181,6 +169,11 @@ void sl_zigbee_af_post_attribute_change_cb(uint8_t endpoint,
                                            uint8_t size,
                                            uint8_t* value)
 {
+  (void)manufacturerCode;
+  (void)type;
+  (void)size;
+  (void)value;
+
   if (clusterId == ZCL_ON_OFF_CLUSTER_ID
       && attributeId == ZCL_ON_OFF_ATTRIBUTE_ID
       && mask == CLUSTER_MASK_SERVER) {
@@ -189,7 +182,7 @@ void sl_zigbee_af_post_attribute_change_cb(uint8_t endpoint,
                                                      ZCL_ON_OFF_CLUSTER_ID,
                                                      ZCL_ON_OFF_ATTRIBUTE_ID,
                                                      CLUSTER_MASK_SERVER,
-                                                     (int8u*) &data,
+                                                     &data,
                                                      sizeof(data),
                                                      NULL);
 
@@ -277,14 +270,17 @@ void sl_zigbee_af_trust_center_join_cb(sl_802154_short_addr_t newNodeId,
                                        sl_zigbee_device_update_t status,
                                        sl_zigbee_join_decision_t decision)
 {
+  (void)newNodeId;
+  (void)parentOfNewNode;
+  (void)decision;
+
   if (status == SL_ZIGBEE_DEVICE_LEFT) {
     for (uint8_t i = 0; i < SL_ZIGBEE_BINDING_TABLE_SIZE; i++) {
       sl_zigbee_binding_table_entry_t entry;
       sl_zigbee_get_binding(i, &entry);
       if ((entry.type == SL_ZIGBEE_UNICAST_BINDING)
           && (entry.clusterId == ZCL_ON_OFF_CLUSTER_ID)
-          && ((memcmp(entry.identifier, newNodeEui64, EUI64_SIZE)
-               == 0))) {
+          && (memcmp(entry.identifier, newNodeEui64, EUI64_SIZE) == 0)) {
         sl_zigbee_delete_binding(i);
         sl_zigbee_app_debug_print("deleted binding entry: %d\n", i);
         break;
@@ -355,7 +351,7 @@ static void toggleOnoffAttribute(void)
                                        ZCL_ON_OFF_CLUSTER_ID,
                                        ZCL_ON_OFF_ATTRIBUTE_ID,
                                        CLUSTER_MASK_SERVER,
-                                       (int8u*) &data,
+                                       &data,
                                        sizeof(data),
                                        NULL);
 
@@ -379,9 +375,27 @@ static void toggleOnoffAttribute(void)
                                         ZCL_ON_OFF_CLUSTER_ID,
                                         ZCL_ON_OFF_ATTRIBUTE_ID,
                                         CLUSTER_MASK_SERVER,
-                                        (int8u *) &data,
+                                        &data,
                                         ZCL_BOOLEAN_ATTRIBUTE_TYPE);
   sl_zigbee_app_debug_print("write to onoff attr: 0x%02X\n", status);
+}
+
+static void startJoiningOnNetwork(void)
+{
+  if (longPress == false) {
+    if (sl_zigbee_get_permit_joining()) {
+      sl_zigbee_permit_joining(0);
+    } else {
+      if (startPjoinAndIdentifying(180)) {
+        sl_dmp_ui_zigbee_permit_join(true);
+        sl_zigbee_app_debug_print("pJoin for 180 sec\n");
+      }
+    }
+  } else {
+    sl_status_t status = sl_zigbee_leave_network(SL_ZIGBEE_LEAVE_NWK_WITH_NO_OPTION);
+    sl_zigbee_clear_binding_table();
+    sl_zigbee_app_debug_print("leave NWK: 0x%02X\n", status);
+  }
 }
 #endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
 
@@ -410,7 +424,7 @@ static bool startPjoinAndIdentifying(uint16_t identifyTime)
                                                0x6C, 0x6C, 0x69, 0x61, 0x6E, 0x63, 0x65, 0x30, 0x39 } };
 
   (void) sl_zigbee_sec_man_import_transient_key(wildcardEui64, &centralizedKey);
-  status = sl_zigbee_permit_joining(identifyTime);
+  status = sl_zigbee_permit_joining((uint8_t)identifyTime);
 
   sl_zigbee_af_write_server_attribute(sl_zigbee_af_primary_endpoint(),
                                       ZCL_IDENTIFY_CLUSTER_ID,
@@ -427,10 +441,9 @@ static void startIdentifyOnAllChildNodes(uint16_t identifyTime)
   // Attempt to start Identify on all connected child nodes.
 
   const uint8_t childTableSize = sl_zigbee_af_get_child_table_size();
-  uint8_t i;
 
   // Iterate through the child table and try to find the device's child data
-  for (i = 0; i < childTableSize; ++i) {
+  for (uint8_t i = 0; i < childTableSize; ++i) {
     sl_zigbee_child_data_t childData;
     if (sl_zigbee_af_get_child_data(i, &childData) == SL_STATUS_OK) {
       // Write Identify Time attribute on child.

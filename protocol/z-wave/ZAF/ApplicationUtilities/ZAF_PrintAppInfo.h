@@ -11,6 +11,6 @@
 /**
  * @brief Print out the application name, reset reason and SDK versions.
  */
-void ZAF_PrintAppInfo();
+void ZAF_PrintAppInfo(void);
 
 #endif /* ZAF_PRINTAPPINFO_H_ */

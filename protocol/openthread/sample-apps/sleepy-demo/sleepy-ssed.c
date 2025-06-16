@@ -49,6 +49,9 @@
 #include "sl_simple_button_instances.h"
 
 #include "sl_component_catalog.h"
+#ifdef SL_CATALOG_POWER_MANAGER_PRESENT
+#include "sl_power_manager.h"
+#endif
 
 #ifdef SL_CATALOG_KERNEL_PRESENT
 #include "sl_ot_rtos_adaptation.h"
@@ -179,7 +182,7 @@ void initUdp(void)
     }
 
     // Bind to the socket. Close the socket if bind fails.
-    error = otUdpBind(otGetInstance(), &sSsedSocket, &bindAddr, OT_NETIF_THREAD);
+    error = otUdpBind(otGetInstance(), &sSsedSocket, &bindAddr, OT_NETIF_THREAD_INTERNAL);
     if (error != OT_ERROR_NONE)
     {
         otCliOutputFormat("SSED failed to bind udp socket with: %d, %s\r\n", error, otThreadErrorToString(error));
@@ -229,6 +232,17 @@ void applicationTick(void)
         sRxOnIdleButtonPressed = false;
         sAllowSleep            = !sAllowSleep;
         sPrintState            = true;
+
+#if (defined(SL_CATALOG_KERNEL_PRESENT) && defined(SL_CATALOG_POWER_MANAGER_PRESENT))
+        if (sAllowSleep)
+        {
+            sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
+        }
+        else
+        {
+            sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
+        }
+#endif
     }
 
     // Check for BTN1 button press

@@ -1,5 +1,5 @@
 id: psa_crypto_ecc
-package: platform
+package: security_mbedtls
 label: ECC
 quality: production
 # Does not need to be shown in UI, needs child-components (curves) to work.

@@ -1,5 +1,5 @@
 id: tz_iovec_check
-package: platform
+package: security_trustzone
 description: >-
   This component provides functionality for checking that iovec objects
   reside in memory that is read- and writeable from the non-secure domain.

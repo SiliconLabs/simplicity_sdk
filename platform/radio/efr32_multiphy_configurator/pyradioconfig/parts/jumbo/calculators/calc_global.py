@@ -286,8 +286,14 @@ class CALC_Global_jumbo(CALC_Global):
         self._addModelRegister(model, 'SEQ.BBSS_GROUP_1.BBSS_HYSTERESIS', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'SEQ.BBSS_GROUP_1.IIR_SHIFT', int, ModelVariableFormat.HEX)
 
+        self._add_channel_number_definition(model)
+
     def _add_PREDIST_regs(self, model):
         self._addModelRegister(model, 'MODEM.CTRL4.PREDISTRST', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'MODEM.CTRL4.PREDISTAVG', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'MODEM.CTRL4.PREDISTDEB', int, ModelVariableFormat.HEX)
         self._addModelRegister(model, 'MODEM.CTRL4.PREDISTGAIN', int, ModelVariableFormat.HEX)
+
+    def _add_channel_number_definition(self, model):
+        self._addModelVariable(model, 'chcfg_channel_number_start', int, ModelVariableFormat.DECIMAL, desc='Channel Config Start channel number')
+        self._addModelVariable(model, 'chcfg_channel_number_end', int, ModelVariableFormat.DECIMAL, desc='Channel Config Last channel number')

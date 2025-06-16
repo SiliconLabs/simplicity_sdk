@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 from cc_base import cc_validate
 
 
@@ -68,7 +68,7 @@ class cc_multilevel_sensor(cc_validate):
         super().__init__('zw_cc_multilevel_sensor', [
             'cc_multilevel_sensor_config.c.jinja', 'cc_multilevel_sensor_config.h.jinja'], 'endpoints')
 
-    def _validate(self, configuration: Dict[str, Dict[str, Any]]):
+    def _validate(self, configuration: dict[str, dict[str, Any]]):
         for endpoint in configuration[self.component][self.variable]:
             for key, value in endpoint["sensors"].items():
                 # A key represents one instance but since this is a dictionary

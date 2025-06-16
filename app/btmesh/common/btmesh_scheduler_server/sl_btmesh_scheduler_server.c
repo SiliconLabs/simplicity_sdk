@@ -40,11 +40,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Scheduler Server
- * @{
- ******************************************************************************/
-
 /*******************************************************************************
  * Scheduler initialization.
  * This should be called at each boot if provisioning is already done.
@@ -53,9 +48,9 @@
  * @param[in] element Index of the element where scheduler model is initialized.
  *
  * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
+ *         Returns SL_STATUS_OK if successful. Error code otherwise.
  ******************************************************************************/
-uint16_t sl_btmesh_scheduler_init(void)
+sl_status_t sl_btmesh_scheduler_init(void)
 {
   // Initialize scheduler server models
   sl_status_t result = sl_btmesh_scheduler_server_init(BTMESH_SCHEDULER_SERVER_MAIN);
@@ -65,7 +60,7 @@ uint16_t sl_btmesh_scheduler_init(void)
   return result;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of scheduler server action changed event.
  *
  * @param[in] evt  Pointer to scheduler server action changed event.
@@ -155,6 +150,11 @@ elem_index=%u, index=%u, ", evt->elem_index, evt->index);
  ******************************************************************************/
 void sl_btmesh_scheduler_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_scheduler_server_action_changed_id:
       handle_scheduler_server_action_changed_event(
@@ -164,17 +164,20 @@ void sl_btmesh_scheduler_server_on_event(sl_btmesh_msg_t *evt)
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_scheduler_init();
+        booted = true;
       }
       break;
 
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_scheduler_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_scheduler_init();
+        booted = true;
+      }
       break;
+    }
 
     default:
       break;
   }
 }
-
-/** @} (end addtogroup Scheduler Server) */

@@ -20,7 +20,7 @@
 
 /**
  * Initiates the transmission of a multicast request
- * 
+ *
  * @param[in] pProfile pointer to AGI profile or NULL for lifeline
  * @param[in] endpoint source endpoint
  * @param[in] pcmdGrp command class and command

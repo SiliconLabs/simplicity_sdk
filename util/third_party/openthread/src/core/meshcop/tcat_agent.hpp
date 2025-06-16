@@ -334,11 +334,17 @@ public:
     bool GetInstallCodeVerifyStatus(void) const { return mInstallCodeVerified; }
 
 private:
-    Error Connected(MeshCoP::SecureTransport &aTlsContext);
+    Error Connected(MeshCoP::Tls::Extension &aTls);
     void  Disconnected(void);
 
     Error HandleSingleTlv(const Message &aIncomingMessage, Message &aOutgoingMessage);
     Error HandleSetActiveOperationalDataset(const Message &aIncomingMessage, uint16_t aOffset, uint16_t aLength);
+    Error HandleGetActiveOperationalDataset(Message &aOutgoingMessage, bool &aResponse);
+    Error HandleGetDiagnosticTlvs(const Message &aIncomingMessage,
+                                  Message       &aOutgoingMessage,
+                                  uint16_t       aOffset,
+                                  uint16_t       aLength,
+                                  bool          &response);
     Error HandleDecomission(void);
     Error HandlePing(const Message &aIncomingMessage,
                      Message       &aOutgoingMessage,
@@ -359,6 +365,7 @@ private:
                                 uint16_t       aLength,
                                 bool          &aResponse);
     Error HandleStartThreadInterface(void);
+    Error HandleGetCommissionerCertificate(Message &aOutgoingMessage, bool &aResponse);
 
     Error VerifyHash(const Message &aIncomingMessage,
                      uint16_t       aOffset,
@@ -374,12 +381,14 @@ private:
     bool         CanProcessTlv(uint8_t aTlvType) const;
     CommandClass GetCommandClass(uint8_t aTlvType) const;
 
-    static constexpr uint16_t kJoinerUdpPort            = OPENTHREAD_CONFIG_JOINER_UDP_PORT;
-    static constexpr uint16_t kPingPayloadMaxLength     = 512;
-    static constexpr uint16_t kProvisioningUrlMaxLength = 64;
-    static constexpr uint16_t kMaxPskdLength            = OT_JOINER_MAX_PSKD_LENGTH;
-    static constexpr uint16_t kTcatMaxDeviceIdSize      = OT_TCAT_MAX_DEVICEID_SIZE;
-    static constexpr uint16_t kInstallCodeMaxSize       = 255;
+    static constexpr uint16_t kJoinerUdpPort             = OPENTHREAD_CONFIG_JOINER_UDP_PORT;
+    static constexpr uint16_t kPingPayloadMaxLength      = 512;
+    static constexpr uint16_t kProvisioningUrlMaxLength  = 64;
+    static constexpr uint16_t kMaxPskdLength             = OT_JOINER_MAX_PSKD_LENGTH;
+    static constexpr uint16_t kTcatMaxDeviceIdSize       = OT_TCAT_MAX_DEVICEID_SIZE;
+    static constexpr uint16_t kInstallCodeMaxSize        = 255;
+    static constexpr uint16_t kCommissionerCertMaxLength = 1024;
+    static constexpr uint16_t kBufferReserve             = 2048 / (kBufferSize - sizeof(otMessageBuffer)) + 1;
 
     JoinerPskd                       mJoinerPskd;
     const VendorInfo                *mVendorInfo;

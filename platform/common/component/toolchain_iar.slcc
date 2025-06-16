@@ -1,12 +1,12 @@
 id: toolchain_iar
 label: IAR Toolchain
-package: platform
+package: platform_core
 description: Toolchain support for IAR
 category: Platform|Toolchain
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 tag:
   - toolchain:id:iar
@@ -18,7 +18,7 @@ requires:
   - name: toolchain_linker_type
   - name: toolchain_variant
     condition: [device_arm]
-  - name: sl_memory
+  - name: memory_manager_region
     condition: [device_cortexm]
 recommends:
   - id: toolchain_iar_standard

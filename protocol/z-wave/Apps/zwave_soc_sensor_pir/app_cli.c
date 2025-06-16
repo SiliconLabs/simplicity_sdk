@@ -40,6 +40,7 @@
 #include "ev_man.h"
 #include "events.h"
 #include "zaf_event_distributor_soc.h"
+#include <string.h>
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------

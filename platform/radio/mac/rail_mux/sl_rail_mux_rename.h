@@ -21,124 +21,135 @@
 #include PLATFORM_HEADER
 #include "sl_rail_mux.h"
 #include "coexistence/protocol/ieee802154_uc/coexistence-802154.h"
-#define RAIL_SetStateTiming  sl_rail_mux_SetStateTiming
-#define RAIL_IEEE802154_SetRxToEnhAckTx   sl_rail_mux_IEEE802154_SetRxToEnhAckTx
-#define RAIL_ConfigRxOptions   sl_rail_mux_ConfigRxOptions
-#define RAIL_SetTaskPriority   sl_rail_mux_SetTaskPriority
-#define RAIL_IEEE802154_Config2p4GHzRadio         sl_rail_mux_IEEE802154_Config2p4GHzRadio
-#define RAIL_IEEE802154_Config2p4GHzRadioAntDiv   sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDiv
-#define RAIL_IEEE802154_Config2p4GHzRadio2Mbps    sl_rail_mux_IEEE802154_Config2p4GHzRadio2Mbps
-#define RAIL_ConfigEvents   sl_rail_mux_ConfigEvents
-#define RAIL_Init   sl_rail_mux_Init
-#define RAIL_SetPtiProtocol   sl_rail_mux_SetPtiProtocol
-#define RAIL_ConfigChannels   sl_rail_mux_ConfigChannels
-#define RAIL_IEEE802154_Init   sl_rail_mux_IEEE802154_Init
-#define RAIL_ConvertLqi   sl_rail_mux_ConvertLqi
-#define RAIL_Calibrate   sl_rail_mux_Calibrate
-#define RAIL_IEEE802154_CalibrateIr2p4Ghz   sl_rail_mux_IEEE802154_CalibrateIr2p4Ghz
-#define RAIL_GetRadioEntropy   sl_rail_mux_GetRadioEntropy
-#define RAIL_IEEE802154_SetShortAddress   sl_rail_mux_IEEE802154_SetShortAddress
-#define RAIL_IEEE802154_SetLongAddress   sl_rail_mux_IEEE802154_SetLongAddress
-#define RAIL_IEEE802154_SetPanId   sl_rail_mux_IEEE802154_SetPanId
-#define RAIL_IEEE802154_SetPanCoordinator   sl_rail_mux_IEEE802154_SetPanCoordinator
-#define RAIL_IEEE802154_SetAddresses sl_rail_mux_IEEE802154_SetAddresses
-#define RAIL_IsValidChannel   sl_rail_mux_IsValidChannel
-#define RAIL_GetRssi   sl_rail_mux_GetRssi
-#define RAIL_GetSymbolRate   sl_rail_mux_GetSymbolRate
-#define RAIL_GetBitRate   sl_rail_mux_GetBitRate
-#define RAIL_CancelTimer   sl_rail_mux_CancelTimer
-#define RAIL_GetPendingCal   sl_rail_mux_GetPendingCal
-#define RAIL_CalibrateTemp   sl_rail_mux_CalibrateTemp
-#define RAIL_GetRxPacketInfo   sl_rail_mux_GetRxPacketInfo
-#define RAIL_GetRxPacketDetailsAlt   sl_rail_mux_GetRxPacketDetailsAlt
-#define RAIL_GetRxTimeSyncWordEnd   sl_rail_mux_GetRxTimeSyncWordEnd
-#define RAIL_PeekRxPacket   sl_rail_mux_PeekRxPacket
-#define RAIL_IEEE802154_GetAddress   sl_rail_mux_IEEE802154_GetAddress
-#define RAIL_GetRxIncomingPacketInfo   sl_rail_mux_GetRxIncomingPacketInfo
-#define RAIL_IEEE802154_SetFramePending   sl_rail_mux_IEEE802154_SetFramePending
-#define RAIL_GetSchedulerStatus   sl_rail_mux_GetSchedulerStatus
-#define RAIL_IsRxAutoAckPaused   sl_rail_mux_IsRxAutoAckPaused
-#define RAIL_GetTxPowerConfig   sl_rail_mux_GetTxPowerConfig
-#define RAIL_ConfigTxPower   sl_rail_mux_ConfigTxPower
-#define RAIL_SetTxPowerDbm   sl_rail_mux_SetTxPowerDbm
-#define RAIL_SetTxPower sl_rail_mux_SetTxPower
-#define RAIL_YieldRadio   sl_rail_mux_YieldRadio
-#define RAIL_GetRadioState   sl_rail_mux_GetRadioState
-#define RAIL_Idle   sl_rail_mux_Idle
-#define RAIL_StartRx   sl_rail_mux_StartRx
-#define RAIL_SetTxFifo   sl_rail_mux_SetTxFifo
-#define RAIL_StartCcaCsmaTx   sl_rail_mux_StartCcaCsmaTx
-#define RAIL_StartTx  sl_rail_mux_StartTx
-#define RAIL_StartTxStream   sl_rail_mux_StartTxStream
-#define RAIL_StopTxStream   sl_rail_mux_StopTxStream
-#define RAIL_IEEE802154_SetPromiscuousMode   sl_rail_mux_IEEE802154_SetPromiscuousMode
-#define RAIL_PauseRxAutoAck   sl_rail_mux_PauseRxAutoAck
-#define RAIL_SetCcaThreshold   sl_rail_mux_SetCcaThreshold
 
-#define RAIL_SetFreqOffset sl_rail_mux_SetFreqOffset
-#define RAIL_SetTimer sl_rail_mux_SetTimer
+#undef sl_rail_get_tx_power_config
+#undef sl_rail_config_tx_power
+#undef sl_rail_set_tx_power_dbm
+#undef sl_rail_get_tx_power_dbm
+#undef sl_rail_get_tx_power
 
-#define RAIL_IEEE802154_IsEnabled   sl_rail_mux_IEEE802154_IsEnabled
-#define RAIL_SetRxTransitions   sl_rail_mux_SetRxTransitions
-#define RAIL_ConfigCal   sl_rail_mux_ConfigCal
-#define RAIL_EnablePaAutoMode   sl_rail_mux_EnablePaAutoMode
-#define RAIL_WriteTxFifo   sl_rail_mux_WriteTxFifo
-#define RAIL_ReadRxFifo   sl_rail_mux_ReadRxFifo
-#define RAIL_GetRxFifoBytesAvailable   sl_rail_mux_GetRxFifoBytesAvailable
-#define RAIL_StartScheduledTx   sl_rail_mux_StartScheduledTx
-#define RAIL_StartScheduledCcaCsmaTx sl_rail_mux_StartScheduledCcaCsmaTx
-#define RAIL_ScheduleRx sl_rail_mux_RAIL_ScheduleRx
-#define RAIL_ConfigSleep   sl_rail_mux_ConfigSleep
-#define RAIL_GetRssiOffset sl_rail_mux_GetRssiOffset
+#define sl_rail_set_state_timing  sl_rail_mux_SetStateTiming
+#define sl_rail_ieee802154_set_rx_to_enh_ack_tx   sl_rail_mux_IEEE802154_SetRxToEnhAckTx
+#define sl_rail_config_rx_options   sl_rail_mux_ConfigRxOptions
+#define sl_rail_ieee802154_config_2_mbps_rx_channel sl_rail_mux_ieee802154_config_2_mbps_rx_channel
+#define sl_rail_set_task_priority   sl_rail_mux_SetTaskPriority
+#define sl_rail_ieee802154_config_2p4_ghz_radio         sl_rail_mux_IEEE802154_Config2p4GHzRadio
+#define sl_rail_ieee802154_config_2p4_ghz_radio_ant_div   sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDiv
+#define sl_rail_ieee802154_config_2p4_ghz_radio_2_mbps    sl_rail_mux_IEEE802154_Config2p4GHzRadio2Mbps
+#define sl_rail_config_events   sl_rail_mux_ConfigEvents
+#define sl_rail_init   sl_rail_mux_Init
+#define sl_rail_set_pti_protocol   sl_rail_mux_SetPtiProtocol
+#define sl_rail_config_channels   sl_rail_mux_ConfigChannels
+#define sl_rail_ieee802154_init   sl_rail_mux_IEEE802154_Init
+#define sl_rail_convert_lqi   sl_rail_mux_ConvertLqi
+#define sl_rail_calibrate   sl_rail_mux_Calibrate
+#define sl_rail_ieee802154_calibrate_ir_2p4_ghz   sl_rail_mux_IEEE802154_CalibrateIr2p4Ghz
+#define sl_rail_get_radio_entropy   sl_rail_mux_GetRadioEntropy
+#define sl_rail_ieee802154_set_short_address   sl_rail_mux_IEEE802154_SetShortAddress
+#define sl_rail_ieee802154_set_long_address   sl_rail_mux_IEEE802154_SetLongAddress
+#define sl_rail_ieee802154_set_pan_id   sl_rail_mux_IEEE802154_SetPanId
+#define sl_rail_ieee802154_set_pan_coordinator   sl_rail_mux_IEEE802154_SetPanCoordinator
+#define sl_rail_ieee802154_set_addresses sl_rail_mux_IEEE802154_SetAddresses
+#define sl_rail_is_valid_channel   sl_rail_mux_IsValidChannel
+#define sl_rail_get_rssi   sl_rail_mux_GetRssi
+#define sl_rail_get_symbol_rate   sl_rail_mux_GetSymbolRate
+#define sl_rail_get_bit_rate   sl_rail_mux_GetBitRate
+#define sl_rail_cancel_timer   sl_rail_mux_CancelTimer
+#define sl_rail_get_pending_cal   sl_rail_mux_GetPendingCal
+#define sl_rail_calibrate_temp   sl_rail_mux_CalibrateTemp
+#define sl_rail_get_rx_packet_info   sl_rail_mux_GetRxPacketInfo
+#define sl_rail_get_rx_packet_details   sl_rail_mux_GetRxPacketDetailsAlt
+#define sl_rail_peek_rx_packet   sl_rail_mux_PeekRxPacket
+#define sl_rail_ieee802154_get_address   sl_rail_mux_IEEE802154_GetAddress
+#define sl_rail_get_rx_incoming_packet_info   sl_rail_mux_GetRxIncomingPacketInfo
+#define sl_rail_ieee802154_toggle_frame_pending   sl_rail_mux_IEEE802154_SetFramePending
+#define sl_rail_get_scheduler_status   sl_rail_mux_GetSchedulerStatus
+#define sl_rail_is_rx_auto_ack_paused sl_rail_mux_IsRxAutoAckPaused
+#define sl_rail_get_tx_power_config   sl_rail_mux_GetTxPowerConfig
+#define sl_rail_config_tx_power   sl_rail_mux_ConfigTxPower
+#define sl_rail_set_tx_power_dbm   sl_rail_mux_SetTxPowerDbm
+#define sl_rail_yield_radio   sl_rail_mux_YieldRadio
+#define sl_rail_get_radio_state   sl_rail_mux_GetRadioState
+#define sl_rail_idle   sl_rail_mux_Idle
+#define sl_rail_start_rx   sl_rail_mux_StartRx
+#define sl_rail_set_tx_fifo   sl_rail_mux_SetTxFifo
+#define sl_rail_start_cca_csma_tx   sl_rail_mux_StartCcaCsmaTx
+#define sl_rail_start_tx  sl_rail_mux_StartTx
+#define sl_rail_stop_tx_stream   sl_rail_mux_StopTxStream
+#define sl_rail_ieee802154_set_promiscuous_mode   sl_rail_mux_IEEE802154_SetPromiscuousMode
+#define sl_rail_pause_rx_auto_ack   sl_rail_mux_PauseRxAutoAck
+#define sl_rail_set_cca_threshold   sl_rail_mux_SetCcaThreshold
 
-#define RAIL_StartAverageRssi   sl_rail_mux_StartAverageRssi
+#define sl_rail_set_freq_offset sl_rail_mux_SetFreqOffset
+#define sl_rail_set_timer sl_rail_mux_SetTimer
 
-#define RAIL_GetTxPowerDbm   sl_rail_mux_GetTxPowerDbm
-#define RAIL_GetTxPower   sl_rail_mux_GetTxPower
+#define sl_rail_ieee802154_is_enabled   sl_rail_mux_IEEE802154_IsEnabled
+#define sl_rail_set_rx_transitions   sl_rail_mux_SetRxTransitions
+#define sl_rail_config_cal   sl_rail_mux_ConfigCal
+#define sl_rail_write_tx_fifo   sl_rail_mux_WriteTxFifo
+#define sl_rail_read_rx_fifo   sl_rail_mux_ReadRxFifo
+#define sl_rail_get_rx_fifo_bytes_available   sl_rail_mux_GetRxFifoBytesAvailable
+#define sl_rail_start_scheduled_tx   sl_rail_mux_StartScheduledTx
+#define sl_rail_start_scheduled_cca_csma_tx sl_rail_mux_StartScheduledCcaCsmaTx
+#define sl_rail_start_scheduled_rx sl_rail_mux_RAIL_ScheduleRx
+#define sl_rail_config_sleep   sl_rail_mux_ConfigSleep
+#define sl_rail_get_rssi_offset sl_rail_mux_GetRssiOffset
 
-#define RAIL_IEEE802154_WriteEnhAck   sl_rail_mux_IEEE802154_WriteEnhAck
+#define sl_rail_start_average_rssi   sl_rail_mux_StartAverageRssi
 
-#define RAIL_ReleaseRxPacket   sl_rail_mux_ReleaseRxPacket
+#define sl_rail_get_tx_power_dbm   sl_rail_mux_GetTxPowerDbm
+#define sl_rail_get_tx_power   sl_rail_mux_GetTxPower
 
-#define RAIL_HoldRxPacket   sl_rail_mux_HoldRxPacket
+#define sl_rail_ieee802154_write_enh_ack   sl_rail_mux_IEEE802154_WriteEnhAck
 
-#define RAIL_GetAverageRssi   sl_rail_mux_GetAverageRssi
+#define sl_rail_release_rx_packet   sl_rail_mux_ReleaseRxPacket
 
-#define RAIL_GetRxTimeSyncWordEndAlt   sl_rail_mux_GetRxTimeSyncWordEndAlt
+#define sl_rail_hold_rx_packet   sl_rail_mux_HoldRxPacket
 
-#define RAIL_IEEE802154_GetPtiRadioConfig   sl_rail_mux_IEEE802154_GetPtiRadioConfig
+#define sl_rail_get_average_rssi   sl_rail_mux_GetAverageRssi
 
-#define RAIL_IEEE802154_EnableEarlyFramePending   sl_rail_mux_IEEE802154_EnableEarlyFramePending
+#define sl_rail_get_rx_time_sync_word_end   sl_rail_mux_GetRxTimeSyncWordEndAlt
 
-#define RAIL_SetTxFifoThreshold     sl_rail_mux_SetTxFifoThreshold
+#define sl_rail_ieee802154_get_phy_id   sl_rail_mux_IEEE802154_GetPtiRadioConfig
 
-#define RAIL_SetNextTxRepeat sl_rail_mux_SetNextTxRepeat
+#define sl_rail_ieee802154_enable_early_frame_pending   sl_rail_mux_IEEE802154_EnableEarlyFramePending
 
-#define RAIL_GetChannel sl_rail_mux_GetChannel
+#define sl_rail_set_tx_fifo_threshold     sl_rail_mux_SetTxFifoThreshold
 
-#define RAIL_IEEE802154_EnableDataFramePending sl_rail_mux_IEEE802154_EnableDataFramePending
+#define sl_rail_set_next_tx_repeat sl_rail_mux_SetNextTxRepeat
 
-#define RAIL_GetTxPacketsRemaining sl_rail_mux_GetTxPacketsRemaining
+#define sl_rail_get_channel sl_rail_mux_GetChannel
 
-#define RAIL_ResetFifo sl_rail_mux_ResetFifo
-#define RAIL_ConfigRxDutyCycle sl_rail_mux_ConfigRxDutyCycle
-#define RAIL_EnableRxDutyCycle sl_rail_mux_EnableRxDutyCycle
-#define RAIL_GetTxFifoSpaceAvailable sl_rail_mux_GetTxFifoSpaceAvailable
-#define RAIL_IEEE802154_AcceptFrames sl_rail_mux_IEEE802154_AcceptFrames
-#define RAIL_IEEE802154_Config2p4GHzRadioAntDivCoex sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivCoex
-#define RAIL_IEEE802154_Config2p4GHzRadioAntDivCoexFem sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivCoexFem
-#define RAIL_IEEE802154_Config2p4GHzRadioAntDivFem sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivFem
-#define RAIL_IEEE802154_Config2p4GHzRadioCoex sl_rail_mux_IEEE802154_Config2p4GHzRadioCoex
-#define RAIL_IEEE802154_Config2p4GHzRadioCoexFem sl_rail_mux_IEEE802154_Config2p4GHzRadioCoexFem
-#define RAIL_IEEE802154_Config2p4GHzRadioFem sl_rail_mux_IEEE802154_Config2p4GHzRadioFem
-#define RAIL_IEEE802154_ConfigCcaMode sl_rail_mux_IEEE802154_ConfigCcaMode
-#define RAIL_IEEE802154_ConfigEOptions sl_rail_mux_IEEE802154_ConfigEOptions
-#define RAIL_IEEE802154_ConfigGOptions sl_rail_mux_IEEE802154_ConfigGOptions
-#define RAIL_IEEE802154_SetPtiRadioConfig sl_rail_mux_IEEE802154_SetPtiRadioConfig
-#define RAIL_SetRssiOffset sl_rail_mux_SetRssiOffset
-#define RAIL_StartTxStreamAlt sl_rail_mux_StartTxStreamAlt
-#define RAIL_IEEE802154_Config2p4GHzRadio1MbpsFec sl_rail_mux_IEEE802154_Config2p4GHzRadio1MbpsFec
-#define RAIL_GetRxTimeFrameEnd sl_rail_mux_GetRxTimeFrameEnd
+#define sl_rail_ieee802154_enable_data_frame_pending sl_rail_mux_IEEE802154_EnableDataFramePending
+
+#define sl_rail_get_tx_packets_remaining sl_rail_mux_GetTxPacketsRemaining
+
+#define sl_rail_reset_fifo sl_rail_mux_ResetFifo
+#define sl_rail_config_rx_duty_cycle sl_rail_mux_ConfigRxDutyCycle
+#define sl_rail_enable_rx_duty_cycle sl_rail_mux_EnableRxDutyCycle
+#define sl_rail_get_tx_fifo_space_available sl_rail_mux_GetTxFifoSpaceAvailable
+#define sl_rail_ieee802154_accept_frames sl_rail_mux_IEEE802154_AcceptFrames
+#define sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_coex sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivCoex
+#define sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_coex_fem sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivCoexFem
+#define sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_fem sl_rail_mux_IEEE802154_Config2p4GHzRadioAntDivFem
+#define sl_rail_ieee802154_config_2p4_ghz_radio_coex sl_rail_mux_IEEE802154_Config2p4GHzRadioCoex
+#define sl_rail_ieee802154_config_2p4_ghz_radio_coex_fem sl_rail_mux_IEEE802154_Config2p4GHzRadioCoexFem
+#define sl_rail_ieee802154_config_2p4_ghz_radio_fem sl_rail_mux_IEEE802154_Config2p4GHzRadioFem
+#define sl_rail_ieee802154_config_cca_mode sl_rail_mux_IEEE802154_ConfigCcaMode
+#define sl_rail_ieee802154_config_e_options sl_rail_mux_IEEE802154_ConfigEOptions
+#define sl_rail_ieee802154_config_g_options sl_rail_mux_IEEE802154_ConfigGOptions
+#define sl_rail_ieee802154_set_phy_id sl_rail_mux_IEEE802154_SetPtiRadioConfig
+#define sl_rail_set_rssi_offset sl_rail_mux_SetRssiOffset
+#define sl_rail_start_tx_stream sl_rail_mux_StartTxStreamAlt
+#define sl_rail_ieee802154_config_2p4_ghz_radio_1_mbps_fec sl_rail_mux_IEEE802154_Config2p4GHzRadio1MbpsFec
+#define sl_rail_get_rx_time_frame_end sl_rail_mux_GetRxTimeFrameEnd
+#define sl_rail_copy_rx_packet sl_rail_mux_CopyRxPacket
+#define sl_rail_config_multi_timer sl_rail_mux_ConfigMultiTimer
+#define sl_rail_set_multi_timer sl_rail_mux_SetMultiTimer
+#define sl_rail_cancel_multi_timer sl_rail_mux_CancelMultiTimer
+#define sl_rail_is_multi_timer_running sl_rail_mux_IsMultiTimerRunning
+#define sl_rail_get_time sl_rail_mux_GetTime
+#define sl_rail_prepare_channel sl_rail_mux_PrepareChannel
 
 #define ATOMIC_SECTION(RETURN_TYPE, yourcode, ...) \
   ({                                               \

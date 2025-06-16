@@ -6,8 +6,6 @@
 
 #include "cc_battery_io.h"
 #include <ZW_typedefs.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 ZW_WEAK bool
 cc_battery_write(__attribute__((unused)) SBatteryData* battery_data)

@@ -1,6 +1,6 @@
 id: ot_platform_abstraction
 label: Platform Abstraction
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides the abstraction layer between the OpenThread stack and Silicon Labs platform. It also adds support for additional features such as Wi-Fi coex and RTOS support
@@ -76,7 +76,8 @@ define:
   - name: SL_OPENTHREAD_PHY_SELECT_STACK_SUPPORT
     value: 1
     condition:
-      - rail_util_ieee802154_phy_select
+      - sl_rail_util_ieee802154_phy_select
+     
 template_contribution:
   - name: event_handler
     value:
@@ -94,6 +95,13 @@ template_contribution:
       priority: 10
     condition:
       - kernel
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: sl_ot_rtos_adaptation.h
+      handler: sl_ot_rtos_perm_allocation
+    priority: 9
+    condition: [sl_main, kernel]    
   - name: ot_init
     value: sl_ot_create_instance
     priority: 0

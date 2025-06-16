@@ -106,13 +106,13 @@ class PublishMeshCopService(thread_cert.TestCase):
         lifetime = 500_000
         ephemeral_key = br1.activate_ephemeral_key_mode(lifetime)
         self.assertEqual(len(ephemeral_key), 9)
-        self.assertEqual(br1.get_ephemeral_key_state(), 'active')
+        self.assertEqual(br1.get_ephemeral_key_state(), 'Started')
         # check Meshcop-e service
         self.check_meshcop_e_service(host, True)
 
         # deactivate ePSKc mode in force
         br1.deactivate_ephemeral_key_mode(retain_active_session=False)
-        self.assertEqual(br1.get_ephemeral_key_state(), 'inactive')
+        self.assertEqual(br1.get_ephemeral_key_state(), 'Stopped')
         self.simulator.go(10)
         # check Meshcop-e service
         self.check_meshcop_e_service(host, False)
@@ -121,13 +121,13 @@ class PublishMeshCopService(thread_cert.TestCase):
         lifetime = 0
         ephemeral_key = br1.activate_ephemeral_key_mode(lifetime)
         self.assertEqual(len(ephemeral_key), 9)
-        self.assertEqual(br1.get_ephemeral_key_state(), 'active')
+        self.assertEqual(br1.get_ephemeral_key_state(), 'Started')
         # check Meshcop-e service
         self.check_meshcop_e_service(host, True)
 
         # deactivate ePSKc mode NOT in force
         br1.deactivate_ephemeral_key_mode(retain_active_session=True)
-        self.assertEqual(br1.get_ephemeral_key_state(), 'inactive')
+        self.assertEqual(br1.get_ephemeral_key_state(), 'Stopped')
         self.simulator.go(10)
         # check Meshcop-e service
         self.check_meshcop_e_service(host, False)
@@ -209,7 +209,10 @@ class PublishMeshCopService(thread_cert.TestCase):
         sb_data = service_data['txt']['sb'].encode('raw_unicode_escape')
         state_bitmap = int.from_bytes(sb_data, byteorder='big')
         logging.info(bin(state_bitmap))
-        self.assertEqual((state_bitmap & 7), 1)  # connection mode = PskC
+        if br.get_ba_state() == 'Active':
+            self.assertEqual((state_bitmap & 7), 1)  # connection mode = PskC
+        else:
+            self.assertEqual((state_bitmap & 7), 0)  # connection mode = Disabled
         sb_thread_interface_status = state_bitmap >> 3 & 3
         sb_thread_role = state_bitmap >> 9 & 3
         device_role = br.get_state()

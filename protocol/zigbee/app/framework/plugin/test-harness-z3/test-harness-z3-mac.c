@@ -164,7 +164,7 @@ void sl_zigbee_af_test_harness_z3_beacon_send_event_handler(sl_zigbee_af_event_t
 extern uint8_t sli_mac_lower_mac_get_radio_channel(uint8_t mac_index);
 
 // Allow the framework to modify the beacon, for negative conformance test cases.
-// The function is called from our implementation of sl_zigbee_af_outgoing_packet_filter_cb.
+// The function is called from our implementation of sl_zigbee_pre_outgoing_packet_filter_cb.
 sl_zigbee_packet_action_t sli_zigbee_af_test_harness_z3_modify_beacon_payload(uint8_t *beaconPayload, uint8_t *payloadLength)
 {
   sl_zigbee_app_debug_println("%s %d %s %d", "sli_zigbee_af_test_harness_z3_modify_beacon_payload: Logical channel:",

@@ -206,9 +206,9 @@ void sl_zigbee_af_comms_hub_function_received_cb(sl_802154_long_addr_t senderDev
  * @param gbzAlertLength The length in octets of the GBZ formatted Alert
  * Ver.: always
  */
-void sl_zigbee_(uint16_t alertCode,
-                uint8_t *gbzAlert,
-                uint16_t gbzAlertLength);
+void sl_zigbee_af_comms_hub_function_alert_wan_cb(uint16_t alertCode,
+                                                  uint8_t *gbzAlert,
+                                                  uint16_t gbzAlertLength);
 
 /** @brief Tunnel opened.
  *

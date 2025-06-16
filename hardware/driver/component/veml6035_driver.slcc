@@ -1,13 +1,13 @@
 id: veml6035_driver
-package: platform
+package: board_drivers
 label: VEML6035 - Ambient Light Sensor
 description: >
-  Driver for the Vishay VEML6035 ambient light sensor
+    Driver for the Vishay VEML6035 ambient light sensor
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/veml6035
 provides:
   - name: veml6035_driver

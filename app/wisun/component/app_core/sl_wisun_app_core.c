@@ -51,10 +51,6 @@
 #include "sl_wisun_app_setting.h"
 #endif
 
-#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
-#warning Power Manager component is presented. Features/peripherals are constrained.
-#endif
-
 #if defined(WISUN_CONFIG_DDP)
 #include "sl_wisun_keychain.h"
 #include "sl_memory_manager.h"
@@ -235,7 +231,7 @@ static const app_setting_wisun_t _app_default_settings = {
 /// Here we track if regional regulation is active or not
 static bool _regional_regulation_active = false;
 
-static sl_wisun_app_core_reg_thresholds_t _tresholds = {
+static sl_wisun_app_core_reg_thresholds_t _thresholds = {
   .warning_threshold = SL_WISUN_APP_CORE_DEFAULT_REGULATION_WARNING_THRESHOLD,
   .alert_threshold = SL_WISUN_APP_CORE_DEFAULT_REGULATION_ALERT_THRESHOLD,
 };
@@ -245,7 +241,7 @@ static osMutexId_t _app_core_mtx = NULL;
 
 /// App framework mutex attribute
 static const osMutexAttr_t _app_wisun_mtx_attr = {
-  .name      = "AppWisunkMutex",
+  .name      = "AppWisunMutex",
   .attr_bits = osMutexRecursive,
   .cb_mem    = NULL,
   .cb_size   = 0
@@ -577,8 +573,8 @@ bool sl_wisun_app_core_get_regulation_active(void)
 void sl_wisun_app_core_set_regulation_thresholds(const int8_t warning_level, const  int8_t alert_level)
 {
   _app_wisun_mutex_acquire();
-  _tresholds.warning_threshold = warning_level;
-  _tresholds.alert_threshold = alert_level;
+  _thresholds.warning_threshold = warning_level;
+  _thresholds.alert_threshold = alert_level;
   _app_wisun_mutex_release();
 }
 
@@ -589,8 +585,8 @@ sl_status_t sl_wisun_app_core_get_regulation_thresholds(sl_wisun_app_core_reg_th
   }
 
   _app_wisun_mutex_acquire();
-  thresholds_out->warning_threshold = _tresholds.warning_threshold;
-  thresholds_out->alert_threshold = _tresholds.alert_threshold;
+  thresholds_out->warning_threshold = _thresholds.warning_threshold;
+  thresholds_out->alert_threshold = _thresholds.alert_threshold;
   _app_wisun_mutex_release();
   return SL_STATUS_OK;
 }

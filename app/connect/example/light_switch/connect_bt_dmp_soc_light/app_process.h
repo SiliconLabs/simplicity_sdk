@@ -39,7 +39,7 @@
 // -----------------------------------------------------------------------------
 
 /// End nodes have unlimited time for connecting, after the light formed the network
-#define UNLIMETED_CONNECTION_TIME         (0xFF)
+#define UNLIMITED_CONNECTION_TIME         (0xFF)
 /// 100ms timer for the state machine
 #define STATE_MACHINE_TIMER_MS            (100)
 

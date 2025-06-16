@@ -1,14 +1,14 @@
 id: math_types
 label: Math Types
-package: platform
+package: compute
 description: >
-  This component provides some math type features.
+    This component provides some math type features.
 category: Platform|Compute
 quality: production
 root_path: platform/compute/math
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 include:
   - path: inc
     file_list:

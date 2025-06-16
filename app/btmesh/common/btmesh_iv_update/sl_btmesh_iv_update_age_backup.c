@@ -44,11 +44,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup iv_update
- * @{
- ******************************************************************************/
-
 // IV Update age in seconds
 static uint32_t age = 0;
 
@@ -59,24 +54,36 @@ static void age_backup_timer_start(void);
 static void backup_age(void);
 static void restore_age(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Handling of mesh iv_update_age_backup related events.
  *  @param[in] evt  Pointer to incoming event.
  ******************************************************************************/
 void sl_btmesh_iv_update_age_backup_on_event(sl_btmesh_msg_t* evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
-    case sl_btmesh_evt_node_initialized_id:
+    case sl_btmesh_evt_node_initialized_id: {
       if (evt->data.evt_node_initialized.provisioned) {
         restore_age();
         age_backup_timer_start();
+        booted = true;
       }
       break;
+    }
     case sl_btmesh_evt_prov_initialized_id:
       restore_age();
       age_backup_timer_start();
       break;
-    case sl_btmesh_evt_node_provisioned_id:
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (booted) {
+        break;
+      }
+    }
+    // Intentional fallthrough
     case sl_btmesh_evt_node_changed_ivupdate_state_id:
       age = 0;
       backup_age();
@@ -100,7 +107,7 @@ void sl_btmesh_iv_update_on_node_reset(void)
 #endif
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Restore the IV Update age from the nvm.
  ******************************************************************************/
 static void restore_age(void)
@@ -112,11 +119,16 @@ static void restore_age(void)
   log_status_error_f(sc, "Failed to read from nvm" NL);
   if (sc == SL_STATUS_OK) {
     sc = sl_btmesh_node_set_iv_update_age(age);
-    app_assert_status_f(sc, "Failed to restore IV Update age");
+    // Does not exist error can occur after a firmware update
+    // but before DCD update if the elements change.
+    // Allow continuing, the error shall disappear after DCD update.
+    if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+      app_assert_status_f(sc, "Failed to restore IV Update age");
+    }
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Write the IV Update age to the nvm.
  ******************************************************************************/
 static void backup_age(void)
@@ -127,7 +139,7 @@ static void backup_age(void)
   log_status_error_f(sc, "Failed to backup IV Update age" NL);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Increment and backup IV Update age
  ******************************************************************************/
 static void on_iv_update_age_backup_timer(app_timer_t *handle, void *data)
@@ -141,7 +153,7 @@ static void on_iv_update_age_backup_timer(app_timer_t *handle, void *data)
   backup_age();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Write the IV Update age to the nvm.
  ******************************************************************************/
 static void age_backup_timer_start(void)
@@ -155,7 +167,7 @@ static void age_backup_timer_start(void)
 }
 
 #if SL_BTMESH_IV_UPDATE_AGE_BACKUP_ENABLE
-/***************************************************************************//**
+/*******************************************************************************
  *  Strong implementation of the function declared in sl_btmesh_iv_update_by_age.h
  *  @return The restored IV Update age in seconds
  ******************************************************************************/
@@ -164,5 +176,3 @@ uint32_t get_iv_update_age(void)
   return age;
 }
 #endif
-
-/** @} (end addtogroup iv_update) */

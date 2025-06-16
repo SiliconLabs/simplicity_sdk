@@ -1,6 +1,6 @@
 id: app_assert
 label: Assert
-package: platform
+package: platform_common_apps
 description: >
   The Assert component aborts the program if assertion is false, which helps
   to find bugs in the programs or abort the program with or without logs.

@@ -1,15 +1,15 @@
 id: lpm013m126a
-package: platform
+package: board_drivers
 label: Color Japan Memory LCD
 description: >
-  Driver for japan Memory LCD LPM013M126A. This display is a 176x176 rgb display
-  with 3 bit used for color. So there are 8 different colors supported for each
-  pixel on the screen.
+    Driver for japan Memory LCD LPM013M126A. This display is a 176x176 rgb display
+    with 3 bit used for color. So there are 8 different colors supported for each
+    pixel on the screen.
 category: Platform|Board Drivers|Memory LCD|Display Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver
 include:
   - path: memlcd/src/lpm013m126a

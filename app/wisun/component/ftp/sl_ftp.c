@@ -108,6 +108,11 @@ __WEAK bool sl_ftp_is_network_connected(void)
   return false;
 }
 
+__WEAK void sl_ftp_wait_for_connection(void)
+{
+  (void) 0;
+}
+
 __WEAK const char * sl_ftp_get_global_addr(void)
 {
   return SL_FTP_LOCAL_HOST_STR;

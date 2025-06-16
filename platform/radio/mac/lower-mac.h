@@ -58,7 +58,7 @@ enum
   SL_802154_STATE_WUF_RX, // a wake up frame has been received and we have scheduled an RX
 #endif // CSL_SUPPORT
 };
-
+extern uint16_t sli_mac_max_flat_pkt_size;
 extern LowerMacState sli_802154mac_lower_mac_state;
 #ifdef HIGH_DATARATE_PHY
 #define PHY_HEADER_SIZE_ADJUST_2MBPS    4u

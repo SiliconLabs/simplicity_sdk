@@ -1,6 +1,6 @@
 id: legacy_ncp_ash
 label: Legacy NCP ASH
-package: platform
+package: zigbee
 category: Services|Ember Legacy
 description: Legacy Ember ASH implementation for NCP.
 quality: production

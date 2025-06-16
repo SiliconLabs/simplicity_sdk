@@ -43,10 +43,10 @@
 #define SL_BT_RTOS_LINK_LAYER_TASK_PRIORITY     (52)
 
 // <o SL_BT_RTOS_LINK_LAYER_TASK_STACK_SIZE> Bluetooth link layer task stack size in bytes
-// <i> Default: 1312
+// <i> Default: 1400
 // <i> Define the stack size of the Bluetooth link layer task. The value is in bytes
 // <i> and will be word aligned when it is applied at the task creation.
-#define SL_BT_RTOS_LINK_LAYER_TASK_STACK_SIZE   (1312)
+#define SL_BT_RTOS_LINK_LAYER_TASK_STACK_SIZE   (1400)
 
 // <o SL_BT_RTOS_HOST_STACK_TASK_PRIORITY> Bluetooth host stack task priority
 // <i> Default: 51 (CMSIS-RTOS2 osPriorityRealtime3)

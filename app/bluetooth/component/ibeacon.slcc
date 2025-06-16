@@ -1,6 +1,6 @@
 id: ibeacon
 label: iBeacon
-package: Bluetooth
+package: bluetooth_le_middleware
 description: iBeacon component for beacon advertising
 
   This is a No-Code component.

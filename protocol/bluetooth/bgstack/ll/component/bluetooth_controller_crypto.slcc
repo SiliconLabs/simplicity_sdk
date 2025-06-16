@@ -1,6 +1,6 @@
 id: "bluetooth_controller_crypto"
 label: "Bluetooth Core Crypto Configuration for Controller"
-package: "Bluetooth"
+package: bluetooth_le_controller
 description: >
   Bluetooth Low Energy controller crypto configurations
 

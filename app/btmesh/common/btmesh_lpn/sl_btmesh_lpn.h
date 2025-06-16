@@ -34,13 +34,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @defgroup lpn Low Power Node Component
- * @brief Low Power Node feature Implementation
- * This component implements Low Power Node feature.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup lpn
+ * @addtogroup btmesh_lpn
  * @{
  ******************************************************************************/
 
@@ -187,6 +181,6 @@ void sl_btmesh_lpn_on_friendship_failed(uint16_t reason);
  ******************************************************************************/
 void sl_btmesh_lpn_on_friendship_terminated(uint16_t reason);
 
-/** @} (end addtogroup lpn) */
+/** @} (end addtogroup btmesh_lpn) */
 
 #endif /* SL_BTMESH_LPN_H */

@@ -28,8 +28,7 @@
  *
  ******************************************************************************/
 #include "os.h"
-#include "rail.h"
-#include "sl_common.h"
+#include "sl_rail.h"
 #include "app_assert.h"
 #include "app_proprietary.h"
 #include "sl_component_catalog.h"
@@ -73,7 +72,7 @@ static void app_proprietary_task(void *p_arg);
 /******************************************************************************
  * RAIL callback, called after the RAIL's initialization finished.
  *****************************************************************************/
-void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle)
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle)
 {
   (void) rail_handle;
   app_rail_busy = false;
@@ -141,20 +140,20 @@ static void app_proprietary_task(void *p_arg)
   /////////////////////////////////////////////////////////////////////////////
 
 /*
-   RAIL_Handle_t rail_handle;
-   RAIL_Status_t status;
+   sl_rail_handle_t rail_handle;
+   sl_rail_status_t status;
 
    rail_handle = sl_rail_sdk_util_get_handle();
  #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
    // init the selected protocol for IEEE, first
    sl_rail_sdk_ieee802154_protocol_init(rail_handle, SL_RAIL_SDK_UTIL_INIT_PROTOCOL_INSTANCE_DEFAULT);
    // Start reception.
-   status = RAIL_StartRx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
+   status = sl_rail_start_rx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
  #elif defined SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
-   status = RAIL_StartRx(rail_handle, BLE_CHANNEL, NULL);
+   status = sl_rail_start_rx(rail_handle, BLE_CHANNEL, NULL);
  #else
  #endif
-   app_assert(status == RAIL_STATUS_NO_ERROR,
+   app_assert(status == SL_RAIL_STATUS_NO_ERROR,
              "[E: 0x%04x] Failed to start RAIL reception" APP_LOG_NEW_LINE,
              (int)status);
  */
@@ -183,10 +182,10 @@ static void app_proprietary_task(void *p_arg)
 
 /**************************************************************************//**
  * This callback is called on registered RAIL events.
- * Overrides dummy weak implementation.
+ * Overrides the default weak implementation.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
-                           RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   PP_UNUSED_PARAM(rail_handle);
   PP_UNUSED_PARAM(events);

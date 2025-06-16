@@ -140,6 +140,9 @@
 /// Product identifier of Silicon Labs SoC Provisioner Light Lightness example
 #define SILABS_PRODUCT_ID_SOC_PROV_LIGHT_LIGHTNESS_EXAMPLE 0x001a
 
+/// Product identifier of Silicon Labs NLC Energy Monitor example
+#define SILABS_PRODUCT_ID_NLC_ENERGY_MONITOR_EXAMPLE       0x001b
+
 /// BT Mesh DCD page to query
 #define APP_CONF_DCD_PAGE                                  0
 
@@ -805,6 +808,8 @@ static const char *btmesh_example_product_id_to_string(uint16_t product_id)
       return "btmesh_soc_nlc_sensor_ambient_light";
     case SILABS_PRODUCT_ID_NLC_OCCUPANCY_EXAMPLE:
       return "btmesh_soc_nlc_sensor_occupancy";
+    case SILABS_PRODUCT_ID_NLC_ENERGY_MONITOR_EXAMPLE:
+      return "btmesh_soc_nlc_energy_monitor";
     case SILABS_PRODUCT_ID_NLC_BSS_EXAMPLE:
       return "btmesh_soc_nlc_basic_scene_selector";
     case SILABS_PRODUCT_ID_NLC_BSS_LOW_POWER_EXAMPLE:

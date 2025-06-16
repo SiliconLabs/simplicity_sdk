@@ -3,7 +3,7 @@
  * @brief internal implementations for 'network-formation' as a thin-wrapper
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -59,6 +59,11 @@ sl_status_t sl_zigbee_form_network(sl_zigbee_network_parameters_t *parameters)
 sl_status_t sl_zigbee_get_beacon_classification_params(sl_zigbee_beacon_classification_params_t *param)
 {
   return sli_zigbee_stack_get_beacon_classification_params(param);
+}
+
+bool sl_zigbee_get_join_uses_install_code(void)
+{
+  return sli_zigbee_stack_get_join_uses_install_code();
 }
 
 sl_zigbee_leave_reason_t sl_zigbee_get_last_leave_reason(sl_802154_short_addr_t *returnNodeIdThatSentLeave)
@@ -161,6 +166,11 @@ sl_status_t sl_zigbee_set_beacon_classification_params(sl_zigbee_beacon_classifi
 sl_status_t sl_zigbee_set_beacon_jitter_duration(uint8_t beaconJitterDuration)
 {
   return sli_zigbee_stack_set_beacon_jitter_duration(beaconJitterDuration);
+}
+
+void sl_zigbee_set_join_uses_install_code(bool enable)
+{
+  sli_zigbee_stack_set_join_uses_install_code(enable);
 }
 
 sl_status_t sl_zigbee_set_num_beacons_to_store(uint8_t numBeacons)

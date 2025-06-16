@@ -60,7 +60,7 @@
  * @brief iPerf UDP server thread function
  * @details Thread function
  *****************************************************************************/
-static void _iperf_thr_fnc (void * args);
+static void _iperf_thr_fnc (void *args);
 
 /**************************************************************************//**
  * @brief iperf UDP Server mutex acquire
@@ -157,13 +157,13 @@ void sl_iperf_service_init(void)
   _iperf_mtx = osMutexNew(&_iperf_mtx_attr);
   assert(_iperf_mtx != NULL);
 
-  // init teset request msg queue
+  // init test request msg queue
   _iperf_test_req_msg_queue = osMessageQueueNew(SL_IPERF_MESSAGE_QUEUE_SIZE,
                                                 sizeof(sl_iperf_test_t),
                                                 &_iperf_test_req_msg_queue_attr);
   assert(_iperf_test_req_msg_queue != NULL);
 
-  // init teset result msg queue
+  // init test result msg queue
   _iperf_test_res_msg_queue = osMessageQueueNew(SL_IPERF_MESSAGE_QUEUE_SIZE,
                                                 sizeof(sl_iperf_test_t),
                                                 &_iperf_test_res_msg_queue_attr);
@@ -268,25 +268,22 @@ __STATIC_INLINE void _iperf_mutex_release(void)
 }
 
 /// Thread function declaration
-static void _iperf_thr_fnc(void * args)
+static void _iperf_thr_fnc(void *args)
 {
   static sl_iperf_test_t test = { 0 };
-  sl_iperf_test_t *pt  = &test;
-  uint8_t msg_prio     =   0;
-  osStatus_t status    = osError;
+  sl_iperf_test_t *pt         = &test;
+  uint8_t msg_prio            =   0U;
+  osStatus_t status           = osError;
 
   (void) args;
 
   // wait for network connected state
-  while (!sl_iperf_network_is_connected()) {
-    sl_iperf_delay_ms(1000UL);
-  }
+  sl_iperf_network_wait_for_connection();
 
   SL_IPERF_SERVICE_LOOP() {
     // Pop Test from the queue
     status = osMessageQueueGet(_iperf_test_req_msg_queue, &test, &msg_prio, osWaitForever);
     if (status != osOK) {
-      sl_iperf_delay_ms(1);
       continue;
     }
 
@@ -304,6 +301,7 @@ static void _iperf_thr_fnc(void * args)
 
     // Lock resources, execute particular test
     _iperf_mutex_acquire();
+
     switch (test.opt.mode) {
       case SL_IPERF_MODE_CLIENT:
         if (sl_iperf_test_is_udp_clnt(&test)) {
@@ -314,6 +312,7 @@ static void _iperf_thr_fnc(void * args)
           sl_iperf_test_log(pt, "Wrong Client mode/protocol setting.\n");
         }
         break;
+
       case SL_IPERF_MODE_SERVER:
         if (sl_iperf_test_is_udp_srv(&test)) {
           /// Call UDP Server
@@ -325,14 +324,17 @@ static void _iperf_thr_fnc(void * args)
           sl_iperf_test_log(pt, "Wrong Server mode/protocol setting.\n");
         }
         break;
-      default: break;
+
+      default:
+        break;
     }
+
     // Post test handler
     if (test.cb != NULL) {
       test.cb(&test);
     }
 
-    // Release reasources
+    // Release resources
     _iperf_mutex_release();
 
     // Push test content to the queue

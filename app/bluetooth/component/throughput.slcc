@@ -1,5 +1,5 @@
 id: throughput
-package: Bluetooth
+package: bluetooth_le_middleware
 label: Throughput Test helper
 description: |-
   Helper for throughput tests

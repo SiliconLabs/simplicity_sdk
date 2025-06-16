@@ -22,12 +22,11 @@
  */
 
 /**
-* Defines return values for ZAF_Transmit.
-* They match the enum values defined in EQueueNotifyingStatus (i.e.,
-* EQUEUENOTIFYING_STATUS_SUCCESS and EQUEUENOTIFYING_STATUS_TIMEOUT, respectively).
-*/
-typedef enum
-{
+ * Defines return values for ZAF_Transmit.
+ * They match the enum values defined in EQueueNotifyingStatus (i.e.,
+ * EQUEUENOTIFYING_STATUS_SUCCESS and EQUEUENOTIFYING_STATUS_TIMEOUT, respectively).
+ */
+typedef enum {
   ZAF_ENQUEUE_STATUS_SUCCESS = 0, /**< Item successfully put on queue */
   ZAF_ENQUEUE_STATUS_TIMEOUT = 1, /**< Failed to put item on queue as it was full. Queue remained full until timeout */
   ZAF_ENQUEUE_STATUS_BUFFER_OVERRUN = 2  /**< Failed to put item on queue as it was to long to fit in tx buffer */
@@ -36,16 +35,14 @@ typedef enum
 /**
  * MULTICHAN_NODE_INFO should include feature node informations as CRC, security etc.
  */
-typedef struct _MULTICHAN_NODE_INFO_
-{
+typedef struct _MULTICHAN_NODE_INFO_{
   uint8_t BitMultiChannelEncap; /**< uint8_t 0, bit 0 */
   security_key_t security; /**< of type security_key_t*/
 } MULTICHAN_NODE_INFO;
 
-typedef struct _MULTICHAN_NODE_INFO_PACKED_
-{
+typedef struct _MULTICHAN_NODE_INFO_PACKED_{
   uint8_t security             : 4; /**< bit 0-3 of type security_key_t: 0-NON_KEY,1-S2_UNAUTHENTICATED,
-                                      2-S2_AUTHENTICATED, 3-S2_ACCESS, 4-S0 (security_key_t)*/
+                                       2-S2_AUTHENTICATED, 3-S2_ACCESS, 4-S0 (security_key_t)*/
   uint8_t unused               : 1; /**< bit 4 */
   uint8_t BitMultiChannelEncap : 1; /**< bit 5 */
   uint8_t unused2              : 1; /**< bit 6 */
@@ -55,8 +52,7 @@ typedef struct _MULTICHAN_NODE_INFO_PACKED_
 /**
  * Association node data field in a association group.
  */
-typedef struct
-{
+typedef struct {
   MULTICHAN_DEST_NODE_ID node;
   MULTICHAN_NODE_INFO    nodeInfo;
 }
@@ -64,8 +60,7 @@ destination_info_t;
 
 typedef destination_info_t MULTICHAN_NODE_ID;
 
-typedef struct
-{
+typedef struct {
   MULTICHAN_DEST_NODE_ID_8bit  node;    // We cannot store 16bit NodeIDs in the NVM, because of backwards compatibility!
   MULTICHAN_NODE_INFO_PACKED   nodeInfoPacked;
 } MULTICHAN_NODE_ID_PACKED;
@@ -87,8 +82,7 @@ typedef struct _TRANSMIT_OPTIONS_TYPE_SINGLE_EX_ {
   MULTICHAN_NODE_ID* pDestNode;
 } TRANSMIT_OPTIONS_TYPE_SINGLE_EX;
 
-typedef enum _ENDPOINT_
-{
+typedef enum _ENDPOINT_{
   ENDPOINT_ROOT = 0,
   ENDPOINT_1,
   ENDPOINT_2,
@@ -113,7 +107,7 @@ void ZW_TransportEndpoint_Init(void);
  * @return Return endpoint command class list. Return NULL if list is not present!
  */
 zaf_cc_list_t*
-GetEndpointcmdClassList( bool secList, uint8_t endpoint);
+GetEndpointcmdClassList(bool secList, uint8_t endpoint);
 
 /**
  * @brief Send data. This function is used both as response to a command and for sending unsolicited frames
@@ -153,16 +147,14 @@ Transport_ApplicationCommandHandlerEx(
   ZW_APPLICATION_TX_BUFFER *pCmd,
   uint8_t   cmdLength);
 
-
 /**
  * @brief Helper function to switching endpoints for SendData.
  * @param[in] rxopt Receive options to convert.
  * @param[out] txopt Converted transmit options
  */
 void
-RxToTxOptions( RECEIVE_OPTIONS_TYPE_EX *rxopt,
-               TRANSMIT_OPTIONS_TYPE_SINGLE_EX **txopt);
-
+RxToTxOptions(RECEIVE_OPTIONS_TYPE_EX *rxopt,
+              TRANSMIT_OPTIONS_TYPE_SINGLE_EX **txopt);
 
 /**
  * @brief Validate destination endpoint use bit-addressing. This function must only
@@ -173,12 +165,11 @@ RxToTxOptions( RECEIVE_OPTIONS_TYPE_EX *rxopt,
 bool
 Check_not_legal_response_job(RECEIVE_OPTIONS_TYPE_EX *rxOpt);
 
-
 /**
  * @brief This function indicates if the frame was received using multicast addressing
  * The Z-Wave Multicast frame, the broadcast NodeID and the Multi Channel multi-End
  * Point destination are all considered multicast addressing methods.
- * 
+ *
  * @param[in] rxOpt pointer of type RECEIVE_OPTIONS_TYPE_EX
  * @return Boolean true if use bit-addressing else false
  */
@@ -199,4 +190,3 @@ SetFlagSupervisionEncap(bool flag);
  */
 
 #endif /* _ZW_TRANSPORTENDPOINT_H_ */
-

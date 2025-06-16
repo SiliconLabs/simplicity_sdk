@@ -1,6 +1,6 @@
 id: zigbee_direct_zdd
 label: Zigbee Direct Device Functionality
-package: Zigbee
+package: multiprotocol
 description: Zigbee Direct Device Functionality
 category: Zigbee|Zigbee Direct ZDD
 quality: production
@@ -33,6 +33,7 @@ requires:
   - name: zigbee_direct_security
 
 recommends:
+  - id: zigbee_direct_security_curve25519
   - id: zigbee_direct_security_p256
 
 source:

@@ -1,7 +1,7 @@
 !!omap
 - id: slwrb4181a
 - label: SLWRB4181A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG21 2.4 GHz 10 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

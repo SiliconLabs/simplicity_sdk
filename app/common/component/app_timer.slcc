@@ -1,6 +1,6 @@
 id: app_timer
 label: Timer
-package: platform
+package: platform_common_apps
 description: >
   Timer service for applications with less strict timing requirements.
   This module is based on the sleeptimer, but runs the timer callbacks in

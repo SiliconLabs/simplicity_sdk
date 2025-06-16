@@ -400,9 +400,10 @@ Error Client::Start(const Ip6::SockAddr &aServerSockAddr, Requester aRequester)
     VerifyOrExit(GetState() == kStateStopped,
                  error = (aServerSockAddr == GetServerAddress()) ? kErrorNone : kErrorBusy);
 
-    SuccessOrExit(error = mSocket.Open());
+    SuccessOrExit(error = mSocket.Open(Ip6::kNetifThreadInternal));
 
     error = mSocket.Connect(aServerSockAddr);
+
     if (error != kErrorNone)
     {
         LogInfo("Failed to connect to server %s: %s", aServerSockAddr.GetAddress().ToString().AsCString(),
@@ -1109,7 +1110,7 @@ Error Client::PrepareUpdateMessage(MsgInfo &aInfo)
     aInfo.mRecordCount      = 0;
 
 #if OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
-    aInfo.mKeyInfo.SetKeyRef(kSrpEcdsaKeyRef);
+    aInfo.mKeyInfo.SetKeyRef(Get<Crypto::Storage::KeyRefManager>().KeyRefFor(Crypto::Storage::KeyRefManager::kEcdsa));
 #endif
 
     SuccessOrExit(error = ReadOrGenerateKey(aInfo.mKeyInfo));
@@ -1399,7 +1400,7 @@ Error Client::AppendServiceInstruction(Service &aService, MsgInfo &aInfo)
     SuccessOrExit(error = Dns::Name::AppendLabel(aService.GetInstanceName(), *aInfo.mMessage));
     SuccessOrExit(error = Dns::Name::AppendPointerLabel(serviceNameOffset, *aInfo.mMessage));
 
-    UpdateRecordLengthInMessage(rr, offset, *aInfo.mMessage);
+    Dns::ResourceRecord::UpdateRecordLengthInMessage(*aInfo.mMessage, offset);
     aInfo.mRecordCount++;
 
     if (aService.HasSubType() && !removing)
@@ -1429,7 +1430,7 @@ Error Client::AppendServiceInstruction(Service &aService, MsgInfo &aInfo)
             SuccessOrExit(error = aInfo.mMessage->Append(rr));
 
             SuccessOrExit(error = Dns::Name::AppendPointerLabel(instanceNameOffset, *aInfo.mMessage));
-            UpdateRecordLengthInMessage(rr, offset, *aInfo.mMessage);
+            Dns::ResourceRecord::UpdateRecordLengthInMessage(*aInfo.mMessage, offset);
             aInfo.mRecordCount++;
         }
     }
@@ -1456,7 +1457,7 @@ Error Client::AppendServiceInstruction(Service &aService, MsgInfo &aInfo)
     offset = aInfo.mMessage->GetLength();
     SuccessOrExit(error = aInfo.mMessage->Append(srv));
     SuccessOrExit(error = AppendHostName(aInfo));
-    UpdateRecordLengthInMessage(srv, offset, *aInfo.mMessage);
+    Dns::ResourceRecord::UpdateRecordLengthInMessage(*aInfo.mMessage, offset);
     aInfo.mRecordCount++;
 
     // TXT RR
@@ -1467,7 +1468,7 @@ Error Client::AppendServiceInstruction(Service &aService, MsgInfo &aInfo)
     SuccessOrExit(error = aInfo.mMessage->Append(rr));
     SuccessOrExit(
         error = Dns::TxtEntry::AppendEntries(aService.GetTxtEntries(), aService.GetNumTxtEntries(), *aInfo.mMessage));
-    UpdateRecordLengthInMessage(rr, offset, *aInfo.mMessage);
+    Dns::ResourceRecord::UpdateRecordLengthInMessage(*aInfo.mMessage, offset);
     aInfo.mRecordCount++;
 
 #if OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE
@@ -1732,22 +1733,10 @@ Error Client::AppendSignature(MsgInfo &aInfo)
     SuccessOrExit(error = aInfo.mMessage->Append(sig));
     SuccessOrExit(error = AppendHostName(aInfo));
     SuccessOrExit(error = aInfo.mMessage->Append(signature));
-    UpdateRecordLengthInMessage(sig, offset, *aInfo.mMessage);
+    Dns::ResourceRecord::UpdateRecordLengthInMessage(*aInfo.mMessage, offset);
 
 exit:
     return error;
-}
-
-void Client::UpdateRecordLengthInMessage(Dns::ResourceRecord &aRecord, uint16_t aOffset, Message &aMessage) const
-{
-    // This method is used to calculate an RR DATA length and update
-    // (rewrite) it in a message. This should be called immediately
-    // after all the fields in the record are written in the message.
-    // `aOffset` gives the offset in the message to the start of the
-    // record.
-
-    aRecord.SetLength(aMessage.GetLength() - aOffset - sizeof(Dns::ResourceRecord));
-    aMessage.Write(aOffset, aRecord);
 }
 
 void Client::HandleUdpReceive(Message &aMessage, const Ip6::MessageInfo &aMessageInfo)
@@ -1958,7 +1947,7 @@ void Client::HandleUpdateDone(void)
 
 void Client::GetRemovedServices(LinkedList<Service> &aRemovedServices)
 {
-    mServices.RemoveAllMatching(kRemoved, aRemovedServices);
+    mServices.RemoveAllMatching(aRemovedServices, kRemoved);
 }
 
 Error Client::ReadResourceRecord(const Message &aMessage, uint16_t &aOffset, Dns::ResourceRecord &aRecord)
@@ -2411,6 +2400,8 @@ Error Client::SelectUnicastEntry(DnsSrpUnicastType aType, DnsSrpUnicastInfo &aIn
 
     while (Get<NetworkData::Service::Manager>().GetNextDnsSrpUnicastInfo(iterator, aType, unicastInfo) == kErrorNone)
     {
+        bool preferNewEntry;
+
         if (mAutoStart.HasSelectedServer() && (GetServerAddress() == unicastInfo.mSockAddr))
         {
             aInfo = unicastInfo;
@@ -2430,10 +2421,17 @@ Error Client::SelectUnicastEntry(DnsSrpUnicastType aType, DnsSrpUnicastInfo &aIn
             ExitNow();
         }
 #endif
+        // Prefer the server with higher version number, if equal
+        // then pick the one with numerically smaller IPv6 address.
 
-        // Prefer the numerically lowest server address
+        preferNewEntry = (error == kErrorNotFound) || (unicastInfo.mVersion > aInfo.mVersion);
 
-        if ((error == kErrorNotFound) || (unicastInfo.mSockAddr.GetAddress() < aInfo.mSockAddr.GetAddress()))
+        if (!preferNewEntry && (unicastInfo.mVersion == aInfo.mVersion))
+        {
+            preferNewEntry = (unicastInfo.mSockAddr.GetAddress() < aInfo.mSockAddr.GetAddress());
+        }
+
+        if (preferNewEntry)
         {
             aInfo = unicastInfo;
             error = kErrorNone;

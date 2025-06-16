@@ -1,5 +1,5 @@
 id: ble_peer_manager_filter
-package: Bluetooth
+package: bluetooth_le_middleware
 label: BLE Peer Manager Filter
 description: >
   Peer Manager for Bluetooth Low Energy. Responsible for advertising and

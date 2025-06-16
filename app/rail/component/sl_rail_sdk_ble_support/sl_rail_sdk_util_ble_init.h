@@ -34,7 +34,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_sdk_util_ble_init_config.h"
 
 // -----------------------------------------------------------------------------
@@ -45,103 +45,99 @@
  * setup within the init code.
  *
  * @note: Because the value of this define is evaluated based on values in the
- * \ref RAIL_Events_t enum, this define will only have a valid value during
+ * \ref sl_rail_events_t enum, this define will only have a valid value during
  * run-time.
  */
-#define SL_RAIL_UTIL_INIT_EVENT_BLE_MASK (RAIL_EVENTS_NONE                                                      \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RSSI_AVERAGE_DONE_BLE_ENABLE               \
-                                             ? RAIL_EVENT_RSSI_AVERAGE_DONE : RAIL_EVENTS_NONE)                 \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_ACK_TIMEOUT_BLE_ENABLE                  \
-                                             ? RAIL_EVENT_RX_ACK_TIMEOUT : RAIL_EVENTS_NONE)                    \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_ALMOST_FULL_BLE_ENABLE             \
-                                             ? RAIL_EVENT_RX_FIFO_ALMOST_FULL : RAIL_EVENTS_NONE)               \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PACKET_RECEIVED_BLE_ENABLE              \
-                                             ? RAIL_EVENT_RX_PACKET_RECEIVED : RAIL_EVENTS_NONE)                \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_LOST_BLE_ENABLE                \
-                                             ? RAIL_EVENT_RX_PREAMBLE_LOST : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_DETECT_BLE_ENABLE              \
-                                             ? RAIL_EVENT_RX_PREAMBLE_DETECT : RAIL_EVENTS_NONE)                \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SYNC1_DETECT_BLE_ENABLE                 \
-                                             ? RAIL_EVENT_RX_SYNC1_DETECT : RAIL_EVENTS_NONE)                   \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SYNC2_DETECT_BLE_ENABLE                 \
-                                             ? RAIL_EVENT_RX_SYNC2_DETECT : RAIL_EVENTS_NONE)                   \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FRAME_ERROR_BLE_ENABLE                  \
-                                             ? RAIL_EVENT_RX_FRAME_ERROR : RAIL_EVENTS_NONE)                    \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_FULL_BLE_ENABLE                    \
-                                             ? RAIL_EVENT_RX_FIFO_FULL : RAIL_EVENTS_NONE)                      \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_OVERFLOW_BLE_ENABLE                \
-                                             ? RAIL_EVENT_RX_FIFO_OVERFLOW : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_ADDRESS_FILTERED_BLE_ENABLE             \
-                                             ? RAIL_EVENT_RX_ADDRESS_FILTERED : RAIL_EVENTS_NONE)               \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMEOUT_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_RX_TIMEOUT : RAIL_EVENTS_NONE)                        \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TX_SCHEDULED_RX_TX_STARTED_BLE_ENABLE   \
-                                             ? RAIL_EVENT_SCHEDULED_RX_STARTED : RAIL_EVENTS_NONE)              \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SCHEDULED_RX_END_BLE_ENABLE             \
-                                             ? RAIL_EVENT_RX_SCHEDULED_RX_END : RAIL_EVENTS_NONE)               \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SCHEDULED_RX_MISSED_BLE_ENABLE          \
-                                             ? RAIL_EVENT_RX_SCHEDULED_RX_MISSED : RAIL_EVENTS_NONE)            \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PACKET_ABORTED_BLE_ENABLE               \
-                                             ? RAIL_EVENT_RX_PACKET_ABORTED : RAIL_EVENTS_NONE)                 \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FILTER_PASSED_BLE_ENABLE                \
-                                             ? RAIL_EVENT_RX_FILTER_PASSED : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMING_LOST_BLE_ENABLE                  \
-                                             ? RAIL_EVENT_RX_TIMING_LOST : RAIL_EVENTS_NONE)                    \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMING_DETECT_BLE_ENABLE                \
-                                             ? RAIL_EVENT_RX_TIMING_DETECT : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_CHANNEL_HOPPING_COMPLETE_BLE_ENABLE     \
-                                             ? RAIL_EVENT_RX_CHANNEL_HOPPING_COMPLETE : RAIL_EVENTS_NONE)       \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_DUTY_CYCLE_RX_END_BLE_ENABLE            \
-                                             ? RAIL_EVENT_RX_DUTY_CYCLE_RX_END : RAIL_EVENTS_NONE)              \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_IEEE802154_DATA_REQUEST_COMMAND_BLE_ENABLE \
-                                             ? RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND : RAIL_EVENTS_NONE)   \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_ZWAVE_BEAM_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_ZWAVE_BEAM : RAIL_EVENTS_NONE)                        \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_FIFO_ALMOST_EMPTY_BLE_ENABLE            \
-                                             ? RAIL_EVENT_TX_FIFO_ALMOST_EMPTY : RAIL_EVENTS_NONE)              \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_PACKET_SENT_BLE_ENABLE                  \
-                                             ? RAIL_EVENT_TX_PACKET_SENT : RAIL_EVENTS_NONE)                    \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_PACKET_SENT_BLE_ENABLE               \
-                                             ? RAIL_EVENT_TXACK_PACKET_SENT : RAIL_EVENTS_NONE)                 \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_ABORTED_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_TX_ABORTED : RAIL_EVENTS_NONE)                        \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_ABORTED_BLE_ENABLE                   \
-                                             ? RAIL_EVENT_TXACK_ABORTED : RAIL_EVENTS_NONE)                     \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_BLOCKED_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_TX_BLOCKED : RAIL_EVENTS_NONE)                        \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_BLOCKED_BLE_ENABLE                   \
-                                             ? RAIL_EVENT_TXACK_BLOCKED : RAIL_EVENTS_NONE)                     \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_UNDERFLOW_BLE_ENABLE                    \
-                                             ? RAIL_EVENT_TX_UNDERFLOW : RAIL_EVENTS_NONE)                      \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_UNDERFLOW_BLE_ENABLE                 \
-                                             ? RAIL_EVENT_TXACK_UNDERFLOW : RAIL_EVENTS_NONE)                   \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CHANNEL_CLEAR_BLE_ENABLE                \
-                                             ? RAIL_EVENT_TX_CHANNEL_CLEAR  : RAIL_EVENTS_NONE)                 \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CHANNEL_BUSY_BLE_ENABLE                 \
-                                             ? RAIL_EVENT_TX_CHANNEL_BUSY : RAIL_EVENTS_NONE)                   \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CCA_RETRY_BLE_ENABLE                    \
-                                             ? RAIL_EVENT_TX_CCA_RETRY : RAIL_EVENTS_NONE)                      \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_START_CCA_BLE_ENABLE                    \
-                                             ? RAIL_EVENT_TX_START_CCA : RAIL_EVENTS_NONE)                      \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_STARTED_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_TX_STARTED : RAIL_EVENTS_NONE)                        \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_SCHEDULED_TX_MISSED_BLE_ENABLE          \
-                                             ? RAIL_EVENT_TX_SCHEDULED_TX_MISSED : RAIL_EVENTS_NONE)            \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_CONFIG_UNSCHEDULED_BLE_ENABLE              \
-                                             ? RAIL_EVENT_CONFIG_UNSCHEDULED : RAIL_EVENTS_NONE)                \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_CONFIG_SCHEDULED_BLE_ENABLE                \
-                                             ? RAIL_EVENT_CONFIG_SCHEDULED : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_SCHEDULER_STATUS_BLE_ENABLE                \
-                                             ? RAIL_EVENT_SCHEDULER_STATUS : RAIL_EVENTS_NONE)                  \
-                                          | (SL_RAIL_UTIL_INIT_EVENT_CAL_NEEDED_BLE_ENABLE                      \
-                                             ? RAIL_EVENT_CAL_NEEDED : RAIL_EVENTS_NONE))
+#define SL_RAIL_UTIL_INIT_EVENT_BLE_MASK (SL_RAIL_EVENTS_NONE                                                       \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RSSI_AVERAGE_DONE_BLE_ENABLE                   \
+                                             ? SL_RAIL_EVENT_RSSI_AVERAGE_DONE : SL_RAIL_EVENTS_NONE)               \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_ACK_TIMEOUT_BLE_ENABLE                      \
+                                             ? SL_RAIL_EVENT_RX_ACK_TIMEOUT : SL_RAIL_EVENTS_NONE)                  \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_ALMOST_FULL_BLE_ENABLE                 \
+                                             ? SL_RAIL_EVENT_RX_FIFO_ALMOST_FULL : SL_RAIL_EVENTS_NONE)             \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PACKET_RECEIVED_BLE_ENABLE                  \
+                                             ? SL_RAIL_EVENT_RX_PACKET_RECEIVED : SL_RAIL_EVENTS_NONE)              \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_LOST_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_RX_PREAMBLE_LOST : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PREAMBLE_DETECT_BLE_ENABLE                  \
+                                             ? SL_RAIL_EVENT_RX_PREAMBLE_DETECT : SL_RAIL_EVENTS_NONE)              \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FRAME_ERROR_BLE_ENABLE                      \
+                                             ? SL_RAIL_EVENT_RX_FRAME_ERROR : SL_RAIL_EVENTS_NONE)                  \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_FULL_BLE_ENABLE                        \
+                                             ? SL_RAIL_EVENT_RX_FIFO_FULL : SL_RAIL_EVENTS_NONE)                    \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_OVERFLOW_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_RX_FIFO_OVERFLOW : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_ADDRESS_FILTERED_BLE_ENABLE                 \
+                                             ? SL_RAIL_EVENT_RX_ADDRESS_FILTERED : SL_RAIL_EVENTS_NONE)             \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMEOUT_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_RX_TIMEOUT : SL_RAIL_EVENTS_NONE)                      \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TX_SCHEDULED_RX_TX_STARTED_BLE_ENABLE       \
+                                             ? SL_RAIL_EVENT_RX_SCHEDULED_RX_STARTED : SL_RAIL_EVENTS_NONE)         \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SCHEDULED_RX_END_BLE_ENABLE                 \
+                                             ? SL_RAIL_EVENT_RX_SCHEDULED_RX_END : SL_RAIL_EVENTS_NONE)             \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_SCHEDULED_RX_MISSED_BLE_ENABLE              \
+                                             ? SL_RAIL_EVENT_RX_SCHEDULED_RX_MISSED : SL_RAIL_EVENTS_NONE)          \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_PACKET_ABORTED_BLE_ENABLE                   \
+                                             ? SL_RAIL_EVENT_RX_PACKET_ABORTED : SL_RAIL_EVENTS_NONE)               \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_FILTER_PASSED_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_RX_FILTER_PASSED : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMING_LOST_BLE_ENABLE                      \
+                                             ? SL_RAIL_EVENT_RX_TIMING_LOST : SL_RAIL_EVENTS_NONE)                  \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_TIMING_DETECT_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_RX_TIMING_DETECT : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_CHANNEL_HOPPING_COMPLETE_BLE_ENABLE         \
+                                             ? SL_RAIL_EVENT_RX_CHANNEL_HOPPING_COMPLETE : SL_RAIL_EVENTS_NONE)     \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_RX_DUTY_CYCLE_RX_END_BLE_ENABLE                \
+                                             ? SL_RAIL_EVENT_RX_DUTY_CYCLE_RX_END : SL_RAIL_EVENTS_NONE)            \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_IEEE802154_DATA_REQUEST_COMMAND_BLE_ENABLE     \
+                                             ? SL_RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND : SL_RAIL_EVENTS_NONE) \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_ZWAVE_BEAM_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_ZWAVE_BEAM : SL_RAIL_EVENTS_NONE)                      \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_FIFO_ALMOST_EMPTY_BLE_ENABLE                \
+                                             ? SL_RAIL_EVENT_TX_FIFO_ALMOST_EMPTY : SL_RAIL_EVENTS_NONE)            \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_PACKET_SENT_BLE_ENABLE                      \
+                                             ? SL_RAIL_EVENT_TX_PACKET_SENT : SL_RAIL_EVENTS_NONE)                  \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_PACKET_SENT_BLE_ENABLE                   \
+                                             ? SL_RAIL_EVENT_TXACK_PACKET_SENT : SL_RAIL_EVENTS_NONE)               \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_ABORTED_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_TX_ABORTED : SL_RAIL_EVENTS_NONE)                      \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_ABORTED_BLE_ENABLE                       \
+                                             ? SL_RAIL_EVENT_TXACK_ABORTED : SL_RAIL_EVENTS_NONE)                   \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_BLOCKED_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_TX_BLOCKED : SL_RAIL_EVENTS_NONE)                      \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_BLOCKED_BLE_ENABLE                       \
+                                             ? SL_RAIL_EVENT_TXACK_BLOCKED : SL_RAIL_EVENTS_NONE)                   \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_UNDERFLOW_BLE_ENABLE                        \
+                                             ? SL_RAIL_EVENT_TX_UNDERFLOW : SL_RAIL_EVENTS_NONE)                    \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TXACK_UNDERFLOW_BLE_ENABLE                     \
+                                             ? SL_RAIL_EVENT_TXACK_UNDERFLOW : SL_RAIL_EVENTS_NONE)                 \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CHANNEL_CLEAR_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_TX_CHANNEL_CLEAR  : SL_RAIL_EVENTS_NONE)               \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CHANNEL_BUSY_BLE_ENABLE                     \
+                                             ? SL_RAIL_EVENT_TX_CHANNEL_BUSY : SL_RAIL_EVENTS_NONE)                 \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_CCA_RETRY_BLE_ENABLE                        \
+                                             ? SL_RAIL_EVENT_TX_CCA_RETRY : SL_RAIL_EVENTS_NONE)                    \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_START_CCA_BLE_ENABLE                        \
+                                             ? SL_RAIL_EVENT_TX_START_CCA : SL_RAIL_EVENTS_NONE)                    \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_STARTED_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_TX_STARTED : SL_RAIL_EVENTS_NONE)                      \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_TX_SCHEDULED_TX_MISSED_BLE_ENABLE              \
+                                             ? SL_RAIL_EVENT_TX_SCHEDULED_TX_MISSED : SL_RAIL_EVENTS_NONE)          \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_CONFIG_UNSCHEDULED_BLE_ENABLE                  \
+                                             ? SL_RAIL_EVENT_CONFIG_UNSCHEDULED : SL_RAIL_EVENTS_NONE)              \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_CONFIG_SCHEDULED_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_CONFIG_SCHEDULED : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_SCHEDULER_STATUS_BLE_ENABLE                    \
+                                             ? SL_RAIL_EVENT_SCHEDULER_STATUS : SL_RAIL_EVENTS_NONE)                \
+                                          | (SL_RAIL_UTIL_INIT_EVENT_CAL_NEEDED_BLE_ENABLE                          \
+                                             ? SL_RAIL_EVENT_CAL_NEEDED : SL_RAIL_EVENTS_NONE))
 
 /**
  * An inverted event mask, available to the application, specifying the radio
  * events setup within the init code.
  *
  * @note: Because the value of this define is evaluated based on values in the
- * \ref RAIL_Events_t enum, this define will only have a valid value during
+ * \ref sl_rail_events_t enum, this define will only have a valid value during
  * run-time.
  */
 #define SL_RAIL_UTIL_INIT_EVENT_BLE_INVERSE_MASK \
@@ -166,9 +162,9 @@ void sl_rail_sdk_util_init(void);
  * @param[in] handle The enum name of the desired RAIL handle.
  *
  * @return A valid RAIL handle. If the RAIL handle hasn't been set up, the
- * invalid value of \ref RAIL_EFR32_HANDLE will be returned.
+ * invalid value of \ref SL_RAIL_EFR32_HANDLE will be returned.
  */
-RAIL_Handle_t sl_rail_sdk_util_get_handle(void);
+sl_rail_handle_t sl_rail_sdk_util_get_handle(void);
 
 /**
  * A callback available to the application, called on RAIL asserts.
@@ -176,8 +172,8 @@ RAIL_Handle_t sl_rail_sdk_util_get_handle(void);
  * @param[in] rail_handle The RAIL handle associated with the assert.
  * @param[in] error_code The assertion error code.
  */
-void sl_rail_util_on_assert_failed(RAIL_Handle_t rail_handle,
-                                   RAIL_AssertErrorCodes_t error_code);
+void sl_rail_util_on_assert_failed(sl_rail_handle_t rail_handle,
+                                   sl_rail_assert_error_codes_t error_code);
 
 /**
  * A callback available to the application, called on RAIL init completion.
@@ -185,7 +181,7 @@ void sl_rail_util_on_assert_failed(RAIL_Handle_t rail_handle,
  * @param[in] rail_handle The RAIL handle associated with the RAIL init
  * completion notification.
  */
-void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle);
 
 /**
  * A callback available to the application, called on a channel configuration
@@ -195,8 +191,8 @@ void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
  * change notification.
  * @param[in] entry The channel configuration being changed to.
  */
-void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                           const RAIL_ChannelConfigEntry_t *entry);
+void sl_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                           const sl_rail_channel_config_entry_t *entry);
 
 /**
  * A callback available to the application, called on registered RAIL events.
@@ -205,7 +201,7 @@ void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
  * notification.
  * @param[in] events The RAIL events having occurred.
  */
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
-                           RAIL_Events_t events);
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events);
 
 #endif // SL_RAIL_SDK_UTIL_BLE_INIT_H

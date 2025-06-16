@@ -1,6 +1,6 @@
 project_name: zigbee_z3_gateway_cpc
 label: Zigbee - Z3GatewayCpc
-package: Zigbee
+package: zigbee
 category: Zigbee Host Application
 quality: experimental
 
@@ -12,6 +12,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -88,6 +89,7 @@ include:
   - path: ./
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app.c
 
 config_file:
@@ -128,11 +130,11 @@ template_contribution:
         - type: int8
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

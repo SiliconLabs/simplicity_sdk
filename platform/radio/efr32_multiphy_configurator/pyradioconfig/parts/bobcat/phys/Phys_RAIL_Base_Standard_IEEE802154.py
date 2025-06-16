@@ -5,10 +5,12 @@ class PhysRAILBaseStandardIEEE802154Bobcat(PhysInternalBaseStandardIEEE802154Oce
 
     def IEEE802154_2p4GHz_base(self, phy, model):
         super().IEEE802154_2p4GHz_base(phy, model)
-        phy.profile_inputs.xtal_frequency_hz.value = 39000000
-        model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IEEE802154
-        phy.profile_inputs.base_frequency_hz.value = int(2450000000) # compute in center band for max_bwsel MCUW_RADIO_CFG-2012
 
+        # Set XO to 39M and use 2450M center freq (required for BWSEL, see MCUW_RADIO_CFG-2012)
+        phy.profile_inputs.xtal_frequency_hz.value = 39000000
+        phy.profile_inputs.base_frequency_hz.value = int(2450000000)
+
+        # RAIL timings
         phy.profile_outputs.rx_sync_delay_ns.override = 6625
         phy.profile_outputs.rx_eof_delay_ns.override = 6625
 
@@ -17,9 +19,11 @@ class PhysRAILBaseStandardIEEE802154Bobcat(PhysInternalBaseStandardIEEE802154Oce
 
     def IEEE802154_2p4GHz_cohdsa_base(self, phy, model):
         super().IEEE802154_2p4GHz_cohdsa_base(phy, model)
-        phy.profile_inputs.xtal_frequency_hz.value = 39000000
-        model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IEEE802154
 
+        # Set XO to 39M
+        phy.profile_inputs.xtal_frequency_hz.value = 39000000
+
+        # RAIL timings
         phy.profile_outputs.rx_sync_delay_ns.override = 6125
         phy.profile_outputs.rx_eof_delay_ns.override = 6125
 
@@ -29,7 +33,10 @@ class PhysRAILBaseStandardIEEE802154Bobcat(PhysInternalBaseStandardIEEE802154Oce
     def PHY_IEEE802154_780MHz_OQPSK(self, model):
         pass
 
-    def PHY_IEEE802154_868MHz_BPSK(self, model):
+    def PHY_IEEE802154_868MHz_BPSK(self, model, phy_name=None):
+        pass
+
+    def PHY_IEEE802154_915MHz_BPSK_40kbps(self, model, phy_name=None):
         pass
 
     def PHY_IEEE802154_868MHz_BPSK_coh(self, model):

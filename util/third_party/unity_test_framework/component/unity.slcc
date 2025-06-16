@@ -1,6 +1,6 @@
 id: test_framework_unity
 label: Unity test framework component
-package: platform
+package: unity_test_framework
 description: Unity test framework
 category: Third Party|Unity
 quality: production

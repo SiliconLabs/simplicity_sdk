@@ -8,6 +8,7 @@
 
 #define RX_BUFFER_LEN 64
 
+static bool initialized = false;
 SL_ALIGN(4)
 static uint8_t hci_rx_buffer[RX_BUFFER_LEN] SL_ATTRIBUTE_ALIGN(4);
 /* buffer pointer for transferring bytes to hci_rx_buffer */
@@ -165,5 +166,11 @@ uint32_t hci_common_transport_transmit(uint8_t *data, int16_t len)
 
 void hci_common_transport_init(void)
 {
+  if (initialized) {
+    return;
+  } else {
+    initialized = true;
+  }
+
   reset();
 }

@@ -1,6 +1,6 @@
 id: sl_ot_custom_cli
 label: SL Custom CLI
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component adds SL CLI commands.

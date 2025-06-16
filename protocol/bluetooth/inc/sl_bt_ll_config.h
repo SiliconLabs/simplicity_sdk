@@ -27,31 +27,8 @@
  *
  ******************************************************************************/
 
-#ifndef SL_BT_BLUETOOTH_LL_PRIORITIES_DEFINED
-#define SL_BT_BLUETOOTH_LL_PRIORITIES_DEFINED
-
-typedef struct {
-  uint8_t scan_min;
-  uint8_t scan_max;
-  uint8_t adv_min;
-  uint8_t adv_max;
-  uint8_t conn_min;
-  uint8_t conn_max;
-  uint8_t init_min;
-  uint8_t init_max;
-  uint8_t rail_mapping_offset;
-  uint8_t rail_mapping_range;
-  uint8_t _reserved;
-  uint8_t adv_step;
-  uint8_t scan_step;
-  uint8_t pawr_tx_min;
-  uint8_t pawr_tx_max;
-  uint8_t pawr_rx_min;
-  uint8_t pawr_rx_max;
-} sl_bt_bluetooth_ll_priorities;
-
-//Default priority configuration
-#define SL_BT_BLUETOOTH_PRIORITIES_DEFAULT { 191, 143, 175, 127, 135, 0, 55, 15, 16, 16, 0, 4, 4, 15, 5, 20, 10 }
+ #ifndef SL_BT_LL_CONFIG_H
+ #define SL_BT_LL_CONFIG_H
 
 #define SL_BT_BLUETOOTH_PA_AUTOMODE 0xff
 #define SL_BT_BLUETOOTH_HIGHEST_PA  0xfe
@@ -79,4 +56,4 @@ SL_PACK_END()
 #define SL_BT_USE_MAX_POWER_LEVEL_SUPPORTED_BY_RADIO 0x7fff
 #define SL_BT_USE_MIN_POWER_LEVEL_SUPPORTED_BY_RADIO 0x7fff
 
-#endif
+#endif // SL_BT_LL_CONFIG_H

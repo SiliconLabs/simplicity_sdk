@@ -1,6 +1,6 @@
 id: ot_ble_cli
 label: BLE CLI
-package: OpenThread
+package: multiprotocol
 category: OpenThread
 quality: production
 description: This component provides CLI support for BLE with OpenThread.

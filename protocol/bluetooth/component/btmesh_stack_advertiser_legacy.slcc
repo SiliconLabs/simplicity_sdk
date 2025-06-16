@@ -1,6 +1,6 @@
 id: "btmesh_stack_advertiser_legacy"
 label: "Standard Legacy Advertiser"
-package: "Btmesh"
+package: bluetooth_mesh
 description: >
   This component provides an implementation of advertising capabilities that use standard advertising PDUs.
   It uses Bluetooth legacy advertiser API. It is recommended to use this component,

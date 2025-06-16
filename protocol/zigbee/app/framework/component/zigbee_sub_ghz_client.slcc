@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: The Smart Energy Sub-GHz client suspends the transmission of any ZCL messages for a given period when instructed so by the Sub-GHz server.
 id: zigbee_sub_ghz_client
 label: Sub-GHz Client

@@ -48,7 +48,8 @@
 #include <openthread/backbone_router_ftd.h>
 #include <openthread/logging.h>
 
-#include "core/common/arg_macros.hpp"
+#include "utils.hpp"
+#include "common/arg_macros.hpp"
 #include "core/common/debug.hpp"
 
 namespace ot {

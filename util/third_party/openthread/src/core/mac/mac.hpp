@@ -87,6 +87,12 @@ constexpr uint8_t kMaxFrameRetriesCsl             = 0;
 
 constexpr uint8_t kTxNumBcast = OPENTHREAD_CONFIG_MAC_TX_NUM_BCAST; ///< Num of times broadcast frame is tx.
 
+/**
+ * Specifies the number of microseconds ahead of time that the MAC layer should deliver a CSL frame to the sub-MAC
+ * layer.
+ */
+constexpr uint16_t kCslRequestAhead = OPENTHREAD_CONFIG_MAC_CSL_REQUEST_AHEAD_US;
+
 constexpr uint16_t kMinCslIePeriod = OPENTHREAD_CONFIG_MAC_CSL_MIN_PERIOD;
 
 constexpr uint32_t kDefaultWedListenInterval = OPENTHREAD_CONFIG_WED_LISTEN_INTERVAL;
@@ -203,6 +209,7 @@ public:
      * Requests an indirect data frame transmission.
      */
     void RequestIndirectFrameTransmission(void);
+#endif
 
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     /**
@@ -211,8 +218,6 @@ public:
      * @param[in]  aDelay  Delay time for `Mac` to start a CSL tx, in units of milliseconds.
      */
     void RequestCslFrameTransmission(uint32_t aDelay);
-#endif
-
 #endif
 
 #if OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE
@@ -576,9 +581,12 @@ public:
     void SetCslChannel(uint8_t aChannel);
 
     /**
-     * Centralizes CSL state switching conditions evaluating, configuring SubMac accordingly.
+     * Sets whether the MLE layer is capable of starting CSL.
+     *
+     * @retval TRUE   If MLE layer is capable of starting CSL.
+     * @retval FALSE  If MLE layer is not capable of starting CSL.
      */
-    void UpdateCsl(void);
+    void SetCslCapable(bool aIsCslCapable);
 
     /**
      * Gets the CSL period.
@@ -619,23 +627,7 @@ public:
      * @retval TRUE   If CSL is enabled.
      * @retval FALSE  If CSL is not enabled.
      */
-    bool IsCslEnabled(void) const;
-
-    /**
-     * Indicates whether Link is capable of starting CSL.
-     *
-     * @retval TRUE   If Link is capable of starting CSL.
-     * @retval FALSE  If link is not capable of starting CSL.
-     */
-    bool IsCslCapable(void) const;
-
-    /**
-     * Indicates whether the device is connected to a parent which supports CSL.
-     *
-     * @retval TRUE   If parent supports CSL.
-     * @retval FALSE  If parent does not support CSL.
-     */
-    bool IsCslSupported(void) const;
+    bool IsCslEnabled(void) const { return mIsCslEnabled; }
 
     /**
      * Returns parent CSL accuracy (clock accuracy and uncertainty).
@@ -766,6 +758,16 @@ public:
     bool IsWakeupListenEnabled(void) const { return mWakeupListenEnabled; }
 #endif // OPENTHREAD_CONFIG_WAKEUP_END_DEVICE_ENABLE
 
+    /**
+     * Calculates the radio bus transfer time (in microseconds) for a given frame size based on `Radio::GetBusSpeed()`
+     * and `Radio::GetBusLatency()`.
+     *
+     * @param[in] aFrameSize   The frame size to calculate for, in bytes.
+     *
+     * @returns The calculated radio bus transfer time in microseconds.
+     */
+    uint32_t CalculateRadioBusTransferTime(uint16_t aFrameSize) const;
+
 private:
     static constexpr uint16_t kMaxCcaSampleCount = OPENTHREAD_CONFIG_CCA_FAILURE_RATE_AVERAGING_WINDOW;
 
@@ -780,9 +782,9 @@ private:
         kOperationWaitingForData,
 #if OPENTHREAD_FTD
         kOperationTransmitDataIndirect,
+#endif
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
         kOperationTransmitDataCsl,
-#endif
 #endif
 #if OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE
         kOperationTransmitWakeup,
@@ -852,8 +854,12 @@ private:
     uint8_t GetTimeIeOffset(const Frame &aFrame);
 #endif
 
-#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     void ProcessCsl(const RxFrame &aFrame, const Address &aSrcAddr);
+#endif
+#if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE
+    void UpdateCslParameters(void);
+    void UpdateCslState(void);
 #endif
 #if OPENTHREAD_CONFIG_MLE_LINK_METRICS_INITIATOR_ENABLE
     void ProcessEnhAckProbing(const RxFrame &aFrame, const Neighbor &aNeighbor);
@@ -897,11 +903,13 @@ private:
     uint8_t     mMaxFrameRetriesDirect;
 #if OPENTHREAD_FTD
     uint8_t mMaxFrameRetriesIndirect;
+#endif
 #if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
     TimeMilli mCslTxFireTime;
 #endif
-#endif
 #if OPENTHREAD_CONFIG_MAC_CSL_RECEIVER_ENABLE
+    bool mIsCslEnabled : 1;
+    bool mIsCslCapable : 1;
     // When Mac::mCslChannel is 0, it indicates that CSL channel has not been specified by the upper layer.
     uint8_t  mCslChannel;
     uint16_t mCslPeriod;

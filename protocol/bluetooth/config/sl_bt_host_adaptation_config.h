@@ -38,11 +38,18 @@
 // <o SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY> Radio interrupt priority in baremetal applications <1..7:1>
 // <i> Default: 4
 // <i> Define the ISR priority for radio interrupts in baremetal applications. The Bluetooth host stack sets this priority when the Bluetooth stack is started.
+// <i>
+// <i> NOTE: SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY is deprecated in Simplicity SDK Suite v2025.6.0 and marked for removal in a future release.
+// <i> Please use SL_BT_CONTROLLER_RADIO_IRQ_PRIORITY instead, provided by the Bluetooth Low Energy Controller component.
 #define SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY      (4)
 
 // <o SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY> Linklayer interrupt priority in baremetal applications <1..7:1>
-// <i> Default: 4
+// <i> Default: 5
 // <i> Define the ISR priority for linklayer interrupts in baremetal applications. The Bluetooth host stack sets this priority when the Bluetooth stack is started.
+// <i> The value of SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY must be higher than SL_BT_HOST_ADAPTATION_RADIO_IRQ_PRIORITY.
+// <i>
+// <i> NOTE: SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY is deprecated in Simplicity SDK Suite v2025.6.0 and marked for removal in a future release.
+// <i> Please use SL_BT_CONTROLLER_LINKLAYER_IRQ_PRIORITY instead, provided by the Bluetooth Low Energy Controller component.
 #define SL_BT_HOST_ADAPTATION_LINKLAYER_IRQ_PRIORITY  (5)
 
 // </h> Bluetooth Host Adaptation Configuration

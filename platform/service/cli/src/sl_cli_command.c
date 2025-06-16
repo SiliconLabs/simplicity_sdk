@@ -56,7 +56,7 @@
  * @param[in] arguments     The arguments passed to the command handler.
  *
  ******************************************************************************/
-SL_WEAK void sli_cli_pre_cmd_hook(sl_cli_command_arg_t* arguments)
+SL_WEAK void sli_cli_pre_cmd_hook(const sl_cli_command_arg_t* arguments)
 {
   (void) arguments;
 }
@@ -69,7 +69,7 @@ SL_WEAK void sli_cli_pre_cmd_hook(sl_cli_command_arg_t* arguments)
  * @param[in] arguments     The arguments passed to the command handler.
  *
  ******************************************************************************/
-SL_WEAK void sli_cli_post_cmd_hook(sl_cli_command_arg_t* arguments)
+SL_WEAK void sli_cli_post_cmd_hook(const sl_cli_command_arg_t* arguments)
 {
   (void) arguments;
 }
@@ -223,7 +223,7 @@ static void cmd_help_command(const sl_cli_command_entry_t *cmd_entry)
   if (arg_type_list[0] == SL_CLI_ARG_GROUP ||  arg_type_list[0] == SL_CLI_ARG_END) {
     // Do not do anything. No arguments to print
   } else {
-    char *arg_help = cmd_entry->command->arg_help;
+    const char *arg_help = cmd_entry->command->arg_help;
     int arg_no = 0;
     int arg_help_ofs = -1;
     int arg_help_length = strlen(arg_help);
@@ -314,12 +314,10 @@ bool sl_cli_command_add_command_group(sl_cli_handle_t handle, sl_cli_command_gro
 {
   bool status = false;
 
-  if (command_group != NULL) {
-    if (!command_group->in_use) {
-      command_group->in_use = true;
-      sl_slist_push(&handle->command_group, &command_group->node);
-      status = true;
-    }
+  if ((command_group != NULL) && (!command_group->in_use)) {
+    command_group->in_use = true;
+    sl_slist_push(&handle->command_group, &command_group->node);
+    status = true;
   }
   return status;
 }
@@ -328,13 +326,11 @@ bool sl_cli_command_remove_command_group(sl_cli_handle_t handle, sl_cli_command_
 {
   bool status = false;
 
-  if (command_group != NULL) {
-    if (command_group->in_use) {
-      command_group->in_use = false;
-      sl_slist_remove(&handle->command_group, &command_group->node);
-      command_group->node.node = NULL;
-      status = true;
-    }
+  if (command_group != NULL && command_group->in_use) {
+    command_group->in_use = false;
+    sl_slist_remove(&handle->command_group, &command_group->node);
+    command_group->node.node = NULL;
+    status = true;
   }
   return status;
 }

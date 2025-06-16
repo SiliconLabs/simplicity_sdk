@@ -64,7 +64,7 @@ extern "C" {
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-/// Auto-Response callback for resorces
+/// Auto-Response callback for resources
 typedef sl_wisun_coap_packet_t *
 (*sl_wisun_coap_rhnd_auto_resp_t)(const sl_wisun_coap_packet_t * const req_packet);
 
@@ -159,7 +159,7 @@ const sl_wisun_coap_rhnd_resource_t * sl_wisun_coap_rhnd_get_resources(void);
  * @details Set callback for resource
  * @param[in] uri_path URI path
  * @param[in] response Response callback
- * @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL on error
+ * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_wisun_coap_rhnd_set_auto_response(const char * uri_path,
                                                  sl_wisun_coap_rhnd_auto_resp_t response);
@@ -168,7 +168,7 @@ sl_status_t sl_wisun_coap_rhnd_set_auto_response(const char * uri_path,
  * @brief Reset auto-response callback
  * @details Set callback ptr to NULL in resource descriptor
  * @param[in] uri_path URI path
- * @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL on error
+ * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL on error
  *****************************************************************************/
 sl_status_t sl_wisun_coap_rhnd_reset_auto_response(const char * uri_path);
 

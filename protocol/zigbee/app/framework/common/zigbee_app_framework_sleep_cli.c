@@ -28,6 +28,11 @@
 #include "sl_zigbee_debug_print.h"
 #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 
+#if defined(_SILICON_LABS_32B_SERIES_3)
+#include "sl_device_clock.h"
+#include "sl_clock_manager.h"
+#endif //defined(_SILICON_LABS_32B_SERIES_3)
+
 extern bool sli_zigbee_af_stay_awake_when_not_joined;
 extern bool sli_zigbee_af_force_end_device_to_stay_awake;
 extern void sl_zigbee_af_force_end_device_to_stay_awake(bool stayAwake);
@@ -57,5 +62,21 @@ void sl_zigbee_af_idle_sleep_awake_when_not_joined_command(sl_cli_command_arg_t 
 {
   sli_zigbee_af_stay_awake_when_not_joined = (bool)sl_cli_get_argument_uint8(arguments, 0);
 }
+
+#if defined(_SILICON_LABS_32B_SERIES_3)
+void sl_zigbee_af_idle_sleep_power_mode_performance_command(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  status = sl_clock_manager_set_ext_flash_clk(SL_OSCILLATOR_FLPLL);
+  sl_zigbee_core_debug_println("Switched to performance mode with status %02X", status);
+}
+
+void sl_zigbee_af_idle_sleep_power_mode_eco_command(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  status = sl_clock_manager_set_ext_flash_clk(SL_OSCILLATOR_FSRCO);
+  sl_zigbee_core_debug_println("Switched to power save mode with status %02X", status);
+}
+#endif //_SILICON_LABS_32B_SERIES_3
 
 #endif //#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)

@@ -29,23 +29,23 @@
  ******************************************************************************/
 
 #include "em_device.h"
+#include "sli_psa_driver_features.h"
 
 #if defined(CRYPTOACC_PRESENT) && defined(SEPUF_PRESENT)
-
-#include <string.h>
 
 #include "sli_cryptoacc_opaque_types.h"
 #include "sli_psa_driver_common.h"
 #include "cryptoacc_management.h"
 // Replace inclusion of psa/crypto_xxx.h with the new psa driver common
 // interface header file when it becomes available.
+#if defined(MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS)
 #include "psa/crypto_platform.h"
-#include "psa/crypto_sizes.h"
 #include "psa/crypto_struct.h"
 #include "psa/crypto_extra.h"
-#include "cryptolib_def.h"
 #include "sx_errors.h"
 #include "sx_aes.h"
+#include <string.h>
+#endif
 
 psa_status_t sli_cryptoacc_opaque_mac_compute(const psa_key_attributes_t *attributes,
                                               const uint8_t *key_buffer,

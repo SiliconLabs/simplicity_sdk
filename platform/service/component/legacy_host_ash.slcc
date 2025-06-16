@@ -1,6 +1,6 @@
 id: legacy_host_ash
 label: Legacy Host ASH
-package: platform
+package: zigbee
 category: Services|Ember Legacy
 description: Legacy Ember ASH implementation for Host.
 quality: production

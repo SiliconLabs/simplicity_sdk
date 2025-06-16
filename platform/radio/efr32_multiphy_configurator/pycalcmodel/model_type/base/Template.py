@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Generated Tue Oct 13 17:05:21 2020 by generateDS.py version 2.12d.
+# Generated Mon Aug 12 15:50:53 2024 by generateDS.py version 2.12d.
 #
 # Command line options:
 #   ('-o', '..\\..\\model_type\\base\\Bindings.py')
@@ -171,8 +171,8 @@ supermod.profile_outputsType.subclass = profile_outputsType
 
 
 class profile_outputType(supermod.profile_outputType):
-    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None):
-        super(profile_outputType, self).__init__(is_array, readable_name, category, var_name, overrides, )
+    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None, groups=None):
+        super(profile_outputType, self).__init__(is_array, readable_name, category, var_name, overrides, groups, )
 supermod.profile_outputType.subclass = profile_outputType
 # end class profile_outputType
 
@@ -227,8 +227,8 @@ supermod.outputsType.subclass = outputsType
 
 
 class outputType2(supermod.outputType2):
-    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None):
-        super(outputType2, self).__init__(is_array, output_type, value_limit_min, value_limit_max, fractional_digits, readable_name, category, var_name, )
+    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None, groups=None):
+        super(outputType2, self).__init__(is_array, output_type, value_limit_min, value_limit_max, fractional_digits, readable_name, category, var_name, groups, )
 supermod.outputType2.subclass = outputType2
 # end class outputType2
 

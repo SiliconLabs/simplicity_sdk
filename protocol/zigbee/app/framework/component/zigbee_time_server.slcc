@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of Time server cluster. This component is not recommended for production because it uses a software system to keep track of time. Instead the user should hook the cluster callbacks into a set of hardware routines to maintain the device's system clock. This software implementation is inappropriate for sleepy devices since it prevents them from sleeping for longer than one second. During initialization, the Time Server component writes the TimeStatus attribute based on the component options, overriding any attribute default that may have been configured.
 label: Time Server Cluster
 quality: production

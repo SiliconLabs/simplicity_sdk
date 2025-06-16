@@ -81,7 +81,7 @@
 #define MCU_ATOMIC_STORE        sl_atomic_store
 #endif
 
-#define SLI_CPC_PROTOCOL_VERSION            (5)
+#define SLI_CPC_PROTOCOL_VERSION            (6)
 
 #define SLI_CPC_ENDPOINT_SYSTEM             (1)
 
@@ -698,6 +698,7 @@ void sli_cpc_notify_buffer_handle_freed(void);
  * Main task in charge of handling an instance.
  ******************************************************************************/
 void sl_cpc_task(void *arg);
+
 #endif
 
 /** @} (end addtogroup cpc) */

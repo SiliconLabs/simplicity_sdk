@@ -1,6 +1,6 @@
 id: gatt_service_imu
 label: Inertial Measurement Unit GATT Service
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides inertial measurement unit sensor data in GATT characteristics.
   Designed for the Thunderboard smartphone app.

@@ -14,6 +14,14 @@ class CalcFrameDetectRainier(Calc_Frame_Detect_Bobcat):
         super().buildVariables(model)
         self._addModelVariable(model, 'syncword_trisync', bool, ModelVariableFormat.ASCII, desc='Enable tri syncword detection')
 
+    def calc_preerrors_val(self, model):
+        demod_select = model.vars.demod_select.value
+
+        if demod_select == model.vars.demod_select.var_enum.ENHANCED_DSSS:
+            model.vars.errors_in_timing_window.value = 0
+        else:
+            super().calc_preerrors_val(model)
+
     def calc_syncerrors_reg(self, model):
         #This function calulates the SYNCERRORS field
 

@@ -159,8 +159,9 @@ class Profile_Sigfox_TX_Ocelot(Profile_Sigfox_TX):
         self.build_required_profile_inputs(model, profile)
         self.build_hidden_profile_inputs(model, profile)
         self.build_optional_profile_inputs(model, profile)
+        self.build_metadata_profile_inputs(model,profile)
 
-    def build_required_profile_inputs(self, model, profile: ModelProfile) -> None:
+    def build_required_profile_inputs(self, model: ModelRoot, profile: ModelProfile) -> None:
         IProfile.make_required_input(profile, model.vars.base_frequency_hz, "operational_frequency",
                                      readable_name="Base Channel Frequency", value_limit_min=100000000,
                                      value_limit_max=2500000000, units_multiplier=UnitsMultiplier.MEGA)
@@ -198,20 +199,28 @@ class Profile_Sigfox_TX_Ocelot(Profile_Sigfox_TX):
         self.make_hidden_input(profile, model.vars.frame_length_type, 'frame_general',
                                readable_name="Frame Length Algorithm")
 
-    def build_optional_profile_inputs(self, model, profile: ModelProfile) -> None:
+    def build_metadata_profile_inputs(self, model: ModelRoot, profile: ModelProfile) -> None:
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_start, "metadata",
+                                 readable_name="Channel Config Start channel index", value_limit_min=0,
+                                 value_limit_max=65535)
+        self.make_metadata_input(profile, model.vars.chcfg_channel_number_end, "metadata",
+                                 readable_name="Channel Config Last channel index", value_limit_min=0,
+                                 value_limit_max=65535)
+
+    def build_optional_profile_inputs(self, model: ModelRoot, profile: ModelProfile) -> None:
         pass
 
-    def build_frame_configuration_inputs(self, model, profile: ModelProfile) -> None:
+    def build_frame_configuration_inputs(self, model: ModelRoot, profile: ModelProfile) -> None:
         pass
         # self._frame_profile_inputs_common.build_frame_inputs(model, profile)
         # pc.buildCrcInputs(model, profile)
         # pc.buildWhiteInputs(model, profile)
         # pc.buildFecInputs(model, profile)
 
-    def _add_reg_profile_outputs(self, model, profile: ModelProfile) -> None:
+    def _add_reg_profile_outputs(self, model: ModelRoot, profile: ModelProfile) -> None:
         build_modem_regs_ocelot(model, profile)
 
-    def profile_calculate(self, model):
+    def profile_calculate(self, model: ModelRoot):
         super().profile_calculate(model)
 
         self.set_frame_configuration_defaults(model)
@@ -240,12 +249,12 @@ class Profile_Sigfox_TX_Ocelot(Profile_Sigfox_TX):
         model.vars.timing_detection_threshold.value_forced = 0
         model.vars.timing_sample_threshold.value_forced = 10
 
-    def _set_DBPSK_regs(self, model):
+    def _set_DBPSK_regs(self, model: ModelRoot):
         # New Ocelot regs, need to determine how to calculate these for all DBPSK
         model.vars.MODEM_CTRL6_TXDBPSKINV.value_forced = 1
         model.vars.MODEM_CTRL6_TXDBPSKRAMPEN.value_forced = 1
 
-    def _set_transmit_shaping_coefficient(self, model):
+    def _set_transmit_shaping_coefficient(self, model: ModelRoot):
         # To be compliant with spectrum template required by Sigfox with digital ramping
         # Symmetrical Shaping filter RRC alpha=0.5 with only 15 taps [-Ts:Ts]
         # (15 taps provides better power envelope than 64 taps)
@@ -321,6 +330,6 @@ class Profile_Sigfox_TX_Ocelot(Profile_Sigfox_TX):
         model.vars.MODEM_SHAPING15_COEFF62.value_forced = 0
         model.vars.MODEM_SHAPING15_COEFF63.value_forced = 0
 
-    def _disable_analog_ramping(self, model):
+    def _disable_analog_ramping(self, model: ModelRoot):
         # Disable the Analog Ramping which it provides not compliant spectrum mask with the Sigfox standard in Tx
         model.vars.SEQ_MISC_DIG_RAMP_EN.value_forced = 1

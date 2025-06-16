@@ -55,11 +55,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup HSL_Server
- * @{
- ******************************************************************************/
-
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
 #define scene_server_reset_register(elem_index) \
   scene_server_reset_register_impl(elem_index)
@@ -105,6 +100,9 @@ static sl_status_t hsl_hue_update(uint16_t element_index,
                                   uint32_t remaining_ms);
 static sl_status_t hsl_saturation_update(uint16_t element_index,
                                          uint32_t remaining_ms);
+void pri_level_move_stop(void);
+static void hue_level_move_stop(void);
+static void saturation_level_move_stop(void);
 
 /// copy of transition delay parameter, needed for delayed hsl request
 static uint32_t delayed_hsl_trans = 0;
@@ -174,7 +172,7 @@ static void hsl_delayed_saturation_level_timer_cb(app_timer_t *handle,
 static void hsl_state_store_timer_cb(app_timer_t *handle,
                                      void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light state from Persistent Storage and
  * copies the data in the global variable lightbulb_state.
  * If PS key with ID SL_BTMESH_HSL_SERVER_PS_KEY_CFG_VAL does not exist or loading failed,
@@ -184,20 +182,20 @@ static void hsl_state_store_timer_cb(app_timer_t *handle,
  ******************************************************************************/
 static sl_status_t lightbulb_state_load(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the lightbulb state in RAM is changed.
  * It sets up a soft timer that will save the state in flash after small delay.
  * The purpose is to reduce amount of unnecessary flash writes.
  ******************************************************************************/
 static void lightbulb_state_changed(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
 static void lightbulb_state_validate_and_correct(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_respond to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -211,7 +209,7 @@ static sl_status_t generic_server_respond(uint16_t model_id,
                                           uint32_t remaining_ms,
                                           uint8_t response_flags);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_update to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -222,7 +220,7 @@ static sl_status_t generic_server_update(uint16_t model_id,
                                          const struct mesh_generic_state *target,
                                          uint32_t remaining_ms);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_publish to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -231,7 +229,7 @@ static sl_status_t generic_server_publish(uint16_t model_id,
                                           uint16_t element_index,
                                           mesh_generic_state_t kind);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -243,7 +241,7 @@ static void generic_server_register_handler(uint16_t model_id,
                                             mesh_lib_generic_server_recall_cb recall);
 
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for sl_btmesh_scene_server_reset_register with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -255,17 +253,7 @@ static void generic_server_register_handler(uint16_t model_id,
 static void scene_server_reset_register_impl(uint16_t elem_index);
 #endif
 
-/***************************************************************************//**
- * \defgroup LightHSL
- * \brief Light HSL Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightHSL
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light HSL request.
  *
  * @param[in] element_index  Server model element index.
@@ -303,7 +291,7 @@ static sl_status_t hsl_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL state.
  *
  * @param[in] element_index  Server model element index.
@@ -333,7 +321,7 @@ static sl_status_t hsl_update(uint16_t element_index, uint32_t remaining_ms)
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -358,7 +346,7 @@ static sl_status_t hsl_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light HSL model.
  *
  * @param[in] model_id       Server model ID.
@@ -396,6 +384,17 @@ static void hsl_request(uint16_t model_id,
            request->hsl.saturation,
            transition_ms,
            delay_ms);
+
+  // Because HSL Set request updates Lightness, Hue and Saturation at the same time,
+  // all ongoing underlying generic level move transitions must be stopped
+  // If no delay is specified, the cancellation is done immediately,
+  // otherwise the cancellation is done by the delayed timer callback
+
+  if (!delay_ms) {
+    pri_level_move_stop();
+    hue_level_move_stop();
+    saturation_level_move_stop();
+  }
 
   if ((sl_btmesh_get_lightness_current() == request->hsl.lightness)
       && (lightbulb_state.hue_current == request->hsl.hue)
@@ -493,7 +492,7 @@ static void hsl_request(uint16_t model_id,
                          mesh_lighting_state_hsl_saturation);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL change event.
  *
  * @param[in] model_id       Server model ID.
@@ -553,7 +552,7 @@ static void hsl_change(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -630,17 +629,14 @@ static void hsl_recall(uint16_t model_id,
   // Lightness substate is updated in lightness_recall, here only hue and
   // saturation substate is updated, it is needed also for LC recall
   // to not set LC mode to zero by bindings
-  sl_status_t e;
-  e = hsl_hue_update(BTMESH_HSL_SERVER_HUE, transition_ms);
-  e = hsl_saturation_update(BTMESH_HSL_SERVER_SATURATION, transition_ms);
-  if (e == SL_STATUS_OK) {
-    e = generic_server_publish(MESH_LIGHTING_HSL_SERVER_MODEL_ID,
-                               BTMESH_HSL_SERVER_MAIN,
-                               mesh_lighting_state_hsl);
+  if ((SL_STATUS_OK == hsl_hue_update(BTMESH_HSL_SERVER_HUE, transition_ms)) && (SL_STATUS_OK == hsl_saturation_update(BTMESH_HSL_SERVER_SATURATION, transition_ms))) {
+    generic_server_publish(MESH_LIGHTING_HSL_SERVER_MODEL_ID,
+                           BTMESH_HSL_SERVER_MAIN,
+                           mesh_lighting_state_hsl);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light HSL request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -661,7 +657,7 @@ static void hsl_transition_complete(void)
   hsl_update_and_publish(BTMESH_HSL_SERVER_MAIN, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light HSL request has completed.
  ******************************************************************************/
 static void delayed_hsl_request(void)
@@ -702,19 +698,7 @@ static void delayed_hsl_request(void)
   }
 }
 
-/** @} (end addtogroup LightHSL) */
-
-/***************************************************************************//**
- * \defgroup LightHSLSetup
- * \brief Light HSL Setup Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightHSLSetup
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light HSL setup request.
  *
  * @param[in] element_index  Server model element index.
@@ -760,7 +744,7 @@ static sl_status_t hsl_setup_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL setup state.
  *
  * @param[in] element_index  Server model element index.
@@ -799,7 +783,7 @@ static sl_status_t hsl_setup_update(uint16_t element_index,
                                IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light HSL setup model.
  *
  * @param[in] model_id       Server model ID.
@@ -833,7 +817,7 @@ static void hsl_setup_request(uint16_t model_id,
 
   mesh_generic_state_t kind = mesh_generic_state_last;
   switch (request->kind) {
-    case mesh_lighting_request_hsl_default:
+    case mesh_lighting_request_hsl_default: {
       kind = mesh_lighting_state_hsl_default;
       log_info("hsl_setup_request: state=hsl_default, default lightness=%u, "
                "default hue=%u, default saturation=%u" NL,
@@ -845,25 +829,27 @@ static void hsl_setup_request(uint16_t model_id,
           && (lightbulb_state.hue_default == request->hsl.hue)
           && (lightbulb_state.saturation_default == request->hsl.saturation)) {
         log_info("Request for current state received; no op" NL);
-      } else {
-        if (sl_btmesh_get_lightness_default() != request->hsl.lightness) {
-          log_info("Setting default lightness to <%u>" NL, request->hsl.lightness);
-          sl_btmesh_set_lightness_default(request->hsl.lightness);
-        }
-        if (lightbulb_state.hue_default != request->hsl.hue) {
-          log_info("Setting default hue to <%u>" NL,
-                   request->hsl.hue);
-          lightbulb_state.hue_default = request->hsl.hue;
-        }
-        if (lightbulb_state.saturation_default != request->hsl.saturation) {
-          log_info("Setting default saturation to <%u>" NL, request->hsl.saturation);
-          lightbulb_state.saturation_default = request->hsl.saturation;
-        }
-        lightbulb_state_changed();
+        break;
       }
-      break;
+      if (sl_btmesh_get_lightness_default() != request->hsl.lightness) {
+        log_info("Setting default lightness to <%u>" NL, request->hsl.lightness);
+        sl_btmesh_set_lightness_default(request->hsl.lightness);
+      }
+      if (lightbulb_state.hue_default != request->hsl.hue) {
+        log_info("Setting default hue to <%u>" NL,
+                 request->hsl.hue);
+        lightbulb_state.hue_default = request->hsl.hue;
+      }
+      if (lightbulb_state.saturation_default != request->hsl.saturation) {
+        log_info("Setting default saturation to <%u>" NL, request->hsl.saturation);
+        lightbulb_state.saturation_default = request->hsl.saturation;
+      }
+      lightbulb_state_changed();
 
-    case mesh_lighting_request_hsl_range:
+      break;
+    }
+
+    case mesh_lighting_request_hsl_range: {
       kind = mesh_lighting_state_hsl_range;
       log_info("hsl_setup_request: state=hsl_range, min hue=%u, max hue=%u, "
                "min saturation=%u, max saturation=%u" NL,
@@ -879,28 +865,30 @@ static void hsl_setup_request(uint16_t model_id,
           && (lightbulb_state.saturation_max
               == request->hsl_range.saturation_max)) {
         log_info("Request for current state received; no op" NL);
-      } else {
-        if (lightbulb_state.hue_min != request->hsl_range.hue_min) {
-          log_info("Setting min hue to <%u>" NL, request->hsl_range.hue_min);
-          lightbulb_state.hue_min = request->hsl_range.hue_min;
-        }
-        if (lightbulb_state.hue_max != request->hsl_range.hue_max) {
-          log_info("Setting max hue to <%u>" NL, request->hsl_range.hue_max);
-          lightbulb_state.hue_max = request->hsl_range.hue_max;
-        }
-        if (lightbulb_state.saturation_min != request->hsl_range.saturation_min) {
-          log_info("Setting min saturation to <%u>" NL,
-                   request->hsl_range.saturation_min);
-          lightbulb_state.saturation_min = request->hsl_range.saturation_min;
-        }
-        if (lightbulb_state.saturation_max != request->hsl_range.saturation_max) {
-          log_info("Setting max saturation to <%u>" NL,
-                   request->hsl_range.saturation_max);
-          lightbulb_state.saturation_max = request->hsl_range.saturation_max;
-        }
-        lightbulb_state_changed();
+        break;
       }
+      if (lightbulb_state.hue_min != request->hsl_range.hue_min) {
+        log_info("Setting min hue to <%u>" NL, request->hsl_range.hue_min);
+        lightbulb_state.hue_min = request->hsl_range.hue_min;
+      }
+      if (lightbulb_state.hue_max != request->hsl_range.hue_max) {
+        log_info("Setting max hue to <%u>" NL, request->hsl_range.hue_max);
+        lightbulb_state.hue_max = request->hsl_range.hue_max;
+      }
+      if (lightbulb_state.saturation_min != request->hsl_range.saturation_min) {
+        log_info("Setting min saturation to <%u>" NL,
+                 request->hsl_range.saturation_min);
+        lightbulb_state.saturation_min = request->hsl_range.saturation_min;
+      }
+      if (lightbulb_state.saturation_max != request->hsl_range.saturation_max) {
+        log_info("Setting max saturation to <%u>" NL,
+                 request->hsl_range.saturation_max);
+        lightbulb_state.saturation_max = request->hsl_range.saturation_max;
+      }
+      lightbulb_state_changed();
+
       break;
+    }
 
     default:
       break;
@@ -913,7 +901,7 @@ static void hsl_setup_request(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL setup change event.
  *
  * @param[in] model_id       Server model ID.
@@ -1016,19 +1004,7 @@ static void hsl_setup_change(uint16_t model_id,
   }
 }
 
-/** @} (end addtogroup LightHSLSetup) */
-
-/***************************************************************************//**
- * \defgroup LightHSLHue
- * \brief Light HSL Hue Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightHSLHue
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light HSL hue request.
  *
  * @param[in] element_index  Server model element index.
@@ -1062,7 +1038,7 @@ static sl_status_t hsl_hue_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL hue state.
  *
  * @param[in] element_index  Server model element index.
@@ -1089,7 +1065,7 @@ static sl_status_t hsl_hue_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL hue state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -1110,11 +1086,10 @@ static sl_status_t hsl_hue_update_and_publish(uint16_t element_index,
                                BTMESH_HSL_SERVER_HUE,
                                mesh_lighting_state_hsl_hue);
   }
-
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light HSL hue model.
  *
  * @param[in] model_id       Server model ID.
@@ -1148,6 +1123,12 @@ static void hsl_hue_request(uint16_t model_id,
   log_info("hsl_hue_request: hue=%u, transition=%lu, delay=%u" NL,
            request->hsl_hue,
            transition_ms, delay_ms);
+
+  // HSL Hue is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    hue_level_move_stop();
+  }
 
   if (lightbulb_state.hue_current == request->hsl_hue) {
     log_info("Request for current state received; no op" NL);
@@ -1213,7 +1194,7 @@ static void hsl_hue_request(uint16_t model_id,
                          mesh_generic_state_level);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL hue change event.
  *
  * @param[in] model_id       Server model ID.
@@ -1245,7 +1226,7 @@ static void hsl_hue_change(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL hue recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -1296,7 +1277,7 @@ static void hsl_hue_recall(uint16_t model_id,
   hsl_hue_update_and_publish(BTMESH_HSL_SERVER_HUE, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light HSL hue request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1311,7 +1292,7 @@ static void hsl_hue_transition_complete(void)
   hsl_hue_update_and_publish(BTMESH_HSL_SERVER_HUE, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light HSL hue request has completed.
  ******************************************************************************/
 static void delayed_hsl_hue_request(void)
@@ -1342,19 +1323,7 @@ static void delayed_hsl_hue_request(void)
   }
 }
 
-/** @} (end addtogroup LightHSLHue) */
-
-/***************************************************************************//**
- * \defgroup HueGenericLevel
- * \brief Generic Level Server model on hue element.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup HueGenericLevel
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic level request on hue element.
  *
  * @param[in] element_index  Server model element index.
@@ -1388,7 +1357,7 @@ static sl_status_t hue_level_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on hue element.
  *
  * @param[in] element_index  Server model element index.
@@ -1415,7 +1384,7 @@ static sl_status_t hue_level_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on hue element
  * and publish model state to the network.
  *
@@ -1440,7 +1409,7 @@ static sl_status_t hue_level_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Schedule next generic level move request on hue element.
  *
  * @param[in] remaining_delta   The remaining level delta to the target state.
@@ -1457,7 +1426,7 @@ static void hue_level_move_schedule_next_request(int32_t remaining_delta)
       lightbulb_state.hue_level_target = 0x8000; // Min level value
     }
     transition_ms = move_hue_level_trans;
-    sl_btmesh_hsl_set_hue_level(lightbulb_state.hue_current + move_hue_level_delta,
+    sl_btmesh_hsl_set_hue_level((uint16_t)(lightbulb_state.hue_current + move_hue_level_delta),
                                 move_hue_level_trans);
   } else if (abs(remaining_delta) < abs(move_hue_level_delta)) {
     transition_ms = (uint32_t)(((int64_t)move_hue_level_trans * remaining_delta)
@@ -1465,7 +1434,7 @@ static void hue_level_move_schedule_next_request(int32_t remaining_delta)
     sl_btmesh_hsl_set_hue_level(lightbulb_state.hue_target, transition_ms);
   } else {
     transition_ms = move_hue_level_trans;
-    sl_btmesh_hsl_set_hue_level(lightbulb_state.hue_current + move_hue_level_delta,
+    sl_btmesh_hsl_set_hue_level((uint16_t)(lightbulb_state.hue_current + move_hue_level_delta),
                                 move_hue_level_trans);
   }
   sl_status_t sc = app_timer_start(&hsl_hue_level_move_timer,
@@ -1476,7 +1445,7 @@ static void hue_level_move_schedule_next_request(int32_t remaining_delta)
   app_assert_status_f(sc, "Failed to start Hue Generic Level Move timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handle generic level move request on hue element.
  ******************************************************************************/
 static void hue_level_move_request(void)
@@ -1505,7 +1474,7 @@ static void hue_level_move_request(void)
   hue_level_move_schedule_next_request(remaining_delta);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Stop generic level move on hue element.
  ******************************************************************************/
 static void hue_level_move_stop(void)
@@ -1520,7 +1489,7 @@ static void hue_level_move_stop(void)
   move_hue_level_trans = 0;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic level model on hue element.
  *
  * @param[in] model_id       Server model ID.
@@ -1565,7 +1534,7 @@ static void hue_level_request(uint16_t model_id,
       } else {
         log_info("Setting hue generic level to <%d>" NL, request->level);
 
-        hue = request->level + 32768;
+        hue = (uint16_t)(request->level + 32768);
 
         if (transition_ms == 0 && delay_ms == 0) { // Immediate change
           lightbulb_state.hue_level_current = request->level;
@@ -1633,7 +1602,7 @@ static void hue_level_request(uint16_t model_id,
       } else {
         log_info("Setting hue level to <%d>" NL, requested_level);
 
-        hue = requested_level + 32768;
+        hue = (uint16_t)(requested_level + 32768);
 
         if (delay_ms > 0) {
           // a delay has been specified for the move. Start a soft timer
@@ -1708,7 +1677,7 @@ static void hue_level_request(uint16_t model_id,
                          mesh_lighting_state_hsl_hue);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level change event
  * on hue element.
  *
@@ -1736,14 +1705,13 @@ static void hue_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.hue_level_current = current->level.level;
     lightbulb_state_changed();
-    hue_level_move_stop();
   } else {
     log_info("Hue generic level update -same value (%d)" NL,
              lightbulb_state.hue_level_current);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level recall event
  * on hue element.
  *
@@ -1790,7 +1758,7 @@ static void hue_level_recall(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a generic level request on hue element
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1807,7 +1775,7 @@ static void hue_level_transition_complete(void)
   hue_level_update_and_publish(BTMESH_HSL_SERVER_HUE, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for generic level request
  * on hue element has completed.
  ******************************************************************************/
@@ -1866,19 +1834,7 @@ static void delayed_hue_level_request(void)
   }
 }
 
-/** @} (end addtogroup HueGenericLevel) */
-
-/***************************************************************************//**
- * \defgroup LightHSLSaturation
- * \brief Light HSL Saturation Server model.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup LightHSLSaturation
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to light HSL saturation request.
  *
  * @param[in] element_index  Server model element index.
@@ -1912,7 +1868,7 @@ static sl_status_t hsl_saturation_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL saturation state.
  *
  * @param[in] element_index  Server model element index.
@@ -1939,7 +1895,7 @@ static sl_status_t hsl_saturation_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update light HSL saturation state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -1964,7 +1920,7 @@ static sl_status_t hsl_saturation_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the light HSL saturation model.
  *
  * @param[in] model_id       Server model ID.
@@ -1998,6 +1954,12 @@ static void hsl_saturation_request(uint16_t model_id,
   log_info("hsl_saturation_request: saturation=%u, transition=%lu, delay=%u" NL,
            request->hsl_saturation,
            transition_ms, delay_ms);
+
+  // HSL Saturation is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    saturation_level_move_stop();
+  }
 
   if (lightbulb_state.saturation_current == request->hsl_saturation) {
     log_info("Request for current state received; no op" NL);
@@ -2063,7 +2025,7 @@ static void hsl_saturation_request(uint16_t model_id,
                          mesh_generic_state_level);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL saturation change event.
  *
  * @param[in] model_id       Server model ID.
@@ -2095,7 +2057,7 @@ static void hsl_saturation_change(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for light HSL saturation recall event.
  *
  * @param[in] model_id       Server model ID.
@@ -2146,7 +2108,7 @@ static void hsl_saturation_recall(uint16_t model_id,
   hsl_saturation_update_and_publish(BTMESH_HSL_SERVER_SATURATION, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a light HSL saturation request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -2162,7 +2124,7 @@ static void hsl_saturation_transition_complete(void)
   hsl_saturation_update_and_publish(BTMESH_HSL_SERVER_SATURATION, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for light HSL saturation request has completed.
  ******************************************************************************/
 static void delayed_hsl_saturation_request(void)
@@ -2193,19 +2155,7 @@ static void delayed_hsl_saturation_request(void)
   }
 }
 
-/** @} (end addtogroup LightHSLSaturation) */
-
-/***************************************************************************//**
- * \defgroup SaturationGenericLevel
- * \brief Generic Level Server model on saturation element.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup SaturationGenericLevel
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to generic level request on saturation element.
  *
  * @param[in] element_index  Server model element index.
@@ -2239,7 +2189,7 @@ static sl_status_t saturation_level_response(uint16_t element_index,
                                 NO_FLAGS);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on saturation element.
  *
  * @param[in] element_index  Server model element index.
@@ -2266,7 +2216,7 @@ static sl_status_t saturation_level_update(uint16_t element_index,
                                remaining_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update generic level state on saturation element
  * and publish model state to the network.
  *
@@ -2291,7 +2241,7 @@ static sl_status_t saturation_level_update_and_publish(uint16_t element_index,
   return e;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Schedule next generic level move request on saturation element.
  *
  * @param[in] remaining_delta   The remaining level delta to the target state.
@@ -2308,7 +2258,7 @@ static void saturation_level_move_schedule_next_request(int32_t remaining_delta)
       lightbulb_state.saturation_level_target = 0x8000; // Min level value
     }
     transition_ms = move_saturation_level_trans;
-    sl_btmesh_hsl_set_saturation_level(lightbulb_state.saturation_current + move_saturation_level_delta,
+    sl_btmesh_hsl_set_saturation_level((uint16_t)(lightbulb_state.saturation_current + move_saturation_level_delta),
                                        move_saturation_level_trans);
   } else if (abs(remaining_delta) < abs(move_saturation_level_delta)) {
     transition_ms = (uint32_t)(((int64_t)move_saturation_level_trans * remaining_delta)
@@ -2317,7 +2267,7 @@ static void saturation_level_move_schedule_next_request(int32_t remaining_delta)
                                        transition_ms);
   } else {
     transition_ms = move_saturation_level_trans;
-    sl_btmesh_hsl_set_saturation_level(lightbulb_state.saturation_current + move_saturation_level_delta,
+    sl_btmesh_hsl_set_saturation_level((uint16_t)(lightbulb_state.saturation_current + move_saturation_level_delta),
                                        move_saturation_level_trans);
   }
   sl_status_t sc = app_timer_start(&hsl_saturation_level_move_timer,
@@ -2328,7 +2278,7 @@ static void saturation_level_move_schedule_next_request(int32_t remaining_delta)
   app_assert_status_f(sc, "Failed to start Saturation Generic Level Move timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handle generic level move request on saturation element.
  ******************************************************************************/
 static void saturation_level_move_request(void)
@@ -2358,7 +2308,7 @@ static void saturation_level_move_request(void)
   saturation_level_move_schedule_next_request(remaining_delta);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Stop generic level move on saturation element.
  ******************************************************************************/
 static void saturation_level_move_stop(void)
@@ -2373,7 +2323,7 @@ static void saturation_level_move_stop(void)
   move_saturation_level_trans = 0;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function process the requests for the generic level model on saturation element.
  *
  * @param[in] model_id       Server model ID.
@@ -2418,7 +2368,7 @@ static void saturation_level_request(uint16_t model_id,
       } else {
         log_info("Setting saturation generic level to <%d>" NL, request->level);
 
-        saturation = request->level + 32768;
+        saturation = (uint16_t)(request->level + 32768);
 
         if (transition_ms == 0 && delay_ms == 0) { // Immediate change
           lightbulb_state.saturation_level_current = request->level;
@@ -2486,7 +2436,7 @@ static void saturation_level_request(uint16_t model_id,
       } else {
         log_info("Setting saturation level to <%d>" NL, requested_level);
 
-        saturation = requested_level + 32768;
+        saturation = (uint16_t)(requested_level + 32768);
 
         if (delay_ms > 0) {
           // a delay has been specified for the move. Start a soft timer
@@ -2565,7 +2515,7 @@ static void saturation_level_request(uint16_t model_id,
                          mesh_lighting_state_hsl_saturation);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level change event
  * on saturation element.
  *
@@ -2593,14 +2543,13 @@ static void saturation_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.saturation_level_current = current->level.level;
     lightbulb_state_changed();
-    saturation_level_move_stop();
   } else {
     log_info("Saturation generic level update -same value (%d)" NL,
              lightbulb_state.saturation_level_current);
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is a handler for generic level recall event
  * on saturation element.
  *
@@ -2647,7 +2596,7 @@ static void saturation_level_recall(uint16_t model_id,
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a generic level request on saturation element
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -2664,7 +2613,7 @@ static void saturation_level_transition_complete(void)
   saturation_level_update_and_publish(BTMESH_HSL_SERVER_SATURATION, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for generic level request
  * on saturation element has completed.
  ******************************************************************************/
@@ -2726,6 +2675,18 @@ static void delayed_saturation_level_request(void)
 
 /** @} (end addtogroup SaturationGenericLevel) */
 
+/*******************************************************************************
+ * This function is registered as callback to be executed when the underlying
+ * Generic OnOff state had been changed
+ ******************************************************************************/
+void lightness_server_onoff_changed_cb(void)
+{
+  // If the OnOff state had been changed for the light, ongoing Generic Level Move
+  // transitions must be stopped
+  saturation_level_move_stop();
+  hue_level_move_stop();
+}
+
 /***************************************************************************//**
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
@@ -2767,9 +2728,11 @@ static void init_hsl_models(void)
                                   saturation_level_request,
                                   saturation_level_change,
                                   saturation_level_recall);
+
+  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light state from Persistent Storage and
  * copies the data in the global variable lightbulb_state.
  * If PS key with ID SL_BTMESH_HSL_SERVER_PS_KEY_CFG_VAL does not exist or loading failed,
@@ -2820,7 +2783,7 @@ static sl_status_t lightbulb_state_load(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function saves the current light state in Persistent Storage so that
  * the data is preserved over reboots and power cycles.
  * The light state is hold in a global variable lightbulb_state.
@@ -2841,7 +2804,7 @@ static sl_status_t lightbulb_state_store(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the lightbulb state in RAM is changed.
  * It sets up a soft timer that will save the state in flash after small delay.
  * The purpose is to reduce amount of unnecessary flash writes.
@@ -2856,7 +2819,7 @@ static void lightbulb_state_changed(void)
   app_assert_status_f(sc, "Failed to start State Store timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function validates the lighbulb_state and change it if it is against
  * the specification.
  ******************************************************************************/
@@ -2991,15 +2954,24 @@ void sl_btmesh_hsl_server_init(void)
  ******************************************************************************/
 void sl_btmesh_hsl_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_hsl_server_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_hsl_server_init();
+        booted = true;
+      }
       break;
-
+    }
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_hsl_server_init();
+        booted = true;
       }
       break;
 
@@ -3022,12 +2994,7 @@ void sl_btmesh_hsl_server_on_node_reset(void)
   app_btmesh_nvm_erase(SL_BTMESH_HSL_SERVER_PS_KEY_CFG_VAL);
 }
 
-/***************************************************************************//**
- * @addtogroup BtmeshWrappers
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_respond to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -3059,7 +3026,7 @@ static sl_status_t generic_server_respond(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_update to log if the Btmesh API call
  * results in error. The parameters and the return value of the wrapper and
  * the wrapped functions are the same.
@@ -3085,7 +3052,7 @@ static sl_status_t generic_server_update(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_publish to log if the Btmesh API call
  * results in error. The parameters and the return value of the two functions
  * are the same.
@@ -3107,7 +3074,7 @@ static sl_status_t generic_server_publish(uint16_t model_id,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_server_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -3121,15 +3088,18 @@ static void generic_server_register_handler(uint16_t model_id,
   sl_status_t sc =
     mesh_lib_generic_server_register_handler(model_id, elem_index, cb, ch, recall);
 
-  app_assert_status_f(sc,
-                      "HSL server failed to register handlers "
-                      "(mdl=0x%04x,elem=%d)",
-                      model_id,
-                      elem_index);
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "HSL server failed to register handlers "
+                            "(mdl=0x%04x,elem=%d)",
+                        model_id,
+                        elem_index);
+  }
 }
 
 #ifdef SL_CATALOG_BTMESH_SCENE_SERVER_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for sl_btmesh_scene_server_reset_register with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have return value.
@@ -3142,16 +3112,15 @@ static void scene_server_reset_register_impl(uint16_t elem_index)
 {
   sl_status_t sc = sl_btmesh_scene_server_reset_register(elem_index);
 
-  // The function can fail if there is no scene server model in the element or
-  // the btmesh_stack_scene_server component is not present. Both of these
-  // are configuration issues so assert can be used.
-  app_assert_status_f(sc, "HSL server failed to reset scene register.");
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "HSL server failed to reset scene register.");
+  }
 }
 #endif
 
-/** @} (end addtogroup BtmeshWrappers) */
-
-/***************************************************************************//**
+/*******************************************************************************
  * Timer Callbacks
  ******************************************************************************/
 static void hsl_hue_level_move_timer_cb(app_timer_t *handle,
@@ -3235,6 +3204,11 @@ static void hsl_delayed_hsl_hue_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // HSL Hue is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  hue_level_move_stop();
+
   // delay for a hsl hue request has passed, now process the request
   delayed_hsl_hue_request();
 }
@@ -3254,6 +3228,11 @@ static void hsl_delayed_hsl_saturation_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // HSL Saturation is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  saturation_level_move_stop();
+
   // delay for a hsl saturation request has passed, now process the request
   delayed_hsl_saturation_request();
 }
@@ -3263,6 +3242,12 @@ static void hsl_delayed_hsl_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // Cancel any ongoing underlying generic level transition
+  pri_level_move_stop();
+  hue_level_move_stop();
+  saturation_level_move_stop();
+
   // delay for a hsl request has passed, now process the request
   delayed_hsl_request();
 }
@@ -3275,5 +3260,3 @@ static void hsl_state_store_timer_cb(app_timer_t *handle,
   // save the lightbulb state
   lightbulb_state_store();
 }
-
-/** @} (end addtogroup HSL_SERVER) */

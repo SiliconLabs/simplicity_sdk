@@ -10,9 +10,7 @@
 #include "zw_config_rf.h"
 #include <assert.h>
 #include "MfgTokens.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
-#include "DebugPrintConfig.h"
+#include "zpal_log.h"
 #include "AppTimer.h"
 #include "SwTimer.h"
 #include "ZW_system_startup_api.h"
@@ -25,32 +23,28 @@
 #include "events.h"
 #include "zpal_watchdog.h"
 #include "board_indicator.h"
-#include "app_hw.h"
 #include "app_credentials.h"
 #include "ZAF_ApplicationEvents.h"
 #include "zaf_event_distributor_soc.h"
 #include "zpal_misc.h"
 #include "zaf_protocol_config.h"
+#include "ZAF_PrintAppInfo.h"
 
 #ifdef SL_CATALOG_ZW_CLI_SLEEPING_PRESENT
 #include "zw_cli_sleeping.h"
 #include "zw_cli_sleeping_config.h"
 #endif
 
+#ifdef SL_CATALOG_ZW_PM_TRANSITION_EVENT_PRESENT
+#include "app_pm_transition_event.h"
+#endif
+
 #ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
 #include "zw_cli_common.h"
 #endif
 
-#ifdef DEBUGPRINT
-#include "ZAF_PrintAppInfo.h"
-#endif
-
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
+#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
-
-#ifdef DEBUGPRINT
-static uint8_t m_aDebugPrintBuffer[96];
 #endif
 
 /* Interval for checking and reporting battery status (in minutes) */
@@ -69,15 +63,18 @@ ZW_APPLICATION_STATUS ApplicationInit(__attribute__((unused)) zpal_reset_reason_
 {
   SRadioConfig_t* RadioConfig;
 
-  DPRINT("Enabling watchdog\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
-#endif
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
 
   RadioConfig = zaf_get_radio_config();
+
+#ifdef SL_CATALOG_ZW_PM_TRANSITION_EVENT_PRESENT
+  // register callback from power manager transitions
+  ZW_PmTransitionEventInit();
+#endif
 
   // Read Rf region from MFG_ZWAVE_COUNTRY_FREQ
   zpal_radio_region_t regionMfg;
@@ -88,7 +85,7 @@ ZW_APPLICATION_STATUS ApplicationInit(__attribute__((unused)) zpal_reset_reason_
     ZW_SetMfgTokenDataCountryRegion((void*) &RadioConfig->eRegion);
   }
 
-  DPRINTF("Rf region: %d\n", RadioConfig->eRegion);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Rf region: %d\n", RadioConfig->eRegion);
 
   /*************************************************************************************
   * CREATE USER TASKS  -  ZW_ApplicationRegisterTask() and ZW_UserTask_CreateTask()
@@ -125,12 +122,9 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   uint32_t unhandledEvents = 0;
   ZAF_Init(xTaskGetCurrentTaskHandle(), pAppHandles);
 
-#ifdef DEBUGPRINT
   ZAF_PrintAppInfo();
-#endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
-  /* This preprocessor statement can be deleted from the source code */
+#if (!defined(UNIT_TEST))
   app_hw_init();
 #endif
 
@@ -141,23 +135,16 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   // User Credential Command Class related functions
   credentials_init();
 
-#ifdef SL_CATALOG_ZW_CLI_SLEEPING_PRESENT
-  // Stay awake to allow user to send the prevent sleeping command through the CLI
-  if (GetResetReason() == ZPAL_RESET_REASON_PIN) {
-    zw_cli_sleeping_util_prevent_sleeping_timeout(ZW_CLI_SLEEPING_WAKEUP_TIME_AFTER_RESET);
-  }
-#endif
-
   /* Enter SmartStart*/
   /* Protocol will commence SmartStart only if the node is NOT already included in the network */
   ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION_SMARTSTART);
 
   // Wait for and process events
-  DPRINT("DoorLockKeyPad Event processor Started\r\n");
-  for(;;) {
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "DoorLockKeyPad Event processor Started\r\n");
+  for (;;) {
     unhandledEvents = zaf_event_distributor_distribute();
     if (0 != unhandledEvents) {
-      DPRINTF("Unhandled Events: 0x%08lx\n", unhandledEvents);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Unhandled Events: 0x%08lx\n", unhandledEvents);
 #ifdef UNIT_TEST
       return;
 #endif
@@ -178,11 +165,11 @@ send_battery_level_report(void)
 void
 zaf_event_distributor_app_event_manager(const uint8_t event)
 {
-  DPRINTF("zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
 
   switch (event) {
     case EVENT_APP_BATTERY_REPORT:
-      DPRINT("\r\nBattery Level report transmit (keypress trig)\r\n");
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nBattery Level report transmit (keypress trig)\r\n");
       send_battery_level_report();
       break;
     case EVENT_APP_PERIODIC_BATTERY_CHECK_TRIGGER:
@@ -232,7 +219,7 @@ ZCB_BatteryCheckTimerCallback(__attribute__((unused)) SSwTimer *pTimer)
 {
   /* Send a battery level report to the lifeline  */
   if (false == zaf_event_distributor_enqueue_app_event(EVENT_APP_PERIODIC_BATTERY_CHECK_TRIGGER)) {
-    DPRINT("\r\n** Periodic battery checking trigger FAILED\r\n");
+    ZPAL_LOG_ERROR(ZPAL_LOG_APP, "\r\n** Periodic battery checking trigger FAILED\r\n");
   }
 }
 

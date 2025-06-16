@@ -61,11 +61,18 @@ bool sl_zigbee_af_extract_command_ids(bool outgoing,
                                       uint8_t startId,
                                       uint8_t maxIdCount);
 
-sl_zigbee_af_status_t sli_zigbee_af_read_or_write_attribute(sl_zigbee_af_attribute_search_record_t *attRecord,
-                                                            sl_zigbee_af_attribute_metadata_t **metadata,
-                                                            uint8_t *buffer,
-                                                            uint16_t readLength,
-                                                            bool write);
+bool sli_retrieve_cluster_attribute_metadata_and_storage_location(sl_zigbee_af_attribute_search_record_t *attRecord,
+                                                                  sl_zigbee_af_cluster_t **cluster,
+                                                                  sl_zigbee_af_attribute_metadata_t **attributeMetadata,
+                                                                  uint8_t **attributeStorageLocation);
+
+sl_zigbee_af_status_t sli_zigbee_af_read_attribute_from_storage(sl_zigbee_af_attribute_search_record_t *attRecord,
+                                                                sl_zigbee_af_attribute_metadata_t **metadata,
+                                                                uint8_t *buffer,
+                                                                uint16_t readLength);
+sl_zigbee_af_status_t sli_zigbee_af_write_attribute_to_storage(sl_zigbee_af_attribute_search_record_t *attRecord,
+                                                               uint8_t *buffer,
+                                                               bool syncMultiProtocol);
 
 bool sli_zigbee_af_match_cluster(sl_zigbee_af_cluster_t *cluster,
                                  sl_zigbee_af_attribute_search_record_t *attRecord);

@@ -1,7 +1,7 @@
 !!omap
 - id: cpc_recommend_spi_exp_usart
-- label: "CPC: Recommend SPI Expansion Header USART interface"
-- package: platform
+- label: 'CPC: Recommend SPI Expansion Header USART interface'
+- package: cpc
 - description: CPC Recommend SPI Expansion Header USART interface
 - category: Services|Co-Processor Communication|Secondary Device
 - quality: production

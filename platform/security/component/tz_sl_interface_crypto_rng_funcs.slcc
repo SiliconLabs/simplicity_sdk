@@ -1,5 +1,5 @@
 id: tz_sl_interface_crypto_rng_funcs
-package: platform
+package: security_trustzone
 description: >-
   This component provides a TrustZone secure library interface crypto rng functions
 category: Platform|Security|TrustZone

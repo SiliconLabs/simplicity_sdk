@@ -68,6 +68,14 @@ void sli_power_manager_init_hardware(void)
 }
 
 /***************************************************************************//**
+ * Retrieve information about if HFXO and DPLL oscillators are used.
+ ******************************************************************************/
+void sli_power_manager_save_oscillators_usage(void)
+{
+  // Nothing to do on SIXG301
+}
+
+/***************************************************************************//**
  * Enable or disable fast wake-up in EM2 and EM3.
  ******************************************************************************/
 void sli_power_manager_em23_voltage_scaling_enable_fast_wakeup(bool enable)
@@ -163,14 +171,14 @@ void sli_power_manager_em1hclkdiv_presleep_operations(void)
   sl_oscillator_t osc;
 
   // Retrieve SYSCLK oscillator
-  status = sli_clock_manager_get_sysclk_source(&osc);
+  status = sl_clock_manager_get_sysclk_source(&osc);
   EFM_ASSERT(status == SL_STATUS_OK);
 
 #if defined(SL_POWER_MANAGER_SYSCLK_SWITCH_TO_HFXO_IN_SLEEP_EN) && (SL_POWER_MANAGER_SYSCLK_SWITCH_TO_HFXO_IN_SLEEP_EN == 1)
   // Change SYSCLK to HFXO if on SOCPLL to reduce power consumption
-  if (osc == SL_OSCILLATOR_SOCPLL) {
+  if (osc == SL_OSCILLATOR_SOCPLL0) {
     em1hclkdiv_sysclk_switch_en = true;
-    sli_clock_manager_set_sysclk_source(SL_OSCILLATOR_HFXO);
+    slx_clock_manager_set_sysclk_source(SL_OSCILLATOR_HFXO);
   }
 #endif
 
@@ -192,7 +200,7 @@ void sli_power_manager_em1hclkdiv_postsleep_operations(void)
 #if defined(SL_POWER_MANAGER_SYSCLK_SWITCH_TO_HFXO_IN_SLEEP_EN) && (SL_POWER_MANAGER_SYSCLK_SWITCH_TO_HFXO_IN_SLEEP_EN == 1)
   // Switch back SYSCLK to SOCPLL if necessary
   if (em1hclkdiv_sysclk_switch_en) {
-    sli_clock_manager_set_sysclk_source(SL_OSCILLATOR_SOCPLL);
+    slx_clock_manager_set_sysclk_source(SL_OSCILLATOR_SOCPLL0);
     em1hclkdiv_sysclk_switch_en = false;
   }
 #endif

@@ -86,6 +86,15 @@ bool sl_ftp_is_network_connected(void)
 }
 
 /***************************************************************************//**
+ * @brief FTP wait for network connection
+ * @details Portable function
+ ******************************************************************************/
+void sl_ftp_wait_for_connection(void)
+{
+  sl_wisun_app_core_util_wait_for_connection();
+}
+
+/***************************************************************************//**
  * @brief FTP get global IP address
  * @details Portable function
  * @return Global address string representation

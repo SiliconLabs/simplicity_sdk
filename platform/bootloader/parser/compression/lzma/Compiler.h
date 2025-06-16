@@ -11,7 +11,7 @@
  *
  ******************************************************************************/
 /* Compiler.h
-2017-04-03 : Igor Pavlov : Public domain */
+   2017-04-03 : Igor Pavlov : Public domain */
 
 #ifndef __7Z_COMPILER_H
 #define __7Z_COMPILER_H
@@ -20,7 +20,7 @@
 
   #ifdef UNDER_CE
     #define RPC_NO_WINDOWS_H
-    /* #pragma warning(disable : 4115) // '_RPC_ASYNC_STATE' : named type definition in parentheses */
+/* #pragma warning(disable : 4115) // '_RPC_ASYNC_STATE' : named type definition in parentheses */
     #pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
     #pragma warning(disable : 4214) // nonstandard extension used : bit field types other than int
   #endif
@@ -40,6 +40,5 @@
 #endif
 
 #define UNUSED_VAR(x) (void)x;
-/* #define UNUSED_VAR(x) x=x; */
 
 #endif

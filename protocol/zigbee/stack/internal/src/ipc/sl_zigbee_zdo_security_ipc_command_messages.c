@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_zdo_security' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -82,7 +82,7 @@ sl_status_t sl_zigbee_get_symmetric_passphrase(sl_802154_long_addr_t eui64,
   msg.data.get_symmetric_passphrase.request.short_id = short_id;
 
   if (passphrase != NULL) {
-    memmove(msg.data.get_symmetric_passphrase.request.passphrase, passphrase, sizeof(uint8_t) * (16));
+    memmove(msg.data.get_symmetric_passphrase.request.passphrase, passphrase, sizeof(uint8_t) * 16);
   }
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_symmetric_passphrase_process_ipc_command, &msg);
@@ -92,7 +92,7 @@ sl_status_t sl_zigbee_get_symmetric_passphrase(sl_802154_long_addr_t eui64,
   }
 
   if (passphrase != NULL) {
-    memmove(passphrase, msg.data.get_symmetric_passphrase.request.passphrase, sizeof(uint8_t) * (16));
+    memmove(passphrase, msg.data.get_symmetric_passphrase.request.passphrase, sizeof(uint8_t) * 16);
   }
 
   return msg.data.get_symmetric_passphrase.response.result;

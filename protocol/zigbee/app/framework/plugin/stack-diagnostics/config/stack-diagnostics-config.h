@@ -20,7 +20,7 @@
 
 // <q SL_ZIGBEE_AF_PLUGIN_STACK_DIAGNOSTICS_RECORD_LQI_RSSI> (SoC only) Record LQI and RSSI for each neighbor
 // <i> Default: FALSE
-// <i> (SoC only) Record the last LQI and RSSI values received for each neighbor. Note: when this option is selected, the Packet Handoff plugin must be enabled and the sl_zigbee_af_incoming_packet_filter_cb callback is consumed.
+// <i> (SoC only) Record the last LQI and RSSI values received for each neighbor. Note: when this option is selected, the Packet Handoff plugin must be enabled and the sl_zigbee_pre_incoming_packet_filter_cb callback is consumed.
 #define SL_ZIGBEE_AF_PLUGIN_STACK_DIAGNOSTICS_RECORD_LQI_RSSI   0
 
 // </h>

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component is used both for a trust center and a joining device.  It provides a set of APIs for setting the acceptable delay for receiving a network key, as well as sending the network key on demand from the app. The following are the minimum conditions to verify before successfully using this component. 1. The trust center must have an acceptable version of a link key for the joining devices. 2. The component must be (re-)activated every time a network is opened or after any other event that changes the trust center (re-)join policy.
 id: zigbee_delayed_join
 label: Delayed Join

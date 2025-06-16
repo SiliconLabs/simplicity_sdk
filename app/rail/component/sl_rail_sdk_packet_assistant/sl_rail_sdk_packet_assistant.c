@@ -37,23 +37,23 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-typedef uint16_t (*unpack_packet_func_t)(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-typedef void (*prepare_packet_func_t)(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
+typedef uint16_t (*unpack_packet_func_t)(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+typedef void (*prepare_packet_func_t)(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-uint16_t unpack_packet_wisun_fsk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_wisun_fsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
-uint16_t unpack_packet_wisun_ofdm(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_wisun_ofdm(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
-uint16_t unpack_packet_sun_oqpsk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_sun_oqpsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
-uint16_t unpack_packet_sidewalk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_sidewalk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
-uint16_t unpack_packet_longrange(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_longrange(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
-uint16_t unpack_packet_base(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload);
-void prepare_packet_base(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_wisun_fsk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_wisun_fsk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_wisun_ofdm(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_wisun_ofdm(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_sun_oqpsk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_sun_oqpsk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_sidewalk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_sidewalk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_longrange(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_longrange(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
+uint16_t unpack_packet_base(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload);
+void prepare_packet_base(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -82,12 +82,12 @@ static uint8_t sun_oqpsk_rate_mode = SUN_OQPSK_RATEMODE; // rateMode: 2 bits wid
 static uint8_t sidewalk_fcs_type = SIDEWALK_FSK_FCS_TYPE;
 static uint8_t sidewalk_whitening = SIDEWALK_FSK_WHITENING;
 
-static RAIL_Protocol_t current_protocol = UNDEFINED;
+static RAIL_SDK_Protocol_t current_protocol = UNDEFINED;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-void prepare_packet(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   if (prepare_packet_fnc == NULL) {
     update_assistant_pointers(0);
@@ -95,12 +95,12 @@ void prepare_packet(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t lengt
   prepare_packet_fnc(rail_handle, out_data, length);
 }
 
-uint16_t unpack_packet(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
   if (unpack_packet_fnc == NULL) {
     update_assistant_pointers(0);
   }
-  return unpack_packet_fnc(rx_destination, packet_information, start_of_payload);
+  return unpack_packet_fnc(rail_handle, rx_destination, packet_information, start_of_payload);
 }
 
 void update_assistant_pointers(uint8_t new_phy_index)
@@ -113,7 +113,7 @@ void update_assistant_pointers(uint8_t new_phy_index)
     stack_info[0] = 0;
     stack_info[1] = 0;
   }
-  current_protocol = (RAIL_Protocol_t) stack_info[0];
+  current_protocol = (RAIL_SDK_Protocol_t) stack_info[0];
 
   switch (stack_info[0]) {
     case CUSTOM_AND_SUN_OQPSK:
@@ -266,11 +266,16 @@ uint8_t set_sidewalk_whitening(uint8_t new_whitening)
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_wisun_fsk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet_wisun_fsk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
   uint16_t payload_size = 0;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   uint8_t fcsType = 0U;
   uint8_t whitening = 0U;
   *start_of_payload
@@ -294,7 +299,7 @@ uint16_t unpack_packet_wisun_fsk(uint8_t *rx_destination, const RAIL_RxPacketInf
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_wisun_fsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_wisun_fsk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
@@ -306,10 +311,10 @@ void prepare_packet_wisun_fsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
                                                           out_data,
                                                           &packet_size,
                                                           tx_frame_buffer);
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, tx_frame_buffer, packet_size, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, tx_frame_buffer, packet_size, true);
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
   #endif
@@ -327,15 +332,20 @@ void prepare_packet_wisun_fsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_wisun_ofdm(uint8_t *rx_destination,
-                                  const RAIL_RxPacketInfo_t *packet_information,
+uint16_t unpack_packet_wisun_ofdm(sl_rail_handle_t rail_handle, uint8_t *rx_destination,
+                                  const sl_rail_rx_packet_info_t *packet_information,
                                   uint8_t **start_of_payload)
 {
   uint16_t payload_size = 0U;
   uint8_t rate = 0U;
   uint8_t scrambler = 0U;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   *start_of_payload = sl_rail_sdk_802154_packet_unpack_ofdm_data_frame(packet_information,
                                                                        &rate,
                                                                        &scrambler,
@@ -356,7 +366,7 @@ uint16_t unpack_packet_wisun_ofdm(uint8_t *rx_destination,
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_wisun_ofdm(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_wisun_ofdm(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
@@ -368,11 +378,11 @@ void prepare_packet_wisun_ofdm(RAIL_Handle_t rail_handle, uint8_t *out_data, uin
                                                  out_data,
                                                  &packet_size,
                                                  tx_frame_buffer);
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, tx_frame_buffer, packet_size, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, tx_frame_buffer, packet_size, true);
 
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
   #endif
@@ -390,13 +400,18 @@ void prepare_packet_wisun_ofdm(RAIL_Handle_t rail_handle, uint8_t *out_data, uin
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_sun_oqpsk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet_sun_oqpsk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
   uint16_t payload_size = 0U;
   bool spreadingMode = false;
   uint8_t rateMode = 0U;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   *start_of_payload = sl_rail_sdk_802154_packet_unpack_oqpsk_data_frame(packet_information,
                                                                         &spreadingMode,
                                                                         &rateMode,
@@ -413,7 +428,7 @@ uint16_t unpack_packet_sun_oqpsk(uint8_t *rx_destination, const RAIL_RxPacketInf
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_sun_oqpsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_sun_oqpsk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
@@ -427,10 +442,10 @@ void prepare_packet_sun_oqpsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
                                                   &packet_size,
                                                   tx_frame_buffer);
 
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, tx_frame_buffer, packet_size, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, tx_frame_buffer, packet_size, true);
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
   #endif
@@ -444,11 +459,16 @@ void prepare_packet_sun_oqpsk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_sidewalk(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet_sidewalk(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
   uint16_t payload_size = 0;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   uint8_t fcsType = 0U;
   uint8_t whitening = 0U;
   *start_of_payload
@@ -468,7 +488,7 @@ uint16_t unpack_packet_sidewalk(uint8_t *rx_destination, const RAIL_RxPacketInfo
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_sidewalk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_sidewalk(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
@@ -480,10 +500,10 @@ void prepare_packet_sidewalk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint1
                                                      out_data,
                                                      &packet_size,
                                                      tx_frame_buffer);
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, tx_frame_buffer, packet_size, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, tx_frame_buffer, packet_size, true);
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
   #endif
@@ -497,11 +517,16 @@ void prepare_packet_sidewalk(RAIL_Handle_t rail_handle, uint8_t *out_data, uint1
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_longrange(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet_longrange(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
   uint16_t payload_size = 0;
 
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   *start_of_payload
     = sl_rail_sdk_802154_packet_unpack_longrange_data_frame(packet_information,
                                                             &payload_size,
@@ -517,7 +542,7 @@ uint16_t unpack_packet_longrange(uint8_t *rx_destination, const RAIL_RxPacketInf
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_longrange(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_longrange(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
@@ -527,10 +552,10 @@ void prepare_packet_longrange(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
                                                       out_data,
                                                       &packet_size,
                                                       tx_frame_buffer);
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, tx_frame_buffer, packet_size, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, tx_frame_buffer, packet_size, true);
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == packet_size,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              packet_size);
   #endif
@@ -544,31 +569,36 @@ void prepare_packet_longrange(RAIL_Handle_t rail_handle, uint8_t *out_data, uint
 /******************************************************************************
  * The API helps to unpack the received packet, point to the payload and returns the length.
  *****************************************************************************/
-uint16_t unpack_packet_base(uint8_t *rx_destination, const RAIL_RxPacketInfo_t *packet_information, uint8_t **start_of_payload)
+uint16_t unpack_packet_base(sl_rail_handle_t rail_handle, uint8_t *rx_destination, const sl_rail_rx_packet_info_t *packet_information, uint8_t **start_of_payload)
 {
-  RAIL_CopyRxPacket(rx_destination, packet_information);
+  sl_rail_status_t result = sl_rail_copy_rx_packet(rail_handle, rx_destination, packet_information);
+  if (result != SL_RAIL_STATUS_NO_ERROR) {
+#if defined(SL_CATALOG_APP_LOG_PRESENT)
+    app_log_warning("sl_rail_copy_rx_packet failed with error: %ld\n", result);
+#endif
+  }
   *start_of_payload = rx_destination;
 
   if (print_packet_info) {
     #if defined(SL_CATALOG_APP_LOG_PRESENT)
-    app_log_info("Packet is ready, %d bytes read\n", packet_information->packetBytes);
+    app_log_info("Packet is ready, %d bytes read\n", packet_information->packet_bytes);
     #endif
   }
 
-  return packet_information->packetBytes;
+  return packet_information->packet_bytes;
 }
 
 /******************************************************************************
  * The API prepares the packet for sending and load it in the RAIL TX FIFO
  *****************************************************************************/
-void prepare_packet_base(RAIL_Handle_t rail_handle, uint8_t *out_data, uint16_t length)
+void prepare_packet_base(sl_rail_handle_t rail_handle, uint8_t *out_data, uint16_t length)
 {
   // Check if write fifo has written all bytes
   uint16_t bytes_written_in_fifo = 0;
-  bytes_written_in_fifo = RAIL_WriteTxFifo(rail_handle, out_data, length, true);
+  bytes_written_in_fifo = sl_rail_write_tx_fifo(rail_handle, out_data, length, true);
   #if defined(SL_CATALOG_APP_ASSERT_PRESENT)
   app_assert(bytes_written_in_fifo == length,
-             "RAIL_WriteTxFifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
+             "sl_rail_write_tx_fifo() failed to write in fifo (%d bytes instead of %d bytes)\n",
              bytes_written_in_fifo,
              length);
   #endif

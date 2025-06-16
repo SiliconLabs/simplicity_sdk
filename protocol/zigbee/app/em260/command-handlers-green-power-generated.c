@@ -116,6 +116,18 @@ bool sli_zigbee_af_process_ezsp_command_green_power(uint16_t commandId)
       break;
     }
 
+    case SL_ZIGBEE_EZSP_GP_PROXY_TABLE_REMOVE_ENTRY: {
+      uint8_t proxyIndex;
+      proxyIndex = fetchInt8u();
+      sli_zigbee_stack_gp_proxy_table_remove_entry(proxyIndex);
+      break;
+    }
+
+    case SL_ZIGBEE_EZSP_GP_CLEAR_PROXY_TABLE: {
+      sli_zigbee_stack_gp_clear_proxy_table();
+      break;
+    }
+
     case SL_ZIGBEE_EZSP_GP_SINK_TABLE_GET_ENTRY: {
       sl_status_t status;
       uint8_t sinkIndex;

@@ -29,6 +29,7 @@
  ******************************************************************************/
 
 #include "sl_iostream.h"
+#include "sli_iostream.h"
 #include "sl_status.h"
 #include "sl_assert.h"
 #include "sl_core.h"
@@ -188,6 +189,31 @@ sl_status_t  sl_iostream_write(sl_iostream_t *stream,
   } else {
     return SL_STATUS_INVALID_CONFIGURATION;
   }
+}
+
+/***************************************************************************//**
+ * Perform the asynchronous write operation
+ ******************************************************************************/
+sl_status_t sli_iostream_async_write(sl_iostream_t *stream,
+                                     sli_iostream_write_async_op_t *write_async_op)
+{
+  if (stream == SL_IOSTREAM_STDOUT) {
+    stream = sl_iostream_get_default();
+  }
+
+  if (stream == NULL || stream->write_async == NULL) {
+    return SL_STATUS_NOT_SUPPORTED;
+  }
+
+  if (write_async_op == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  if (stream == NULL) {
+    return SL_STATUS_INVALID_CONFIGURATION;
+  }
+
+  return stream->write_async(stream->context, write_async_op);
 }
 
 /***************************************************************************//**

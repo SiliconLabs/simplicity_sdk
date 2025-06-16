@@ -19,14 +19,13 @@ component:
   - id: brd4184b
   - id: bluetooth_stack
   - id: gatt_configuration
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: bluetooth_feature_legacy_advertiser
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gatt_server
   - id: bluetooth_feature_sm
   - id: bluetooth_feature_system
   - id: in_place_ota_dfu
-  - id: bootloader_interface
   - id: rail_util_pti
   - id: app_log
   - id: app_assert
@@ -57,15 +56,13 @@ component:
   - id: simple_button
     instance:
       - btn0
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
   - path: advertise.c
   - path: app.c
-  - path: main.c
   - path: driver/hall/sensor_hall.c
   - path: driver/imu/sensor_imu.c
   - path: driver/sound/sensor_sound.c
@@ -74,7 +71,6 @@ include:
   - path: .
     file_list:
       - path: advertise.h
-      - path: app.h
   - path: brd4184b
     file_list:
       - path: board.h

@@ -223,6 +223,24 @@ static void getCounterCommandHandler(uint8_t *apiCommandData)
   sendResponse(apiCommandBuffer, commandLength);
 }
 
+// SetRadioRxFifo
+static void SetRadioRxFifoCommandHandler(uint8_t *apiCommandData)
+{
+  (void)apiCommandData;
+  uint16_t rxFifoSize;
+  fetchApiParams(apiCommandData,
+                 "v",
+                 &rxFifoSize);
+  EmberStatus status = emApiSetRadioRxFifo(rxFifoSize);
+  uint8_t *apiCommandBuffer = getApiCommandPointer();
+  uint16_t commandLength = formatResponseCommand(apiCommandBuffer,
+                                                 MAX_STACK_API_COMMAND_SIZE,
+                                                 EMBER_SET_RADIO_RX_FIFO_IPC_COMMAND_ID,
+                                                 "u",
+                                                 status);
+  sendResponse(apiCommandBuffer, commandLength);
+}
+
 // setRadioChannelExtended
 static void setRadioChannelExtendedCommandHandler(uint8_t *apiCommandData)
 {
@@ -1612,6 +1630,9 @@ void handleIncomingApiCommand(uint16_t commandId, uint8_t *apiCommandData)
 #endif
     case EMBER_GET_COUNTER_IPC_COMMAND_ID:
       getCounterCommandHandler(apiCommandData);
+      break;
+    case EMBER_SET_RADIO_RX_FIFO_IPC_COMMAND_ID:
+      SetRadioRxFifoCommandHandler(apiCommandData);
       break;
     case EMBER_SET_RADIO_CHANNEL_EXTENDED_IPC_COMMAND_ID:
       setRadioChannelExtendedCommandHandler(apiCommandData);

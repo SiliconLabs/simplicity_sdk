@@ -1,6 +1,6 @@
 id: app_em4h_reset
 label: EM4H-Reset
-package: platform
+package: platform_common_apps
 description: >
   The EM4H-Reset component provides unlatch pin retention when returning from EM4.
   In order to have a constantly running oscillator with correct tuning values
@@ -29,3 +29,5 @@ template_contribution:
       include: app_em4h.h
       handler: app_unlatch_pin_retention
     priority: -9980
+  - name: component_catalog
+    value: app_em4h_reset

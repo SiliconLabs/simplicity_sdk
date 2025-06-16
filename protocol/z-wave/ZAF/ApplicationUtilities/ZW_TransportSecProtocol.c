@@ -1,8 +1,8 @@
 /**
-* @file
-* Implements functions for transporting frames over the native Z-Wave Network
-* @copyright 2018 Silicon Laboratories Inc.
-*/
+ * @file
+ * Implements functions for transporting frames over the native Z-Wave Network
+ * @copyright 2018 Silicon Laboratories Inc.
+ */
 
 /****************************************************************************/
 /*                              INCLUDE FILES                               */
@@ -14,9 +14,8 @@
 #include <ZAF_Common_interface.h>
 #include <zaf_cc_list_generator.h>
 #include <ZW_TransportEndpoint.h>
+#include "zpal_log.h"
 
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
 /****************************************************************************/
@@ -49,7 +48,7 @@ static bool use_non_included_unsecure_list(void)
 uint8_t
 Transport_OnApplicationInitSW(void)
 {
-  DPRINT("SecAppInit\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "SecAppInit\r\n");
 
   return true;
 }
@@ -60,20 +59,13 @@ Transport_OnApplicationInitSW(void)
 enum SECURITY_KEY
 GetHighestSecureLevel(uint8_t protocolSecBits)
 {
-  if(SECURITY_KEY_S2_ACCESS_BIT & protocolSecBits)
-  {
+  if (SECURITY_KEY_S2_ACCESS_BIT & protocolSecBits) {
     return SECURITY_KEY_S2_ACCESS;
-  }
-  else if(SECURITY_KEY_S2_AUTHENTICATED_BIT & protocolSecBits)
-  {
+  } else if (SECURITY_KEY_S2_AUTHENTICATED_BIT & protocolSecBits) {
     return SECURITY_KEY_S2_AUTHENTICATED;
-  }
-  else if(SECURITY_KEY_S2_UNAUTHENTICATED_BIT & protocolSecBits)
-  {
+  } else if (SECURITY_KEY_S2_UNAUTHENTICATED_BIT & protocolSecBits) {
     return SECURITY_KEY_S2_UNAUTHENTICATED;
-  }
-  else if(SECURITY_KEY_S0_BIT & protocolSecBits)
-  {
+  } else if (SECURITY_KEY_S0_BIT & protocolSecBits) {
     return SECURITY_KEY_S0;
   }
 
@@ -82,34 +74,29 @@ GetHighestSecureLevel(uint8_t protocolSecBits)
 
 zaf_cc_list_t*
 GetCommandClassList(
-    bool included,
-    security_key_t eKey,
-    uint8_t endpoint)
+  bool included,
+  security_key_t eKey,
+  uint8_t endpoint)
 {
   zaf_cc_list_t *unsecure_included_cc;
   zaf_cc_list_t *secure_included_unsecure_cc;
   zaf_cc_list_t *secure_included_secure_cc;
 
-  DPRINTF("\r\nCommandsSuppported(%d, %d, %d)\r\n", included, eKey, endpoint);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\nCommandsSuppported(%d, %d, %d)\r\n", included, eKey, endpoint);
 
   // Only read for root device
   // Endpoints are handled by GetEndpointcmdClassList
-  if(endpoint == 0) {
-    zafi_cc_list_generator_get_lists(endpoint, &unsecure_included_cc, &secure_included_unsecure_cc, &secure_included_secure_cc);  
+  if (endpoint == 0) {
+    zafi_cc_list_generator_get_lists(endpoint, &unsecure_included_cc, &secure_included_unsecure_cc, &secure_included_secure_cc);
   }
 
-  if (true == included)
-  {
-
-    if (SECURITY_KEY_NONE == eKey)
-    {
+  if (true == included) {
+    if (SECURITY_KEY_NONE == eKey) {
       uint8_t keys = ZAF_GetSecurityKeys();
 
       /*Check non secure command class list*/
-      if(0 == endpoint)
-      {
-        if(SECURITY_KEY_NONE_MASK == keys)
-        {
+      if (0 == endpoint) {
+        if (SECURITY_KEY_NONE_MASK == keys) {
           /*Non-secure included, non-secure cmd class list*/
           return unsecure_included_cc;
         } else {
@@ -118,55 +105,40 @@ GetCommandClassList(
         }
       }
 #ifndef SERIAL_API_APP
-      else
-      {
+      else {
         return GetEndpointcmdClassList(false, endpoint);
       }
 #endif
-    }
-    else
-    {
+    } else {
       /*Check secure command class list*/
 
       /*If eKey not is supported, return NULL pointer!!*/
-      if(eKey == GetHighestSecureLevel(ZAF_GetSecurityKeys()) )
-      {
-        if(0 == endpoint)
-        {
+      if (eKey == GetHighestSecureLevel(ZAF_GetSecurityKeys()) ) {
+        if (0 == endpoint) {
           return secure_included_secure_cc;
         }
   #ifndef SERIAL_API_APP
-        else
-        {
+        else {
           return GetEndpointcmdClassList(true, endpoint);
         }
   #endif
-      }
-      else
-      {
+      } else {
         /*not included. Deliver empty list*/
         return &empty_list;
       }
     }
-  }
-  else
-  {
+  } else {
     /*Not included!*/
-    if(0 == endpoint)
-    {
-      if (SECURITY_KEY_NONE == eKey)
-      {
+    if (0 == endpoint) {
+      if (SECURITY_KEY_NONE == eKey) {
         return unsecure_included_cc;
-      }
-      else
-      {
+      } else {
         /*not included. Deliver empty list*/
         return &empty_list;
       }
     }
 #ifndef SERIAL_API_APP
-    else
-    {
+    else {
       return GetEndpointcmdClassList(false, endpoint);
     }
 #endif
@@ -188,7 +160,6 @@ void ZAF_Transport_OnLearnCompleted(void)
   Transport_OnLearnCompleted(0);
 }
 
-
 void
 ApplicationCommandHandler(__attribute__((unused)) void *pSubscriberContext, SZwaveReceivePackage* pRxPackage)
 {
@@ -196,13 +167,13 @@ ApplicationCommandHandler(__attribute__((unused)) void *pSubscriberContext, SZwa
   uint8_t cmdLength = pRxPackage->uReceiveParams.Rx.iLength;
   RECEIVE_OPTIONS_TYPE *rxOpt = &pRxPackage->uReceiveParams.Rx.RxOptions;
 
-  DPRINTF("\r\nAppCmdH  %d %d %d", rxOpt->securityKey, pCmd->ZW_Common.cmdClass, pCmd->ZW_Common.cmd);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\nAppCmdH  %d %d %d", rxOpt->securityKey, pCmd->ZW_Common.cmdClass, pCmd->ZW_Common.cmd);
 
 #ifndef ACCEPT_ALL_CMD_CLASSES
   /* Check if cmd Class are supported in current mode (unsecure or secure) */
   if (true == TransportCmdClassSupported(pCmd->ZW_Common.cmdClass,
-                                pCmd->ZW_Common.cmd,
-                                rxOpt->securityKey))
+                                         pCmd->ZW_Common.cmd,
+                                         rxOpt->securityKey))
 #endif /* ACCEPT_ALL_CMD_CLASSES */
   {
     Transport_ApplicationCommandHandler(pCmd, cmdLength, rxOpt);
@@ -210,9 +181,8 @@ ApplicationCommandHandler(__attribute__((unused)) void *pSubscriberContext, SZwa
     zaf_stay_awake();
   }
 #ifndef ACCEPT_ALL_CMD_CLASSES
-  else
-  {
-    DPRINT("\r\nCmdCl not supported :(\r\n");
+  else {
+    ZPAL_LOG_WARNING(ZPAL_LOG_ZAF_TRANSPORT, "\r\nCmdCl not supported :(\r\n");
   }
 #endif /* ACCEPT_ALL_CMD_CLASSES */
 }
@@ -226,23 +196,23 @@ TransportCmdClassSupported(uint8_t commandClass,
   zaf_cc_list_t *secure_included_unsecure_cc;
   zaf_cc_list_t *secure_included_secure_cc;
 
-  zafi_cc_list_generator_get_lists(0, &unsecure_included_cc, &secure_included_unsecure_cc, &secure_included_secure_cc);  
+  zafi_cc_list_generator_get_lists(0, &unsecure_included_cc, &secure_included_unsecure_cc, &secure_included_secure_cc);
 
-  if(use_non_included_unsecure_list()) {
+  if (use_non_included_unsecure_list()) {
     return CmdClassSupported(eKey,
-                            commandClass,
-                            command,
-                            secure_included_secure_cc->cc_list,
-                            secure_included_secure_cc->list_size,
-                            unsecure_included_cc->cc_list,
-                            unsecure_included_cc->list_size);
+                             commandClass,
+                             command,
+                             secure_included_secure_cc->cc_list,
+                             secure_included_secure_cc->list_size,
+                             unsecure_included_cc->cc_list,
+                             unsecure_included_cc->list_size);
   } else {
     return CmdClassSupported(eKey,
-                            commandClass,
-                            command,
-                            secure_included_secure_cc->cc_list,
-                            secure_included_secure_cc->list_size,
-                            secure_included_unsecure_cc->cc_list,
-                            secure_included_unsecure_cc->list_size);
+                             commandClass,
+                             command,
+                             secure_included_secure_cc->cc_list,
+                             secure_included_secure_cc->list_size,
+                             secure_included_unsecure_cc->cc_list,
+                             secure_included_unsecure_cc->list_size);
   }
 }

@@ -33,12 +33,9 @@ void ZAF_JobHelperInit(void)
 
 bool ZAF_JobHelperJobEnqueue(uint8_t event)
 {
-  if(pdTRUE == xQueueSendToBack(jobQueueHandle, &event, 0))
-  {
+  if (pdTRUE == xQueueSendToBack(jobQueueHandle, &event, 0)) {
     return true;
-  }
-  else
-  {
+  } else {
     return false;
   }
 }
@@ -46,8 +43,7 @@ bool ZAF_JobHelperJobEnqueue(uint8_t event)
 bool ZAF_JobHelperJobDequeue(uint8_t * pEvent)
 {
   bool x = false;
-  if(pdTRUE == xQueueReceive(jobQueueHandle, pEvent, 0))
-  {
+  if (pdTRUE == xQueueReceive(jobQueueHandle, pEvent, 0)) {
     x = true;
   }
   return x;

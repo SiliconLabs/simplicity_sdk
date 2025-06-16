@@ -33,9 +33,16 @@ provides:
   - name: zw_appshw
 
 template_contribution:
+  - name: event
+    unless: [zw_appshw_serialapi]
+    value:
+      id: zw_app_hw_init
+      function:
+        name: app_hw_init
+        return: void
   - name: event_handler
     condition: [app_button_press]
     value:
-      event: internal_app_init
+      event: zw_app_hw_init
       include: app_button_press.h
       handler: app_button_press_enable

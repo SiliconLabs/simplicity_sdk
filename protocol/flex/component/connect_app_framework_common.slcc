@@ -7,7 +7,6 @@ description: "Declares all the required application framework globals, initializ
 provides:
   - name: "connect_app_framework_common"
 requires:
-  - name: "sl_system"
   - name: "device_init"
   - name: "connect_stack_common"
   - name: "sleeptimer"

@@ -1,6 +1,6 @@
 id: "btmesh_provisioning_decorator"
 label: "Provisioning Decorator"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   The Provisioning Decorator is an application-level software module
   that ensures callbacks at main provisioning process steps. There are callbacks for
@@ -50,3 +50,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-provisioning-decorator

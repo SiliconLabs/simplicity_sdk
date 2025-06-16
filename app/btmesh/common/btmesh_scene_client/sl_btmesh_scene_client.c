@@ -45,11 +45,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Scene Client
- * @{
- ******************************************************************************/
-
 /// High Priority
 #define HIGH_PRIORITY                       0
 /// Callback has no parameters
@@ -81,7 +76,7 @@ static app_timer_t app_scene_retransmission_timer;
 static void scene_retransmission_timer_cb(app_timer_t *handle,
                                           void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function publishes one scene recall request to recall selected scene.
  * Global variable scene_number holds the latest desired scene state.
  *
@@ -156,11 +151,11 @@ void sl_btmesh_select_scene(uint8_t scene_to_recall)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after 50 ms delay
   if (scene_request_count > 0) {
-    sl_status_t sc = app_timer_start(&app_scene_retransmission_timer,
-                                     SL_BTMESH_SCENE_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     scene_retransmission_timer_cb,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&app_scene_retransmission_timer,
+                         SL_BTMESH_SCENE_CLIENT_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         scene_retransmission_timer_cb,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start periodic timer");
   }
 
@@ -181,7 +176,13 @@ void sl_btmesh_handle_scene_client_on_event(sl_btmesh_msg_t *evt)
     case sl_btmesh_evt_prov_initialized_id:
     case sl_btmesh_evt_node_initialized_id:
       sc = sl_btmesh_scene_client_init(BTMESH_SCENE_CLIENT_MAIN);
-      app_assert_status_f(sc, "Failed to init scene client model");
+      // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+      // Allow continuing, the error shall disappear after DCD update.
+      if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+        app_assert_status_f(sc, "Failed to init scene client model");
+      }
+      break;
+    default:
       break;
   }
 }
@@ -211,5 +212,3 @@ static void  scene_retransmission_timer_cb(app_timer_t *handle,
 
   (void) app_btmesh_rta_release();
 }
-
-/** @} (end addtogroup Scene Client) */

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_sync_past"
 label: "Transfer periodic synchronization information for an established sync"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Transfer the synchronization information of a synchronized periodic
   advertising train to a remote device using Periodic Advertising
@@ -20,10 +20,6 @@ provides:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_sync_past
-  - name: bluetooth_controller_init
-    value:
-      function: sl_btctrl_init_past_remote_sync_transfer()
-    priority: 11
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-sync-past

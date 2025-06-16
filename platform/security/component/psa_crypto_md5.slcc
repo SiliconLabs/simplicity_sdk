@@ -1,5 +1,5 @@
 id: psa_crypto_md5
-package: platform
+package: security_mbedtls
 label: MD5
 description: >-
   This component provides support for the MD5 hash function in PSA Crypto.

@@ -331,7 +331,8 @@ class ModelProfileTypeXml(ModelProfile):
                                             ModelOutputType[output_root.output_type],
                                             readable_name=output_root.readable_name,
                                             value_limit_min=cast_value_from_xml(var, [output_root.value_limit_min]),
-                                            value_limit_max=cast_value_from_xml(var, [output_root.value_limit_max])))
+                                            value_limit_max=cast_value_from_xml(var, [output_root.value_limit_max]),
+                                            groups=output_root.groups))
 
 
 class ModelProfileInstanceXml(ModelProfile):
@@ -393,4 +394,6 @@ class ModelProfileInstanceXml(ModelProfile):
                                             value_limit_min=cast_value_from_xml(var, [output_root.value_limit_min]),
                                             value_limit_max=cast_value_from_xml(var, [output_root.value_limit_max]),
                                             override=override,
-                                            fractional_digits=output_root.fractional_digits))
+                                            fractional_digits=output_root.fractional_digits,
+                                            groups=output_root.groups)
+                                            )

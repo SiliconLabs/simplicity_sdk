@@ -1,0 +1,52 @@
+id: zigbee_memory_usage_api
+label: Memory Usage - API
+package: zigbee
+category: Zigbee|Utility
+quality: evaluation
+description: Provides APIs for recording and acquiring flash and ram usage metrics.
+provides:
+  - name: zigbee_memory_usage_api
+requires:
+  - name: memory_manager
+include:
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: sl_zigbee_memory_usage.h
+  - path: protocol/zigbee/stack/internal/src/ipc
+    file_list:
+      - path: sl_zigbee_memory_usage_ipc_command_messages.h
+      - path: zigbee_ipc_callback_events.h
+      - path: zigbee_ipc_command_messages.h
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/inc
+    file_list:
+      - path: sl_zigbee_memory_usage_internal_def.h
+source:
+  - path: protocol/zigbee/stack/debug/sl_zigbee_memory_usage.c
+  - path: protocol/zigbee/stack/internal/src/stubs/sl_zigbee_memory_usage_internal_weak_stubs.c
+  - path: protocol/zigbee/stack/internal/src/baremetal/sl_zigbee_memory_usage_baremetal_wrapper.c
+    unless:
+      - zigbee_use_ipc
+      - native_host
+  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_memory_usage_ipc_command_messages.c
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/src/ipc/zigbee_ipc_callback_event_stub.c
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/src/ipc/zigbee_ipc_callback_events.c
+    condition:
+      - zigbee_use_ipc
+template_contribution:
+  - name: component_catalog
+    value: zigbee_memory_usage_api
+  - name: event_handler
+    value:
+      event: internal_app_init
+      include: sl_zigbee_memory_usage.h
+      handler: sl_zigbee_memory_usage_init
+    priority: 100
+metadata:
+  sbom:
+    license: MSLA

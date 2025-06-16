@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<multi_phy_configuration part_family="sixg301" status_code="0" rail_adapter_version="rail_api_3.x" part_revision="B0" target="IC" xsd_version="0.0.20">
+  <base_channel_configurations>
+    <base_channel_configuration name="ble_phy_1Mbps_viterbi" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_AOX_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_1Mbps_viterbi">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi1M</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_2Mbps_viterbi" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LE_2M_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_0_34">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>34</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_35">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>35</channel_number_start>
+          <channel_number_end>35</channel_number_end>
+          <max_power>182</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_36">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>36</channel_number_start>
+          <channel_number_end>36</channel_number_end>
+          <max_power>157</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_37">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>37</channel_number_start>
+          <channel_number_end>37</channel_number_end>
+          <max_power>125</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_38">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>38</channel_number_start>
+          <channel_number_end>38</channel_number_end>
+          <max_power>83</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+        <channel_config_entry name="ble_phy_2Mbps_viterbi_39">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>39</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_viterbi2M</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_125kbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LR_125k_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_125kbps">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_125kb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_500kbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_LR_500k_prod"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_lr_dsa_500kb">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>140</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_500kb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+    <base_channel_configuration base_channel_reference="ble_phy_1Mbps_viterbi" name="ble_phy_1Mbps" force_empty_phy_config_delta_subtract="true">
+      <phy name="PHY_Bluetooth_1M_Concurrent"></phy>
+      <channel_config_entries>
+        <channel_config_entry name="ble_phy_1Mbps">
+          <base_frequency>2402000000</base_frequency>
+          <channel_spacing>2000000</channel_spacing>
+          <physical_channel_offset>0</physical_channel_offset>
+          <channel_number_start>0</channel_number_start>
+          <channel_number_end>39</channel_number_end>
+          <max_power>RAIL_TX_POWER_MAX</max_power>
+          <profile_input_overrides>
+            <override>
+              <key>MODEM_VTBLETIMING_VTBLETIMINGSEL</key>
+              <value>0</value>
+            </override>
+            <override>
+              <key>xtal_frequency_hz</key>
+              <value>39000000</value>
+            </override>
+          </profile_input_overrides>
+        </channel_config_entry>
+      </channel_config_entries>
+      <optional_arguments>
+        <argument>
+          <key>channel_timing_name</key>
+          <value>ble_LR_DSA_1Mb</value>
+        </argument>
+      </optional_arguments>
+    </base_channel_configuration>
+  </base_channel_configurations>
+</multi_phy_configuration>

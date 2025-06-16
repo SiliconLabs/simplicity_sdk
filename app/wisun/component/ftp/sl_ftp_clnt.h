@@ -336,6 +336,9 @@ extern "C" {
 #define SL_FTP_SERVICE_LOOP()       while (1)
 #endif
 
+// Due to SW migration
+#define sl_wiusn_ftp_clnt_connect sl_wisun_ftp_clnt_connect
+
 /// FTP Client channel
 typedef struct sl_ftp_clnt_ch {
   /// Socket ID
@@ -395,29 +398,29 @@ void sl_ftp_clnt_service_init(void);
  * @details Initialize buffer and connection parameters
  * @param[in,out] clnt FTP Client to initialize
  * @param[in] host Remote host address string
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_init(sl_ftp_clnt_t * const clnt,
                              const char *host);
 
 /***************************************************************************//**
- * @brief Initializ FTP client with default settings
+ * @brief Initialize FTP client with default settings
  * @details Settings are included in configuration
  * @param[in,out] clnt FTP Client to initialize
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_ftp_clnt_default_init(sl_ftp_clnt_t * const clnt)
 {
-  return sl_ftp_clnt_init(clnt, SL_FTP_CLNT_AUTH_DEFAUL_HOST);
+  return sl_ftp_clnt_init(clnt, SL_FTP_CLNT_AUTH_DEFAULT_HOST);
 }
 
 /***************************************************************************//**
  * @brief FTP client connects to server
  * @details Using portable socket connect implementation
  * @param[in,out] clnt FTP Client to connect
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
-sl_status_t sl_wiusn_ftp_clnt_connect(sl_ftp_clnt_t * const clnt);
+sl_status_t sl_wisun_ftp_clnt_connect(sl_ftp_clnt_t * const clnt);
 
 /***************************************************************************//**
  * @brief FTP Client connect with authentication
@@ -425,7 +428,7 @@ sl_status_t sl_wiusn_ftp_clnt_connect(sl_ftp_clnt_t * const clnt);
  * @param[in,out] clnt FTP Client
  * @param[in] user User name
  * @param[in] password Password
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_connect_auth(sl_ftp_clnt_t * const clnt,
                                      const char *user,
@@ -435,7 +438,7 @@ sl_status_t sl_ftp_clnt_connect_auth(sl_ftp_clnt_t * const clnt,
  * @brief FTP Client connect with default authentication
  * @details Default authentication data is defined in config file
  * @param[in,out] clnt
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 __STATIC_INLINE sl_status_t sl_ftp_clnt_connect_default_auth(sl_ftp_clnt_t * const clnt)
 {
@@ -448,7 +451,7 @@ __STATIC_INLINE sl_status_t sl_ftp_clnt_connect_default_auth(sl_ftp_clnt_t * con
  * @param[in,out] clnt FTP client
  * @param[in] cmd Command string
  * @param[in] content Content of command
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_send_cmd(sl_ftp_clnt_t * const clnt,
                                  const char *cmd,
@@ -458,7 +461,7 @@ sl_status_t sl_ftp_clnt_send_cmd(sl_ftp_clnt_t * const clnt,
  * @brief FTP Client receive on control channel
  * @details Receiving control command responses
  * @param[in,out] clnt FTP Client
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t  sl_ftp_clnt_recv_ctrl(sl_ftp_clnt_t * const clnt);
 
@@ -467,16 +470,16 @@ sl_status_t  sl_ftp_clnt_recv_ctrl(sl_ftp_clnt_t * const clnt);
  * @details Receiving on control channel until detect the expected return code, or timeout
  * @param[in,out] clnt FTP Client
  * @param[in] ret_code Expected return code
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_recv_ctrl_until_ret_code(sl_ftp_clnt_t * const clnt,
                                                  sl_ftp_srv_ret_code_t ret_code);
 
 /***************************************************************************//**
  * @brief FTP Client close
- * @details Close connection on control and data channal too
+ * @details Close connection on control and data channel too
  * @param[in,out] clnt FTP Client
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_close(sl_ftp_clnt_t * const clnt);
 
@@ -485,7 +488,7 @@ sl_status_t sl_ftp_clnt_close(sl_ftp_clnt_t * const clnt);
  * @details Data channel received content is handled in client data channel data handler callback
  * @param[in,out] clnt FTP Client
  * @param[in] file File name string
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_get(sl_ftp_clnt_t * const clnt,
                             const char *file);
@@ -494,17 +497,17 @@ sl_status_t sl_ftp_clnt_get(sl_ftp_clnt_t * const clnt,
  * @details Send data channel buffer to server file system.
  * @param[in,out] clnt FTP Client
  * @param[in] file File name to store data
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_put(sl_ftp_clnt_t * const clnt,
                             const char *file);
 
 /***************************************************************************//**
- * @brief Delte file on Server file system
+ * @brief Delete file on Server file system
  * @details Send request to delete file on Server file system
  * @param[in,out] clnt FTP Client
  * @param[in] file File name to delete
- * @return sl_status_t SL_STATUS_OK on succes, otherwise SL_STATUS_FAIL
+ * @return sl_status_t SL_STATUS_OK on success, otherwise SL_STATUS_FAIL
  ******************************************************************************/
 sl_status_t sl_ftp_clnt_delete_file(sl_ftp_clnt_t * const clnt,
                                     const char *file);

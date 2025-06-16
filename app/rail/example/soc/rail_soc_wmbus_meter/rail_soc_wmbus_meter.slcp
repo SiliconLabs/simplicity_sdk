@@ -1,6 +1,6 @@
 project_name: rail_soc_wmbus_meter
 label: "RAIL - SoC Wireless M-Bus Meter "
-package: "Rail"
+package: "rail_sdk_sample_applications"
 description: >
   Implements a Wireless M-Bus collector application. Uses the multi-PHY
   configurator and is capable of limited multi-PHY features, like asymmetric
@@ -15,17 +15,19 @@ quality: production
 
 #---------------- UC/UP components -------------------
 component:
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: board_control
     condition: [hardware_board]
   - id: sl_rail_sdk_sleep
   - id: power_manager
-  - id: rail_util_init
+  - id: rail_util_pa
+  - id: sl_rail_util_pti
+  - id: sl_rail_util_rssi
+  - id: sl_rail_util_init
     instance:
       - inst0
-  - id: rail_util_recommended
   - id: radio_config_wmbus_meter
   - id: sl_rail_sdk_simple_assistance
 #---------------------- CLI --------------------------
@@ -51,6 +53,8 @@ component:
 #-----------------Series 3 OS-------------------------
   - id: micriumos_kernel
     condition: [device_series_3]
+#---------------Code Classification------------------
+  - id: code_classification
 #----------------- Require list ----------------------
 requires:
   - name: a_radio_config
@@ -73,7 +77,6 @@ include:
     - path: app_process.h
 
 source:
-  - path: ../common/main/main.c
   - path: app_init.c
   - path: app_process.c
 
@@ -152,11 +155,20 @@ configuration:
     value: "1"
   - name: SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_INST0_ENABLE
     value: "1"
+#------------- RAIL init, FIFOs ---------------
+  - name: SL_RAIL_UTIL_INIT_RX_FIFO_INST0_BYTES
+    value: "256"
+  - name: SL_RAIL_UTIL_INIT_TX_FIFO_INST0_BYTES
+    value: "256"
 #------------- RAIL init, Auto Transitions -----------
   - name: SL_RAIL_UTIL_INIT_TRANSITIONS_INST0_ENABLE
     value: "1"
 #------------- RAIL init, Data Format ----------------
   - name: SL_RAIL_UTIL_INIT_DATA_FORMATS_INST0_ENABLE
+    value: "1"
+  - name: SL_RAIL_UTIL_INIT_TX_DATA_FORMAT_INST0_ENABLE
+    value: "1"
+  - name: SL_RAIL_UTIL_INIT_RX_DATA_FORMAT_INST0_ENABLE
     value: "1"
 #------------- RAIL init, Radio Events ---------------
   - name: SL_RAIL_UTIL_INIT_EVENTS_INST0_ENABLE
@@ -268,15 +280,15 @@ configuration:
   - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_2
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_3
   - name: SL_CLOCK_MANAGER_EUSART0CLK_SOURCE

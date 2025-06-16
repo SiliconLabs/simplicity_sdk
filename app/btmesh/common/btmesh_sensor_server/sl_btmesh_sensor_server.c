@@ -57,6 +57,11 @@
 #include "sl_btmesh_sensor_people_count.h"
 #endif // SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
 
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+#include "sl_btmesh_sensor_power_consumption.h"
+#include "sl_btmesh_sensor_power_consumption_config.h"
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+
 #ifdef SL_CATALOG_SENSOR_LIGHT_PRESENT
 #include "sl_sensor_light_config.h"
 #include "sl_sensor_light.h"
@@ -78,11 +83,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Sensor
- * @{
- ******************************************************************************/
-
 #define SENSOR_SERVER_SEND_FAILED_TEXT "Sensor server send %s failed" NL
 #define SENSOR_SETUP_SERVER_SEND_FAILED_TEXT "Sensor setup server send %s failed" NL
 
@@ -103,7 +103,7 @@
 /// Property ID indicating reading every sensor
 #define PROPERTY_ID_ALL         0
 /// Buffer length for get cadence parameters
-#define SENSOR_CADENCE_BUF_LEN  10
+#define SENSOR_CADENCE_BUF_LEN  17
 /// Acknowledgement request mask
 #define SET_CADENCE_ACK_FLAG    2
 /// Callback has no parameters
@@ -114,6 +114,7 @@
 #define EXTRACTOR_CONSTANT      64
 
 #define MIN(a, b)               (((a) < (b)) ? (a) : (b))
+#define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
 /// If RHT is present in the component catalog, either sensor_rht
 /// or sensor_rht_mock is added to the project. If the sl_board
@@ -135,7 +136,10 @@ bool            rht_initialized;
 illuminance_t get_light(void);
 #endif //SL_CATALOG_SENSOR_LIGHT_PRESENT || SL_CATALOG_SENSOR_LUX_PRESENT
 
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE   \
+  || SENSOR_PEOPLE_COUNT_CADENCE \
+  || SENSOR_POWER_CONSUMPTION_CADENCE
+
 static uint32_t prev_publish_timeout;
 static sl_btmesh_evt_sensor_server_publish_t publish_period;
 
@@ -157,6 +161,7 @@ void sl_btmesh_sensor_server_node_init(void)
    * 1. People count property (property ID: 0x004C)
    * 2. Present ambient light property (property ID: 0x004E)
    * 3. Present ambient temperature property (property ID: 0x004F)
+   * 4. Energy monitor property (property ID: 0x0072)
    * NOTE: the properties must be ordered in ascending order by property ID
    */
   static const sensor_descriptor_t descriptors[] = {
@@ -202,17 +207,34 @@ void sl_btmesh_sensor_server_node_init(void)
       .update_interval = SENSOR_THERMOMETER_UPDATE_INTERVAL
     },
 #endif // SL_CATALOG_SENSOR_RHT_PRESENT
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+    {
+      .property_id = PRECISE_TOTAL_DEVICE_ENERGY_USE,
+      .positive_tolerance = SL_BTMESH_SENSOR_POWER_CONSUMPTION_POSITIVE_TOLERANCE_CFG_VAL,
+      .negative_tolerance = SL_BTMESH_SENSOR_POWER_CONSUMPTION_NEGATIVE_TOLERANCE_CFG_VAL,
+      .sampling_function = SL_BTMESH_SENSOR_POWER_CONSUMPTION_SAMPLING_FUNCTION_CFG_VAL,
+      .measurement_period = SL_BTMESH_SENSOR_POWER_CONSUMPTION_MEASUREMENT_PERIOD_CFG_VAL,
+      .update_interval = SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL
+    },
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
   };
 
-  uint16_t status = mesh_lib_sensor_server_init(BTMESH_SENSOR_SERVER_MAIN,
-                                                sizeof(descriptors)
-                                                / sizeof(sensor_descriptor_t),
-                                                descriptors);
-  app_assert_status_f(status, "Sensor Init Error");
+  sl_status_t sc = mesh_lib_sensor_server_init(BTMESH_SENSOR_SERVER_MAIN,
+                                               sizeof(descriptors)
+                                               / sizeof(sensor_descriptor_t),
+                                               descriptors);
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "Sensor Init Error");
+  }
 
 #ifdef SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
   sl_btmesh_set_people_count(0);
 #endif // SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+  sl_btmesh_set_power_consumption(SL_BTMESH_SENSOR_POWER_CONSUMPTION_VALUE_UNKNOWN);
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
 #if defined(SL_BOARD_ENABLE_SENSOR_LIGHT) && SL_BOARD_ENABLE_SENSOR_LIGHT
 #ifdef SL_CATALOG_SENSOR_LIGHT_PRESENT
   {
@@ -246,7 +268,17 @@ void sl_btmesh_sensor_server_node_init(void)
   }
 #endif // SL_CATALOG_SENSOR_RHT_PRESENT
 
-#if SENSOR_PEOPLE_COUNT_CADENCE && SENSOR_THERMOMETER_CADENCE
+#if SENSOR_PEOPLE_COUNT_CADENCE && SENSOR_THERMOMETER_CADENCE && SENSOR_POWER_CONSUMPTION_CADENCE
+  uint32_t update_interval;
+  sli_btmesh_sensor_power_consumption_cadence_init(SL_BTMESH_SENSOR_POWER_CONSUMPTION_VALUE_UNKNOWN);
+  sli_btmesh_sensor_people_count_cadence_init(0);
+  if (rht_initialized == true) {
+    sli_btmesh_sensor_thermometer_cadence_init(get_temperature());
+    update_interval = MIN3(SENSOR_THERMOMETER_UPDATE_INTERVAL, SL_BTMESH_SENSOR_PEOPLE_COUNT_UPDATE_INTERVAL_CFG_VAL, SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL);
+  } else {
+    update_interval = MIN(SL_BTMESH_SENSOR_PEOPLE_COUNT_UPDATE_INTERVAL_CFG_VAL, SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL);
+  }
+#elif SENSOR_PEOPLE_COUNT_CADENCE && SENSOR_THERMOMETER_CADENCE
   uint32_t update_interval;
   sli_btmesh_sensor_people_count_cadence_init(0);
   if (rht_initialized == true) {
@@ -255,6 +287,21 @@ void sl_btmesh_sensor_server_node_init(void)
   } else {
     update_interval = SL_BTMESH_SENSOR_PEOPLE_COUNT_UPDATE_INTERVAL_CFG_VAL;
   }
+#elif SENSOR_THERMOMETER_CADENCE && SENSOR_POWER_CONSUMPTION_CADENCE
+  uint32_t update_interval;
+  sli_btmesh_sensor_power_consumption_cadence_init(SL_BTMESH_SENSOR_POWER_CONSUMPTION_VALUE_UNKNOWN);
+  if (rht_initialized == true) {
+    sli_btmesh_sensor_thermometer_cadence_init(get_temperature());
+    update_interval = MIN(SENSOR_THERMOMETER_UPDATE_INTERVAL, SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL);
+  } else {
+    update_interval = SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL;
+  }
+#elif SENSOR_PEOPLE_COUNT_CADENCE && SENSOR_POWER_CONSUMPTION_CADENCE
+  uint32_t update_interval;
+  sli_btmesh_sensor_people_count_cadence_init(0);
+  sli_btmesh_sensor_power_consumption_cadence_init(SL_BTMESH_SENSOR_POWER_CONSUMPTION_VALUE_UNKNOWN);
+  update_interval = MIN(SL_BTMESH_SENSOR_PEOPLE_COUNT_UPDATE_INTERVAL_CFG_VAL, SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL);
+
 #elif SENSOR_PEOPLE_COUNT_CADENCE
   uint32_t update_interval;
   sli_btmesh_sensor_people_count_cadence_init(0);
@@ -267,9 +314,13 @@ void sl_btmesh_sensor_server_node_init(void)
   } else {
     update_interval = 0;
   }
+#elif SENSOR_POWER_CONSUMPTION_CADENCE
+  uint32_t update_interval;
+  sli_btmesh_sensor_power_consumption_cadence_init(SL_BTMESH_SENSOR_POWER_CONSUMPTION_VALUE_UNKNOWN);
+  update_interval = SL_BTMESH_SENSOR_POWER_CONSUMPTION_UPDATE_INTERVAL_CFG_VAL;
 #endif
 
-#if SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_THERMOMETER_CADENCE
+#if SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_THERMOMETER_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
   if (update_interval != 0) {
     sl_status_t sc = app_timer_start(&sensor_server_data_timer,
                                      ((uint32_t)(pow((double)1.1, ((double)update_interval - 64)) * 1000)),
@@ -281,7 +332,7 @@ void sl_btmesh_sensor_server_node_init(void)
 #endif
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor server get request event.
  * It sending sensor status message with data for all of supported Properties ID,
  * if there is no Property ID field in request. If request contains Property ID
@@ -309,6 +360,16 @@ static void handle_sensor_server_get_request(
                                    (uint8_t*)&people_count);
   }
 #endif // SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+  if ((evt->property_id == PRECISE_TOTAL_DEVICE_ENERGY_USE)
+      || (evt->property_id == PROPERTY_ID_ALL)) {
+    energy32_t power_consumption = sl_btmesh_get_power_consumption();
+    sl_btmesh_sensor_server_on_energy_monitor_measurement(power_consumption);
+    len += mesh_sensor_data_to_buf(PRECISE_TOTAL_DEVICE_ENERGY_USE,
+                                   &sensor_data[len],
+                                   (uint8_t*)&power_consumption);
+  }
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
 #if defined(SL_CATALOG_SENSOR_LIGHT_PRESENT)           \
   || defined(SL_CATALOG_SENSOR_LIGHT_LUX_MOCK_PRESENT) \
   || defined(SL_CATALOG_SENSOR_LUX_PRESENT)
@@ -354,7 +415,7 @@ static void handle_sensor_server_get_request(
                      "status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor server get column request event.
  * Used Property IDs does not have sensor series column state,
  * so reply has the same data as request according to specification.
@@ -378,7 +439,7 @@ static void handle_sensor_server_get_column_request(
                      "column status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor server get series request event.
  * Used Property IDs does not have sensor series column state,
  * so reply has only Property ID according to specification.
@@ -402,7 +463,7 @@ static void handle_sensor_server_get_series_request(
                      "series status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * It is used for sensor states publishing
  *
  * @return  none
@@ -411,6 +472,14 @@ static void sensor_server_publish(void)
 {
   uint8_t sensor_data[SENSOR_DATA_BUF_LEN];
   uint8_t len = 0;
+#ifdef SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
+  energy32_t power_consumption = sl_btmesh_get_power_consumption();
+  sl_btmesh_sensor_server_on_energy_monitor_measurement(power_consumption);
+  len += mesh_sensor_data_to_buf(PRECISE_TOTAL_DEVICE_ENERGY_USE,
+                                 &sensor_data[len],
+                                 (uint8_t*)&power_consumption);
+
+#endif // SL_CATALOG_BTMESH_SENSOR_POWER_CONSUMPTION_PRESENT
 
 #ifdef SL_CATALOG_BTMESH_SENSOR_PEOPLE_COUNT_PRESENT
   count16_t people_count = sl_btmesh_get_people_count();
@@ -449,7 +518,7 @@ static void sensor_server_publish(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor server publish event.
  * Indicates that the publishing period timer elapsed and updates the current
  * publishing period that can be used to estimate the next tick, e.g., when
@@ -460,7 +529,7 @@ static void sensor_server_publish(void)
 static void handle_sensor_server_publish_event(
   sl_btmesh_evt_sensor_server_publish_t *evt)
 {
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
   sl_status_t sc;
   sc = app_btmesh_rta_acquire();
   if (sc != SL_STATUS_OK) {
@@ -474,7 +543,7 @@ static void handle_sensor_server_publish_event(
 #endif
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor setup server get cadence request event.
  *
  * @param[in] evt  Pointer to sensor server get cadence request event.
@@ -486,7 +555,7 @@ static void handle_sensor_setup_server_get_cadence_request(
   uint16_t buff_len = 0;
   uint8_t* buff_addr = NULL;
 
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
   uint8_t cadence_status_buf[SENSOR_CADENCE_BUF_LEN];
 #endif
 
@@ -510,6 +579,16 @@ static void handle_sensor_setup_server_get_cadence_request(
   }
 #endif // SENSOR_PEOPLE_COUNT_CADENCE
 
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+  if (evt->property_id == PRECISE_TOTAL_DEVICE_ENERGY_USE) {
+    sc = sli_btmesh_sensor_power_consumption_get_cadence(SENSOR_CADENCE_BUF_LEN, cadence_status_buf, &buff_len);
+    if (sc != SL_STATUS_OK) {
+      return;
+    }
+    buff_addr = cadence_status_buf;
+  }
+
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
   sc = sl_btmesh_sensor_setup_server_send_cadence_status(evt->client_address,
                                                          BTMESH_SENSOR_SERVER_MAIN,
                                                          evt->appkey_index,
@@ -522,7 +601,7 @@ static void handle_sensor_setup_server_get_cadence_request(
                      "cadence status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor setup server set cadence request event.
  *
  * @param[in] evt  Pointer to sensor server set cadence request event.
@@ -535,7 +614,7 @@ static void handle_sensor_setup_server_set_cadence_request(
   uint8_t* buff_addr = NULL;
   sl_status_t sc;
 
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
   uint8_t cadence_status_buf[SENSOR_CADENCE_BUF_LEN];
 #endif
 
@@ -570,6 +649,23 @@ static void handle_sensor_setup_server_set_cadence_request(
     }
   }
 #endif // SENSOR_PEOPLE_COUNT_CADENCE
+
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+  if (evt->property_id == PRECISE_TOTAL_DEVICE_ENERGY_USE) {
+    // store incoming cadence parameters
+    sc = sli_btmesh_sensor_power_consumption_set_cadence(evt);
+    if (((evt->flags & SET_CADENCE_ACK_FLAG) == SET_CADENCE_ACK_FLAG)
+        && (sc == SL_STATUS_OK)) {
+      // prepare buffer for cadence status response
+      sc = sli_btmesh_sensor_power_consumption_get_cadence(SENSOR_CADENCE_BUF_LEN, cadence_status_buf, &buff_len);
+      if (sc != SL_STATUS_OK) {
+        return;
+      }
+      buff_addr = cadence_status_buf;
+    }
+  }
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
+
   if (((evt->flags & SET_CADENCE_ACK_FLAG) == SET_CADENCE_ACK_FLAG)
       && (param_validity == true)) {
     sc = sl_btmesh_sensor_setup_server_send_cadence_status(evt->client_address,
@@ -585,7 +681,7 @@ static void handle_sensor_setup_server_set_cadence_request(
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor setup server get settings request event.
  * Settings are not supported now, so reply has only Property ID
  * according to specification.
@@ -608,7 +704,7 @@ static void handle_sensor_setup_server_get_settings_request(
                      "settings status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor setup server get setting request event.
  * Settings are not supported now, so reply has only Property ID
  * and Sensor Property ID according to specification.
@@ -632,7 +728,7 @@ static void handle_sensor_setup_server_get_setting_request(
                      "setting status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of sensor setup server set setting request event.
  * Settings are not supported now, so reply has only Property ID
  * and Sensor Property ID according to specification.
@@ -656,7 +752,7 @@ static void handle_sensor_setup_server_set_setting_request(
                      "setting status");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  *  Handling of mesh events by sensor server component.
  *  It handles:
  *   - node_initialized
@@ -674,17 +770,23 @@ static void handle_sensor_setup_server_set_setting_request(
  ******************************************************************************/
 void sl_btmesh_handle_sensor_server_events(sl_btmesh_msg_t* evt)
 {
+  static volatile bool booted = false;
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_sensor_server_node_init();
+        booted = true;
       }
       break;
 
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_sensor_server_node_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_sensor_server_node_init();
+        booted = true;
+      }
       break;
+    }
 
     case sl_btmesh_evt_sensor_server_get_request_id:
       handle_sensor_server_get_request(
@@ -737,7 +839,7 @@ void sl_btmesh_handle_sensor_server_events(sl_btmesh_msg_t* evt)
 }
 
 #ifdef SL_CATALOG_SENSOR_RHT_PRESENT
-/***************************************************************************//**
+/*******************************************************************************
  * Get the current temperature value measured by sensor.
  *
  * @return Current value of temperature.
@@ -767,7 +869,7 @@ temperature_8_t get_temperature(void)
 #if defined(SL_CATALOG_SENSOR_LIGHT_PRESENT) \
   || defined(SL_CATALOG_SENSOR_LUX_PRESENT)  \
   || defined(SL_CATALOG_SENSOR_LIGHT_LUX_MOCK_PRESENT)
-/***************************************************************************//**
+/*******************************************************************************
  * Get the current light value measured by sensor.
  *
  * @return Current value of light reading.
@@ -795,11 +897,11 @@ illuminance_t get_light(void)
 }
 #endif // SL_CATALOG_SENSOR_LIGHT_PRESENT || SL_CATALOG_SENSOR_LUX_PRESENT
 
-/***************************************************************************//**
+/*******************************************************************************
  * Timer Callbacks
  ******************************************************************************/
-#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE
-/***************************************************************************//**
+#if SENSOR_THERMOMETER_CADENCE || SENSOR_PEOPLE_COUNT_CADENCE || SENSOR_POWER_CONSUMPTION_CADENCE
+/*******************************************************************************
  * Get measured value from sensors and analyze cadence conditions timer callback
  *
  * @param[in] handle  Pointer to the timer handle
@@ -824,8 +926,9 @@ static void sensor_server_data_timer_cb(app_timer_t *handle, void *data)
   if (sc != SL_STATUS_OK) {
     return;
   }
-  uint32_t publ_timer_thermometer = publish_period.period_ms;
-  uint32_t publ_timer_people_count = publish_period.period_ms;
+  uint32_t publ_timer_thermometer = UINT32_MAX;
+  uint32_t publ_timer_people_count = UINT32_MAX;
+  uint32_t publ_timer_power_consumption = UINT32_MAX;
   uint32_t publ_timeout;
 
 #if SENSOR_THERMOMETER_CADENCE
@@ -838,14 +941,14 @@ static void sensor_server_data_timer_cb(app_timer_t *handle, void *data)
   publ_timer_people_count = sli_btmesh_sensor_people_count_handle_cadence(sl_btmesh_get_people_count(), publish_period);
 #endif // SENSOR_PEOPLE_COUNT_CADENCE
 
-  if (publ_timer_thermometer > publ_timer_people_count) {
-    publ_timeout = publ_timer_people_count;
-  } else {
-    publ_timeout = publ_timer_thermometer;
-  }
+#if SENSOR_POWER_CONSUMPTION_CADENCE
+  publ_timer_power_consumption = sli_btmesh_sensor_power_consumption_handle_cadence(sl_btmesh_get_power_consumption(), publish_period);
+#endif // SENSOR_POWER_CONSUMPTION_CADENCE
 
-  if (prev_publish_timeout != publ_timeout) {
-    log_info("Publishing period: %d ms" NL, publ_timeout);
+  publ_timeout = MIN3(publ_timer_people_count, publ_timer_thermometer, publ_timer_power_consumption);
+
+  if (prev_publish_timeout != publ_timeout && publ_timeout != UINT32_MAX) {
+    log_info("Publishing period: %lu ms" NL, publ_timeout);
     //Stop publish timer
     sc = app_timer_stop(&sensor_server_publish_timer);
 
@@ -863,7 +966,7 @@ static void sensor_server_data_timer_cb(app_timer_t *handle, void *data)
   (void) app_btmesh_rta_release();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Publish sensor status timer callback
  *
  * @param[in] handle  Pointer to the timer handle
@@ -879,10 +982,7 @@ static void sensor_server_publish_timer_cb(app_timer_t *handle, void *data)
   sensor_server_publish();
 }
 #endif
-/**************************************************************************//**
- * @addtogroup btmesh_sens_srv_cb_weak Weak implementation of callbacks
- * @{
- *****************************************************************************/
+
 SL_WEAK void sl_btmesh_sensor_server_on_temperature_measurement(temperature_8_t temperature)
 {
   (void) temperature;
@@ -897,6 +997,8 @@ SL_WEAK void sl_btmesh_sensor_server_on_people_count_measurement(count16_t peopl
 {
   (void) people;
 }
-/** @} (end addtogroup btmesh_sens_srv_cb_weak) */
 
-/** @} (end addtogroup Sensor) */
+SL_WEAK void sl_btmesh_sensor_server_on_energy_monitor_measurement(energy32_t power_consumption)
+{
+  (void) power_consumption;
+}

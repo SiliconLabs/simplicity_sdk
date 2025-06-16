@@ -43,7 +43,7 @@ Just like in the Bluetooth Low Energy SDK, a Mesh application is event-driven. T
 
 ## Implementing Application Logic
 
-Additional application logic has to be implemented in the `app_init()` and `app_process_action()` functions. Find the definitions of these functions in *app.c*. The `app_init()` function is called once when the device is booted, and `app_process_action()` is called repeatedly in a while(1) loop. For example, you can poll peripherals in this function.
+Additional application logic has to be implemented in the 'app_init()' and 'app_process_action()' functions. Find the definitions of these functions in *app.c*. The 'app_init()' function is called once when the device is booted, and 'app_process_action()' is called repeatedly in a while(1) loop. For example, you can poll peripherals in this function.
 
 ## Features Already Added to Bluetooth Mesh - SoC Empty with Certificate-Based Provisioning Support Application
 
@@ -61,7 +61,7 @@ As described above, an empty example does nothing except broadcast unprovisioned
     Once these modules have been installed, create the CA certificate with the following command:
     - `python3 {SDK_folder}\app\bluetooth\script\certificate authorities\create_authority_certificate.py`
 
-    The CA certificate can now be found in `{SDK_folder}\app\bluetooth\script\certificate authorities\central_authority\certificate.pem`. 
+    The CA certificate can now be found in `{SDK_folder}\app\bluetooth\script\certificate authorities\central_authority\certificate.pem`.
 
 3. Run the production_line_tool.py python script on your computer with the following parameters:
     - `python3 {SDK_folder}\app\bluetooth\script\certificate authorities\production_line_tool.py --serial <serialnumber>`
@@ -76,7 +76,7 @@ As described above, an empty example does nothing except broadcast unprovisioned
 
 ![Bluetooth Mesh App](readme_img6.png)
 
-8. Once the device certificate has been sent, the **Device certificate** status changes to `Available` as shown below. 
+8. Once the device certificate has been sent, the **Device certificate** status changes to `Available` as shown below.
 
 ![Bluetooth Mesh App](readme_img7.png)
 

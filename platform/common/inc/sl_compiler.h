@@ -52,6 +52,9 @@ extern "C" {
   #ifndef   __ASM
     #define __ASM                  __asm
   #endif
+  #ifndef   __NO_PROLOGUE
+    #define __NO_PROLOGUE          __attribute__((naked))
+  #endif
   #ifndef   __INLINE
     #define __INLINE               inline
   #endif
@@ -60,6 +63,9 @@ extern "C" {
   #endif
   #ifndef   __STATIC_FORCEINLINE
     #define __STATIC_FORCEINLINE   __attribute__((always_inline)) static inline
+  #endif
+  #ifndef   __NO_INLINE
+    #define __NO_INLINE            __attribute__((noinline))
   #endif
   #ifndef   __NO_RETURN
     #define __NO_RETURN            __attribute__((__noreturn__))
@@ -112,6 +118,10 @@ extern "C" {
     #define __ASM __asm
   #endif
 
+  #ifndef   __NO_PROLOGUE
+    #define __NO_PROLOGUE  __naked
+  #endif
+
   #ifndef __INLINE
     #define __INLINE inline
   #endif
@@ -161,6 +171,10 @@ extern "C" {
 
   #ifndef   __FORCEINLINE
     #define __FORCEINLINE         _Pragma("inline=forced")
+  #endif
+
+  #ifndef   __NO_INLINE
+    #define __NO_INLINE           __attribute__((noinline))
   #endif
 
   #ifndef   __STATIC_FORCEINLINE

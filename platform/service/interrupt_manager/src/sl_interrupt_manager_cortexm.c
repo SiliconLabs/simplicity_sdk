@@ -3,7 +3,7 @@
  * @brief Interrupt manager API to enable disable interrupts.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,21 +28,18 @@
  *
  ******************************************************************************/
 
-#include "sli_interrupt_manager.h"
+#include "em_device.h"
 #include "sl_core.h"
 #include "sl_assert.h"
-#include "em_device.h"
+#include "sl_component_catalog.h"
+#include "sli_interrupt_manager.h"
 
-#if defined(SL_COMPONENT_CATALOG_PRESENT)
-#include  <sl_component_catalog.h>
+#if defined(SL_CATALOG_INTERRUPT_MANAGER_HOOKS_PRESENT)
+#include "sli_interrupt_manager_hooks.h"
 #endif
 
 #if defined(SL_CATALOG_CODE_CLASSIFICATION_VALIDATOR_PRESENT)
 #include "sli_code_classification_validator.h"
-#endif
-
-#if defined(_SILICON_LABS_32B_SERIES_2)
-#include "sl_interrupt_manager_s2_config.h"
 #endif
 
 /*******************************************************************************
@@ -58,9 +55,7 @@
 #define VECTOR_TABLE_ALIGNMENT  (512)
 
 // Interrupt vector placement is in RAM
-#if (defined(SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM) \
-  && (SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM == 1))  \
-  || defined(SL_CATALOG_INTERRUPT_MANAGER_VECTOR_TABLE_IN_RAM_PRESENT)
+#if defined(SL_CATALOG_INTERRUPT_MANAGER_VECTOR_TABLE_IN_RAM_PRESENT)
 #define VECTOR_TABLE_IN_RAM (1)
 #endif
 
@@ -118,9 +113,11 @@ static uint32_t get_priority(int32_t irqn);
 #if defined(SL_INTERRUPT_MANAGER_ENABLE_HOOKS)
 #if defined(SL_CATALOG_CODE_CLASSIFICATION_VALIDATOR_PRESENT)
 CCV_SECTION
+#else
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_INTERRUPT_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 #endif
 static void sli_interrupt_manager_isr_wrapper(void);
-#endif /* SL_INTERRUPT_MANAGER_HOOKS */
+#endif /* SL_INTERRUPT_MANAGER_ENABLE_HOOKS */
 
 /*******************************************************************************
  *****************************   VARIABLES   ***********************************
@@ -129,6 +126,10 @@ static void sli_interrupt_manager_isr_wrapper(void);
 // Initialization flag.
 static bool is_interrupt_manager_initialized = false;
 
+#if defined(SL_INTERRUPT_MANAGER_ENABLE_HOOKS)
+static volatile uint32_t interrupt_nesting_counter = 0U;
+#endif
+
 /*******************************************************************************
  *****************************   FUNCTIONS   ***********************************
  ******************************************************************************/
@@ -136,25 +137,28 @@ static bool is_interrupt_manager_initialized = false;
 #if defined(VECTOR_TABLE_IN_RAM)
 #if defined(SL_INTERRUPT_MANAGER_ENABLE_HOOKS)
 
-__WEAK void sl_interrupt_manager_irq_enter_hook(void)
-{
-  return;
-}
-
-__WEAK void sl_interrupt_manager_irq_exit_hook(void)
-{
-  return;
-}
-
 static void sli_interrupt_manager_isr_wrapper(void)
 {
+  // Grab the current active interrupt
   uint32_t irqn = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk);
-  sl_interrupt_manager_irq_enter_hook();
+
+  sli_interrupt_manager_irq_enter_hook();
+
+  __disable_irq();
+  interrupt_nesting_counter++;
+  __enable_irq();
+
+  // Call the interrupt function
   wrapped_vector_table[irqn]();
-  sl_interrupt_manager_irq_exit_hook();
+
+  __disable_irq();
+  interrupt_nesting_counter--;
+  __enable_irq();
+
+  sli_interrupt_manager_irq_exit_hook();
 }
 
-#endif /* SL_INTERRUPT_MANAGER_HOOKS */
+#endif /* SL_INTERRUPT_MANAGER_ENABLE_HOOKS */
 
 /***************************************************************************//**
  * @brief
@@ -220,6 +224,10 @@ void sl_interrupt_manager_init(void)
   sl_interrupt_manager_irq_handler_t* current;
 
   CORE_ENTER_CRITICAL();
+
+#if defined(SL_INTERRUPT_MANAGER_ENABLE_HOOKS)
+  interrupt_nesting_counter = 0U;
+#endif
 
   current = (sl_interrupt_manager_irq_handler_t*)SCB->VTOR;
 
@@ -567,11 +575,7 @@ void disable_interrupt(int32_t irqn)
  ******************************************************************************/
 void set_priority(int32_t irqn, uint32_t priority)
 {
-  if (irqn >= 0) {
-    NVIC->IPR[((uint32_t)irqn)] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
-  } else {
-    SCB->SHPR[(((uint32_t)irqn) & 0xFUL) - 4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
-  }
+  __NVIC_SetPriority((IRQn_Type)irqn, priority);
 }
 
 /***************************************************************************//**
@@ -580,11 +584,25 @@ void set_priority(int32_t irqn, uint32_t priority)
  ******************************************************************************/
 uint32_t get_priority(int32_t irqn)
 {
-  if (irqn >= 0) {
-    return(((uint32_t)NVIC->IPR[((uint32_t)irqn)] >> (8U - __NVIC_PRIO_BITS)));
-  } else {
-    return(((uint32_t)SCB->SHPR[(((uint32_t)irqn) & 0xFUL) - 4UL] >> (8U - __NVIC_PRIO_BITS)));
-  }
+  return __NVIC_GetPriority((IRQn_Type)irqn);
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Gets the interrupt nesting count.
+ ******************************************************************************/
+uint32_t sli_interrupt_manager_get_nested_interrupt_counter(void)
+{
+  uint32_t counter = 0U;
+#if defined(SL_INTERRUPT_MANAGER_ENABLE_HOOKS)
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_CRITICAL();
+
+  counter = interrupt_nesting_counter;
+
+  CORE_EXIT_CRITICAL();
+#endif
+  return counter;
 }
 
 /***************************************************************************//**

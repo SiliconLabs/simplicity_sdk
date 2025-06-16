@@ -1,5 +1,5 @@
 id: mbedtls_pem
-package: platform
+package: security_mbedtls
 label: PEM Parsing
 description: >-
   This component provides support for reading PEM formatted keys and certificates in Mbed TLS.

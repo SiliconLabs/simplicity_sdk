@@ -250,6 +250,7 @@ uint8_t mesh_sensor_data_to_buf(uint16_t property_id, uint8_t *ptr, uint8_t *val
     case LIGHT_CONTROL_REGULATOR_KIU:
     case LIGHT_CONTROL_REGULATOR_KPD:
     case LIGHT_CONTROL_REGULATOR_KPU:
+    case PRECISE_TOTAL_DEVICE_ENERGY_USE:
     {
       uint8_to_buf(ptr++, 4);
       uint32_to_buf(ptr, *(uint32_t*)value);
@@ -511,6 +512,7 @@ mesh_device_property_t mesh_sensor_data_from_buf(uint16_t property_id, const uin
     case LIGHT_CONTROL_REGULATOR_KIU:
     case LIGHT_CONTROL_REGULATOR_KPD:
     case LIGHT_CONTROL_REGULATOR_KPU:
+    case PRECISE_TOTAL_DEVICE_ENERGY_USE:
     {
       property.uint32 = uint32_from_buf(ptr);
     } break;

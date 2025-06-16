@@ -38,7 +38,9 @@
 
 #include "sl_code_classification.h"
 
+#include "sl_rail.h"
 #include "rail.h"
+#include "sl_rail_ieee802154.h"
 #include "rail_ieee802154.h"
 #include "sl_rail_util_ieee802154_phy_select.h"
 #include "sl_status.h"
@@ -49,6 +51,8 @@
 #include "{{ entry["include"] }}"
 {%- endif %}
 {%- endfor %}
+
+extern sl_rail_util_ieee802154_radio_config_t sl_rail_util_ieee802154_get_high_speed_phy_config(void);
 
 {%- for entry in rail_util_ieee802154_phy_select_callbacks %}
 {%- if entry["include"] == empty and entry["update_active_radio_config"] != empty %}
@@ -63,7 +67,6 @@ extern RAIL_Handle_t emPhyRailHandle;
 #define RUNTIME_PHY_SELECT_STACK_SUPPORT (0 {%- for entry in rail_util_ieee802154_phy_select_callbacks %} {%- if entry["runtime_phy_select_stack_support"] != empty %} || {{ entry["runtime_phy_select_stack_support"]|upper }} {%- endif %} {%- endfor %})
 
 static sl_rail_util_ieee802154_radio_config_t active_radio_config = SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_DEFAULT;
-
 
 static sl_rail_util_ieee802154_radio_config_t sl_rail_util_get_desired_radio_config(void)
 {
@@ -101,6 +104,7 @@ static bool checkPhySwitch(void)
   if ((active_radio_config != desired_radio_config)
       && (blockPhySwitch == 0U)
       && stackInitialized
+      && (emPhyRailHandle != RAIL_EFR32_HANDLE)
       && (emPhyRailHandle != NULL)) {
     //@TODO: Ascertain radio is OFF, RXWARM, or RXSEARCH only.
     active_radio_config = desired_radio_config;
@@ -160,8 +164,75 @@ sl_rail_util_ieee802154_radio_config_t sl_rail_util_ieee802154_get_active_radio_
   ((SL_RAIL_UTIL_ANT_DIV_RX_RUNTIME_PHY_SELECT || ANT_DIV_PHY_DEFAULT_ENABLED)  \
   && (SL_RAIL_UTIL_COEX_RUNTIME_PHY_SELECT || SL_RAIL_UTIL_COEX_PHY_ENABLED)  \
   && (SL_FEM_UTIL_RUNTIME_PHY_SELECT || SL_FEM_UTIL_OPTIMIZED_PHY_ENABLE))
-#define SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS_SUPPORTED (SL_RAIL_UTIL_IEEE802154_2P4_2MBPS_PHY_ENABLED && !SL_RAIL_UTIL_IEEE802154_2P4_1MBPS_FEC_PHY_ENABLED)
-#define SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC_SUPPORTED SL_RAIL_UTIL_IEEE802154_2P4_1MBPS_FEC_PHY_ENABLED
+
+#if     SL_RAIL_3_API
+
+sl_rail_status_t sl_rail_util_ieee802154_config_radio(sl_rail_handle_t railHandle)
+{
+  // Establish the proper radio config
+  sl_rail_status_t status = SL_RAIL_STATUS_INVALID_STATE;
+  sl_rail_util_ieee802154_radio_config_t desired_radio_config = sl_rail_util_get_desired_radio_config();
+  switch (desired_radio_config) {
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_DEFAULT_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_DEFAULT:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_DEFAULT_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_ant_div(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_coex(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_coex(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_FEM_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_FEM:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_fem(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_FEM_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_FEM_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_FEM:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_fem(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_FEM_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX_FEM_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX_FEM:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_coex_fem(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_COEX_FEM_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX_FEM_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX_FEM:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_ant_div_coex_fem(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_ANTDIV_COEX_FEM_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_2_mbps(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS_SUPPORTED
+#if SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC_SUPPORTED
+    case SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC:
+      status = sl_rail_ieee802154_config_2p4_ghz_radio_1_mbps_fec(railHandle);
+    break;
+#endif //SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC_SUPPORTED
+    default:
+      break;
+  }
+  EFM_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
+  active_radio_config = desired_radio_config;
+
+  return status;
+}
+
+#else//!SL_RAIL_3_API
 
 RAIL_Status_t sl_rail_util_ieee802154_config_radio(RAIL_Handle_t railHandle)
 {
@@ -227,6 +298,8 @@ RAIL_Status_t sl_rail_util_ieee802154_config_radio(RAIL_Handle_t railHandle)
 
   return status;
 }
+
+#endif//SL_RAIL_3_API
 
 #if RUNTIME_PHY_SELECT
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_RAIL_UTIL_IEEE802154_PHY_SELECT, SL_CODE_CLASS_TIME_CRITICAL)

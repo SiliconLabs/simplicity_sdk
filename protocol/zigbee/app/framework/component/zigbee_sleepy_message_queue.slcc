@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component is a message buffering system used to store messages until they are retrieved or a settable message timeout expires.
 id: zigbee_sleepy_message_queue
 label: Sleepy Message Queue

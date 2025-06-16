@@ -3,7 +3,7 @@
  * @brief Wi-SUN application keychain
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -16,7 +16,6 @@
  ******************************************************************************/
 
 #include <stdbool.h>
-#include <stdio.h>
 #include "psa/crypto.h"
 #include "nvm3_default.h"
 #include "sl_memory_manager.h"
@@ -74,9 +73,10 @@ sl_wisun_keychain_credential_t *sl_wisun_keychain_get_credential(sl_wisun_keycha
       }
       credential->certificate.data_length = nvm_len + 1;
       credential->certificate.data = data;
+      credential->certificate.keychain = SL_WISUN_KEYCHAIN_NVM;
       credential->pk.type = SL_WISUN_KEYCHAIN_KEY_TYPE_ID;
+      credential->pk.keychain = SL_WISUN_KEYCHAIN_NVM;
       credential->pk.u.key_id = SL_WISUN_KEYCHAIN_NVM_DEVICE_CREDENTIAL_KEY;
-      printf("[Using NVM device credentials]\r\n");
     } else if (keychain == SL_WISUN_KEYCHAIN_NVM) {
       // NVM device certificate and/or private key not found
       return NULL;
@@ -97,10 +97,11 @@ sl_wisun_keychain_credential_t *sl_wisun_keychain_get_credential(sl_wisun_keycha
     }
     credential->certificate.data_length = sl_wisun_keychain_builtin_devicecert[index].data_length;
     credential->certificate.data = sl_wisun_keychain_builtin_devicecert[index].data;
+    credential->certificate.keychain = SL_WISUN_KEYCHAIN_BUILTIN;
     credential->pk.type = SL_WISUN_KEYCHAIN_KEY_TYPE_PLAINTEXT;
+    credential->pk.keychain = SL_WISUN_KEYCHAIN_BUILTIN;
     credential->pk.u.plaintext.data_length = sl_wisun_keychain_builtin_devicekey[index].data_length;
     credential->pk.u.plaintext.data = sl_wisun_keychain_builtin_devicekey[index].data;
-    printf("[Using built-in device credentials]\r\n");
   }
 
   return credential;
@@ -152,7 +153,7 @@ sl_wisun_keychain_entry_t *sl_wisun_keychain_get_trustedca(uint8_t index)
     }
     cert->data_length = nvm_len + 1;
     cert->data = data;
-    printf("[Using NVM trusted CA #%u]\r\n", index);
+    cert->keychain = SL_WISUN_KEYCHAIN_NVM;
   } else {
     if (index >= (key_list_count + sl_wisun_keychain_builtin_trustedca_count)) {
       // No such index
@@ -167,9 +168,9 @@ sl_wisun_keychain_entry_t *sl_wisun_keychain_get_trustedca(uint8_t index)
     if (!cert) {
       return NULL;
     }
-    printf("[Using built-in trusted CA #%u]\r\n", index);
     cert->data_length = sl_wisun_keychain_builtin_trustedca[index - key_list_count].data_length;
     cert->data = sl_wisun_keychain_builtin_trustedca[index - key_list_count].data;
+    cert->keychain = SL_WISUN_KEYCHAIN_BUILTIN;
   }
 
   return cert;

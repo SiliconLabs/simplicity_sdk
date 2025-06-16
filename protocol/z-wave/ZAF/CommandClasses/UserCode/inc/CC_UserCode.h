@@ -54,8 +54,7 @@
  *  02 | Reserved by administrator
  *  FE | Status not available
  */
-typedef enum
-{
+typedef enum {
   USER_ID_AVAILABLE = 0x00, /**< Available (not set)*/
   USER_ID_OCCUPIED = 0x01, /**< Occupied*/
   USER_ID_RESERVED = 0x02, /**< Reserved by administrator*/
@@ -76,8 +75,7 @@ typedef user_id_status_t USER_ID_STATUS;
 #define USERCODE_MAX_LEN 10
 
 // Used by application file system.
-typedef struct SUserCode
-{
+typedef struct SUserCode{
   USER_ID_STATUS user_id_status;
   uint8_t userCode[USERCODE_MAX_LEN];
   uint8_t userCodeLen;
@@ -86,8 +84,7 @@ typedef struct SUserCode
 /**
  * Struct used to pass operational data to TSE module
  */
-typedef struct s_CC_userCode_data_t_
-{
+typedef struct s_CC_userCode_data_t_{
   RECEIVE_OPTIONS_TYPE_EX rxOptions; /**< rxOptions */
   uint8_t userIdentifier;
 } s_CC_userCode_data_t;
@@ -102,7 +99,7 @@ typedef struct s_CC_userCode_data_t_
 typedef struct {
   uint8_t id;
   uint8_t *data;
-  uint8_t length;  
+  uint8_t length;
 } cc_user_code_event_validate_data_t;
 
 #define CC_USER_CODE_EVENT_VALIDATE_VALID     2
@@ -110,7 +107,7 @@ typedef struct {
 
 /**
  * @}
- */ 
+ */
 
 /****************************************************************************/
 /*                              EXPORTED DATA                               */
@@ -149,8 +146,7 @@ CC_UserCode_Set_handler(
 bool CC_UserCode_getId_handler(
   uint8_t identifier,
   USER_ID_STATUS* pId,
-  uint8_t endpoint );
-
+  uint8_t endpoint);
 
 /**
  * @brief The User Code Report Command can be used by e.g. a door lock device to send a
@@ -165,8 +161,7 @@ bool CC_UserCode_Report_handler(
   uint8_t identifier,
   uint8_t* pUserCode,
   size_t  *pLen,
-  uint8_t endpoint );
-
+  uint8_t endpoint);
 
 /**
  * @brief The Users Number Report Command used to report the maximum number of USER CODES
@@ -175,18 +170,18 @@ bool CC_UserCode_Report_handler(
  * @param[in] endpoint is the destination endpoint
  * @return maximum number of USER CODES.
  */
-uint8_t CC_UserCode_UsersNumberReport_handler( uint8_t endpoint );
+uint8_t CC_UserCode_UsersNumberReport_handler(uint8_t endpoint);
 
 /**
  * @brief Resets the data used by the command class
- * 
+ *
  */
 void CC_UserCode_reset_data(void);
 
 /**
  * @brief Set the user code to a new value.
  * @param[in] new_user_code The new user code, must be under the length of USERCODE_MAX_LEN
-*/
+ */
 void CC_UserCode_set_usercode(char* new_user_code);
 
 /**
@@ -201,12 +196,12 @@ void CC_UserCode_set_usercode(char* new_user_code);
  * @return status on the job.
  */
 JOB_STATUS
-CC_UserCode_SupportReport(
-  AGI_PROFILE* pProfile,
+  CC_UserCode_SupportReport(
+  AGI_PROFILE * pProfile,
   uint8_t sourceEndpoint,
   uint8_t userIdentifier,
   uint8_t userIdStatus,
-  uint8_t* pUserCode,
+  uint8_t * pUserCode,
   uint8_t userCodeLen,
   VOID_CALLBACKFUNC(pCallback)(TRANSMISSION_RESULT * pTransmissionResult));
 
@@ -214,12 +209,11 @@ bool CC_UserCode_Validate(
   uint8_t identifier,
   const uint8_t *pCode,
   uint8_t len
-);
+  );
 
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* _COMMANDCLASSUSERCODE_H_ */
-

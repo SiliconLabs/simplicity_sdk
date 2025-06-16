@@ -27,6 +27,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include <inttypes.h>
 #include "rail.h"
 #include "rail_ble.h" // for RAIL_BLE_State_t
 #include "sli_rail_util_callbacks.h" // for internal-only callback signatures
@@ -37,7 +38,7 @@
 #endif
 
 #if defined(SL_CATALOG_TIMING_TEST_PRESENT) && !SL_RAIL_LIB_MULTIPROTOCOL_SUPPORT
-// Needed for measuring RAIL_Init() time as a part of 
+// Needed for measuring RAIL_Init() time as a part of
 // detailed timing characterization.
 #include "em_device.h"
 #if defined(_SILICON_LABS_32B_SERIES_2)
@@ -139,7 +140,7 @@ static void sl_rail_util_init_{{ inst | lower }}(void)
   };
   status = RAIL_ConfigData(sl_rail_handle_{{ inst | lower }}, &data_config);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_ConfigData failed, return value: %d",
+             "RAIL_ConfigData failed, return value: 0x%04" PRIX32,
              status);
 #endif // SL_RAIL_UTIL_INIT_DATA_FORMATS_{{ inst | upper }}_ENABLE
 
@@ -160,7 +161,7 @@ static void sl_rail_util_init_{{ inst | lower }}(void)
   status = sl_rail_util_protocol_config(sl_rail_handle_{{ inst | lower }},
                                         SL_RAIL_UTIL_INIT_PROTOCOL_{{ inst | upper }}_DEFAULT);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "sl_rail_util_protocol_config failed, return value: %d",
+             "sl_rail_util_protocol_config failed, return value: 0x%04" PRIX32,
              status);
 #endif // SL_RAIL_UTIL_INIT_PROTOCOLS_{{ inst | upper }}_ENABLE
 
@@ -172,7 +173,7 @@ static void sl_rail_util_init_{{ inst | lower }}(void)
                           | (SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_{{ inst | upper }}_ENABLE
                              ? RAIL_CAL_ONETIME : 0U));
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_ConfigCal failed, return value: %d",
+             "RAIL_ConfigCal failed, return value: 0x%04" PRIX32,
              status);
 #endif // SL_RAIL_UTIL_INIT_CALIBRATIONS_{{ inst | upper }}_ENABLE
 
@@ -181,7 +182,7 @@ static void sl_rail_util_init_{{ inst | lower }}(void)
                              RAIL_EVENTS_ALL,
                              SL_RAIL_UTIL_INIT_EVENT_{{ inst | upper }}_MASK);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_ConfigEvents failed, return value: %d",
+             "RAIL_ConfigEvents failed, return value: 0x%04" PRIX32,
              status);
 #endif // SL_RAIL_UTIL_INIT_EVENTS_{{ inst | upper }}_ENABLE
 
@@ -197,12 +198,12 @@ static void sl_rail_util_init_{{ inst | lower }}(void)
   status = RAIL_SetTxTransitions(sl_rail_handle_{{ inst | lower }},
                                  &tx_transitions);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_SetTxTransitions failed, return value: %d",
+             "RAIL_SetTxTransitions failed, return value: 0x%04" PRIX32,
              status);
   status = RAIL_SetRxTransitions(sl_rail_handle_{{ inst | lower }},
                                  &rx_transitions);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_SetRxTransitions failed, return value: %d",
+             "RAIL_SetRxTransitions failed, return value: 0x%04" PRIX32,
              status);
 #endif // SL_RAIL_UTIL_INIT_TRANSITIONS_{{ inst | upper }}_ENABLE
 #else // !SL_RAIL_UTIL_INIT_{{ inst | upper }}_ENABLE
@@ -239,12 +240,12 @@ void sl_rail_util_init(void)
   RAIL_Status_t status;
   status = RAIL_AddStateBuffer3(RAIL_EFR32_HANDLE);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_AddStateBuffer3 failed, return value: %d",
+             "RAIL_AddStateBuffer3 failed, return value: 0x%04" PRIX32,
              status);
 #if   (INIT_INSTANCES > 3)
   status = RAIL_AddStateBuffer4(RAIL_EFR32_HANDLE);
   APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-             "RAIL_AddStateBuffer4 failed, return value: %d",
+             "RAIL_AddStateBuffer4 failed, return value: 0x%04" PRIX32,
              status);
 #endif
 #if   (INIT_INSTANCES > 4)
@@ -253,7 +254,7 @@ void sl_rail_util_init(void)
     extraProtos[i].buffer = extraStateBuffers[i];
     status = RAIL_AddStateBuffer(RAIL_EFR32_HANDLE, &extraProtos[i]);
     APP_ASSERT((RAIL_STATUS_NO_ERROR == status),
-               "RAIL_AddStateBuffer(%d) failed, return value: %d",
+               "RAIL_AddStateBuffer(%d) failed, return value: 0x%04" PRIX32,
                (INIT_INSTANCES + i), status);
   }
 #endif

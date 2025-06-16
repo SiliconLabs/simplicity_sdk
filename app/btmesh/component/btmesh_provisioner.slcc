@@ -1,6 +1,6 @@
 id: "btmesh_provisioner"
 label: "Btmesh Provisioner"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   This component automatically initializes the device as a provisioner on boot event.
 
@@ -42,3 +42,6 @@ template_contribution:
       function: "sl_bt_provisioner_on_event"
   - name: "component_catalog"
     value: "btmesh_provisionee"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-provisioner

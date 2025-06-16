@@ -1,13 +1,13 @@
 id: mic_i2s_driver
-package: platform
+package: board_drivers
 label: I2S Microphone
 description: >
-  Sound level I2S microphone driver
+    Sound level I2S microphone driver
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/mic
 provides:
   - name: mic_driver_implementation
@@ -16,7 +16,7 @@ requires:
   - name: clock_manager_runtime
   - name: emlib_ldma
   - name: emlib_usart
-  - name: hal_generic_gpio
+  - name: gpio
   - name: dmadrv
 include:
   - path: inc

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides common utility functions that are used by the client and server of the Calendar Cluster.
 label: Calendar Common
 quality: production

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_test"
 label: "Direct Test Mode"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth DTM test feature
 category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events

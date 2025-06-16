@@ -113,13 +113,13 @@ void set_configured_channel(void)
 /******************************************************************************
  * Restarts the RX operation on the selected channel
  *****************************************************************************/
-RAIL_Status_t restart_rx_channel(void)
+sl_rail_status_t restart_rx_channel(void)
 {
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-  RAIL_Status_t status = RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_status_t status = sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("After initialization RAIL_StartRx() result:%lu\n", status);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("After initialization sl_rail_start_rx() result:%lu\n", status);
   }
 #endif
   return status;

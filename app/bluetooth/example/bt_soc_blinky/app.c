@@ -27,12 +27,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
 #include "app_assert.h"
 #include "app_log.h"
 #include "sl_bt_api.h"
 #include "gatt_db.h"
 #include "app.h"
+#include "sl_main_init.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
 
@@ -46,7 +46,7 @@ static sl_status_t send_report_button_notification(void);
 /******************************************************************************
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   // Make sure there will be no button events before the boot event.
   sl_button_disable(SL_SIMPLE_BUTTON_INSTANCE(0));
@@ -60,7 +60,7 @@ SL_WEAK void app_init(void)
 /******************************************************************************
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   // Check if there was a report button interaction.
   if (app_get_button_state()) {
@@ -83,7 +83,7 @@ SL_WEAK void app_process_action(void)
 
 /******************************************************************************
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/

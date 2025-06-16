@@ -18,12 +18,16 @@
 #define SL_BT_STACK_CONFIG_H
 
 #include <stdint.h>
-#include "sl_bt_ll_config.h"
+#include "sl_btctrl_linklayer.h"
 
 typedef struct {
   uint32_t max_buffer_memory; //!< Maximum number of bytes to use for data buffers
   uint32_t linklayer_config;
-  sl_bt_bluetooth_ll_priorities * linklayer_priorities; //Priority configuration, if NULL uses default values
+  /**
+   * <b>Deprecated</b> and replaced by @ref SL_BTCTRL_SCHEDULER_PRIORITIES, implemented
+   * by the Bluetooth Low Energy Controller component.
+   */
+  sl_btctrl_ll_priorities * linklayer_priorities; //Priority configuration, if NULL uses default values
 }sl_bt_stack_config_t;
 
 /** Flag indicating Bluetooth runs in RTOS */
@@ -56,7 +60,7 @@ typedef struct {
   int16_t tx_max_power; // Maximum TX power level. Unit: 0.1 dBm.
 } sl_bt_rf_config_t;
 
-typedef struct {
+typedef struct sl_bt_configuration {
   uint32_t config_flags;
   sl_bt_stack_config_t bluetooth;
 
@@ -81,6 +85,12 @@ typedef struct {
 
   uint8_t max_timers;  // Max number of soft timers, up to 16, the application will use through SL_BT_API. Default: 4
   sl_bt_rf_config_t rf;
+
+  /**
+   * Maximum BGAPI payload size defined by SL_BGAPI_MAX_PAYLOAD_SIZE. If 0, the
+   * default value for SL_BGAPI_MAX_PAYLOAD_SIZE will be used.
+   */
+  uint32_t max_bgapi_payload_size;
 }sl_bt_configuration_t;
 
 #endif

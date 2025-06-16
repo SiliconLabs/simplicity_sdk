@@ -1,7 +1,7 @@
 !!omap
 - id: xg28_rb4401c
 - label: XG28-RB4401C
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG28 Dual Band +20 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

@@ -1,6 +1,6 @@
 id: ot_platform_abstraction_utils
 label: Platform Abstraction Utils
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component provides utility functions for the platform abstraction layer

@@ -1,6 +1,6 @@
 id: btmesh_distributor
 label: DFU distributor
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Wrapper software component for DFU distributor role in Bluetooth Mesh applications.
   This component is prepared for integration into SOC applications.
@@ -24,3 +24,6 @@ requires:
   - name: btmesh_blob_transfer_server_recommended_instance_dist
 conflicts:
   - name: btmesh_blob_transfer_server_recommended_instance_target_only
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-distributor

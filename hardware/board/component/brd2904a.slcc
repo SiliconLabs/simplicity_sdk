@@ -1,7 +1,7 @@
 !!omap
 - id: brd2904a
 - label: BRD2904A
-- package: platform
+- package: boards
 - description: Board support for BRD2904A.
 - category: Platform|Board|Thunderboard
 - quality: production

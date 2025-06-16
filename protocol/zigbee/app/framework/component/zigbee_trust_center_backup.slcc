@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component is only for a trust center. It provides a set of APIs for importing and exporting the backup info for a Smart Energy trust center.  It requires extending to hook up import/export routines into an external storage device or network, where the data may be saved to and restored from. This component is extended to use token interface to perform a complete backup and restore a trust center. The way it works is that it uses token interface APIs to read all the available tokens on the NCP node and stores those on the host. The format of the back up file is Number of Tokens (1 byte) Token0 (4 bytes) Token0Size(1 byte) Token0ArraySize(1 byte) Token0Data(Token0Size * Token0ArraySize) Then a series of token data structure up to the last token.
 
 label: Trust Center Backup

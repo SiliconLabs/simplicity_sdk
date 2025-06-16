@@ -1,5 +1,5 @@
 id: mbedtls_entropy_default
-package: platform
+package: security_mbedtls
 label: Default Entropy Source
 description: >-
   This component can be used in order to make sure that a suitable component for
@@ -19,7 +19,12 @@ requires:
   - name: mbedtls_entropy_hardware
     condition: [device_series_2]
   - name: mbedtls_entropy_hardware
-    condition: [device_series_3]
+    condition: [device_generic_family_sixx301]
+  # PLATFORM_HYD-5151
+  - name: mbedtls_entropy_dummy_nvseed
+    condition: [device_generic_family_sixx353]
+  - name: mbedtls_entropy_dummy_nvseed
+    condition: [device_family_sixg300xiwifi74000]
 recommends:
   # recommend NV seed for resolution instead of ADC, since ADC
   # requires taking ownership of the ADC peripheral

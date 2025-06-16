@@ -3,7 +3,7 @@
  * @brief Throughput test application - platform interface
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -39,6 +39,7 @@
 #include "throughput_central_interface.h"
 #include "throughput_ui_types.h"
 #include "throughput_common.h"
+#include "throughput_central_rta.h"
 
 // Platform specific includes
 #include "throughput_central_system.h"
@@ -166,7 +167,7 @@ static void throughput_central_scanning_restart(void);
 static void throughput_central_scanning_start(void);
 static void throughput_central_scanning_stop(void);
 static sl_status_t throughput_central_scanning_apply_phy(throughput_scan_phy_t phy);
-static bool throughput_central_allowlist_apply();
+static bool throughput_central_allowlist_apply(uint8_t *address);
 static bool throughput_address_compare(uint8_t *address1, uint8_t *address2);
 static void throughput_central_reset(void);
 
@@ -498,7 +499,7 @@ void timer_on_refresh_rssi(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -511,6 +512,7 @@ void bt_on_event_central(sl_bt_msg_t *evt)
   if (!enabled) {
     return;
   }
+  throughput_central_rta_acquire();
 
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_bt_evt_scanner_legacy_advertisement_report_id:
@@ -540,6 +542,10 @@ void bt_on_event_central(sl_bt_msg_t *evt)
       // Set remote connection power reporting - needed for Power Control
       sc = sl_bt_connection_set_remote_power_reporting(connection_handle_central,
                                                        power_control_enabled);
+      if (sc == SL_STATUS_NOT_INITIALIZED) {
+        app_assert_status_f(sc, "Make sure to add the Bluetooth LE Power Control"
+                                " feature to your project" APP_LOG_NL);
+      }
       app_assert_status(sc);
 
       central_state.state = THROUGHPUT_STATE_CONNECTED;
@@ -660,6 +666,9 @@ void bt_on_event_central(sl_bt_msg_t *evt)
     default:
       break;
   }
+
+  throughput_central_rta_release();
+  throughput_central_rta_proceed();
 }
 
 bool throughput_central_decode_address(char * addess_str, uint8_t *address)
@@ -780,6 +789,8 @@ void throughput_central_scanning_start(void)
   sl_status_t sc;
   int16_t tx_power_min, tx_power_max;
 
+  throughput_central_rta_acquire();
+
   app_log_info("Scanning started..." APP_LOG_NL);
 
   // Reset found characteristics
@@ -820,6 +831,8 @@ void throughput_central_scanning_start(void)
     sc = sl_bt_scanner_start(central_state.scan_phy, sl_bt_scanner_discover_generic);
   }
   app_assert_status(sc);
+
+  throughput_central_rta_release();
 }
 
 float throughput_central_calculate(throughput_value_t *throughput)
@@ -886,6 +899,8 @@ void handle_throughput_central_stop(bool send_transmission_on)
     // Start RSSI refresh timer
     timer_refresh_rssi_start();
   }
+
+  throughput_central_rta_proceed();
 }
 
 // Start reception
@@ -941,6 +956,8 @@ void handle_throughput_central_start(bool send_transmission_on)
 
   // Start timer
   timer_start();
+
+  throughput_central_rta_proceed();
 }
 
 // Restart scanning
@@ -990,6 +1007,8 @@ void throughput_central_scanning_restart(void)
  *****************************************************************************/
 void throughput_central_step(void)
 {
+  throughput_central_rta_acquire();
+
   if (enabled && central_state.state == THROUGHPUT_STATE_TEST) {
     if (central_state.mode == THROUGHPUT_MODE_FIXED_TIME) {
       if ( timer_end() >=  fixed_time ) {
@@ -1008,6 +1027,8 @@ void throughput_central_step(void)
       }
     }
   }
+
+  throughput_central_rta_release();
 }
 
 /**************************************************************************//**
@@ -1027,6 +1048,7 @@ sl_status_t throughput_central_set_mode(throughput_mode_t mode,
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+  throughput_central_rta_proceed();
   return res;
 }
 
@@ -1054,6 +1076,8 @@ sl_status_t throughput_central_set_tx_power(throughput_tx_power_t tx_power,
                                             bool power_control,
                                             bool deep_sleep)
 {
+  throughput_central_rta_acquire();
+
   sl_status_t res = SL_STATUS_OK;
   if (enabled && central_state.state != THROUGHPUT_STATE_TEST) {
     central_state.tx_power_requested = tx_power;
@@ -1063,6 +1087,8 @@ sl_status_t throughput_central_set_tx_power(throughput_tx_power_t tx_power,
   } else {
     res = SL_STATUS_INVALID_STATE;
   }
+
+  throughput_central_rta_release();
   return res;
 }
 
@@ -1235,6 +1261,8 @@ sl_status_t throughput_central_change_phy(void)
  *****************************************************************************/
 void throughput_central_enable(void)
 {
+  throughput_central_rta_acquire();
+
   uint8_t address[ADR_LEN];
 
   #ifdef SL_CATALOG_THROUGHPUT_UI_PRESENT
@@ -1309,6 +1337,8 @@ void throughput_central_enable(void)
   throughput_central_scanning_start();
 
   enabled = true;
+
+  throughput_central_rta_release();
 }
 
 /**************************************************************************//**

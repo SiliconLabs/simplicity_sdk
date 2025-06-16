@@ -33,7 +33,9 @@ PA_SUBEVENT_INTERVAL_MIN = 6
 PA_SUBEVENT_INTERVAL_MAX = 255
 PA_RESPONSE_SLOT_DELAY_MIN = 2  # not PAwR but ESL (reasonable) limit!
 PA_RESPONSE_SLOT_DELAY_MAX = 254
-PA_RESPONSE_SLOT_SPACING_MIN = 6  # not PAwR but ESL (reasonable) limit!
+# Please also note that a value of 6 for PA_RESPONSE_SLOT_SPACING_MIN is the minimum for a maximum ESL response payload size of 48 bytes allowed by the ESLP.
+# A value of 4 allows for a response of up to 17 bytes, while a value of 5 is suitable for responses up to 33 bytes long.
+PA_RESPONSE_SLOT_SPACING_MIN = 3  # not PAwR but ESL (reasonable) limit - only allows a single Capacity Limit Error Response (2 bytes) to be sent for any ESL command!
 PA_RESPONSE_SLOT_SPACING_MAX = 255
 PA_RESPONSE_SLOT_NUMBERS_MIN = 1
 PA_RESPONSE_SLOT_NUMBERS_MAX = 23  # not PAwR but ESL (reasonable) limit!
@@ -228,7 +230,8 @@ ESL_MAX_TAGS_IN_GROUP = 255
 BROADCAST_ADDRESS = 0xFF
 
 VALID_BD_ADDRESS_REGEX = r"(([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$)"
-VALID_ESL_ID_NUMBER_REGEX = r"\b(0|[1]?\d\d?|2[0-4]\d|25[0-5])\b"
+VALID_ESL_ID_NUMBER_REGEX = r"\b(0|[0]?\d\d|[1]?\d\d?|2[0-4]\d|25[0-5])\b"
+VALID_GROUP_ID_NUMBER_REGEX = r"\b(0|[0]?\d\d|[1]?[0-1]?\d|12[0-7])\b"
 
 # Subevent
 SUBEVENT_START = "subevent_start"

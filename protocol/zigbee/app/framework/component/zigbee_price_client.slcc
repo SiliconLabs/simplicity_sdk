@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides an implementation of a Price client. It simply stores the prices received over-the-air. This component requires extending to act on the price changes.
 label: Price Client
 quality: production

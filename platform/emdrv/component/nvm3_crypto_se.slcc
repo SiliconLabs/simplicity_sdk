@@ -1,13 +1,13 @@
 id: nvm3_crypto_se
 label: NVM3 HAL for SE crypto
-package: platform
+package: platform_core
 description: >
-  NVM3 crypto HAL for crypto HW on SE subsystem.
+    NVM3 crypto HAL for crypto HW on SE subsystem.
 category: Services|NVM3
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 source:
   - path: platform/emdrv/nvm3/src/nvm3_hal_crypto_se.c
     unless: [trustzone_nonsecure]
@@ -21,3 +21,5 @@ provides:
   - name: nvm3_crypto_se
 requires:
   - name: se_manager
+ui_hints:
+  visibility: never

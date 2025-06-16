@@ -147,7 +147,8 @@ sl_status_t sl_wisun_get_ip_address(sl_wisun_ip_address_type_t address_type,
 sl_status_t sl_wisun_disconnect();
 
 /**************************************************************************//**
- * Set a trusted certificate used to verify the authentication server certificate.
+ * Set a trusted CA certificate used to validate the authentication server
+ * certificate.
  *
  * @param[in] certificate_options Options for the certificate
  *   - #SL_WISUN_CERTIFICATE_OPTION_APPEND: Append the certificate to the list of trusted certificates
@@ -157,6 +158,13 @@ sl_status_t sl_wisun_disconnect();
  * @param[in] certificate_length Size of the certificate data
  * @param[in] certificate Pointer to the certificate data
  * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function sets a trusted CA certificate for validiting the
+ * authentication server certificate during the authentication process.
+ * The supported certificate formats depend on application's Mbed TLS
+ * configuration. The default configuration supports PEM and DER formats.
+ * When PEM is used, the certificate data may contain multiple concatenated
+ * certificates.
  *
  * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
  *****************************************************************************/
@@ -172,10 +180,16 @@ sl_status_t sl_wisun_set_trusted_certificate(uint16_t certificate_options,
  *                                          instead of replacing the previous entries
  *   - #SL_WISUN_CERTIFICATE_OPTION_IS_REF: The application guarantees the certificate data will remain
  *                                          in scope and can therefore be referenced instead of copied
- *   - #SL_WISUN_CERTIFICATE_OPTION_HAS_KEY: The certificate has a private key
+ *   - #SL_WISUN_CERTIFICATE_OPTION_HAS_KEY: The certificate has a corresponding private key
  * @param[in] certificate_length Size of the certificate data
  * @param[in] certificate Pointer to the certificate data
  * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function sets the device certificate used during the authentication
+ * process. The corresponding device private key must be set using
+ * sl_wisun_set_device_private_key() or sl_wisun_set_device_private_key_id().
+ * The supported certificate formats depend on application's Mbed TLS
+ * configuration. The default configuration supports PEM and DER formats.
  *
  * Available in libraries: Full, FFN, LFN (see @ref API_AVAILABILITY)
  *****************************************************************************/
@@ -184,7 +198,7 @@ sl_status_t sl_wisun_set_device_certificate(uint16_t certificate_options,
                                             const uint8_t *certificate);
 
 /**************************************************************************//**
- * Set the private key of the device certificate.
+ * Set the device private key used to authenticate to the authentication server.
  *
  * @param[in] key_options Options for the private key
  *   - #SL_WISUN_PRIVATE_KEY_OPTION_IS_REF: The application guarantees the private key data will remain
@@ -192,6 +206,12 @@ sl_status_t sl_wisun_set_device_certificate(uint16_t certificate_options,
  * @param[in] key_length Size of the private key data
  * @param[in] key Pointer to the private key data
  * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function sets the device private key used during the authentication
+ * process. The corresponding device certificate must be set using
+ * sl_wisun_set_device_certificate(). The supported key formats depend on
+ * application's Mbed TLS configuration. The default configuration supports
+ * unencrypted PKCS#8 and SEC1 keys in PEM and DER formats.
  *
  * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
  *****************************************************************************/
@@ -433,14 +453,14 @@ sl_status_t sl_wisun_get_neighbor_info(const sl_wisun_mac_address_t *neighbor_ma
 sl_status_t sl_wisun_set_unicast_settings(uint8_t dwell_interval_ms);
 
 /**************************************************************************//**
- * Set the private key of the device certificate.
+ * Set the device private key used to authenticate to the authentication server.
  *
  * @param[in] key_id Key ID of the private key
  * @return SL_STATUS_OK if successful, an error code otherwise
  *
  * This function sets the device private key using a key identifier,
  * referencing a key stored in PSA cryptography module. The corresponding
- * device certificate must still be set using sl_wisun_set_device_certificate().
+ * device certificate must be set using sl_wisun_set_device_certificate().
  * The stored key must have correct PSA key attributes, see the
  * Wi-SUN FAN Security Concepts and Design Considerations document for
  * details.
@@ -465,6 +485,29 @@ sl_status_t sl_wisun_set_device_private_key_id(uint32_t key_id);
 sl_status_t sl_wisun_set_regulation(sl_wisun_regulation_t regulation);
 
 /**************************************************************************//**
+ * Configure neighbor table size.
+ *
+ * @param[in] max_child_count Maximum number of RPL children
+ * Increasing this parameter means a higher number of potential neighbors
+ * while lowering it means reduced RAM consumption.
+ * The default value is 22.
+ * @param[in] max_neighbor_count Maximum number of neighbors including children, parent, and temporary neighbors
+ * The default value is 32
+ * @param[in] max_security_neighbor_count Maximum number of neigbors in the security table. Entries in the security
+ * table are removed on key expirations.
+ * Default value is 300
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * max_neighbor_count must be greater than max_child_count. max_neighbor_count - max_child_count represents
+ * the available neighbors for RPL parents and temporary neighbors (neighbors not yet registered, parent candidate
+ * or neighbors sending multicast). max_security_neighbor_count must be greater or equal than max_neighbor_count
+ * Each entry in the neighbor table consumes about 450 bytes of RAM.
+ * Each entry in the security neighbor table consumes about 50 bytes of RAM.
+ * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_config_neighbor_table(uint8_t max_child_count, uint8_t max_neighbor_count, uint16_t max_security_neighbor_count);
+
+/**************************************************************************//**
  * Set neighbor table size.
  *
  * @param[in] size Size of the neighbor table
@@ -477,8 +520,10 @@ sl_status_t sl_wisun_set_regulation(sl_wisun_regulation_t regulation);
  * The default value is 22.
  *
  * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
+ * @deprecated This function will be removed in the future versions of the
+ *             Wi-SUN stack, use sl_wisun_config_neighbor_table() instead.
  *****************************************************************************/
-sl_status_t sl_wisun_set_neighbor_table_size(uint8_t size);
+sl_status_t sl_wisun_set_neighbor_table_size(uint8_t size) SL_DEPRECATED_API_SDK_2025_6;
 
 /**************************************************************************//**
  * Set the thresholds for transmission duration level event.
@@ -589,6 +634,7 @@ sl_status_t sl_wisun_set_mode_switch(uint8_t mode,
  * This function sets the FFN parameter set. These parameters impact
  * connection time, bandwidth usage, and latency. Use of a predefined
  * parameter set is recommended (@ref SL_WISUN_FFN_PARAMETER_SETS).
+ * Small profile will be used by default for all missing configurations.
  * The function must be called before initiating a connection.
  *
  * Available in libraries: Full, FFN (see @ref API_AVAILABILITY)
@@ -599,7 +645,7 @@ sl_status_t sl_wisun_set_connection_parameters(const sl_wisun_connection_params_
  * Set the POM-IE configuration.
  *
  * @param[in] phy_mode_id_count Number of PhyModeId to configure
- * @param[in] phy_mode_ids List of phy_mode_id_count PhyModeId. It must
+ * @param[in] phy_mode_ids List of phy_mode_id_count PhyModeId. It must not
  *                         contain the base operating mode.
  * @param[in] is_mdr_command_capable Indicate if the device supports MAC mode switch.
  *                                   Feature currently unsupported, must be set to 0.
@@ -660,6 +706,7 @@ sl_status_t sl_wisun_get_stack_version(uint8_t *major,
  * connection time, bandwidth usage, power consumption, and latency.
  * Use of a predefined parameter set is recommended
  * (@ref SL_WISUN_LFN_PARAMETER_SETS).
+ * Test profile will be used by default for all missing configurations.
  * The function must be called before initiating a connection.
  *
  * Available in libraries: Full, LFN (see @ref API_AVAILABILITY)
@@ -671,11 +718,11 @@ sl_status_t sl_wisun_set_lfn_parameters(const sl_wisun_lfn_params_t *params);
  *
  * @param[in] lfn_limit Maximum number of LFN children
  *   - **0**: LFN parenting is disabled in the node
- *   - **1 - 10**: Maximum number of LFN children the node can parent
+ *   - **> 0**: Maximum number of LFN children the node can parent
  * @return SL_STATUS_OK if successful, an error code otherwise
  *
  * This function sets the maximum number of LFN children this node can
- * parent.
+ * parent. Set @ref sl_wisun_config_neighbor_table accordingly.
  *
  * Available in libraries: Full, FFN (see @ref API_AVAILABILITY)
  ******************************************************************************/
@@ -880,6 +927,26 @@ sl_status_t sl_wisun_set_direct_connect_pmk(const uint32_t pmk_key_id);
  * @note Available in libraries: Full, FFN (see @ref API_AVAILABILITY)
  *****************************************************************************/
 sl_status_t sl_wisun_set_preferred_pan(uint16_t pan_id);
+
+/**************************************************************************//**
+ * Configure concurrent detection.
+ *
+ * @param[in] enable_tx TX state
+ *   - **true**: TX is allowed with an alternate PHY
+ *   - **false**: TX is not allowed with an alternate PHY
+ * @param[in] reserved Reserved for future use, set to zero.
+ * @return SL_STATUS_OK if the operation is successful, an error code otherwise.
+ *
+ * This function configures whether an alternate PHY can be used concurrently
+ * with the base PHY. The alternate PHY must be enabled in the radio
+ * configuration to utilize this feature. When enabled, the alternate PHY is
+ * always accepted on receive. When TX state is set to true, the node will
+ * transmit to nodes that support the feature using the alternate PHY, instead
+ * of using the standard mode switch. TX is disabled by default.
+ *
+ * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_config_concurrent_detection(bool enable_tx, uint8_t reserved);
 
 /** @} (end SL_WISUN_API) */
 

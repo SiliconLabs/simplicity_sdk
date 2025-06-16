@@ -10,8 +10,6 @@
 #include <ZAF_file_ids.h>
 #include <zpal_nvm.h>
 #include <zpal_misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 #define CC_COLOR_SWITCH_OFFSET(a) (ZAF_FILE_ID_CC_COLOR_SWITCH_BASE + a)
 

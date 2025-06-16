@@ -24,7 +24,11 @@
 #define __SL_RAIL_UTIL_ANT_DIV_H__
 
 #if !defined(SL_ZIGBEE_TEST) && !defined(ZIGBEE_STACK_ON_HOST)
+#if     SL_RAIL_3_API
+#include "sl_rail.h"
+#else//!SL_RAIL_3_API
 #include "rail.h"
+#endif//SL_RAIL_3_API
 #endif
 
 #include "sl_status.h"
@@ -90,8 +94,8 @@ typedef int8_t sl_rail_util_antenna_selection_t;
   sl_rail_util_ant_div_get_tx_antenna_selected()
 #define sl_rail_util_ant_div_toggle_antenna() \
   sl_rail_util_ant_div_toggle_tx_antenna()
-#define sl_rail_util_ant_div_set_antenna(txAntenna) \
-  sl_rail_util_ant_div_set_tx_antenna(txAntenna)
+#define sl_rail_util_ant_div_set_antenna(tx_antenna) \
+  sl_rail_util_ant_div_set_tx_antenna(tx_antenna)
 #define sl_rail_util_ant_div_set_antenna_rx_mode(mode) \
   sl_rail_util_ant_div_set_rx_antenna_mode(mode)
 #define sl_rail_util_ant_div_get_antenna_rx_mode() \
@@ -132,10 +136,10 @@ sl_status_t sl_rail_util_ant_div_toggle_tx_antenna(void);
 
 /** @brief Sets the enabled Tx antenna.
  *
- * @param txAntenna The antenna to use for transmit.
+ * @param tx_antenna The antenna to use for transmit.
  * @return SL_STATUS_OK if Tx antenna was set, SL_STATUS_NOT_SUPPORTED otherwise
  */
-sl_status_t sl_rail_util_ant_div_set_tx_antenna(sl_rail_util_antenna_selection_t txAntenna);
+sl_status_t sl_rail_util_ant_div_set_tx_antenna(sl_rail_util_antenna_selection_t tx_antenna);
 
 /** @brief Sets the Rx antenna mode.
  *
@@ -161,32 +165,45 @@ bool sl_rail_util_ant_div_get_phy_select(void);
 /**
  * Initialize the RX antenna options.
  *
- * @param[out] rxOptions Update the RX antenna options in the provided
+ * @param[out] p_rx_options Update the RX antenna options in the provided
  * RX option feature mask.
  *
  * @note: Only the RX antenna option bits are altered by this function - other
  * options are left untouched.
  */
-void sl_rail_util_ant_div_init_rx_options(RAIL_RxOptions_t *rxOptions);
+#if     SL_RAIL_3_API
+void sl_rail_util_ant_div_init_rx_options(sl_rail_rx_options_t *p_rx_options);
+#else//!SL_RAIL_3_API
+void sl_rail_util_ant_div_init_rx_options(RAIL_RxOptions_t *p_rx_options);
+#endif//SL_RAIL_3_API
 
 /**
  * Initialize the TX antenna options.
  *
- * @param[out] txOptions Update the TX antenna options in the provided
+ * @param[out] p_tx_options Update the TX antenna options in the provided
  * TX option feature mask.
  *
  * @note: Only the TX antenna option bits are altered by this function - other
  * options are left untouched.
  */
-void sl_rail_util_ant_div_init_tx_options(RAIL_TxOptions_t *txOptions);
+#if     SL_RAIL_3_API
+void sl_rail_util_ant_div_init_tx_options(sl_rail_tx_options_t *p_tx_options);
+#else//!SL_RAIL_3_API
+void sl_rail_util_ant_div_init_tx_options(RAIL_TxOptions_t *p_tx_options);
+#endif//SL_RAIL_3_API
 
 /**
  * Get the antenna configuration.
  *
- * @param[out] antennaConfig The antenna configuration being used.
+ * @param[out] p_antenna_config The antenna configuration being used.
  */
-void sl_rail_util_ant_div_get_antenna_config(RAIL_AntennaConfig_t *antennaConfig);
+#if     SL_RAIL_3_API
+void sl_rail_util_ant_div_get_antenna_config(sl_rail_antenna_config_t *p_antenna_config);
+#else//!SL_RAIL_3_API
+void sl_rail_util_ant_div_get_antenna_config(RAIL_AntennaConfig_t *p_antenna_config);
+#endif//SL_RAIL_3_API
 #endif
+
 /**
  * Update the antenna configuration based on previously selected antenna mode
  *

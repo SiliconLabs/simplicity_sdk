@@ -37,6 +37,9 @@
 #define NODEPARM_MAX       35   ///< max. number of parameters
 #define HOMEID_LENGTH      4    ///< Number of bytes in a homeID
 
+/* Commands maximum length (bytes) */
+#define GET_NLS_NODES_LIST_LENGTH_MAX (128) ///< Frames should not exceed 128 bytes long
+
 typedef uint32_t TxOptions_t;  ///< The universal TX-Option flag count.
 
 /**
@@ -128,16 +131,12 @@ struct s_rssi_val {
   signed char incoming[MAX_REPEATERS + 1];
 };
 
-
-typedef struct _S_ROUTE_LINK_T_
-{
+typedef struct _S_ROUTE_LINK_T_{
   uint8_t from;
   uint8_t to;
 } S_ROUTE_LINK_T;
 
-
-typedef struct _TX_STATUS_TYPE_
-{
+typedef struct _TX_STATUS_TYPE_{
   uint32_t TransmitTicks;  ///< Passed 1ms ticks
   uint8_t bRepeaters;         ///< Repeaters in route, zero for direct range
   /** rssi_values per hop for direct and routed frames.
@@ -156,15 +155,13 @@ typedef struct _TX_STATUS_TYPE_
   int8_t bDestinationAckMeasuredNoiseFloor;
 } TX_STATUS_TYPE;
 
-
-typedef struct _RECEIVE_OPTIONS_TYPE
-{
+typedef struct _RECEIVE_OPTIONS_TYPE{
   ///< Frame header info
   uint8_t  rxStatus;
   ///< Command sender Home ID
-  union{
-      uint8_t  array[HOMEID_LENGTH];
-      uint32_t word;
+  union {
+    uint8_t  array[HOMEID_LENGTH];
+    uint32_t word;
   }homeId;
   ///< Command sender Node ID
   node_id_t  sourceNode;
@@ -185,34 +182,32 @@ typedef struct _RECEIVE_OPTIONS_TYPE
 } RECEIVE_OPTIONS_TYPE;
 
 /**
-* This flag will activate frame delivery.
-*
-* In this transmission mode the S2_send_data will try
-* to verify that the receiver understood the sent message.
-* This is done by waiting a little to see if the node will
-* respond nonce report to the encrypted message. If the node
-* does respond with a nonce report then the S2_send_data
-* call will automatically cause the system to re-sync the node,
-* and deliver the message
-*
-*/
+ * This flag will activate frame delivery.
+ *
+ * In this transmission mode the S2_send_data will try
+ * to verify that the receiver understood the sent message.
+ * This is done by waiting a little to see if the node will
+ * respond nonce report to the encrypted message. If the node
+ * does respond with a nonce report then the S2_send_data
+ * call will automatically cause the system to re-sync the node,
+ * and deliver the message
+ *
+ */
 #define S2_TXOPTION_VERIFY_DELIVERY 1
 
 /**
-* This flag must be present on all single cast followup messages.
-*/
+ * This flag must be present on all single cast followup messages.
+ */
 #define S2_TXOPTION_SINGLECAST_FOLLOWUP 2
 
 /**
-* This flag must be present on the first, and only the first single
-* cast followup message in a S2 multicast transmission.
-*/
+ * This flag must be present on the first, and only the first single
+ * cast followup message in a S2 multicast transmission.
+ */
 #define S2_TXOPTION_FIRST_SINGLECAST_FOLLOWUP 4
 
-
 /** Transmit options for ZW_SendDataEx */
-typedef struct _TRANSMIT_OPTIONS_TYPE
-{
+typedef struct _TRANSMIT_OPTIONS_TYPE{
   ///< Destination node ID - 0xFF == all nodes
   node_id_t destNode;
   ///< Reserved
@@ -227,10 +222,8 @@ typedef struct _TRANSMIT_OPTIONS_TYPE
   uint8_t txOptions2;
 } TRANSMIT_OPTIONS_TYPE;
 
-
 /** Transmit options for ZW_SendDataMultiEx */
-typedef struct _TRANSMIT_MULTI_OPTIONS_TYPE
-{
+typedef struct _TRANSMIT_MULTI_OPTIONS_TYPE{
   ///< Destination group ID
   uint8_t groupID;
   ///< Reserved

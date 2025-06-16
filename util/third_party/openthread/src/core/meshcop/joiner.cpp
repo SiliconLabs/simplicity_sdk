@@ -135,9 +135,11 @@ Error Joiner::Start(const char      *aPskd,
     // Use random-generated extended address.
     randomAddress.GenerateRandom();
     Get<Mac::Mac>().SetExtAddress(randomAddress);
-    Get<Mle::MleRouter>().UpdateLinkLocalAddress();
+    Get<Mle::Mle>().UpdateLinkLocalAddress();
 
-    SuccessOrExit(error = Get<Tmf::SecureAgent>().Start(kJoinerUdpPort));
+    SuccessOrExit(error = Get<Tmf::SecureAgent>().Open(Ip6::NetifIdentifier::kNetifThreadInternal));
+    SuccessOrExit(error = Get<Tmf::SecureAgent>().Bind(kJoinerUdpPort));
+    Get<Tmf::SecureAgent>().SetConnectCallback(HandleSecureCoapClientConnect, this);
     Get<Tmf::SecureAgent>().SetPsk(joinerPskd);
 
     for (JoinerRouter &router : mJoinerRouters)
@@ -154,6 +156,7 @@ Error Joiner::Start(const char      *aPskd,
     }
     else
     {
+        SetIdFromIeeeEui64();
         SteeringData::CalculateHashBitIndexes(mId, filterIndexes);
     }
 
@@ -201,7 +204,7 @@ void Joiner::Finish(Error aError)
         OT_FALL_THROUGH;
 
     case kStateDiscover:
-        Get<Tmf::SecureAgent>().Stop();
+        Get<Tmf::SecureAgent>().Close();
         break;
     }
 
@@ -246,14 +249,14 @@ void Joiner::HandleDiscoverResult(Mle::DiscoverScanner::ScanResult *aResult)
 {
     VerifyOrExit(mState == kStateDiscover);
 
-    if (aResult != nullptr && aResult->mJoinerUdpPort > 0)
+    if (aResult != nullptr)
     {
         SaveDiscoveredJoinerRouter(*aResult);
     }
     else
     {
         Get<Mac::Mac>().SetExtAddress(mId);
-        Get<Mle::MleRouter>().UpdateLinkLocalAddress();
+        Get<Mle::Mle>().UpdateLinkLocalAddress();
 
         mJoinerRouterIndex = 0;
         TryNextJoinerRouter(kErrorNone);
@@ -267,8 +270,10 @@ void Joiner::SaveDiscoveredJoinerRouter(const Mle::DiscoverScanner::ScanResult &
 {
     uint8_t       priority;
     bool          doesAllowAny;
-    JoinerRouter *end = GetArrayEnd(mJoinerRouters);
+    JoinerRouter *end;
     JoinerRouter *entry;
+
+    VerifyOrExit(aResult.mJoinerUdpPort > 0);
 
     doesAllowAny = AsCoreType(&aResult.mSteeringData).PermitsAllJoiners();
 
@@ -280,6 +285,8 @@ void Joiner::SaveDiscoveredJoinerRouter(const Mle::DiscoverScanner::ScanResult &
 
     // We keep the list sorted based on priority. Find the place to
     // add the new result.
+
+    end = GetArrayEnd(mJoinerRouters);
 
     for (entry = &mJoinerRouters[0]; entry < end; entry++)
     {
@@ -358,7 +365,7 @@ Error Joiner::Connect(JoinerRouter &aRouter)
 
     sockAddr.GetAddress().SetToLinkLocalAddress(aRouter.mExtAddr);
 
-    SuccessOrExit(error = Get<Tmf::SecureAgent>().Connect(sockAddr, Joiner::HandleSecureCoapClientConnect, this));
+    SuccessOrExit(error = Get<Tmf::SecureAgent>().Connect(sockAddr));
 
     SetState(kStateConnect);
 
@@ -367,16 +374,16 @@ exit:
     return error;
 }
 
-void Joiner::HandleSecureCoapClientConnect(SecureTransport::ConnectEvent aEvent, void *aContext)
+void Joiner::HandleSecureCoapClientConnect(Dtls::Session::ConnectEvent aEvent, void *aContext)
 {
     static_cast<Joiner *>(aContext)->HandleSecureCoapClientConnect(aEvent);
 }
 
-void Joiner::HandleSecureCoapClientConnect(SecureTransport::ConnectEvent aEvent)
+void Joiner::HandleSecureCoapClientConnect(Dtls::Session::ConnectEvent aEvent)
 {
     VerifyOrExit(mState == kStateConnect);
 
-    if (aEvent == SecureTransport::kConnected)
+    if (aEvent == Dtls::Session::kConnected)
     {
         SetState(kStateConnected);
         SendJoinerFinalize();
@@ -468,7 +475,7 @@ exit:
 void Joiner::HandleJoinerFinalizeResponse(void                *aContext,
                                           otMessage           *aMessage,
                                           const otMessageInfo *aMessageInfo,
-                                          Error                aResult)
+                                          otError              aResult)
 {
     static_cast<Joiner *>(aContext)->HandleJoinerFinalizeResponse(AsCoapMessagePtr(aMessage), &AsCoreType(aMessageInfo),
                                                                   aResult);
@@ -570,7 +577,7 @@ void Joiner::HandleTimer(void)
 
         extAddress.GenerateRandom();
         Get<Mac::Mac>().SetExtAddress(extAddress);
-        Get<Mle::MleRouter>().UpdateLinkLocalAddress();
+        Get<Mle::Mle>().UpdateLinkLocalAddress();
 
         error = kErrorNone;
         break;
@@ -610,23 +617,6 @@ const char *Joiner::StateToString(State aState)
 
     return kStateStrings[aState];
 }
-
-#if OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE
-void Joiner::LogCertMessage(const char *aText, const Coap::Message &aMessage) const
-{
-    OT_UNUSED_VARIABLE(aText);
-
-    uint8_t buf[OPENTHREAD_CONFIG_MESSAGE_BUFFER_SIZE];
-
-    VerifyOrExit(aMessage.GetLength() <= sizeof(buf));
-    aMessage.ReadBytes(aMessage.GetOffset(), buf, aMessage.GetLength() - aMessage.GetOffset());
-
-    DumpCert(aText, buf, aMessage.GetLength() - aMessage.GetOffset());
-
-exit:
-    return;
-}
-#endif
 
 // LCOV_EXCL_STOP
 

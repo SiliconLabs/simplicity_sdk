@@ -61,6 +61,8 @@ extern "C" {
  */
 extern const RAIL_ChannelConfig_t *const RAIL_Sidewalk_Phy2GFSK50kbps;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Switch to the 2GFSK 50 kbps Sidewalk PHY.
  *
@@ -75,6 +77,8 @@ extern const RAIL_ChannelConfig_t *const RAIL_Sidewalk_Phy2GFSK50kbps;
  *   test for support of the Sidewalk PHY.
  */
 RAIL_Status_t RAIL_Sidewalk_ConfigPhy2GFSK50kbps(RAIL_Handle_t railHandle);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /// @} // End of group SIDEWALK_PHY
 

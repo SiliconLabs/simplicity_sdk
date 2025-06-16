@@ -54,12 +54,13 @@ extern "C" {
 /** @brief Start target finding and binding operations.
  *
  * A call to this function will commence the target finding and
- * binding operations. Specifically, the target will attempt to start
- * identifying on the endpoint that is passed as a parameter.
+ * binding operations. When called, the target device will begin identifying itself on the
+ * given endpoint, making it discoverable for initiator devices that are searching for targets
+ * to bind with.
  *
- * @param endpoint The endpoint on which to begin target operations.
+ * @param[in] endpoint The endpoint on which to begin target operations.
  *
- * @returns An ::sl_zigbee_af_status_t value describing the success of the
+ * @return An ::sl_zigbee_af_status_t value describing the success of the
  * commencement of the target operations.
  */
 sl_zigbee_af_status_t sl_zigbee_af_find_and_bind_target_start(uint8_t endpoint);

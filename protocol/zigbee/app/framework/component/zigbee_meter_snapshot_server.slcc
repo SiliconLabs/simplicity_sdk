@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component for handling snapshots of the meter state in a Smart Energy network.
 label: Meter Snapshot Server
 quality: production

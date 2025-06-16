@@ -97,12 +97,11 @@ static sl_status_t convertMscStatusToNvm3Status(MSC_Status_TypeDef result)
 // Check if the page is erased.
 static bool isErased(void *adr, size_t len)
 {
-  size_t i;
   size_t cnt;
   uint32_t *dat = adr;
 
   cnt = len / sizeof(uint32_t);
-  for (i = 0U; i < cnt; i++) {
+  for (size_t i = 0U; i < cnt; i++) {
     if (*dat != 0xFFFFFFFFUL) {
       return false;
     }

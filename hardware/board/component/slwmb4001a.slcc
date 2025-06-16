@@ -1,7 +1,7 @@
 !!omap
 - id: slwmb4001a
 - label: SLWMB4001A
-- package: platform
+- package: boards
 - description: Kit BSP support for the WSTK Mainboard.
 - category: Platform|Board|Kit|Wireless Main Board
 - quality: production

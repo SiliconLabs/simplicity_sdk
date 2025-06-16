@@ -7,6 +7,7 @@ class PhyFilters_Sol(IPhyFilter):
     customer_phy_groups = ['Phys_Internal_Base_Customer_Chamberlain',
                            'Phys_Internal_Base_Customer_Landis_Gyr',
                            'Phys_Internal_Base_Customer_Sigfox',
+                           'Phys_Internal_Base_Customer_Itron',
                            'Phys_Internal_Base_Experimental',
                            'Phys_Internal_Base_Standard_SUNFSK',
                            'Phys_Internal_Base_Utility',

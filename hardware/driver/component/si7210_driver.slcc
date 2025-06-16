@@ -1,13 +1,13 @@
 id: si7210_driver
-package: platform
+package: board_drivers
 label: Si7210 - Hall Effect Sensor
 description: >
-  Driver for the Silicon Labs Si7210 Hall effect sensor
+    Driver for the Silicon Labs Si7210 Hall effect sensor
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/si7210
 provides:
   - name: si7210_driver
@@ -26,3 +26,6 @@ source:
 documentation:
     docset: gecko-platform
     document: platform-hardware-driver/si7210
+template_contribution:
+  - name: component_catalog
+    value: si7210_driver

@@ -19,6 +19,7 @@
 #define SILABS_EZSP_FRAME_UTILITIES_H
 
 #include "stack/include/zll-types.h"
+
 #include "ezsp-enum.h" //for sl_zigbee_ezsp_status_t
 
 // The contents of the current EZSP frame.  This pointer can be used inside
@@ -348,6 +349,7 @@ void append_sl_zigbee_tok_type_stack_zll_security_t(sl_zigbee_tok_type_stack_zll
 
 void append_sl_zigbee_gp_address_t(sl_zigbee_gp_address_t *value);
 void fetch_sl_zigbee_gp_address_t(sl_zigbee_gp_address_t *value);
+void fetch_sl_zigbee_gp_params_t(sl_zigbee_gp_params_t *param);
 void fetch_sl_zigbee_gp_sink_list_t(sl_zigbee_gp_sink_list_entry_t *value);
 void fetch_sl_zigbee_gp_proxy_table_entry_t(sl_zigbee_gp_proxy_table_entry_t *value);
 void append_sl_zigbee_gp_proxy_table_entry_t(sl_zigbee_gp_proxy_table_entry_t *value);

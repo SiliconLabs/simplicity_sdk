@@ -1,6 +1,6 @@
 id: cmsis_nn
 label: CMSIS-NN
-package: platform
+package: platform_cmsis_nn
 description: CMSIS-NN neural network kernels for Cortex-M
 category: CMSIS|NN
 quality: production

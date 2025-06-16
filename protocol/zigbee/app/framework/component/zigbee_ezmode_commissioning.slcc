@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This comopnent provides a function set for implementing EZ-Mode commissioning.
 label: EZ-Mode Commissioning
 id: zigbee_ezmode_commissioning

@@ -28,7 +28,7 @@
 #define SL_BT_CONFIG_MAX_L2CAP_CHANNELS    SL_BT_CONFIG_USER_L2CAP_COC_CHANNELS
 #endif
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, l2cap, sli_bt_l2cap_config_t) = {
+const sli_bt_l2cap_config_t sli_bt_l2cap_config = {
   .max_l2cap_coc_channels = SL_BT_CONFIG_MAX_L2CAP_CHANNELS
 };
 

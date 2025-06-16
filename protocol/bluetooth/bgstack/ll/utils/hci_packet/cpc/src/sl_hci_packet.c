@@ -8,6 +8,7 @@
 #include "sl_hci_cpc.h"
 #include "sl_btctrl_hci_packet.h"
 
+static bool initialized = false;
 static uint8_t *read_buf = NULL;
 static hci_packet_t *packet = NULL;
 static enum hci_packet_state state;
@@ -129,6 +130,12 @@ uint32_t hci_common_transport_transmit(uint8_t *data, int16_t len)
 
 void hci_common_transport_init(void)
 {
+  if (initialized) {
+    return;
+  } else {
+    initialized = true;
+  }
+
   state = hci_packet_state_read_header;
   sl_hci_cpc_init();
 }

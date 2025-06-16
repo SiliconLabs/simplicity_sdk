@@ -1,5 +1,5 @@
 id: cs_acp
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CS ACP
 description: >
   Channel Sounding (CS) Application Co-Processor (ACP) provides the ACP commands and events to the CS device roles.
@@ -17,6 +17,7 @@ include:
 
 requires:
   - name: component_catalog
+  - name: cs_result
 
 provides:
   - name: cs_acp

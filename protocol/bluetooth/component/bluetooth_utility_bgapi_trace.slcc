@@ -1,6 +1,6 @@
 id: "bluetooth_utility_bgapi_trace"
 label: "BGAPI Trace utility"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth debugging utility for tracing BGAPI commands and events. Use
   this component to record a BGAPI trace if instructed by Silicon Labs.

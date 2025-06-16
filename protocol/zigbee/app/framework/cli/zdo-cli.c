@@ -89,6 +89,7 @@ void zdoSimpleCommand(sl_cli_command_arg_t *args)
   sl_status_t status = sl_zigbee_simple_descriptor_request(target,
                                                            targetEndpoint,
                                                            SL_ZIGBEE_AF_DEFAULT_APS_OPTIONS);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("ZDO simple desc req %02x", status);
 }
 
@@ -97,6 +98,7 @@ void zdoNodeCommand(sl_cli_command_arg_t *args)
   sl_802154_short_addr_t target = (sl_802154_short_addr_t)sl_cli_get_argument_uint16(args, 0);
   sl_status_t status = sl_zigbee_node_descriptor_request(target,
                                                          SL_ZIGBEE_AF_DEFAULT_APS_OPTIONS);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("ZDO node desc req %02x", status);
 }
 
@@ -111,6 +113,7 @@ void zdoMatchCommand(sl_cli_command_arg_t *args)
                                                sli_zigbee_af_cli_zdo_in_clusters,
                                                sli_zigbee_af_cli_zdo_out_clusters,
                                                SL_ZIGBEE_AF_DEFAULT_APS_OPTIONS);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("ZDO match desc req %02X", status);
 }
 
@@ -241,6 +244,7 @@ void zdoNetworkUpdateChannelCommand(sl_cli_command_arg_t *args)
                                              0xFE,
                                              0);
     }
+    UNUSED_VAR(status);
     sl_zigbee_app_debug_println("Change channel status: 0x%02x", status);
   }
 }
@@ -325,7 +329,7 @@ void zdoLeaveRequestCommand(sl_cli_command_arg_t *args)
                                    nullEui64,
                                    options,
                                    SL_ZIGBEE_APS_OPTION_RETRY);
-
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("Leave %s0x%02X", "Request: ", status);
 }
 
@@ -334,6 +338,7 @@ void zdoPowerDescriptorRequestCommand(sl_cli_command_arg_t *args)
   sl_802154_short_addr_t target = (sl_802154_short_addr_t)sl_cli_get_argument_uint16(args, 0);
   sl_status_t status = sl_zigbee_power_descriptor_request(target,
                                                           SL_ZIGBEE_APS_OPTION_RETRY);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("Power Descriptor %s0x%02X", "Request: ", status);
 }
 
@@ -413,6 +418,7 @@ void zdoRouteRequestCommand(sl_cli_command_arg_t *args)
   sl_status_t status = sl_zigbee_routing_table_request(target,
                                                        index,
                                                        SL_ZIGBEE_APS_OPTION_RETRY);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("Route Table %s0x%02X", "Request: ", status);
 }
 

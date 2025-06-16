@@ -36,6 +36,6 @@
   #define GATTDB_INCLUDE_STATIC      SLI_BT_GATTDB_CONFIG_FLAG_INCLUDE_STATIC_DB
 #endif // SL_CATALOG_BLUETOOTH_FEATURE_DYNAMIC_GATTDB_PRESENT
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, dynamic_gattdb, sli_bt_gattdb_config_t) = {
+const sli_bt_gattdb_config_t sli_bt_dynamic_gattdb_config = {
   .flags = (GATTDB_ENABLE_GATT_CACHING | GATTDB_INCLUDE_STATIC)
 };

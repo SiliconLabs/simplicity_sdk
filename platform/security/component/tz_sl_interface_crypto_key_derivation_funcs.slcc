@@ -1,5 +1,5 @@
 id: tz_sl_interface_crypto_key_derivation_funcs
-package: platform
+package: security_trustzone
 description: >-
   This component provides a TrustZone secure library interface crypto key derivation functions
 category: Platform|Security|TrustZone

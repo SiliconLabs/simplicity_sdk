@@ -1,15 +1,13 @@
 id: device_init_lfxo
-label: "Low Frequency Crystal Oscillator (LFXO)"
-package: platform
+label: Low Frequency Crystal Oscillator (LFXO)
+package: platform_core
 description: >
-  Initiate the component for Low Frequency Crystal Oscillator (LFXO) 
-  initialization based on the provided configuration, such as crystal accuracy 
-  and startup time delay.
+    Initiate the component for Low Frequency Crystal Oscillator (LFXO)  initialization based on the provided configuration, such as crystal accuracy  and startup time delay.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 config_file:
   - path: config/s2/sl_device_init_lfxo_config.h
@@ -30,15 +28,15 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_lfxo.h
-      handler: sl_device_init_lfxo
+        event: platform_init
+        include: sl_device_init_lfxo.h
+        handler: sl_device_init_lfxo
     priority: -9750
-    condition: [sl_system]
+    condition: [sl_system, kernel]
   - name: device_init_clocks_present
     value: lfxo
   - name: component_catalog
     value: device_init_lfxo
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-lfxo
+    docset: gecko-platform
+    document: platform-service/device-init-lfxo

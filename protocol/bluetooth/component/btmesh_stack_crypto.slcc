@@ -1,6 +1,6 @@
 id: "btmesh_stack_crypto"
 label: "Bluetooth Mesh Stack Crypto"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "This component selects and configures the cryptographic components needed by the Bluetooth mesh stack, according to the device family's capabilities."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

@@ -1,5 +1,5 @@
 id: mbedtls_mpi
-package: platform
+package: security_mbedtls
 label: Multi-Precision Integers
 description: >-
   This component enables the Mbed TLS multi-precision integer (MPI) library.

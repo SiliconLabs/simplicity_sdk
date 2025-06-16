@@ -177,6 +177,7 @@ extern "C" {
 #define sl_btmesh_cmd_node_clear_proxy_service_scan_response_id          0x38140028
 #define sl_btmesh_cmd_node_set_provisioning_service_scan_response_id     0x39140028
 #define sl_btmesh_cmd_node_clear_provisioning_service_scan_response_id   0x3a140028
+#define sl_btmesh_cmd_node_compare_dcd_id                                0x3b140028
 #define sl_btmesh_rsp_node_init_id                                       0x00140028
 #define sl_btmesh_rsp_node_set_exportable_keys_id                        0x24140028
 #define sl_btmesh_rsp_node_start_unprov_beaconing_id                     0x01140028
@@ -226,6 +227,7 @@ extern "C" {
 #define sl_btmesh_rsp_node_clear_proxy_service_scan_response_id          0x38140028
 #define sl_btmesh_rsp_node_set_provisioning_service_scan_response_id     0x39140028
 #define sl_btmesh_rsp_node_clear_provisioning_service_scan_response_id   0x3a140028
+#define sl_btmesh_rsp_node_compare_dcd_id                                0x3b140028
 
 /**
  * @brief Flags for allowed provisioning algorithms during provisioning, which
@@ -371,6 +373,38 @@ typedef enum
   sl_btmesh_node_identity    = 0x8042, /**< (0x8042) Identity status */
   sl_btmesh_node_nettx       = 0x8024  /**< (0x8024) Network transmit status */
 } sl_btmesh_node_config_state_t;
+
+/**
+ * @brief Indicates the type of differences found between a given composition
+ * data page content and the current one. Available details are page-specific
+ */
+typedef enum
+{
+  sl_btmesh_node_composition_changed  = 0x1,    /**< (0x1) Page content differs
+                                                     in any way. */
+  sl_btmesh_node_cid_changed          = 0x2,    /**< (0x2) Company Identifier
+                                                     changed */
+  sl_btmesh_node_pid_changed          = 0x4,    /**< (0x4) Product Identifier
+                                                     changed */
+  sl_btmesh_node_vid_changed          = 0x8,    /**< (0x8) Version Identifier
+                                                     changed */
+  sl_btmesh_node_crpl_changed         = 0x10,   /**< (0x10) Replay Protection
+                                                     List size changed */
+  sl_btmesh_node_features_changed     = 0x20,   /**< (0x20) Features changed
+                                                     (Relay, Proxy, Friend or
+                                                     Low Power */
+  sl_btmesh_node_element_loc_changed  = 0x40,   /**< (0x40) Element location
+                                                     changed for some element */
+  sl_btmesh_node_sig_model_added      = 0x80,   /**< (0x80) SIG model entry
+                                                     added */
+  sl_btmesh_node_sig_model_removed    = 0x100,  /**< (0x100) SIG model entry
+                                                     removed */
+  sl_btmesh_node_vendor_model_added   = 0x200,  /**< (0x200) Vendor model added */
+  sl_btmesh_node_vendor_model_removed = 0x400,  /**< (0x400) Vendor model
+                                                     removed */
+  sl_btmesh_node_element_added        = 0x800,  /**< (0x800) Element added */
+  sl_btmesh_node_element_removed      = 0x1000  /**< (0x1000) Element removed */
+} sl_btmesh_node_dcd_comparison_t;
 
 /**
  * @addtogroup sl_btmesh_node_message_flags Message Flags
@@ -2033,6 +2067,27 @@ sl_status_t sl_btmesh_node_set_provisioning_service_scan_response(size_t scan_re
  ******************************************************************************/
 sl_status_t sl_btmesh_node_clear_provisioning_service_scan_response();
 
+/***************************************************************************//**
+ *
+ * Compare a composition data page to the currently active one.
+ *
+ * This command compares scans the given data and the currently active
+ * compositon data page for differences.
+ *
+ * @param[in] page_number Composition Data page number. Valid range: 0-2.
+ * @param[in] page_data_len Length of data in @p page_data
+ * @param[in] page_data Composition Data page content to be compared
+ * @param[out] diff Enum @ref sl_btmesh_node_dcd_comparison_t. Bit field
+ *   indication the types of differences found.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_node_compare_dcd(uint8_t page_number,
+                                       size_t page_data_len,
+                                       const uint8_t* page_data,
+                                       uint32_t *diff);
+
 /** @} */ // end addtogroup sl_btmesh_node
 
 /**
@@ -2148,7 +2203,6 @@ sl_status_t sl_btmesh_node_clear_provisioning_service_scan_response();
 #define sl_btmesh_cmd_prov_get_key_refresh_phase_id                      0x3e150028
 #define sl_btmesh_cmd_prov_start_key_refresh_from_phase_id               0x3f150028
 #define sl_btmesh_cmd_prov_flush_key_refresh_state_id                    0x40150028
-#define sl_btmesh_cmd_prov_test_identity_id                              0x48150028
 #define sl_btmesh_cmd_prov_get_provisioning_records_list_id              0x1c150028
 #define sl_btmesh_cmd_prov_get_provisioning_record_data_id               0x1d150028
 #define sl_btmesh_cmd_prov_init_provisioning_records_id                  0x1e150028
@@ -2187,7 +2241,6 @@ sl_status_t sl_btmesh_node_clear_provisioning_service_scan_response();
 #define sl_btmesh_rsp_prov_get_key_refresh_phase_id                      0x3e150028
 #define sl_btmesh_rsp_prov_start_key_refresh_from_phase_id               0x3f150028
 #define sl_btmesh_rsp_prov_flush_key_refresh_state_id                    0x40150028
-#define sl_btmesh_rsp_prov_test_identity_id                              0x48150028
 #define sl_btmesh_rsp_prov_get_provisioning_records_list_id              0x1c150028
 #define sl_btmesh_rsp_prov_get_provisioning_record_data_id               0x1d150028
 #define sl_btmesh_rsp_prov_init_provisioning_records_id                  0x1e150028
@@ -3511,27 +3564,6 @@ sl_status_t sl_btmesh_prov_flush_key_refresh_state(uint16_t netkey_index);
 
 /***************************************************************************//**
  *
- * Test if data in the identity beacon matches the mesh device and network. This
- * is a deprecated function. Please use @ref sl_btmesh_node_test_identity
- *
- * @param[in] address Mesh address of the node
- * @param[in] netkey_index Network key index of the node.
- * @param[in] data_len Length of data in @p data
- * @param[in] data Contents of the identity beacon.
- * @param[out] match   - 0: Identity record did not match
- *     - 1: Identity record match
- *
- * @return SL_STATUS_OK if successful. Error code otherwise.
- *
- ******************************************************************************/
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_prov_test_identity(uint16_t address,
-                                         uint16_t netkey_index,
-                                         size_t data_len,
-                                         const uint8_t* data,
-                                         uint8_t *match);
-
-/***************************************************************************//**
- *
  * Get the list of provisioning records on the device. This command can be
  * issued when provisioning is suspended after the provisioning session has been
  * opened, but no earlier or later. The list of provisioning records on the
@@ -3798,7 +3830,7 @@ sl_status_t sl_btmesh_proxy_optimisation_toggle(uint8_t enable);
  * @return SL_STATUS_OK if successful. Error code otherwise.
  *
  ******************************************************************************/
-sl_status_t sl_btmesh_proxy_send_solicitation(uint8_t enc_netkey_index,
+sl_status_t sl_btmesh_proxy_send_solicitation(uint16_t enc_netkey_index,
                                               uint16_t elem_index,
                                               uint16_t dst);
 
@@ -6228,10 +6260,8 @@ sl_status_t sl_btmesh_generic_server_get_cached_state(uint16_t elem_index,
 #define sl_btmesh_cmd_test_set_nettx_id                                  0x01220028
 #define sl_btmesh_cmd_test_get_relay_id                                  0x02220028
 #define sl_btmesh_cmd_test_set_relay_id                                  0x03220028
-#define sl_btmesh_cmd_test_set_adv_scan_params_id                        0x04220028
 #define sl_btmesh_cmd_test_set_ivupdate_test_mode_id                     0x05220028
 #define sl_btmesh_cmd_test_get_ivupdate_test_mode_id                     0x06220028
-#define sl_btmesh_cmd_test_set_segment_send_delay_id                     0x07220028
 #define sl_btmesh_cmd_test_set_ivupdate_state_id                         0x08220028
 #define sl_btmesh_cmd_test_send_beacons_id                               0x09220028
 #define sl_btmesh_cmd_test_bind_local_model_app_id                       0x0a220028
@@ -6251,7 +6281,6 @@ sl_status_t sl_btmesh_generic_server_get_cached_state(uint16_t elem_index,
 #define sl_btmesh_cmd_test_add_local_key_id                              0x1a220028
 #define sl_btmesh_cmd_test_remove_local_key_id                           0x1b220028
 #define sl_btmesh_cmd_test_update_local_key_id                           0x1c220028
-#define sl_btmesh_cmd_test_set_sar_config_id                             0x1d220028
 #define sl_btmesh_cmd_test_set_adv_bearer_state_id                       0x1f220028
 #define sl_btmesh_cmd_test_prov_get_device_key_id                        0x23220028
 #define sl_btmesh_cmd_test_prov_prepare_key_refresh_id                   0x24220028
@@ -6286,10 +6315,8 @@ sl_status_t sl_btmesh_generic_server_get_cached_state(uint16_t elem_index,
 #define sl_btmesh_rsp_test_set_nettx_id                                  0x01220028
 #define sl_btmesh_rsp_test_get_relay_id                                  0x02220028
 #define sl_btmesh_rsp_test_set_relay_id                                  0x03220028
-#define sl_btmesh_rsp_test_set_adv_scan_params_id                        0x04220028
 #define sl_btmesh_rsp_test_set_ivupdate_test_mode_id                     0x05220028
 #define sl_btmesh_rsp_test_get_ivupdate_test_mode_id                     0x06220028
-#define sl_btmesh_rsp_test_set_segment_send_delay_id                     0x07220028
 #define sl_btmesh_rsp_test_set_ivupdate_state_id                         0x08220028
 #define sl_btmesh_rsp_test_send_beacons_id                               0x09220028
 #define sl_btmesh_rsp_test_bind_local_model_app_id                       0x0a220028
@@ -6309,7 +6336,6 @@ sl_status_t sl_btmesh_generic_server_get_cached_state(uint16_t elem_index,
 #define sl_btmesh_rsp_test_add_local_key_id                              0x1a220028
 #define sl_btmesh_rsp_test_remove_local_key_id                           0x1b220028
 #define sl_btmesh_rsp_test_update_local_key_id                           0x1c220028
-#define sl_btmesh_rsp_test_set_sar_config_id                             0x1d220028
 #define sl_btmesh_rsp_test_set_adv_bearer_state_id                       0x1f220028
 #define sl_btmesh_rsp_test_prov_get_device_key_id                        0x23220028
 #define sl_btmesh_rsp_test_prov_prepare_key_refresh_id                   0x24220028
@@ -6527,44 +6553,6 @@ sl_status_t sl_btmesh_test_set_relay(uint8_t enabled,
 
 /***************************************************************************//**
  *
- * Set the non-default advertisement and scanning parameters used in mesh
- * communications. Call this command before @ref sl_btmesh_node_init or @ref
- * sl_btmesh_prov_init for the settings to take effect. This is a deprecated
- * function. Please use @ref sl_btmesh_test_set_adv_params and @ref
- * sl_btmesh_test_set_scan_params
- *
- * @param[in] adv_interval_min Minimum advertisement interval. Value is in units
- *   of 0.625 ms. Default value is 32 (20 ms). Must be equal to or greater than
- *   32.
- * @param[in] adv_interval_max Maximum advertisement interval. Value is in units
- *   of 0.625 ms. Must be equal to or greater than the minimum interval. Default
- *   value is 32 (20 ms). Must be equal to or less than 16384 (0x4000), which is
- *   10.24s.
- * @param[in] adv_repeat_packets Number of times to repeat each packet on all
- *   selected advertisement channels. Range: 1-5. Default value is 1.
- * @param[in] adv_use_random_address Bluetooth address type. Range: 0: use
- *   public address, 1: use random address. Default value: 1 (random address).
- * @param[in] adv_channel_map Advertisement channel selection bitmask. Range:
- *   0x1-0x7. Default value: 7 (all channels)
- * @param[in] scan_interval Scan interval. Value is in units of 0.625 ms. Range:
- *   0x0004 to 0x4000 (time range of 2.5 ms to 10.24 s). Default value is 160
- *   (100 ms).
- * @param[in] scan_window Scan window. Value is in units of 0.625 ms. Must be
- *   equal to or less than the scan interval.
- *
- * @return SL_STATUS_OK if successful. Error code otherwise.
- *
- ******************************************************************************/
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_adv_scan_params(uint16_t adv_interval_min,
-                                               uint16_t adv_interval_max,
-                                               uint8_t adv_repeat_packets,
-                                               uint8_t adv_use_random_address,
-                                               uint8_t adv_channel_map,
-                                               uint16_t scan_interval,
-                                               uint16_t scan_window);
-
-/***************************************************************************//**
- *
  * By default, IV index update is limited in how often the update procedure can
  * be performed. This test command can be called to set IV update test mode
  * where any time limits are ignored.
@@ -6587,21 +6575,6 @@ sl_status_t sl_btmesh_test_set_ivupdate_test_mode(uint8_t mode);
  *
  ******************************************************************************/
 sl_status_t sl_btmesh_test_get_ivupdate_test_mode(uint8_t *mode);
-
-/***************************************************************************//**
- *
- * Set the delay in milliseconds between sending consecutive segments of a
- * segmented message. This is a deprecated function. Please use @ref
- * sl_btmesh_sar_config_server_set_sar_transmitter and @ref
- * sl_btmesh_sar_config_server_set_sar_receiver instead.
- *
- * @param[in] delay Number of milliseconds to delay each segment after the
- *   first. Must be equal to or less than 160.
- *
- * @return SL_STATUS_OK if successful. Error code otherwise.
- *
- ******************************************************************************/
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_segment_send_delay(uint8_t delay);
 
 /***************************************************************************//**
  *
@@ -7069,38 +7042,6 @@ sl_status_t sl_btmesh_test_remove_local_key(uint8_t key_type,
 sl_status_t sl_btmesh_test_update_local_key(uint8_t key_type,
                                             aes_key_128 key,
                                             uint16_t key_index);
-
-/***************************************************************************//**
- *
- * Change the transport layer segmentation and reassembly configuration values.
- * This is a deprecated function. Please use @ref
- * sl_btmesh_sar_config_server_set_sar_transmitter and @ref
- * sl_btmesh_sar_config_server_set_sar_receiver instead.
- *
- * @param[in] incomplete_timer_ms Maximum timeout before a transaction expires,
- *   regardless of other parameters. Value is in milliseconds. Default = 10000
- *   (10 seconds).
- * @param[in] pending_ack_base_ms Base time to wait at the receiver before
- *   sending a transport layer acknowledgment. Value is in milliseconds. Default
- *   = 150.
- * @param[in] pending_ack_mul_ms The time-to-live multiplier to add to the base
- *   acknowledgment timer. Value is in milliseconds. Default = 50.
- * @param[in] wait_for_ack_base_ms Base time to wait for an acknowledgment at
- *   the sender before retransmission. Value is in milliseconds. Default = 200.
- * @param[in] wait_for_ack_mul_ms The time-to-live multiplier to add to the base
- *   retransmission timer. Value is in milliseconds. Default = 50.
- * @param[in] max_send_rounds Number of attempts to send fragments of a
- *   segmented message, including the initial TX. Default = 3.
- *
- * @return SL_STATUS_OK if successful. Error code otherwise.
- *
- ******************************************************************************/
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_sar_config(uint32_t incomplete_timer_ms,
-                                          uint32_t pending_ack_base_ms,
-                                          uint32_t pending_ack_mul_ms,
-                                          uint32_t wait_for_ack_base_ms,
-                                          uint32_t wait_for_ack_mul_ms,
-                                          uint8_t max_send_rounds);
 
 /***************************************************************************//**
  *
@@ -14526,12 +14467,14 @@ sl_status_t sl_btmesh_lc_setup_server_update_property(uint16_t elem_index,
 #define sl_btmesh_cmd_scene_client_recall_id                             0x034f0028
 #define sl_btmesh_cmd_scene_client_store_id                              0x044f0028
 #define sl_btmesh_cmd_scene_client_delete_id                             0x054f0028
+#define sl_btmesh_cmd_scene_client_deinit_id                             0x064f0028
 #define sl_btmesh_rsp_scene_client_init_id                               0x004f0028
 #define sl_btmesh_rsp_scene_client_get_id                                0x014f0028
 #define sl_btmesh_rsp_scene_client_get_register_id                       0x024f0028
 #define sl_btmesh_rsp_scene_client_recall_id                             0x034f0028
 #define sl_btmesh_rsp_scene_client_store_id                              0x044f0028
 #define sl_btmesh_rsp_scene_client_delete_id                             0x054f0028
+#define sl_btmesh_rsp_scene_client_deinit_id                             0x064f0028
 
 /**
  * @addtogroup sl_btmesh_evt_scene_client_status sl_btmesh_evt_scene_client_status
@@ -14739,6 +14682,18 @@ sl_status_t sl_btmesh_scene_client_delete(uint16_t server_address,
                                           uint16_t selected_scene,
                                           uint16_t appkey_index,
                                           uint8_t flags);
+
+/***************************************************************************//**
+ *
+ * Deinitialize the Scene Client model. This deactivates the model in the mesh
+ * stack.
+ *
+ * @param[in] elem_index Index of the client element.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_scene_client_deinit(uint16_t elem_index);
 
 /** @} */ // end addtogroup sl_btmesh_scene_client
 
@@ -14969,7 +14924,9 @@ sl_status_t sl_btmesh_scene_server_enable_compact_recall_events();
 
 /* Command and Response IDs */
 #define sl_btmesh_cmd_scene_setup_server_init_id                         0x00510028
+#define sl_btmesh_cmd_scene_setup_server_deinit_id                       0x01510028
 #define sl_btmesh_rsp_scene_setup_server_init_id                         0x00510028
+#define sl_btmesh_rsp_scene_setup_server_deinit_id                       0x01510028
 
 /**
  * @addtogroup sl_btmesh_evt_scene_setup_server_store sl_btmesh_evt_scene_setup_server_store
@@ -15061,6 +15018,18 @@ typedef struct sl_btmesh_evt_scene_setup_server_publish_s sl_btmesh_evt_scene_se
  *
  ******************************************************************************/
 sl_status_t sl_btmesh_scene_setup_server_init(uint16_t elem_index);
+
+/***************************************************************************//**
+ *
+ * Deinitialize the Scene Setup Server model. This deactivates the model in the
+ * mesh stack.
+ *
+ * @param[in] elem_index Index of the element.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_scene_setup_server_deinit(uint16_t elem_index);
 
 /** @} */ // end addtogroup sl_btmesh_scene_setup_server
 
@@ -19227,6 +19196,46 @@ typedef enum
 } sl_btmesh_remote_provisioning_client_link_state_t;
 
 /**
+ * @brief NPPI operation type
+ */
+typedef enum
+{
+  sl_btmesh_remote_provisioning_client_nppi_device_key_update = 0x0,  /**<
+                                                                           (0x0)
+                                                                           Update
+                                                                           Device
+                                                                           Key */
+  sl_btmesh_remote_provisioning_client_nppi_address_update    = 0x1,  /**<
+                                                                           (0x1)
+                                                                           Update
+                                                                           device
+                                                                           address.
+                                                                           Note
+                                                                           that
+                                                                           also
+                                                                           DCD
+                                                                           will
+                                                                           be
+                                                                           updated
+                                                                           if
+                                                                           updated
+                                                                           DCD
+                                                                           is
+                                                                           available */
+  sl_btmesh_remote_provisioning_client_nppi_dcd_update        = 0x2,  /**<
+                                                                           (0x2)
+                                                                           Update
+                                                                           device
+                                                                           DCD */
+  sl_btmesh_remote_provisioning_client_remote_provisioning    = 0xff  /**<
+                                                                           (0xff)
+                                                                           Provision
+                                                                           a
+                                                                           remote
+                                                                           device. */
+} sl_btmesh_remote_provisioning_client_nppi_operation_t;
+
+/**
  * @addtogroup sl_btmesh_evt_remote_provisioning_client_scan_capabilities sl_btmesh_evt_remote_provisioning_client_scan_capabilities
  * @{
  * @brief Scan capabilities of the remote provisioning server.
@@ -19544,8 +19553,12 @@ sl_status_t sl_btmesh_remote_provisioning_client_start_extended_scan(uint16_t en
  * @param[in] server Server address.
  * @param[in] elem_index Client element index
  * @param[in] timeout_sec Time limit for a scan (in seconds).
- * @param[in] dkri The Device Key Refresh Interface.
- * @param[in] uuid UUID of the device to provision. Valid if dkri is not 0xff
+ * @param[in] dkri Enum @ref
+ *   sl_btmesh_remote_provisioning_client_nppi_operation_t. Selection of Network
+ *   Interface Operation or remote provisioning.
+ * @param[in] uuid UUID of the device to provision. Valid if NPPI(dkri)
+ *   procedure is not @ref
+ *   sl_btmesh_remote_provisioning_client_remote_provisioning
  *
  * @return SL_STATUS_OK if successful. Error code otherwise.
  *
@@ -22694,6 +22707,44 @@ sl_status_t sl_btmesh_diagnostic_get_friend(uint32_t *queue_counter,
                                             uint32_t *remove_counter_old_segment);
 
 /** @} */ // end addtogroup sl_btmesh_diagnostic
+
+/**
+ * @addtogroup sl_btmesh_model_migration Bluetooth Mesh model configuration migration
+ * @{
+ *
+ * @brief Bluetooth Mesh model configuration migration
+ *
+ * These commands are meant for migrating existing model configuration data from
+ * older releases to 9.0 and later releases.
+ */
+
+/* Command and Response IDs */
+#define sl_btmesh_cmd_model_migration_migrate_models_id                  0x016e0028
+#define sl_btmesh_rsp_model_migration_migrate_models_id                  0x016e0028
+
+/***************************************************************************//**
+ *
+ * Migrate model configuration data and virtual address data from pre-9.0
+ * release storage format to 9.0 release storage format.
+ *
+ * The command expects that DCD page 0 data is stored in persistent storage and
+ * contains device composition data that corresponds to the model entries stored
+ * on the device. It will create new storage format entries and copy the
+ * existing model configurations to the new entries based on the model layout
+ * defined on DCD page 0.
+ *
+ * After all data is successfully copied to new format the old entries will be
+ * removed.
+ *
+ * This command must be executed prior to node or Provisioner initialization.
+ *
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_model_migration_migrate_models();
+
+/** @} */ // end addtogroup sl_btmesh_model_migration
 
 
 /***************************************************************************//**

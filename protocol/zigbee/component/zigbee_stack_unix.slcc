@@ -1,6 +1,6 @@
 id: zigbee_stack_unix
 label: Zigbee Stack Unix
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines, source files, and include paths to build Zigbee apps against Linux.
@@ -67,8 +67,6 @@ provides:
       - zigbee_stack_unix
 
 requires:
-  - name: sl_system_init
-  - name: sl_system_process_action
   - name: sl_common
   - name: sl_core
   - name: operating_system
@@ -126,7 +124,7 @@ include:
   - path: platform/service/legacy_host/inc
   - path: platform/service/legacy_common_ash/inc
   - path: platform/service/legacy_ncp_ash/inc
-  - path: platform/service/token_manager/inc
+  - path: platform/service/token_manager/legacy/inc
     file_list:
       - path: sl_token_manufacturing_unix.h
   - path: platform/emlib/host/inc
@@ -163,7 +161,7 @@ source:
 # implements sl_zigbee_serial* functions for a posix target, opening a tty
 # possibly move file to something like:
 # platform/service/legacy_serial/ember-serial-posix.c
-  - path: platform/service/token_manager/src/sl_token_def.c
+  - path: platform/service/token_manager/legacy/src/sl_token_def.c
   - path: protocol/zigbee/app/projects/zigbeed/serial_adapter.c
   - path: platform/service/legacy_host/src/token.c
   - path: platform/service/legacy_hal/src/rijndael-alg-fst.c

@@ -1,14 +1,14 @@
 id: cycle_counter
-package: platform
+package: platform_core
 label: Cycle Counter
-description: > 
-  Data Watchpoint and Trace (DWT) cycle counter is a platform module that initializes
-  the DWT hardware and allows to count execution cycles via a simple API.
+description: >
+    Data Watchpoint and Trace (DWT) cycle counter is a platform module that initializes
+    the DWT hardware and allows to count execution cycles via a simple API.
 category: Platform|Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/driver/cycle_counter
 include:
   - path: inc
@@ -24,9 +24,9 @@ provides:
 template_contribution:
   - name: event_handler
     value:
-      event: driver_init
-      include: "sl_cycle_counter.h"
-      handler: sl_cycle_counter_enable
+        event: driver_init
+        include: sl_cycle_counter.h
+        handler: sl_cycle_counter_enable
     priority: -20
   - name: component_catalog
     value: cycle_counter

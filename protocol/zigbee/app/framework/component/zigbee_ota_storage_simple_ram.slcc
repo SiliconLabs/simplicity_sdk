@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is a test implementation of a storage driver for the Over-the-air simple storage module.  It uses RAM to store a single, non-bootable, test image.  It is intended for basic demonstration purposes only and is not production-ready.  It can be used for either an OTA Client or OTA Server.
 label: OTA Simple Storage RAM Driver
 quality: production

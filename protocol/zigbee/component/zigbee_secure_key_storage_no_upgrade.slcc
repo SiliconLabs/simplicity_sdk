@@ -1,5 +1,5 @@
 id: zigbee_secure_key_storage_no_upgrade
-package: Zigbee
+package: zigbee
 label: Zigbee Secure Key Storage No Upgrade
 description: |-
   This component exists to free up associated code space for builds that do not need the relevant backwards compatibility.

@@ -1,10 +1,9 @@
 from pyradioconfig.parts.bobcat.phys.Phys_RAIL_Base_Standard_BLE import PHYS_Bluetooth_LE_Bobcat
 from pyradioconfig.parts.rainier.phys.Phys_RAIL_Base_Standard_IEEE802154 import PhysRailBaseStandardIeee802154Rainier
-from pyradioconfig.parts.common.phys.phy_common import PHY_COMMON_FRAME_BLE, PHY_COMMON_FRAME_BLE_CODED, PHY_COMMON_FRAME_BLE_AOX
+from pyradioconfig.parts.common.phys.phy_common import PHY_COMMON_FRAME_BLE_CODED, PHY_COMMON_FRAME_BLE_AOX
 from py_2_and_3_compatibility import *
 from pyradioconfig.calculator_model_framework.decorators.phy_decorators import do_not_inherit_prod_phys
-from pyradioconfig.parts.rainier.phys.Phys_common import fast_hopping_agc
-import pdb
+from pyradioconfig.parts.rainier.phys.Phys_common import fast_detection_agc_settings
 
 
 @do_not_inherit_prod_phys
@@ -36,10 +35,10 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_SICTRL2_SUPERCHIPNUM.override = 0
         phy.profile_outputs.MODEM_SICTRL2_CORRNUM.override = 0
         phy.profile_outputs.MODEM_SICTRL2_SHFTWIN.override = 7
-        phy.profile_outputs.MODEM_SICTRL2_NARROWPULSETHRESH.override = 31
+        phy.profile_outputs.MODEM_SICTRL2_NARROWPULSETHRESH.override = 6
         phy.profile_outputs.MODEM_SICTRL2_PEAKNUMADJEN.override = 51  # 0b00110011
-        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAYMODE.override = 0
-        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAY.override = 0
+        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAYMODE.override = 1
+        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAY.override = 1
         phy.profile_outputs.MODEM_SICORR_CORRTHRESH.override = 306
         phy.profile_outputs.MODEM_SICORR_CORRTHRESHLOW.override = 56
         phy.profile_outputs.MODEM_SICORR_CORRTHRESHUP.override = 31
@@ -48,7 +47,19 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
     def BLE_1M_Signal_Identifier_fast_hopping_overrides(self, phy, model):
         phy.profile_outputs.MODEM_SICTRL0_SYMIDENTDIS.override  = 1
         phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAYMODE.override = 1
-        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAY.override = 2
+        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAY.override = 1
+
+        if model.part_revision not in ['A0', 'A1', 'A2']:
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_FASTCWDETECTEN.override = 1
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_FASTSUPERCHIPEN.override = 0
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_FASTNARROWPULSEEN.override = 1
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_EYEOPENINGMODE.override = 2
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_CWDETECTSTARTWINDOW.override = 5
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_CWDETECTTHRESHOLD.override = 25
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_SUPERCHIPSTARTWINDOW.override = 9
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_NPULSEFIXEDTHRESHOLD.override = 0
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_NPULSETHRESHADJEN.override = 5
+            phy.profile_outputs.MODEM_SIFASTDETECTCTRL_NPULSETHRESHADJ.override = 2
 
     def BLE_2M_Signal_Identifier_Regs (self, phy, model):
         phy.profile_outputs.MODEM_SICTRL0_SIMODE.override = 2
@@ -107,7 +118,7 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_SYNCWORDCTRL_SYNCSWFEC.override = 0
 
         # AGC settings (consistent with 802154 fast switching AGC settings)
-        fast_hopping_agc(phy, model)
+        fast_detection_agc_settings(phy, model)
         phy.profile_outputs.AGC_CTRL0_MODE.override = 4 #Temporary until testing is complete
 
         phy.profile_outputs.MODEM_AUTOCG_AUTOCGEN.override = 1
@@ -120,7 +131,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         phy.profile_outputs.MODEM_DIGMIXCTRL_BLEORZB.override = 0
         phy.profile_outputs.MODEM_DIGMIXCTRL_MULTIPHYHOP.override = 0
-        phy.profile_outputs.MODEM_DIGMIXCTRL_HOPPINGSRC.override = 0
         phy.profile_outputs.MODEM_DIGMIXCTRL_RXBRINTSHIFT.override = 0
 
         phy.profile_outputs.MODEM_PHDMODCTRL_PMDETEN.override = 0
@@ -138,9 +148,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSPMTIMEOUT.override = 0
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSFRMTIMEOUT.override = 2
 
-        phy.profile_outputs.MODEM_EHDSSSCFG0_DSSSPATT.override = 122
-        phy.profile_outputs.MODEM_EHDSSSCFG0_DSSSPATT.override = 122
-        phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSEXPSYNCLEN.override = 128
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSEXPSYNCLEN.override = 128
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSCORRTHD.override = 400
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSDSAQTHD.override = 700
@@ -149,7 +156,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_EHDSSSCFG2_ONESYMBOLMBDD.override = 1
         phy.profile_outputs.MODEM_EHDSSSCFG2_MAXSCHMODE.override = 0
         phy.profile_outputs.MODEM_EHDSSSCFG2_DSSSTRACKINGWIN.override = 2
-        phy.profile_outputs.MODEM_EHDSSSCFG2_DSSSDSAQUALEN.override = 1
         phy.profile_outputs.MODEM_EHDSSSCFG2_DSSSCORRSCHWIN.override = 4
         phy.profile_outputs.MODEM_EHDSSSCFG3_DSSSINITIMLEN.override = 3
         phy.profile_outputs.MODEM_EHDSSSCFG3_DSSSDASMAXTHD.override = 1400
@@ -181,30 +187,40 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         self.BLE_1M_Signal_Identifier_fast_hopping_overrides(phy, model)
 
     def _ble_agc_halfrate(self, phy, model):
-        self.BLE_AGC(phy, model)
-        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHISTL.override = 0 #Preserve validated behavior by starting period counter immediately
-        phy.profile_outputs.AGC_AGCPERIOD0_MAXHICNTTHD.override = 8 #Updated to 8 to reflect maximum possible count after blanking
-        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHI.override = 14
-        phy.profile_outputs.AGC_AGCPERIOD1_PERIODLOW.override = 45
         phy.profile_outputs.AGC_CTRL0_PWRTARGET.override = 245
-        phy.profile_outputs.AGC_GAINRANGE_PNGAINSTEP.override = 1
-        phy.profile_outputs.AGC_GAINSTEPLIM0_CFLOOPSTEPMAX.override = 4
-        phy.profile_outputs.AGC_GAINSTEPLIM0_HYST.override = 3
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION0.override = 4
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION1.override = 5
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION2.override = 6
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION3.override = 7
-        phy.profile_outputs.AGC_HICNTREGION1_HICNTREGION4.override = 8
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN0.override = 0
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN1.override = 1
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN2.override = 2
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN3.override = 3
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN4.override = 3
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN5.override = 5
+        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHI.override = 14
+        phy.profile_outputs.AGC_AGCPERIOD1_PERIODLOW.override = 70
+        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHISTL.override = 1
+        phy.profile_outputs.AGC_AGCPERIOD0_MAXHICNTTHD.override = 13
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION0.override = 6
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION1.override = 8
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION2.override = 10
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION3.override = 12
+        phy.profile_outputs.AGC_HICNTREGION1_HICNTREGION4.override = 13
 
     def _ble_agc_fullrate(self, phy, model):
-        self.BLE_AGC(phy, model)
-        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHISTL.override = 0  # Preserve validated behavior by starting period counter immediately
-        phy.profile_outputs.AGC_AGCPERIOD0_MAXHICNTTHD.override = 8  # Updated to 8 to reflect maximum possible count after blanking
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION0.override = 4
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION1.override = 5
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION2.override = 6
-        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION3.override = 7
-        phy.profile_outputs.AGC_HICNTREGION1_HICNTREGION4.override = 8
+        phy.profile_outputs.AGC_CTRL0_PWRTARGET.override = 245
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN0.override = 0
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN1.override = 1
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN2.override = 2
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN3.override = 3
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN4.override = 3
+        phy.profile_outputs.AGC_STEPDWN_STEPDWN5.override = 5
+        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHI.override = 14
+        phy.profile_outputs.AGC_AGCPERIOD1_PERIODLOW.override = 70
+        phy.profile_outputs.AGC_AGCPERIOD0_PERIODHISTL.override = 1
+        phy.profile_outputs.AGC_AGCPERIOD0_MAXHICNTTHD.override = 13
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION0.override = 6
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION1.override = 8
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION2.override = 10
+        phy.profile_outputs.AGC_HICNTREGION0_HICNTREGION3.override = 12
+        phy.profile_outputs.AGC_HICNTREGION1_HICNTREGION4.override = 13
 
     def PHY_Bluetooth_LE_TEST_Packet_Hop(self, model, phy_name=None):
         phy = self._makePhy(model, model.profiles.Base, readable_name='BLE Test Packet',
@@ -445,9 +461,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_inputs.syncword_dualsync.value = False
         phy.profile_inputs.syncword_trisync.value = False
 
-    def _fast_hopping_settings(self, phy, model):
-        phy.profile_outputs.MODEM_PHDMODCTRL_FASTHOPPINGEN.override = 1
-        phy.profile_outputs.MODEM_DIGMIXCTRL_FWHOPPING.override = 0
 
     def BLE_DSA(selfs, phy, model):
         # Removed from Viper/Rainier
@@ -471,7 +484,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         phy.profile_outputs.MODEM_EHDSSSCTRL_EHDSSSEN.override = 0
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSTIMEACQUTHD.override = 16
-        phy.profile_outputs.MODEM_EHDSSSCFG0_DSSSPATT.override = 122
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSEXPSYNCLEN.override = 128
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSCORRTHD.override = 600
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSDSAQTHD.override = 700
@@ -518,10 +530,12 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_Hop(self, model, phy_name=None):
+    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_Hop(self, model, phy_name='PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_Hop'):
         phy = self._makePhy(model, model.profiles.Base, readable_name='BLE Viterbi No DSA PHY for Rainier',
                             phy_name=phy_name)
         self.Bluetooth_LE_Viterbi_noDSA_base(phy, model)
+
+        phy.profile_inputs.hop_enable.value = model.vars.hop_enable.var_enum.ENABLED
 
         # default bandwidth will cause halfrate unless forced
         phy.profile_inputs.adc_rate_mode.value = model.vars.adc_rate_mode.var_enum.FULLRATE
@@ -548,8 +562,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.AGC_GAINSTEPLIM0_CFLOOPDEL.override = 45
 
         phy.profile_outputs.MODEM_AUTOCG_AUTOCGEN.override = 1
-
-        self._fast_hopping_settings(phy, model)
 
         phy.profile_outputs.MODEM_VTCORRCFG0_EXPECTPATT.override = 1854799872
         phy.profile_outputs.MODEM_REALTIMCFE_SYNCACQWIN.override = 15
@@ -590,7 +602,6 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_EHDSSSCTRL_FREQCORREN.override = 1
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSFRQLIM.override = 16
 
-        phy.profile_outputs.MODEM_EHDSSSCFG0_DSSSPATT.override = 122
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSEXPSYNCLEN.override = 128
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSCORRTHD.override = 400
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSDSAQTHD.override = 700
@@ -641,7 +652,7 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate(self, model, phy_name=None):
+    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate(self, model, phy_name='PHY_Bluetooth_LE_Viterbi_noDSA_fullrate'):
         phy = self._makePhy(model, model.profiles.Base, readable_name='BLE Viterbi No DSA Fullrate PHY for Rainier',
                             phy_name=phy_name)
         self.Bluetooth_LE_Viterbi_noDSA_base(phy, model)
@@ -667,8 +678,8 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LE_Viterbi_noDSA_iqmod(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LE_Viterbi_noDSA(model, "PHY_Bluetooth_LE_Viterbi_noDSA_iqmod")
+    def PHY_Bluetooth_LE_Viterbi_noDSA_iqmod(self, model, phy_name='PHY_Bluetooth_LE_Viterbi_noDSA_iqmod'):
+        phy = self.PHY_Bluetooth_LE_Viterbi_noDSA(model, phy_name=phy_name)
         phy.profile_inputs.modulator_select.value = model.vars.modulator_select.var_enum.IQ_MOD
         self.BLE_TX_Shaping_Coeffs_IQMOD(phy, model)
         model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IQMOD
@@ -691,8 +702,8 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate_iqmod(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate(model, "PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate_iqmod")
+    def PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate_iqmod(self, model, phy_name='PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate_iqmod'):
+        phy = self.PHY_Bluetooth_LE_2M_Viterbi_noDSA_fullrate(model, phy_name=phy_name)
         phy.profile_inputs.modulator_select.value = model.vars.modulator_select.var_enum.IQ_MOD
         self.BLE_2M_TX_Shaping_Coeffs_IQMOD(phy, model)
         model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IQMOD
@@ -712,8 +723,8 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_iqmod(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LE_Viterbi_noDSA_fullrate(model,"PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_iqmod")
+    def PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_iqmod(self, model, phy_name='PHY_Bluetooth_LE_Viterbi_noDSA_fullrate_iqmod'):
+        phy = self.PHY_Bluetooth_LE_Viterbi_noDSA_fullrate(model, phy_name=phy_name)
         phy.profile_inputs.modulator_select.value = model.vars.modulator_select.var_enum.IQ_MOD
         self.BLE_TX_Shaping_Coeffs_IQMOD(phy, model)
         model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IQMOD
@@ -775,8 +786,8 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def PHY_Bluetooth_LongRange_NOdsa_500kbps_iqmod(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LongRange_NOdsa_500kbps(model, "PHY_Bluetooth_LongRange_NOdsa_500kbps_iqmod")
+    def PHY_Bluetooth_LongRange_NOdsa_500kbps_iqmod(self, model, phy_name='PHY_Bluetooth_LongRange_NOdsa_500kbps_iqmod'):
+        phy = self.PHY_Bluetooth_LongRange_NOdsa_500kbps(model, phy_name=phy_name)
         phy.profile_inputs.modulator_select.value = model.vars.modulator_select.var_enum.IQ_MOD
         self.BLE_TX_Shaping_Coeffs_IQMOD(phy, model)
         model.vars.synth_tx_mode.value_forced = model.vars.synth_tx_mode.var_enum.MODE_IQMOD
@@ -849,10 +860,10 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
             command = "phy.profile_outputs.MODEM_SHAPING"+str(register_group)+"_COEFF"+str(coeff)+".override = 0"
             exec(command)
 
-    def PHY_Bluetooth_1M_Concurrent(self, model, phy_name=None):
+    def PHY_Bluetooth_1M_Concurrent(self, model, phy_name='PHY_Bluetooth_1M_Concurrent'):
         # Copied from bobcat and changed base PHY from DSA to noDSA
         # Start with the BLE LR 125k PHY
-        phy = self.PHY_Bluetooth_LongRange_NOdsa_125kbps(model, phy_name)
+        phy = self.PHY_Bluetooth_LongRange_NOdsa_125kbps(model, phy_name=phy_name)
         phy.profile_inputs.preamble_pattern.value = 0b10
 
         # The concurrent PHY needs to have:
@@ -908,24 +919,36 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
 
         return phy
 
-    def _ble_dutycycle_overrides(self, phy):
+    def _ble_lr_dutycycle_overrides(self, phy, model):
+        """For power sense algorithm:
+
         phy.profile_outputs.AGC_CTRL7_SUBDEN.override = 2
         phy.profile_outputs.AGC_CTRL7_SUBINT.override = 16
         phy.profile_outputs.AGC_CTRL7_SUBNUM.override = 0
         phy.profile_outputs.AGC_CTRL7_SUBPERIOD.override = 1
-
-        phy.profile_outputs.MODEM_LONGRANGE_LRBLE.override = 1
         phy.profile_outputs.MODEM_LONGRANGE_LRBLEDSA.override = 0
+        """
+        # Enable noise detector
+        self.BLE_1M_Signal_Identifier_fast_hopping_overrides(phy, model)
+        self.BLE_1M_Signal_Identifier_Regs(phy, model)
+        # Reduce RF settling time by 5 us (cannot be used in 2 channel mode)
+        model.vars.adc_clock_mode.var_value = model.vars.adc_clock_mode.var_enum.VCODIV
+        phy.profile_inputs.rxdc_power_save_mode.value = model.vars.rxdc_power_save_mode.var_enum.SYNTH
+        phy.profile_inputs.rxdc_power_save_time_us.value = 20
+        phy.profile_outputs.MODEM_SRCCHF_CHMUTETIMER.override = 280  # Control minimum ON time
+
+    def PHY_Bluetooth_LongRange_nodsa_125kbps_dutycycle(self, model, phy_name='PHY_Bluetooth_LongRange_nodsa_125kbps_dutycycle'):
+        phy = self.PHY_Bluetooth_LongRange_NOdsa_125kbps(model, phy_name)
+        self._ble_lr_dutycycle_overrides(phy, model)
+        phy.profile_outputs.MODEM_SICTRL0_NOISETHRESH.override = 200  # Improve sensitivity, more false detect
+
         return phy
 
-    def PHY_Bluetooth_LongRange_nodsa_125kbps_dutycycle(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LongRange_dsa_125kbps(model, phy_name)
-        self._ble_dutycycle_overrides(phy)
-        return phy
+    def PHY_Bluetooth_LongRange_nodsa_500kbps_dutycycle(self, model, phy_name='PHY_Bluetooth_LongRange_nodsa_500kbps_dutycycle'):
+        phy = self.PHY_Bluetooth_LongRange_NOdsa_500kbps(model, phy_name)
+        self._ble_lr_dutycycle_overrides(phy, model)
+        phy.profile_outputs.MODEM_SICTRL0_NOISETHRESH.override = 190  # Improve sensitivity, more false detect
 
-    def PHY_Bluetooth_LongRange_nodsa_500kbps_dutycycle(self, model, phy_name=None):
-        phy = self.PHY_Bluetooth_LongRange_dsa_500kbps(model, phy_name)
-        self._ble_dutycycle_overrides(phy)
         return phy
 
 
@@ -1071,46 +1094,46 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_SHAPING0_COEFF3.override = -4
         phy.profile_outputs.MODEM_SHAPING1_COEFF4.override = 21
         phy.profile_outputs.MODEM_SHAPING1_COEFF5.override = 28
-        phy.profile_outputs.MODEM_SHAPING1_COEFF6.override = 55
+        phy.profile_outputs.MODEM_SHAPING1_COEFF6.override = 56
         phy.profile_outputs.MODEM_SHAPING1_COEFF7.override = 88
         phy.profile_outputs.MODEM_SHAPING2_COEFF8.override = 113
         phy.profile_outputs.MODEM_SHAPING2_COEFF9.override = 127
         phy.profile_outputs.MODEM_SHAPING2_COEFF10.override = 126
         phy.profile_outputs.MODEM_SHAPING2_COEFF11.override = 121
-        phy.profile_outputs.MODEM_SHAPING3_COEFF12.override = 109
-        phy.profile_outputs.MODEM_SHAPING3_COEFF13.override = 93
-        phy.profile_outputs.MODEM_SHAPING3_COEFF14.override = 66
-        phy.profile_outputs.MODEM_SHAPING3_COEFF15.override = 38
-        phy.profile_outputs.MODEM_SHAPING4_COEFF16.override = 12
-        phy.profile_outputs.MODEM_SHAPING4_COEFF17.override = 3
-        phy.profile_outputs.MODEM_SHAPING4_COEFF18.override = -1
-        phy.profile_outputs.MODEM_SHAPING4_COEFF19.override = 9
-        phy.profile_outputs.MODEM_SHAPING5_COEFF20.override = -2
-        phy.profile_outputs.MODEM_SHAPING5_COEFF21.override = 17
-        phy.profile_outputs.MODEM_SHAPING5_COEFF22.override = 9
-        phy.profile_outputs.MODEM_SHAPING5_COEFF23.override = 9
-        phy.profile_outputs.MODEM_SHAPING6_COEFF24.override = 8
-        phy.profile_outputs.MODEM_SHAPING6_COEFF25.override = 7
-        phy.profile_outputs.MODEM_SHAPING6_COEFF26.override = 7
-        phy.profile_outputs.MODEM_SHAPING6_COEFF27.override = 6
-        phy.profile_outputs.MODEM_SHAPING7_COEFF28.override = 6
+        phy.profile_outputs.MODEM_SHAPING3_COEFF12.override = 108
+        phy.profile_outputs.MODEM_SHAPING3_COEFF13.override = 91
+        phy.profile_outputs.MODEM_SHAPING3_COEFF14.override = 64
+        phy.profile_outputs.MODEM_SHAPING3_COEFF15.override = 36
+        phy.profile_outputs.MODEM_SHAPING4_COEFF16.override = 9
+        phy.profile_outputs.MODEM_SHAPING4_COEFF17.override = -1
+        phy.profile_outputs.MODEM_SHAPING4_COEFF18.override = -4
+        phy.profile_outputs.MODEM_SHAPING4_COEFF19.override = 5
+        phy.profile_outputs.MODEM_SHAPING5_COEFF20.override = -4
+        phy.profile_outputs.MODEM_SHAPING5_COEFF21.override = 14
+        phy.profile_outputs.MODEM_SHAPING5_COEFF22.override = 8
+        phy.profile_outputs.MODEM_SHAPING5_COEFF23.override = 7
+        phy.profile_outputs.MODEM_SHAPING6_COEFF24.override = 7
+        phy.profile_outputs.MODEM_SHAPING6_COEFF25.override = 6
+        phy.profile_outputs.MODEM_SHAPING6_COEFF26.override = 6
+        phy.profile_outputs.MODEM_SHAPING6_COEFF27.override = 5
+        phy.profile_outputs.MODEM_SHAPING7_COEFF28.override = 5
         phy.profile_outputs.MODEM_SHAPING7_COEFF29.override = 5
-        phy.profile_outputs.MODEM_SHAPING7_COEFF30.override = 5
-        phy.profile_outputs.MODEM_SHAPING7_COEFF31.override = 5
+        phy.profile_outputs.MODEM_SHAPING7_COEFF30.override = 4
+        phy.profile_outputs.MODEM_SHAPING7_COEFF31.override = 4
         phy.profile_outputs.MODEM_SHAPING8_COEFF32.override = 4
         phy.profile_outputs.MODEM_SHAPING8_COEFF33.override = 4
-        phy.profile_outputs.MODEM_SHAPING8_COEFF34.override = 4
+        phy.profile_outputs.MODEM_SHAPING8_COEFF34.override = 3
         phy.profile_outputs.MODEM_SHAPING8_COEFF35.override = 3
         phy.profile_outputs.MODEM_SHAPING9_COEFF36.override = 3
         phy.profile_outputs.MODEM_SHAPING9_COEFF37.override = 3
-        phy.profile_outputs.MODEM_SHAPING9_COEFF38.override = 3
+        phy.profile_outputs.MODEM_SHAPING9_COEFF38.override = 2
         phy.profile_outputs.MODEM_SHAPING9_COEFF39.override = 2
         phy.profile_outputs.MODEM_SHAPING10_COEFF40.override = 2
         phy.profile_outputs.MODEM_SHAPING10_COEFF41.override = 2
         phy.profile_outputs.MODEM_SHAPING10_COEFF42.override = 2
         phy.profile_outputs.MODEM_SHAPING10_COEFF43.override = 2
         phy.profile_outputs.MODEM_SHAPING11_COEFF44.override = 2
-        phy.profile_outputs.MODEM_SHAPING11_COEFF45.override = 1
+        phy.profile_outputs.MODEM_SHAPING11_COEFF45.override = 2
         phy.profile_outputs.MODEM_SHAPING11_COEFF46.override = 1
         phy.profile_outputs.MODEM_SHAPING11_COEFF47.override = 1
 
@@ -1296,90 +1319,3 @@ class PhysRailBaseStandardBleRainier(PHYS_Bluetooth_LE_Bobcat):
         phy.profile_outputs.MODEM_SHAPING3_COEFF15.override = 37
 
         self.override_other_shaping_coeff_to_zero(phy, start_coeff=16)
-
-    def PHY_BLE_ZB_Concurrent_Hop_BLERX(self, model, phy_name=None):
-        phy = PhysRailBaseStandardIeee802154Rainier().PHY_BLE_ZB_Concurrent_Hop(model)
-
-        model.vars.targetmin_osr.value_forced = 2               # osr=2 is not actual BLE 1M OSR as PHY baudrate still references ZB
-        model.vars.src2_ratio.value_forced = 0.833333333333      # Consequence of forcing DEC1
-        phy.profile_outputs.MODEM_CF_DEC1.override = 1
-        phy.profile_outputs.MODEM_DIGMIXCTRL_BLEORZB.override = 0
-        phy.profile_outputs.MODEM_DIGMIXCTRL_DIGMIXFREQ.override = 149640
-        phy.profile_outputs.MODEM_DIGMIXCTRL_DSSSCFECOMBO.override = 0
-        phy.profile_outputs.MODEM_DIGMIXCTRL_HOPPINGSRC.override = 0
-        phy.profile_outputs.MODEM_DIGMIXCTRL_MULTIPHYHOP.override = 0
-        phy.profile_outputs.MODEM_DIGMIXCTRL_RXBRINTSHIFT.override = 0
-        phy.profile_outputs.MODEM_LOG2X4_LOG2X4.override = 4
-        phy.profile_outputs.MODEM_LOG2X4_LOG2X4FWSEL.override = 1
-        phy.profile_outputs.MODEM_SICTRL0_FREQNOMINAL.override = 55
-        phy.profile_outputs.MODEM_SICTRL0_NOISETHRESH.override = 150
-        phy.profile_outputs.MODEM_SICTRL0_NOISETHRESHADJ.override = 30
-        phy.profile_outputs.MODEM_SICTRL0_PEAKNUMADJ.override = 1
-        phy.profile_outputs.MODEM_SICTRL0_PEAKNUMTHRESHLW.override = 4
-        phy.profile_outputs.MODEM_SICTRL0_SIMODE.override = 3
-        phy.profile_outputs.MODEM_SICTRL2_PEAKNUMADJEN.override = 51
-        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAY.override = 1
-        phy.profile_outputs.MODEM_SICTRL2_SISTARTDELAYMODE.override = 1
-        phy.profile_outputs.MODEM_SRCCHF_SRCRATIO2.override = 19661
-        phy.profile_outputs.MODEM_SYNCWORDCTRL_DUALSYNC.override = 0
-        phy.profile_outputs.MODEM_SYNCWORDCTRL_DUALSYNC2TH.override = 0
-        phy.profile_outputs.MODEM_SYNCWORDCTRL_SYNCDET2TH.override = 0
-
-        phy.profile_outputs.MODEM_EHDSSSCFG3_LQIAVGWIN.override = 2
-        phy.profile_outputs.MODEM_EHDSSSCFG3_OPMODE.override = 0
-        phy.profile_outputs.MODEM_EHDSSSCTRL_EHDSSSEN.override = 0      # Somehow TRECS is not being enabled - disabling this seem to help
-
-        phy.profile_outputs.FRC_CTRL_RXFCDMODE.override = 0
-        phy.profile_outputs.FRC_DFLCTRL_DFLINCLUDECRC.override = 0
-        phy.profile_outputs.FRC_DFLCTRL_DFLOFFSET.override = 1
-        phy.profile_outputs.FRC_DFLCTRL_MINLENGTH.override = 1
-        phy.profile_outputs.FRC_FCD0_CALCCRC.override = 1
-        phy.profile_outputs.FRC_FCD0_INCLUDECRC.override = 1
-        phy.profile_outputs.FRC_FCD0_WORDS.override = 255
-        phy.profile_outputs.FRC_FCD2_CALCCRC.override = 1
-        phy.profile_outputs.FRC_FCD2_INCLUDECRC.override = 1
-        phy.profile_outputs.FRC_FCD2_WORDS.override = 255
-        phy.profile_outputs.FRC_MAXLENGTH_MAXLENGTH.override = 256
-        phy.profile_outputs.FRC_TRAILTXDATACTRL_POSTAMBLEEN.override = 1
-        phy.profile_outputs.FRC_TRAILTXDATACTRL_TRAILTXDATACNT.override = 2
-        phy.profile_outputs.FRC_TRAILTXDATACTRL_TRAILTXDATAFORCE.override = 1
-        phy.profile_outputs.FRC_WCNTCMP1_LENGTHFIELDLOC.override = 1
-        phy.profile_outputs.RFCRC_CTRL_CRCWIDTH.override = 2
-        phy.profile_outputs.RFCRC_INIT_INIT.override = 11184810
-        phy.profile_outputs.RFCRC_POLY_POLY.override = 14311424
-
-        # These registers will be forced by calculator - need to force back
-        phy.profile_outputs.MODEM_CHFCOE00_SET0COEFF0.override = 995
-        phy.profile_outputs.MODEM_CHFCOE00_SET0COEFF1.override = 952
-        phy.profile_outputs.MODEM_CHFCOE00_SET0COEFF2.override = 955
-        phy.profile_outputs.MODEM_CHFCOE01_SET0COEFF3.override = 73
-        phy.profile_outputs.MODEM_CHFCOE01_SET0COEFF4.override = 372
-        phy.profile_outputs.MODEM_CHFCOE02_SET0COEFF5.override = 658
-        phy.profile_outputs.MODEM_CHFCOE02_SET0COEFF6.override = 611
-        phy.profile_outputs.MODEM_CHFCOE03_SET0COEFF7.override = 3
-        phy.profile_outputs.MODEM_CHFCOE03_SET0COEFF8.override = 3128
-        phy.profile_outputs.MODEM_CHFCOE04_SET0COEFF10.override = 15430
-        phy.profile_outputs.MODEM_CHFCOE04_SET0COEFF9.override = 14799
-        phy.profile_outputs.MODEM_CHFCOE05_SET0COEFF11.override = 1337
-        phy.profile_outputs.MODEM_CHFCOE05_SET0COEFF12.override = 4722
-        phy.profile_outputs.MODEM_CHFCOE06_SET0COEFF13.override = 7779
-        phy.profile_outputs.MODEM_CHFCOE06_SET0COEFF14.override = 9010
-        phy.profile_outputs.MODEM_CHFCOE10_SET1COEFF0.override = 30
-        phy.profile_outputs.MODEM_CHFCOE10_SET1COEFF1.override = 87
-        phy.profile_outputs.MODEM_CHFCOE10_SET1COEFF2.override = 155
-        phy.profile_outputs.MODEM_CHFCOE11_SET1COEFF3.override = 169
-        phy.profile_outputs.MODEM_CHFCOE11_SET1COEFF4.override = 46
-        phy.profile_outputs.MODEM_CHFCOE12_SET1COEFF5.override = 1780
-        phy.profile_outputs.MODEM_CHFCOE12_SET1COEFF6.override = 3376
-        phy.profile_outputs.MODEM_CHFCOE13_SET1COEFF7.override = 2984
-        phy.profile_outputs.MODEM_CHFCOE13_SET1COEFF8.override = 2962
-        phy.profile_outputs.MODEM_CHFCOE14_SET1COEFF10.override = 947
-        phy.profile_outputs.MODEM_CHFCOE14_SET1COEFF9.override = 15896
-        phy.profile_outputs.MODEM_CHFCOE15_SET1COEFF11.override = 2988
-        phy.profile_outputs.MODEM_CHFCOE15_SET1COEFF12.override = 5154
-        phy.profile_outputs.MODEM_CHFCOE16_SET1COEFF13.override = 6813
-        phy.profile_outputs.MODEM_CHFCOE16_SET1COEFF14.override = 7436
-        phy.profile_outputs.MODEM_RXBR_RXBRINT.override = 2
-
-        phy.profile_outputs.AGC_GAINSTEPLIM0_CFLOOPDEL.override = 45
-        return phy

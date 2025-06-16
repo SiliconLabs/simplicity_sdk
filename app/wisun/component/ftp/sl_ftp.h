@@ -127,6 +127,12 @@ void sl_ftp_delay_ms(const uint32_t delay_ms);
 bool sl_ftp_is_network_connected(void);
 
 /***************************************************************************//**
+ * @brief FTP wait for network connection
+ * @details Portable function
+ ******************************************************************************/
+void sl_ftp_wait_for_connection(void);
+
+/***************************************************************************//**
  * @brief FTP get global IP address
  * @details Portable function
  * @return Global address string representation
@@ -224,6 +230,15 @@ __STATIC_INLINE bool sl_tftp_is_network_connected(void)
 }
 
 /***************************************************************************//**
+ * @brief TFTP wait for network connection
+ * @details Alias function
+ ******************************************************************************/
+__STATIC_INLINE void sl_tftp_wait_for_connection(void)
+{
+  sl_ftp_wait_for_connection();
+}
+
+/***************************************************************************//**
  * @brief TFTP get global IP address
  * @details Portable function
  * @return Global address string representation
@@ -275,7 +290,7 @@ int32_t sl_tftp_udp_recvfrom(int32_t sockid, void *buff, uint32_t len, void *src
 
 /**************************************************************************//**
  * @brief Get UDP address structure
- * @details Allocate address structue and set host address and port
+ * @details Allocate address structure and set host address and port
  * @param[in] host Host string
  * @param[in] port Port
  * @return void * Address structure
@@ -285,7 +300,7 @@ void * sl_tftp_udp_get_addr(const char *host,
 
 /**************************************************************************//**
  * @brief Free address
- * @details Release the allocated address strcutre
+ * @details Release the allocated address structure
  * @param[in] addr Address structure
  *****************************************************************************/
 void sl_tftp_udp_free_addr(void *addr);

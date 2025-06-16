@@ -1,12 +1,12 @@
 id: micriumos_kernel
 label: Micrium OS Kernel
-package: micrium-krnx
+package: micriumos
 description: Micrium OS Kernel
 category: RTOS|Micrium OS|Kernel
 quality: production
 metadata:
-  sbom:
-    license: MSLA
+    sbom:
+        license: MSLA
 config_file:
   - path: ../cfg/os_cfg.h
 component_root_path: platform/micrium_os/kernel
@@ -56,6 +56,8 @@ requires:
   - name: cmsis_rtos2_tick
   - name: cmsis_rtos2_init
     condition: [sl_system_init]
+  - name: cmsis_rtos2_init
+    condition: [sl_main_init]
   - name: device
   - name: cpu
   - name: common_core
@@ -73,5 +75,5 @@ template_contribution:
   - name: code_classification_components
     value: micriumos_kernel
 define:
-  - name:  SL_CODE_COMPONENT_MICRIUMOS_KERNEL
+  - name: SL_CODE_COMPONENT_MICRIUMOS_KERNEL
     value: micriumos_kernel

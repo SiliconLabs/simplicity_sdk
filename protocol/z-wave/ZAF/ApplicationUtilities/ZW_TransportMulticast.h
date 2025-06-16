@@ -19,8 +19,7 @@
  * @{
  */
 
-enum ETRANSPORT_MULTICAST_STATUS
-{
+enum ETRANSPORT_MULTICAST_STATUS{
   ETRANSPORTMULTICAST_FAILED = 0,
   ETRANSPORTMULTICAST_ADDED_TO_QUEUE = 1
 };
@@ -61,7 +60,7 @@ void ZW_TransportMulticast_clearTimeout(void);
 
 /**
  * @brief Initializes the Tx Buffer
- * 
+ *
  */
 void ZW_TransportMulticast_init(void);
 

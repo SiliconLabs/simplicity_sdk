@@ -1,5 +1,5 @@
 id: mbedtls_pkcs1_v15
-package: platform
+package: security_mbedtls
 label: PKCS#1 v1.5
 description: >-
   This component adds support for the RSA-OAEP and RSA-PSS schemes as specified

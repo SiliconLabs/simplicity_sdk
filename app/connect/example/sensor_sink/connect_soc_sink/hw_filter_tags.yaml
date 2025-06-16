@@ -4,8 +4,8 @@ tag:
   - hardware:
       device:
         memory:
-          flash: 246
-          ram: 32
+          flash: 249
+          ram: 33
       board:
         rf_bands:
           - any
@@ -14,4 +14,4 @@ tag:
           - pti
         io:
           led: 1+
-  
+

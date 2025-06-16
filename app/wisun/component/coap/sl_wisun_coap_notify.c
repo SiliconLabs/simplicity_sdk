@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file sl_wisun_coap_notify.c
- * @brief Wi-SUN CoAP notfication service
+ * @brief Wi-SUN CoAP notification service
  *******************************************************************************
  * # License
  * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
@@ -54,7 +54,7 @@
 /// Default URI Path
 #define SL_WISUN_COAP_NOTIFY_DEFAULT_URI_PATH          "coap/notification"
 
-/// Dfeault URI Path length
+/// Default URI Path length
 #define SL_WISUN_COAP_NOTIFY_DEFAULT_URI_PATH_LEN      (sizeof(SL_WISUN_COAP_NOTIFY_DEFAULT_URI_PATH) - 1)
 
 /// Default notification payload
@@ -156,7 +156,7 @@ static osMutexId_t _notify_mtx = NULL;
 
 #if SL_WISUN_COAP_NOTIFY_SERVICE_ENABLE
 /// Thread ID
-static osThreadId_t _notfiy_thr = NULL;
+static osThreadId_t _notify_thr = NULL;
 
 /// Notificaion thread attribute
 static const osThreadAttr_t _notify_thr_attr = {
@@ -224,8 +224,8 @@ void sl_wisun_coap_notify_init(void)
   assert(_schd.evt != NULL);
 
   // init thread
-  _notfiy_thr = osThreadNew(_notify_thr_fnc, NULL, &_notify_thr_attr);
-  assert(_notfiy_thr != NULL);
+  _notify_thr = osThreadNew(_notify_thr_fnc, NULL, &_notify_thr_attr);
+  assert(_notify_thr != NULL);
 #endif
 }
 
@@ -237,7 +237,7 @@ sl_status_t sl_wisun_coap_notify_init_default_inst(sl_wisun_coap_notify_t * cons
 
   notify->id = id;
 
-  // convert defautl IP String to byte address
+  // convert default IP String to byte address
   if (inet_pton(AF_INET6,
                 SL_WISUN_COAP_NOTIFY_DEFAULT_REMOTE_ADDR,
                 &notify->remote_addr.sin6_addr) != 1) {
@@ -339,7 +339,7 @@ sl_status_t sl_wisun_coap_notify_send_notification(const sl_wisun_coap_notify_t 
     return SL_STATUS_FAIL;
   }
 
-  // Preapre coap packet
+  // Prepare coap packet
   pkt = notify->hnd_cb(notify);
   if (pkt == NULL) {
     return SL_STATUS_FAIL;
@@ -441,15 +441,14 @@ static void _notify_thr_fnc(void * args)
   (void) args;
 
   SL_COAP_SERVICE_LOOP() {
-    
-    (void) sl_wisun_app_core_wait_state((1UL << SL_WISUN_APP_CORE_STATE_NETWORK_CONNECTED), 
-                                         osWaitForever);
-    
-    _coap_notify_mtx_acquire();
+    // wait for network connected state
+    sl_wisun_app_core_util_wait_for_connection();
 
     if (_schd.tick_evt_enable) {
       (void) osEventFlagsWait(_schd.evt, _schd.evt_msk, osFlagsWaitAny, osWaitForever);
     }
+
+    _coap_notify_mtx_acquire();
 
     for (sl_mempool_block_hnd_t *slot = _notifications.blocks; slot != NULL; slot = slot->next) {
       // get notification instance
@@ -484,6 +483,10 @@ void sl_wisun_coap_notify_tick_evt_enable(const bool enable)
 {
   _coap_notify_mtx_acquire();
   _schd.tick_evt_enable = enable;
+  // If it's disabled, unblock event flags wait in the notification thread.
+  if (!enable) {
+    osEventFlagsSet(_schd.evt, _schd.evt_msk);
+  }
   _coap_notify_mtx_release();
 }
 

@@ -1,5 +1,5 @@
 id: libcryptosoc
-package: platform
+package: security_mbedtls
 label: LibCryptoSoC Library
 description: >-
   Hardware acceleration library for the CRYPTOACC hardware peripheral.
@@ -76,11 +76,11 @@ include:
       - path: sxregs.h
 
 other_file:
-  - path: license.txt
+  - path: LICENSE-Secure-IC.txt
 
 metadata:
   sbom:
-    license: MSLA
+    license: LicenseRef-SecureIC
     upstream:
       name: Secure-IC Crypto Offload C Library
       version: v20210503_s29p0p0

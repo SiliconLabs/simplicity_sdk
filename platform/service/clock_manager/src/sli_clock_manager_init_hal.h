@@ -71,12 +71,17 @@ extern "C" {
   } while (0)
 
 #define CLOCK_MANAGER_GET_DEFAULT_CLOCK_SOURCE_NX(clock_branch, clock_source) CMU_##clock_branch##CTRL_CLKSEL##clock_source
-#define CLOCK_MANAGER_GET_DEFAULT_CLOCK_SOURCE(clock_branch, clock_source)   CLOCK_MANAGER_GET_DEFAULT_CLOCK_SOURCE_NX(clock_branch, clock_source)
+#define CLOCK_MANAGER_GET_DEFAULT_CLOCK_SOURCE(clock_branch, clock_source)    CLOCK_MANAGER_GET_DEFAULT_CLOCK_SOURCE_NX(clock_branch, clock_source)
 
 #if !defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
 #define SLI_CLOCK_MANAGER_HFXO_MODE SL_CLOCK_MANAGER_HFXO_MODE
-#define SLI_CLOCK_MANAGER_HFRCO_BAND SL_CLOCK_MANAGER_HFRCO_BAND
-#endif // #if !defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
+#define SLI_CLOCK_MANAGER_HFXO_FREQ SL_CLOCK_MANAGER_HFXO_FREQ
+
+#define SLI_CLOCK_MANAGER_HFRCO_BAND      SL_CLOCK_MANAGER_HFRCO_BAND
+#define SLI_CLOCK_MANAGER_HFRCO_DPLL_EN   SL_CLOCK_MANAGER_HFRCO_DPLL_EN
+#define SLI_CLOCK_MANAGER_DPLL_FREQ       SL_CLOCK_MANAGER_DPLL_FREQ
+#define SLI_CLOCK_MANAGER_DPLL_N          SL_CLOCK_MANAGER_DPLL_N
+#define SLI_CLOCK_MANAGER_DPLL_M          SL_CLOCK_MANAGER_DPLL_M
 
 #if defined(SL_CLOCK_MANAGER_SOCPLL_EN) && (SL_CLOCK_MANAGER_SOCPLL_EN == 1)
 #if defined(SL_CLOCK_MANAGER_SOCPLL_ADVANCED_SETTINGS) && (SL_CLOCK_MANAGER_SOCPLL_ADVANCED_SETTINGS == 0)
@@ -93,7 +98,17 @@ extern "C" {
 #define SL_CLOCK_MANAGER_SOCPLL_DIVN          (6ULL * SL_CLOCK_MANAGER_SOCPLL_FREQ / SL_CLOCK_MANAGER_SOCPLL_REFCLK_FREQ - 2ULL)
 #define SL_CLOCK_MANAGER_SOCPLL_DIVF          ((6ULL * 1024ULL * SL_CLOCK_MANAGER_SOCPLL_FREQ + SL_CLOCK_MANAGER_SOCPLL_REFCLK_FREQ / 2ULL) / SL_CLOCK_MANAGER_SOCPLL_REFCLK_FREQ - 1024ULL * (SL_CLOCK_MANAGER_SOCPLL_DIVN + 2ULL))
 #endif
+
+#define SLI_CLOCK_MANAGER_SOCPLL_EN            SL_CLOCK_MANAGER_SOCPLL_EN
+#define SLI_CLOCK_MANAGER_SOCPLL_FREQ          SL_CLOCK_MANAGER_SOCPLL_FREQ
+#define SLI_CLOCK_MANAGER_SOCPLL_REFCLK        SL_CLOCK_MANAGER_SOCPLL_REFCLK
+#define SLI_CLOCK_MANAGER_SOCPLL_REFCLK_FREQ   SL_CLOCK_MANAGER_SOCPLL_REFCLK_FREQ
+#define SLI_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN
+#define SLI_CLOCK_MANAGER_SOCPLL_DIVN          SL_CLOCK_MANAGER_SOCPLL_DIVN
+#define SLI_CLOCK_MANAGER_SOCPLL_DIVF          SL_CLOCK_MANAGER_SOCPLL_DIVF
 #endif
+
+#endif // !defined(SLI_CLOCK_MANAGER_RUNTIME_CONFIGURATION)
 
 /*******************************************************************************
  ******************************  PROTOTYPES   **********************************
@@ -103,6 +118,18 @@ extern "C" {
  * Initializes Oscillators and Clock branches.
  ******************************************************************************/
 sl_status_t sli_clock_manager_hal_init(void);
+
+#if defined(CLOCK_MANAGER_INIT_HAL_INTERNAL_PRESENT)
+/***************************************************************************//**
+ * Initializes internal oscillators.
+ ******************************************************************************/
+void sli_clock_manager_hal_init_oscillators_internal(void);
+
+/***************************************************************************//**
+ * Initializes internal Clock branches.
+ ******************************************************************************/
+void sli_clock_manager_hal_init_clock_branches_internal(void);
+#endif
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 id: security_manager
-package: platform
+package: common_15_4
 label: Security Manager
 description: |-
   The 15.4 Security Manager utility handles general security functions (key management and crypto operations) through PSA Crypto API. Encryption keys are securely stored on parts that support the Vault feature.

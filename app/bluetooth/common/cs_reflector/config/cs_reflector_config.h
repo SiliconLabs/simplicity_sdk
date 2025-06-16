@@ -39,7 +39,13 @@
 #include "sl_bluetooth_connection_config.h"
 #include "sl_enum.h"
 
-#define CS_REFLECTOR_MAX_CONNECTIONS SL_BT_CONFIG_MAX_CONNECTIONS
+// Backward compatibility
+#ifndef CS_REFLECTOR_CS_EVENT_BUF_SIZE
+#define CS_REFLECTOR_CS_EVENT_BUF_SIZE     (16)
+#endif // CS_REFLECTOR_CS_EVENT_BUF_SIZE
+#ifndef CS_REFLECTOR_MAX_CONNECTIONS
+#define CS_REFLECTOR_MAX_CONNECTIONS       SL_BT_CONFIG_MAX_CONNECTIONS
+#endif // CS_REFLECTOR_MAX_CONNECTIONS
 
 // CS antenna usage for CS SYNC packets
 SL_ENUM(cs_sync_antenna_t) {
@@ -50,12 +56,7 @@ SL_ENUM(cs_sync_antenna_t) {
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> CS Reflector configuration
-
-// <o CS_REFLECTOR_CS_EVENT_BUF_SIZE> Size of the Channel Sounding event buffer [elements] <1..255>
-// <i> Default: 16
-// <i> Size of the Channel Sounding event buffer
-#define CS_REFLECTOR_CS_EVENT_BUF_SIZE     (16)
+// <h> TX power
 
 // <o CS_REFLECTOR_MIN_TX_POWER_DBM> Minimum transmit power of the reflector radio [dBm] <-127..20>
 // <i> Default: -3
@@ -67,16 +68,15 @@ SL_ENUM(cs_sync_antenna_t) {
 // <i> Maximum transmit power of the reflector radio
 #define CS_REFLECTOR_MAX_TX_POWER_DBM      (20)
 
+// </h>
+
+// <h> Antenna configuration
+
 // <o CS_REFLECTOR_ANTENNA_OFFSET> Select antenna offset type
 // <0=> Wireless antenna offset
 // <1=> Wired antenna offset
 // <i> Default: 0
 #define CS_REFLECTOR_ANTENNA_OFFSET         0
-
-// <e CS_REFLECTOR_LOG> Reflector logging
-// <i> Default: 1
-// <i> Enable reflector component logging
-#define CS_REFLECTOR_LOG                    1
 
 // <o CS_REFLECTOR_CS_SYNC_ANTENNA> Select antenna for CS sync packets
 // <CS_SYNC_ANTENNA_1=> Antenna 1
@@ -85,6 +85,13 @@ SL_ENUM(cs_sync_antenna_t) {
 // <i> Default: CS_SYNC_SWITCHING
 #define CS_REFLECTOR_CS_SYNC_ANTENNA      CS_SYNC_SWITCHING
 
+// </h>
+
+// <e CS_REFLECTOR_LOG> Reflector logging
+// <i> Default: 1
+// <i> Enable reflector component logging
+#define CS_REFLECTOR_LOG                    1
+
 // <s CS_REFLECTOR_LOG_PREFIX> Log prefix
 // <i> Default: "[Reflector]"
 #ifndef CS_REFLECTOR_LOG_PREFIX
@@ -92,8 +99,6 @@ SL_ENUM(cs_sync_antenna_t) {
 #endif
 
 // </e>
-
-// </h>
 
 // <<< end of configuration section >>>
 

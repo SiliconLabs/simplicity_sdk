@@ -1,7 +1,7 @@
 !!omap
 - id: cpc_recommend_spi_exp_eusart
-- label: "CPC: Recommend SPI Expansion Header EUSART interface"
-- package: platform
+- label: 'CPC: Recommend SPI Expansion Header EUSART interface'
+- package: cpc
 - description: CPC Recommend SPI Expansion Header EUSART interface
 - category: Services|Co-Processor Communication|Secondary Device
 - quality: production

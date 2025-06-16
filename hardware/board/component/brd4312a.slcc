@@ -1,7 +1,7 @@
 !!omap
 - id: brd4312a
 - label: BRD4312A
-- package: platform
+- package: boards
 - description: Board support for BRD4312A.
 - category: Platform|Board|Radio Board
 - quality: production

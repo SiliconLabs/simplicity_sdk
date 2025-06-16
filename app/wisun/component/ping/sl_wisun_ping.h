@@ -53,7 +53,6 @@ extern "C" {
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-
 /// Maximum count of ping request/response for message queues
 #define SL_WISUN_PING_MAX_REQUEST_RESPONSE   (128U)
 

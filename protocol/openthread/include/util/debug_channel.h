@@ -32,6 +32,7 @@
 #define __DEBUG_CHANNEL_H__
 
 #include <sl_iostream_swo_itm_8.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -62,6 +63,16 @@ void sl_debug_binary_format(sl_iostream_swo_itm_8_msg_type_t debugType, const ch
  * @param ...
  */
 void sl_debug_printf(const char *formatString, ...);
+
+/**
+ * @brief Wrapper for sl_iostream_write using the debug handle
+ *
+ * @param[in]   debugType       the debug message type
+ * @param[in]   buffer          buffer that contains the data to output
+ * @param[in]   buffer_length   data length contained in the buffer.
+
+ */
+void sl_debug_binary_write(sl_iostream_swo_itm_8_msg_type_t debugType, const void *buffer, size_t buffer_length);
 
 /**
  * @}

@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'network-formation' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -59,6 +59,11 @@ void sli_zigbee_stack_form_network_process_ipc_command(sli_zigbee_ipc_cmd_t *msg
 void sli_zigbee_stack_get_beacon_classification_params_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
   msg->data.get_beacon_classification_params.response.result = sli_zigbee_stack_get_beacon_classification_params(&msg->data.get_beacon_classification_params.request.param);
+}
+
+void sli_zigbee_stack_get_join_uses_install_code_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
+{
+  msg->data.get_join_uses_install_code.response.result = sli_zigbee_stack_get_join_uses_install_code();
 }
 
 void sli_zigbee_stack_get_last_leave_reason_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
@@ -155,6 +160,11 @@ void sli_zigbee_stack_set_beacon_classification_params_process_ipc_command(sli_z
 void sli_zigbee_stack_set_beacon_jitter_duration_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
   msg->data.set_beacon_jitter_duration.response.result = sli_zigbee_stack_set_beacon_jitter_duration(msg->data.set_beacon_jitter_duration.request.beaconJitterDuration);
+}
+
+void sli_zigbee_stack_set_join_uses_install_code_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
+{
+  sli_zigbee_stack_set_join_uses_install_code(msg->data.set_join_uses_install_code.request.enable);
 }
 
 void sli_zigbee_stack_set_num_beacons_to_store_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
@@ -304,6 +314,15 @@ sl_status_t sl_zigbee_get_beacon_classification_params(sl_zigbee_beacon_classifi
   }
 
   return msg.data.get_beacon_classification_params.response.result;
+}
+
+bool sl_zigbee_get_join_uses_install_code(void)
+{
+  sli_zigbee_ipc_cmd_t msg = { 0, };
+
+  sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_join_uses_install_code_process_ipc_command, &msg);
+
+  return msg.data.get_join_uses_install_code.response.result;
 }
 
 sl_zigbee_leave_reason_t sl_zigbee_get_last_leave_reason(sl_802154_short_addr_t *returnNodeIdThatSentLeave)
@@ -526,6 +545,13 @@ sl_status_t sl_zigbee_set_beacon_jitter_duration(uint8_t beaconJitterDuration)
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_beacon_jitter_duration_process_ipc_command, &msg);
 
   return msg.data.set_beacon_jitter_duration.response.result;
+}
+
+void sl_zigbee_set_join_uses_install_code(bool enable)
+{
+  sli_zigbee_ipc_cmd_t msg = { 0, };
+  msg.data.set_join_uses_install_code.request.enable = enable;
+  sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_join_uses_install_code_process_ipc_command, &msg);
 }
 
 sl_status_t sl_zigbee_set_num_beacons_to_store(uint8_t numBeacons)

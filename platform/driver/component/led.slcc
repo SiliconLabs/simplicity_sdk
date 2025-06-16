@@ -1,15 +1,15 @@
 id: led
 label: Generic LED API
-package: platform
+package: platform_core
 description: >
-  This component provides a base LED functionality such as initialize, get and set state.
-  In addition, an LED driver implementation component such as the Simple LED component
-  can be included in the project to implement full LED handling.
+    This component provides a base LED functionality such as initialize, get and set state.
+    In addition, an LED driver implementation component such as the Simple LED component
+    can be included in the project to implement full LED handling.
 category: Platform|Driver|LED
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/driver/leddrv/
 source:
   - path: src/sl_led.c

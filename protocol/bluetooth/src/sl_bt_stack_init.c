@@ -33,13 +33,23 @@
 #endif
 
 #include "sl_status.h"
+#include "sl_assert.h"
 #include "sl_bt_api.h"
 #include "sl_bt_stack_config.h"
 #include "sl_bt_stack_init.h"
 #include "sl_bluetooth_config.h"
-#include "sl_btctrl_linklayer.h"
+#include "sli_bgapi.h"
+#include "sli_bt_api.h"
 #include "sli_bt_gattdb_def.h"
 #include "sli_bt_config_defs.h"
+
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "sl_bt_rtos_adaptation.h"
+#endif
+
+#if defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+#include "sli_bt_event_system.h"
+#endif
 
 #ifdef SL_CATALOG_GATT_CONFIGURATION_PRESENT
 extern const sli_bt_gattdb_t gattdb;
@@ -82,53 +92,332 @@ SLI_BT_DECLARE_BGAPI_CLASS(bt, coex);
 SLI_BT_DECLARE_BGAPI_CLASS(bt, resource);
 SLI_BT_DECLARE_BGAPI_CLASS(bt, connection_analyzer);
 
-// Forward declaration of the internal Bluetooth stack init function
-sl_status_t sli_bt_init_stack(const sl_bt_configuration_t *config,
-                              const struct sli_bt_feature_use *features,
-                              const struct sli_bgapi_class * const *bgapi_classes);
-
 // Some features do not correspond directly to a particular component but are
 // needed depending on a specific combination of components. Decide the derived
 // feature selections here to simplify the feature inclusion rules below.
 
-// Extended advertising feature is included if it's explicitly used, but only
-// when there's no device incompatibility.
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_ADVERTISER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_EXTENDED_ADVERTISING_INCOMPATIBLE_PRESENT)
-#define SLI_BT_ENABLE_EXTENDED_ADVERTISER_FEATURE
+// CTE receiver is present if either AoA or AoD receiver is present
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_RECEIVER_PRESENT) \
+  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_RECEIVER_PRESENT)
+#define SLI_BT_CTE_RECEIVER_PRESENT
 #endif
 
-// The scanner event handler is included if the legacy or extended scanner
-// component is used.
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_LEGACY_SCANNER_PRESENT) \
-  || defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_SCANNER_PRESENT)
-#define SLI_BT_ENABLE_SCANNER_BASE
+// CTE transmitter is present if either AoA or AoD transmitter is present
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_TRANSMITTER_PRESENT) \
+  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_TRANSMITTER_PRESENT)
+#define SLI_BT_CTE_TRANSMITTER_PRESENT
 #endif
 
-// Extended scanner feature is included if it's explicitly used, but only when
-// there's no device incompatibility.
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_SCANNER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_EXTENDED_SCANNING_INCOMPATIBLE_PRESENT)
-#define SLI_BT_ENABLE_EXTENDED_SCANNER_FEATURE
+// Advertiser requires selection of legacy and/or extended advertiser
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT) \
+  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_LEGACY_ADVERTISER_PRESENT) \
+  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_ADVERTISER_PRESENT)
+#error Incomplete Bluetooth advertiser feature detected. Add component \
+       bluetooth_feature_legacy_advertiser for advertising with legacy \
+       advertising PDUs. Add component bluetooth_feature_extended_advertiser \
+       for advertising with extended advertising PDUs.
 #endif
 
-// If the build configuration needs a specific feature, we pick it for inclusion
-// in the feature and BGAPI lists, as applicable.
+// Scanner requires selection of legacy and/or extended scanner
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT) \
+  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_LEGACY_SCANNER_PRESENT) \
+  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_SCANNER_PRESENT)
+#error Incomplete Bluetooth scanner feature detected. Add component \
+       bluetooth_feature_legacy_scanner for scanning advertisements in legacy \
+       advertising PDUs. Add component bluetooth_feature_extended_scanner for \
+       scanning advertisements in legacy or extended advertising PDUs.
+#endif
+
+// Extern declaration of component configuration structures
+extern const struct sli_bt_component_config sli_bt_external_bondingdb_config;
+extern const struct sli_bt_component_config sli_bt_accept_list_config;
+extern const struct sli_bt_component_config sli_bt_sync_config;
+extern const struct sli_bt_component_config sli_bt_advertiser_config;
+extern const struct sli_bt_component_config sli_bt_periodic_advertiser_config;
+extern const struct sli_bt_component_config sli_bt_l2cap_config;
+extern const struct sli_bt_component_config sli_bt_connection_config;
+extern const struct sli_bt_component_config sli_bt_dynamic_gattdb_config;
+
+/** @brief Structure that specifies the Bluetooth configuration */
+static const sl_bt_configuration_t bt_config = SL_BT_CONFIG_DEFAULT;
+
+// Extern declaration of component init functions
+extern sli_bgapi_component_init_func_t sli_bt_rtos_adaptation_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_rtos_adaptation_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_core_init;
+extern sli_bgapi_component_start_func_t sli_bt_core_start;
+extern sli_bgapi_component_deinit_func_t sli_bt_core_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_system_on_demand_start_init;
+extern sli_bgapi_component_init_func_t sli_bt_system_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_system_deinit;
+extern sli_bgapi_component_start_func_t sli_bt_builtin_bonding_database_start;
+extern sli_bgapi_component_deinit_func_t sli_bt_builtin_bonding_database_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_external_bondingdb_init;
+extern sli_bgapi_component_init_func_t sli_bt_sm_init;
+extern sli_bgapi_component_start_func_t sli_bt_sm_start;
+extern sli_bgapi_component_deinit_func_t sli_bt_sm_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_accept_list_init;
+extern sli_bgapi_component_start_func_t sli_bt_resolving_list_start;
+extern sli_bgapi_component_init_func_t sli_bt_scanner_init;
+extern sli_bgapi_component_init_func_t sli_bt_scanner_base_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_scanner_base_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_extended_scanner_init;
+extern sli_bgapi_component_init_func_t sli_bt_sync_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_sync_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_sync_scanner_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_sync_scanner_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_periodic_sync_init;
+extern sli_bgapi_component_init_func_t sli_bt_pawr_sync_init;
+extern sli_bgapi_component_init_func_t sli_bt_advertiser_init;
+extern sli_bgapi_component_stop_func_t sli_bt_advertiser_stop;
+extern sli_bgapi_component_deinit_func_t sli_bt_advertiser_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_extended_advertiser_init;
+extern sli_bgapi_component_init_func_t sli_bt_periodic_advertiser_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_periodic_advertiser_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_pawr_advertiser_init;
+extern sli_bgapi_component_start_func_t sli_bt_channel_sounding_start;
+extern sli_bgapi_component_init_func_t sli_bt_channel_sounding_test_init;
+extern sli_bgapi_component_init_func_t sli_bt_l2cap_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_l2cap_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_connection_init;
+extern sli_bgapi_component_start_func_t sli_bt_connection_start;
+extern sli_bgapi_component_stop_func_t sli_bt_connection_stop;
+extern sli_bgapi_component_deinit_func_t sli_bt_connection_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_connection_role_central_init;
+extern sli_bgapi_component_init_func_t sli_bt_connection_role_peripheral_init;
+extern sli_bgapi_component_init_func_t sli_bt_connection_statistics_init;
+extern sli_bgapi_component_start_func_t sli_bt_connection_subrating_start;
+extern sli_bgapi_component_start_func_t sli_bt_dynamic_gattdb_start;
+extern sli_bgapi_component_deinit_func_t sli_bt_dynamic_gattdb_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_cte_receiver_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_cte_receiver_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_cte_transmitter_init;
+extern sli_bgapi_component_init_func_t sli_bt_test_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_test_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_power_control_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_power_control_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_connection_user_power_control_init;
+extern sli_bgapi_component_init_func_t sli_bt_gatt_client_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_gatt_client_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_gatt_server_init;
+extern sli_bgapi_component_deinit_func_t sli_bt_gatt_server_deinit;
+extern sli_bgapi_component_init_func_t sli_bt_gatt_client_att_mtu_request_only_init;
+extern sli_bgapi_component_init_func_t sli_bt_accurate_api_address_types_init;
+extern sli_bgapi_component_start_func_t sli_bt_resource_start;
+extern sli_bgapi_component_deinit_func_t sli_bt_resource_deinit;
+
+// NULL-terminated array of component init structures
+static const sli_bgapi_component_init_info_t bt_component_init_info[] = {
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  { sli_bt_rtos_adaptation_init, NULL },
+#endif
+  { sli_bt_core_init, &bt_config },
+#if defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+  { sli_bt_system_on_demand_start_init, NULL },
+#endif
+  { sli_bt_system_init, &bt_config },
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTERNAL_BONDING_DATABASE_PRESENT)
+  { sli_bt_external_bondingdb_init, &sli_bt_external_bondingdb_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SM_PRESENT)
+  { sli_bt_sm_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ACCEPT_LIST_PRESENT)
+  { sli_bt_accept_list_init, &sli_bt_accept_list_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT)
+  { sli_bt_scanner_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT)
+  { sli_bt_scanner_base_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_SCANNER_PRESENT)
+  { sli_bt_extended_scanner_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
+  { sli_bt_sync_init, &sli_bt_sync_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_SCANNER_PRESENT)
+  { sli_bt_sync_scanner_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_SYNC_PRESENT)
+  { sli_bt_periodic_sync_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_SYNC_PRESENT)
+  { sli_bt_pawr_sync_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT)
+  { sli_bt_advertiser_init, &sli_bt_advertiser_config },
+#endif
+#if defined(SLI_BT_ENABLE_EXTENDED_ADVERTISER_FEATURE)
+  { sli_bt_extended_advertiser_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
+  { sli_bt_periodic_advertiser_init, &sli_bt_periodic_advertiser_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_ADVERTISER_PRESENT)
+  { sli_bt_pawr_advertiser_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT)
+  { sli_bt_channel_sounding_test_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_L2CAP_PRESENT)
+  { sli_bt_l2cap_init, &sli_bt_l2cap_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
+  { sli_bt_connection_init, &sli_bt_connection_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ROLE_CENTRAL_PRESENT)
+  { sli_bt_connection_role_central_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ROLE_PERIPHERAL_PRESENT)
+  { sli_bt_connection_role_peripheral_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_STATISTICS_PRESENT)
+  { sli_bt_connection_statistics_init, NULL },
+#endif
+#if defined(SLI_BT_CTE_RECEIVER_PRESENT)
+  { sli_bt_cte_receiver_init, NULL },
+#endif
+#if defined(SLI_BT_CTE_TRANSMITTER_PRESENT)
+  { sli_bt_cte_transmitter_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_TEST_PRESENT)
+  { sli_bt_test_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_POWER_CONTROL_PRESENT)
+  { sli_bt_power_control_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USER_POWER_CONTROL_PRESENT)
+  { sli_bt_connection_user_power_control_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_PRESENT)
+  { sli_bt_gatt_client_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_SERVER_PRESENT)
+  { sli_bt_gatt_server_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_CLIENT_ATT_MTU_REQUEST_ONLY_PRESENT)
+  { sli_bt_gatt_client_att_mtu_request_only_init, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USE_ACCURATE_API_ADDRESS_TYPES_PRESENT)
+  { sli_bt_accurate_api_address_types_init, NULL },
+#endif
+  { NULL, NULL }
+};
+
+// NULL-terminated array of component start structures
+static const sli_bgapi_component_start_info_t bt_component_start_info[] = {
+  { sli_bt_core_start, &bt_config },
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_BUILTIN_BONDING_DATABASE_PRESENT)
+  { sli_bt_builtin_bonding_database_start, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SM_PRESENT)
+  { sli_bt_sm_start, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOLVING_LIST_PRESENT)
+  { sli_bt_resolving_list_start, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CS_PRESENT)
+  { sli_bt_channel_sounding_start, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
+  { sli_bt_connection_start, &sli_bt_connection_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_SUBRATING_PRESENT)
+  { sli_bt_connection_subrating_start, NULL },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_DYNAMIC_GATTDB_PRESENT)
+  { sli_bt_dynamic_gattdb_start, &sli_bt_dynamic_gattdb_config },
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOURCE_REPORT_PRESENT)
+  { sli_bt_resource_start, NULL },
+#endif
+  { NULL, NULL }
+};
+
+// Stop and deinit functions are only needed when the On-demand Start component
+// is present in the build
+#if defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+// NULL-terminated array of component stop functions.
+static sli_bgapi_component_stop_func_t * const bt_component_stop_functions[] = {
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
+  sli_bt_connection_stop,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT)
+  sli_bt_advertiser_stop,
+#endif
+  NULL
+};
+
+// NULL-terminated array of component deinit functions.
+static sli_bgapi_component_deinit_func_t * const bt_component_deinit_functions[] = {
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOURCE_REPORT_PRESENT)
+  sli_bt_resource_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_SERVER_PRESENT)
+  sli_bt_gatt_server_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_PRESENT)
+  sli_bt_gatt_client_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_POWER_CONTROL_PRESENT)
+  sli_bt_power_control_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_TEST_PRESENT)
+  sli_bt_test_deinit,
+#endif
+#if defined(SLI_BT_CTE_RECEIVER_PRESENT)
+  sli_bt_cte_receiver_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_DYNAMIC_GATTDB_PRESENT)
+  sli_bt_dynamic_gattdb_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
+  sli_bt_connection_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_L2CAP_PRESENT)
+  sli_bt_l2cap_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
+  sli_bt_periodic_advertiser_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT)
+  sli_bt_advertiser_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_SCANNER_PRESENT)
+  sli_bt_sync_scanner_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
+  sli_bt_sync_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT)
+  sli_bt_scanner_base_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SM_PRESENT)
+  sli_bt_sm_deinit,
+#endif
+#if defined(SL_CATALOG_BLUETOOTH_FEATURE_BUILTIN_BONDING_DATABASE_PRESENT)
+  sli_bt_builtin_bonding_database_deinit,
+#endif
+  sli_bt_system_deinit,
+  sli_bt_core_deinit,
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  sli_bt_rtos_adaptation_deinit,
+#endif
+  NULL
+};
+
+#endif // defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+// If the build configuration needs a specific BGAPI class, we pick it for
+// inclusion in the BGAPI list.
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYSTEM_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, system);
-#define SLI_BT_FEATURE_SYSTEM SLI_BT_USE_FEATURE(bt, system),
 #define SLI_BT_BGAPI_SYSTEM SLI_BT_USE_BGAPI_CLASS(bt, system),
 #else
-#define SLI_BT_FEATURE_SYSTEM
 #define SLI_BT_BGAPI_SYSTEM
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, on_demand_start);
-#define SLI_BT_FEATURE_ON_DEMAND_START SLI_BT_USE_FEATURE(bt, on_demand_start),
-#else
-#define SLI_BT_FEATURE_ON_DEMAND_START
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_NVM_PRESENT)
@@ -144,65 +433,32 @@ SLI_BT_DECLARE_FEATURE(bt, on_demand_start);
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SM_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, sm);
-#define SLI_BT_FEATURE_SM SLI_BT_USE_FEATURE(bt, sm),
 #define SLI_BT_BGAPI_SM SLI_BT_USE_BGAPI_CLASS(bt, sm),
 #else
-#define SLI_BT_FEATURE_SM
 #define SLI_BT_BGAPI_SM
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_BUILTIN_BONDING_DATABASE_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, builtin_bonding_database);
-#define SLI_BT_FEATURE_BUILTIN_BONDING_DATABASE SLI_BT_USE_FEATURE(bt, builtin_bonding_database),
-#else
-#define SLI_BT_FEATURE_BUILTIN_BONDING_DATABASE
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTERNAL_BONDING_DATABASE_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, external_bonding_database);
-#define SLI_BT_FEATURE_EXTERNAL_BONDING_DATABASE SLI_BT_USE_FEATURE(bt, external_bonding_database),
-#define SLI_BT_BGAPI_EXTERNAL_BONDINGDB   SLI_BT_USE_BGAPI_CLASS(bt, external_bondingdb),
+#define SLI_BT_BGAPI_EXTERNAL_BONDINGDB SLI_BT_USE_BGAPI_CLASS(bt, external_bondingdb),
 #else
-#define SLI_BT_FEATURE_EXTERNAL_BONDING_DATABASE
 #define SLI_BT_BGAPI_EXTERNAL_BONDINGDB
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_ACCEPT_LIST_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, accept_list);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, accept_list);
-#define SLI_BT_FEATURE_ACCEPT_LIST SLI_BT_USE_FEATURE_WITH_CONFIG(bt, accept_list, SLI_BT_FEATURE_CONFIG_NAME(bt, accept_list)),
 #define SLI_BT_BGAPI_ACCEPT_LIST SLI_BT_USE_BGAPI_CLASS(bt, accept_list),
 #else
-#define SLI_BT_FEATURE_ACCEPT_LIST
 #define SLI_BT_BGAPI_ACCEPT_LIST
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOLVING_LIST_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, resolving_list);
-#define SLI_BT_FEATURE_RESOLVING_LIST SLI_BT_USE_FEATURE(bt, resolving_list),
 #define SLI_BT_BGAPI_RESOLVING_LIST SLI_BT_USE_BGAPI_CLASS(bt, resolving_list),
 #else
-#define SLI_BT_FEATURE_RESOLVING_LIST
 #define SLI_BT_BGAPI_RESOLVING_LIST
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_LEGACY_ADVERTISER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_ADVERTISER_PRESENT)
-#error Incomplete Bluetooth advertiser feature detected. Add component \
-       bluetooth_feature_legacy_advertiser for advertising with legacy \
-       advertising PDUs. Add component bluetooth_feature_extended_advertiser \
-       for advertising with extended advertising PDUs.
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, advertiser);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, advertiser);
-#define SLI_BT_FEATURE_ADVERTISER SLI_BT_USE_FEATURE_WITH_CONFIG(bt, advertiser, SLI_BT_FEATURE_CONFIG_NAME(bt, advertiser)),
 #define SLI_BT_BGAPI_ADVERTISER   SLI_BT_USE_BGAPI_CLASS(bt, advertiser),
 #else
-#define SLI_BT_FEATURE_ADVERTISER
 #define SLI_BT_BGAPI_ADVERTISER
 #endif
 
@@ -212,13 +468,6 @@ SLI_BT_DECLARE_FEATURE_CONFIG(bt, advertiser);
 #define SLI_BT_BGAPI_LEGACY_ADVERTISER
 #endif
 
-#if defined(SLI_BT_ENABLE_EXTENDED_ADVERTISER_FEATURE)
-SLI_BT_DECLARE_FEATURE(bt, extended_advertiser);
-#define SLI_BT_FEATURE_EXTENDED_ADVERTISER SLI_BT_USE_FEATURE(bt, extended_advertiser),
-#else
-#define SLI_BT_FEATURE_EXTENDED_ADVERTISER
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_ADVERTISER_PRESENT)
 #define SLI_BT_BGAPI_EXTENDED_ADVERTISER SLI_BT_USE_BGAPI_CLASS(bt, extended_advertiser),
 #else
@@ -226,12 +475,8 @@ SLI_BT_DECLARE_FEATURE(bt, extended_advertiser);
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, periodic_advertiser);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, periodic_advertiser);
-#define SLI_BT_FEATURE_PERIODIC_ADVERTISER SLI_BT_USE_FEATURE_WITH_CONFIG(bt, periodic_advertiser, SLI_BT_FEATURE_CONFIG_NAME(bt, periodic_advertiser)),
 #define SLI_BT_BGAPI_PERIODIC_ADVERTISER SLI_BT_USE_BGAPI_CLASS(bt, periodic_advertiser),
 #else
-#define SLI_BT_FEATURE_PERIODIC_ADVERTISER
 #define SLI_BT_BGAPI_PERIODIC_ADVERTISER
 #endif
 
@@ -241,53 +486,16 @@ SLI_BT_DECLARE_FEATURE_CONFIG(bt, periodic_advertiser);
 #define SLI_BT_BGAPI_PAWR_ADVERTISER
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_LEGACY_SCANNER_PRESENT) \
-  && !defined(SL_CATALOG_BLUETOOTH_FEATURE_EXTENDED_SCANNER_PRESENT)
-#error Incomplete Bluetooth scanner feature detected. Add component \
-       bluetooth_feature_legacy_scanner for scanning advertisements in legacy \
-       advertising PDUs. Add component bluetooth_feature_extended_scanner for \
-       scanning advertisements in legacy or extended advertising PDUs.
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, scanner);
-#define SLI_BT_FEATURE_SCANNER SLI_BT_USE_FEATURE(bt, scanner),
 #define SLI_BT_BGAPI_SCANNER SLI_BT_USE_BGAPI_CLASS(bt, scanner),
 #else
-#define SLI_BT_FEATURE_SCANNER
 #define SLI_BT_BGAPI_SCANNER
 #endif
 
-#if defined(SLI_BT_ENABLE_SCANNER_BASE)
-SLI_BT_DECLARE_FEATURE(bt, scanner_base);
-#define SLI_BT_FEATURE_SCANNER_BASE SLI_BT_USE_FEATURE(bt, scanner_base),
-#else
-#define SLI_BT_FEATURE_SCANNER_BASE
-#endif
-
-#if defined(SLI_BT_ENABLE_EXTENDED_SCANNER_FEATURE)
-SLI_BT_DECLARE_FEATURE(bt, extended_scanner);
-#define SLI_BT_FEATURE_EXTENDED_SCANNER SLI_BT_USE_FEATURE(bt, extended_scanner),
-#else
-#define SLI_BT_FEATURE_EXTENDED_SCANNER
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, sync);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, sync);
-#define SLI_BT_FEATURE_SYNC SLI_BT_USE_FEATURE_WITH_CONFIG(bt, sync, SLI_BT_FEATURE_CONFIG_NAME(bt, sync)),
 #define SLI_BT_BGAPI_SYNC SLI_BT_USE_BGAPI_CLASS(bt, sync),
 #else
-#define SLI_BT_FEATURE_SYNC
 #define SLI_BT_BGAPI_SYNC
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_SCANNER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, sync_scanner);
-#define SLI_BT_FEATURE_SYNC_SCANNER SLI_BT_USE_FEATURE(bt, sync_scanner),
-#else
-#define SLI_BT_FEATURE_SYNC_SCANNER
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_SCANNER_PRESENT)
@@ -327,106 +535,38 @@ SLI_BT_DECLARE_FEATURE(bt, sync_scanner);
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CS_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, cs);
-#define SLI_BT_FEATURE_CS SLI_BT_USE_FEATURE(bt, cs),
 #define SLI_BT_BGAPI_CS SLI_BT_USE_BGAPI_CLASS(bt, cs),
 #else
-#define SLI_BT_FEATURE_CS
 #define SLI_BT_BGAPI_CS
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, cs_test);
-#define SLI_BT_FEATURE_CS_TEST SLI_BT_USE_FEATURE(bt, cs_test),
 #define SLI_BT_BGAPI_CS_TEST SLI_BT_USE_BGAPI_CLASS(bt, cs_test),
 #else
-#define SLI_BT_FEATURE_CS_TEST
 #define SLI_BT_BGAPI_CS_TEST
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_L2CAP_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, l2cap);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, l2cap);
-#define SLI_BT_FEATURE_L2CAP SLI_BT_USE_FEATURE_WITH_CONFIG(bt, l2cap, SLI_BT_FEATURE_CONFIG_NAME(bt, l2cap)),
 #define SLI_BT_BGAPI_L2CAP SLI_BT_USE_BGAPI_CLASS(bt, l2cap),
 #else
-#define SLI_BT_FEATURE_L2CAP
 #define SLI_BT_BGAPI_L2CAP
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, connection);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, connection);
-#define SLI_BT_FEATURE_CONNECTION SLI_BT_USE_FEATURE_WITH_CONFIG(bt, connection, SLI_BT_FEATURE_CONFIG_NAME(bt, connection)),
 #define SLI_BT_BGAPI_CONNECTION SLI_BT_USE_BGAPI_CLASS(bt, connection),
 #else
-#define SLI_BT_FEATURE_CONNECTION
 #define SLI_BT_BGAPI_CONNECTION
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ROLE_CENTRAL_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, connection_role_central);
-#define SLI_BT_FEATURE_CONNECTION_ROLE_CENTRAL SLI_BT_USE_FEATURE(bt, connection_role_central),
-#else
-#define SLI_BT_FEATURE_CONNECTION_ROLE_CENTRAL
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ROLE_PERIPHERAL_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, connection_role_peripheral);
-#define SLI_BT_FEATURE_CONNECTION_ROLE_PERIPHERAL SLI_BT_USE_FEATURE(bt, connection_role_peripheral),
-#else
-#define SLI_BT_FEATURE_CONNECTION_ROLE_PERIPHERAL
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_STATISTICS_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, connection_statistics);
-#define SLI_BT_FEATURE_CONNECTION_STATISTICS SLI_BT_USE_FEATURE(bt, connection_statistics),
-#else
-#define SLI_BT_FEATURE_CONNECTION_STATISTICS
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USER_POWER_CONTROL_PRESENT) \
-  && defined(SL_CATALOG_BLUETOOTH_FEATURE_POWER_CONTROL_PRESENT)
-#error bluetooth_feature_power_control and bluetooth_feature_user_power_control cannot coexist.
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_POWER_CONTROL_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, power_control);
-#define SLI_BT_FEATURE_POWER_CONTROL SLI_BT_USE_FEATURE(bt, power_control),
-#else
-#define SLI_BT_FEATURE_POWER_CONTROL
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USER_POWER_CONTROL_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, user_power_control);
-#define SLI_BT_FEATURE_USER_POWER_CONTROL SLI_BT_USE_FEATURE(bt, user_power_control),
-#else
-#define SLI_BT_FEATURE_USER_POWER_CONTROL
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, gatt);
-#define SLI_BT_FEATURE_GATT SLI_BT_USE_FEATURE(bt, gatt),
 #define SLI_BT_BGAPI_GATT SLI_BT_USE_BGAPI_CLASS(bt, gatt),
 #else
-#define SLI_BT_FEATURE_GATT
 #define SLI_BT_BGAPI_GATT
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_GATT_CLIENT_ATT_MTU_REQUEST_ONLY_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, gatt_client_att_mtu_request_only);
-#define SLI_BT_FEATURE_GATT_CLIENT_ATT_MTU_REQUEST_ONLY SLI_BT_USE_FEATURE(bt, gatt_client_att_mtu_request_only),
-#else
-#define SLI_BT_FEATURE_GATT_CLIENT_ATT_MTU_REQUEST_ONLY
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_DYNAMIC_GATTDB_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, dynamic_gattdb);
-SLI_BT_DECLARE_FEATURE_CONFIG(bt, dynamic_gattdb);
-#define SLI_BT_FEATURE_DYNAMIC_GATTDB SLI_BT_USE_FEATURE_WITH_CONFIG(bt, dynamic_gattdb, SLI_BT_FEATURE_CONFIG_NAME(bt, dynamic_gattdb)),
 #define SLI_BT_BGAPI_DYNAMIC_GATTDB SLI_BT_USE_BGAPI_CLASS(bt, gattdb),
 #else
-#define SLI_BT_FEATURE_DYNAMIC_GATTDB
 #define SLI_BT_BGAPI_DYNAMIC_GATTDB
 #endif
 
@@ -436,32 +576,21 @@ SLI_BT_DECLARE_FEATURE_CONFIG(bt, dynamic_gattdb);
 #define SLI_BT_BGAPI_GATT_SERVER
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_RECEIVER_PRESENT) \
-  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_RECEIVER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, cte_receiver);
-#define SLI_BT_FEATURE_CTE_RECEIVER SLI_BT_USE_FEATURE(bt, cte_receiver),
+#if defined(SLI_BT_CTE_RECEIVER_PRESENT)
 #define SLI_BT_BGAPI_CTE_RECEIVER SLI_BT_USE_BGAPI_CLASS(bt, cte_receiver),
 #else
-#define SLI_BT_FEATURE_CTE_RECEIVER
 #define SLI_BT_BGAPI_CTE_RECEIVER
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_TRANSMITTER_PRESENT) \
-  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_TRANSMITTER_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, cte_transmitter);
-#define SLI_BT_FEATURE_CTE_TRANSMITTER SLI_BT_USE_FEATURE(bt, cte_transmitter),
+#if defined(SLI_BT_CTE_TRANSMITTER_PRESENT)
 #define SLI_BT_BGAPI_CTE_TRANSMITTER SLI_BT_USE_BGAPI_CLASS(bt, cte_transmitter),
 #else
-#define SLI_BT_FEATURE_CTE_TRANSMITTER
 #define SLI_BT_BGAPI_CTE_TRANSMITTER
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_TEST_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, test);
-#define SLI_BT_FEATURE_TEST SLI_BT_USE_FEATURE(bt, test),
 #define SLI_BT_BGAPI_TEST SLI_BT_USE_BGAPI_CLASS(bt, test),
 #else
-#define SLI_BT_FEATURE_TEST
 #define SLI_BT_BGAPI_TEST
 #endif
 
@@ -477,72 +606,14 @@ SLI_BT_DECLARE_FEATURE(bt, test);
 #define SLI_BT_BGAPI_RESOURCE
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USE_ACCURATE_API_ADDRESS_TYPES_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, accurate_api_address_types);
-#define SLI_BT_FEATURE_ACCURATE_API_ADDRESS_TYPES SLI_BT_USE_FEATURE(bt, accurate_api_address_types),
-#else
-#define SLI_BT_FEATURE_ACCURATE_API_ADDRESS_TYPES
-#endif
-
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ANALYZER_PRESENT)
 #define SLI_BT_BGAPI_CONNECTION_ANALYZER SLI_BT_USE_BGAPI_CLASS(bt, connection_analyzer),
 #else
 #define SLI_BT_BGAPI_CONNECTION_ANALYZER
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_SUBRATING_PRESENT)
-SLI_BT_DECLARE_FEATURE(bt, connection_subrate);
-#define SLI_BT_FEATURE_CONNECTION_SUBRATE SLI_BT_USE_FEATURE(bt, connection_subrate),
-#else
-#define SLI_BT_FEATURE_CONNECTION_SUBRATE
-#endif
-
-/** @brief Structure that specifies the Bluetooth configuration */
-static const sl_bt_configuration_t bt_config = SL_BT_CONFIG_DEFAULT;
-
-/** @brief Table of used Bluetooth features */
-static const struct sli_bt_feature_use bt_used_features[] =
-{
-  // Invoke the feature inclusion macro for each feature. Depending on the build
-  // configuration, the feature inclusion rules above have defined the macro to
-  // either empty or the relevant feature use declaration.
-  SLI_BT_FEATURE_ON_DEMAND_START
-  SLI_BT_FEATURE_SYSTEM
-  SLI_BT_FEATURE_SM
-  SLI_BT_FEATURE_BUILTIN_BONDING_DATABASE
-  SLI_BT_FEATURE_EXTERNAL_BONDING_DATABASE
-  SLI_BT_FEATURE_ACCEPT_LIST
-  SLI_BT_FEATURE_RESOLVING_LIST
-  SLI_BT_FEATURE_SCANNER
-  SLI_BT_FEATURE_SCANNER_BASE
-  SLI_BT_FEATURE_EXTENDED_SCANNER
-  SLI_BT_FEATURE_SYNC
-  SLI_BT_FEATURE_SYNC_SCANNER
-  SLI_BT_FEATURE_ADVERTISER
-  SLI_BT_FEATURE_EXTENDED_ADVERTISER
-  SLI_BT_FEATURE_PERIODIC_ADVERTISER
-  SLI_BT_FEATURE_CS
-  SLI_BT_FEATURE_CS_TEST
-  SLI_BT_FEATURE_L2CAP
-  SLI_BT_FEATURE_CONNECTION
-  SLI_BT_FEATURE_CONNECTION_ROLE_CENTRAL
-  SLI_BT_FEATURE_CONNECTION_ROLE_PERIPHERAL
-  SLI_BT_FEATURE_CONNECTION_STATISTICS
-  SLI_BT_FEATURE_CONNECTION_SUBRATE
-  SLI_BT_FEATURE_DYNAMIC_GATTDB
-  SLI_BT_FEATURE_CTE_RECEIVER
-  SLI_BT_FEATURE_CTE_TRANSMITTER
-  SLI_BT_FEATURE_TEST
-  SLI_BT_FEATURE_POWER_CONTROL
-  SLI_BT_FEATURE_USER_POWER_CONTROL
-  SLI_BT_FEATURE_GATT
-  SLI_BT_FEATURE_GATT_CLIENT_ATT_MTU_REQUEST_ONLY
-  SLI_BT_FEATURE_ACCURATE_API_ADDRESS_TYPES
-  { NULL, NULL }
-};
-
-/** @brief Table of used BGAPI classes */
-static const struct sli_bgapi_class * const bt_bgapi_classes[] =
+/** @brief Table of BGAPI classes available when Bluetooth is started */
+static const struct sli_bgapi_class * const bt_bgapi_classes_when_started[] =
 {
   // Invoke the BGAPI class inclusion macro for each feature that provides a
   // BGAPI class. Depending on the build configuration, the feature inclusion
@@ -584,273 +655,123 @@ static const struct sli_bgapi_class * const bt_bgapi_classes[] =
   NULL
 };
 
-// Forward declaration of Bluetooth controller init functions
-extern sl_status_t sl_bt_ll_deinit();
-#include "sl_bt_ll_config.h"
-extern sl_status_t ll_connPowerControlEnable(const sl_bt_ll_power_control_config_t *);
-extern void sl_bt_init_app_controlled_tx_power();
-extern sl_status_t sl_btctrl_init_sniff(uint8_t);
-extern void sl_btctrl_deinit_sniff(void);
-#if defined(SL_CATALOG_RAIL_UTIL_COEX_PRESENT)
-#include "coexistence-ble.h"
-#endif
-
 /**
- * @brief Initialize controller features according to the feature selection.
+ * @brief Table of BGAPI classes available when Bluetooth is stopped.
  *
- * This function is called by the Bluetooth host stack when Bluetooth is started.
+ * These are only needed when the On-demand Start component is present in the
+ * build.
  */
-sl_status_t sli_bt_init_controller_features()
+#if defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+static const struct sli_bgapi_class * const bt_bgapi_classes_when_stopped[] =
 {
-  sl_status_t status = SL_STATUS_OK;
-
-#if defined(SL_CATALOG_RAIL_UTIL_COEX_PRESENT)
-  sl_bt_init_coex_hal();
+  SLI_BT_BGAPI_SYSTEM
+  NULL
+};
 #endif
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_MULTIPROTOCOL_PRESENT)
-  sl_btctrl_init_multiprotocol();
+// Structure that collects the read-only info of the Bluetooth host BGAPI device
+static const sli_bgapi_device_info_t bt_device_info = {
+  .component_init_info = bt_component_init_info,
+  .component_start_info = bt_component_start_info,
+#if defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+  .component_stop_functions = bt_component_stop_functions,
+  .component_deinit_functions = bt_component_deinit_functions,
+  .bgapi_classes_when_started = bt_bgapi_classes_when_started,
+  .bgapi_classes_when_stopped = bt_bgapi_classes_when_stopped,
+#else
+  .component_stop_functions = NULL,
+  .component_deinit_functions = NULL,
+  .bgapi_classes_when_started = bt_bgapi_classes_when_started,
+  .bgapi_classes_when_stopped = NULL,
 #endif
+};
 
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RADIO_WATCHDOG_PRESENT)
-  sl_btctrl_enable_radio_watchdog();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PRESENT)
-  sl_btctrl_init_adv();
-#endif
-
-#if defined(SLI_BT_ENABLE_EXTENDED_ADVERTISER_FEATURE)
-  sl_btctrl_init_adv_ext();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SCANNER_PRESENT)
-  sl_btctrl_init_scan();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_EVEN_SCHEDULING_PRESENT)
-  sl_btctrl_enable_even_connsch();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PAWR_SCHEDULING_PRESENT)
-  sl_btctrl_enable_pawr_connsch();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
-  sl_btctrl_init_conn();
-#if !defined(SL_CATALOG_BLUETOOTH_CONNECTION_PHY_UPDATE_INCOMPATIBLE_PRESENT)
-  sl_btctrl_init_phy();
-#endif
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_STATISTICS_PRESENT)
-  sl_btctrl_init_conn_statistics();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_SUBRATING_PRESENT)
-  sl_btctrl_init_subrate();
-  status = sl_btctrl_allocate_conn_subrate_memory(SL_BT_CONFIG_MAX_CONNECTIONS);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_POWER_CONTROL_PRESENT)
-#include "sl_bt_power_control_config.h"
-  const sl_bt_ll_power_control_config_t power_control_config = {
-    .activate_power_control = SL_BT_ACTIVATE_POWER_CONTROL,
-    .golden_rssi_min_1m = SL_BT_GOLDEN_RSSI_MIN_1M,
-    .golden_rssi_max_1m = SL_BT_GOLDEN_RSSI_MAX_1M,
-    .golden_rssi_min_2m = SL_BT_GOLDEN_RSSI_MIN_2M,
-    .golden_rssi_max_2m = SL_BT_GOLDEN_RSSI_MAX_2M,
-    .golden_rssi_min_coded_s8 = SL_BT_GOLDEN_RSSI_MIN_CODED_S8,
-    .golden_rssi_max_coded_s8 = SL_BT_GOLDEN_RSSI_MAX_CODED_S8,
-    .golden_rssi_min_coded_s2 = SL_BT_GOLDEN_RSSI_MIN_CODED_S2,
-    .golden_rssi_max_coded_s2 = SL_BT_GOLDEN_RSSI_MAX_CODED_S2
-  };
-
-  status = ll_connPowerControlEnable(&power_control_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_USER_POWER_CONTROL_PRESENT)
-  sl_bt_init_app_controlled_tx_power();
-#endif
-
-#if defined(SLI_BT_ENABLE_EXTENDED_SCANNER_FEATURE)
-  sl_btctrl_init_scan_ext();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
-#include "sl_bt_periodic_advertiser_config.h"
-  sl_btctrl_init_periodic_adv();
-  sl_btctrl_alloc_periodic_adv(SL_BT_CONFIG_MAX_PERIODIC_ADVERTISERS);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_ADVERTISER_PRESENT)
-#include "sl_bt_pawr_advertiser_config.h"
-  struct sl_btctrl_pawr_advertiser_config pawr_config = {
-      .max_pawr_sets = SL_BT_CONFIG_MAX_PAWR_ADVERTISERS,
-      .max_advertised_data_length_hint = SL_BT_CONFIG_MAX_PAWR_ADVERTISED_DATA_LENGTH_HINT,
-      .subevent_data_request_count = SL_BT_CONFIG_PAWR_PACKET_REQUEST_COUNT,
-      .subevent_data_request_advance = SL_BT_CONFIG_PAWR_PACKET_REQUEST_ADVANCE,
-  };
-  status = sl_btctrl_pawr_advertiser_configure(&pawr_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
-#include "sl_bluetooth_periodic_sync_config.h"
-  sl_btctrl_init_periodic_scan();
-  status = sl_btctrl_alloc_periodic_scan(SL_BT_CONFIG_MAX_PERIODIC_ADVERTISING_SYNC);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_SYNC_PRESENT)
-#include "sl_bt_pawr_sync_config.h"
-  struct sl_btctrl_pawr_synchronizer_config pawr_sync_config = {
-      .max_pawr_sets = SL_BT_CONFIG_MAX_PAWR_SYNCHRONIZERS,
-  };
-  status = sl_btctrl_pawr_synchronizer_configure(&pawr_sync_config);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOLVING_LIST_PRESENT)
-#include "sl_bt_resolving_list_config.h"
-  sl_btctrl_init_privacy();
-  status = sl_btctrl_allocate_resolving_list_memory(SL_BT_CONFIG_RESOLVING_LIST_SIZE);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AFH_PRESENT)
-  status = sl_btctrl_init_afh(1);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_HIGH_POWER_PRESENT)
-  sl_btctrl_init_highpower();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PHY_SUPPORT_CONFIG_PRESENT)
-#include "sl_btctrl_phy_support_config.h"
-#if SL_BT_CONTROLLER_2M_PHY_SUPPORT == 0
-  sl_btctrl_disable_2m_phy();
-#endif
-#if SL_BT_CONTROLLER_CODED_PHY_SUPPORT == 0
-  sl_btctrl_disable_coded_phy();
-#endif
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_RECEIVER_PRESENT) \
-  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_RECEIVER_PRESENT)
-  status = sl_btctrl_init_cte_receiver();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_AOA_TRANSMITTER_PRESENT) \
-  || defined(SL_CATALOG_BLUETOOTH_FEATURE_AOD_TRANSMITTER_PRESENT)
-  status = sl_btctrl_init_cte_transmitter();
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_ADVERTISER_PAST_PRESENT)
-  sl_btctrl_init_past_local_sync_transfer();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PAST_PRESENT)
-  sl_btctrl_init_past_remote_sync_transfer();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAST_RECEIVER_PRESENT)
-  sl_btctrl_init_past_receiver();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CS_PRESENT)
-#include "sl_bluetooth_cs_config.h"
-  struct sl_btctrl_cs_config cs_config = { 0 };
-  cs_config.configs_per_connection = SL_BT_CONFIG_MAX_CS_CONFIGS_PER_CONNECTION;
-  cs_config.procedures = SL_BT_CONFIG_MAX_CS_PROCEDURES;
-  sl_btctrl_init_cs(&cs_config);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ANALYZER_PRESENT)
-#include "sl_bluetooth_connection_analyzer_config.h"
-  status = sl_btctrl_init_sniff(SL_BT_CONFIG_MAX_CONNECTION_ANALYZERS);
-  if (status != SL_STATUS_OK) {
-    return status;
-  }
-#endif
-
-  return status;
-}
-
-/**
- * @brief De-initialize controller features according to the feature selection.
- *
- * This function is called by the Bluetooth host stack when Bluetooth is stopped.
- */
-void sli_bt_deinit_controller_features()
-{
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_ANALYZER_PRESENT)
-  sl_btctrl_deinit_sniff();
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_RESOLVING_LIST_PRESENT)
-  sl_btctrl_allocate_resolving_list_memory(0);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_SYNC_PRESENT)
-  sl_btctrl_alloc_periodic_scan(0);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_ADVERTISER_PRESENT)
-  struct sl_btctrl_pawr_advertiser_config pawr_config = {
-      .max_pawr_sets = 0,
-      .max_advertised_data_length_hint = 0,
-      .subevent_data_request_count = 0,
-      .subevent_data_request_advance = 0,
-  };
-  (void) sl_btctrl_pawr_advertiser_configure(&pawr_config);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PAWR_SYNC_PRESENT)
-  struct sl_btctrl_pawr_synchronizer_config pawr_sync_config = {
-      .max_pawr_sets = 0,
-  };
-  (void) sl_btctrl_pawr_synchronizer_configure(&pawr_sync_config);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
-  (void) sl_btctrl_alloc_periodic_adv(0);
-#endif
-
-#if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_SUBRATING_PRESENT)
-  sl_btctrl_allocate_conn_subrate_memory(0);
-#endif
-
-  (void) sl_bt_ll_deinit();
-}
+// -----------------------------------------------------------------------------
+// Initialization entry points used with `sl_system`
 
 // Initialize the Bluetooth stack.
 sl_status_t sl_bt_stack_init()
 {
-  // Initialize the Bluetooth stack with the given configuration, features, and BGAPI classes
-  return sli_bt_init_stack(&bt_config, bt_used_features, bt_bgapi_classes);
+  // This initialization entry point is used in the single-stage `sl_system`
+  // initialization. We implement the single-stage initialization by performing
+  // the two stages of `sl_main` initialization in one go. Since `sl_main`
+  // initialization functions do not return a value, they will assert on errors.
+  // If the return here, initialization was successful.
+  sli_bt_stack_permanent_allocation();
+  sli_bt_stack_functional_init();
+
+  return SL_STATUS_OK;
+}
+
+// -----------------------------------------------------------------------------
+// Initialization entry points used with `sl_main`
+
+// Make permanent memory allocations for the Bluetooth stack.
+void sli_bt_stack_permanent_allocation(void)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+
+  // When Event System IPC is in use, let it make its permanent allocations
+#if defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+  status =  sli_bt_event_system_permanent_allocations();
+  EFM_ASSERT(status == SL_STATUS_OK);
+#endif
+
+  // When a kernel is present, let RTOS adaptation make its permanent
+  // allocations
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  status = sli_bt_rtos_adaptation_permanent_allocation();
+  EFM_ASSERT(status == SL_STATUS_OK);
+#endif // defined(SL_CATALOG_KERNEL_PRESENT)
+
+  // Register the Bluetooth host stack BGAPI device
+  status = sli_bt_register_bgapi_device(&bt_config, &bt_device_info);
+  EFM_ASSERT(status == SL_STATUS_OK);
+
+  // When the On-demand Start feature is present, the application is in full
+  // control of when to start the Bluetooth stack, and the stack initialization
+  // occurs when the application starts the stack. When not present, the stack
+  // initialization occurs in the permanent allocation stage.
+#if !defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+  status = sli_bt_init_bgapi_device();
+  EFM_ASSERT(status == SL_STATUS_OK);
+#endif // !defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+  // Suppress warning about potentially unused variable
+  (void) status;
+}
+
+// Perform functional initialization of the Bluetooth stack.
+void sli_bt_stack_functional_init(void)
+{
+  sl_status_t status = SL_STATUS_FAIL;
+
+  // When Event System IPC is in use, let it perform its init
+#if defined(SL_CATALOG_BLUETOOTH_EVENT_SYSTEM_IPC_PRESENT)
+  status =  sli_bt_event_system_functional_init();
+  if (status != SL_STATUS_OK) {
+    return;
+  }
+#endif
+
+  // When the On-demand Start feature is present, the application is in full
+  // control of when to start the Bluetooth stack. When not present, the stack
+  // start is triggered here in the functional initialization stage.
+#if !defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+  // When an RTOS is present, the starting of the Bluetooth host stack is driven
+  // by the RTOS adaptation from within the Bluetooth host stack task. When not
+  // present (in a baremetal build), the starting happens here directly.
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  status = sli_bt_rtos_adaptation_start();
+  EFM_ASSERT(status == SL_STATUS_OK);
+#else
+  status = sli_bt_start_bgapi_device();
+  EFM_ASSERT(status == SL_STATUS_OK);
+#endif
+
+#endif // !defined(SL_CATALOG_BLUETOOTH_ON_DEMAND_START_PRESENT)
+
+  // Suppress warning about potentially unused variable
+  (void) status;
 }

@@ -1,7 +1,7 @@
 !!omap
 - id: brd4332a
 - label: BRD4332A
-- package: platform
+- package: boards
 - description: Board support for BRD4332A.
 - category: Platform|Board|Radio Board
 - quality: production

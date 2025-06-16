@@ -1,24 +1,31 @@
 id: debug_swo
 label: SWO Debug
-package: platform
+package: platform_core
 description: >
-  Driver for debugging using Serial Wire Output.
-  The driver can be configured to output hardware interrupt events and
-  Program Counter samples using the DWT and ITM, as well as arbitrary data
-  produced by software using any of the 32 stimulus ports of the ITM.
+    Driver for debugging using Serial Wire Output.
+    The driver can be configured to output hardware interrupt events and
+    Program Counter samples using the DWT and ITM, as well as arbitrary data
+    produced by software using any of the 32 stimulus ports of the ITM.
 
-  If the Services->Runtime->System Setup->System Init component is included in
-  a project, the driver will be initialized automatically during the
-  sl_system_init() call in main.c.
 
-  Note: This software component can be used to enable code correlation profiling.
-  For proper operation, enable interrupt event trace and Program Counter samples
-  in the component configuration.
+    If the Services->Runtime->System Setup->sl_main component is included in
+    a project, the driver will be initialized automatically during the
+    sli_main_init() call in main.c or in the start task when using an RTOS.
+
+    DEPRECATED
+    If the Services->Runtime->System Setup->System Init component is included in
+    a project, the driver will be initialized automatically during the
+    sl_system_init() call in main.c.
+
+
+    Note: This software component can be used to enable code correlation profiling.
+    For proper operation, enable interrupt event trace and Program Counter samples
+    in the component configuration.
 category: Platform|Driver|Debug SWO
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/driver/debug
 source:
   - path: src/sl_debug_swo.c
@@ -43,6 +50,6 @@ config_file:
 template_contribution:
   - name: event_handler
     value:
-      event: driver_init
-      include: "sl_debug_swo.h"
-      handler: sl_debug_swo_init
+        event: driver_init
+        include: sl_debug_swo.h
+        handler: sl_debug_swo_init

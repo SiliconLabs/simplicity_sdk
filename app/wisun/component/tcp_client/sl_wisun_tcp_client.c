@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "sl_string.h"
 #include "socket/socket.h"
 #include "sl_wisun_tcp_client.h"
 // -----------------------------------------------------------------------------
@@ -118,7 +119,7 @@ void sl_wisun_tcp_client_write(const int32_t sockid, const char *str)
     printf("[Failed: Data to write is NULL ptr]\n");
     return;
   }
-  res = send(sockid, str, strlen(str), 0);
+  res = send(sockid, str, sl_strlen((char*)str), 0);
   if (res == SOCKET_RETVAL_ERROR) {
     printf("[Failed to send on socket: %ld]\n", sockid);
   }

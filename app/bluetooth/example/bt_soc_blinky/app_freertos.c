@@ -33,6 +33,7 @@
 #include "FreeRTOSConfig.h"
 #include "task.h"
 #include "semphr.h"
+#include "sl_main_init.h"
 #include "app.h"
 #include "app_assert.h"
 
@@ -51,10 +52,10 @@ static SemaphoreHandle_t button_semaphore = NULL;
 /******************************************************************************
  * Application Runtime Init.
  *****************************************************************************/
-void app_init_runtime(void)
+void app_init_bt(void)
 {
   BaseType_t ret;
-  // Create the task for app_process_action
+  // Create the task for sl_app_process_action
   ret = xTaskCreate(app_task,
                     APP_TASK_NAME,
                     APP_TASK_STACK_SIZE,

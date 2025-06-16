@@ -39,6 +39,7 @@
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
 #include <stdbool.h>
+#include "zpal_log.h"
 
 #ifdef SL_CATALOG_ZW_CC_USER_CREDENTIAL_PRESENT
 #include "CC_UserCredential.h"
@@ -47,8 +48,6 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 
 typedef struct {
   SSwTimer timer;
@@ -73,8 +72,8 @@ static void door_lock_operation_set_callback(SSwTimer *pTimer);
 //                                Static Variables
 // -----------------------------------------------------------------------------
 
-static doorlock_operation_timer operation_timer = {0};
-static door_lock_hw_data_t door_lock_hw = { 
+static doorlock_operation_timer operation_timer = { 0 };
+static door_lock_hw_data_t door_lock_hw = {
   .bolt_unlocked = true,
   .handle_pressed = false,
   .latch_closed = false
@@ -96,9 +95,10 @@ static door_lock_mode_t door_lock_mode = DOOR_MODE_UNSECURE;
  *
  * @param[in] pressed The state of the door handle. True if the handle is pressed, false otherwise.
  */
-void cc_door_lock_handle_set(bool pressed) {
+void cc_door_lock_handle_set(bool pressed)
+{
   door_lock_hw.handle_pressed = pressed;
-  DPRINTF("Handle %s\r\n", pressed ? "pressed" : "released");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Handle %s\r\n", pressed ? "pressed" : "released");
 }
 
 /**
@@ -108,9 +108,10 @@ void cc_door_lock_handle_set(bool pressed) {
  *
  * @param[in] opened The latch status. True if the latch is opened, false if closed.
  */
-void cc_door_lock_latch_set(bool opened) {
+void cc_door_lock_latch_set(bool opened)
+{
   door_lock_hw.latch_closed = !opened;
-  DPRINTF("Latch %s\r\n", opened ? "disengaged" : "engaged");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Latch %s\r\n", opened ? "disengaged" : "engaged");
 }
 
 /**
@@ -118,7 +119,7 @@ void cc_door_lock_latch_set(bool opened) {
  *
  * This function updates the bolt status of the door lock hardware and prints the current status.
  *
- * @param[in] locked The desired bolt status. 
+ * @param[in] locked The desired bolt status.
  *                   - `true` to lock the bolt.
  *                   - `false` to unlock the bolt.
  *
@@ -132,7 +133,7 @@ void cc_door_lock_bolt_set(bool locked)
   } else {
     sl_simple_led_turn_off(sl_led_led1.context);
   }
-  DPRINTF("Bolt %s\r\n", locked ? "locked":"unlocked");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Bolt %s\r\n", locked ? "locked":"unlocked");
 }
 
 /**
@@ -142,7 +143,8 @@ void cc_door_lock_bolt_set(bool locked)
  *
  * @return true if the door bolt is unlocked, false if it is locked.
  */
-bool door_lock_hw_bolt_is_unlocked(void) {
+bool door_lock_hw_bolt_is_unlocked(void)
+{
   return door_lock_hw.bolt_unlocked;
 }
 
@@ -153,7 +155,8 @@ bool door_lock_hw_bolt_is_unlocked(void) {
  *
  * @return true if the door latch is closed, false if it is open.
  */
-bool door_lock_hw_latch_is_closed(void) {
+bool door_lock_hw_latch_is_closed(void)
+{
   return door_lock_hw.latch_closed;
 }
 
@@ -164,7 +167,8 @@ bool door_lock_hw_latch_is_closed(void) {
  *
  * @return True if the door handle is pressed, false otherwise.
  */
-bool door_lock_hw_handle_is_pressed(void) {
+bool door_lock_hw_handle_is_pressed(void)
+{
   return door_lock_hw.handle_pressed;
 }
 
@@ -181,16 +185,17 @@ bool door_lock_hw_handle_is_pressed(void) {
  *
  * @return The estimated duration of the operation in seconds.
  */
-uint8_t cc_door_lock_mode_hw_change(door_lock_mode_t mode) {
-  if( operation_timer.is_instance_inited == false) {
+uint8_t cc_door_lock_mode_hw_change(door_lock_mode_t mode)
+{
+  if ( operation_timer.is_instance_inited == false) {
     AppTimerRegister(&operation_timer.timer, false, door_lock_operation_set_callback);
     operation_timer.is_instance_inited = true;
   }
 
-  DPRINTF("%s(): Switch to %s mode %#02x\r\n",
-          __func__,
-          (DOOR_MODE_SECURED == mode) ? "Secured":"Unsecured",
-          mode);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "%s(): Switch to %s mode %#02x\r\n",
+                 __func__,
+                 (DOOR_MODE_SECURED == mode) ? "Secured":"Unsecured",
+                 mode);
   // Timed change happened - simulate timed hardware operation
   // This will also stop any active session
   door_lock_mode = mode;
@@ -211,7 +216,8 @@ uint8_t cc_door_lock_mode_hw_change(door_lock_mode_t mode) {
  *
  * @return void
  */
-void door_lock_operation_set_callback(__attribute__((unused)) SSwTimer *pTimer) {
+void door_lock_operation_set_callback(__attribute__((unused)) SSwTimer *pTimer)
+{
   cc_door_lock_bolt_set(door_lock_mode == DOOR_MODE_SECURED);
 
   zaf_event_distributor_enqueue_cc_event(

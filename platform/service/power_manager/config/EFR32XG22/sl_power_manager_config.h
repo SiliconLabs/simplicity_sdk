@@ -67,6 +67,8 @@
 
 // <e SL_POWER_MANAGER_INIT_EMU_EM2_DEBUG_ENABLE > Enable EM2 debugging feature
 // <i> Enable or disable debugging features.
+// <i> Force PD0B/PD0D to stay on during EM2 entry. This allows the debugger to remain connected in EM2 and EM3.
+// <i> Enabling debug connectivity results in an increased power consumption in EM2/EM3.
 // <i> Default: 1
 #define SL_POWER_MANAGER_INIT_EMU_EM2_DEBUG_ENABLE 1
 // </e>

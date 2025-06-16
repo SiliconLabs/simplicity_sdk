@@ -62,7 +62,7 @@ void zaf_stay_awake(void);
 
 /**
  * Function called when the \ref EVENT_SYSTEM_LEARNMODE_FINISHED is received
- * 
+ *
  * This function is weakly defined and can be overwritten by one command class.
  * Applications should not overwrite this function instead they should handle
  * the event.

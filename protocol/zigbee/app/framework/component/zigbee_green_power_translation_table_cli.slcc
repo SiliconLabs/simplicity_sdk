@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component implementing the translation table CLI functionality of the Green Power cluster.
 label: Green Power Translation Table CLI
 quality: production

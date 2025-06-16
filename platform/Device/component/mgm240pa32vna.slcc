@@ -1,6 +1,6 @@
 !!omap
 - id: MGM240PA32VNA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM240PA32VNA.
 - category: Platform|Device|MGM24
 - quality: production

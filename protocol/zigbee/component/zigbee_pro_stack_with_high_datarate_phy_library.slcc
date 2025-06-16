@@ -4,7 +4,7 @@
 
 id: zigbee_pro_stack_with_high_datarate_phy_library
 label: Zigbee PRO Stack with high datarate PHY
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 ui_hints:

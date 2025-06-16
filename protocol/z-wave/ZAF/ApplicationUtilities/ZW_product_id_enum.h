@@ -14,12 +14,10 @@
  * @{
  */
 
-
 /**
  * Standard enum Product type Id
  */
-typedef enum _PRODUCT_TYPE_ID_ENUM_
-{
+typedef enum _PRODUCT_TYPE_ID_ENUM_{
   PRODUCT_TYPE_ID_ZWAVE_ZIP_GATEWAY = 1,
   PRODUCT_TYPE_ID_ZWAVE,
   PRODUCT_TYPE_ID_ZWAVE_PLUS,
@@ -27,12 +25,10 @@ typedef enum _PRODUCT_TYPE_ID_ENUM_
 }
 eProductTypeID;
 
-
 /**
  * Contains the product IDs for the Silabs Z-Wave 700 applications.
  */
-typedef enum _PRODUCT_PLUS_ID_ENUM_
-{
+typedef enum _PRODUCT_PLUS_ID_ENUM_{
   PRODUCT_ID_DoorLockKeyPad = 0x0001,
   PRODUCT_ID_SwitchOnOff = 0x0002,
   PRODUCT_ID_SensorPIR = 0x0003,

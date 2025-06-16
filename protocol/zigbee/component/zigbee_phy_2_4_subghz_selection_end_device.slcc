@@ -1,6 +1,6 @@
 id: zigbee_phy_2_4_subghz_selection_end_device
 label: Zigbee 2.4GHz/SubGHz Selection End Device
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|PHY support
 quality: production
 description: Zigbee Multi-MAC End Device - An end Device can join on either 2.4GHz or Sub-GHz band. The supported radio boards are BRD4150c and BRD4170a.

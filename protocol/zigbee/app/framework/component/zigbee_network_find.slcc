@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: NOTE This component is deprecated in Zigbee 3.0, but is still used for Zigbee Smart Energy requirements. See the Network Creator and Network Steering components instead for Zigbee 3.0-compliant implementations of this behavior. This component provides legacy Zigbee Home Automation (pre-3.0) implementation of routines for finding and joining any viable network via scanning, rather than joining a specific network. If the application will be deployed in an environment with potentially a lot of open networks, consider implementing a mechanism for network deny listing. Network deny listing may be accomplished by implementing the sl_zigbee_af_network_find_join_cb. To extend the functionality to sub-GHz channels, also enable the Network Find (Sub-GHz) component.
 label: Network Find
 quality: production

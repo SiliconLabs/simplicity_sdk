@@ -19,6 +19,7 @@
 #define SL_BT_RTOS_ADAPTATION_H
 
 #include "sl_bt_api.h"
+#include "sli_bgapi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -56,7 +57,7 @@ extern "C" {
  *    function. The callbacks always come from a processing loop in an event
  *    task created for this purpose.
  *
- * 2. The stack uses @ref sl_bgapi_lock() and @ref sl_bgapi_unlock() to
+ * 2. The stack uses `sli_bgapi_lock()` and `sli_bgapi_unlock()` to
  *    synchronize the handling of individual BGAPI commands, and the application
  *    must never directly call these. Individual BGAPI commands are safe to be
  *    called from multiple threads without additional locking. See @ref
@@ -69,15 +70,62 @@ extern "C" {
  */
 
 /**
- * @brief Initialize Bluetooth RTOS Adaptation
+ * @brief Make permanent memory allocations for Bluetooth RTOS adaptation.
  *
- * This function is called automatically at the right time in the generated
- * initialization sequence. The application does not need to and must not call
- * this function directly.
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically in the right stage of
+ * initialization.
  *
  * @return SL_STATUS_OK if succeeds, otherwise error
  */
-sl_status_t sl_bt_rtos_init();
+sl_status_t sli_bt_rtos_adaptation_permanent_allocation(void);
+
+/**
+ * @brief BGAPI component initialization function for Bluetooth RTOS adaptation
+ *
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically in the right stage of
+ * initialization.
+ */
+sli_bgapi_component_init_func_t sli_bt_rtos_adaptation_init;
+
+/**
+ * @brief Start the Bluetooth RTOS adaptation
+ *
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically when it's time to start the
+ * RTOS adaptation.
+ *
+ * @return SL_STATUS_OK if succeeds, otherwise error
+ */
+sl_status_t sli_bt_rtos_adaptation_start(void);
+
+/**
+ * @brief Prepare to stop the Bluetooth RTOS adaptation
+ *
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically when it's time to prepare
+ * for stopping the RTOS adaptation.
+ */
+void sli_bt_rtos_adaptation_prepare_to_stop(void);
+
+/**
+ * @brief Stop the Bluetooth RTOS adaptation
+ *
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically when it's time to stop the
+ * RTOS adaptation.
+ */
+void sli_bt_rtos_adaptation_stop(void);
+
+/**
+ * @brief BGAPI component de-init function for Bluetooth RTOS adaptation
+ *
+ * Do not call this function directly from the application. The Bluetooth host
+ * stack components call this function automatically in the right stage of
+ * de-initialization.
+ */
+sli_bgapi_component_deinit_func_t sli_bt_rtos_adaptation_deinit;
 
 /**
  * @brief Obtain the Bluetooth host stack command lock
@@ -117,7 +165,7 @@ sl_status_t sl_bt_bluetooth_post();
 /**
  * @brief Hooks for API, called from tasks using Bluetooth API
  */
-void sli_bt_cmd_handler_rtos_delegate(uint32_t header, sl_bgapi_handler handler, const void* payload);
+sli_bgapi_cmd_handler_delegate_t sli_bt_cmd_handler_rtos_delegate;
 
 /**
  * @brief Called by Bluetooth stack to wake up the link layer task

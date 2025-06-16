@@ -48,10 +48,9 @@ uint8_t sli_zigbee_get_permit_joining_remaining_duration_sec(void);
 
 sl_zigbee_af_cbke_key_establishment_suite_t sl_zigbee_af_is_full_smart_energy_security_present(void);
 
-#if defined(EZSP_HOST)
 void sli_zigbee_af_clear_network_cache(uint8_t networkIndex);
-#else
-  #define sli_zigbee_af_clear_network_cache(index)
+
+#ifndef EZSP_HOST
 uint8_t sli_zigbee_af_copy_message_into_ram_buffer(sli_buffer_manager_buffer_t message,
                                                    uint8_t *buffer,
                                                    uint16_t bufLen);
@@ -78,9 +77,6 @@ sl_status_t sl_zigbee_af_set_ezsp_value(sl_zigbee_ezsp_value_id_t valueId,
 bool sl_zigbee_af_ncp_needs_reset(void);
 
 #endif // EZSP_HOST
-
-void sli_zigbee_af_print_status(const char * task,
-                                sl_status_t status);
 
 uint8_t sl_zigbee_af_get_security_level(void);
 uint8_t sl_zigbee_af_get_key_table_size(void);
@@ -163,6 +159,11 @@ uint16_t sli_zigbee_af_get_endpoint_cluster(uint8_t endpoint,
                                             sl_zigbee_cluster_list_id_t listId,
                                             uint8_t listIndex);
 uint8_t sli_zigbee_af_get_endpoint(uint8_t index);
+
+/**
+ * @brief check based on the network state if the af thread needs to stay awake
+ */
+bool sli_zigbee_af_stay_awake_network_state(void);
 
 // Old names
 #define sl_zigbee_af_move_in_progress() sl_zigbee_af_move_in_progress_cb()

@@ -1,5 +1,5 @@
 id: mbedtls_dtls
-package: platform
+package: security_mbedtls
 label: DTLS
 description: >-
   This component provides support for the DTLS protocol using Mbed TLS.

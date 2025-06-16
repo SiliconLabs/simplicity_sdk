@@ -31,7 +31,7 @@
 #ifndef SL_RAIL_UTIL_VDET_H
 #define SL_RAIL_UTIL_VDET_H
 
-#include "rail.h"
+#include "sl_rail_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,7 +42,7 @@ extern "C" {
  *
  * @return Status code indicating success of the function call.
  */
-RAIL_Status_t sl_rail_util_vdet_init(void);
+sl_rail_status_t sl_rail_util_vdet_init(void);
 
 #ifdef __cplusplus
 }

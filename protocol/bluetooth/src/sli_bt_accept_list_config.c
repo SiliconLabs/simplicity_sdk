@@ -21,7 +21,7 @@
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_ACCEPT_LIST_PRESENT)
 #include "sl_bt_accept_list_config.h"
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, accept_list, sli_bt_accept_list_config_t) = {
+const sli_bt_accept_list_config_t sli_bt_accept_list_config = {
   .accept_list_size = SL_BT_CONFIG_ACCEPT_LIST_SIZE
 };
 

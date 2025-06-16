@@ -58,6 +58,10 @@
 #define INT_TEMP(x)   (x / 2)
 /// Fractional part of temperature
 #define FRAC_TEMP(x)  ((x % 2) ? 5 : 0)
+/// Integer part of power consumption
+#define INT_ENERGY32(x)   (x / 1000)
+/// Fractional part of power consumption
+#define FRAC_ENERGY32(x)  (x % 1000)
 
 // -----------------------------------------------------------------------------
 // BT mesh Sensor Client Callbacks
@@ -255,13 +259,59 @@ void sl_btmesh_sensor_client_on_new_illuminance_data(uint8_t sensor_idx,
   app_log_status_error_f(lcd_status, "LCD write failed" APP_LOG_NL);
 }
 
+/*******************************************************************************
+ * Called when power consumption sensor data is received from one of the
+ * registered devices.
+ *
+ ******************************************************************************/
+void sl_btmesh_sensor_client_on_new_power_consumption_data(uint8_t sensor_idx,
+                                                           uint16_t address,
+                                                           sl_btmesh_sensor_client_data_status_t status,
+                                                           energy32_t energy32)
+{
+  // Temporary buffer to format the LCD output text
+  char tmp_str[LCD_ROW_LEN];
+  static energy32_t prev_data = 0;
+  if (PRECISE_TOTAL_DEVICE_ENERGY_USE != app_get_current_property()) {
+    return;
+  }
+  //Do not spam the log and the LCD
+  if (energy32 == prev_data) {
+    return;
+  }
+  prev_data = energy32;
+  if (SL_BTMESH_SENSOR_CLIENT_DATA_VALID == status) {
+    app_log("BT mesh Sensor power consumption (from 0x%04x): %lu.%lukWh" APP_LOG_NL,
+            address,
+            INT_ENERGY32(energy32),
+            FRAC_ENERGY32(energy32));
+
+    snprintf(tmp_str,
+             LCD_ROW_LEN,
+             "Pwr:%6lu.%3lukWh",
+             INT_ENERGY32(energy32),
+             FRAC_ENERGY32(energy32));
+  } else if (SL_BTMESH_SENSOR_CLIENT_DATA_UNKNOWN == status) {
+    app_log("BT mesh Sensor Power consumption (from 0x%04x): UNKNOWN" APP_LOG_NL,
+            address);
+    snprintf(tmp_str, LCD_ROW_LEN, "Adr %4x PwrCons N/K", address);
+  } else {
+    app_log("BT mesh Sensor Power consumption (from 0x%04x): NOT AVAILABLE" APP_LOG_NL,
+            address);
+    snprintf(tmp_str, LCD_ROW_LEN, "Adr %4x PwrCons N/A", address);
+  }
+
+  sl_status_t lcd_status = sl_btmesh_LCD_write(tmp_str,
+                                               SL_BTMESH_WSTK_LCD_ROW_SENSOR_DATA_CFG_VAL + sensor_idx);
+  app_log_status_error_f(lcd_status, "LCD write failed" APP_LOG_NL);
+}
 // -----------------------------------------------------------------------------
 // Provisioning Decorator Callbacks
 
-/*******************************************************************************
- * Called at node initialization time to provide provisioning information
- *
- ******************************************************************************/
+/******************************************************************************
+* Called at node initialization time to provide provisioning information
+*
+******************************************************************************/
 void sl_btmesh_on_provision_init_status(bool provisioned,
                                         uint16_t address,
                                         uint32_t iv_index)

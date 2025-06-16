@@ -45,6 +45,9 @@ from .cmd.prov import prov_cmd
 from .cmd.proxy import proxy_cmd
 from .cmd.reset import reset_cmd
 from .cmd.scan import scan_cmd
+from .cmd.rpr import ar_cmd
+from .cmd.rpr import cr_cmd
+from .cmd.user import user_cmd
 from .db import BtmeshDfuAppDbLoadError, app_db
 from .grpctrl import app_grctrl
 from .ui import app_ui
@@ -63,6 +66,9 @@ APP_COMMANDS = [
     conf_cmd,
     dfu_cmd,
     dist_cmd,
+    ar_cmd,
+    cr_cmd,
+	user_cmd,
 ]
 
 
@@ -184,6 +190,7 @@ class BtmeshDfuAppExec(cmd.Cmd):
         # Initialize BT Mesh Stack classes
         self.dfu_init()
         self.conf_init()
+        self.rpr_init()
         # If there are no networks on the NCP node then one is created by default.
         # This scripts support one netkey and appkey only because it demonstrates
         # the firmware update and not the provisioner and configurator.
@@ -211,6 +218,9 @@ class BtmeshDfuAppExec(cmd.Cmd):
         # Configure local BT Mesh models
         self.local_conf_dfu()
         self.local_conf_ae()
+
+    def rpr_init(self):
+        app_btmesh.rpr_clt.init()
 
     def dfu_init(self):
         dfu_clt_retry_params = BtmeshMulticastRetryParams(
@@ -514,6 +524,24 @@ class BtmeshDfuAppExec(cmd.Cmd):
 
     def help_dist(self):
         dist_cmd.help()
+
+    def do_ar(self, arg):
+        return ar_cmd(arg)
+
+    def help_ar(self):
+        ar_cmd.help()
+    
+    def do_cr(self, arg):
+        return cr_cmd(arg)
+
+    def help_cr(self):
+        cr_cmd.help()
+
+    def do_user(self, arg):
+        return user_cmd(arg)
+
+    def help_user(self):
+        user_cmd.help()
 
     def do_exit(self, arg):
         return True

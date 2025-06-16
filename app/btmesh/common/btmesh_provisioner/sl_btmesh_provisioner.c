@@ -44,10 +44,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup provisioner
- * @{
- ******************************************************************************/
 void sl_bt_provisioner_on_event(sl_bt_msg_t* evt)
 {
   sl_status_t sc;
@@ -66,5 +62,3 @@ SL_WEAK void sl_btmesh_provisioner_on_init(sl_status_t result)
 {
   (void)result;
 }
-
-/** @} (end addtogroup provisioner) */

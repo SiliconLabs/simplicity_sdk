@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'raw-message' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -38,6 +38,15 @@ void sli_zigbee_stack_send_raw_message_process_ipc_command(sli_zigbee_ipc_cmd_t 
                                                                                  msg->data.send_raw_message.request.message_length,
                                                                                  msg->data.send_raw_message.request.priority,
                                                                                  msg->data.send_raw_message.request.useCca);
+}
+
+void sli_zigbee_stack_send_raw_message_with_tag_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
+{
+  msg->data.send_raw_message_with_tag.response.result = sli_zigbee_stack_send_raw_message_with_tag(msg->data.send_raw_message_with_tag.request.message,
+                                                                                                   msg->data.send_raw_message_with_tag.request.message_length,
+                                                                                                   msg->data.send_raw_message_with_tag.request.priority,
+                                                                                                   msg->data.send_raw_message_with_tag.request.useCca,
+                                                                                                   msg->data.send_raw_message_with_tag.request.messageTag);
 }
 
 void sli_zigbee_stack_set_embernet_passthrough_source_address_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
@@ -83,17 +92,39 @@ sl_status_t sl_zigbee_send_raw_message(const uint8_t *message,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((message_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (message_length > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector message length exceeds expected maximum
   }
 
-  memmove(msg.data.send_raw_message.request.message, message, sizeof(uint8_t) * (message_length));
+  memmove(msg.data.send_raw_message.request.message, message, sizeof(uint8_t) * message_length);
   msg.data.send_raw_message.request.message_length = message_length;
   msg.data.send_raw_message.request.priority = priority;
   msg.data.send_raw_message.request.useCca = useCca;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_raw_message_process_ipc_command, &msg);
 
   return msg.data.send_raw_message.response.result;
+}
+
+sl_status_t sl_zigbee_send_raw_message_with_tag(const uint8_t *message,
+                                                uint8_t message_length,
+                                                sl_zigbee_transmit_priority_t priority,
+                                                bool useCca,
+                                                uint8_t messageTag)
+{
+  sli_zigbee_ipc_cmd_t msg = { 0, };
+
+  if (message_length > MAX_IPC_VEC_ARG_CAPACITY) {
+    assert(false); // "vector message length exceeds expected maximum
+  }
+
+  memmove(msg.data.send_raw_message_with_tag.request.message, message, sizeof(uint8_t) * message_length);
+  msg.data.send_raw_message_with_tag.request.message_length = message_length;
+  msg.data.send_raw_message_with_tag.request.priority = priority;
+  msg.data.send_raw_message_with_tag.request.useCca = useCca;
+  msg.data.send_raw_message_with_tag.request.messageTag = messageTag;
+  sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_raw_message_with_tag_process_ipc_command, &msg);
+
+  return msg.data.send_raw_message_with_tag.response.result;
 }
 
 void sl_zigbee_set_embernet_passthrough_source_address(sl_802154_short_addr_t address)
@@ -108,11 +139,11 @@ sl_status_t sl_zigbee_set_mac_filter_match_list(const sl_zigbee_mac_filter_match
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((listLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (listLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector macFilterMatchList length exceeds expected maximum
   }
 
-  memmove(msg.data.set_mac_filter_match_list.request.macFilterMatchList, macFilterMatchList, sizeof(sl_zigbee_mac_filter_match_data_t) * (listLength));
+  memmove(msg.data.set_mac_filter_match_list.request.macFilterMatchList, macFilterMatchList, sizeof(sl_zigbee_mac_filter_match_data_t) * listLength);
   msg.data.set_mac_filter_match_list.request.listLength = listLength;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_set_mac_filter_match_list_process_ipc_command, &msg);
 

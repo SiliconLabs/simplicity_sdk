@@ -31,11 +31,16 @@
 #ifndef SL_BTMESH_LIGHTING_CLIENT_H
 #define SL_BTMESH_LIGHTING_CLIENT_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_lighting_client
+ * @{
+ ******************************************************************************/
+
 #define SL_BTMESH_LIGHTING_CLIENT_OFF         0   ///< Set switch state to off
 #define SL_BTMESH_LIGHTING_CLIENT_ON          1   ///< Set switch state to on
 #define SL_BTMESH_LIGHTING_CLIENT_TOGGLE      2   ///< Toggle switch state
 
-/*******************************************************************************
+/***************************************************************************//**
  * This function change the lightness and send it to the server.
  *
  * @param[in] new_lightness_percentage  Defines new lightness value as percentage
@@ -60,7 +65,9 @@ void sl_btmesh_change_switch_position(uint8_t position);
  *
  * This function returns actual lightness to set.
  *
+ * @return Actual lightness value
  ******************************************************************************/
 uint16_t sl_btmesh_get_lightness(void);
 
+/** @} (end addtogroup btmesh_lighting_client) */
 #endif // SL_BTMESH_LIGHTING_CLIENT_H

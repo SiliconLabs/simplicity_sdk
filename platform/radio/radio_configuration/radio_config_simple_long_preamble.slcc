@@ -1,6 +1,6 @@
 id: radio_config_simple_long_preamble
 label: Custom Radio Configuration for simple long preamble application
-package: platform
+package: platform_default_radio_confs
 description: Triggers Radio Configurator UI for setting a proper (Application - Die
   - RF Band) Custom Radio Configurator
 category: Platform|Radio Configuration

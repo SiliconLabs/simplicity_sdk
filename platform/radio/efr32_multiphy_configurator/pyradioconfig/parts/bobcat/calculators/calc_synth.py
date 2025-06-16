@@ -66,28 +66,32 @@ class Calc_Synth_Bobcat(CALC_Synth_ocelot):
     def calc_tx_mode(self, model):
         baudrate = model.vars.baudrate.value
         modulation_type = model.vars.modulation_type.value
+        protocol_id = model.vars.protocol_id.value
 
         # Set FSK and OQPSK settings based on baudrate
-        if modulation_type == model.vars.modulation_type.var_enum.FSK2 \
+        if protocol_id == model.vars.protocol_id.var_enum.Zigbee:
+            synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE_IEEE802154
+        elif modulation_type == model.vars.modulation_type.var_enum.FSK2 \
                 or modulation_type == model.vars.modulation_type.var_enum.FSK4 \
                 or modulation_type == model.vars.modulation_type.var_enum.OQPSK \
                 or modulation_type == model.vars.modulation_type.var_enum.MSK :
             if baudrate > 1250e3:
-                model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE4  # 3 MHz
+                synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE4  # 3 MHz
             elif baudrate > 1000e3:
-                model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE3  # 2.5 MHz
+                synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE3  # 2.5 MHz
             elif baudrate > 500e3:
-                model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE2  # 1.5 MHz
+                synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE2  # 1.5 MHz
             else:
-                model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE1  # 1 MHz
+                synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE1  # 1 MHz
         # Fixed settings for OOK, DBPSK, BPSK - transferred from Ocelot
-        if modulation_type == model.vars.modulation_type.var_enum.DBPSK:
-            model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE4  # 3 MHz
+        elif modulation_type == model.vars.modulation_type.var_enum.DBPSK:
+            synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE4  # 3 MHz
         elif modulation_type == model.vars.modulation_type.var_enum.BPSK:
-            model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE3  # 2.5 MHz
-        elif modulation_type == model.vars.modulation_type.var_enum.OOK \
-                or modulation_type == model.vars.modulation_type.var_enum.ASK:
-            model.vars.synth_tx_mode.value = model.vars.synth_tx_mode.var_enum.MODE1  # 1000 kHz
+            synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE3  # 2.5 MHz
+        else: #OOK/ASK
+            synth_tx_mode = model.vars.synth_tx_mode.var_enum.MODE1  # 1000 kHz
+
+        model.vars.synth_tx_mode.value = synth_tx_mode
 
     # overwrite this function from Ocelot to make VCODIV the default clock for ADC
     def calc_adc_clock_config(self, model):

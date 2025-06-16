@@ -1,6 +1,6 @@
 project_name: zigbee_gpd_sensor
 label: Zigbee - GPD Sensor
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 
@@ -17,7 +17,7 @@ include:
 
 component:
 #---------------- UC/UP components -------------------
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: sleeptimer
   - id: rail_util_recommended
@@ -41,14 +41,14 @@ component:
     instance:
       - gpdCli
   - id: zigbee_debug_print
-  - id: iostream_recommended_stream
+  - id: iostream_recommended_console
 #---------------- GPD Componenets --------------------
   - id: zigbee_gpd_af_cli
   - id: zigbee_gpd_application_support
   - id: zigbee_gpd_network_support
   - id: clock_manager
-  # Platform - Enable LTO for gcc by installing the following component
-  # - id: toolchain_gcc_lto
+  # Platform - enable LTO for gcc
+  - id: toolchain_gcc_lto
 
 configuration:
   - name: SL_RAIL_UTIL_INIT_GPDRAIL_ENABLE
@@ -88,7 +88,7 @@ configuration:
     condition:
       - iostream_eusart
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: eusartHwFlowControlNone
+    value: SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE
     condition:
       - iostream_eusart
   - name: SL_ZIGBEE_AF_PLUGIN_APPS_RX_WINDOW
@@ -120,9 +120,51 @@ configuration:
     value: 0
   - name: SL_PSA_ITS_SUPPORT_V3_DRIVER
     value: 1
+  - name: SL_STACK_SIZE
+    value: 1024
+    condition:
+      - freertos
+      - device_series_2
+  - name: SL_STACK_SIZE
+    value: 16384
+    condition:
+      - device_series_3
+  - name: SL_STACK_SIZE
+    value: 512
+    condition:
+      - micriumos_kernel
+      - device_series_2
+  # Timer RTOS task priority needs to be one more than SL_BT_RTOS_LINK_LAYER_TASK_PRIORITY
+  # BT uses event flags that require the timer task to be higher priority than all other RTOS tasks
+  - name: configTIMER_TASK_PRIORITY
+    value: 53
+  - name: configMAX_TASK_NAME_LEN
+    value: 30
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 600
+    condition:
+      - cmsis_rtos2
+  # On series 3, the bootloader requires more stack to do context parsing of OTA images
+  - name: SL_CLI_EXAMPLE_TASK_STACK_SIZE
+    value: 1500
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 5800
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_APP_FRAMEWORK_RTOS_TASK_STACK_SIZE
+    value: 6000
+    condition:
+      - device_series_3
+  - name: SL_ZIGBEE_AF_PLUGIN_ZCL_CLUSTER_DEFER_ATTRIBUTE_WRITES_TO_NVM_MS
+    value: 2000
+    condition:
+      - device_series_3
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
   - path: app_init.c
   - path: app_process.c
   - path: app_cli.c
@@ -148,11 +190,11 @@ template_contribution:
       help: sets gpd as a sleepy device.
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

@@ -61,20 +61,20 @@
 #include "sl_hal_system.h"
 #endif
 #include "ieee802154mac.h"
-#include "pa_conversions_efr32.h"
 #include "platform-band.h"
 #include "platform-efr32.h"
 #include "radio_coex.h"
 #include "radio_multi_channel.h"
 #include "radio_power_manager.h"
-#include "rail.h"
 #include "rail_config.h"
-#include "rail_ieee802154.h"
 #include "sl_memory_manager.h"
 #include "sl_multipan.h"
 #include "sl_packet_utils.h"
+#include "sl_rail.h"
+#include "sl_rail_ieee802154.h"
 #include "soft_source_match_table.h"
 
+#include "pa_conversions_efr32.h"
 #include "sl_openthread_radio_config.h"
 
 #ifdef SL_COMPONENT_CATALOG_PRESENT
@@ -213,18 +213,18 @@ static otRadioCaps sRadioCapabilities =
     (OT_RADIO_CAPS_ACK_TIMEOUT | OT_RADIO_CAPS_CSMA_BACKOFF | OT_RADIO_CAPS_ENERGY_SCAN | OT_RADIO_CAPS_SLEEP_TO_TX
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
      | OT_RADIO_CAPS_TRANSMIT_SEC
-     // When scheduled tx is required, we support RAIL_StartScheduledCcaCsmaTx
+     // When scheduled tx is required, we support sl_rail_start_scheduled_cca_csma_tx
      // (delay is indicated in tx frame info set in MAC)
      | OT_RADIO_CAPS_TRANSMIT_TIMING
-     // When scheduled rx is required, we support RAIL_ScheduleRx in our
+     // When scheduled rx is required, we support sl_rail_start_scheduled_rx in our
      // implementation of otPlatRadioReceiveAt
      | OT_RADIO_CAPS_RECEIVE_TIMING
 #endif
     );
-static uint32_t          sScanFrameCounter    = 0; // How many 'frames' left in the current scan.
-static uint32_t          sScanFrameCounterMax = 0; // Max 'frames' when performing scan
-static int8_t            sEnergyReadsMax      = ENERGY_READS_MAX;
-static RAIL_MultiTimer_t rail_timer;
+static uint32_t              sScanFrameCounter    = 0; // How many 'frames' left in the current scan.
+static uint32_t              sScanFrameCounterMax = 0; // Max 'frames' when performing scan
+static int8_t                sEnergyReadsMax      = ENERGY_READS_MAX;
+static sl_rail_multi_timer_t rail_timer;
 
 // Energy Scan
 typedef enum
@@ -242,12 +242,12 @@ typedef enum
 
 typedef struct
 {
-    uint8_t     length;
-    uint8_t     channel;
-    uint8_t     lqi;
-    int8_t      rssi;
-    uint8_t     iid;
-    RAIL_Time_t timestamp;
+    uint8_t        length;
+    uint8_t        channel;
+    uint8_t        lqi;
+    int8_t         rssi;
+    uint8_t        iid;
+    sl_rail_time_t timestamp;
 } rxPacketDetails;
 
 typedef struct
@@ -304,8 +304,10 @@ static otExtAddress sExtAddress[RADIO_EXT_ADDR_COUNT];
 
 // CSMA config: Should be globally scoped
 #define CSL_CSMA_BACKOFF_TIME_IN_US 150
-RAIL_CsmaConfig_t csmaConfig    = RAIL_CSMA_CONFIG_802_15_4_2003_2p4_GHz_OQPSK_CSMA;
-RAIL_CsmaConfig_t cslCsmaConfig = RAIL_CSMA_CONFIG_SINGLE_CCA;
+sl_rail_csma_config_t csmaConfig    = SL_RAIL_CSMA_CONFIG_802_15_4_2003_2P4_GHZ_OQPSK_CSMA;
+sl_rail_csma_config_t cslCsmaConfig = SL_RAIL_CSMA_CONFIG_SINGLE_CCA;
+
+#define SCHEDULE_TX_DELAY_US 3000 // Chosen after internal certification testing
 
 #if OPENTHREAD_CONFIG_MAC_HEADER_IE_SUPPORT
 static otRadioIeInfo sTransmitIeInfo[RADIO_REQUEST_BUFFER_COUNT];
@@ -371,15 +373,15 @@ static uint8_t     sRailFilterMask = RADIO_BCAST_PANID_FILTER_MASK;
 static bool        isRadioTransmittingOrScanning(void);
 
 #if FAST_CHANNEL_SWITCHING_SUPPORT
-static RAIL_IEEE802154_RxChannelSwitchingCfg_t sChannelSwitchingCfg;
-static RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT_TYPE
-    sChannelSwitchingBuffer[RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES
-                            / RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT];
+static sl_rail_ieee802154_rx_channel_switching_cfg_t sChannelSwitchingCfg;
+static SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT_TYPE
+    sChannelSwitchingBuffer[SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES
+                            / SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_ALIGNMENT];
 
 bool sl_is_multi_channel_enabled(void)
 {
     uint8_t firstChannel = UNINITIALIZED_CHANNEL;
-    for (uint8_t i = 0U; i < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
+    for (uint8_t i = 0U; i < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
     {
         if (sChannelSwitchingCfg.channels[i] != UNINITIALIZED_CHANNEL)
         {
@@ -396,7 +398,7 @@ bool sl_is_multi_channel_enabled(void)
     return false;
 }
 
-otError sl_get_channel_switching_cfg(RAIL_IEEE802154_RxChannelSwitchingCfg_t *channelSwitchingCfg)
+otError sl_get_channel_switching_cfg(sl_rail_ieee802154_rx_channel_switching_cfg_t *channelSwitchingCfg)
 {
     otError error = OT_ERROR_NONE;
 
@@ -410,7 +412,7 @@ exit:
 
 static uint8_t fastChannelIndex(uint8_t aChannel)
 {
-    for (uint8_t i = 0U; i < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
+    for (uint8_t i = 0U; i < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
     {
         if (sChannelSwitchingCfg.channels[i] == aChannel)
         {
@@ -423,55 +425,55 @@ static uint8_t fastChannelIndex(uint8_t aChannel)
 #endif // FAST_CHANNEL_SWITCHING_SUPPORT
 #endif // OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
 
-static void          efr32ScanTimerHandler(struct RAIL_MultiTimer *tmr, RAIL_Time_t expectedTimeOfEvent, void *cbArg);
-static RAIL_Status_t efr32ScanDwell(uint16_t symbols);
+static void efr32ScanTimerHandler(struct sl_rail_multi_timer *tmr, sl_rail_time_t expectedTimeOfEvent, void *cbArg);
+static sl_rail_status_t efr32ScanDwell(uint16_t symbols);
 
 // RAIL
 
 #ifdef SL_CATALOG_RAIL_MULTIPLEXER_PRESENT
-RAIL_Handle_t gRailHandle;
+sl_rail_handle_t gRailHandle;
 #if SL_OPENTHREAD_COEX_COUNTER_ENABLE
 static void sl_ot_coex_counter_on_event(sl_rail_util_coex_event_t event);
 #endif // SL_OPENTHREAD_COEX_COUNTER_ENABLE
 #else
-RAIL_Handle_t emPhyRailHandle;
+sl_rail_handle_t emPhyRailHandle;
 #endif // SL_CATALOG_RAIL_MULTIPLEXER_PRESENT
 
-static const RAIL_IEEE802154_Config_t sRailIeee802154Config = {
-    .addresses = NULL,
-    .ackConfig =
+static const sl_rail_ieee802154_config_t sRailIeee802154Config = {
+    .p_addresses = NULL,
+    .ack_config =
         {
-            .enable     = true,
-            .ackTimeout = 672,
-            .rxTransitions =
+            .enable         = true,
+            .ack_timeout_us = 672,
+            .rx_transitions =
                 {
-                    .success = RAIL_RF_STATE_RX,
-                    .error   = RAIL_RF_STATE_RX,
+                    .success = SL_RAIL_RF_STATE_RX,
+                    .error   = SL_RAIL_RF_STATE_RX,
                 },
-            .txTransitions =
+            .tx_transitions =
                 {
-                    .success = RAIL_RF_STATE_RX,
-                    .error   = RAIL_RF_STATE_RX,
+                    .success = SL_RAIL_RF_STATE_RX,
+                    .error   = SL_RAIL_RF_STATE_RX,
                 },
         },
     .timings =
         {
-            .idleToRx = 100,
-            .txToRx   = 192 - 10,
-            .idleToTx = 100,
+            .idle_to_rx = 100,
+            .tx_to_rx   = 192 - 10,
+            .idle_to_tx = 100,
 #if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
-            .rxToTx = 256, // accommodate enhanced ACKs
+            .rx_to_tx = 256, // accommodate enhanced ACKs
 #else
-            .rxToTx = 192,
+            .rx_to_tx = 192,
 #endif
-            .rxSearchTimeout     = 0,
-            .txToRxSearchTimeout = 0,
-            .txToTx              = 0,
+            .rxsearch_timeout       = 0,
+            .tx_to_rxsearch_timeout = 0,
+            .tx_to_tx               = 0,
         },
-    .framesMask                        = RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
-    .promiscuousMode                   = false,
-    .isPanCoordinator                  = false,
-    .defaultFramePendingInOutgoingAcks = false,
+    .frames_mask                            = SL_RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
+    .promiscuous_mode                       = false,
+    .is_pan_coordinator                     = false,
+    .default_frame_pending_in_outgoing_acks = false,
 };
 
 #if RADIO_CONFIG_SUBGHZ_SUPPORT
@@ -793,45 +795,45 @@ exit:
 #endif // (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static uint8_t readInitialPacketData(RAIL_RxPacketInfo_t *packetInfo,
-                                     uint8_t              expected_data_bytes_max,
-                                     uint8_t              expected_data_bytes_min,
-                                     uint8_t             *buffer,
-                                     uint8_t              buffer_len)
+static uint8_t readInitialPacketData(sl_rail_rx_packet_info_t *packetInfo,
+                                     uint8_t                   expected_data_bytes_max,
+                                     uint8_t                   expected_data_bytes_min,
+                                     uint8_t                  *buffer,
+                                     uint8_t                   buffer_len)
 {
-    uint8_t             packetBytesRead = 0;
-    RAIL_RxPacketInfo_t adjustedPacketInfo;
+    uint8_t                  packetBytesRead = 0;
+    sl_rail_rx_packet_info_t adjustedPacketInfo;
 
     // Check if we have enough buffer
     OT_ASSERT((buffer_len >= expected_data_bytes_max) || (packetInfo != NULL));
 
     // Read the packet info
-    RAIL_GetRxIncomingPacketInfo(gRailHandle, packetInfo);
+    sl_rail_get_rx_incoming_packet_info(gRailHandle, packetInfo);
 
     // We are trying to get the packet info of a packet before it is completely received.
     // We do this to evaluate the FP bit in response and add IEs to ACK if needed.
     // Check to see if we have received atleast minimum number of bytes requested.
-    otEXPECT_ACTION(packetInfo->packetBytes >= expected_data_bytes_min, packetBytesRead = 0);
+    otEXPECT_ACTION(packetInfo->packet_bytes >= expected_data_bytes_min, packetBytesRead = 0);
 
     adjustedPacketInfo = *packetInfo;
 
     // Only extract what we care about
-    if (packetInfo->packetBytes > expected_data_bytes_max)
+    if (packetInfo->packet_bytes > expected_data_bytes_max)
     {
-        adjustedPacketInfo.packetBytes = expected_data_bytes_max;
+        adjustedPacketInfo.packet_bytes = expected_data_bytes_max;
         // Check if the initial portion of the packet received so far exceeds the max value requested.
-        if (packetInfo->firstPortionBytes >= expected_data_bytes_max)
+        if (packetInfo->first_portion_bytes >= expected_data_bytes_max)
         {
             // If we have received more, make sure to copy only the required bytes into the buffer.
-            adjustedPacketInfo.firstPortionBytes = expected_data_bytes_max;
-            adjustedPacketInfo.lastPortionData   = NULL;
+            adjustedPacketInfo.first_portion_bytes = expected_data_bytes_max;
+            adjustedPacketInfo.p_last_portion_data = NULL;
         }
     }
 
-    // Copy number of bytes as indicated in `packetInfo->firstPortionBytes` into the buffer.
-    RAIL_CopyRxPacket(buffer, &adjustedPacketInfo);
+    // Copy number of bytes as indicated in `packetInfo->first_portion_bytes` into the buffer.
+    sl_rail_copy_rx_packet(gRailHandle, buffer, &adjustedPacketInfo);
     // Put it back to packetBytes.
-    packetBytesRead = (uint8_t)adjustedPacketInfo.packetBytes;
+    packetBytesRead = (uint8_t)adjustedPacketInfo.packet_bytes;
 
 exit:
     return packetBytesRead;
@@ -840,7 +842,7 @@ exit:
 //------------------------------------------------------------------------------
 // Forward Declarations
 
-static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents);
+static void RAILCb_Generic(sl_rail_handle_t aRailHandle, sl_rail_events_t aEvents);
 
 static void efr32PhyStackInit(void);
 
@@ -860,15 +862,15 @@ void        txCurrentPacket(void);
 
 static void txFailedCallback(bool isAck, uint32_t status);
 
-static bool validatePacketDetails(RAIL_RxPacketHandle_t   packetHandle,
-                                  RAIL_RxPacketDetails_t *pPacketDetails,
-                                  RAIL_RxPacketInfo_t    *pPacketInfo,
-                                  uint16_t               *packetLength);
-static bool validatePacketTimestamp(RAIL_RxPacketDetails_t *pPacketDetails, uint16_t packetLength);
+static bool validatePacketDetails(sl_rail_rx_packet_handle_t   packetHandle,
+                                  sl_rail_rx_packet_details_t *pPacketDetails,
+                                  sl_rail_rx_packet_info_t    *pPacketInfo,
+                                  uint16_t                    *packetLength);
+static bool validatePacketTimestamp(sl_rail_rx_packet_details_t *pPacketDetails, uint16_t packetLength);
 
-static void updateRxFrameTimestamp(bool aIsAckFrame, RAIL_Time_t aTimestamp);
+static void updateRxFrameTimestamp(bool aIsAckFrame, sl_rail_time_t aTimestamp);
 
-static otError skipRxPacketLengthBytes(RAIL_RxPacketInfo_t *pPacketInfo);
+static otError skipRxPacketLengthBytes(sl_rail_rx_packet_info_t *pPacketInfo);
 
 //------------------------------------------------------------------------------
 // Helper Functions
@@ -897,16 +899,16 @@ static bool phyStackEventIsEnabled(void)
     return result;
 }
 
-static RAIL_Events_t currentEventConfig = RAIL_EVENTS_NONE;
-static void          updateEvents(RAIL_Events_t mask, RAIL_Events_t values)
+static sl_rail_events_t currentEventConfig = SL_RAIL_EVENTS_NONE;
+static void             updateEvents(sl_rail_events_t mask, sl_rail_events_t values)
 {
-    RAIL_Status_t status;
-    RAIL_Events_t newEventConfig = (currentEventConfig & ~mask) | (values & mask);
+    sl_rail_status_t status;
+    sl_rail_events_t newEventConfig = (currentEventConfig & ~mask) | (values & mask);
     if (newEventConfig != currentEventConfig)
     {
         currentEventConfig = newEventConfig;
-        status             = RAIL_ConfigEvents(gRailHandle, mask, values);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        status             = sl_rail_config_events(gRailHandle, mask, values);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     }
 }
 
@@ -923,11 +925,11 @@ static sl_rail_util_ieee802154_stack_event_t handlePhyStackEvent(sl_rail_util_ie
                 : 0);
 }
 #else
-static void updateEvents(RAIL_Events_t mask, RAIL_Events_t values)
+static void updateEvents(sl_rail_events_t mask, sl_rail_events_t values)
 {
-    RAIL_Status_t status;
-    status = RAIL_ConfigEvents(gRailHandle, mask, values);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    sl_rail_status_t status;
+    status = sl_rail_config_events(gRailHandle, mask, values);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 
 #define handlePhyStackEvent(event, supplement) 0
@@ -964,7 +966,8 @@ static inline bool txWaitingForAck(void)
 
 static inline bool isRadioTransmittingOrScanning(void)
 {
-    return ((sEnergyScanStatus != ENERGY_SCAN_STATUS_IDLE) || getInternalFlag(FLAG_ONGOING_TX_DATA));
+    return ((sEnergyScanStatus != ENERGY_SCAN_STATUS_IDLE) || getInternalFlag(FLAG_ONGOING_TX_DATA)
+            || getInternalFlag(RADIO_TX_EVENTS));
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
@@ -980,28 +983,28 @@ static bool txIsDataRequest(void)
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
 static inline bool isReceivingFrame(void)
 {
-    return (RAIL_GetRadioState(gRailHandle) & RAIL_RF_STATE_RX_ACTIVE) == RAIL_RF_STATE_RX_ACTIVE;
+    return (sl_rail_get_radio_state(gRailHandle) & SL_RAIL_RF_STATE_RX_ACTIVE) == SL_RAIL_RF_STATE_RX_ACTIVE;
 }
 #endif
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
 static void radioSetIdle(void)
 {
-    if (RAIL_GetRadioState(gRailHandle) != RAIL_RF_STATE_IDLE)
+    if (sl_rail_get_radio_state(gRailHandle) != SL_RAIL_RF_STATE_IDLE)
     {
-        RAIL_Idle(gRailHandle, RAIL_IDLE, true);
+        sl_rail_idle(gRailHandle, SL_RAIL_IDLE, true);
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_IDLED, 0U);
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_IDLED, 0U);
     }
-    RAIL_YieldRadio(gRailHandle);
+    sl_rail_yield_radio(gRailHandle);
 }
 
 static otError radioSetRx(uint8_t aChannel)
 {
-    otError       error = OT_ERROR_NONE;
-    RAIL_Status_t status;
+    otError          error = OT_ERROR_NONE;
+    sl_rail_status_t status;
 
-    RAIL_SchedulerInfo_t bgRxSchedulerInfo = {
+    sl_rail_scheduler_info_t bgRxSchedulerInfo = {
         .priority = SL_802154_RADIO_PRIO_BACKGROUND_RX_VALUE,
         // sliptime/transaction time is not used for bg rx
     };
@@ -1009,25 +1012,27 @@ static otError radioSetRx(uint8_t aChannel)
 #if FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
     if (sl_is_multi_channel_enabled())
     {
-        // Calling RAIL_StartRx with a channel not listed in the channel
+        // Calling sl_rail_start_rx with a channel not listed in the channel
         // switching config is a bug.
         OT_ASSERT(fastChannelIndex(aChannel) != INVALID_INTERFACE_INDEX);
 
         radioSetIdle();
-        status = RAIL_IEEE802154_ConfigRxChannelSwitching(gRailHandle, &sChannelSwitchingCfg);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
-        status = RAIL_ConfigRxOptions(gRailHandle, RAIL_RX_OPTION_CHANNEL_SWITCHING, RAIL_RX_OPTION_CHANNEL_SWITCHING);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        status = sl_rail_ieee802154_config_rx_channel_switching(gRailHandle, &sChannelSwitchingCfg);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
+        status = sl_rail_config_rx_options(gRailHandle,
+                                           SL_RAIL_RX_OPTION_CHANNEL_SWITCHING,
+                                           SL_RAIL_RX_OPTION_CHANNEL_SWITCHING);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     }
     else
     {
-        status = RAIL_ConfigRxOptions(gRailHandle, RAIL_RX_OPTION_CHANNEL_SWITCHING, RAIL_RX_OPTIONS_NONE);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        status = sl_rail_config_rx_options(gRailHandle, SL_RAIL_RX_OPTION_CHANNEL_SWITCHING, SL_RAIL_RX_OPTIONS_NONE);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     }
 #endif
 
-    status = RAIL_StartRx(gRailHandle, aChannel, &bgRxSchedulerInfo);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    status = sl_rail_start_rx(gRailHandle, aChannel, &bgRxSchedulerInfo);
+    otEXPECT_ACTION(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
 
     (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_LISTEN, 0U);
 
@@ -1039,8 +1044,8 @@ exit:
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
 static otError radioScheduleRx(uint8_t aChannel, uint32_t aStart, uint32_t aDuration)
 {
-    otError       error = OT_ERROR_NONE;
-    RAIL_Status_t status;
+    otError          error = OT_ERROR_NONE;
+    sl_rail_status_t status;
 
 #if FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
     // UID 1327639: Schedule Rx and Concurrent listening when used together
@@ -1049,21 +1054,22 @@ static otError radioScheduleRx(uint8_t aChannel, uint32_t aStart, uint32_t aDura
     assert(0);
 #endif // FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
 
-    RAIL_SchedulerInfo_t bgRxSchedulerInfo = {
+    sl_rail_scheduler_info_t bgRxSchedulerInfo = {
         .priority = SL_802154_RADIO_PRIO_BACKGROUND_RX_VALUE,
         // sliptime/transaction time is not used for bg rx
     };
 
     // Configure scheduled receive as requested
-    RAIL_ScheduleRxConfig_t rxCfg = {.start                   = aStart,
-                                     .startMode               = RAIL_TIME_ABSOLUTE,
-                                     .end                     = aDuration,
-                                     .endMode                 = RAIL_TIME_DELAY,
-                                     .rxTransitionEndSchedule = 0, // To stay in schedule Rx state after packet receive.
-                                     .hardWindowEnd = 0}; // This lets us receive a packet near a window-end-event
+    sl_rail_scheduled_rx_config_t rxCfg = {
+        .start                      = aStart,
+        .start_mode                 = SL_RAIL_TIME_ABSOLUTE,
+        .end                        = aDuration,
+        .end_mode                   = SL_RAIL_TIME_DELAY,
+        .rx_transition_end_schedule = 0, // To stay in schedule Rx state after packet receive.
+        .hard_window_end            = 0};           // This lets us receive a packet near a window-end-event
 
-    status = RAIL_ScheduleRx(gRailHandle, aChannel, &rxCfg, &bgRxSchedulerInfo);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    status = sl_rail_start_scheduled_rx(gRailHandle, aChannel, &rxCfg, &bgRxSchedulerInfo);
+    otEXPECT_ACTION(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
 
     (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_LISTEN, 0U);
 exit:
@@ -1073,93 +1079,107 @@ exit:
 
 //------------------------------------------------------------------------------
 // Radio Initialization
-static RAIL_Handle_t efr32RailInit(efr32CommonConfig *aCommonConfig)
+static sl_rail_handle_t efr32RailInit(efr32CommonConfig *aCommonConfig)
 {
-    RAIL_Status_t status;
-    RAIL_Handle_t handle;
+    sl_rail_status_t status;
+    sl_rail_handle_t handle = SL_RAIL_EFR32_HANDLE;
 
 #if !OPENTHREAD_RADIO
     OT_ASSERT(DEVICE_CAPABILITY_MCU_EN);
 #endif
 
-    handle = RAIL_Init(&aCommonConfig->mRailConfig, NULL);
-    OT_ASSERT(handle != NULL);
+    aCommonConfig->mRailConfig.rx_packet_queue_entries = sl_rail_builtin_rx_packet_queue_entries;
+    aCommonConfig->mRailConfig.p_rx_packet_queue       = sl_rail_builtin_rx_packet_queue_ptr;
+
+    aCommonConfig->mRailConfig.rx_fifo_bytes    = sl_rail_builtin_rx_fifo_bytes;
+    aCommonConfig->mRailConfig.p_rx_fifo_buffer = sl_rail_builtin_rx_fifo_ptr;
+
+    aCommonConfig->mRailConfig.tx_fifo_init_bytes = 0U;
+    aCommonConfig->mRailConfig.p_tx_fifo_buffer   = NULL;
+
+    status = sl_rail_init(&handle, &aCommonConfig->mRailConfig, NULL);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
-    status = RAIL_InitPowerManager();
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_init_power_manager();
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 #endif // SL_CATALOG_POWER_MANAGER_PRESENT
 
-    status = RAIL_ConfigCal(handle, RAIL_CAL_ALL);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_config_cal(handle, SL_RAIL_CAL_ALL);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-    status = RAIL_SetPtiProtocol(handle, RAIL_PTI_PROTOCOL_THREAD);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_set_pti_protocol(handle, SL_RAIL_PTI_PROTOCOL_THREAD);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-    status = RAIL_IEEE802154_Init(handle, &sRailIeee802154Config);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_init(handle, &sRailIeee802154Config);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
     // Enhanced Frame Pending
-    status = RAIL_IEEE802154_EnableEarlyFramePending(handle, true);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_enable_early_frame_pending(handle, true);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-    status = RAIL_IEEE802154_EnableDataFramePending(handle, true);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_enable_data_frame_pending(handle, true);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
     // Copies of MAC keys for encrypting at the radio layer
     memset(sMacKeys, 0, sizeof(sMacKeys));
 #endif // (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
 
-    uint16_t actualLength = 0;
-    actualLength = RAIL_SetTxFifo(handle, aCommonConfig->mRailTxFifo.fifo, 0, sizeof(aCommonConfig->mRailTxFifo.fifo));
-    OT_ASSERT(actualLength == sizeof(aCommonConfig->mRailTxFifo.fifo));
+    status = sl_rail_set_tx_fifo(handle,
+                                 (sl_rail_fifo_buffer_align_t *)aCommonConfig->mRailTxFifo.fifo,
+                                 sizeof(aCommonConfig->mRailTxFifo.fifo),
+                                 0,
+                                 0);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
     // Enable RAIL multi-timer
-    RAIL_ConfigMultiTimer(true);
+    sl_rail_config_multi_timer(handle, true);
 
     return handle;
 }
 
 static void efr32RailConfigLoad(efr32BandConfig *aBandConfig, int8_t aTxPower)
 {
-    RAIL_Status_t         status;
-    RAIL_TxPowerConfig_t *txPowerConfig = NULL;
+    sl_rail_status_t           status;
+    sl_rail_tx_power_config_t *txPowerConfig = NULL;
 
     if (aBandConfig->mChannelConfig != NULL)
     {
-        status = RAIL_IEEE802154_SetPtiRadioConfig(gRailHandle, RAIL_IEEE802154_PTI_RADIO_CONFIG_915MHZ_R23_NA_EXT);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
-
-        uint16_t firstChannel = UNINITIALIZED_CHANNEL;
-        firstChannel          = RAIL_ConfigChannels(gRailHandle, aBandConfig->mChannelConfig, NULL);
+        status = sl_rail_ieee802154_set_phy_id(gRailHandle, RAIL_IEEE802154_PTI_RADIO_CONFIG_915MHZ_R23_NA_EXT);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
+        status = sl_rail_config_channels(gRailHandle, aBandConfig->mChannelConfig, NULL);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
+        uint16_t firstChannel = sl_rail_get_first_channel(gRailHandle, aBandConfig->mChannelConfig);
         OT_ASSERT(firstChannel == aBandConfig->mChannelMin);
+        status = sl_rail_prepare_channel(gRailHandle, firstChannel);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
+        status = sl_rail_ieee802154_config_g_options(gRailHandle,
+                                                     SL_RAIL_IEEE802154_G_OPTION_GB868,
+                                                     SL_RAIL_IEEE802154_G_OPTION_GB868);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-        status =
-            RAIL_IEEE802154_ConfigGOptions(gRailHandle, RAIL_IEEE802154_G_OPTION_GB868, RAIL_IEEE802154_G_OPTION_GB868);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
-
-        txPowerConfig = sl_rail_util_pa_get_tx_power_config_subghz();
+        txPowerConfig = (sl_rail_tx_power_config_t *)sl_rail_util_pa_get_tx_power_config_subghz();
     }
     else
     {
 #if defined(SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT)
         status = sl_rail_util_ieee802154_config_radio(gRailHandle);
 #else
-        status = RAIL_IEEE802154_Config2p4GHzRadio(gRailHandle);
+        status = sl_rail_ieee802154_config_2p4_ghz_radio(gRailHandle);
 #endif // SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
-        txPowerConfig = sl_rail_util_pa_get_tx_power_config_2p4ghz();
+        txPowerConfig = (sl_rail_tx_power_config_t *)sl_rail_util_pa_get_tx_power_config_2p4ghz();
     }
 
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
     // 802.15.4E support (only on platforms that support it, so error checking is disabled)
-    // Note: This has to be called after RAIL_IEEE802154_Config2p4GHzRadio due to a bug where this call
+    // Note: This has to be called after sl_rail_ieee802154_config_2p4_ghz_radio due to a bug where this call
     // can overwrite options set below.
-    RAIL_IEEE802154_ConfigEOptions(gRailHandle,
-                                   (RAIL_IEEE802154_E_OPTION_GB868 | RAIL_IEEE802154_E_OPTION_ENH_ACK),
-                                   (RAIL_IEEE802154_E_OPTION_GB868 | RAIL_IEEE802154_E_OPTION_ENH_ACK));
+    sl_rail_ieee802154_config_e_options(gRailHandle,
+                                        (SL_RAIL_IEEE802154_E_OPTION_GB868 | SL_RAIL_IEEE802154_E_OPTION_ENH_ACK),
+                                        (SL_RAIL_IEEE802154_E_OPTION_GB868 | SL_RAIL_IEEE802154_E_OPTION_ENH_ACK));
 #endif // (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
 
     if (aTxPower != SL_INVALID_TX_POWER)
@@ -1180,20 +1200,14 @@ static efr32BandConfig *efr32RadioGetBandConfig(uint8_t aChannel)
     return config;
 }
 
-static void efr32ConfigInit(void (*aEventCallback)(RAIL_Handle_t railHandle, RAIL_Events_t events))
+static void efr32ConfigInit(void (*aEventCallback)(sl_rail_handle_t railHandle, sl_rail_events_t events))
 {
-    sCommonConfig.mRailConfig.eventsCallback = aEventCallback;
-    sCommonConfig.mRailConfig.protocol       = NULL; // only used by Bluetooth stack
-#if RADIO_CONFIG_DMP_SUPPORT
-    sCommonConfig.mRailConfig.scheduler = &(sCommonConfig.mRailSchedState);
-#else
-    sCommonConfig.mRailConfig.scheduler = NULL; // only needed for DMP
-#endif
+    sCommonConfig.mRailConfig.events_callback = aEventCallback;
 
 #if RADIO_CONFIG_2P4GHZ_OQPSK_SUPPORT
     sBandConfig.mChannelConfig = NULL;
 #else
-    sBandConfig.mChannelConfig          = channelConfigs[0];
+    sBandConfig.mChannelConfig = channelConfigs[0];
 #endif
     sBandConfig.mChannelMin = SL_CHANNEL_MIN;
     sBandConfig.mChannelMax = SL_CHANNEL_MAX;
@@ -1207,18 +1221,19 @@ static void efr32ConfigInit(void (*aEventCallback)(RAIL_Handle_t railHandle, RAI
     gRailHandle = efr32RailInit(&sCommonConfig);
     OT_ASSERT(gRailHandle != NULL);
 
-    updateEvents(RAIL_EVENTS_ALL,
-                 (0 | RAIL_EVENT_RX_ACK_TIMEOUT | RAIL_EVENT_RX_PACKET_RECEIVED
+    updateEvents(SL_RAIL_EVENTS_ALL,
+                 (0 | SL_RAIL_EVENT_RX_ACK_TIMEOUT | SL_RAIL_EVENT_RX_PACKET_RECEIVED
 #if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
-                  | RAIL_EVENT_SCHEDULED_TX_STARTED | RAIL_EVENT_TX_SCHEDULED_TX_MISSED
-                  | RAIL_EVENT_SCHEDULED_RX_STARTED | RAIL_EVENT_RX_SCHEDULED_RX_END | RAIL_EVENT_RX_SCHEDULED_RX_MISSED
+                  | SL_RAIL_EVENT_TX_SCHEDULED_TX_STARTED | SL_RAIL_EVENT_TX_SCHEDULED_TX_MISSED
+                  | SL_RAIL_EVENT_RX_SCHEDULED_RX_STARTED | SL_RAIL_EVENT_RX_SCHEDULED_RX_END
+                  | SL_RAIL_EVENT_RX_SCHEDULED_RX_MISSED
 #endif
-                  | RAIL_EVENTS_TXACK_COMPLETION | RAIL_EVENTS_TX_COMPLETION
-                  | RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND
+                  | SL_RAIL_EVENTS_TXACK_COMPLETION | SL_RAIL_EVENTS_TX_COMPLETION
+                  | SL_RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT || RADIO_CONFIG_DMP_SUPPORT
-                  | RAIL_EVENT_CONFIG_SCHEDULED | RAIL_EVENT_CONFIG_UNSCHEDULED | RAIL_EVENT_SCHEDULER_STATUS
+                  | SL_RAIL_EVENT_CONFIG_SCHEDULED | SL_RAIL_EVENT_CONFIG_UNSCHEDULED | SL_RAIL_EVENT_SCHEDULER_STATUS
 #endif
-                  | RAIL_EVENT_CAL_NEEDED));
+                  | SL_RAIL_EVENT_CAL_NEEDED));
 
     efr32RailConfigLoad(&(sBandConfig), OPENTHREAD_CONFIG_DEFAULT_TRANSMIT_POWER);
 }
@@ -1229,21 +1244,21 @@ void efr32RadioInit(void)
     {
         return;
     }
-    RAIL_Status_t status;
-    sl_status_t   rxMemPoolStatus;
-    bool          queueStatus;
+    sl_rail_status_t            status;
+    sl_status_t                 rxMemPoolStatus;
+    bool                        queueStatus;
+    sl_rail_timer_sync_config_t timer_sync_config = SL_RAIL_TIMER_SYNC_DEFAULT;
 
     // check if RAIL_TX_FIFO_SIZE is power of two..
     OT_ASSERT((RAIL_TX_FIFO_SIZE & (RAIL_TX_FIFO_SIZE - 1)) == 0);
 
     // check the limits of the RAIL_TX_FIFO_SIZE.
-    OT_ASSERT((RAIL_TX_FIFO_SIZE >= 64) || (RAIL_TX_FIFO_SIZE <= 4096));
+    OT_ASSERT((RAIL_TX_FIFO_SIZE >= SL_RAIL_MINIMUM_FIFO_BYTES) || (RAIL_TX_FIFO_SIZE <= SL_RAIL_MAXIMUM_FIFO_BYTES));
 
     efr32ConfigInit(RAILCb_Generic);
     setInternalFlag(FLAG_RADIO_INIT_DONE, true);
-
-    status = RAIL_ConfigSleep(gRailHandle, RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_config_sleep(gRailHandle, &timer_sync_config);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
     sReceive.frame.mLength = 0;
     sReceive.frame.mPsdu   = NULL;
@@ -1282,18 +1297,19 @@ void efr32RadioInit(void)
     sl_rail_util_pa_init();
     sli_set_tx_power_in_rail(OPENTHREAD_CONFIG_DEFAULT_TRANSMIT_POWER);
 
-    status =
-        RAIL_ConfigRxOptions(gRailHandle, RAIL_RX_OPTION_TRACK_ABORTED_FRAMES, RAIL_RX_OPTION_TRACK_ABORTED_FRAMES);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_config_rx_options(gRailHandle,
+                                       SL_RAIL_RX_OPTION_TRACK_ABORTED_FRAMES,
+                                       SL_RAIL_RX_OPTION_TRACK_ABORTED_FRAMES);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     efr32PhyStackInit();
     efr32RadioSetCcaMode(SL_OPENTHREAD_RADIO_CCA_MODE);
 
     sEnergyScanStatus = ENERGY_SCAN_STATUS_IDLE;
 
 #if FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
-    sChannelSwitchingCfg.bufferBytes = RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES;
-    sChannelSwitchingCfg.buffer      = sChannelSwitchingBuffer;
-    for (uint8_t i = 0U; i < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
+    sChannelSwitchingCfg.buffer_bytes = SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES;
+    sChannelSwitchingCfg.p_buffer     = sChannelSwitchingBuffer;
+    for (uint8_t i = 0U; i < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS; i++)
     {
         sChannelSwitchingCfg.channels[i] = UNINITIALIZED_CHANNEL;
     }
@@ -1317,11 +1333,11 @@ void efr32RadioInit(void)
 
 void efr32RadioDeinit(void)
 {
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
-    RAIL_Idle(gRailHandle, RAIL_IDLE_ABORT, true);
-    status = RAIL_ConfigEvents(gRailHandle, RAIL_EVENTS_ALL, 0);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    sl_rail_idle(gRailHandle, SL_RAIL_IDLE_ABORT, true);
+    status = sl_rail_config_events(gRailHandle, SL_RAIL_EVENTS_ALL, 0);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
     sCurrentBandConfig = NULL;
 
@@ -1340,7 +1356,7 @@ static void energyScanComplete(int8_t scanResultDbm)
 
 static uint16_t efr32GetSymbolDurationUs(void)
 {
-    uint32_t symbolRate = RAIL_GetSymbolRate(gRailHandle);
+    uint32_t symbolRate = sl_rail_get_symbol_rate(gRailHandle);
     if (symbolRate)
     {
         symbolRate = (uint16_t)(1000000 / symbolRate);
@@ -1349,15 +1365,17 @@ static uint16_t efr32GetSymbolDurationUs(void)
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static void efr32ScanTimerHandler(struct RAIL_MultiTimer *tmr, RAIL_Time_t expectedTimeOfEvent, void *cbArg)
+static void efr32ScanTimerHandler(struct sl_rail_multi_timer *tmr, sl_rail_time_t expectedTimeOfEvent, void *cbArg)
 {
     OT_UNUSED_VARIABLE(tmr);
     OT_UNUSED_VARIABLE(expectedTimeOfEvent);
     OT_UNUSED_VARIABLE(cbArg);
     int16_t currentRSSIQuarterdBm =
-        RAIL_GetRssi(gRailHandle, (sScanFrameCounter == sScanFrameCounterMax ? true : false));
+        sl_rail_get_rssi(gRailHandle,
+                         ((sScanFrameCounter == sScanFrameCounterMax) ? SL_RAIL_GET_RSSI_WAIT_WITHOUT_TIMEOUT
+                                                                      : SL_RAIL_GET_RSSI_NO_WAIT));
 
-    if (currentRSSIQuarterdBm != RAIL_RSSI_INVALID)
+    if (currentRSSIQuarterdBm != SL_RAIL_RSSI_INVALID)
     {
         int8_t currentRSSI = (int8_t)(currentRSSIQuarterdBm / QUARTER_DBM_IN_DBM);
         if (sEnergyReadsMax < currentRSSI)
@@ -1375,27 +1393,29 @@ static void efr32ScanTimerHandler(struct RAIL_MultiTimer *tmr, RAIL_Time_t expec
     {
         // done energy scan, reporting rssi value
         energyScanComplete(sEnergyReadsMax);
-        OT_ASSERT(RAIL_ConfigRxOptions(gRailHandle, RAIL_RX_OPTION_DISABLE_FRAME_DETECTION, RAIL_RX_OPTIONS_NONE)
-                  == RAIL_STATUS_NO_ERROR);
+        OT_ASSERT(
+            sl_rail_config_rx_options(gRailHandle, SL_RAIL_RX_OPTION_DISABLE_FRAME_DETECTION, SL_RAIL_RX_OPTIONS_NONE)
+            == SL_RAIL_STATUS_NO_ERROR);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         railDebugCounters.mRailPlatRadioEnergyScanDoneCbCount++;
 #endif
     }
 }
 
-static RAIL_Status_t efr32ScanDwell(uint16_t symbols)
+static sl_rail_status_t efr32ScanDwell(uint16_t symbols)
 {
-    RAIL_CancelMultiTimer(&rail_timer);
-    return RAIL_SetMultiTimer(&rail_timer,
-                              symbols * efr32GetSymbolDurationUs(),
-                              RAIL_TIME_DELAY,
-                              efr32ScanTimerHandler,
-                              NULL);
+    sl_rail_cancel_multi_timer(gRailHandle, &rail_timer);
+    return sl_rail_set_multi_timer(gRailHandle,
+                                   &rail_timer,
+                                   symbols * efr32GetSymbolDurationUs(),
+                                   SL_RAIL_TIME_DELAY,
+                                   efr32ScanTimerHandler,
+                                   NULL);
 }
 
-static otError efr32StartEnergyScan(energyScanMode aMode, uint16_t aChannel, RAIL_Time_t aAveragingTimeUs)
+static otError efr32StartEnergyScan(energyScanMode aMode, uint16_t aChannel, sl_rail_time_t aAveragingTimeUs)
 {
-    RAIL_Status_t    status = RAIL_STATUS_NO_ERROR;
+    sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
     otError          error  = OT_ERROR_NONE;
     efr32BandConfig *config = NULL;
 
@@ -1404,7 +1424,7 @@ static otError efr32StartEnergyScan(energyScanMode aMode, uint16_t aChannel, RAI
     sEnergyScanStatus = ENERGY_SCAN_STATUS_IN_PROGRESS;
     sEnergyScanMode   = aMode;
 
-    RAIL_Idle(gRailHandle, RAIL_IDLE, true);
+    sl_rail_idle(gRailHandle, SL_RAIL_IDLE, true);
 
     config = efr32RadioGetBandConfig(aChannel);
     otEXPECT_ACTION(config != NULL, error = OT_ERROR_INVALID_ARGS);
@@ -1423,20 +1443,20 @@ static otError efr32StartEnergyScan(energyScanMode aMode, uint16_t aChannel, RAI
     sScanFrameCounterMax = aAveragingTimeUs / (efr32GetSymbolDurationUs() * SYMBOLS_PER_ENERGY_READING);
     sScanFrameCounter    = sScanFrameCounterMax;
 
-    status = RAIL_ConfigRxOptions(gRailHandle,
-                                  RAIL_RX_OPTION_DISABLE_FRAME_DETECTION,
-                                  RAIL_RX_OPTION_DISABLE_FRAME_DETECTION);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    status = sl_rail_config_rx_options(gRailHandle,
+                                       SL_RAIL_RX_OPTION_DISABLE_FRAME_DETECTION,
+                                       SL_RAIL_RX_OPTION_DISABLE_FRAME_DETECTION);
+    otEXPECT_ACTION(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
 
     // set radio to Rx
     otEXPECT_ACTION(radioSetRx(aChannel) == OT_ERROR_NONE, error = OT_ERROR_FAILED);
 
     // start energy scan
     status = efr32ScanDwell(SYMBOLS_PER_ENERGY_READING);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    otEXPECT_ACTION(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
 
 exit:
-    if (status != RAIL_STATUS_NO_ERROR)
+    if (status != SL_RAIL_STATUS_NO_ERROR)
     {
         energyScanComplete(OT_RADIO_RSSI_INVALID);
     }
@@ -1485,17 +1505,17 @@ void otPlatRadioGetIeeeEui64(otInstance *aInstance, uint8_t *aIeeeEui64)
 
 void otPlatRadioSetPanId(otInstance *aInstance, uint16_t aPanId)
 {
-    RAIL_Status_t status;
-    uint8_t       iid      = efr32GetIidFromInstance(aInstance);
-    uint8_t       panIndex = efr32GetPanIndexFromIid(iid);
+    sl_rail_status_t status;
+    uint8_t          iid      = efr32GetIidFromInstance(aInstance);
+    uint8_t          panIndex = efr32GetPanIndexFromIid(iid);
 
     otEXPECT(sl_ot_rtos_task_can_access_pal());
     OT_ASSERT(panIndex != INVALID_INTERFACE_INDEX);
     otLogInfoPlat("PANID=%X index=%u IID=%d", aPanId, panIndex, iid);
     utilsSoftSrcMatchSetPanId(iid, aPanId);
 
-    status = RAIL_IEEE802154_SetPanId(gRailHandle, aPanId, panIndex);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_set_pan_id(gRailHandle, aPanId, panIndex);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 #if OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
     // We already have IID 0 enabled in filtermask to track BCAST Packets, so
@@ -1511,9 +1531,9 @@ exit:
 
 void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aAddress)
 {
-    RAIL_Status_t status;
-    uint8_t       iid      = efr32GetIidFromInstance(aInstance);
-    uint8_t       panIndex = efr32GetPanIndexFromIid(iid);
+    sl_rail_status_t status;
+    uint8_t          iid      = efr32GetIidFromInstance(aInstance);
+    uint8_t          panIndex = efr32GetPanIndexFromIid(iid);
 
     otEXPECT(sl_ot_rtos_task_can_access_pal());
     OT_ASSERT(panIndex != INVALID_INTERFACE_INDEX);
@@ -1534,8 +1554,8 @@ void otPlatRadioSetExtendedAddress(otInstance *aInstance, const otExtAddress *aA
                   aAddress->m8[0],
                   panIndex);
 
-    status = RAIL_IEEE802154_SetLongAddress(gRailHandle, (uint8_t *)aAddress->m8, panIndex);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_set_long_address(gRailHandle, (const uint8_t *)aAddress->m8, panIndex);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 exit:
     return;
@@ -1543,16 +1563,16 @@ exit:
 
 void otPlatRadioSetShortAddress(otInstance *aInstance, uint16_t aAddress)
 {
-    RAIL_Status_t status;
-    uint8_t       iid      = efr32GetIidFromInstance(aInstance);
-    uint8_t       panIndex = efr32GetPanIndexFromIid(iid);
+    sl_rail_status_t status;
+    uint8_t          iid      = efr32GetIidFromInstance(aInstance);
+    uint8_t          panIndex = efr32GetPanIndexFromIid(iid);
 
     otEXPECT(sl_ot_rtos_task_can_access_pal());
     OT_ASSERT(panIndex != INVALID_INTERFACE_INDEX);
     otLogInfoPlat("ShortAddr=%X index=%u", aAddress, panIndex);
 
-    status = RAIL_IEEE802154_SetShortAddress(gRailHandle, aAddress, panIndex);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_set_short_address(gRailHandle, aAddress, panIndex);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 exit:
     return;
@@ -1564,22 +1584,26 @@ otRadioState otPlatRadioGetState(otInstance *aInstance)
 
     OT_UNUSED_VARIABLE(aInstance);
 
-    switch (RAIL_GetRadioState(gRailHandle))
+    switch (sl_rail_get_radio_state(gRailHandle))
     {
-    case RAIL_RF_STATE_RX_ACTIVE:
+    case SL_RAIL_RF_STATE_RX:
+    case SL_RAIL_RF_STATE_RX_ACTIVE:
         radioState = OT_RADIO_STATE_RECEIVE;
         break;
 
-    case RAIL_RF_STATE_TX_ACTIVE:
+    case SL_RAIL_RF_STATE_TX:
+    case SL_RAIL_RF_STATE_TX_ACTIVE:
         radioState = OT_RADIO_STATE_TRANSMIT;
         break;
 
-    case RAIL_RF_STATE_IDLE:
+    case SL_RAIL_RF_STATE_IDLE:
         radioState = OT_RADIO_STATE_SLEEP;
         break;
 
-    case RAIL_RF_STATE_INACTIVE:
+    case SL_RAIL_RF_STATE_INACTIVE:
         radioState = OT_RADIO_STATE_DISABLED;
+        break;
+    default:
         break;
     }
 
@@ -1643,7 +1667,7 @@ otError efr32RadioLoadChannelConfig(uint8_t aChannel, int8_t aTxPower)
 
     if (sCurrentBandConfig != config)
     {
-        RAIL_Idle(gRailHandle, RAIL_IDLE, true);
+        sl_rail_idle(gRailHandle, SL_RAIL_IDLE, true);
         efr32RailConfigLoad(config, aTxPower);
         sCurrentBandConfig = config;
     }
@@ -1658,10 +1682,10 @@ exit:
 
 otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
 {
-    otError       error = OT_ERROR_NONE;
-    RAIL_Status_t status;
-    int8_t        txPower;
-    uint8_t       iid = efr32GetIidFromInstance(aInstance);
+    otError          error = OT_ERROR_NONE;
+    sl_rail_status_t status;
+    int8_t           txPower;
+    uint8_t          iid = efr32GetIidFromInstance(aInstance);
 
     otEXPECT_ACTION(sl_ot_rtos_task_can_access_pal(), error = OT_ERROR_REJECTED);
     otEXPECT_ACTION(!getInternalFlag(FLAG_ONGOING_TX_DATA) && sEnergyScanStatus != ENERGY_SCAN_STATUS_IN_PROGRESS,
@@ -1670,7 +1694,7 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
     OT_UNUSED_VARIABLE(iid);
 #if FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
     uint8_t index = efr32GetPanIndexFromIid(iid);
-    OT_ASSERT(index < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS);
+    OT_ASSERT(index < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS);
     sChannelSwitchingCfg.channels[index] = aChannel;
 #endif
 
@@ -1679,7 +1703,7 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
     otEXPECT(error == OT_ERROR_NONE);
 
     status = radioSetRx(aChannel);
-    otEXPECT_ACTION(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    otEXPECT_ACTION(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
     setInternalFlag(FLAG_SCHEDULED_RX_PENDING, false);
 
     sReceive.frame.mChannel    = aChannel;
@@ -1706,7 +1730,7 @@ otError otPlatRadioReceiveAt(otInstance *aInstance, uint8_t aChannel, uint32_t a
     otEXPECT(error == OT_ERROR_NONE);
 
     // Set the flag first and then schedule the Rx as the rail scheduler can trigger the events even before
-    // RAIL_ScheduleRx() API returns the status if start time is too close to the current time which could
+    // sl_rail_start_scheduled_rx() API returns the status if start time is too close to the current time which could
     // otherwise cause the race condition.
     setInternalFlag(FLAG_SCHEDULED_RX_PENDING, true);
     error = radioScheduleRx(aChannel, aStart, aDuration);
@@ -1774,12 +1798,18 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
         OT_ASSERT(aFrame->mPsdu == sTransmitPsdu[txBufIndex]);
 
         if (!aFrame->mInfo.mTxInfo.mIsARetx)
+        {
             sTransmitBuffer[txBufIndex].currentRadioTxPriority = SL_802154_RADIO_PRIO_TX_MIN;
+        }
         else if (sTransmitBuffer[txBufIndex].currentRadioTxPriority > SL_802154_RADIO_PRIO_TX_STEP)
+        {
             sTransmitBuffer[txBufIndex].currentRadioTxPriority -= SL_802154_RADIO_PRIO_TX_STEP;
+        }
         // TX priority is always bounded by the maximum priority configured
         if (sTransmitBuffer[txBufIndex].currentRadioTxPriority < SL_802154_RADIO_PRIO_TX_MAX)
+        {
             sTransmitBuffer[txBufIndex].currentRadioTxPriority = SL_802154_RADIO_PRIO_TX_MAX;
+        }
 
 #if OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
         OT_ASSERT((iid != RADIO_BCAST_IID) && (iid < RADIO_INTERFACE_COUNT));
@@ -1809,8 +1839,9 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
             // Note: Our SSEDs "schedule" transmissions to their parent in order to know
             // exactly when in the future the data packets go out so they can calculate
             // the accurate CSL phase to send to their parent.
-            sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime = RAIL_GetTime();
-            sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay = 3000; // Chosen after internal certification testing
+            sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
+            sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay =
+                SCHEDULE_TX_DELAY_US; // Chosen after internal certification testing
         }
 #endif
         updateIeInfoTxFrame(sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime
@@ -1846,8 +1877,15 @@ void updateIeInfoTxFrame(uint32_t shrTxTime)
     if (sCurrentTxPacket->frame.mInfo.mTxInfo.mIeInfo->mTimeIeOffset != 0)
     {
         uint8_t *timeIe = sCurrentTxPacket->frame.mPsdu + sCurrentTxPacket->frame.mInfo.mTxInfo.mIeInfo->mTimeIeOffset;
-        uint64_t time   = otPlatTimeGet() + sCurrentTxPacket->frame.mInfo.mTxInfo.mIeInfo->mNetworkTimeOffset;
+        uint64_t time   = otPlatTimeGet();
 
+        // Use the same mechanism as CSL children to schedule tx for the future without CSMA
+        // so that the value written to the time IE exactly matches the actual tx time of the packet
+        sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime =
+            (uint32_t)time; // Bottom 32 bits are sl_rail_get_time()
+        sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay = SCHEDULE_TX_DELAY_US;
+        time += sCurrentTxPacket->frame.mInfo.mTxInfo.mIeInfo->mNetworkTimeOffset
+                + sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay + SHR_DURATION_US;
         *timeIe = sCurrentTxPacket->frame.mInfo.mTxInfo.mIeInfo->mTimeSyncSeq;
 
         *(++timeIe) = (uint8_t)(time & 0xff);
@@ -1876,10 +1914,10 @@ void txCurrentPacket(void)
     OT_ASSERT(getInternalFlag(FLAG_ONGOING_TX_DATA));
     OT_ASSERT(sCurrentTxPacket != NULL);
 
-    RAIL_TxOptions_t txOptions = RAIL_TX_OPTIONS_DEFAULT;
-    RAIL_Status_t    status    = RAIL_STATUS_INVALID_STATE;
-    uint8_t          frameLength;
-    bool             ackRequested;
+    sl_rail_tx_options_t txOptions = SL_RAIL_TX_OPTIONS_DEFAULT;
+    sl_rail_status_t     status    = SL_RAIL_STATUS_INVALID_STATE;
+    uint8_t              frameLength;
+    bool                 ackRequested;
 
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
     railDebugCounters.mRailPlatTxTriggered++;
@@ -1899,38 +1937,38 @@ void txCurrentPacket(void)
 
     if (PHY_HEADER_SIZE == 1)
     {
-        RAIL_WriteTxFifo(gRailHandle, &frameLength, sizeof frameLength, true);
+        sl_rail_write_tx_fifo(gRailHandle, &frameLength, sizeof frameLength, true);
     }
     else
     { // 2 byte PHR for Sub-GHz
         uint8_t PHRByte1 = (0x08U /*FCS=2byte*/ | 0x10U /*Whiten=enabled*/);
         uint8_t PHRByte2 = (uint8_t)(__RBIT(frameLength) >> 24);
 
-        RAIL_WriteTxFifo(gRailHandle, &PHRByte1, sizeof PHRByte1, true);
-        RAIL_WriteTxFifo(gRailHandle, &PHRByte2, sizeof PHRByte2, false);
+        sl_rail_write_tx_fifo(gRailHandle, &PHRByte1, sizeof PHRByte1, true);
+        sl_rail_write_tx_fifo(gRailHandle, &PHRByte2, sizeof PHRByte2, false);
     }
-    RAIL_WriteTxFifo(gRailHandle, sCurrentTxPacket->frame.mPsdu, frameLength - 2, false);
+    sl_rail_write_tx_fifo(gRailHandle, sCurrentTxPacket->frame.mPsdu, frameLength - 2, false);
 
-    RAIL_SchedulerInfo_t txSchedulerInfo = {
-        .priority        = sCurrentTxPacket->currentRadioTxPriority,
-        .slipTime        = RADIO_SCHEDULER_CHANNEL_SLIP_TIME,
-        .transactionTime = 0, // will be calculated later if DMP is used
+    sl_rail_scheduler_info_t txSchedulerInfo = {
+        .priority         = sCurrentTxPacket->currentRadioTxPriority,
+        .slip_time        = RADIO_SCHEDULER_CHANNEL_SLIP_TIME,
+        .transaction_time = 0, // will be calculated later if DMP is used
     };
 
     ackRequested = (sCurrentTxPacket->frame.mPsdu[0] & IEEE802154_FRAME_FLAG_ACK_REQUIRED);
     if (ackRequested)
     {
-        txOptions |= RAIL_TX_OPTION_WAIT_FOR_ACK;
+        txOptions |= SL_RAIL_TX_OPTION_WAIT_FOR_ACK;
 
 #if RADIO_CONFIG_DMP_SUPPORT
         // time we wait for ACK
-        if (RAIL_GetSymbolRate(gRailHandle) > 0)
+        if (sl_rail_get_symbol_rate(gRailHandle) > 0)
         {
-            txSchedulerInfo.transactionTime += 12 * 1e6 / RAIL_GetSymbolRate(gRailHandle);
+            txSchedulerInfo.transaction_time += (sl_rail_time_t)(12 * 1e6 / sl_rail_get_symbol_rate(gRailHandle));
         }
         else
         {
-            txSchedulerInfo.transactionTime += 12 * RADIO_TIMING_DEFAULT_SYMBOLTIME_US;
+            txSchedulerInfo.transaction_time += 12 * RADIO_TIMING_DEFAULT_SYMBOLTIME_US;
         }
 #endif
     }
@@ -1942,28 +1980,29 @@ void txCurrentPacket(void)
     if (sl_rail_util_ant_div_get_tx_antenna_mode() != SL_RAIL_UTIL_ANT_DIV_DISABLED)
     {
         txOptions |= ((sl_rail_util_ant_div_get_tx_antenna_selected() == SL_RAIL_UTIL_ANTENNA_SELECT_ANTENNA1)
-                          ? RAIL_TX_OPTION_ANTENNA0
-                          : RAIL_TX_OPTION_ANTENNA1);
+                          ? SL_RAIL_TX_OPTION_ANTENNA_0
+                          : SL_RAIL_TX_OPTION_ANTENNA_1);
     }
 #endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 
 #if RADIO_CONFIG_DMP_SUPPORT
     // time needed for the frame itself
     // 4B preamble, 1B SFD, 1B PHR is not counted in frameLength
-    if (RAIL_GetBitRate(gRailHandle) > 0)
+    if (sl_rail_get_bit_rate(gRailHandle) > 0)
     {
-        txSchedulerInfo.transactionTime += (frameLength + 4 + 1 + 1) * 8 * 1e6 / RAIL_GetBitRate(gRailHandle);
+        txSchedulerInfo.transaction_time +=
+            (sl_rail_time_t)((frameLength + 4 + 1 + 1) * 8 * 1e6 / sl_rail_get_bit_rate(gRailHandle));
     }
     else
     { // assume 250kbps
-        txSchedulerInfo.transactionTime += (frameLength + 4 + 1 + 1) * RADIO_TIMING_DEFAULT_BYTETIME_US;
+        txSchedulerInfo.transaction_time += (frameLength + 4 + 1 + 1) * RADIO_TIMING_DEFAULT_BYTETIME_US;
     }
 #endif
 
     // Prioritize the Tx over schedule Rx to avoid missing data check-ins such as data polls.
     if (getInternalFlag(FLAG_SCHEDULED_RX_PENDING))
     {
-        RAIL_Idle(gRailHandle, RAIL_IDLE, true);
+        sl_rail_idle(gRailHandle, SL_RAIL_IDLE, true);
         setInternalFlag(FLAG_SCHEDULED_RX_PENDING | EVENT_SCHEDULED_RX_STARTED, false);
     }
 
@@ -1973,23 +2012,23 @@ void txCurrentPacket(void)
         {
 #if RADIO_CONFIG_DMP_SUPPORT
             // time needed for CSMA/CA
-            txSchedulerInfo.transactionTime += RADIO_TIMING_CSMA_OVERHEAD_US;
+            txSchedulerInfo.transaction_time += RADIO_TIMING_CSMA_OVERHEAD_US;
 #endif
-            csmaConfig.csmaTries    = sCurrentTxPacket->frame.mInfo.mTxInfo.mMaxCsmaBackoffs;
-            csmaConfig.ccaThreshold = sCcaThresholdDbm;
+            csmaConfig.csma_tries        = sCurrentTxPacket->frame.mInfo.mTxInfo.mMaxCsmaBackoffs;
+            csmaConfig.cca_threshold_dbm = sCcaThresholdDbm;
 
-            status = RAIL_StartCcaCsmaTx(gRailHandle,
-                                         sCurrentTxPacket->frame.mChannel,
-                                         txOptions,
-                                         &csmaConfig,
-                                         &txSchedulerInfo);
+            status = sl_rail_start_cca_csma_tx(gRailHandle,
+                                               sCurrentTxPacket->frame.mChannel,
+                                               txOptions,
+                                               &csmaConfig,
+                                               &txSchedulerInfo);
         }
         else
         {
-            status = RAIL_StartTx(gRailHandle, sCurrentTxPacket->frame.mChannel, txOptions, &txSchedulerInfo);
+            status = sl_rail_start_tx(gRailHandle, sCurrentTxPacket->frame.mChannel, txOptions, &txSchedulerInfo);
         }
 
-        if (status == RAIL_STATUS_NO_ERROR)
+        if (status == SL_RAIL_STATUS_NO_ERROR)
         {
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_STARTED, 0U);
         }
@@ -2009,26 +2048,26 @@ void txCurrentPacket(void)
         // Note that both use single CCA config, overriding any CCA/CSMA configs from the stack
         //
 #if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
-        RAIL_ScheduleTxConfig_t scheduleTxOptions = {.when = sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime
-                                                             + sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay
-                                                             - SHR_DURATION_US,
-                                                     .mode       = RAIL_TIME_ABSOLUTE,
-                                                     .txDuringRx = RAIL_SCHEDULED_TX_DURING_RX_POSTPONE_TX};
+        sl_rail_scheduled_tx_config_t scheduleTxOptions = {
+            .when = sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelayBaseTime
+                    + sCurrentTxPacket->frame.mInfo.mTxInfo.mTxDelay - SHR_DURATION_US,
+            .mode         = SL_RAIL_TIME_ABSOLUTE,
+            .tx_during_rx = SL_RAIL_SCHEDULED_TX_DURING_RX_POSTPONE_TX};
 
         // Set ccaBackoff to some constant value, so we have predictable radio warmup time for schedule tx.
-        cslCsmaConfig.ccaBackoff = CSL_CSMA_BACKOFF_TIME_IN_US;
-        scheduleTxOptions.when -= cslCsmaConfig.ccaBackoff;
+        cslCsmaConfig.cca_backoff_us = CSL_CSMA_BACKOFF_TIME_IN_US;
+        scheduleTxOptions.when -= cslCsmaConfig.cca_backoff_us;
 
         // CSL transmissions don't use CSMA but MAC accounts for single CCA time.
-        // cslCsmaConfig is set to RAIL_CSMA_CONFIG_SINGLE_CCA above.
-        status = RAIL_StartScheduledCcaCsmaTx(gRailHandle,
-                                              sCurrentTxPacket->frame.mChannel,
-                                              txOptions,
-                                              &scheduleTxOptions,
-                                              &cslCsmaConfig,
-                                              &txSchedulerInfo);
+        // cslCsmaConfig is set to SL_RAIL_CSMA_CONFIG_SINGLE_CCA above.
+        status = sl_rail_start_scheduled_cca_csma_tx(gRailHandle,
+                                                     sCurrentTxPacket->frame.mChannel,
+                                                     txOptions,
+                                                     &scheduleTxOptions,
+                                                     &cslCsmaConfig,
+                                                     &txSchedulerInfo);
 
-        if (status == RAIL_STATUS_NO_ERROR)
+        if (status == SL_RAIL_STATUS_NO_ERROR)
         {
             setInternalFlag(FLAG_SCHEDULED_TX_PENDING, true);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
@@ -2039,7 +2078,7 @@ void txCurrentPacket(void)
 #endif
     }
 
-    if (status == RAIL_STATUS_NO_ERROR)
+    if (status == SL_RAIL_STATUS_NO_ERROR)
     {
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         railDebugCounters.mRailTxStarted++;
@@ -2098,7 +2137,7 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance)
     OT_UNUSED_VARIABLE(iid);
 #if FAST_CHANNEL_SWITCHING_SUPPORT && OPENTHREAD_CONFIG_MULTIPAN_RCP_ENABLE
     uint8_t index = efr32GetPanIndexFromIid(iid);
-    OT_ASSERT(index < RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS);
+    OT_ASSERT(index < SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS);
     if (sChannelSwitchingCfg.channels[index] != UNINITIALIZED_CHANNEL)
     {
         aChannel = sChannelSwitchingCfg.channels[index];
@@ -2108,11 +2147,11 @@ int8_t otPlatRadioGetRssi(otInstance *aInstance)
     error = efr32StartEnergyScan(ENERGY_SCAN_MODE_SYNC, aChannel, SL_OPENTHREAD_RSSI_AVERAGING_TIME);
     otEXPECT(error == OT_ERROR_NONE);
 
-    start = RAIL_GetTime();
+    start = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
 
-    // waiting for the event RAIL_EVENT_RSSI_AVERAGE_DONE
+    // waiting for the event SL_RAIL_EVENT_RSSI_AVERAGE_DONE
     while (sEnergyScanStatus == ENERGY_SCAN_STATUS_IN_PROGRESS
-           && ((RAIL_GetTime() - start) < SL_OPENTHREAD_RSSI_AVERAGING_TIMEOUT))
+           && ((sl_rail_get_time(SL_RAIL_EFR32_HANDLE) - start) < SL_OPENTHREAD_RSSI_AVERAGING_TIMEOUT))
         ;
 
     if (sEnergyScanStatus == ENERGY_SCAN_STATUS_COMPLETED)
@@ -2143,13 +2182,13 @@ void otPlatRadioSetPromiscuous(otInstance *aInstance, bool aEnable)
 {
     OT_UNUSED_VARIABLE(aInstance);
 
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
     otEXPECT(sl_ot_rtos_task_can_access_pal());
     sPromiscuous = aEnable;
 
-    status = RAIL_IEEE802154_SetPromiscuousMode(gRailHandle, aEnable);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_ieee802154_set_promiscuous_mode(gRailHandle, aEnable);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 exit:
     return;
@@ -2174,9 +2213,9 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower)
     otError error = OT_ERROR_NONE;
 
     otEXPECT_ACTION(aPower != NULL, error = OT_ERROR_INVALID_ARGS);
-    // RAIL_GetTxPowerDbm() returns power in deci-dBm (0.1dBm)
+    // sl_rail_get_tx_power_dbm() returns power in deci-dBm (0.1dBm)
     // Divide by 10 because aPower is supposed be in units dBm
-    *aPower = RAIL_GetTxPowerDbm(gRailHandle) / 10;
+    *aPower = ((int8_t)sl_rail_get_tx_power_dbm(gRailHandle)) / 10;
 
 exit:
     return error;
@@ -2246,7 +2285,7 @@ otError otPlatRadioEnergyScan(otInstance *aInstance, uint8_t aScanChannel, uint1
 #endif
 
     sEnergyScanActiveInterface = iid;
-    error = efr32StartEnergyScan(ENERGY_SCAN_MODE_ASYNC, aScanChannel, (RAIL_Time_t)aScanDuration * US_IN_MS);
+    error = efr32StartEnergyScan(ENERGY_SCAN_MODE_ASYNC, aScanChannel, (sl_rail_time_t)aScanDuration * US_IN_MS);
 
 exit:
     return error;
@@ -2469,11 +2508,11 @@ bool otPlatRadioIsCoexEnabled(otInstance *aInstance)
 // Return false if we should generate an immediate ACK
 // Return true otherwise
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
-                                       RAIL_RxPacketInfo_t *packetInfoForEnhAck,
-                                       uint32_t             rxTimestamp,
-                                       uint8_t             *initialPktReadBytes,
-                                       uint8_t             *receivedPsdu)
+static bool writeIeee802154EnhancedAck(sl_rail_handle_t          aRailHandle,
+                                       sl_rail_rx_packet_info_t *packetInfoForEnhAck,
+                                       uint32_t                  rxTimestamp,
+                                       uint8_t                  *initialPktReadBytes,
+                                       uint8_t                  *receivedPsdu)
 {
     // RAIL will generate an Immediate ACK for us.
     // For an Enhanced ACK, we need to generate the whole packet ourselves.
@@ -2482,7 +2521,7 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
     // 1/2 |   1/2  | 0/1  |  0/2   | 0/2/8  |  0/2   | 0/2/8  |   14
     // PHR | MacFCF | Seq# | DstPan | DstAdr | SrcPan | SrcAdr | SecHdr
 
-    // With RAIL_IEEE802154_EnableEarlyFramePending(), RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND
+    // With sl_rail_ieee802154_enable_early_frame_pending(), SL_RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND
     // is triggered after receiving through the SrcAdr field of Version 0/1 packets,
     // and after receiving through the SecHdr for Version 2 packets.
 
@@ -2510,7 +2549,7 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
     receivedFrame.mPsdu = receivedPsdu + PHY_HEADER_SIZE;
     // This should be set to the expected length of the packet is being received.
     // We consider this while calculating the phase value below.
-    receivedFrame.mLength = packetInfoForEnhAck->firstPortionData[0];
+    receivedFrame.mLength = packetInfoForEnhAck->p_first_portion_data[0];
     enhAckFrame.mPsdu     = enhAckPsdu + PHY_HEADER_SIZE;
 
     if (!otMacFrameIsVersion2015(&receivedFrame))
@@ -2523,7 +2562,7 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
     uint8_t     *dataPtr            = NULL;
     bool         setFramePending    = false;
 
-    iid = getIidFromFilterMask(packetInfoForEnhAck->filterMask);
+    iid = getIidFromFilterMask(packetInfoForEnhAck->filter_mask);
 
     otMacFrameGetSrcAddr(&receivedFrame, &aSrcAddress);
 
@@ -2559,13 +2598,13 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
         // Calculate time in the future where the SHR is done being sent out
         uint32_t ackShrDoneTime = // Currently partially received packet's SHR time
             (rxTimestamp
-             - (packetInfoForEnhAck->packetBytes * OT_RADIO_SYMBOL_TIME * 2)
+             - (packetInfoForEnhAck->packet_bytes * OT_RADIO_SYMBOL_TIME * 2)
              // PHR of this packet
              + (PHY_HEADER_SIZE * OT_RADIO_SYMBOL_TIME * 2)
              // Received frame's expected time in the PHR
              + (receivedFrame.mLength * OT_RADIO_SYMBOL_TIME * 2)
              // rxToTx turnaround time
-             + sRailIeee802154Config.timings.rxToTx
+             + sRailIeee802154Config.timings.rx_to_tx
              // PHR time of the ACK
              + (PHY_HEADER_SIZE * OT_RADIO_SYMBOL_TIME * 2)
              // SHR time of the ACK
@@ -2589,8 +2628,8 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
     // Check whether enhanced ACK is secured.
     otEXPECT((skipRxPacketLengthBytes(packetInfoForEnhAck)) == OT_ERROR_NONE);
     uint8_t *macFcfPointer =
-        ((packetInfoForEnhAck->firstPortionBytes == 0) ? (uint8_t *)packetInfoForEnhAck->lastPortionData
-                                                       : (uint8_t *)packetInfoForEnhAck->firstPortionData);
+        ((packetInfoForEnhAck->first_portion_bytes == 0) ? packetInfoForEnhAck->p_last_portion_data
+                                                         : packetInfoForEnhAck->p_first_portion_data);
 
     if (otMacFrameIsSecurityEnabled(&enhAckFrame))
     {
@@ -2603,8 +2642,8 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
     }
 
     // Fill in PHR now that we know Enh-ACK's length
-    if (PHY_HEADER_SIZE == 2U) // Not true till SubGhz implementation is in place
-    {
+    if (PHY_HEADER_SIZE == 2U)
+    { // Not true till SubGhz implementation is in place
         enhAckPsdu[0] = (0x08U /*FCS=2byte*/ | 0x10U /*Whiten=enabled*/);
         enhAckPsdu[1] = (uint8_t)(__RBIT(enhAckFrame.mLength) >> 24);
     }
@@ -2613,11 +2652,11 @@ static bool writeIeee802154EnhancedAck(RAIL_Handle_t        aRailHandle,
         enhAckPsdu[0] = enhAckFrame.mLength;
     }
 
-    RAIL_Status_t enhAckStatus = RAIL_IEEE802154_WriteEnhAck(aRailHandle, enhAckPsdu, enhAckFrame.mLength);
+    sl_rail_status_t enhAckStatus = sl_rail_ieee802154_write_enh_ack(aRailHandle, enhAckPsdu, enhAckFrame.mLength);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
-    otEXPECT_ACTION(enhAckStatus == RAIL_STATUS_NO_ERROR, railDebugCounters.mRailEventsEnhAckTxFailed++);
+    otEXPECT_ACTION(enhAckStatus == SL_RAIL_STATUS_NO_ERROR, railDebugCounters.mRailEventsEnhAckTxFailed++);
 #else
-    otEXPECT(enhAckStatus == RAIL_STATUS_NO_ERROR);
+    otEXPECT(enhAckStatus == SL_RAIL_STATUS_NO_ERROR);
 #endif
 
 exit:
@@ -2629,15 +2668,15 @@ exit:
 // RAIL callbacks
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static void dataRequestCommandCallback(RAIL_Handle_t aRailHandle)
+static void dataRequestCommandCallback(sl_rail_handle_t aRailHandle)
 {
 #define MAX_EXPECTED_BYTES (2U + 2U + 1U) // PHR + FCF + DSN
 
-    uint8_t             receivedPsdu[IEEE802154_MAX_LENGTH];
-    uint8_t             pktOffset = PHY_HEADER_SIZE;
-    uint8_t             initialPktReadBytes;
-    RAIL_RxPacketInfo_t packetInfo;
-    uint32_t            rxCallbackTimestamp = otPlatAlarmMicroGetNow();
+    uint8_t                  receivedPsdu[IEEE802154_MAX_LENGTH];
+    uint8_t                  pktOffset = PHY_HEADER_SIZE;
+    uint8_t                  initialPktReadBytes;
+    sl_rail_rx_packet_info_t packetInfo;
+    uint32_t                 rxCallbackTimestamp = otPlatAlarmMicroGetNow();
 
     // This callback occurs after the address fields of an incoming
     // ACK-requesting CMD or DATA frame have been received and we
@@ -2659,7 +2698,7 @@ static void dataRequestCommandCallback(RAIL_Handle_t aRailHandle)
 
     // Calculate frame pending for immediate-ACK
     // If not, RAIL will send an immediate ACK, but we need to do FP lookup.
-    RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+    sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 
     // Check if we read the FCF, if not, set macFcf to 0
     uint16_t macFcf = (initialPktReadBytes <= pktOffset) ? 0U : receivedPsdu[pktOffset];
@@ -2668,26 +2707,26 @@ static void dataRequestCommandCallback(RAIL_Handle_t aRailHandle)
 
     if (sIsSrcMatchEnabled)
     {
-        RAIL_IEEE802154_Address_t sourceAddress;
+        sl_rail_ieee802154_address_t sourceAddress;
 
-        status = RAIL_IEEE802154_GetAddress(aRailHandle, &sourceAddress);
-        otEXPECT(status == RAIL_STATUS_NO_ERROR);
+        status = sl_rail_ieee802154_get_address(aRailHandle, &sourceAddress);
+        otEXPECT(status == SL_RAIL_STATUS_NO_ERROR);
 
-        uint8_t iid = getIidFromFilterMask(packetInfo.filterMask);
-        if ((sourceAddress.length == RAIL_IEEE802154_LongAddress
-             && utilsSoftSrcMatchExtFindEntry(iid, (otExtAddress *)sourceAddress.longAddress) >= 0)
-            || (sourceAddress.length == RAIL_IEEE802154_ShortAddress
-                && utilsSoftSrcMatchShortFindEntry(iid, sourceAddress.shortAddress) >= 0))
+        uint8_t iid = getIidFromFilterMask(packetInfo.filter_mask);
+        if ((sourceAddress.address_length == SL_RAIL_IEEE802154_LONG_ADDRESS
+             && utilsSoftSrcMatchExtFindEntry(iid, (otExtAddress *)sourceAddress.long_address) >= 0)
+            || (sourceAddress.address_length == SL_RAIL_IEEE802154_SHORT_ADDRESS
+                && utilsSoftSrcMatchShortFindEntry(iid, sourceAddress.short_address) >= 0))
         {
-            status = RAIL_IEEE802154_SetFramePending(aRailHandle);
-            otEXPECT(status == RAIL_STATUS_NO_ERROR);
+            status = sl_rail_ieee802154_toggle_frame_pending(aRailHandle);
+            otEXPECT(status == SL_RAIL_STATUS_NO_ERROR);
             framePendingSet = true;
         }
     }
     else if ((macFcf & IEEE802154_FRAME_TYPE_MASK) != IEEE802154_FRAME_TYPE_DATA)
     {
-        status = RAIL_IEEE802154_SetFramePending(aRailHandle);
-        otEXPECT(status == RAIL_STATUS_NO_ERROR);
+        status = sl_rail_ieee802154_toggle_frame_pending(aRailHandle);
+        otEXPECT(status == SL_RAIL_STATUS_NO_ERROR);
         framePendingSet = true;
     }
 
@@ -2697,57 +2736,58 @@ static void dataRequestCommandCallback(RAIL_Handle_t aRailHandle)
         // bit of the MAC header (cleared later)
 
         otEXPECT((skipRxPacketLengthBytes(&packetInfo)) == OT_ERROR_NONE);
-        uint8_t *macFcfPointer = ((packetInfo.firstPortionBytes == 0) ? (uint8_t *)packetInfo.lastPortionData
-                                                                      : (uint8_t *)packetInfo.firstPortionData);
+        uint8_t *macFcfPointer =
+            ((packetInfo.first_portion_bytes == 0) ? packetInfo.p_last_portion_data : packetInfo.p_first_portion_data);
         *macFcfPointer |= IEEE802154_FRAME_PENDING_SET_IN_OUTGOING_ACK;
     }
 
 exit:
-    if (status == RAIL_STATUS_INVALID_STATE)
+    if (status == SL_RAIL_STATUS_INVALID_STATE)
     {
         otLogWarnPlat("Too late to modify outgoing FP");
     }
     else
     {
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     }
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
 static void packetReceivedCallback(void)
 {
-    RAIL_RxPacketInfo_t    packetInfo;
-    RAIL_RxPacketDetails_t packetDetails;
-    uint16_t               length            = 0;
-    bool                   framePendingInAck = false;
-    bool                   dropPacket        = false;
-    uint8_t                iid               = 0;
-    sl_status_t            status;
-    bool                   isRxPacketQueued;
-    rxBuffer              *rxPacketBuf = NULL;
+    sl_rail_rx_packet_info_t    packetInfo;
+    sl_rail_rx_packet_details_t packetDetails;
+    uint16_t                    length            = 0;
+    bool                        framePendingInAck = false;
+    bool                        dropPacket        = false;
+    uint8_t                     iid               = 0;
+    sl_status_t                 status;
+    bool                        isRxPacketQueued;
+    rxBuffer                   *rxPacketBuf = NULL;
 
-    RAIL_RxPacketHandle_t packetHandle = RAIL_GetRxPacketInfo(gRailHandle, RAIL_RX_PACKET_HANDLE_NEWEST, &packetInfo);
-    otEXPECT_ACTION(
-        (packetHandle != RAIL_RX_PACKET_HANDLE_INVALID && packetInfo.packetStatus == RAIL_RX_PACKET_READY_SUCCESS),
-        dropPacket = true);
+    sl_rail_rx_packet_handle_t packetHandle =
+        sl_rail_get_rx_packet_info(gRailHandle, SL_RAIL_RX_PACKET_HANDLE_NEWEST, &packetInfo);
+    otEXPECT_ACTION((packetHandle != SL_RAIL_RX_PACKET_HANDLE_INVALID
+                     && packetInfo.packet_status == SL_RAIL_RX_PACKET_READY_SUCCESS),
+                    dropPacket = true);
 
     otEXPECT_ACTION(validatePacketDetails(packetHandle, &packetDetails, &packetInfo, &length), dropPacket = true);
 
     otEXPECT_ACTION((skipRxPacketLengthBytes(&packetInfo)) == OT_ERROR_NONE, dropPacket = true);
 
-    uint8_t macFcf =
-        ((packetInfo.firstPortionBytes == 0) ? packetInfo.lastPortionData[0] : packetInfo.firstPortionData[0]);
+    uint8_t macFcf = ((packetInfo.first_portion_bytes == 0) ? packetInfo.p_last_portion_data[0]
+                                                            : packetInfo.p_first_portion_data[0]);
 
-    iid = getIidFromFilterMask(packetInfo.filterMask);
+    iid = getIidFromFilterMask(packetInfo.filter_mask);
 
-    if (packetDetails.isAck)
+    if (packetDetails.is_ack)
     {
         otEXPECT_ACTION(
             (length >= IEEE802154_MIN_LENGTH && (macFcf & IEEE802154_FRAME_TYPE_MASK) == IEEE802154_FRAME_TYPE_ACK),
             dropPacket = true);
 
         // read packet
-        RAIL_CopyRxPacket(sReceiveAck.frame.mPsdu, &packetInfo);
+        sl_rail_copy_rx_packet(gRailHandle, sReceiveAck.frame.mPsdu, &packetInfo);
 
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         railDebugCounters.mRailEventAcksReceived++;
@@ -2761,10 +2801,10 @@ static void packetReceivedCallback(void)
         {
             otEXPECT_ACTION(validatePacketTimestamp(&packetDetails, length), dropPacket = true);
 
-            sReceiveAck.frame.mInfo.mRxInfo.mRssi = packetDetails.rssi;
+            sReceiveAck.frame.mInfo.mRxInfo.mRssi = packetDetails.rssi_dbm;
             sReceiveAck.frame.mInfo.mRxInfo.mLqi  = packetDetails.lqi;
             sReceiveAck.iid                       = iid;
-            updateRxFrameTimestamp(true, packetDetails.timeReceived.packetTime);
+            updateRxFrameTimestamp(true, packetDetails.time_received.packet_time);
 
             // Processing the ACK frame in ISR context avoids the Tx state to be messed up,
             // in case the Rx FIFO queue gets wiped out in a DMP situation.
@@ -2783,7 +2823,7 @@ static void packetReceivedCallback(void)
         // a data request.
         if (!txIsDataRequest())
         {
-            RAIL_YieldRadio(gRailHandle);
+            sl_rail_yield_radio(gRailHandle);
         }
     }
     else
@@ -2800,13 +2840,13 @@ static void packetReceivedCallback(void)
         otEXPECT_ACTION(status == SL_STATUS_OK && rxPacketBuf != NULL, dropPacket = true);
 
         // read packet
-        RAIL_CopyRxPacket(rxPacketBuf->psdu, &packetInfo);
+        sl_rail_copy_rx_packet(gRailHandle, rxPacketBuf->psdu, &packetInfo);
 
         rxPacketBuf->packetInfo.length    = (uint8_t)length;
         rxPacketBuf->packetInfo.channel   = (uint8_t)packetDetails.channel;
-        rxPacketBuf->packetInfo.rssi      = packetDetails.rssi;
+        rxPacketBuf->packetInfo.rssi      = packetDetails.rssi_dbm;
         rxPacketBuf->packetInfo.lqi       = packetDetails.lqi;
-        rxPacketBuf->packetInfo.timestamp = packetDetails.timeReceived.packetTime;
+        rxPacketBuf->packetInfo.timestamp = packetDetails.time_received.packet_time;
         rxPacketBuf->packetInfo.iid       = iid;
 
         // Queue the rx packet or drop it if queueing fails and free the memory block.
@@ -2819,7 +2859,7 @@ static void packetReceivedCallback(void)
 
         if (macFcf & IEEE802154_FRAME_FLAG_ACK_REQUIRED)
         {
-            (void)handlePhyStackEvent((RAIL_IsRxAutoAckPaused(gRailHandle)
+            (void)handlePhyStackEvent((sl_rail_is_rx_auto_ack_paused(gRailHandle)
                                            ? SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_BLOCKED
                                            : SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACKING),
                                       (uint32_t)isReceivingFrame());
@@ -2832,7 +2872,7 @@ static void packetReceivedCallback(void)
             // poll: we yield the radio here.
             if (emPendingData)
             {
-                RAIL_YieldRadio(gRailHandle);
+                sl_rail_yield_radio(gRailHandle);
                 emPendingData = false;
             }
         }
@@ -2856,7 +2896,7 @@ static void packetSentCallback(bool isAck)
         // We acked the packet we received after a poll: we can yield now.
         if (emPendingData)
         {
-            RAIL_YieldRadio(gRailHandle);
+            sl_rail_yield_radio(gRailHandle);
             emPendingData = false;
         }
     }
@@ -2872,7 +2912,7 @@ static void packetSentCallback(bool isAck)
         else
         {
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ENDED, 0U);
-            RAIL_YieldRadio(gRailHandle);
+            sl_rail_yield_radio(gRailHandle);
             setInternalFlag(EVENT_TX_SUCCESS, true);
             // Broadcast packet clear the ONGOING flag here.
             setInternalFlag(FLAG_ONGOING_TX_DATA | EVENT_SCHEDULED_TX_STARTED, false);
@@ -2908,7 +2948,7 @@ static void txFailedCallback(bool isAck, uint32_t status)
 #endif
         }
         setInternalFlag((FLAG_ONGOING_TX_DATA | FLAG_WAITING_FOR_ACK | EVENT_SCHEDULED_TX_STARTED), false);
-        RAIL_YieldRadio(gRailHandle);
+        sl_rail_yield_radio(gRailHandle);
     }
 }
 
@@ -2934,27 +2974,18 @@ static void ackTimeoutCallback(void)
     (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ACK_TIMEDOUT, 0);
 
     setInternalFlag(FLAG_WAITING_FOR_ACK, false);
-    RAIL_YieldRadio(gRailHandle);
+    sl_rail_yield_radio(gRailHandle);
     emPendingData = false;
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static void schedulerEventCallback(RAIL_Handle_t aRailHandle)
+static void schedulerEventCallback(sl_rail_handle_t aRailHandle)
 {
-    RAIL_SchedulerStatus_t status = RAIL_GetSchedulerStatus(aRailHandle);
-
-    switch (status)
+    sl_rail_scheduler_status_t scheduler_status;
+    sl_rail_status_t           rail_status;
+    sl_rail_get_scheduler_status(aRailHandle, &scheduler_status, &rail_status);
+    if (scheduler_status != SL_RAIL_SCHEDULER_STATUS_NO_ERROR)
     {
-    case RAIL_SCHEDULER_STATUS_SCHEDULE_FAIL:
-    case RAIL_SCHEDULER_STATUS_CCA_CSMA_TX_FAIL:
-    case RAIL_SCHEDULER_STATUS_CCA_LBT_TX_FAIL:
-    case RAIL_SCHEDULER_STATUS_SINGLE_TX_FAIL:
-    case RAIL_SCHEDULER_STATUS_SCHEDULED_TX_FAIL:
-    case RAIL_SCHEDULER_STATUS_UNSUPPORTED:
-    case RAIL_SCHEDULER_STATUS_SCHEDULED_RX_FAIL:
-    case RAIL_SCHEDULER_STATUS_INTERNAL_ERROR:
-    case RAIL_SCHEDULER_STATUS_TASK_FAIL:
-    case RAIL_SCHEDULER_STATUS_EVENT_INTERRUPTED:
         setInternalFlag(FLAG_SCHEDULED_RX_PENDING | FLAG_SCHEDULED_TX_PENDING | EVENT_SCHEDULED_TX_STARTED, false);
         if (getInternalFlag(FLAG_ONGOING_TX_ACK))
         {
@@ -2978,30 +3009,29 @@ static void schedulerEventCallback(RAIL_Handle_t aRailHandle)
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         railDebugCounters.mRailEventSchedulerStatusError++;
 #endif
-        break;
     }
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
+static void RAILCb_Generic(sl_rail_handle_t aRailHandle, sl_rail_events_t aEvents)
 {
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
-    if (aEvents & (RAIL_EVENT_RX_SYNC1_DETECT | RAIL_EVENT_RX_SYNC2_DETECT))
+    if (aEvents & (SL_RAIL_EVENT_RX_SYNC_0_DETECT | SL_RAIL_EVENT_RX_SYNC_1_DETECT))
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_STARTED, (uint32_t)isReceivingFrame());
     }
 #endif // SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
 
 #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
-    if (aEvents & RAIL_EVENT_SIGNAL_DETECTED)
+    if (aEvents & SL_RAIL_EVENT_SIGNAL_DETECTED)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_SIGNAL_DETECTED, 0U);
     }
 #endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
 
-    if ((aEvents & RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND)
+    if ((aEvents & SL_RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND)
 #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT
-        && !RAIL_IsRxAutoAckPaused(aRailHandle)
+        && !sl_rail_is_rx_auto_ack_paused(aRailHandle)
 #endif // SL_CATALOG_RAIL_UTIL_COEX_PRESENT
     )
     {
@@ -3009,27 +3039,27 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     }
 
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
-    if (aEvents & RAIL_EVENT_RX_FILTER_PASSED)
+    if (aEvents & SL_RAIL_EVENT_RX_FILTER_PASSED)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACCEPTED, (uint32_t)isReceivingFrame());
     }
 #endif // SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
 
-    if (aEvents & RAIL_EVENT_TX_PACKET_SENT)
+    if (aEvents & SL_RAIL_EVENT_TX_PACKET_SENT)
     {
         packetSentCallback(false);
     }
-    else if (aEvents & RAIL_EVENT_TX_CHANNEL_BUSY)
+    else if (aEvents & SL_RAIL_EVENT_TX_CHANNEL_BUSY)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_BLOCKED, (uint32_t)txWaitingForAck());
         txFailedCallback(false, EVENT_TX_CCA_FAILED);
     }
-    else if (aEvents & RAIL_EVENT_TX_BLOCKED)
+    else if (aEvents & SL_RAIL_EVENT_TX_BLOCKED)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_BLOCKED, (uint32_t)txWaitingForAck());
         txFailedCallback(false, EVENT_TX_FAILED);
     }
-    else if (aEvents & (RAIL_EVENT_TX_UNDERFLOW | RAIL_EVENT_TX_ABORTED))
+    else if (aEvents & (SL_RAIL_EVENT_TX_UNDERFLOW | SL_RAIL_EVENT_TX_ABORTED))
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_ABORTED, (uint32_t)txWaitingForAck());
         txFailedCallback(false, EVENT_TX_FAILED);
@@ -3038,17 +3068,17 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     {
         // Pre-completion aEvents are processed in their logical order:
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
-        if (aEvents & RAIL_EVENT_TX_START_CCA)
+        if (aEvents & SL_RAIL_EVENT_TX_START_CCA)
         {
             // We are starting RXWARM for a CCA check
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_CCA_SOON, 0U);
         }
-        if (aEvents & RAIL_EVENT_TX_CCA_RETRY)
+        if (aEvents & SL_RAIL_EVENT_TX_CCA_RETRY)
         {
             // We failed a CCA check and need to retry
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_CCA_BUSY, 0U);
         }
-        if (aEvents & RAIL_EVENT_TX_CHANNEL_CLEAR)
+        if (aEvents & SL_RAIL_EVENT_TX_CHANNEL_CLEAR)
         {
             // We're going on-air
             (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_TX_STARTED, 0U);
@@ -3058,7 +3088,7 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
 
 #if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
 
-    // Note: RAIL_EVENT_SCHEDULED_TX_STARTED and RAIL_EVENT_SCHEDULED_RX_STARTED have the
+    // Note: SL_RAIL_EVENT_TX_SCHEDULED_TX_STARTED and SL_RAIL_EVENT_RX_SCHEDULED_RX_STARTED have the
     // same numerical value because one cannot schedule both RX and TX simultaneously.
     // Have to take due care to check for these statuses depending on whether we're
     // scheduling a transmit or receive.  Therefore, we're using an internal flag
@@ -3066,14 +3096,14 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
 
     if (getInternalFlag(FLAG_SCHEDULED_RX_PENDING))
     {
-        if (aEvents & RAIL_EVENT_SCHEDULED_RX_STARTED)
+        if (aEvents & SL_RAIL_EVENT_RX_SCHEDULED_RX_STARTED)
         {
             setInternalFlag(EVENT_SCHEDULED_RX_STARTED, true);
         }
 
         // Once done with scheduled receive, clear internal scheduled-rx flag and idle.
         // If we miss a scheduled receive, let application schedule another.
-        if (aEvents & RAIL_EVENT_RX_SCHEDULED_RX_END || aEvents & RAIL_EVENT_RX_SCHEDULED_RX_MISSED)
+        if (aEvents & SL_RAIL_EVENT_RX_SCHEDULED_RX_END || aEvents & SL_RAIL_EVENT_RX_SCHEDULED_RX_MISSED)
         {
             setInternalFlag(FLAG_SCHEDULED_RX_PENDING | EVENT_SCHEDULED_RX_STARTED, false);
             radioSetIdle();
@@ -3081,7 +3111,7 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     }
     else
     {
-        if (aEvents & RAIL_EVENT_SCHEDULED_TX_STARTED)
+        if (aEvents & SL_RAIL_EVENT_TX_SCHEDULED_TX_STARTED)
         {
             setInternalFlag(EVENT_SCHEDULED_TX_STARTED, true);
             setInternalFlag(FLAG_SCHEDULED_TX_PENDING, false);
@@ -3089,7 +3119,7 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
             railDebugCounters.mRailEventsScheduledTxStartedCount++;
 #endif
         }
-        else if (aEvents & RAIL_EVENT_TX_SCHEDULED_TX_MISSED)
+        else if (aEvents & SL_RAIL_EVENT_TX_SCHEDULED_TX_MISSED)
         {
             setInternalFlag(FLAG_SCHEDULED_TX_PENDING, false);
             txFailedCallback(false, EVENT_TX_SCHEDULER_ERROR);
@@ -3097,7 +3127,7 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     }
 #endif // OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
 
-    if (aEvents & RAIL_EVENT_RX_PACKET_RECEIVED)
+    if (aEvents & SL_RAIL_EVENT_RX_PACKET_RECEIVED)
     {
         packetReceivedCallback();
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
@@ -3106,28 +3136,29 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     }
 
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
-    if (aEvents & RAIL_EVENT_RX_FRAME_ERROR)
+    if (aEvents & SL_RAIL_EVENT_RX_FRAME_ERROR)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_CORRUPTED, (uint32_t)isReceivingFrame());
     }
     // The following 3 events cause us to not receive a packet
-    if (aEvents & (RAIL_EVENT_RX_PACKET_ABORTED | RAIL_EVENT_RX_ADDRESS_FILTERED | RAIL_EVENT_RX_FIFO_OVERFLOW))
+    if (aEvents
+        & (SL_RAIL_EVENT_RX_PACKET_ABORTED | SL_RAIL_EVENT_RX_ADDRESS_FILTERED | SL_RAIL_EVENT_RX_FIFO_OVERFLOW))
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_FILTERED, (uint32_t)isReceivingFrame());
     }
 #endif // SL_CATALOG_RAIL_UTIL_IEEE802154_STACK_EVENT_PRESENT
 
-    if (aEvents & RAIL_EVENT_TXACK_PACKET_SENT)
+    if (aEvents & SL_RAIL_EVENT_TXACK_PACKET_SENT)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_SENT, (uint32_t)isReceivingFrame());
         packetSentCallback(true);
     }
-    if (aEvents & (RAIL_EVENT_TXACK_ABORTED | RAIL_EVENT_TXACK_UNDERFLOW))
+    if (aEvents & (SL_RAIL_EVENT_TXACK_ABORTED | SL_RAIL_EVENT_TXACK_UNDERFLOW))
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_ABORTED, (uint32_t)isReceivingFrame());
         txFailedCallback(true, 0xFF);
     }
-    if (aEvents & RAIL_EVENT_TXACK_BLOCKED)
+    if (aEvents & SL_RAIL_EVENT_TXACK_BLOCKED)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_ACK_BLOCKED, (uint32_t)isReceivingFrame());
         txFailedCallback(true, 0xFF);
@@ -3135,15 +3166,12 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     // Deal with ACK timeout after possible RX completion in case RAIL
     // notifies us of the ACK and the timeout simultaneously -- we want
     // the ACK to win over the timeout.
-    if (aEvents & RAIL_EVENT_RX_ACK_TIMEOUT)
+    if ((aEvents & SL_RAIL_EVENT_RX_ACK_TIMEOUT) && (getInternalFlag(FLAG_WAITING_FOR_ACK)))
     {
-        if (getInternalFlag(FLAG_WAITING_FOR_ACK))
-        {
-            ackTimeoutCallback();
-        }
+        ackTimeoutCallback();
     }
 
-    if (aEvents & RAIL_EVENT_CONFIG_UNSCHEDULED)
+    if (aEvents & SL_RAIL_EVENT_CONFIG_UNSCHEDULED)
     {
         (void)handlePhyStackEvent(SL_RAIL_UTIL_IEEE802154_STACK_EVENT_RX_IDLED, 0U);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
@@ -3151,26 +3179,26 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
 #endif
     }
 
-    if (aEvents & RAIL_EVENT_CONFIG_SCHEDULED)
+    if (aEvents & SL_RAIL_EVENT_CONFIG_SCHEDULED)
     {
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         railDebugCounters.mRailEventConfigScheduled++;
 #endif
     }
 
-    if (aEvents & RAIL_EVENT_SCHEDULER_STATUS)
+    if (aEvents & SL_RAIL_EVENT_SCHEDULER_STATUS)
     {
         schedulerEventCallback(aRailHandle);
     }
 
-    if (aEvents & RAIL_EVENT_CAL_NEEDED)
+    if (aEvents & SL_RAIL_EVENT_CAL_NEEDED)
     {
-        RAIL_Status_t status;
+        sl_rail_status_t status;
 
-        status = RAIL_Calibrate(aRailHandle, NULL, RAIL_CAL_ALL_PENDING);
+        status = sl_rail_calibrate(aRailHandle, NULL, SL_RAIL_CAL_ALL_PENDING);
         // TODO: Non-RTOS DMP case fails
 #if (!defined(SL_CATALOG_BLUETOOTH_PRESENT) || defined(SL_CATALOG_KERNEL_PRESENT))
-        // TEMPORARY - this asserts on Mux - OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        // TEMPORARY - this asserts on Mux - OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
         OT_UNUSED_VARIABLE(status);
 #else
         OT_UNUSED_VARIABLE(status);
@@ -3186,7 +3214,7 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
     // Waking up the OT RTOS task on every one of these occurrences causes
     // a lower priority Serial task to starve and makes it appear like a code lockup
     // There is no reason to wake the OT task for these events!
-    if (!(aEvents & RAIL_EVENT_CONFIG_SCHEDULED) && !(aEvents & RAIL_EVENT_CONFIG_UNSCHEDULED))
+    if (!(aEvents & SL_RAIL_EVENT_CONFIG_SCHEDULED) && !(aEvents & SL_RAIL_EVENT_CONFIG_UNSCHEDULED))
     {
         otSysEventSignalPending();
     }
@@ -3196,24 +3224,24 @@ static void RAILCb_Generic(RAIL_Handle_t aRailHandle, RAIL_Events_t aEvents)
 // Main thread packet handling
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static bool validatePacketDetails(RAIL_RxPacketHandle_t   packetHandle,
-                                  RAIL_RxPacketDetails_t *pPacketDetails,
-                                  RAIL_RxPacketInfo_t    *pPacketInfo,
-                                  uint16_t               *packetLength)
+static bool validatePacketDetails(sl_rail_rx_packet_handle_t   packetHandle,
+                                  sl_rail_rx_packet_details_t *pPacketDetails,
+                                  sl_rail_rx_packet_info_t    *pPacketInfo,
+                                  uint16_t                    *packetLength)
 {
-    bool          pktValid = true;
-    RAIL_Status_t rStatus;
+    bool             pktValid = true;
+    sl_rail_status_t rStatus;
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
     rxDebugStep = 0;
 #endif
 
-    rStatus = RAIL_GetRxPacketDetailsAlt(gRailHandle, packetHandle, pPacketDetails);
-    otEXPECT_ACTION(rStatus == RAIL_STATUS_NO_ERROR, pktValid = false);
+    rStatus = sl_rail_get_rx_packet_details(gRailHandle, packetHandle, pPacketDetails);
+    otEXPECT_ACTION(rStatus == SL_RAIL_STATUS_NO_ERROR, pktValid = false);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
     rxDebugStep++;
 #endif
 
-    otEXPECT_ACTION(isFilterMaskValid(pPacketInfo->filterMask), pktValid = false);
+    otEXPECT_ACTION(isFilterMaskValid(pPacketInfo->filter_mask), pktValid = false);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
     rxDebugStep++;
 #endif
@@ -3221,16 +3249,16 @@ static bool validatePacketDetails(RAIL_RxPacketHandle_t   packetHandle,
     // RAIL's packetBytes includes the (1 or 2 byte) PHY header but not the 2-byte CRC.
     // We want *packetLength to match the PHY header length so we add 2 for CRC
     // and subtract the PHY header size.
-    *packetLength = pPacketInfo->packetBytes + 2U - PHY_HEADER_SIZE;
+    *packetLength = pPacketInfo->packet_bytes + 2U - PHY_HEADER_SIZE;
 
     if (PHY_HEADER_SIZE == 1)
     {
-        otEXPECT_ACTION(*packetLength == pPacketInfo->firstPortionData[0], pktValid = false);
+        otEXPECT_ACTION(*packetLength == pPacketInfo->p_first_portion_data[0], pktValid = false);
     }
     else
     {
-        uint8_t lengthByte =
-            ((pPacketInfo->firstPortionBytes > 1) ? pPacketInfo->firstPortionData[1] : pPacketInfo->lastPortionData[0]);
+        uint8_t lengthByte = ((pPacketInfo->first_portion_bytes > 1) ? pPacketInfo->p_first_portion_data[1]
+                                                                     : pPacketInfo->p_last_portion_data[0]);
         otEXPECT_ACTION(*packetLength == (uint16_t)(__RBIT(lengthByte) >> 24), pktValid = false);
     }
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
@@ -3250,7 +3278,7 @@ exit:
     {
         otLogDebgPlat("RX Pkt Invalid: rStatus=0x%lX, filterMask=0x%2X, pktLen=%i",
                       rStatus,
-                      pPacketInfo->filterMask,
+                      pPacketInfo->filter_mask,
                       *packetLength);
 #if RADIO_CONFIG_DEBUG_COUNTERS_SUPPORT
         otLogDebgPlat("RX debug step=%i", rxDebugStep);
@@ -3261,18 +3289,19 @@ exit:
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static bool validatePacketTimestamp(RAIL_RxPacketDetails_t *pPacketDetails, uint16_t packetLength)
+static bool validatePacketTimestamp(sl_rail_rx_packet_details_t *pPacketDetails, uint16_t packetLength)
 {
     bool rxTimestampValid = true;
 
     // Get the timestamp when the SFD was received
-    otEXPECT_ACTION(pPacketDetails->timeReceived.timePosition != RAIL_PACKET_TIME_INVALID, rxTimestampValid = false);
+    otEXPECT_ACTION(pPacketDetails->time_received.time_position != SL_RAIL_PACKET_TIME_INVALID,
+                    rxTimestampValid = false);
 
     // + PHY HEADER SIZE for PHY header
     // We would not need this if PHR is not included and we want the MHR
-    pPacketDetails->timeReceived.totalPacketBytes = packetLength + PHY_HEADER_SIZE;
+    pPacketDetails->time_received.total_packet_bytes = packetLength + PHY_HEADER_SIZE;
 
-    otEXPECT_ACTION((RAIL_GetRxTimeSyncWordEndAlt(gRailHandle, pPacketDetails) == RAIL_STATUS_NO_ERROR),
+    otEXPECT_ACTION((sl_rail_get_rx_time_sync_word_end(gRailHandle, pPacketDetails) == SL_RAIL_STATUS_NO_ERROR),
                     rxTimestampValid = false);
 exit:
     return rxTimestampValid;
@@ -3297,7 +3326,7 @@ otError otPlatMultipanSetActiveInstance(otInstance *aInstance, bool aCompletePen
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static void updateRxFrameTimestamp(bool aIsAckFrame, RAIL_Time_t aTimestamp)
+static void updateRxFrameTimestamp(bool aIsAckFrame, sl_rail_time_t aTimestamp)
 {
     // Current time > sync-receive timestamp
     // Therefore lower 32 bits of current time should always be greater than lower 32 bits
@@ -3324,24 +3353,24 @@ static void updateRxFrameTimestamp(bool aIsAckFrame, RAIL_Time_t aTimestamp)
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)
-static otError skipRxPacketLengthBytes(RAIL_RxPacketInfo_t *pPacketInfo)
+static otError skipRxPacketLengthBytes(sl_rail_rx_packet_info_t *pPacketInfo)
 {
     otError error = OT_ERROR_NONE;
-    otEXPECT_ACTION(pPacketInfo->firstPortionBytes > 0, error = OT_ERROR_FAILED);
+    otEXPECT_ACTION(pPacketInfo->first_portion_bytes > 0, error = OT_ERROR_FAILED);
 
-    pPacketInfo->firstPortionData += PHY_HEADER_SIZE;
-    pPacketInfo->packetBytes -= PHY_HEADER_SIZE;
+    pPacketInfo->p_first_portion_data += PHY_HEADER_SIZE;
+    pPacketInfo->packet_bytes -= PHY_HEADER_SIZE;
 
-    if (PHY_HEADER_SIZE == 1 || pPacketInfo->firstPortionBytes > 1)
+    if (PHY_HEADER_SIZE == 1 || pPacketInfo->first_portion_bytes > 1)
     {
-        pPacketInfo->firstPortionBytes -= PHY_HEADER_SIZE;
+        pPacketInfo->first_portion_bytes -= PHY_HEADER_SIZE;
     }
     else
     {
-        pPacketInfo->firstPortionBytes = 0U;
+        pPacketInfo->first_portion_bytes = 0U;
         // Increment lastPortionData to skip the second byte of the PHY header
-        otEXPECT_ACTION(pPacketInfo->lastPortionData != NULL, error = OT_ERROR_FAILED);
-        pPacketInfo->lastPortionData++;
+        otEXPECT_ACTION(pPacketInfo->p_last_portion_data != NULL, error = OT_ERROR_FAILED);
+        pPacketInfo->p_last_portion_data++;
     }
 
 exit:
@@ -3601,14 +3630,14 @@ void efr32RadioProcess(otInstance *aInstance)
 //------------------------------------------------------------------------------
 // Antenna Diversity, Wifi coexistence and Runtime PHY select support
 
-RAIL_Status_t efr32RadioSetCcaMode(uint8_t aMode)
+sl_rail_status_t efr32RadioSetCcaMode(uint8_t aMode)
 {
-    return RAIL_IEEE802154_ConfigCcaMode(gRailHandle, aMode);
+    return sl_rail_ieee802154_config_cca_mode(gRailHandle, aMode);
 }
 
-RAIL_IEEE802154_PtiRadioConfig_t efr32GetPtiRadioConfig(void)
+sl_rail_ieee802154_phy_t efr32GetPtiRadioConfig(void)
 {
-    return (RAIL_IEEE802154_GetPtiRadioConfig(gRailHandle));
+    return (sl_rail_ieee802154_get_phy_id(gRailHandle));
 }
 
 #ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT
@@ -3657,10 +3686,10 @@ exit:
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 void efr32AntennaConfigInit(void)
 {
-    RAIL_Status_t status;
+    sl_rail_status_t status;
     sl_rail_util_ant_div_init();
     status = sl_rail_util_ant_div_update_antenna_config();
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 #endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
 
@@ -3669,20 +3698,20 @@ void efr32AntennaConfigInit(void)
 static void changeDynamicEvents(void)
 {
     /* clang-format off */
-    const RAIL_Events_t eventMask = RAIL_EVENTS_NONE
-                                    | RAIL_EVENT_RX_SYNC1_DETECT
-                                    | RAIL_EVENT_RX_SYNC2_DETECT
-                                    | RAIL_EVENT_RX_FRAME_ERROR
-                                    | RAIL_EVENT_RX_FIFO_OVERFLOW
-                                    | RAIL_EVENT_RX_ADDRESS_FILTERED
-                                    | RAIL_EVENT_RX_PACKET_ABORTED
-                                    | RAIL_EVENT_RX_FILTER_PASSED
-                                    | RAIL_EVENT_TX_CHANNEL_CLEAR
-                                    | RAIL_EVENT_TX_CCA_RETRY
-                                    | RAIL_EVENT_TX_START_CCA
-                                    | RAIL_EVENT_SIGNAL_DETECTED;
+  const sl_rail_events_t eventMask = SL_RAIL_EVENTS_NONE
+                                     | SL_RAIL_EVENT_RX_SYNC_0_DETECT
+                                     | SL_RAIL_EVENT_RX_SYNC_1_DETECT
+                                     | SL_RAIL_EVENT_RX_FRAME_ERROR
+                                     | SL_RAIL_EVENT_RX_FIFO_OVERFLOW
+                                     | SL_RAIL_EVENT_RX_ADDRESS_FILTERED
+                                     | SL_RAIL_EVENT_RX_PACKET_ABORTED
+                                     | SL_RAIL_EVENT_RX_FILTER_PASSED
+                                     | SL_RAIL_EVENT_TX_CHANNEL_CLEAR
+                                     | SL_RAIL_EVENT_TX_CCA_RETRY
+                                     | SL_RAIL_EVENT_TX_START_CCA
+                                     | SL_RAIL_EVENT_SIGNAL_DETECTED;
     /* clang-format on */
-    RAIL_Events_t eventValues = RAIL_EVENTS_NONE;
+    sl_rail_events_t eventValues = SL_RAIL_EVENTS_NONE;
 
     if (phyStackEventIsEnabled())
     {
@@ -3721,11 +3750,11 @@ static void emRadioEnableAutoAck(void)
                 && ((sl_rail_util_coex_get_options() & SL_RAIL_UTIL_COEX_OPT_ACK_HOLDOFF)
                     != SL_RAIL_UTIL_COEX_OPT_DISABLED)))
         {
-            RAIL_PauseRxAutoAck(gRailHandle, true);
+            sl_rail_pause_rx_auto_ack(gRailHandle, true);
         }
         else
         {
-            RAIL_PauseRxAutoAck(gRailHandle, false);
+            sl_rail_pause_rx_auto_ack(gRailHandle, false);
         }
     }
     CORE_EXIT_ATOMIC();
@@ -3738,10 +3767,11 @@ static void emRadioEnablePta(bool enable)
     // When PTA is enabled, we want to negate PTA_REQ as soon as an incoming
     // frame is aborted, e.g. due to filtering.  To do that we must turn off
     // the TRACKABFRAME feature that's normally on to benefit sniffing on PTI.
-    RAIL_Status_t status = RAIL_ConfigRxOptions(gRailHandle,
-                                                RAIL_RX_OPTION_TRACK_ABORTED_FRAMES,
-                                                (enable ? RAIL_RX_OPTIONS_NONE : RAIL_RX_OPTION_TRACK_ABORTED_FRAMES));
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    sl_rail_status_t status =
+        sl_rail_config_rx_options(gRailHandle,
+                                  SL_RAIL_RX_OPTION_TRACK_ABORTED_FRAMES,
+                                  (enable ? SL_RAIL_RX_OPTIONS_NONE : SL_RAIL_RX_OPTION_TRACK_ABORTED_FRAMES));
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 
 static void efr32CoexInit(void)
@@ -3829,10 +3859,10 @@ static void setCcaThreshold(void)
     {
         if (rhoActive > RHO_INACTIVE)
         {
-            thresholddBm = RAIL_RSSI_INVALID_DBM;
+            thresholddBm = SL_RAIL_RSSI_INVALID_DBM;
         }
-        RAIL_Status_t status = RAIL_SetCcaThreshold(gRailHandle, thresholddBm);
-        OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+        sl_rail_status_t status = sl_rail_set_cca_threshold(gRailHandle, thresholddBm);
+        OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     }
     CORE_EXIT_ATOMIC();
 }

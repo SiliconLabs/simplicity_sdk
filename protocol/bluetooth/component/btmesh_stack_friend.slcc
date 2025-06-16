@@ -1,6 +1,6 @@
 id: "btmesh_stack_friend"
 label: "Friend"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Friend functionality. A Friend node caches messages and network security updates for a Low Power Node."
 category: "Bluetooth Mesh|Stack|Features"
 quality: "production"

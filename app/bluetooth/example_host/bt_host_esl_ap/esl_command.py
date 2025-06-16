@@ -94,9 +94,9 @@ class ESLCommand:
             valid = True
         if not valid:
             self.log.warning(
-                "Unexpected response received: %d - expected: %s!",
+                "Unexpected response received: 0x%02x - expected: %s!",
                 opcode,
-                self.response_opcode,
+                list(map(hex, self.response_opcode)),
             )
         return valid
 

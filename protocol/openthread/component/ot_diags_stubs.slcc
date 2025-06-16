@@ -1,6 +1,6 @@
 id: ot_diags_stubs
 label: Diagnostics
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component provides function stubs for a stack configured with diagnostics support.

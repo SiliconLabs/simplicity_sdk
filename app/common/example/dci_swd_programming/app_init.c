@@ -50,10 +50,6 @@ void app_init(void)
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
-  // High drive for SWCLK and SWD, both must on the same GPIO port
-  sl_hal_gpio_set_slew_rate((sl_gpio_port_t)SWCLK_PORT, 6);
-  sl_hal_gpio_set_slew_rate_alternate((sl_gpio_port_t)SWCLK_PORT, 6);
-
   // Initialize GPIO for SWCLK and SWDIO pin
   sl_gpio_t swclk_gpio = {
     .port = (sl_gpio_port_t)SWCLK_PORT,
@@ -63,6 +59,10 @@ void app_init(void)
     .port = (sl_gpio_port_t)SWDIO_PORT,
     .pin = SWDIO_PIN,
   };
+
+  // High drive for SWCLK and SWD, both must on the same GPIO port
+  sl_hal_gpio_set_slew_rate(&swclk_gpio, 6);
+  sl_hal_gpio_set_slew_rate_alternate((sl_gpio_port_t)SWCLK_PORT, 6);
 
   sl_gpio_set_pin_mode(&swclk_gpio, SL_GPIO_MODE_PUSH_PULL, 0);
   sl_gpio_set_pin_mode(&swdio_gpio, SL_GPIO_MODE_PUSH_PULL, 1);

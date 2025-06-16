@@ -30,17 +30,6 @@
 #ifndef SL_RAIL_UTIL_RF_PATH_SWITCH_H
 #define SL_RAIL_UTIL_RF_PATH_SWITCH_H
 
-#include "rail.h"
-
-#ifdef SL_CATALOG_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
-#include "sl_rail_util_rf_path_switch_config.h"
-#endif // SL_CATALOG_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
-
-#if defined(SL_RAIL_UTIL_RF_PATH_SWITCH_CONTROL_PORT) \
-  || defined(SL_RAIL_UTIL_RF_PATH_SWITCH_INVERTED_CONTROL_PORT)
-#define SL_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -55,4 +44,5 @@ void sl_rail_util_rf_path_switch_init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif
+
+#endif//SL_RAIL_UTIL_RF_PATH_SWITCH_H

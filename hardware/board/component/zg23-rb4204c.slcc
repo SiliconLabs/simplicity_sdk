@@ -1,7 +1,7 @@
 !!omap
 - id: zg23_rb4204c
 - label: ZG23-RB4204C
-- package: platform
+- package: boards
 - description: Kit BSP support for the ZG23B 868-915 MHz 14 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

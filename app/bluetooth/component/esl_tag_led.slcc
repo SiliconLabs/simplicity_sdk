@@ -1,5 +1,5 @@
 id: esl_tag_led
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag LED
 description: >
   Extends the Bluetooth Electronic Shelf Label design with LED class

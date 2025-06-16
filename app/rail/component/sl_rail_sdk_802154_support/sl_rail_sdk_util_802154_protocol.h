@@ -31,7 +31,7 @@
 #ifndef SL_RAIL_SDK_UTIL_802154_PROTOCOL_H
 #define SL_RAIL_SDK_UTIL_802154_PROTOCOL_H
 
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_sdk_util_802154_protocol_types.h"
 #include "sl_rail_sdk_util_802154_protocol_config.h"
 
@@ -42,7 +42,7 @@
  * @param[in] config The radio configuration type to initialize and configure.
  * @return A status code indicating success of the function call.
  *****************************************************************************/
-RAIL_Status_t sl_rail_sdk_util_802154_protocol_config(RAIL_Handle_t handle,
-                                                      sl_rail_sdk_util_802154_protocol_type_t protocol);
+sl_rail_status_t sl_rail_sdk_util_802154_protocol_config(sl_rail_handle_t handle,
+                                                         sl_rail_sdk_util_802154_protocol_type_t protocol);
 
 #endif // SL_RAIL_SDK_UTIL_802154_PROTOCOL_H

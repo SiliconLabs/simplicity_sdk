@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Implements the sender side of the Xmodem-CRC protocol for either over-the-air messages or using the SPI/UART between host and NCP.
 id: zigbee_xmodem_sender
 label: Xmodem Sender

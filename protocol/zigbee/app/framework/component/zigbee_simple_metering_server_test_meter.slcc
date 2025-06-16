@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides the test code for the simple metering server. It enables the code that pretends it is a meter and also supports meter error along with CLI implementation. It should be only used for testing purposes.
 label: Simple Metering Server Test Meter
 quality: production

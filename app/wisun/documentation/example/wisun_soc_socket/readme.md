@@ -170,7 +170,7 @@ wisun socket_close [Socket ID]
 
 ## UDP Echo Server
 
-The three Wi-SUN devices (Border Router, Socket devide as UDP Client, Socket device UDP Server) are now part of the same Wi-SUN network. After a successful connection, the UDP Server application creates a socket on port 1234 by default.
+The three Wi-SUN devices (Border Router, Socket device as UDP Client, Socket device UDP Server) are now part of the same Wi-SUN network. After a successful connection, the UDP Server application creates a socket on port 1234 by default.
 
 ```text
 [Port: 1234]

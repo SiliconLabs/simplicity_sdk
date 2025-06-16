@@ -1,15 +1,15 @@
 id: device_init_clocks
-label: "Clocks"
-package: platform
+label: Clocks
+package: platform_core
 description: >
-  Instantiate the component for Clock Tree initialization. This allows for
-  automatic configuration of the clock tree according to what other components
-  are present in the project.
+    Instantiate the component for Clock Tree initialization. This allows for
+    automatic configuration of the clock tree according to what other components
+    are present in the project.
 category: Services|Device Initialization|Peripherals
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/device_init/
 include:
   - path: inc
@@ -27,16 +27,16 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: platform_init
-      include: sl_device_init_clocks.h
-      handler: sl_device_init_clocks
+        event: platform_init
+        include: sl_device_init_clocks.h
+        handler: sl_device_init_clocks
     priority: -9500
-    condition: [device, sl_system]
+    condition: [device, sl_system, kernel]
   - name: device_init_clocks_arch
     value: s2
     condition: [device_series_2]
   - name: component_catalog
     value: device_init_clocks
 documentation:
-  docset: gecko-platform
-  document: platform-service/device-init-clocks
+    docset: gecko-platform
+    document: platform-service/device-init-clocks

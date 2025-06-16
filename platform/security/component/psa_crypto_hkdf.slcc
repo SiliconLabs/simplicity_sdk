@@ -1,5 +1,5 @@
 id: psa_crypto_hkdf
-package: platform
+package: security_mbedtls
 label: HKDF
 description: >-
   This component provides support for one shot key derivation using HKDF through

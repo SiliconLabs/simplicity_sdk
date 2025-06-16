@@ -1,5 +1,5 @@
 id: mbedtls_cipher_xts
-package: platform
+package: security_mbedtls
 label: XTS Mode
 description: >-
   This component provides support for XTS cipher modes in mbed TLS.

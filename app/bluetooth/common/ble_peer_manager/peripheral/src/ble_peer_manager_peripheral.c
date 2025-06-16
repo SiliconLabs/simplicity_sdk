@@ -129,9 +129,8 @@ void ble_peer_manager_peripheral_on_bt_event(sl_bt_msg_t *evt)
 sl_status_t ble_peer_manager_peripheral_set_advertiser_discovery_mode(sl_bt_advertiser_discovery_mode_t adv_discovery_mode)
 {
   if (get_state() == BLE_PEER_MANAGER_ADVERTISING) {
-    ble_peer_manager_log_error("Already advertising. \
-                                Please stop the advertiser before changing it's settings." APP_LOG_NL);
-    return SL_STATUS_INVALID_STATE;
+    ble_peer_manager_log_info("Already advertising. \
+                              New settings will take effect the next time advertising is started." APP_LOG_NL);
   }
   advertiser.adv_discovery_mode = adv_discovery_mode;
   return SL_STATUS_OK;
@@ -139,13 +138,15 @@ sl_status_t ble_peer_manager_peripheral_set_advertiser_discovery_mode(sl_bt_adve
 
 sl_status_t ble_peer_manager_peripheral_set_advertiser_phy(sl_bt_gap_phy_t adv_phy)
 {
-  if (get_state() == BLE_PEER_MANAGER_ADVERTISING) {
-    ble_peer_manager_log_error("Already advertising. \
-                                Please stop the advertiser before changing it's settings." APP_LOG_NL);
-    return SL_STATUS_INVALID_STATE;
-  }
-  if (adv_phy != sl_bt_gap_phy_1m && adv_phy != sl_bt_gap_phy_2m) {
+  if (adv_phy != sl_bt_gap_phy_1m
+      && adv_phy != sl_bt_gap_phy_2m
+      && adv_phy != sl_bt_gap_phy_coded
+      && adv_phy != sl_bt_gap_phy_any) {
     return SL_STATUS_INVALID_PARAMETER;
+  }
+  if (get_state() == BLE_PEER_MANAGER_ADVERTISING) {
+    ble_peer_manager_log_info("Already advertising. \
+                              New settings will take effect the next time advertising is started." APP_LOG_NL);
   }
   advertiser.adv_phy = adv_phy;
   return SL_STATUS_OK;
@@ -203,8 +204,9 @@ sl_status_t ble_peer_manager_peripheral_start_advertising(uint8_t advertising_ha
     return sc;
   }
 
-  if (advertiser.adv_phy == sl_bt_gap_phy_1m) {
-    // Generate data for advertising using phy_1m
+  if (advertiser.adv_phy == sl_bt_gap_phy_1m
+      || advertiser.adv_phy == sl_bt_gap_phy_any) {
+    // Generate data for legacy advertiser using phy_1m
     sc = sl_bt_legacy_advertiser_generate_data(advertiser.advertising_handle,
                                                advertiser.adv_discovery_mode);
     if (sc != SL_STATUS_OK) {
@@ -218,20 +220,29 @@ sl_status_t ble_peer_manager_peripheral_start_advertising(uint8_t advertising_ha
       return sc;
     }
   } else {
-    // Generate data for advertising using phy_2m
+    // Generate data for extended advertiser
     sc = sl_bt_extended_advertiser_generate_data(advertiser.advertising_handle,
                                                  advertiser.adv_discovery_mode);
     if (sc != SL_STATUS_OK) {
       ble_peer_manager_log_info("Extended advertiser generate data failed..." APP_LOG_NL);
       return sc;
     }
-    sc = sl_bt_extended_advertiser_set_phy(
-      advertiser.advertising_handle,
-      sl_bt_gap_phy_1m,
-      sl_bt_gap_phy_2m);
-    if (sc != SL_STATUS_OK) {
-      ble_peer_manager_log_info("Extended advertiser set phy failed..." APP_LOG_NL);
-      return sc;
+    if (advertiser.adv_phy == sl_bt_gap_phy_coded) {
+      sc = sl_bt_extended_advertiser_set_phy(advertiser.advertising_handle,
+                                             sl_bt_gap_phy_1m,
+                                             sl_bt_gap_phy_coded);
+      if (sc != SL_STATUS_OK) {
+        ble_peer_manager_log_info("Extended advertiser set coded phy failed..." APP_LOG_NL);
+        return sc;
+      }
+    } else {
+      sc = sl_bt_extended_advertiser_set_phy(advertiser.advertising_handle,
+                                             sl_bt_gap_phy_1m,
+                                             sl_bt_gap_phy_2m);
+      if (sc != SL_STATUS_OK) {
+        ble_peer_manager_log_info("Extended advertiser set 2M phy failed..." APP_LOG_NL);
+        return sc;
+      }
     }
 
     sc = sl_bt_extended_advertiser_start(advertiser.advertising_handle,
@@ -253,14 +264,15 @@ sl_status_t ble_peer_manager_peripheral_stop_advertising(uint8_t advertising_han
   if (advertising_handle != SL_BT_INVALID_ADVERTISING_SET_HANDLE) {
     advertiser.advertising_handle = advertising_handle;
   }
-
-  // Stop running advertising
-  sc = sl_bt_advertiser_stop(advertiser.advertising_handle);
-  if (sc != SL_STATUS_OK) {
-    return sc;
-  }
-  // Delete advertiser set
+  // Delete advertiser set - the deletion stops the advertising
   sc = sl_bt_advertiser_delete_set(advertiser.advertising_handle);
+  if (sc == SL_STATUS_OK) {
+    advertiser.advertising_handle = SL_BT_INVALID_ADVERTISING_SET_HANDLE;
+  } else if (sc == SL_STATUS_INVALID_PARAMETER) {
+    // Don't return error if the advertising set has already been deleted
+    sc = SL_STATUS_OK;
+    advertiser.advertising_handle = SL_BT_INVALID_ADVERTISING_SET_HANDLE;
+  }
   return sc;
 }
 

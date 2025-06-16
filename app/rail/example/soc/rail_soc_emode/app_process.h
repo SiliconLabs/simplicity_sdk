@@ -34,7 +34,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rail.h"
+#include "sl_rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -59,8 +59,8 @@ typedef enum {
 extern volatile uint8_t sleep_mode;
 
 /// TX power settings
-extern volatile RAIL_TxPowerLevel_t power_raw;
-extern volatile RAIL_TxPower_t power_deci_dbm;
+extern volatile sl_rail_tx_power_level_t power_raw;
+extern volatile sl_rail_tx_power_t power_deci_dbm;
 extern volatile bool is_raw;
 
 /// Scheduled TX/RX variables
@@ -81,7 +81,7 @@ extern volatile bool rx_ended;
  *
  * @param[in] rail_handle: which rail instance to use
  ******************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 /*******************************************************************************
  * Set state machine state out of this file
@@ -94,11 +94,5 @@ void set_next_state(state_t next_state);
  * Set the flag for proper sleep level.
  ******************************************************************************/
 void init_em1_mode(void);
-
-/******************************************************************************
- * Set up the rail TX fifo for later usage
- * @param[in] rail_handle Which rail handler should be updated
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle);
 
 #endif // APP_PROCESS_H

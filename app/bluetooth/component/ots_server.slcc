@@ -1,6 +1,6 @@
 id: ots_server
 label: Object Server
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   The Object Transfer Service(OTS) Static Object Server provides an instance of
   OTS Object Server implemented using static GATT.

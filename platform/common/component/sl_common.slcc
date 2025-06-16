@@ -1,14 +1,14 @@
 id: sl_common
-package: platform
-label: "Common Functions"
+package: platform_common
+label: Common Functions
 description: >
-  Common headers macros for alignment, min/max/ceil/floor,
-  pack, section, weak, noreturn, fallthrough
+    Common headers macros for alignment, min/max/ceil/floor,
+    pack, section, weak, noreturn, fallthrough
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 include:
   - path: inc
@@ -20,5 +20,5 @@ requires:
 provides:
   - name: sl_common
 documentation:
-  docset: gecko-platform
-  document: platform-common/common
+    docset: gecko-platform
+    document: platform-common/common

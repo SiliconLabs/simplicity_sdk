@@ -122,12 +122,12 @@ void tcp_dropwithreset(struct ip6_hdr *ip6,
     OT_UNUSED_VARIABLE(rstreason);
 }
 
-int tcp_input(struct ip6_hdr       *ip6,
-              struct tcphdr        *th,
-              otMessage            *msg,
-              struct tcpcb         *tp,
-              struct tcpcb_listen  *tpl,
-              struct tcplp_signals *sig)
+int tcplp_input(struct ip6_hdr       *ip6,
+                struct tcphdr        *th,
+                otMessage            *msg,
+                struct tcpcb         *tp,
+                struct tcpcb_listen  *tpl,
+                struct tcplp_signals *sig)
 {
     OT_UNUSED_VARIABLE(ip6);
     OT_UNUSED_VARIABLE(th);

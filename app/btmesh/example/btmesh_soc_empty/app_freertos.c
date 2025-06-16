@@ -31,9 +31,11 @@
 #include <stdbool.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "sl_main_kernel.h"
 #include "semphr.h"
 #include "app_assert.h"
 #include "app.h"
+#include "sl_main_init.h"
 
 #define APP_TASK_STACK_SIZE    512u
 #define APP_TASK_PRIO          24u
@@ -46,9 +48,18 @@ static TaskHandle_t      app_task_handle  = NULL;
 // Semaphore handle
 static SemaphoreHandle_t app_semaphore_handle = NULL;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for RTOS before the kernel is started
+void app_permanent_memory_alloc(void)
 {
+  // Create the semaphore
+  app_semaphore_handle = xSemaphoreCreateCounting(UINT16_MAX, 0);
+  app_assert(app_semaphore_handle != NULL, "Semaphore creation failed.");
+
+  //If the start task is reused, there is no need to start another application task
+  if (sl_main_start_task_should_continue()) {
+    return;
+  }
+
   BaseType_t ret;
   // Create the task for app_process_action
   ret = xTaskCreate(app_task,
@@ -58,9 +69,6 @@ void app_init_runtime(void)
                     APP_TASK_PRIO,
                     &app_task_handle);
   app_assert(ret == pdPASS, "Application task creation failed.");
-  // Create the semaphore
-  app_semaphore_handle = xSemaphoreCreateCounting(UINT16_MAX, 0);
-  app_assert(app_semaphore_handle != NULL, "Semaphore creation failed.");
 }
 
 /******************************************************************************

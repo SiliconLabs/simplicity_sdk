@@ -35,7 +35,7 @@
 // <h>Wi-SUN Meter - Collector common configuration
 // <s SL_WISUN_METER_COLLECTOR_TOKEN> Token string. (Not used in CoAP sample apps)
 // <i> Default: "abcd"
-// <i> This token must be send to meter to get measuement packet as response.
+// <i> This token must be send to meter to get measurement packet as response.
 // <i> The length should be lower than SL_WISUN_METER_COLLECTOR_TOKEN_MAX_SIZE.
 // <i> Whitespace characters are not allowed.
 #define SL_WISUN_METER_COLLECTOR_TOKEN                                  "abcd"
@@ -80,22 +80,22 @@
 
 // <s SL_WISUN_COAP_METER_COLLECTOR_MEASUREMENT_URI_PATH> Meter measurement (all sensor) resource URI path
 // <i> Default: "/sensor/all"
-// <i> This is the shared resource URI path to get mesaurement results
+// <i> This is the shared resource URI path to get measurement results
 #define SL_WISUN_COAP_METER_COLLECTOR_MEASUREMENT_URI_PATH              "/sensor/all"
 
 // <s SL_WISUN_COAP_METER_COLLECTOR_TEMPERATURE_SENSOR_URI_PATH> Meter temperature sensor resource URI path
 // <i> Default: "/sensor/temperature"
-// <i> This is the shared resource URI path to get temperature mesaurement results
+// <i> This is the shared resource URI path to get temperature measurement results
 #define SL_WISUN_COAP_METER_COLLECTOR_TEMPERATURE_SENSOR_URI_PATH       "/sensor/temperature"
 
 // <s SL_WISUN_COAP_METER_COLLECTOR_HUMIDITY_SENSOR_URI_PATH> Meter relative humidity sensor resource URI path
 // <i> Default: "/sensor/humidity"
-// <i> This is the shared resource URI path to get relativ humidity mesaurement results
+// <i> This is the shared resource URI path to get relative humidity measurement results
 #define SL_WISUN_COAP_METER_COLLECTOR_HUMIDITY_SENSOR_URI_PATH          "/sensor/humidity"
 
 // <s SL_WISUN_COAP_METER_COLLECTOR_LIGHT_SENSOR_URI_PATH> Meter light sensor resource URI path
 // <i> Default: "/sensor/light"
-// <i> This is the shared resource URI path to get light mesaurement results
+// <i> This is the shared resource URI path to get light measurement results
 #define SL_WISUN_COAP_METER_COLLECTOR_LIGHT_SENSOR_URI_PATH             "/sensor/light"
 
 // <s SL_WISUN_COAP_METER_COLLECTOR_LED_TOGGLE_URI_PATH> Meter LEDs resource URI path

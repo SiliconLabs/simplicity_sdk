@@ -162,19 +162,19 @@ extern const wisun_config_mac_list_t wisun_config_mac_allow_list;
 extern const wisun_config_mac_list_t wisun_config_mac_deny_list;
 {%- endif -%}
 {%- endif -%}
-{% if config.devicePrivateKey is not none and config.isDDP is false%}
+{% if config.devicePrivateKey is not none and config.isDDP is not true %}
 
 #define WISUN_CONFIG_DEVICE_PRIVATE_KEY_PRESENT
 //! Wi-SUN Device private key
 extern const uint8_t wisun_config_device_private_key[];
 {%- endif -%}
-{% if config.deviceCertificate is not none and config.isDDP is false%}
+{% if config.deviceCertificate is not none and config.isDDP is not true %}
 
 #define WISUN_CONFIG_DEVICE_CERTIFICATE_PRESENT
 //! Wi-SUN Device certificate
 extern const uint8_t wisun_config_device_certificate[];
 {%- endif -%}
-{% if config.caCertificate is not none and config.isDDP is false%}
+{% if config.caCertificate is not none and config.isDDP is not true %}
 
 //! Wi-SUN CA certificate
 

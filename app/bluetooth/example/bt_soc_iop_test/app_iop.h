@@ -118,18 +118,19 @@ sl_status_t handle_timer_start(sl_bt_evt_gatt_server_characteristic_status_t *ch
 extern bd_addr public_address;
 
 typedef enum {
-  IDLE,
-  CONNECTED,
-  DISPLAY_PASSKEY,
-  BOND_SUCCESS,
-  BOND_FAILURE
+  DISPLAY_STATE_IDLE,
+  DISPLAY_STATE_CONNECTED,
+  DISPLAY_STATE_PASSKEY,
+  DISPLAY_STATE_BONDING,
+  DISPLAY_STATE_OTA_DFU
 } display_state_t;
 
 /***************************************************************************//**
  * Handle display update.
  *
  * @param[in] state State to be displayed.
+ * @param[in] data Additional, state-related data.
  ******************************************************************************/
-void set_display(display_state_t state);
+void set_display(display_state_t state, void *data);
 
 #endif // APP_IOP_H

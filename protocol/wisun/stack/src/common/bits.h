@@ -73,16 +73,16 @@ static inline uint8_t clz8(uint8_t val)
 #define FIELD_PREP(mask, val) (((val) << __CTZ(mask)) & (mask))
 #define FIELD_MAX(mask) ((mask) >> __CTZ(mask))
 
-static inline bool bitget(const uint8_t *bits, int i)
+static inline bool bitget(const uint8_t *bits, unsigned int i)
 {
     return bits[i / 8] & (1 << (i % 8));
 }
 
-static inline int bitcnt(const uint8_t *bits, int nbits)
+static inline unsigned int bitcnt(const uint8_t *bits, unsigned int nbits)
 {
-    int cnt = 0;
+    unsigned int cnt = 0;
 
-    for (int i = 0; i < nbits; i++)
+    for (unsigned int i = 0; i < nbits; i++)
         if (bitget(bits, i))
             cnt++;
     return cnt;
@@ -95,7 +95,7 @@ static inline void bitset(uint8_t *bits, int i)
 
 static inline void bitclr(uint8_t *bits, int i)
 {
-    bits[i / 8] &= ~(1 << i % 8);
+    bits[i / 8] &= (uint8_t)~(1 << i % 8);
 }
 
 /**

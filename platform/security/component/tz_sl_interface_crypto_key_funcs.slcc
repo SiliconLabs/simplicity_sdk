@@ -1,5 +1,5 @@
 id: tz_sl_interface_crypto_key_funcs
-package: platform
+package: security_trustzone
 description: >-
   This component provides a TrustZone secure library interface crypto key functions
 category: Platform|Security|TrustZone

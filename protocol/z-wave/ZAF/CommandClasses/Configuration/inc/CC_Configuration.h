@@ -1,4 +1,4 @@
- /***************************************************************************//**
+/***************************************************************************//**
  * @file
  * @brief CC_Configuration.h
  * @copyright 2020 Silicon Laboratories Inc.
@@ -36,8 +36,7 @@
 /**
  * Defines the size options of a value.
  */
-typedef enum
-{
+typedef enum {
   CC_CONFIG_PARAMETER_SIZE_8_BIT            = 1,   //!< CC_CONFIG_PARAMETER_SIZE_8_BIT
   CC_CONFIG_PARAMETER_SIZE_16_BIT           = 2,   //!< CC_CONFIG_PARAMETER_SIZE_16_BIT
   CC_CONFIG_PARAMETER_SIZE_32_BIT           = 4,   //!< CC_CONFIG_PARAMETER_SIZE_32_BIT
@@ -48,8 +47,7 @@ cc_config_parameter_size_t;
 /**
  * Defines the format options of a value.
  */
-typedef enum
-{
+typedef enum {
   CC_CONFIG_PARAMETER_FORMAT_SIGNED_INTEGER   = CONFIGURATION_PROPERTIES_REPORT_FORMAT_SIGNED_INTEGER_V3,  //!< CC_CONFIG_PARAMETER_FORMAT_SIGNED_INTEGER
   CC_CONFIG_PARAMETER_FORMAT_UNSIGNED_INTEGER = CONFIGURATION_PROPERTIES_REPORT_FORMAT_UNSIGNED_INTEGER_V3,//!< CC_CONFIG_PARAMETER_FORMAT_UNSIGNED_INTEGER
   CC_CONFIG_PARAMETER_FORMAT_ENUMERATED       = CONFIGURATION_PROPERTIES_REPORT_FORMAT_ENUMERATED_V3,      //!< CC_CONFIG_PARAMETER_FORMAT_ENUMERATED
@@ -60,8 +58,7 @@ cc_config_parameter_format_t;
 /**
  * Defines the different types that a value can take, e.g. uint8_t, int16_t, etc.
  */
-typedef union
-{
+typedef union {
   // Unsigned integers
   uint32_t as_uint32;
   uint16_t as_uint16;
@@ -84,9 +81,9 @@ typedef struct _cc_config_parameter_attributes_t{
   const cc_config_parameter_format_t format;         ///< Type of the parameter, e.g.: signed, unsigned
   const cc_config_parameter_value_t  default_value;  ///< Default data
   const struct {
-    bool altering_capabilities : 1;          ///< 
-    bool read_only             : 1;          ///< 
-    bool advanced              : 1;          ///< 
+    bool altering_capabilities : 1;          ///<
+    bool read_only             : 1;          ///<
+    bool advanced              : 1;          ///<
   } flags;
 } cc_config_parameter_attributes_t;
 
@@ -108,27 +105,25 @@ struct cc_config_parameter_buffer_t {
 /**
  * Return value of the configuration set process
  */
-typedef enum
-{
-    CC_CONFIG_RETURN_CODE_NOT_SUPPORTED,
-    CC_CONFIG_RETURN_CODE_IO_FAIL,
-    CC_CONFIG_RETURN_CODE_OK
-} 
+typedef enum {
+  CC_CONFIG_RETURN_CODE_NOT_SUPPORTED,
+  CC_CONFIG_RETURN_CODE_IO_FAIL,
+  CC_CONFIG_RETURN_CODE_OK
+}
 cc_config_configuration_set_return_value;
 
 /**
  * Defines all data related to the Configuration CC.
  */
-typedef struct
-{
+typedef struct {
   uint16_t numberOfParameters;
   const cc_config_parameter_metadata_t* parameters;
 } cc_configuration_t;
 
 /**
- * 
- * Holds a write and a read interface defined by the user. 
- */ 
+ *
+ * Holds a write and a read interface defined by the user.
+ */
 typedef struct {
   bool (*write_handler)(zpal_nvm_object_key_t file_id, uint8_t const* data, size_t size); ///< Write function which writes data with a specified size to non volatile memory
   bool (*read_handler)(zpal_nvm_object_key_t file_id, uint8_t *data, size_t size);        ///< Read function which reads data with specified size from non volatile memory
@@ -187,7 +182,7 @@ cc_configuration_set_default_configuration(cc_configuration_t const* configurati
  */
 bool
 cc_configuration_limit_value(cc_config_parameter_buffer_t const* parameter_buffer,
-                                cc_config_parameter_value_t * pNewValue);
+                             cc_config_parameter_value_t * pNewValue);
 /**
  * @}
  * @}

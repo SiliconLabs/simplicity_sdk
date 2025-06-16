@@ -31,21 +31,26 @@
 #ifndef SL_BTMESH_CTL_SIGNAL_TRANSITION_H
 #define SL_BTMESH_CTL_SIGNAL_TRANSITION_H
 
-/*******************************************************************************
+/***************************************************************************//**
+ * @addtogroup btmesh_ctl_server
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Function for retrieving actual temperature.
  *
  * @return Actual temperature level.
  ******************************************************************************/
 uint16_t sl_btmesh_get_temperature(void);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Function for retrieving actual delta UV.
  *
  * @return Actual delta UV level.
  ******************************************************************************/
 uint16_t sl_btmesh_get_deltauv(void);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Set LED temperature and delta UV in given transition time.
  *
  * @param[in] temperature    Temperature of color.
@@ -71,10 +76,10 @@ int sl_btmesh_ctl_server_snprint_deltauv(char *buffer,
                                          uint16_t buffer_size,
                                          uint16_t deltauv_raw);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Callback for setting Light Color by PWM level (0x0001 - FFFE)
  *
- * @param[in] Desired light color PWM level.
+ * @param[in] color Desired light color PWM level.
  ******************************************************************************/
 void sl_btmesh_lighting_color_pwm_cb(uint16_t color);
 
@@ -92,5 +97,7 @@ void sl_btmesh_lighting_color_pwm_cb(uint16_t color);
  ******************************************************************************/
 void sl_btmesh_ctl_on_ui_update(uint16_t temperature,
                                 uint16_t deltauv);
+
+/** @} (end addtogroup btmesh_ctl_server) */
 
 #endif // SL_BTMESH_CTL_SIGNAL_TRANSITION_H

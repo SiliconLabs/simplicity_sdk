@@ -40,6 +40,7 @@
 #define SUPPORT_SERIAL_SET_LR_CHANNEL                   0
 #define SUPPORT_SERIAL_SET_LR_VIRTUAL_IDS               0
 #define SUPPORT_SERIAL_ENABLE_RADIO_PTI                 0
+#define SUPPORT_SERIAL_GET_NLS_NODES                    0
 
 /* */
 
@@ -60,4 +61,3 @@
 #define SUPPORT_SERIAL_API_APPL_SLAVE_NODE_INFORMATION  0
 #define SUPPORT_ZW_SEND_SLAVE_NODE_INFORMATION          0
 #define SUPPORT_ZW_SEND_PROTOCOL_DATA                   0 /* ZW_SendProtocolData */
-

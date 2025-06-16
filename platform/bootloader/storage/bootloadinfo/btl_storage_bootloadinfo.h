@@ -108,7 +108,8 @@ int32_t storage_setBootloadList(int32_t slotIds[], size_t length);
  ******************************************************************************/
 int32_t storage_appendBootloadList(int32_t slotId);
 
-/** @} // addtogroup BootloadInfo */
-/** @} // addtogroup Storage */
-/** @} // addtogroup Components */
+/** @} (end addtogroup BootloadInfo) */
+/** @} (end addtogroup Storage) */
+/** @} (end addtogroup Components) */
+
 #endif // BTL_STORAGE_BOOTLOADINFO_H

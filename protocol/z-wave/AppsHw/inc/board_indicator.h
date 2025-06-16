@@ -14,8 +14,7 @@
 /**
  * Board status type
  */
-typedef enum
-{
+typedef enum {
   BOARD_STATUS_IDLE,
   BOARD_STATUS_POWER_DOWN,
   BOARD_STATUS_LEARNMODE_ACTIVE,
@@ -35,11 +34,6 @@ void Board_IndicateStatus(board_status_t status);
 /**
  * Configure/initialize the indicator LED
  *
- * @note
- *   This function must *not* be called until *after* the queue to the
- *   protocol thread has been created (the indicator uses a power lock
- *   that is initialized by calling zpal_pm_register() which sends a
- *   message to the PM module in the protocol thread).
  */
 void Board_IndicatorInit(void);
 
@@ -81,8 +75,5 @@ bool Board_IndicatorControl(uint32_t on_time_ms,
  *                or not active at all
  */
 bool Board_IsIndicatorActive(void);
-
-
-
 
 #endif /* BOARD_INDICATOR_H_ */

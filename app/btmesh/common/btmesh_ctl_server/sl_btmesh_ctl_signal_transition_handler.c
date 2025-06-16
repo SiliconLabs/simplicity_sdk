@@ -47,11 +47,6 @@
 #define FIXED_POINT_Q15_FRAC_BITS         (15)
 #define DELTA_UV_SIGNIFICANT_DIGITS_MUL   (100)
 
-/***************************************************************************//**
- * @addtogroup Lighting Level Transition Handler
- * @{
- ******************************************************************************/
-
 #define NO_FLAGS              0       ///< No flags used for message
 #define IMMEDIATE             0       ///< Immediate transition time is 0 seconds
 #define NO_CALLBACK_DATA      NULL    // Callback has no parameters
@@ -74,11 +69,11 @@ static int16_t target_deltauv;
 /// temperature transition time in ms
 static uint32_t temp_transtime_ms;
 /// time elapsed from temperature transition start
-static uint32_t temp_transtime_elapsed;
+static uint64_t temp_transtime_elapsed;
 /// non-zero if temperature transition is active
 static uint8_t temp_transitioning;
-/// timestamp of the last sleeptimer tick
-static uint64_t last_tick;
+/// timestamp of the transition start
+static uint64_t start_tick;
 
 static app_timer_t transition_timer;
 
@@ -101,7 +96,7 @@ SL_WEAK void sl_btmesh_ctl_on_ui_update(uint16_t temperature,
   (void)deltauv;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handler for Transition Timer, which manages LEDs transitions.
  ******************************************************************************/
 static void transition_timer_cb(app_timer_t *timer, void *data)
@@ -111,9 +106,7 @@ static void transition_timer_cb(app_timer_t *timer, void *data)
 
   // Use sleeptimer to account for scheduling errors
   uint64_t current_tick = sl_sleeptimer_get_tick_count64();
-  uint64_t period_ms = 0;
-  sl_sleeptimer_tick64_to_ms(current_tick - last_tick, &period_ms);
-  last_tick = current_tick;
+  sl_sleeptimer_tick64_to_ms(current_tick - start_tick, &temp_transtime_elapsed);
 
   // Initialize the variable to UI update period in order to trigger a UI update
   // at the beginning of the transition.
@@ -124,8 +117,6 @@ static void transition_timer_cb(app_timer_t *timer, void *data)
     app_assert_status_f(sc, "Failed to stop Periodic Level Transition Timer\n");
     return;
   } else {
-    temp_transtime_elapsed += period_ms;
-
     if (temp_transtime_elapsed >= temp_transtime_ms) {
       // transition complete
       temp_transitioning = 0;
@@ -142,27 +133,27 @@ static void transition_timer_cb(app_timer_t *timer, void *data)
     } else {
       // calculate current temperature based on elapsed transition time
       if (target_temperature >= start_temperature) {
-        current_temperature = start_temperature
-                              + (target_temperature - start_temperature)
-                              * (uint64_t)temp_transtime_elapsed
-                              / temp_transtime_ms;
+        current_temperature = (uint16_t)(start_temperature
+                                         + (target_temperature - start_temperature)
+                                         * (uint64_t)temp_transtime_elapsed
+                                         / temp_transtime_ms);
       } else {
-        current_temperature = start_temperature
-                              - (start_temperature - target_temperature)
-                              * (uint64_t)temp_transtime_elapsed
-                              / temp_transtime_ms;
+        current_temperature = (uint16_t)(start_temperature
+                                         - (start_temperature - target_temperature)
+                                         * (uint64_t)temp_transtime_elapsed
+                                         / temp_transtime_ms);
       }
 
       if (target_deltauv >= start_deltauv) {
-        current_deltauv = start_deltauv
-                          + (target_deltauv - start_deltauv)
-                          * (uint64_t)temp_transtime_elapsed
-                          / temp_transtime_ms;
+        current_deltauv = (int16_t)(start_deltauv
+                                    + (target_deltauv - start_deltauv)
+                                    * (uint64_t)temp_transtime_elapsed
+                                    / temp_transtime_ms);
       } else {
-        current_deltauv = start_deltauv
-                          - (start_deltauv - target_deltauv)
-                          * (uint64_t)temp_transtime_elapsed
-                          / temp_transtime_ms;
+        current_deltauv = (int16_t)(start_deltauv
+                                    - (start_deltauv - target_deltauv)
+                                    * (uint64_t)temp_transtime_elapsed
+                                    / temp_transtime_ms);
       }
 
       // When transition is ongoing generate an event to application once every
@@ -198,7 +189,7 @@ void sl_btmesh_ctl_set_temperature_deltauv_level(uint16_t temperature,
   }
 
   // get last tick before running the first transition timer
-  last_tick = sl_sleeptimer_get_tick_count64();
+  start_tick = sl_sleeptimer_get_tick_count64();
 
   if (transition_ms == 0) {
     current_temperature = temperature;
@@ -242,7 +233,7 @@ void sl_btmesh_ctl_set_temperature_deltauv_level(uint16_t temperature,
   return;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Utility function to print the delta UV raw value into the passed character
  * buffer in the <sign>X.XX format.
  *
@@ -284,7 +275,7 @@ int sl_btmesh_ctl_server_snprint_deltauv(char *buffer,
   }
 
   // Division by 2^15 to calculate the integer part
-  integer_part = raw >> FIXED_POINT_Q15_FRAC_BITS;
+  integer_part = (uint16_t)(raw >> FIXED_POINT_Q15_FRAC_BITS);
 
   // Calculate the significant number of fractional decimal digits
   fractional_part = DELTA_UV_SIGNIFICANT_DIGITS_MUL
@@ -310,7 +301,7 @@ int sl_btmesh_ctl_server_snprint_deltauv(char *buffer,
  ******************************************************************************/
 uint16_t sl_btmesh_get_temperature(void)
 {
-  return(current_temperature);
+  return current_temperature;
 }
 
 /*******************************************************************************
@@ -320,7 +311,5 @@ uint16_t sl_btmesh_get_temperature(void)
  ******************************************************************************/
 uint16_t sl_btmesh_get_deltauv(void)
 {
-  return(current_deltauv);
+  return current_deltauv;
 }
-
-/** @} (end addtogroup Lighting Level Transition Handler) */

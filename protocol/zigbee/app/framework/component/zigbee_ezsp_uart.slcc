@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 label: EZSP UART
 quality: production
 id: zigbee_ezsp_uart

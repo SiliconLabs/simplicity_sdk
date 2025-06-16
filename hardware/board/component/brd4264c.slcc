@@ -1,7 +1,7 @@
 !!omap
 - id: brd4264c
 - label: BRD4264C
-- package: platform
+- package: boards
 - description: Board support for BRD4264C.
 - category: Platform|Board|Radio Board
 - quality: production

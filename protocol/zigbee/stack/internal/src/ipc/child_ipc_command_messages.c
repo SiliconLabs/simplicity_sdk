@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'child' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -170,11 +170,13 @@ void sli_zigbee_stack_set_parent_incoming_nwk_frame_counter_process_ipc_command(
 
 void sli_zigbee_stack_stack_power_down_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_stack_power_down();
 }
 
 void sli_zigbee_stack_stack_power_up_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_stack_power_up();
 }
 

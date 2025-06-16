@@ -1,6 +1,6 @@
 id: se_manager_config
 label: Config
-package: platform
+package: security_se_manager
 description: >-
   Provides SE Manager configuration options.
 category: Platform|Security|SE Manager

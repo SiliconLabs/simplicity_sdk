@@ -1,6 +1,6 @@
 id: "bluetooth_configuration"
 label: "Instantiation of Bluetooth configuration"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component populates the internal Bluetooth component configuration
   structures based on the included components and their configuration. This
@@ -25,6 +25,7 @@ include:
       - path: "sli_bt_periodic_advertiser_config.h"
       - path: "sli_bt_sync_config.h"
       - path: "sli_bt_accept_list_config.h"
+      - path: "sli_bt_external_bondingdb_config.h"
 source:
   - path: "src/sli_bt_advertiser_config.c"
   - path: "src/sli_bt_connection_config.c"
@@ -34,6 +35,7 @@ source:
   - path: "src/sli_bt_periodic_advertiser_config.c"
   - path: "src/sli_bt_sync_config.c"
   - path: "src/sli_bt_accept_list_config.c"
+  - path: "src/sli_bt_external_bondingdb_config.c"
 template_contribution:
   - name: component_catalog
     value: bluetooth_configuration

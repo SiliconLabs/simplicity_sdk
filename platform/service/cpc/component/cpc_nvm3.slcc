@@ -1,14 +1,14 @@
 id: cpc_nvm3
 label: CPC NVM3
-package: platform
+package: cpc_extra
 description: >
-  The Co-Processor Communication (CPC) NVM3 is a software component designed to enable a
-  CPC Primary/Host device to utilize a Secondary NVM3 for storing persistent data.
+    The Co-Processor Communication (CPC) NVM3 is a software component designed to enable a
+    CPC Primary/Host device to utilize a Secondary NVM3 for storing persistent data.
 category: Services|Co-Processor Communication|GPIO NVM3
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/cpc_nvm3
 source:
   - path: src/sl_cpc_nvm3.c
@@ -35,15 +35,15 @@ template_contribution:
     value: cpc_nvm3
   - name: event_handler
     value:
-      event: service_init
-      include: sl_cpc_nvm3.h
-      handler: sl_cpc_nvm3_init
+        event: service_init
+        include: sl_cpc_nvm3.h
+        handler: sl_cpc_nvm3_init
     priority: 100
   - name: event_handler
     value:
-      event: service_process_action
-      include: sl_cpc.h
-      handler: sl_cpc_nvm3_process_action
+        event: service_process_action
+        include: sl_cpc.h
+        handler: sl_cpc_nvm3_process_action
 
 documentation:
     docset: gecko-platform

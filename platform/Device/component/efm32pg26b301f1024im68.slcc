@@ -1,6 +1,6 @@
 !!omap
 - id: EFM32PG26B301F1024IM68
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFM32PG26B301F1024IM68.
 - category: Platform|Device|EFM32PG26
 - quality: production

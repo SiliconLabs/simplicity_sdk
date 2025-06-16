@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'zll-api' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -59,6 +59,7 @@ void sli_zigbee_stack_set_zll_secondary_channel_mask_process_ipc_command(sli_zig
 
 void sli_zigbee_stack_zll_clear_tokens_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_zll_clear_tokens();
 }
 
@@ -111,6 +112,7 @@ void sli_zigbee_stack_zll_rx_on_when_idle_get_active_process_ipc_command(sli_zig
 
 void sli_zigbee_stack_zll_scanning_complete_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_zll_scanning_complete();
 }
 
@@ -122,6 +124,7 @@ void sli_zigbee_stack_zll_set_initial_security_state_process_ipc_command(sli_zig
 
 void sli_zigbee_stack_zll_set_non_zll_network_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
+  (void)msg;
   sli_zigbee_stack_zll_set_non_zll_network();
 }
 

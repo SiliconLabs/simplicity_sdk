@@ -1,5 +1,5 @@
 id: tz_service_se_manager
-package: platform
+package: security_trustzone
 label: SE Manager Service for TrustZone Secure Key Library
 description: >-
   This component includes the SE Manager support for TrustZone secure library.
@@ -199,6 +199,12 @@ template_contribution:
     value:
       sid: SLI_TZ_SERVICE_SE_MANAGER_READCERT_SID
       func: sli_tz_se_read_cert
+    condition: [trustzone_nonsecure, device_has_semailbox]
+
+  - name: tz_se_manager_mapping
+    value:
+      sid: SLI_TZ_SERVICE_SE_MANAGER_ECDH_COMPUTE_SHARED_SECRET_SID
+      func: sli_tz_se_ecdh_compute_shared_secret
     condition: [trustzone_nonsecure, device_has_semailbox]
 
   - name: tz_se_manager_mapping

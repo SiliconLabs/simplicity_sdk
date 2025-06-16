@@ -10,6 +10,9 @@ category: Platform|Bootloader|Core
 quality: production
 source:
   - path: platform/bootloader/parser/compression/btl_decompress_lz4.c
+    condition: [device_series_2]
+  - path: platform/bootloader/series3/parser/compression/btl_decompress_lz4.c
+    condition: [device_series_3]
 include:
   - path: platform/bootloader/parser/compression
     file_list:

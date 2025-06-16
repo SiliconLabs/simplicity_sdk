@@ -1,6 +1,6 @@
 id: "bluetooth_feature_use_accurate_api_address_types"
 label: "Select API semantics that use accurate Bluetooth address types"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   In the default Bluetooth stack configuration most Bluetooth commands and
   events use coarse address typing that only differentiates between public

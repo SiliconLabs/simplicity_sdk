@@ -2,7 +2,7 @@
 - id: cpc_secondary_recommends
 - label: cpc_recommends
 - description: CPC recommend
-- package: platform
+- package: cpc
 - category: Services|Co-Processor Communication|Secondary Device|Driver
 - quality: production
 - metadata:

@@ -1,6 +1,6 @@
 id: "btmesh_ae_client"
 label: "Advertisement Extension Client"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Advertisement Extension Client component enables the Silabs Configuration Client vendor model for the node.
   Silabs Configuration Client can setup other nodes with Silabs Configuration Server Feature enabled (e.g. by the
@@ -46,3 +46,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-ae-client

@@ -1,6 +1,6 @@
 project_name: rail_bt_dmp_soc_range_test_std
 label: "RAIL Bluetooth DMP - SoC Range Test BLE and IEEE802.15.4"
-package: "Rail"
+package: "rail_sdk_sample_applications"
 description: >
   This application showcases the over-the-air range of Silicon Labs boards using
   5 predefined standard PHYs.
@@ -19,7 +19,7 @@ quality: production
 
 #---------------- UC/UP components -------------------
 component:
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: board_control
@@ -29,9 +29,9 @@ component:
   - id: app_assert
 
   - id: rail_util_pa
-  - id: rail_util_pti
-  - id: rail_util_rssi
-  - id: rail_util_dma
+  - id: sl_rail_util_pti
+  - id: sl_rail_util_rssi
+  - id: sl_rail_util_dma
 #---------------------- CLI -------------------------
   - id: "cli"
     instance:
@@ -57,7 +57,8 @@ component:
 #-----------Bluetooth & OS ---------------------------
   - id: sl_rail_sdk_range_test_dmp_component
   - id: micriumos_kernel
-
+#---------------Code Classification------------------
+  - id: code_classification
 #-------------- Restriction rules -------------------
 
 #----------------- Require list ----------------------
@@ -73,8 +74,6 @@ requires:
     condition:
       - hardware_board_supports_wstk_lcd
 #----------------- Project files ---------------------
-source:
-  - path: ../common/main/main.c
 
 readme:
   - path: ../../../documentation/example/rail_soc_range_test/readme.md
@@ -171,15 +170,15 @@ configuration:
   - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
     value: "(1)"
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_2
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_3
 #------------- LCD settings ----------------

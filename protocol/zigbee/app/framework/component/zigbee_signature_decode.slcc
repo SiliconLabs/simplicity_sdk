@@ -1,6 +1,6 @@
 id: zigbee_signature_decode
 label: Zigbee Signature Decode
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component provides the ZCL decoding functionality.

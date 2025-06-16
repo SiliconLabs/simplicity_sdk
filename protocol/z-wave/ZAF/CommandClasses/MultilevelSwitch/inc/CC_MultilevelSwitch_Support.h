@@ -87,7 +87,7 @@ void cc_multilevel_switch_start_level_change(cc_multilevel_switch_t * p_switch,
  * @param p_switch The multilevel switch of which the level will be set.
  * @param level The level to set. (8 bit value)
  * @param duration The time it takes to reach the level in seconds.
-*/
+ */
 void cc_multilevel_switch_set_level(cc_multilevel_switch_t * p_switch,
                                     uint8_t level,
                                     uint8_t duration);
@@ -143,6 +143,6 @@ uint8_t cc_multilevel_switch_support_config_get_default_duration(void);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif

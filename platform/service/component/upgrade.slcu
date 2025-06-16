@@ -63,4 +63,27 @@ upgrade:
           - bootloader_interface
         remove:
           - legacy_bootloader_interface
-
+  - sdk:
+      id: simplicity_sdk
+      version: "2025.6.0"
+    component:
+      - script: platform/service/component/upgrade_component_interrupt_manager.lua
+        description: >
+          The SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM config is deprecated and replaced by the interrupt_manager_vector_table_in_ram component.
+    configuration:
+      - script: platform/service/component/upgrade_configuration_interrupt_manager.lua
+    component:
+      - script: platform/service/component/upgrade_sl_system.lua
+        description: >
+          In sisdk-2025.6.0 the sl_system component was deprecated and support for baremetal applications has been removed.
+          For baremetal applications sl_system_compatibility is now used for a seamless transition.
+          For RTOS applications you can manually upgrade your project to sl_main or add the define SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2025_6 to your project to keep sl_system until it is removed.
+          sl_system support for RTOS applications will be removed in sisdk-2026.6.0 and your project will need to upgrade to sl_main.
+    component:
+      - trigger: ram_interrupt_vector_init
+        description: >
+          In simplicity_sdk 2024.6.0, the ram_interrupt_vector_init component was deprecated and replaced by interrupt_manager. The ram_interrupt_vector_init component will be automatically replaced by interrupt_manager_vector_table_in_ram in your project.
+        add:
+          - interrupt_manager_vector_table_in_ram
+        remove:
+          - ram_interrupt_vector_init

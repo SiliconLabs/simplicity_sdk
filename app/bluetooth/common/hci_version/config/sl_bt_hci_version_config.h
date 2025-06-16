@@ -61,7 +61,7 @@ struct sli_bt_hci_version_response{
   uint16_t build;
 };
 
-#define SL_BT_HCI_VERSION_RESPONSE { BG_VERSION_MAJOR, BG_VERSION_MINOR, BG_VERSION_PATCH, BG_VERSION_BUILD }
+#define SL_BT_HCI_VERSION_RESPONSE { SL_BT_VERSION_MAJOR, SL_BT_VERSION_MINOR, SL_BT_VERSION_PATCH, 0 }
 
 /** @} (end addtogroup bt_hci_version) */
 #endif // SL_BT_HCI_VERSION_CONFIG_H

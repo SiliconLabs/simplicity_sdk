@@ -1,5 +1,5 @@
 id: iostream_bgapi_trace
-package: Bluetooth
+package: bluetooth_le_middleware
 label: IO Stream interface over BGAPI Trace
 description: >
   This component enables the redirection of app log messages into custom BGAPI Trace messages.

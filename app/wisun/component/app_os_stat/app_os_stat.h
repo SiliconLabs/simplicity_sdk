@@ -66,7 +66,7 @@ extern "C" {
 
 /***************************************************************************//**
  * @brief Initialize App OS statistic service
- * @details Init thread and staistic storage
+ * @details Init thread and statistic storage
  ******************************************************************************/
 void app_os_stat_init(void);
 

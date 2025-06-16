@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_ofb
-package: platform
+package: security_mbedtls
 label: OFB Mode
 description: >-
   This component provides support for the OFB stream cipher mode in PSA Crypto.

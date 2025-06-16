@@ -16,3 +16,6 @@ class CalculationException(Exception):
 
 class UnknownProfileException(Exception):
     pass
+
+class InvalidRegexException(Exception):
+    pass

@@ -1,5 +1,5 @@
 id: mbedtls_cmac
-package: platform
+package: security_mbedtls
 label: CMAC
 description: >-
   This component provides support for message authentication with the CMAC

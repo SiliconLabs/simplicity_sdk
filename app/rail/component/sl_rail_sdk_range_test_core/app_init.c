@@ -40,6 +40,7 @@
 #include "app_menu.h"
 #include "app_log.h"
 #include "app_measurement.h"
+#include "sl_code_classification.h"
 #if defined(SL_CATALOG_GLIB_PRESENT)
 #include "app_graphics.h"
 #endif
@@ -84,9 +85,9 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 
 /*******************************************************************************
  * The function is used for application initialization.
- * @return RAIL_Handle_t Null pointer to keep style with other sample apps
+ * @return sl_rail_handle_t Null pointer to keep style with other sample apps
  ******************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   sl_status_t sleep_timer_status = 0;
   uint16_t start;
@@ -135,7 +136,15 @@ RAIL_Handle_t app_init(void)
   print_sample_app_name("Range test");
 #endif
 #endif
-  return (RAIL_Handle_t) 0x01;
+}
+
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 /*******************************************************************************
@@ -167,7 +176,7 @@ void end_init_timer(void)
  * @param[in] handle Pointer to handle to timer.
  * @param[in] data Pointer to delay flag.
  ******************************************************************************/
-static void init_screen_timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void init_screen_timer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)data;  // Unused parameter.
   (void)handle;  // Unused parameter.

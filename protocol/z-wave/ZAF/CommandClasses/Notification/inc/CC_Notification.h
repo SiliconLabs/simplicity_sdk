@@ -53,8 +53,7 @@
 /**
  * General purpose notification event
  */
-typedef enum
-{
+typedef enum {
   NOTIFICATION_EVENT_NO_EVENT,
   NOTIFICATION_EVENT_UNKNOWN_EVENT = 0xFE
 }NOTIFICATION_EVENT;
@@ -62,8 +61,7 @@ typedef enum
 /**
  * Struct used to pass operational data to TSE module
  */
-typedef struct s_CC_notification_data_t_
-{
+typedef struct s_CC_notification_data_t_{
   RECEIVE_OPTIONS_TYPE_EX rxOptions; /**< rxOptions */
   uint8_t                 index; /// index of notification in notifications array
   uint8_t                *pEventParameters; /// Pointer to event parameters
@@ -81,16 +79,16 @@ typedef struct s_CC_notification_data_t_
  * @return JOB_STATUS
  */
 JOB_STATUS CC_Notification_TriggerAndTransmit(
-    uint8_t index,
-    uint8_t notificationEvent,
-    uint8_t * pEvPar,
-    uint8_t evParLen,
-    void (*pCallback)(TRANSMISSION_RESULT * pTransmissionResult),
-    bool tse);
+  uint8_t index,
+  uint8_t notificationEvent,
+  uint8_t * pEvPar,
+  uint8_t evParLen,
+  void (*pCallback)(TRANSMISSION_RESULT * pTransmissionResult),
+  bool tse);
 
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /*_CC_NOTIFICATION_H_*/

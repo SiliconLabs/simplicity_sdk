@@ -36,7 +36,7 @@
 
 #include "common/mainloop.hpp"
 #include "common/mainloop_manager.hpp"
-#include "ncp/rcp_host.hpp"
+#include "host/rcp_host.hpp"
 
 #include "fake_platform.hpp"
 
@@ -64,20 +64,20 @@ static void MainloopProcessUntil(otbr::MainloopContext    &aMainloop,
 
 TEST(RcpHostApi, DeviceRoleChangesCorrectlyAfterSetThreadEnabled)
 {
-    otError                                    error              = OT_ERROR_FAILED;
-    bool                                       resultReceived     = false;
-    otbr::Ncp::ThreadEnabledState              threadEnabledState = otbr::Ncp::ThreadEnabledState::kStateInvalid;
-    otbr::MainloopContext                      mainloop;
-    otbr::Ncp::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error](otError            aError,
-                                                                                    const std::string &aErrorMsg) {
+    otError                                     error              = OT_ERROR_FAILED;
+    bool                                        resultReceived     = false;
+    otbr::Host::ThreadEnabledState              threadEnabledState = otbr::Host::ThreadEnabledState::kStateInvalid;
+    otbr::MainloopContext                       mainloop;
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error](otError            aError,
+                                                                                     const std::string &aErrorMsg) {
         OT_UNUSED_VARIABLE(aErrorMsg);
         resultReceived = true;
         error          = aError;
     };
-    otbr::Ncp::ThreadHost::ThreadEnabledStateCallback enabledStateCallback =
-        [&threadEnabledState](otbr::Ncp::ThreadEnabledState aState) { threadEnabledState = aState; };
-    otbr::Ncp::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
-                            /* aEnableAutoAttach */ false);
+    otbr::Host::ThreadHost::ThreadEnabledStateCallback enabledStateCallback =
+        [&threadEnabledState](otbr::Host::ThreadEnabledState aState) { threadEnabledState = aState; };
+    otbr::Host::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
+                             /* aEnableAutoAttach */ false);
 
     host.Init();
     host.AddThreadEnabledStateChangedCallback(enabledStateCallback);
@@ -87,7 +87,7 @@ TEST(RcpHostApi, DeviceRoleChangesCorrectlyAfterSetThreadEnabled)
     MainloopProcessUntil(mainloop, /* aTimeoutSec */ 1, [&resultReceived]() { return resultReceived; });
     EXPECT_EQ(error, OT_ERROR_NONE);
     EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_DISABLED);
-    EXPECT_EQ(threadEnabledState, otbr::Ncp::ThreadEnabledState::kStateEnabled);
+    EXPECT_EQ(threadEnabledState, otbr::Host::ThreadEnabledState::kStateEnabled);
 
     // 2. Set active dataset and start it
     {
@@ -110,17 +110,17 @@ TEST(RcpHostApi, DeviceRoleChangesCorrectlyAfterSetThreadEnabled)
     host.SetThreadEnabled(true, receiver);
     MainloopProcessUntil(mainloop, /* aTimeoutSec */ 1, [&resultReceived]() { return resultReceived; });
     EXPECT_EQ(error, OT_ERROR_NONE);
-    EXPECT_EQ(threadEnabledState, otbr::Ncp::ThreadEnabledState::kStateEnabled);
+    EXPECT_EQ(threadEnabledState, otbr::Host::ThreadEnabledState::kStateEnabled);
 
     // 4. Disable it
     error          = OT_ERROR_FAILED;
     resultReceived = false;
     host.SetThreadEnabled(false, receiver);
-    EXPECT_EQ(threadEnabledState, otbr::Ncp::ThreadEnabledState::kStateDisabling);
+    EXPECT_EQ(threadEnabledState, otbr::Host::ThreadEnabledState::kStateDisabling);
     MainloopProcessUntil(mainloop, /* aTimeoutSec */ 1, [&resultReceived]() { return resultReceived; });
     EXPECT_EQ(error, OT_ERROR_NONE);
     EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_DISABLED);
-    EXPECT_EQ(threadEnabledState, otbr::Ncp::ThreadEnabledState::kStateDisabled);
+    EXPECT_EQ(threadEnabledState, otbr::Host::ThreadEnabledState::kStateDisabled);
 
     // 5. Duplicate call, should get OT_ERROR_BUSY
     error                   = OT_ERROR_FAILED;
@@ -137,24 +137,24 @@ TEST(RcpHostApi, DeviceRoleChangesCorrectlyAfterSetThreadEnabled)
                          [&resultReceived, &resultReceived2]() { return resultReceived && resultReceived2; });
     EXPECT_EQ(error, OT_ERROR_NONE);
     EXPECT_EQ(error2, OT_ERROR_BUSY);
-    EXPECT_EQ(threadEnabledState, otbr::Ncp::ThreadEnabledState::kStateDisabled);
+    EXPECT_EQ(threadEnabledState, otbr::Host::ThreadEnabledState::kStateDisabled);
 
     host.Deinit();
 }
 
 TEST(RcpHostApi, SetCountryCodeWorkCorrectly)
 {
-    otError                                    error          = OT_ERROR_FAILED;
-    bool                                       resultReceived = false;
-    otbr::MainloopContext                      mainloop;
-    otbr::Ncp::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error](otError            aError,
-                                                                                    const std::string &aErrorMsg) {
+    otError                                     error          = OT_ERROR_FAILED;
+    bool                                        resultReceived = false;
+    otbr::MainloopContext                       mainloop;
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error](otError            aError,
+                                                                                     const std::string &aErrorMsg) {
         OT_UNUSED_VARIABLE(aErrorMsg);
         resultReceived = true;
         error          = aError;
     };
-    otbr::Ncp::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
-                            /* aEnableAutoAttach */ false);
+    otbr::Host::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
+                             /* aEnableAutoAttach */ false);
 
     // 1. Call SetCountryCode when host hasn't been initialized.
     otbr::MainloopManager::GetInstance().RemoveMainloopProcessor(
@@ -194,20 +194,89 @@ TEST(RcpHostApi, SetCountryCodeWorkCorrectly)
     host.Deinit();
 }
 
-TEST(RcpHostApi, StateChangesCorrectlyAfterScheduleMigration)
+TEST(RcpHostApi, StateChangesCorrectlyAfterLeave)
 {
-    otError                                    error          = OT_ERROR_NONE;
-    std::string                                errorMsg       = "";
-    bool                                       resultReceived = false;
-    otbr::MainloopContext                      mainloop;
-    otbr::Ncp::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error,
-                                                           &errorMsg](otError aError, const std::string &aErrorMsg) {
+    otError                                     error          = OT_ERROR_NONE;
+    std::string                                 errorMsg       = "";
+    bool                                        resultReceived = false;
+    otbr::MainloopContext                       mainloop;
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error,
+                                                            &errorMsg](otError aError, const std::string &aErrorMsg) {
         resultReceived = true;
         error          = aError;
         errorMsg       = aErrorMsg;
     };
-    otbr::Ncp::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
-                            /* aEnableAutoAttach */ false);
+
+    otbr::Host::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
+                             /* aEnableAutoAttach */ false);
+
+    // 1. Call Leave when host hasn't been initialized.
+    otbr::MainloopManager::GetInstance().RemoveMainloopProcessor(
+        &host); // Temporarily remove RcpHost because it's not initialized yet.
+    host.Leave(/* aEraseDataset */ true, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_INVALID_STATE);
+    EXPECT_STREQ(errorMsg.c_str(), "OT is not initialized");
+    otbr::MainloopManager::GetInstance().AddMainloopProcessor(&host);
+
+    host.Init();
+
+    // 2. Call Leave when disabling Thread.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    host.SetThreadEnabled(false, nullptr);
+    host.Leave(/* aEraseDataset */ true, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_BUSY);
+    EXPECT_STREQ(errorMsg.c_str(), "Thread is disabling");
+
+    // 3. Call Leave when Thread is disabled.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    otOperationalDataset     dataset;
+    otOperationalDatasetTlvs datasetTlvs;
+    OT_UNUSED_VARIABLE(otDatasetCreateNewNetwork(ot::FakePlatform::CurrentInstance(), &dataset));
+    otDatasetConvertToTlvs(&dataset, &datasetTlvs);
+    OT_UNUSED_VARIABLE(otDatasetSetActiveTlvs(ot::FakePlatform::CurrentInstance(), &datasetTlvs));
+    host.Leave(/* aEraseDataset */ true, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_NONE);
+
+    error = otDatasetGetActive(ot::FakePlatform::CurrentInstance(), &dataset);
+    EXPECT_EQ(error, OT_ERROR_NOT_FOUND);
+
+    // 4. Call Leave when Thread is enabled.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    OT_UNUSED_VARIABLE(otDatasetSetActiveTlvs(ot::FakePlatform::CurrentInstance(), &datasetTlvs));
+    host.SetThreadEnabled(true, nullptr);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 1,
+                         [&host]() { return host.GetDeviceRole() != OT_DEVICE_ROLE_DETACHED; });
+    EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_LEADER);
+    host.Leave(/* aEraseDataset */ false, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_NONE);
+
+    error = otDatasetGetActive(ot::FakePlatform::CurrentInstance(), &dataset); // Dataset should still be there.
+    EXPECT_EQ(error, OT_ERROR_NONE);
+
+    host.Deinit();
+}
+
+TEST(RcpHostApi, StateChangesCorrectlyAfterScheduleMigration)
+{
+    otError                                     error          = OT_ERROR_NONE;
+    std::string                                 errorMsg       = "";
+    bool                                        resultReceived = false;
+    otbr::MainloopContext                       mainloop;
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error,
+                                                            &errorMsg](otError aError, const std::string &aErrorMsg) {
+        resultReceived = true;
+        error          = aError;
+        errorMsg       = aErrorMsg;
+    };
+    otbr::Host::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
+                             /* aEnableAutoAttach */ false);
 
     otOperationalDataset     dataset;
     otOperationalDatasetTlvs datasetTlvs;
@@ -245,6 +314,125 @@ TEST(RcpHostApi, StateChangesCorrectlyAfterScheduleMigration)
     host.ScheduleMigration(datasetTlvs, receiver);
     MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
     EXPECT_EQ(error, OT_ERROR_NONE);
+
+    host.Deinit();
+}
+
+TEST(RcpHostApi, StateChangesCorrectlyAfterJoin)
+{
+    otError                                     error           = OT_ERROR_NONE;
+    otError                                     error_          = OT_ERROR_NONE;
+    std::string                                 errorMsg        = "";
+    std::string                                 errorMsg_       = "";
+    bool                                        resultReceived  = false;
+    bool                                        resultReceived_ = false;
+    otbr::MainloopContext                       mainloop;
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver = [&resultReceived, &error,
+                                                            &errorMsg](otError aError, const std::string &aErrorMsg) {
+        resultReceived = true;
+        error          = aError;
+        errorMsg       = aErrorMsg;
+    };
+    otbr::Host::ThreadHost::AsyncResultReceiver receiver_ = [&resultReceived_, &error_,
+                                                             &errorMsg_](otError aError, const std::string &aErrorMsg) {
+        resultReceived_ = true;
+        error_          = aError;
+        errorMsg_       = aErrorMsg;
+    };
+    otbr::Host::RcpHost host("wpan0", std::vector<const char *>(), /* aBackboneInterfaceName */ "", /* aDryRun */ false,
+                             /* aEnableAutoAttach */ false);
+
+    otOperationalDataset dataset;
+    (void)dataset;
+    otOperationalDatasetTlvs datasetTlvs;
+
+    // 1. Call Join when host hasn't been initialized.
+    otbr::MainloopManager::GetInstance().RemoveMainloopProcessor(
+        &host); // Temporarily remove RcpHost because it's not initialized yet.
+    host.Join(datasetTlvs, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_INVALID_STATE);
+    EXPECT_STREQ(errorMsg.c_str(), "OT is not initialized");
+    otbr::MainloopManager::GetInstance().AddMainloopProcessor(&host);
+
+    host.Init();
+    OT_UNUSED_VARIABLE(otDatasetCreateNewNetwork(ot::FakePlatform::CurrentInstance(), &dataset));
+    otDatasetConvertToTlvs(&dataset, &datasetTlvs);
+
+    // 2. Call Join when Thread is not enabled.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    host.Join(datasetTlvs, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_INVALID_STATE);
+    EXPECT_STREQ(errorMsg.c_str(), "Thread is not enabled");
+
+    // 3. Call two consecutive Join. The first one should be aborted. The second one should succeed.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    host.SetThreadEnabled(true, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    host.Join(datasetTlvs, receiver_);
+    host.Join(datasetTlvs, receiver);
+
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0,
+                         [&resultReceived, &resultReceived_]() { return resultReceived && resultReceived_; });
+    EXPECT_EQ(error_, OT_ERROR_ABORT);
+    EXPECT_STREQ(errorMsg_.c_str(), "Aborted by leave/disable operation"); // The second Join will trigger Leave first.
+    EXPECT_EQ(error, OT_ERROR_NONE);
+    EXPECT_STREQ(errorMsg.c_str(), "Join succeeded");
+    EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_LEADER);
+
+    // 4. Call Join with the same dataset.
+    error          = OT_ERROR_NONE;
+    resultReceived = false;
+    host.Join(datasetTlvs, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    EXPECT_EQ(error, OT_ERROR_NONE);
+    EXPECT_STREQ(errorMsg.c_str(), "Already Joined the target network");
+
+    // 5. Call Disable right after Join (Already Attached).
+    error           = OT_ERROR_NONE;
+    resultReceived  = false;
+    error_          = OT_ERROR_NONE;
+    resultReceived_ = false;
+
+    OT_UNUSED_VARIABLE(otDatasetCreateNewNetwork(ot::FakePlatform::CurrentInstance(), &dataset));
+    otDatasetConvertToTlvs(&dataset, &datasetTlvs); // Use a different dataset.
+
+    host.Join(datasetTlvs, receiver_);
+    host.SetThreadEnabled(false, receiver);
+
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0,
+                         [&resultReceived, &resultReceived_]() { return resultReceived && resultReceived_; });
+    EXPECT_EQ(error_, OT_ERROR_BUSY);
+    EXPECT_STREQ(errorMsg_.c_str(), "Thread is disabling");
+    EXPECT_EQ(error, OT_ERROR_NONE);
+    EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_DISABLED);
+
+    // 6. Call Disable right after Join (not attached).
+    resultReceived = false;
+    host.Leave(true, receiver); // Leave the network first.
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+    resultReceived = false; // Enale Thread.
+    host.SetThreadEnabled(true, receiver);
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0, [&resultReceived]() { return resultReceived; });
+
+    error           = OT_ERROR_NONE;
+    resultReceived  = false;
+    error_          = OT_ERROR_NONE;
+    resultReceived_ = false;
+    host.Join(datasetTlvs, receiver_);
+    host.SetThreadEnabled(false, receiver);
+
+    MainloopProcessUntil(mainloop, /* aTimeoutSec */ 0,
+                         [&resultReceived, &resultReceived_]() { return resultReceived && resultReceived_; });
+    EXPECT_EQ(error_, OT_ERROR_ABORT);
+    EXPECT_STREQ(errorMsg_.c_str(), "Aborted by leave/disable operation");
+    EXPECT_EQ(error, OT_ERROR_NONE);
+    EXPECT_EQ(host.GetDeviceRole(), OT_DEVICE_ROLE_DISABLED);
 
     host.Deinit();
 }

@@ -1,16 +1,15 @@
-id: "wisun_keychain"
-label: "Wi-SUN application keychain"
-description: "Wi-SUN application keychain"
-package: "wisun"
-category: "Wi-SUN"
-quality: "production"
-root_path: "protocol/wisun"
+id: wisun_keychain
+label: Wi-SUN keychain
+description: >
+   Wi-SUN keychain is an optional application component that simplifies certificate/private key handling.
+   It supports DDP credentials as well as built-in compilation time credentials.
+package: wisun
+category: Wi-SUN|Application
+quality: production
+root_path: protocol/wisun
 
 provides:
   - name: wisun_keychain
-
-ui_hints:
-  visibility: never
 
 config_file:
   - path: plugin/config/sl_wisun_keychain_nvm_config.h

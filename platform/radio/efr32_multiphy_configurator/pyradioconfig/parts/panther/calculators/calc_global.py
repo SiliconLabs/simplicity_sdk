@@ -1324,8 +1324,6 @@ class CALC_Global_panther(CALC_Global_nixi):
     def _add_channel_definition(self, model):
         self._addModelVariable(model, 'chcfg_base_frequency_hz', long, ModelVariableFormat.DECIMAL, units='Hz', desc='Channel Config RF frequency of channel 0.')
         self._addModelVariable(model, 'chcfg_channel_spacing_hz', int, ModelVariableFormat.DECIMAL, units='Hz', desc='Channel Config channel raster used for relative frequency configuration')
-        self._addModelVariable(model, 'chcfg_channel_number_start', int, ModelVariableFormat.DECIMAL, desc='Channel Config Start channel number')
-        self._addModelVariable(model, 'chcfg_channel_number_end', int, ModelVariableFormat.DECIMAL, desc='Channel Config Last channel number')
         self._addModelVariable(model, 'chcfg_physical_channel_offset', int, ModelVariableFormat.DECIMAL, desc='Channel Config Physical channel offset')
         self._addModelVariable(model, 'rail_tx_power_max', int, ModelVariableFormat.DECIMAL, is_array=True)
 

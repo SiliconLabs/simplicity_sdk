@@ -54,8 +54,6 @@
 #include "aoa_angle_config.h"
 #include "antenna_array.h"
 
-#include "ncp_reset.h"
-
 // Optstring argument for getopt.
 #define OPTSTRING      NCP_HOST_OPTSTRING APP_LOG_OPTSTRING "m:c:h"
 
@@ -209,7 +207,7 @@ void app_deinit(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -366,7 +364,7 @@ static void on_message(mqtt_handle_t *handle,
 
   if (check_config_topic(topic) == SL_STATUS_OK) {
     parse_config(payload);
-    ncp_reset();
+    ncp_host_reboot();
     return;
   }
 

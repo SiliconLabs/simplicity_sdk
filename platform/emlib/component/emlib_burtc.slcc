@@ -1,20 +1,20 @@
 id: emlib_burtc
 label: BURTC
-package: platform
+package: platform_core
 description: >
-  Backup Real Time Counter (BURTC) Peripheral API
-category: Platform|Peripheral
+  Backup Real Time Counter (BURTC) Peripheral API.
+category: Platform|Peripheral|EMLIB
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-component_root_path: "platform/emlib"
+    sbom:
+        license: Zlib
+component_root_path: platform/emlib
 source:
-  - path: "src/em_burtc.c"
+  - path: src/em_burtc.c
 include:
-  - path: "inc"
+  - path: inc
     file_list:
-    - path: "em_burtc.h"
+      - path: em_burtc.h
 provides:
   - name: emlib_burtc
   - name: hal_generic_burtc
@@ -45,3 +45,5 @@ documentation:
       condition: [device_sdid_230]
     - page: platform-emlib-efr32xg28/burtc
       condition: [device_sdid_235]
+    - page: platform-emlib-efr32xg29/burtc
+      condition: [device_sdid_240]

@@ -1,5 +1,5 @@
 id: psa_driver
-package: platform
+package: security_mbedtls
 label: Drivers for Crypto Acceleration
 description: >-
   This component provides drivers for hardware accelerated crypto operations

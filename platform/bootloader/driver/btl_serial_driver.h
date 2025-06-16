@@ -29,8 +29,44 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "api/btl_errorcode.h"
+#if !defined(_SILICON_LABS_32B_SERIES_3)
 #include "em_cmu.h"
+#endif
 
+#if defined(_SILICON_LABS_32B_SERIES_3)
+/***************************************************************************//**
+ * Initializes the EUSART with asynchronous common settings to high
+ * and low frequency clock
+ ******************************************************************************/
+void eusart_aync_init_common(void);
+
+/***************************************************************************//**
+ * Configure EUSART to its reset state.
+ ******************************************************************************/
+void eusart_reset(void);
+
+/***************************************************************************//**
+ * Disable EUSART receiver and/or transmitter.
+ ******************************************************************************/
+void eusart_disable(void);
+
+/***************************************************************************//**
+ * Enable EUSART receiver and/or transmitter.
+ ******************************************************************************/
+void eusart_enable(void);
+
+/***************************************************************************//**
+ * Configure the baudrate (or as close as possible to a specified baudrate).
+ ******************************************************************************/
+void eusart_baudrate_set(void);
+
+/***************************************************************************//**
+ * Get EUSART STATUS register.
+ *
+ * @return STATUS register value.
+ ******************************************************************************/
+uint32_t eusart_status_get(void);
+#endif
 /***************************************************************************//**
  * Initialize the configured USART peripheral for UART operation. Also sets up
  *  GPIO settings for TX, RX, and, if configured, flow control.
@@ -127,9 +163,7 @@ int32_t uart_receiveByteTimeout(uint8_t* byte, uint32_t timeout);
  ******************************************************************************/
 int32_t uart_flush(bool flushTx, bool flushRx);
 
-/**
- * @} // addtogroup Uart
- * @} // addtogroup Driver
- */
+/** @} (end addtogroup Uart) */
+/** @} (end addtogroup Driver) */
 
 #endif // BTL_DRIVER_UART_H

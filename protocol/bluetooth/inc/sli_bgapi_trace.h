@@ -83,11 +83,9 @@ void sli_bgapi_trace_output_message(sli_bgapi_trace_message_type_t type,
  * device.
  *
  * The maximum length of the custom message is limited by the 255-byte limit of
- * the bytearray and the maximum total BGAPI payload size defined by
- * SL_BGAPI_MAX_PAYLOAD_SIZE. The practical limit is typically 250 bytes.
- * Messages longer than this are truncated to fit the BGAPI message payload
- * size. The function returns the number of bytes that were successfully output
- * so that the caller can detect truncation.
+ * the bytearray. Messages longer than this are truncated to fit the BGAPI
+ * message payload size. The function returns the number of bytes that were
+ * successfully output so that the caller can detect truncation.
  *
  * @param[in]  buffer         Buffer that contains the message to output
  * @param[in]  buffer_length  The length of the message to output

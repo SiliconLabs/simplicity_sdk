@@ -10,9 +10,7 @@
 #include <string.h>
 #include <assert.h>
 #include "MfgTokens.h"
-#include "DebugPrintConfig.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "ZAF_file_ids.h"
 #include "ZAF_nvm_app.h"
 #include "ZAF_nvm.h"
@@ -26,29 +24,25 @@
 #include "ZAF_network_management.h"
 #include "events.h"
 #include "zpal_watchdog.h"
-#include "app_hw.h"
 #include "board_indicator.h"
 #include "ZAF_ApplicationEvents.h"
 #include "zaf_event_distributor_soc.h"
 #include "zpal_misc.h"
 #include "zaf_protocol_config.h"
 #include "ZW_TransportEndpoint.h"
+#include "ZAF_PrintAppInfo.h"
 
 #ifdef SL_CATALOG_ZW_CLI_SLEEPING_PRESENT
 #include "zw_cli_sleeping.h"
 #include "zw_cli_sleeping_config.h"
 #endif
 
-#ifdef DEBUGPRINT
-#include "ZAF_PrintAppInfo.h"
+#ifdef SL_CATALOG_ZW_PM_TRANSITION_EVENT_PRESENT
+#include "app_pm_transition_event.h"
 #endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
+#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
-
-#ifdef DEBUGPRINT
-static uint8_t m_aDebugPrintBuffer[96];
 #endif
 
 void ApplicationTask(SApplicationHandles* pAppHandles);
@@ -61,15 +55,18 @@ ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 {
   SRadioConfig_t* RadioConfig;
 
-  DPRINT("Enabling watchdog\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
-#endif // DEBUGPRINT
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
 
   RadioConfig = zaf_get_radio_config();
+
+#ifdef SL_CATALOG_ZW_PM_TRANSITION_EVENT_PRESENT
+  // register callback from power manager transitions
+  ZW_PmTransitionEventInit();
+#endif
 
   // Read Rf region from MFG_ZWAVE_COUNTRY_FREQ
   zpal_radio_region_t regionMfg;
@@ -116,16 +113,13 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   uint32_t unhandledEvents = 0;
   zpal_reset_reason_t resetReason;
 
-  DPRINT("Multilevel Sensor Main App/Task started!\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Multilevel Sensor Main App/Task started!\n");
 
   ZAF_Init(xTaskGetCurrentTaskHandle(), pAppHandles);
 
-#ifdef DEBUGPRINT
   ZAF_PrintAppInfo();
-#endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
-  /* This preprocessor statement can be deleted from the source code */
+#if (!defined(UNIT_TEST))
   app_hw_init();
 #endif
 
@@ -140,9 +134,11 @@ ApplicationTask(SApplicationHandles* pAppHandles)
    */
   AppTimerDeepSleepPersistentLoadAll(resetReason);
 
+#if (!defined(UNIT_TEST))
   if (ZPAL_RESET_REASON_DEEP_SLEEP_EXT_INT == resetReason) {
     app_hw_deep_sleep_wakeup_handler();
   }
+#endif
 
   /**
    * Set the maximum inclusion request interval for SmartStart.
@@ -157,8 +153,8 @@ ApplicationTask(SApplicationHandles* pAppHandles)
     ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION_SMARTSTART);
   }
 
-  DPRINTF("IsWakeupCausedByRtccTimeout=%s\n", (IsWakeupCausedByRtccTimeout()) ? "true" : "false");
-  DPRINTF("CompletedSleepDurationMs   =%u\n", GetCompletedSleepDurationMs());
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "IsWakeupCausedByRtccTimeout=%s\n", (IsWakeupCausedByRtccTimeout()) ? "true" : "false");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "CompletedSleepDurationMs   =%u\n", GetCompletedSleepDurationMs());
 
 #ifdef SL_CATALOG_ZW_CLI_SLEEPING_PRESENT
   // Stay awake to allow user to send the prevent sleeping command through the CLI
@@ -167,15 +163,12 @@ ApplicationTask(SApplicationHandles* pAppHandles)
   }
 #endif
 
-  // Change the zpal_pm_device_type here so that the device can reach the lowest level of power consumption
-  zpal_pm_set_device_type(ZPAL_PM_DEVICE_NOT_LISTENING);
-
   // Wait for and process events
-  DPRINT("Multilevel Sensor Event Distributor Started\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Multilevel Sensor Event Distributor Started\n");
   for (;; ) {
     unhandledEvents = zaf_event_distributor_distribute();
     if (0 != unhandledEvents) {
-      DPRINTF("Unhandled Events: 0x%08lx\n", unhandledEvents);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Unhandled Events: 0x%08lx\n", unhandledEvents);
 #ifdef UNIT_TEST
       return;
 #endif
@@ -190,7 +183,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 void
 zaf_event_distributor_app_event_manager(const uint8_t event)
 {
-  DPRINTF("zaf_event_distributor_app_event_manager Ev: 0x%02x\r\n", event);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "zaf_event_distributor_app_event_manager Ev: 0x%02x\r\n", event);
 
   switch (event) {
     case EVENT_APP_SEND_BATTERY_LEVEL_AND_SENSOR_REPORT:

@@ -235,22 +235,6 @@ typedef struct {
  */
 typedef struct {
   /**
-   * Cluster ID, according to the ZCL spec.
-   */
-  sl_zigbee_af_cluster_id_t zigbeeClusterId;
-  /**
-   * Cluster Mfg ID, according to the ZCL spec.
-   */
-  sl_zigbee_af_cluster_id_t zigbeeMfgClusterId;
-  /**
-   * Cluster ID, according to the Data Model spec.
-   */
-  sl_zigbee_af_cluster_id_t matterClusterId;
-  /**
-   * Cluster Mfg ID, according to the Data Model spec.
-   */
-  sl_zigbee_af_cluster_id_t matterMfgClusterId;
-  /**
    * Attribute ID, according to the ZCL spec.
    */
   sl_zigbee_af_attribute_id_t zigbeeAttributeId;
@@ -275,6 +259,39 @@ typedef struct {
    */
   sl_zigbee_af_attribute_type_t matterAttributeType;
 } sl_zigbee_matter_af_multi_protocol_attribute_metadata_t;
+
+/**
+ * @brief Zigbee and Matter multi-protocol attribute mapping has its metadata
+ * stored in the struct.
+ *
+ * There is one entry per attribute map between 2 protocols(eg: Zigbee and Matter attributes)
+ */
+typedef struct {
+  /**
+   * Cluster ID, according to the ZCL spec.
+   */
+  sl_zigbee_af_cluster_id_t zigbeeClusterId;
+  /**
+   * Cluster Mfg ID, according to the ZCL spec.
+   */
+  sl_zigbee_af_cluster_id_t zigbeeMfgClusterId;
+  /**
+   * Cluster ID, according to the Data Model spec.
+   */
+  sl_zigbee_af_cluster_id_t matterClusterId;
+  /**
+   * Cluster Mfg ID, according to the Data Model spec.
+   */
+  sl_zigbee_af_cluster_id_t matterMfgClusterId;
+  /**
+   * Pointer to Zigbee-Matter metadata array for this cluster.
+   */
+  sl_zigbee_matter_af_multi_protocol_attribute_metadata_t *zigbeeMatterAttributeMap;
+  /**
+   * Number of Zigbee-Matter cluster mapped attributes.
+   */
+  uint16_t clusterMappedAttributeCount;
+} sl_zigbee_matter_af_multi_protocol_cluster_metadata_t;
 
 /**
  * @brief Find an attribute in storage. Together, the elements

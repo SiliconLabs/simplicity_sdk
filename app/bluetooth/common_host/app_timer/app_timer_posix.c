@@ -155,6 +155,8 @@ void sli_app_timer_step(void)
   app_timer_t *tmp_timer_ptr = app_timer_head;
 
   while (NULL != tmp_timer_ptr) {
+    // get next in advance, see comment on callback
+    app_timer_t *next_timer_ptr = tmp_timer_ptr->next;
     if (true == tmp_timer_ptr->app_timer_handle.triggered) {
       // Delete if timer is non-periodic
       if (false == tmp_timer_ptr->periodic) {
@@ -164,12 +166,13 @@ void sli_app_timer_step(void)
                         APP_LOG_NL);
         }
       }
+      tmp_timer_ptr->app_timer_handle.triggered = false;
       if (NULL != tmp_timer_ptr->callback) {
+        // a callback may delete the underlying timer object, if it was allocated on heap!
         tmp_timer_ptr->callback(tmp_timer_ptr, tmp_timer_ptr->callback_data);
       }
-      tmp_timer_ptr->app_timer_handle.triggered = false;
     }
-    tmp_timer_ptr = tmp_timer_ptr->next;
+    tmp_timer_ptr = next_timer_ptr;
   }
 }
 

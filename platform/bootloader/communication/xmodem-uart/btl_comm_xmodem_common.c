@@ -48,12 +48,12 @@
 // -----------------------------------------------------------------------------
 // Static consts
 
-static const char transferInitStr[] = "\r\nbegin upload\r\n";
-static const char transferCompleteStr[] = "\r\nSerial upload complete\r\n";
-static const char transferAbortedStr[] = "\r\nSerial upload aborted\r\n";
-static const char xmodemError[] = "\r\nblock error 0x";
-static const char fileError[] = "\r\nfile error 0x";
-static const char bootError[] = "\r\nFailed to boot\r\n";
+static const uint8_t transferInitStr[] = "\r\nbegin upload\r\n";
+static const uint8_t transferCompleteStr[] = "\r\nSerial upload complete\r\n";
+static const uint8_t transferAbortedStr[] = "\r\nSerial upload aborted\r\n";
+static const uint8_t xmodemError[] = "\r\nblock error 0x";
+static const uint8_t fileError[] = "\r\nfile error 0x";
+static const uint8_t bootError[] = "\r\nFailed to boot\r\n";
 
 // -----------------------------------------------------------------------------
 // Static local functions
@@ -150,6 +150,89 @@ __STATIC_INLINE uint8_t nibbleToHex(uint8_t nibble)
   return (nibble > 9) ? (nibble - 10 + 'A') : (nibble + '0');
 }
 
+// Helper function to handle SE upgrade
+static bool handleSeUpgrade(const ImageProperties_t *imageProps, const ParserContext_t *parserContext)
+{
+#if defined(_SILICON_LABS_32B_SERIES_3)
+  if ((imageProps->contents & BTL_IMAGE_CONTENT_SE)
+      && bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion)) {
+    // Install SE upgrade
+    void *address = NULL;
+    size_t size;
+    sl_se_command_context_t cmd_ctx = { 0u };
+    parserContext->seCmdCtxInterface.init(&cmd_ctx);
+    parserContext->flashDataRegionInterface.data_region_get_location(&cmd_ctx, &address, &size);
+    bootload_commitSeUpgrade((uint32_t)address);
+    return true; // SE upgrade handled
+    // If we get here, the SE upgrade failed
+    // Return to menu
+  }
+#else
+  (void)parserContext;
+#if defined(SEMAILBOX_PRESENT) || defined(CRYPTOACC_PRESENT)
+  if ((imageProps->contents & BTL_IMAGE_CONTENT_SE)
+      && bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion)) {
+    // Install SE upgrade
+#if defined(BOOTLOADER_NONSECURE)
+    bootload_commitSeUpgrade();
+#else
+    bootload_commitSeUpgrade(BTL_UPGRADE_LOCATION);
+#endif
+    // If we get here, the SE upgrade failed
+    return true; // SE upgrade handled
+  }
+#endif
+#endif
+  return false; // No SE upgrade
+}
+
+// Helper function to handle bootloader upgrade
+static bool handleBootloaderUpgrade(const ImageProperties_t *imageProps, const ParserContext_t *parserContext)
+{
+#if defined(_SILICON_LABS_32B_SERIES_3)
+  if ((imageProps->contents & BTL_IMAGE_CONTENT_MEM_SEC_1) \
+      && (imageProps->bootloaderVersion > bootload_getBootloaderVersion())) {
+    // Install bootloader upgrade
+    bootload_commitBootloaderUpgrade(parserContext->plainBootloaderAddress,
+                                     imageProps->bootloaderUpgradeSize);
+    return true; // Bootloader upgrade handled
+  }
+#else
+  (void)parserContext;
+  if ((imageProps->contents & BTL_IMAGE_CONTENT_BOOTLOADER)
+      && (imageProps->bootloaderVersion > bootload_getBootloaderVersion())) {
+#if defined(BOOTLOADER_NONSECURE)
+    bootload_commitBootloaderUpgrade(imageProps->bootloaderUpgradeSize);
+#else
+    bootload_commitBootloaderUpgrade(BTL_UPGRADE_LOCATION, imageProps->bootloaderUpgradeSize);
+#endif
+    return true; // Bootloader upgrade handled
+  }
+#endif
+  return false; // No bootloader upgrade
+}
+
+// Handle BOOT state logic
+static void handleBootState(const ImageProperties_t *imageProps, const ParserContext_t *parserContext)
+{
+  if (imageProps->imageCompleted && imageProps->imageVerified) {
+    if (handleSeUpgrade(imageProps, parserContext)) {
+      return; // SE upgrade handled
+    }
+    if (handleBootloaderUpgrade(imageProps, parserContext)) {
+      return; // Bootloader upgrade handled
+    } else {
+      // Enter application if no upgrades are required
+      reset_resetWithReason(BOOTLOADER_RESET_REASON_GO);
+    }
+    // If we get here, the bootloader upgrade or reboot failed
+    uart_sendBuffer(bootError, sizeof(bootError), true);
+  } else {
+    // No valid image or verification failed
+    reset_resetWithReason(BOOTLOADER_RESET_REASON_BADIMAGE);
+  }
+}
+
 // -----------------------------------------------------------------------------
 // Global Functions
 
@@ -179,7 +262,7 @@ int32_t bootloader_xmodem_communication_start(void)
 }
 
 int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
-                                             const BootloaderParserCallbacks_t* parseCb)
+                                             const BootloaderParserCallbacks_t *parseCb)
 {
   int32_t ret = -1;
 
@@ -194,7 +277,10 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
 #if !defined(BOOTLOADER_NONSECURE)
   ParserContext_t parserContext = { 0 };
   DecryptContext_t decryptContext = { 0 };
-  AuthContext_t authContext = { 0 };
+  AuthContext_t primaryAuthContext = { 0 };
+#if defined (_SILICON_LABS_32B_SERIES_3)
+  AuthContext_t secondaryAuthContext = { 0 };
+#endif
 #endif
 
   delay_init();
@@ -213,8 +299,7 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
 
 #if BTL_XMODEM_IDLE_TIMEOUT > 0
         if (state == IDLE) {
-          idleTimeout--;
-          if (idleTimeout == 0) {
+          if (--idleTimeout == 0) {
             reset_resetWithReason(BOOTLOADER_RESET_REASON_TIMEOUT);
           }
         } else {
@@ -225,19 +310,25 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
         break;
 
       case INIT_TRANSFER:
-        uart_sendBuffer((uint8_t *)transferInitStr,
-                        sizeof(transferInitStr),
-                        true);
-
+        uart_sendBuffer(transferInitStr, sizeof(transferInitStr), true);
         memset(imageProps, 0, sizeof(ImageProperties_t));
 #if defined(BOOTLOADER_NONSECURE)
         parser_init(PARSER_FLAG_PARSE_CUSTOM_TAGS);
 #else
+#if defined(_SILICON_LABS_32B_SERIES_3)
         parser_init(&parserContext,
                     &decryptContext,
-                    &authContext,
+                    &primaryAuthContext,
+                    &secondaryAuthContext,
+                    PARSER_FLAG_PARSE_CUSTOM_TAGS);
+        imageProps->instructions = 0xFFFFFFFFFFFFFFFFU;
+#else
+        parser_init(&parserContext,
+                    &decryptContext,
+                    &primaryAuthContext,
                     PARSER_FLAG_PARSE_CUSTOM_TAGS);
         imageProps->instructions = 0xFFU;
+#endif
 #endif
         imageProps->imageCompleted = false;
         imageProps->imageVerified = false;
@@ -265,13 +356,10 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
         if (uart_getRxAvailableBytes()) {
           // We got a response; move to receive state
           state = RECEIVE_DATA;
-        } else {
+        } else if (--packetTimeout == 0) {
           // No response within 1 second; tick towards timeout
-          packetTimeout--;
-          if (packetTimeout == 0) {
-            sendPacket(XMODEM_CMD_CAN);
-            state = MENU;
-          }
+          sendPacket(XMODEM_CMD_CAN);
+          state = MENU;
         }
         break;
 
@@ -337,24 +425,18 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
         uart_flush(false, true);
 
         delay_milliseconds(10, true);
+        uart_sendBuffer((response == XMODEM_CMD_ACK) ? transferCompleteStr : transferAbortedStr,
+                        (response == XMODEM_CMD_ACK) ? sizeof(transferCompleteStr) : sizeof(transferAbortedStr),
+                        true);
 
-        if ((response == XMODEM_CMD_ACK)
-            && (ret == BOOTLOADER_ERROR_XMODEM_DONE)) {
-          uart_sendBuffer((uint8_t *)transferCompleteStr,
-                          sizeof(transferCompleteStr),
-                          true);
-        } else {
-          uart_sendBuffer((uint8_t *)transferAbortedStr,
-                          sizeof(transferAbortedStr),
-                          true);
-
+        if (response != XMODEM_CMD_ACK) {
           if ((ret >= BOOTLOADER_ERROR_XMODEM_BASE)
               && (ret < BOOTLOADER_ERROR_PARSER_BASE)) {
-            uart_sendBuffer((uint8_t *)xmodemError,
+            uart_sendBuffer(xmodemError,
                             sizeof(xmodemError),
                             true);
           } else {
-            uart_sendBuffer((uint8_t *)fileError,
+            uart_sendBuffer(fileError,
                             sizeof(fileError),
                             true);
           }
@@ -399,6 +481,8 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
             case BOOTLOADER_ERROR_PARSER_KEYERROR:
               response = 0x50; // BL_ERR_INV_KEY
               break;
+            default:
+              break;
           }
 
           uart_sendByte(nibbleToHex(response >> 4));
@@ -411,41 +495,11 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
 
       case BOOT:
         state = MENU;
-        if (imageProps->imageCompleted && imageProps->imageVerified) {
-#if defined(SEMAILBOX_PRESENT) || defined(CRYPTOACC_PRESENT)
-          if (imageProps->contents & BTL_IMAGE_CONTENT_SE) {
-            if (bootload_checkSeUpgradeVersion(imageProps->seUpgradeVersion)) {
-              // Install SE upgrade
 #if defined(BOOTLOADER_NONSECURE)
-              bootload_commitSeUpgrade();
+        handleBootState(imageProps, NULL);
 #else
-              bootload_commitSeUpgrade(BTL_UPGRADE_LOCATION);
+        handleBootState(imageProps, &parserContext);
 #endif
-              // If we get here, the SE upgrade failed
-            }
-            // Return to menu
-            break;
-          }
-#endif
-          if (imageProps->contents & BTL_IMAGE_CONTENT_BOOTLOADER) {
-            if (imageProps->bootloaderVersion > bootload_getBootloaderVersion()) {
-              // Install bootloader upgrade
-#if defined(BOOTLOADER_NONSECURE)
-              bootload_commitBootloaderUpgrade(imageProps->bootloaderUpgradeSize);
-#else
-              bootload_commitBootloaderUpgrade(BTL_UPGRADE_LOCATION, imageProps->bootloaderUpgradeSize);
-#endif
-            }
-          } else {
-            // Enter app
-            reset_resetWithReason(BOOTLOADER_RESET_REASON_GO);
-          }
-          // If we get here, the bootloader upgrade or reboot failed
-          uart_sendBuffer((uint8_t *)bootError, sizeof(bootError), true);
-        } else {
-          // No upgrade image given, or upgrade failed
-          reset_resetWithReason(BOOTLOADER_RESET_REASON_BADIMAGE);
-        }
         break;
     }
   }

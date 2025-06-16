@@ -3,7 +3,7 @@
  * @brief System Initialization.
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -30,10 +30,15 @@
 #ifndef SL_SYSTEM_INIT_H
 #define SL_SYSTEM_INIT_H
 
+#include "sl_common.h"
+
 /***************************************************************************//**
- * @addtogroup system System Initialization and Action Processing
- * @brief System Initialization and Action Processing
+ * @addtogroup system System Setup (sl_system) (deprecated)
+ * @brief System Setup (sl_system)
  * @details
+ *
+ * \warning This API is deprecated. Please migrate to the new sl_main API.
+ *
  * ### System Init
  * System Init provides a function for initializing the system and the products:
  *
@@ -141,7 +146,11 @@ extern "C" {
 
 /**
  * Initialize Silicon Labs products
+ *
+ * API was deprecated in version 2025.6. Please migrate to the new sl_main API.
+ * See the sl_main migration guide: https://docs.silabs.com/gecko-platform/latest/platform-service-sl_system-to-sl_main-migration-guide/
  */
+SL_DEPRECATED_API_SDK_2025_6
 void sl_system_init(void);
 
 #ifdef __cplusplus

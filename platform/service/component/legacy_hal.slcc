@@ -1,6 +1,6 @@
 id: legacy_hal
 label: Legacy HAL
-package: platform
+package: zigbee
 category: Services|Ember Legacy
 quality: production
 metadata:

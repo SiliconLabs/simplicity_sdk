@@ -1,6 +1,6 @@
 id: zigbee_cluster_service
 label: Zigbee Cluster Service
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component is used to enable the cluster service mechanism.

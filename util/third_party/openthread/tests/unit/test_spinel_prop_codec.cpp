@@ -51,7 +51,7 @@ void TestDnssd(void)
     Spinel::Decoder    decoder;
     uint8_t            header;
     unsigned int       command;
-    spinel_prop_key_t  propKey;
+    unsigned int       propKey;
     otError            error = OT_ERROR_NONE;
 
     // Test DnssdHost encoding and decoding
@@ -80,12 +80,12 @@ void TestDnssd(void)
     SuccessOrQuit(error = decoder.ReadUintPacked(command));
     VerifyOrQuit(command == SPINEL_CMD_PROP_VALUE_INSERTED);
     SuccessOrQuit(error = decoder.ReadUintPacked(propKey));
-    VerifyOrQuit(propKey == SPINEL_PROP_DNSSD_HOST);
+    VerifyOrQuit(static_cast<spinel_prop_key_t>(propKey) == SPINEL_PROP_DNSSD_HOST);
     SuccessOrQuit(error = DecodeDnssdHost(decoder, dnssdHostDecode, requestId, callbackData, callbackDataLen));
     VerifyOrQuit(strcmp(dnssdHostDecode.mHostName, dnssdHostEncode.mHostName) == 0);
     VerifyOrQuit(dnssdHostDecode.mAddressesLength == dnssdHostEncode.mAddressesLength);
-    VerifyOrQuit(memcmp(dnssdHostDecode.mAddresses, dnssdHostEncode.mAddresses, sizeof(dnssdHostEncode.mAddresses)) ==
-                 0);
+    VerifyOrQuit(memcmp(dnssdHostDecode.mAddresses, dnssdHostEncode.mAddresses,
+                        dnssdHostDecode.mAddressesLength * sizeof(otIp6Address)) == 0);
     VerifyOrQuit(requestId == 1);
     VerifyOrQuit(callbackDataLen == sizeof(otPlatDnssdRegisterCallback));
     VerifyOrQuit(*reinterpret_cast<const otPlatDnssdRegisterCallback *>(callbackData) == DnssdFakeCallback);
@@ -121,7 +121,7 @@ void TestDnssd(void)
     SuccessOrQuit(error = decoder.ReadUintPacked(command));
     VerifyOrQuit(command == SPINEL_CMD_PROP_VALUE_INSERTED);
     SuccessOrQuit(error = decoder.ReadUintPacked(propKey));
-    VerifyOrQuit(propKey == SPINEL_PROP_DNSSD_SERVICE);
+    VerifyOrQuit(static_cast<spinel_prop_key_t>(propKey) == SPINEL_PROP_DNSSD_SERVICE);
     const char *dnssdSubTypeDecode[] = {nullptr, nullptr, nullptr};
     uint16_t    dnssdSubTypeCount    = sizeof(dnssdSubTypeDecode) / sizeof(dnssdSubTypeDecode[0]);
     SuccessOrQuit(error = DecodeDnssdService(decoder, dnssdServiceDecode, dnssdSubTypeDecode, dnssdSubTypeCount,
@@ -167,7 +167,7 @@ void TestDnssd(void)
     SuccessOrQuit(error = decoder.ReadUintPacked(command));
     VerifyOrQuit(command == SPINEL_CMD_PROP_VALUE_INSERTED);
     SuccessOrQuit(error = decoder.ReadUintPacked(propKey));
-    VerifyOrQuit(propKey == SPINEL_PROP_DNSSD_KEY_RECORD);
+    VerifyOrQuit(static_cast<spinel_prop_key_t>(propKey) == SPINEL_PROP_DNSSD_KEY_RECORD);
     SuccessOrQuit(error = DecodeDnssdKey(decoder, dnssdKeyDecode, requestId, callbackData, callbackDataLen));
     VerifyOrQuit(strcmp(dnssdKeyDecode.mName, dnssdKeyEncode.mName) == 0);
     VerifyOrQuit(dnssdKeyDecode.mServiceType == dnssdKeyEncode.mServiceType);

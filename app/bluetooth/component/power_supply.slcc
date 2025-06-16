@@ -1,6 +1,6 @@
 id: power_supply
 label: Power supply measurement
-package: Bluetooth
+package: bluetooth_le_middleware
 description: Power supply measurement HW abstraction designed for development boards with coin cell battery support, i.e. Thunderboard and Dev Kit. Not suitable for other applications.
 category: Bluetooth|Application|Miscellaneous
 metadata:

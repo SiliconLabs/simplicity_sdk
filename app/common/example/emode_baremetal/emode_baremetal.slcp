@@ -13,7 +13,6 @@ filter:
   - name: "Project Difficulty"
     value: ["Advanced"]
 source:
-  - path: main.c
   - path: app.c
   - path: lcd_setup.c
   - path: emodes.c
@@ -24,7 +23,7 @@ include:
     - path: lcd_setup.h
     - path: emodes.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: board_control

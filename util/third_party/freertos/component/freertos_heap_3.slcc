@@ -1,6 +1,6 @@
 id: freertos_heap_3
 label: FreeRTOS Heap 3
-package: platform
+package: freertos
 description: >
   A heap implementation for FreeRTOS.
 
@@ -13,7 +13,7 @@ category: RTOS|FreeRTOS
 quality: production
 metadata:
   sbom:
-    license: MSLA
+    reference: freertos
 source:
   - path: util/third_party/freertos/kernel/portable/MemMang/heap_3.c
 provides:
@@ -25,7 +25,6 @@ requires:
   - name: cmsis_core
   - name: freertos
   - name: memory_manager
-    condition: [device_efx]
   - name: freertos_heap_3_arch
 template_contribution:
   - name: rte_components

@@ -31,8 +31,11 @@ from typing import Dict, Iterable, List, Set
 import btmesh.util
 from btmesh.db import ModelID
 from btmesh.mdl import NamedModelID
-from btmesh.util import (BtmeshMulticastRetryParams, BtmeshRetryParams,
-                         ConnectionParamsRange)
+from btmesh.util import (
+    BtmeshMulticastRetryParams,
+    BtmeshRetryParams,
+    ConnectionParamsRange,
+)
 
 DEFAULT_APP_CFG_INI = """# BT Mesh Host DFU configuration file
 
@@ -532,6 +535,16 @@ dist_retry_interval_lpn_default = 5.0
 # configuration of Firmware Distribution Server component on the Distributor node.
 dist_retry_multicast_threshold_default = 2
 
+# If the auto new term feature is turned on then new term is started on each
+# target node automatically after successful Firmware Distribution procedure
+# if the metadata check reported CD Changed and RPR Supported as Additional
+# Information.
+# New term is started by executing Composition or Address Refresh procedures
+# on the target nodes based on the content of Composition Data page 0 and 128.
+# If the number of elements is higher in the new term then Address Refresh
+# procedure is executed otherwise Composition Refresh procedure is executed.
+dist_auto_new_term = true
+
 # Default maximum number of additional Firmware Distribution Firmware Delete or
 # Delete All messages which are sent until the corresponding status message
 # is not received from the Firmware Distribution Server.
@@ -630,6 +643,16 @@ dfu_retry_interval_lpn_default = 5.0
 # address because the collisions could lead to the loss of the status messages.
 dfu_retry_multicast_threshold_default = 2
 
+# If the auto new term feature is turned on then new term is started on each
+# automatically target node after successful Standalone Firmware Update procedure
+# if the metadata check reported CD Changed and RPR Supported as Additional
+# Information.
+# New term is started by executing Composition or Address Refresh procedures
+# on the target nodes based on the content of Composition Data page 0 and 128.
+# If the number of elements is higher in the new term then Address Refresh
+# procedure is executed otherwise Composition Refresh procedure is executed.
+dfu_auto_new_term = true
+
 
 [mbt_clt]
 # Element index of the BLOB Transfer Client model on NCP node.
@@ -691,6 +714,18 @@ default_on_failed_load = true
 # If true then a backup is created from the failed persistent data file before
 # it is overwritten with the default values.
 backup_on_failed_load = true
+
+# If true then the persistent data is stored after each migration step including
+# the original persistent data file.
+backup_on_migration = true
+
+
+[prov]
+# Element index of the Remote Provisioning Client model on NCP node.
+rpr_elem_index = 0
+
+# Timeout for Address and Composition Refresh procedures, in seconds.
+refresh_timeout_s_default = 10
 
 
 [proxy]
@@ -1515,6 +1550,8 @@ class BtmeshDfuAppFwDistClientCfg:
         self._dist_retry_multicast_threshold_default = sect.getint(
             "dist_retry_multicast_threshold_default"
         )
+        # dist_auto_new_term
+        self._dist_auto_new_term = sect.getboolean("dist_auto_new_term")
         # delete_retry_max_default
         self._delete_retry_max_default = sect.getint("delete_retry_max_default")
         # delete_retry_interval_default
@@ -1556,6 +1593,7 @@ class BtmeshDfuAppFwDistClientCfg:
             f"{sectname}:dist_retry_multicast_threshold_default: "
             f"{self.dist_retry_multicast_threshold_default}"
         )
+        logger.debug(f"{sectname}:dist_auto_new_term: " f"{self.dist_auto_new_term}")
         logger.debug(
             f"{sectname}:delete_retry_max_default: {self.delete_retry_max_default}"
         )
@@ -1617,6 +1655,10 @@ class BtmeshDfuAppFwDistClientCfg:
         return self._dist_retry_multicast_threshold_default
 
     @property
+    def dist_auto_new_term(self):
+        return self._dist_auto_new_term
+
+    @property
     def delete_retry_max_default(self):
         return self._delete_retry_max_default
 
@@ -1653,6 +1695,8 @@ class BtmeshDfuAppFwUpdateClientCfg:
         self._dfu_retry_multicast_threshold_default = sect.getint(
             "dfu_retry_multicast_threshold_default"
         )
+        # dfu_auto_new_term
+        self._dfu_auto_new_term = sect.getboolean("dfu_auto_new_term")
 
         # Log dfu_clt configuration
         sectname = sect.name
@@ -1677,6 +1721,7 @@ class BtmeshDfuAppFwUpdateClientCfg:
             f"{sectname}:dfu_retry_multicast_threshold_default: "
             f"{self.dfu_retry_multicast_threshold_default}"
         )
+        logger.debug(f"{sectname}:dfu_auto_new_term: {self.dfu_auto_new_term}")
 
     @property
     def elem_index(self):
@@ -1717,6 +1762,10 @@ class BtmeshDfuAppFwUpdateClientCfg:
     @property
     def dfu_retry_multicast_threshold_default(self):
         return self._dfu_retry_multicast_threshold_default
+
+    @property
+    def dfu_auto_new_term(self):
+        return self._dfu_auto_new_term
 
 
 class BtmeshDfuAppBlobTransferClientCfg:
@@ -1848,6 +1897,8 @@ class BtmeshDfuAppPersistenceCfg:
         self._default_on_failed_load = sect.getboolean("default_on_failed_load")
         # backup_on_failed_load
         self._backup_on_failed_load = sect.getboolean("backup_on_failed_load")
+        # backup_on_migration
+        self._backup_on_migration = sect.getboolean("backup_on_migration")
         # Log persistence configuration
         sectname = sect.name
         logger.debug(f"{sectname}:path: {self.path}")
@@ -1867,6 +1918,40 @@ class BtmeshDfuAppPersistenceCfg:
     @property
     def backup_on_failed_load(self):
         return self._backup_on_failed_load
+
+    @property
+    def backup_on_migration(self):
+        return self._backup_on_failed_load
+
+
+class BtmeshDfuAppProvCfg:
+    def __init__(self, section: SectionProxy):
+        self.section = section
+        sect = section
+        # rpr_elem_index
+        self._rpr_elem_index = sect.getint("rpr_elem_index")
+        # refresh_timeout_s_default
+        self._refresh_timeout_s_default = sect.getint(
+            "refresh_timeout_s_default"
+        )
+        # Log prov configuration
+        sectname = sect.name
+        logger.debug(f"{sectname}:rpr_elem_index: " f"{self.rpr_elem_index}")
+        logger.debug(
+            f"{sectname}:refresh_timeout_s_default: "
+            f"{self.refresh_timeout_s_default}"
+        )
+        btmesh.util.validate_link_open_timeout(
+            timeout_s=self.refresh_timeout_s_default
+        )
+
+    @property
+    def rpr_elem_index(self) -> int:
+        return self._rpr_elem_index
+
+    @property
+    def refresh_timeout_s_default(self) -> int:
+        return self._refresh_timeout_s_default
 
 
 class BtmeshDfuAppProxyCfg:
@@ -1899,7 +1984,7 @@ class BtmeshDfuAppProxyCfg:
         self._conn_max_ce_length_ms_default = sect.getfloat(
             "conn_max_ce_length_ms_default"
         )
-        # Log persistence configuration
+        # Log proxy configuration
         sectname = sect.name
         logger.debug(f"{sectname}:scan_timeout_default: {self.scan_timeout_default}")
         logger.debug(
@@ -2031,7 +2116,7 @@ class BtmeshDfuAppUICfg:
         self.validate_elem_format(sect, opt_name, elem_format)
         self._elem_format = elem_format
 
-        # Log reset configuration
+        # Log ui configuration
         sectname = self.section.name
         logger.debug(f"{sectname}:table_width_default: {self.table_width_default}")
         logger.debug(f"{sectname}:fwid_format: {self.fwid_format}")
@@ -2110,6 +2195,7 @@ class BtmeshDfuAppCfg:
         self.mbt_clt = BtmeshDfuAppBlobTransferClientCfg(self.cp["mbt_clt"])
         self.network = BtmeshDfuAppNetworkCfg(self.cp["network"])
         self.persistence = BtmeshDfuAppPersistenceCfg(self.cp["persistence"])
+        self.prov = BtmeshDfuAppProvCfg(self.cp["prov"])
         self.proxy = BtmeshDfuAppProxyCfg(self.cp["proxy"])
         self.reset = BtmeshDfuAppResetCfg(self.cp["reset"])
         self.ui = BtmeshDfuAppUICfg(self.cp["ui"])

@@ -1,12 +1,12 @@
 id: atomic
-label: "Atomic Operations Library"
-package: platform
+label: Atomic Operations Library
+package: platform_common
 description: Library of different operations performed atomically
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 include:
   - path: inc
@@ -15,5 +15,5 @@ include:
 provides:
   - name: atomic
 documentation:
-  docset: gecko-platform
-  document: platform-common/atomic
+    docset: gecko-platform
+    document: platform-common/atomic

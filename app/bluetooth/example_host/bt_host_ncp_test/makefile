@@ -31,7 +31,8 @@ override INCLUDEPATHS += $(PROJ_DIR) \
 $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/app/bluetooth/common/ncp_user_cmd \
 $(SDK_DIR)/platform/common/inc \
-$(SDK_DIR)/protocol/bluetooth/inc
+$(SDK_DIR)/protocol/bluetooth/inc \
+$(SDK_DIR)/protocol/bluetooth/config
 
 
 ################################################################################

@@ -310,6 +310,7 @@ bool storage_isBusy(void);
  ******************************************************************************/
 uint32_t storage_getSpiUsartPPUSATD(uint32_t *ppusatdNr);
 
-/** @} // addtogroup Storage */
-/** @} addtogroup Components */
+/** @} (end addtogroup Storage) */
+/** @} (end addtogroup Components) */
+
 #endif // BTL_STORAGE_H

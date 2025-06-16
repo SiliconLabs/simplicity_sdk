@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: The CLI for running manufacturing library commands.
 label: Manufacturing Library CLI
 quality: production

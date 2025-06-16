@@ -1,13 +1,13 @@
 id: gpio
-package: platform
+package: platform_core
 label: GPIO Driver
 description: >
-  General Purpose Input Output (GPIO) Driver API
+    General Purpose Input Output (GPIO) Driver API
 category: Platform|Driver|GPIO
-quality: evaluation
+quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/driver/gpio/
 include:
   - path: inc
@@ -29,9 +29,9 @@ requires:
 template_contribution:
   - name: event_handler
     value:
-      event: driver_init
-      include: "sl_gpio.h"
-      handler: sl_gpio_init
+        event: driver_init
+        include: sl_gpio.h
+        handler: sl_gpio_init
   - name: component_catalog
     value: gpio
   - name: code_classification_components

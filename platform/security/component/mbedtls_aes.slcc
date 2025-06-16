@@ -1,5 +1,5 @@
 id: mbedtls_aes
-package: platform
+package: security_mbedtls
 label: AES Block Cipher
 description: >-
   This component provides support for the AES block cipher using Mbed TLS.

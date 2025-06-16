@@ -133,7 +133,7 @@ sl_status_t app_util_get_string(char *const value_str,
   // Value itself
   strcat(value_str, value_temp);
 
-  // Closing paranthesis in case an enumeration was used
+  // Closing parenthesis in case an enumeration was used
   if (value_enum) {
     strcat(value_str, ")");
   }

@@ -1,6 +1,6 @@
 !!omap
 - id: MGM240LA22VIF
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM240LA22VIF.
 - category: Platform|Device|MGM24
 - quality: production

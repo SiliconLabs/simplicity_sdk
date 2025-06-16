@@ -35,60 +35,47 @@
 // -----------------------------------------------------------------------------
 // Public function definitions
 
-/******************************************************************************
- * CS Initiator display init stub function.
- *****************************************************************************/
 sl_status_t cs_initiator_display_init(void)
 {
   return SL_STATUS_OK;
 }
 
-/******************************************************************************
- * Set distance value to display
- *****************************************************************************/
-void cs_initiator_display_set_distance(float distance)
-{
-  (void)distance;
-}
-
-/******************************************************************************
- * Set distance progress percentage to display
- *****************************************************************************/
-void cs_initiator_display_set_distance_progress(float progress_percentage)
-{
-  (void)progress_percentage;
-}
-
-/******************************************************************************
- * Set RSSI based distance value to display
- *****************************************************************************/
-void cs_initiator_display_set_rssi_distance(float distance)
-{
-  (void)distance;
-}
-
-/******************************************************************************
- * Set the likeliness parameter to display
- *****************************************************************************/
-void cs_initiator_display_set_likeliness(float likeliness)
-{
-  (void)likeliness;
-}
-
-/******************************************************************************
- * Set the Bit Error Rate (BER) value to display
- *****************************************************************************/
-void cs_initiator_display_set_bit_error_rate(float ber)
-{
-  (void)ber;
-}
-
-/******************************************************************************
- * Set the measurement mode and object tracking mode and show on LCD
- *****************************************************************************/
 void cs_initiator_display_set_measurement_mode(sl_bt_cs_mode_t mode,
                                                uint8_t algo_mode)
 {
   (void)mode;
   (void)algo_mode;
+}
+
+void cs_initiator_display_update_data(uint8_t instance_num,
+                                      uint8_t conn_handle,
+                                      uint8_t status,
+                                      float distance,
+                                      float rssi_distance,
+                                      float likeliness,
+                                      float bit_error_rate,
+                                      float raw_distance,
+                                      float progress_percentage,
+                                      uint8_t algo_mode,
+                                      sl_bt_cs_mode_t cs_mode)
+{
+  (void)instance_num;
+  (void)conn_handle;
+  (void)status;
+  (void)distance;
+  (void)rssi_distance;
+  (void)likeliness;
+  (void)bit_error_rate;
+  (void)raw_distance;
+  (void)progress_percentage;
+  (void)algo_mode;
+  (void)cs_mode;
+}
+
+void cs_initiator_display_update(void)
+{
+}
+
+void cs_initiator_display_start_scanning(void)
+{
 }

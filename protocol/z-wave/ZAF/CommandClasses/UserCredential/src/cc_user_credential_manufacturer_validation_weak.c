@@ -26,7 +26,7 @@
  *
  * @return true if the credential is valid, false otherwise
  */
-static bool CC_UserCredential_manufacturer_validate_pin_code(u3c_credential * p_credential)
+static bool CC_UserCredential_manufacturer_validate_pin_code(const u3c_credential_t * const p_credential)
 {
   // The following requirements are marked as SHOULD in the specification.
   // Manufacturers can change freely.
@@ -88,7 +88,7 @@ static bool CC_UserCredential_manufacturer_validate_pin_code(u3c_credential * p_
 }
 
 ZW_WEAK bool CC_UserCredential_manufacturer_validate_credential(
-  u3c_credential * credential)
+  const u3c_credential_t * const credential)
 {
   bool result = true;
   switch (credential->metadata.type) {
@@ -102,18 +102,18 @@ ZW_WEAK bool CC_UserCredential_manufacturer_validate_credential(
 }
 
 ZW_WEAK bool CC_UserCredential_manufacturer_validate_admin_pin_code(
-  u3c_admin_code_metadata_t * code
+  u3c_admin_code_metadata_t * const code
   )
 {
-  u3c_credential credential = {
+  const u3c_credential_t credential = {
     .data = code->code_data,
     .metadata = {
       .length = code->code_length,
-      .type = CREDENTIAL_TYPE_PIN_CODE,
+      .type = CREDENTIAL_TYPE_PIN_CODE
     }
   };
   bool is_valid =
-    CC_UserCredential_manufacturer_validate_credential(&credential);
+    CC_UserCredential_manufacturer_validate_pin_code(&credential);
   code->result = is_valid
                  ? ADMIN_CODE_OPERATION_RESULT_INTERNAL_NONE
                  : ADMIN_CODE_OPERATION_RESULT_FAIL_MANUF_RULE;

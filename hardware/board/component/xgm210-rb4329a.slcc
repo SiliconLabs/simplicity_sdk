@@ -1,7 +1,7 @@
 !!omap
 - id: xgm210_rb4329a
 - label: XGM210-RB4329A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xGM210L-3 Wireless Gecko module Radio board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

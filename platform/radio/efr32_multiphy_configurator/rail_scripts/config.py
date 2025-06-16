@@ -272,6 +272,7 @@ PROTECTED_FIELDS = {
     'margay': mergeDictionaries(PROTECTED_FIELDS_BASE, PROTECTED_FIELDS_OCELOT),
     'caracal': mergeDictionaries(PROTECTED_FIELDS_BASE, PROTECTED_FIELDS_CARACAL),
     'lion': mergeDictionaries(PROTECTED_FIELDS_BASE, PROTECTED_FIELDS_LION),
+    'serval': mergeDictionaries(PROTECTED_FIELDS_BASE, PROTECTED_FIELDS_OCELOT),
     'rainier': ProtectedFieldsRainier().get_rail_protected_field_dict(),
     'lpwh72000': ProtectedFieldsRainier().get_rail_protected_field_dict(),
     'lpwh74000': ProtectedFieldsRainier().get_rail_protected_field_dict(),

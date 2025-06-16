@@ -26,15 +26,16 @@
 #include "zigbee_direct_common.h"
 #include "app/framework/security/af-security.h"
 
-void sli_zigbee_direct_print_keys(void)
+void sli_zigbee_direct_print_keys(sl_cli_command_arg_t *arguments)
 {
+  (void) arguments;
   sl_zigbee_key_data_t basic_key;
   tokTypeMfgInstallationCode tok_install_code;
 
-  sl_zigbee_core_debug_println("Zigbee Direct Interface State: %d", sl_zigbee_direct_interface_state);
+  sl_zigbee_core_debug_println("Zigbee Direct Interface State: %d", sli_zigbee_direct_interface_state);
   sl_zigbee_core_debug_println("Zigbee Direct Anonymous Join Timeout: %d sec", sl_zigbee_direct_anonymous_join_timeout_sec);
 
-  sl_zigbee_direct_calculate_basic_key(sl_zvd_eui, sl_zigbee_key_contents(&basic_key));
+  sli_zigbee_direct_calculate_basic_key(sl_zvd_eui, sl_zigbee_key_contents(&basic_key));
   sl_zigbee_core_debug_print("Basic Key:");
   sl_zigbee_af_print_zigbee_key(sl_zigbee_key_contents(&basic_key));
   sl_zigbee_core_debug_println("");
@@ -50,8 +51,9 @@ void sli_zigbee_direct_print_keys(void)
   sl_zigbee_core_debug_println("");
 }
 
-void sl_zigbee_direct_reset_outgoing_counter(void)
+void sl_zigbee_direct_reset_outgoing_counter(sl_cli_command_arg_t *arguments)
 {
+  (void) arguments;
   outgoing_counter = 0;
   sl_zigbee_core_debug_println("Outgoing frame counter was reset.");
 }

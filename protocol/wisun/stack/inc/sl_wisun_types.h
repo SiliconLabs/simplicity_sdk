@@ -289,7 +289,9 @@ typedef enum {
   /// Primary Parent modification flag bit
   SL_WISUN_NETWORK_UPDATE_FLAGS_PRIMARY_PARENT   = 1,
   /// Secondary parent modification flag bit
-  SL_WISUN_NETWORK_UPDATE_FLAGS_SECONDARY_PARENT = 2
+  SL_WISUN_NETWORK_UPDATE_FLAGS_SECONDARY_PARENT = 2,
+  /// Hop count modification flag bit
+  SL_WISUN_NETWORK_UPDATE_FLAGS_HOP_COUNT        = 3,
 } sl_wisun_network_update_flags_t;
 
 /// Enumerations for PHY config type
@@ -388,6 +390,14 @@ typedef struct {
   uint32_t rx_ms_failed_count;
   /// Number of failed MAC frames transmission using mode switch.
   uint32_t tx_ms_failed_count;
+  /// Cumulated idle duration in seconds.
+  uint32_t idle_duration_s;
+  /// Radio TX duration in milliseconds
+  uint32_t radio_tx_duration_ms;
+  /// MAC RX availability percentage.
+  uint8_t rx_availability_percentage;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
 } sl_wisun_statistics_mac_t;
 
 /// Frequency hopping statistics
@@ -472,6 +482,16 @@ typedef struct {
   uint16_t adapt_layer_tx_queue_size;
   /// Highest number of frames in the adaptation layer transmission queue.
   uint16_t adapt_layer_tx_queue_peak;
+  /// Number of new MPL messages.
+  uint16_t mpl_new_messages_count;
+  /// Number of received MPL messages.
+  uint16_t mpl_rx_count;
+  /// Number of forwarded MPL messages.
+  uint16_t mpl_forwarded_messages_count;
+  /// Number of freed MPL messages.
+  uint16_t mpl_freed_messages_count;
+  /// Number of deleted MPL messages that were never sent.
+  uint16_t mpl_not_tx_count;
 } sl_wisun_statistics_network_t;
 
 /** ARIB regulation statistics. */
@@ -487,10 +507,14 @@ typedef union {
 
 /// Heap usage statistics
 typedef struct {
-  /// Heap arena size in bytes
+  /// Highest heap usage in bytes
   uint32_t arena;
   /// Current heap usage in bytes
   uint32_t uordblks;
+  /// Current remaining heap in bytes
+  uint32_t free;
+  /// Total available heap in bytes
+  uint32_t total;
 } sl_wisun_statistics_heap_t;
 
 /// Statistics
@@ -918,6 +942,8 @@ typedef enum {
   SL_WISUN_TRACE_GROUP_RALG    = 39,    ///< Adaptive rate algorithms
   SL_WISUN_TRACE_GROUP_FSM     = 40,    ///< Finite state machine
   SL_WISUN_TRACE_GROUP_APP     = 41,    ///< Application
+  SL_WISUN_TRACE_GROUP_DC      = 42,    ///< Direct Connect
+  SL_WISUN_TRACE_GROUP_REG     = 43,    ///< Regional regulation
   // 36 to 63 reserved for future used
   SL_WISUN_TRACE_GROUP_INT     = 63,    ///< Internal usage
   SL_WISUN_TRACE_GROUP_COUNT   = 64     ///< Max number of trace group in this enum
@@ -1031,6 +1057,10 @@ SL_PACK_START(1)
 typedef struct {
   /// PAN ID
   uint16_t pan_id;
+  /// Hop count
+  uint8_t hop_count;
+  /// Reserved, set to zero
+  uint8_t reserved;
   } SL_ATTRIBUTE_PACKED sl_wisun_network_info_t;
 SL_PACK_END()
 
@@ -1118,6 +1148,24 @@ typedef enum {
   /// Border Router is started
   SL_WISUN_BR_STATE_OPERATIONAL = 1
 } sl_wisun_br_state_t;
+
+/// Border Router routing table entry
+SL_PACK_START(1)
+typedef struct {
+  /// GUA/ULA of the routed node
+  in6_addr_t target;
+  /// GUA/ULA of the routed node's preferred parent
+  in6_addr_t preferred;
+  /// GUA/ULA of the routed node's backup parent. INADDR_ANY if not set.
+  in6_addr_t backup;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_routing_table_entry_t;
+SL_PACK_END()
+
+/// Enumeration for routing table update types
+typedef enum {
+  /// At least one route is updated in the routing table
+  SL_WISUN_ROUTING_TABLE_UPDATE_ROUTE_CHANGED = 0,
+} sl_wisun_routing_table_update_event_t;
 
 /**************************************************************************//**
  * Handler called for an IPv6 packet from Wi-SUN network.

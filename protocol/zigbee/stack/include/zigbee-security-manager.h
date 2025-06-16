@@ -405,14 +405,30 @@ void sl_zigbee_sec_man_hmac_aes_mmo(const uint8_t* input,
                                     uint8_t* output);
 
 /**
- * @brief Encrypt the specified data using AES-CCM with AES-128 and a MIC of the requested length (in  * bytes).  See documentation for sl_zb_sec_ * man_aes_ccm for information on parameters besides mic_length.
+ * @brief Encrypt/Decrypt the specified data using AES-CCM with AES-128 and a MIC of the requested length (in  * bytes).  See documentation for sl_zb_sec_ * man_aes_ccm for information on parameters besides mic_length.
  *
- * @param mic_length [IN] Length of the MIC to output.  Currently supported MIC lengths are 4 bytes
+ * @param nonce [IN] Nonce value used as part of CCM* encryption/decryption.
+ *
+ * @param encrypt [IN] Encryption/decryption mode. True if encrypting, false for authenticated
+ * decryption. True when using this function for unauthenticated decryption (decrypt
+ * bytes in input and do not verify the end of input as a MIC).
+ *
+ * @param input [IN] Input to the CCM* encryption/decryption operation. The function assumes this is in packet
+ * format, where authenticated data begins at the location pointed to by input, and is followed by
+ * authenticated data. For authenticated decryption, the MIC is assumed to be located following the
+ * encrypted data.
+ *
+ * @param encryption_start_index [IN] Length of the authenticated data, equivalent to the index in
+ * input where data to be encrypted/decrypted begins.
+ *
+ * @param length [IN] Total length of authenticated + encrypted data excluding the MIC length.
+ *
+ * @param mic_length [IN] Length of the MIC to output. Currently supported MIC lengths are 4 bytes
  * and 8 bytes.
  *
  * @internal SL_ZIGBEE_IPC_ARGS
  * {# nonce | length: NONCE_LENGTH | max: NONCE_LENGTH #}
- * {# input | length: length | max: MAX_IPC_VEC_ARG_CAPACITY #}
+ * {# input | length: length + mic_length | max: MAX_IPC_VEC_ARG_CAPACITY #}
  * {# output | length: length + mic_length | max: MAX_IPC_VEC_ARG_CAPACITY #}
  */
 sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t* nonce,
@@ -424,7 +440,7 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t* nonce,
                                                uint8_t* output);
 
 /**
- * @brief Encrypt the specified data using AES-CCM with AES-128 and a 4-byte MIC.
+ * @brief Encrypt/Decrypt the specified data using AES-CCM with AES-128 and a 4-byte MIC.
  *
  * @param nonce [IN] Nonce value used as part of CCM* encryption.
  *
@@ -440,7 +456,7 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t* nonce,
  * @param encryption_start_index [IN] Length of the authenticated data, equivalent to the index in
  * input where data to be encrypted/decrypted begins.
  *
- * @param length [IN] Total length of authenticated + encrypted data.
+ * @param length [IN] Total length of authenticated + encrypted data excluding the MIC length.
  *
  * @param output [OUT] Output to the CCM* operation. When encrypt is true, this must have space for
  * the input length plus a 4-byte MIC.  For authenticated decryption, it must have size at least as

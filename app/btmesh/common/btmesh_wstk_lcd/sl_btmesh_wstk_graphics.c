@@ -60,7 +60,7 @@ static char *deviceHeader = NULL;
 // -----------------------------------------------------------------------------
 // Static Function Declarations
 
-/***************************************************************************//**
+/*******************************************************************************
  * @brief Print the given string center aligned
  *
  * @note The string may contain several lines separated by new line
@@ -165,11 +165,11 @@ static sl_status_t graphPrintCenter(GLIB_Context_t *pContext, char *pString)
       ;
     }
 
-    len = nextToken - pString;
+    len = (uint8_t)(nextToken - pString);
     // Print the line if it is not null length
     if (len) {
       uint8_t strWidth = len * pContext->font.fontWidth;
-      uint8_t posX = (pContext->pDisplayGeometry->xSize - strWidth) >> 1;
+      uint8_t posX = (uint8_t)((pContext->pDisplayGeometry->xSize - strWidth) >> 1);
       uint8_t posY = ((pContext->font.lineSpacing + pContext->font.fontHeight)
                       * graphLineNum)
                      + pContext->font.lineSpacing;

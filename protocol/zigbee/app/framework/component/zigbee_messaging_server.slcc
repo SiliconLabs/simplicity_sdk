@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Messaging server cluster.  This component serves up messages in its table to clients that request them. This component requires extending to populate the message table with messages.
 label: Messaging Server Cluster
 quality: evaluation

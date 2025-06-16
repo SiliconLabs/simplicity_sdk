@@ -1,5 +1,5 @@
 id: psa_crypto_chachapoly
-package: platform
+package: security_mbedtls
 label: ChachaPoly
 description:
   "This component provides support for authenticated encryption and decryption \

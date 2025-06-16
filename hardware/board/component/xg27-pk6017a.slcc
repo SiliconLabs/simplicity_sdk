@@ -1,7 +1,7 @@
 !!omap
 - id: xg27_pk6017a
 - label: XG27-PK6017A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG27 2.4 GHz +8 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

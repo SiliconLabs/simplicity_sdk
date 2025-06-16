@@ -31,11 +31,13 @@
 #include "em_device.h"
 #include "sl_psa_values.h"
 #include <psa/crypto.h>
-#include "mbedtls/platform.h"
+#include "sli_psa_driver_features.h"
 #include "sli_cryptoacc_opaque_types.h"
-#include <string.h>
+#include "mbedtls/platform.h"
 
 #if defined(SLI_PSA_DRIVER_FEATURE_PUF_KEY) && defined(MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS)
+
+#include <string.h>
 
 psa_status_t sli_cryptoacc_opaque_get_builtin_key(psa_drv_slot_number_t slot_number,
                                                   psa_key_attributes_t *attributes,

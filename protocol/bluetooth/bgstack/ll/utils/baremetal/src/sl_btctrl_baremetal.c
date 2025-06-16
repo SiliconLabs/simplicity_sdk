@@ -68,6 +68,7 @@ void BTLE_LL_EventRaise(uint32_t events)
 
 void sli_btctrl_events_init()
 {
+  sli_btctrl_events = 0;
   NVIC_ClearPendingIRQ(PendSV_IRQn);
 }
 

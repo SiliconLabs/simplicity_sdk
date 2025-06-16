@@ -74,7 +74,7 @@
 /// Max regulatory domain count
 #define MAX_REG_DOMAIN_COUNT            (16U)
 
-/// Max networ size count
+/// Max network size count
 #define MAX_NETWORK_SIZE_COUNT          (6U)
 
 /// TX remaining string "exceeded"
@@ -198,7 +198,7 @@ static void _set_nbinfo_txtbox(void *args);
 
 /**************************************************************************//**
  * @brief Get the tx remaining budget string
- * @param[in] tx_remaining_budget TX remianing budget
+ * @param[in] tx_remaining_budget TX remaining budget
  *****************************************************************************/
 __STATIC_INLINE const char* _tx_remaining_budget(const uint32_t tx_remaining_budget);
 
@@ -395,7 +395,7 @@ static void _node_info_form(void *args)
   // getting settings
   app_wisun_setting_get(&node_info.settings);
 
-  // get remanining transmission budget if applicable
+  // get remaining transmission budget if applicable
   if ( sl_wisun_app_core_get_regulation_active() == true ) {
     valid = sl_wisun_app_core_get_remaining_tx_budget(&tx_remaining_budget);
   }

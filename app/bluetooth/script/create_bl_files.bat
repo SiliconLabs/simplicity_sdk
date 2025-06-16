@@ -53,7 +53,7 @@ if "%PATH_OUT%"=="" (
 if not exist "%OBJCOPY%" (
   echo Error: gcc-arm objcopy not found at '%OBJCOPY%'
   echo Use PATH_GCCARM env var to override default path for gcc-arm.
-  echo Please refer to AN1086 sections 2.3 and 3.10 on how to set the required
+  echo Please refer to AN1086 sections 2.3 and 3.3.2 on how to set the required
   echo environmental variables.
   pause
   goto:eof
@@ -62,7 +62,7 @@ if not exist "%OBJCOPY%" (
 if not exist "%COMMANDER%" (
   echo Error: Simplicity Commander not found at '%COMMANDER%'
   echo Use PATH_SCMD env var to override default path for Simplicity Commander.
-  echo Please refer to AN1086 sections 2.3 and 3.10 on how to set the required
+  echo Please refer to AN1086 sections 2.3 and 3.3.2 on how to set the required
   echo environmental variables.
   pause
   goto:eof

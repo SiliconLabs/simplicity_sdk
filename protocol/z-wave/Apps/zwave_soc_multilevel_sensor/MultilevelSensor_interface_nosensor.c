@@ -22,8 +22,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdbool.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include <cc_multilevel_sensor_config.h>
 #include "ZW_typedefs.h"
 #include "sl_status.h"
@@ -80,7 +79,7 @@ cc_multilevel_sensor_endpoint_0_humidity_interface_read_value(sensor_read_result
 {
   uint32_t rh_data = 32;
 
-  DPRINTF("Humidity: %d\n", rh_data);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Humidity: %d\n", rh_data);
 
   memset(o_result, 0, sizeof(sensor_read_result_t));
   o_result->precision  = SENSOR_READ_RESULT_PRECISION_3;
@@ -104,7 +103,7 @@ cc_multilevel_sensor_endpoint_0_air_temperature_interface_read_value(sensor_read
   o_result->precision  = SENSOR_READ_RESULT_PRECISION_3;
   o_result->size_bytes = SENSOR_READ_RESULT_SIZE_4;
 
-  DPRINTF("Temperature: %d\n", rh_data);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Temperature: %d\n", temp_data);
 
   if (i_scale == SENSOR_SCALE_FAHRENHEIT) {
     temperature_celsius_divided = (float)temp_data / (float)1000;
@@ -133,7 +132,7 @@ cc_multilevel_sensor_endpoint_0_ambient_light_interface_read_value(sensor_read_r
   o_result->precision  = SENSOR_READ_RESULT_PRECISION_3;
   o_result->size_bytes = SENSOR_READ_RESULT_SIZE_4;
 
-  DPRINTF("Ambient light: %d\n", al_data_int);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Ambient light: %d\n", al_data_int);
 
   o_result->raw_result[3] = (uint8_t)(al_data_int & 0xFF);
   o_result->raw_result[2] = (uint8_t)((al_data_int >> 8) & 0xFF);

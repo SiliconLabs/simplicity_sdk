@@ -1,6 +1,6 @@
 /**
  * @file
- * Configuration file for the ZAF 
+ * Configuration file for the ZAF
  *
  * @copyright 2022 Silicon Laboratories Inc.
  */
@@ -33,12 +33,12 @@
 
 uint8_t zaf_config_get_bootloader_upgradable(void)
 {
-    return ZAF_CONFIG_BOOTLOADER_UPGRADABLE;
+  return ZAF_CONFIG_BOOTLOADER_UPGRADABLE;
 }
 
 uint8_t zaf_config_get_bootloader_target_id(void)
 {
-    return ZAF_CONFIG_BOOTLOADER_TARGET_ID;
+  return ZAF_CONFIG_BOOTLOADER_TARGET_ID;
 }
 
 uint8_t zaf_config_get_hardware_version(void)
@@ -71,11 +71,13 @@ uint8_t zaf_config_get_number_of_endpoints(void)
   return ZAF_CONFIG_NUMBER_OF_END_POINTS;
 }
 
-uint8_t zaf_config_get_default_endpoint(void) {
+uint8_t zaf_config_get_default_endpoint(void)
+{
   return ZAF_CONFIG_NUMBER_OF_END_POINTS ? 1 : 0;
 }
 
-uint8_t zaf_config_get_role_type(void) {
+uint8_t zaf_config_get_role_type(void)
+{
   return ZAF_CONFIG_APP_ROLE_TYPE;
 }
 

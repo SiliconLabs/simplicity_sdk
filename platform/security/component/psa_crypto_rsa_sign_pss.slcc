@@ -1,5 +1,5 @@
 id: psa_crypto_rsa_sign_pss
-package: platform
+package: security_mbedtls
 label: RSA-PSS
 description: >-
   This component adds support for signatures using the RSA-PSS scheme as

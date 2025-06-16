@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -46,58 +46,68 @@
 #error Unsupported compiler
 #endif
 
-extern bool    OT_API_REAL_NAME(otMdnsIsEnabled)(otInstance *aInstance);
-extern bool    OT_API_REAL_NAME(otMdnsIsQuestionUnicastAllowed)(otInstance *aInstance);
-extern otError OT_API_REAL_NAME(otMdnsGetNextBrowser)(otInstance      *aInstance,
+extern bool        OT_API_REAL_NAME(otMdnsIsEnabled)(otInstance *aInstance);
+extern bool        OT_API_REAL_NAME(otMdnsIsQuestionUnicastAllowed)(otInstance *aInstance);
+extern const char *OT_API_REAL_NAME(otMdnsGetLocalHostName)(otInstance *aInstance);
+extern otError     OT_API_REAL_NAME(otMdnsGetNextBrowser)(otInstance      *aInstance,
                                                       otMdnsIterator  *aIterator,
                                                       otMdnsBrowser   *aBrowser,
                                                       otMdnsCacheInfo *aInfo);
-extern otError OT_API_REAL_NAME(otMdnsGetNextHost)(otInstance       *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextHost)(otInstance       *aInstance,
                                                    otMdnsIterator   *aIterator,
                                                    otMdnsHost       *aHost,
                                                    otMdnsEntryState *aState);
-extern otError OT_API_REAL_NAME(otMdnsGetNextIp4AddressResolver)(otInstance            *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextIp4AddressResolver)(otInstance            *aInstance,
                                                                  otMdnsIterator        *aIterator,
                                                                  otMdnsAddressResolver *aResolver,
                                                                  otMdnsCacheInfo       *aInfo);
-extern otError OT_API_REAL_NAME(otMdnsGetNextIp6AddressResolver)(otInstance            *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextIp6AddressResolver)(otInstance            *aInstance,
                                                                  otMdnsIterator        *aIterator,
                                                                  otMdnsAddressResolver *aResolver,
                                                                  otMdnsCacheInfo       *aInfo);
-extern otError OT_API_REAL_NAME(otMdnsGetNextKey)(otInstance       *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextKey)(otInstance       *aInstance,
                                                   otMdnsIterator   *aIterator,
                                                   otMdnsKey        *aKey,
                                                   otMdnsEntryState *aState);
-extern otError OT_API_REAL_NAME(otMdnsGetNextService)(otInstance       *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextLocalHostAddress)(otInstance             *aInstance,
+                                                               otMdnsIterator         *aIterator,
+                                                               otMdnsLocalHostAddress *aAddress);
+extern otError     OT_API_REAL_NAME(otMdnsGetNextRecordQuerier)(otInstance          *aInstance,
+                                                            otMdnsIterator      *aIterator,
+                                                            otMdnsRecordQuerier *aQuerier,
+                                                            otMdnsCacheInfo     *aInfo);
+extern otError     OT_API_REAL_NAME(otMdnsGetNextService)(otInstance       *aInstance,
                                                       otMdnsIterator   *aIterator,
                                                       otMdnsService    *aService,
                                                       otMdnsEntryState *aState);
-extern otError OT_API_REAL_NAME(otMdnsGetNextSrvResolver)(otInstance        *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextSrvResolver)(otInstance        *aInstance,
                                                           otMdnsIterator    *aIterator,
                                                           otMdnsSrvResolver *aResolver,
                                                           otMdnsCacheInfo   *aInfo);
-extern otError OT_API_REAL_NAME(otMdnsGetNextTxtResolver)(otInstance        *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsGetNextTxtResolver)(otInstance        *aInstance,
                                                           otMdnsIterator    *aIterator,
                                                           otMdnsTxtResolver *aResolver,
                                                           otMdnsCacheInfo   *aInfo);
-extern otError OT_API_REAL_NAME(otMdnsRegisterHost)(otInstance            *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsRegisterHost)(otInstance            *aInstance,
                                                     const otMdnsHost      *aHost,
                                                     otMdnsRequestId        aRequestId,
                                                     otMdnsRegisterCallback aCallback);
-extern otError OT_API_REAL_NAME(otMdnsRegisterKey)(otInstance            *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsRegisterKey)(otInstance            *aInstance,
                                                    const otMdnsKey       *aKey,
                                                    otMdnsRequestId        aRequestId,
                                                    otMdnsRegisterCallback aCallback);
-extern otError OT_API_REAL_NAME(otMdnsRegisterService)(otInstance            *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsRegisterService)(otInstance            *aInstance,
                                                        const otMdnsService   *aService,
                                                        otMdnsRequestId        aRequestId,
                                                        otMdnsRegisterCallback aCallback);
-extern otError OT_API_REAL_NAME(otMdnsSetEnabled)(otInstance *aInstance, bool aEnable, uint32_t aInfraIfIndex);
-extern otError OT_API_REAL_NAME(otMdnsStartBrowser)(otInstance *aInstance, const otMdnsBrowser *aBrowser);
-extern otError OT_API_REAL_NAME(otMdnsStartIp4AddressResolver)(otInstance                  *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsSetEnabled)(otInstance *aInstance, bool aEnable, uint32_t aInfraIfIndex);
+extern otError     OT_API_REAL_NAME(otMdnsSetLocalHostName)(otInstance *aInstance, const char *aName);
+extern otError     OT_API_REAL_NAME(otMdnsStartBrowser)(otInstance *aInstance, const otMdnsBrowser *aBrowser);
+extern otError     OT_API_REAL_NAME(otMdnsStartIp4AddressResolver)(otInstance                  *aInstance,
                                                                const otMdnsAddressResolver *aResolver);
-extern otError OT_API_REAL_NAME(otMdnsStartIp6AddressResolver)(otInstance                  *aInstance,
+extern otError     OT_API_REAL_NAME(otMdnsStartIp6AddressResolver)(otInstance                  *aInstance,
                                                                const otMdnsAddressResolver *aResolver);
+extern otError OT_API_REAL_NAME(otMdnsStartRecordQuerier)(otInstance *aInstance, const otMdnsRecordQuerier *aQuerier);
 extern otError OT_API_REAL_NAME(otMdnsStartSrvResolver)(otInstance *aInstance, const otMdnsSrvResolver *aResolver);
 extern otError OT_API_REAL_NAME(otMdnsStartTxtResolver)(otInstance *aInstance, const otMdnsTxtResolver *aResolver);
 extern otError OT_API_REAL_NAME(otMdnsStopBrowser)(otInstance *aInstance, const otMdnsBrowser *aBroswer);
@@ -105,6 +115,7 @@ extern otError OT_API_REAL_NAME(otMdnsStopIp4AddressResolver)(otInstance        
                                                               const otMdnsAddressResolver *aResolver);
 extern otError OT_API_REAL_NAME(otMdnsStopIp6AddressResolver)(otInstance                  *aInstance,
                                                               const otMdnsAddressResolver *aResolver);
+extern otError OT_API_REAL_NAME(otMdnsStopRecordQuerier)(otInstance *aInstance, const otMdnsRecordQuerier *aQuerier);
 extern otError OT_API_REAL_NAME(otMdnsStopSrvResolver)(otInstance *aInstance, const otMdnsSrvResolver *aResolver);
 extern otError OT_API_REAL_NAME(otMdnsStopTxtResolver)(otInstance *aInstance, const otMdnsTxtResolver *aResolver);
 extern otError OT_API_REAL_NAME(otMdnsUnregisterHost)(otInstance *aInstance, const otMdnsHost *aHost);
@@ -127,6 +138,14 @@ bool OT_API_WRAPPER_NAME(otMdnsIsQuestionUnicastAllowed)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otMdnsIsQuestionUnicastAllowed)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+const char *OT_API_WRAPPER_NAME(otMdnsGetLocalHostName)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    const char *ret = OT_API_REAL_NAME(otMdnsGetLocalHostName)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -182,6 +201,27 @@ otError OT_API_WRAPPER_NAME(otMdnsGetNextKey)(otInstance       *aInstance,
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMdnsGetNextKey)(aInstance, aIterator, aKey, aState);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otMdnsGetNextLocalHostAddress)(otInstance             *aInstance,
+                                                           otMdnsIterator         *aIterator,
+                                                           otMdnsLocalHostAddress *aAddress)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otMdnsGetNextLocalHostAddress)(aInstance, aIterator, aAddress);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otMdnsGetNextRecordQuerier)(otInstance          *aInstance,
+                                                        otMdnsIterator      *aIterator,
+                                                        otMdnsRecordQuerier *aQuerier,
+                                                        otMdnsCacheInfo     *aInfo)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otMdnsGetNextRecordQuerier)(aInstance, aIterator, aQuerier, aInfo);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -260,6 +300,14 @@ otError OT_API_WRAPPER_NAME(otMdnsSetEnabled)(otInstance *aInstance, bool aEnabl
     return ret;
 }
 
+otError OT_API_WRAPPER_NAME(otMdnsSetLocalHostName)(otInstance *aInstance, const char *aName)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otMdnsSetLocalHostName)(aInstance, aName);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
 otError OT_API_WRAPPER_NAME(otMdnsStartBrowser)(otInstance *aInstance, const otMdnsBrowser *aBrowser)
 {
     sl_ot_rtos_acquire_stack_mutex();
@@ -282,6 +330,14 @@ otError OT_API_WRAPPER_NAME(otMdnsStartIp6AddressResolver)(otInstance           
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMdnsStartIp6AddressResolver)(aInstance, aResolver);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otMdnsStartRecordQuerier)(otInstance *aInstance, const otMdnsRecordQuerier *aQuerier)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otMdnsStartRecordQuerier)(aInstance, aQuerier);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -322,6 +378,14 @@ otError OT_API_WRAPPER_NAME(otMdnsStopIp6AddressResolver)(otInstance *aInstance,
 {
     sl_ot_rtos_acquire_stack_mutex();
     otError ret = OT_API_REAL_NAME(otMdnsStopIp6AddressResolver)(aInstance, aResolver);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otMdnsStopRecordQuerier)(otInstance *aInstance, const otMdnsRecordQuerier *aQuerier)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otMdnsStopRecordQuerier)(aInstance, aQuerier);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

@@ -1,0 +1,20 @@
+id: sl_rail_util_sequencer
+label: SL RAIL Utility, Radio Sequencer Image Selection
+description: Utility to aid with selecting a radio sequencer image.
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_sequencer
+        name: SL RAIL Utility, Radio Sequencer Image Selection
+        license: Zlib
+ui_hints:
+    visibility: never
+provides:
+  - name: sl_rail_util_sequencer
+requires:
+  - name: rail_util_sequencer
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

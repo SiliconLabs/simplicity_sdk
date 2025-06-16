@@ -1,9 +1,9 @@
 /**
-* @file ZW_TransportEndpoint.c
-* @copyright 2018 Silicon Laboratories Inc.
-* @brief Transport layer for Multi Channel endpoint functionality
-*
-*/
+ * @file ZW_TransportEndpoint.c
+ * @copyright 2018 Silicon Laboratories Inc.
+ * @brief Transport layer for Multi Channel endpoint functionality
+ *
+ */
 
 /****************************************************************************/
 /*                              INCLUDE FILES                               */
@@ -14,8 +14,7 @@
 #include <multichannel.h>
 #include <ZW_TransportLayer.h>
 #include <misc.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include <ZW_TransportEndpoint.h>
 #include <ZW_application_transport_interface.h>
 #include <ZAF_Common_helper.h>
@@ -28,9 +27,9 @@
 #include "zaf_config_api.h"
 
 /* Ensuring that we use the same enum definition for EZAF_EnqueueStatus_t and EQueueNotifyingStatus */
-_Static_assert((ZAF_ENQUEUE_STATUS_SUCCESS == (EZAF_EnqueueStatus_t)EQUEUENOTIFYING_STATUS_SUCCESS) &&
-              (ZAF_ENQUEUE_STATUS_TIMEOUT == (EZAF_EnqueueStatus_t)EQUEUENOTIFYING_STATUS_TIMEOUT),
-              "STATIC_ASSERT_FAILED_EZAF_EnqueueStatus_t_define_error");
+_Static_assert((ZAF_ENQUEUE_STATUS_SUCCESS == (EZAF_EnqueueStatus_t)EQUEUENOTIFYING_STATUS_SUCCESS)
+               && (ZAF_ENQUEUE_STATUS_TIMEOUT == (EZAF_EnqueueStatus_t)EQUEUENOTIFYING_STATUS_TIMEOUT),
+               "STATIC_ASSERT_FAILED_EZAF_EnqueueStatus_t_define_error");
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
@@ -41,7 +40,6 @@ _Static_assert((ZAF_ENQUEUE_STATUS_SUCCESS == (EZAF_EnqueueStatus_t)EQUEUENOTIFY
                                               * APP_EVENT_QUEUE_SIZE, and this will halt certain operations if
                                               * QUEUE_NOTIFYING_SEND_MAX_WAIT is set to zero.
                                               * See the detailed description above. */
-
 
 typedef struct {
   uint8_t flag_supervision_encap;
@@ -86,35 +84,30 @@ uint8_t ConvertEnumKeytoBitKey(enum SECURITY_KEY eKey)
 /*============================ GetEndpointcmdClassList ======================
 **-------------------------------------------------------------------------*/
 zaf_cc_list_t*
-GetEndpointcmdClassList( bool secList, uint8_t endpoint)
+GetEndpointcmdClassList(bool secList, uint8_t endpoint)
 {
   zaf_cc_list_t *unsecure_included_cc;
   zaf_cc_list_t *secure_included_unsecure_cc;
   zaf_cc_list_t *secure_included_secure_cc;
 
-  if((endpoint > zaf_config_get_number_of_endpoints()) || (0 == endpoint))
-  {
+  if ((endpoint > zaf_config_get_number_of_endpoints()) || (0 == endpoint)) {
     return NULL;
   }
 
   zafi_cc_list_generator_get_lists(endpoint, &unsecure_included_cc, &secure_included_unsecure_cc, &secure_included_secure_cc);
 
-  if(SECURITY_KEY_NONE == GetHighestSecureLevel(ZAF_GetSecurityKeys()))
-  {
+  if (SECURITY_KEY_NONE == GetHighestSecureLevel(ZAF_GetSecurityKeys())) {
     /*Non-secure included*/
-    if(false == secList){
+    if (false == secList) {
       return unsecure_included_cc;
-    }
-    else {
+    } else {
       return &(myTransportEndpoint.emptyList);
     }
-  }
-  else{
+  } else {
     /*Secure included*/
-    if(false == secList){
+    if (false == secList) {
       return secure_included_unsecure_cc;
-    }
-    else {
+    } else {
       return secure_included_secure_cc;
     }
   }
@@ -128,29 +121,25 @@ ZAF_Transmit(
   TRANSMIT_OPTIONS_TYPE_SINGLE_EX *pTxOptionsEx,
   __attribute__((unused)) ZAF_TX_Callback_t pCallback)
 {
-  if (EINCLUSIONSTATE_EXCLUDED == ZAF_GetInclusionState())
-  {
+  if (EINCLUSIONSTATE_EXCLUDED == ZAF_GetInclusionState()) {
     // We are not network included. Nothing to do.
-    DPRINTF("\r\n%s: Not network included - nothing to do.\r\n", __func__);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_TRANSPORT, "\r\n%s: Not network included - nothing to do.\r\n", __func__);
     return ZAF_ENQUEUE_STATUS_SUCCESS;
   }
 
   EZAF_EnqueueStatus_t result;
 
   // Check for multi channel
-  if(false == pTxOptionsEx->pDestNode->nodeInfo.BitMultiChannelEncap)
-  {
+  if (false == pTxOptionsEx->pDestNode->nodeInfo.BitMultiChannelEncap) {
     pTxOptionsEx->sourceEndpoint = 0;
   }
 
-  if (IS_NULL(pTxOptionsEx))
-  {
+  if (IS_NULL(pTxOptionsEx)) {
     return ZAF_ENQUEUE_STATUS_TIMEOUT;
   }
 
   //Safeguard against buffer overflow
-  if (TX_BUFFER_SIZE < dataLength)
-  {
+  if (TX_BUFFER_SIZE < dataLength) {
     return ZAF_ENQUEUE_STATUS_BUFFER_OVERRUN;
   }
 
@@ -174,17 +163,15 @@ ZAF_Transmit(
 #pragma GCC diagnostic pop
   memcpy(FramePackage.uTransmitParams.SendDataEx.FrameConfig.aFrame, pData, dataLength);
 
-
-
   // Put the package on queue (and don't wait for it)
   result = (EZAF_EnqueueStatus_t)QueueNotifyingSendToBack(ZAF_getZwTxQueue(), (uint8_t*)&FramePackage, QUEUE_NOTIFYING_SEND_MAX_WAIT);
   return result;
 }
 
 void Transport_ApplicationCommandHandler(
-    ZW_APPLICATION_TX_BUFFER * pCmd,
-    uint8_t cmdLength,
-    RECEIVE_OPTIONS_TYPE * rxOpt)
+  ZW_APPLICATION_TX_BUFFER * pCmd,
+  uint8_t cmdLength,
+  RECEIVE_OPTIONS_TYPE * rxOpt)
 {
   RECEIVE_OPTIONS_TYPE_EX rxOptEx = {
     .rxStatus = rxOpt->rxStatus,
@@ -194,7 +181,7 @@ void Transport_ApplicationCommandHandler(
     .destNode.nodeId = rxOpt->destNode,
     .destNode.endpoint = 0,
     .destNode.BitAddress = 0,
-  // If applicable, supervision CC will fill in Supervision data in rxOptEx.
+    // If applicable, supervision CC will fill in Supervision data in rxOptEx.
     .bSupervisionActive = 0
   };
   cc_handler_input_t input = {
@@ -230,15 +217,15 @@ void Transport_ApplicationCommandHandler(
 }
 
 void
-RxToTxOptions( RECEIVE_OPTIONS_TYPE_EX *rxopt,     /* IN  receive options to convert */
-               TRANSMIT_OPTIONS_TYPE_SINGLE_EX** txopt)   /* OUT converted transmit options */
+RxToTxOptions(RECEIVE_OPTIONS_TYPE_EX *rxopt,      /* IN  receive options to convert */
+              TRANSMIT_OPTIONS_TYPE_SINGLE_EX** txopt)    /* OUT converted transmit options */
 {
   static TRANSMIT_OPTIONS_TYPE_SINGLE_EX txOptionsEx;
   static MULTICHAN_NODE_ID destNode;
 
   // Here we reset struct using memset because struct are static & reused
-  memset(&txOptionsEx,0,sizeof(txOptionsEx));
-  memset(&destNode,0,sizeof(destNode));
+  memset(&txOptionsEx, 0, sizeof(txOptionsEx));
+  memset(&destNode, 0, sizeof(destNode));
 
   txOptionsEx.pDestNode = &destNode;
   *txopt = &txOptionsEx;
@@ -249,9 +236,8 @@ RxToTxOptions( RECEIVE_OPTIONS_TYPE_EX *rxopt,     /* IN  receive options to con
   destNode.nodeInfo.security = rxopt->securityKey;
 
   txOptionsEx.txOptions = TRANSMIT_OPTION_ACK | TRANSMIT_OPTION_EXPLORE | ZWAVE_PLUS_TX_OPTIONS;
-  if (rxopt->rxStatus & RECEIVE_STATUS_LOW_POWER)
-  {
-      txOptionsEx.txOptions |= TRANSMIT_OPTION_LOW_POWER;
+  if (rxopt->rxStatus & RECEIVE_STATUS_LOW_POWER) {
+    txOptionsEx.txOptions |= TRANSMIT_OPTION_LOW_POWER;
   }
   txOptionsEx.sourceEndpoint = rxopt->destNode.endpoint;
   txOptionsEx.txSecOptions = 0;
@@ -268,11 +254,9 @@ Check_not_legal_response_job(RECEIVE_OPTIONS_TYPE_EX *rxOpt) /*rxOpt pointer of 
    * 2: is the bit address set to 1 in the Multi Channel destination End Point ?
    * 3: Get command must not support Supervision encapsulation (CC:006C.01.00.21.003)
    */
-  if (is_multicast(rxOpt) ||
-     (0 != rxOpt->destNode.BitAddress) ||
-     (true == myTransportEndpoint.flag_supervision_encap))
-  {
-
+  if (is_multicast(rxOpt)
+      || (0 != rxOpt->destNode.BitAddress)
+      || (true == myTransportEndpoint.flag_supervision_encap)) {
     status = true;
   }
   myTransportEndpoint.flag_supervision_encap = false;
@@ -285,8 +269,7 @@ is_multicast(RECEIVE_OPTIONS_TYPE_EX *rxOpt) /*rxOpt pointer of type RECEIVE_OPT
   /*
    * Check if the frame is addressed to Broadcast NodeID or a Multicast frame
    */
-  if (0 != (rxOpt->rxStatus & (RECEIVE_STATUS_TYPE_BROAD | RECEIVE_STATUS_TYPE_MULTI)))
-  {
+  if (0 != (rxOpt->rxStatus & (RECEIVE_STATUS_TYPE_BROAD | RECEIVE_STATUS_TYPE_MULTI))) {
     return true;
   }
   return false;

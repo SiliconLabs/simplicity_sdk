@@ -1,5 +1,5 @@
 id: psa_its
-package: platform
+package: security_mbedtls
 label: PSA Persistent Storage Support (ITS)
 description: >-
   This component provides an implementation of the PSA ITS (Internal Trusted

@@ -360,7 +360,7 @@ static bool isTouchlinkPermitted(const sl_zigbee_zll_network_t *networkInfo)
   // Get current run-time network status. (Note that getting the node type may
   // report an actual node type even if a previous touchlink failed, e.g.
   // if the initiator was orphaned and was unable to rejoin)
-  sl_zigbee_network_status_t networkStatus = sl_zigbee_network_state();
+  sl_zigbee_network_status_t networkStatus = sl_zigbee_af_network_state();
   sl_zigbee_current_security_state_t securityState;
   bool networkUp;
 
@@ -371,7 +371,7 @@ static bool isTouchlinkPermitted(const sl_zigbee_zll_network_t *networkInfo)
       // It is possible that we're orphaned but attempting to rejoin here, but we'll
       // fail the touchlink anyway, since it would probably collide with the rejoining
       // procedure. (sl_zigbee_get_current_security_state() fails if we are rejoining even
-      // though sl_zigbee_network_state() reports SL_ZIGBEE_JOINED_NETWORK_NO_PARENT)
+      // though sl_zigbee_af_network_state() reports SL_ZIGBEE_JOINED_NETWORK_NO_PARENT)
       debugPrintln("sl_zigbee_get_current_security_state failure");
       return false;
     } else {
@@ -561,8 +561,8 @@ void sli_zigbee_af_zll_abort_touch_link(sl_zigbee_af_zll_commissioning_status_t 
     sendIdentifyRequest(0x0000); // exit identify mode
   }
   sl_status_t status;
-  if (sl_zigbee_network_state() == SL_ZIGBEE_JOINED_NETWORK
-      || sl_zigbee_network_state() == SL_ZIGBEE_JOINED_NETWORK_NO_PARENT) {
+  if (sl_zigbee_af_network_state() == SL_ZIGBEE_JOINED_NETWORK
+      || sl_zigbee_af_network_state() == SL_ZIGBEE_JOINED_NETWORK_NO_PARENT) {
     status = sl_zigbee_set_radio_channel(currentChannel);
   } else {
     status = sl_zigbee_set_logical_and_radio_channel(currentChannel);

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Thu Feb 23 14:49:58 2023 by generateDS.py version 2.12d.
+# Generated Fri Apr  4 14:53:10 2025 by generateDS.py version 2.12d.
 #
 # Command line options:
 #   ('-o', '../Bindings.py')
@@ -19,7 +19,7 @@
 #   ./multi_phy_configuration_model.xsd
 #
 # Command line:
-#   C:\validation\host_py_radio_config\Package\pylib_multi_phy_model\multi_phy_configuration_model\xsd\generateDS_custom.py -o "../Bindings.py" --super="Bindings" -s "../Template.py" --subclass-suffix --member-specs="list" --external-encoding="ascii" -m -f --silence ./multi_phy_configuration_model.xsd
+#   C:\validation\users\tiwee\efx_rf_workspace_2024_10_9421_char_tag_debug\libraries\host_py_radio_config\Package\pylib_multi_phy_model\multi_phy_configuration_model\xsd\generateDS_custom.py -o "../Bindings.py" --super="Bindings" -s "../Template.py" --subclass-suffix --member-specs="list" --external-encoding="ascii" -m -f --silence ./multi_phy_configuration_model.xsd
 #
 # Current working directory (os.getcwd()):
 #   xsd
@@ -1006,12 +1006,15 @@ class base_channel_configurationsType(GeneratedsSuper):
 
 class base_channel_configurationType(GeneratedsSuper):
     """Readable name of channel config. (e.g. "802.15.4")Name of Profile
-    user selected. (example: Base_Profile)(Default=false) When true,
+    user selected. (example: Base_Profile)(Default=true) When true,
     copy all missing values back into "add" dictionary. And then
     empty out "subtract" dictionary. This is used as a speed
     optimization, at the cost of a larger "add" size. Remove
     registers from "baseline" that already exist in the "add"
-    collection.if force_empty_phy_config_delta_subtract is True, and
+    collection.(Default=true) When true, optimize "add" dictionary
+    with don't care logic.(Default=true) When true, prune "add"
+    dictionary by removing registers with unused aliases.if
+    force_empty_phy_config_delta_subtract is True, and
     base_channel_reference is not an empty string.. then this name
     is the reference regsiter set used to optimize space across
     multiple base_channel_configs"""
@@ -1019,6 +1022,8 @@ class base_channel_configurationType(GeneratedsSuper):
         MemberSpec_('name', 'xs:string', 0),
         MemberSpec_('profile', 'xs:string', 0),
         MemberSpec_('force_empty_phy_config_delta_subtract', 'xs:boolean', 0),
+        MemberSpec_('apply_dontcares_across_deltas', 'xs:boolean', 0),
+        MemberSpec_('prune_aliases_in_deltas', 'xs:boolean', 0),
         MemberSpec_('base_channel_reference', 'xs:string', 0),
         MemberSpec_('profile_inputs', 'profile_inputsType', 0),
         MemberSpec_('phy', 'phyType', 0),
@@ -1028,15 +1033,17 @@ class base_channel_configurationType(GeneratedsSuper):
         MemberSpec_('phy_config_base', 'phy_config_baseType', 0),
         MemberSpec_('phy_config_delta_subtract', 'phy_config_delta_subtractType', 0),
         MemberSpec_('link_layer_config', 'link_layer_configType', 0),
-        MemberSpec_('optional_arguments', 'optional_argumentsType11', 0),
+        MemberSpec_('optional_arguments', 'optional_argumentsType12', 0),
     ]
     subclass = None
     superclass = None
-    def __init__(self, name=None, profile=None, force_empty_phy_config_delta_subtract=True, base_channel_reference=None, profile_inputs=None, phy=None, profile_output_overrides=None, metadata=None, channel_config_entries=None, phy_config_base=None, phy_config_delta_subtract=None, link_layer_config=None, optional_arguments=None):
+    def __init__(self, name=None, profile=None, force_empty_phy_config_delta_subtract=True, apply_dontcares_across_deltas=True, prune_aliases_in_deltas=True, base_channel_reference=None, profile_inputs=None, phy=None, profile_output_overrides=None, metadata=None, channel_config_entries=None, phy_config_base=None, phy_config_delta_subtract=None, link_layer_config=None, optional_arguments=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.profile = _cast(None, profile)
         self.force_empty_phy_config_delta_subtract = _cast(bool, force_empty_phy_config_delta_subtract)
+        self.apply_dontcares_across_deltas = _cast(bool, apply_dontcares_across_deltas)
+        self.prune_aliases_in_deltas = _cast(bool, prune_aliases_in_deltas)
         self.base_channel_reference = _cast(None, base_channel_reference)
         if profile_inputs is None:
             self.profile_inputs = profile_inputsType()
@@ -1068,7 +1075,7 @@ class base_channel_configurationType(GeneratedsSuper):
         else:
             self.link_layer_config = link_layer_config
         if optional_arguments is None:
-            self.optional_arguments = optional_argumentsType11()
+            self.optional_arguments = optional_argumentsType12()
         else:
             self.optional_arguments = optional_arguments
     def factory(*args_, **kwargs_):
@@ -1113,6 +1120,12 @@ class base_channel_configurationType(GeneratedsSuper):
     def get_force_empty_phy_config_delta_subtract(self): return self.force_empty_phy_config_delta_subtract
     def set_force_empty_phy_config_delta_subtract(self, force_empty_phy_config_delta_subtract): self.force_empty_phy_config_delta_subtract = force_empty_phy_config_delta_subtract
     force_empty_phy_config_delta_subtractProp = property(get_force_empty_phy_config_delta_subtract, set_force_empty_phy_config_delta_subtract)
+    def get_apply_dontcares_across_deltas(self): return self.apply_dontcares_across_deltas
+    def set_apply_dontcares_across_deltas(self, apply_dontcares_across_deltas): self.apply_dontcares_across_deltas = apply_dontcares_across_deltas
+    apply_dontcares_across_deltasProp = property(get_apply_dontcares_across_deltas, set_apply_dontcares_across_deltas)
+    def get_prune_aliases_in_deltas(self): return self.prune_aliases_in_deltas
+    def set_prune_aliases_in_deltas(self, prune_aliases_in_deltas): self.prune_aliases_in_deltas = prune_aliases_in_deltas
+    prune_aliases_in_deltasProp = property(get_prune_aliases_in_deltas, set_prune_aliases_in_deltas)
     def get_base_channel_reference(self): return self.base_channel_reference
     def set_base_channel_reference(self, base_channel_reference): self.base_channel_reference = base_channel_reference
     base_channel_referenceProp = property(get_base_channel_reference, set_base_channel_reference)
@@ -1159,6 +1172,12 @@ class base_channel_configurationType(GeneratedsSuper):
         if self.force_empty_phy_config_delta_subtract is not None and 'force_empty_phy_config_delta_subtract' not in already_processed:
             already_processed.add('force_empty_phy_config_delta_subtract')
             outfile.write(' force_empty_phy_config_delta_subtract="%s"' % self.gds_format_boolean(self.force_empty_phy_config_delta_subtract, input_name='force_empty_phy_config_delta_subtract'))
+        if self.apply_dontcares_across_deltas is not None and 'apply_dontcares_across_deltas' not in already_processed:
+            already_processed.add('apply_dontcares_across_deltas')
+            outfile.write(' apply_dontcares_across_deltas="%s"' % self.gds_format_boolean(self.apply_dontcares_across_deltas, input_name='apply_dontcares_across_deltas'))
+        if self.prune_aliases_in_deltas is not None and 'prune_aliases_in_deltas' not in already_processed:
+            already_processed.add('prune_aliases_in_deltas')
+            outfile.write(' prune_aliases_in_deltas="%s"' % self.gds_format_boolean(self.prune_aliases_in_deltas, input_name='prune_aliases_in_deltas'))
         if self.base_channel_reference is not None and 'base_channel_reference' not in already_processed:
             already_processed.add('base_channel_reference')
             outfile.write(' base_channel_reference=%s' % (self.gds_format_string(quote_attrib(self.base_channel_reference), input_name='base_channel_reference'), ))
@@ -1205,6 +1224,14 @@ class base_channel_configurationType(GeneratedsSuper):
             already_processed.add('force_empty_phy_config_delta_subtract')
             showIndent(outfile, level)
             outfile.write('force_empty_phy_config_delta_subtract=%s,\n' % (self.force_empty_phy_config_delta_subtract,))
+        if self.apply_dontcares_across_deltas is not None and 'apply_dontcares_across_deltas' not in already_processed:
+            already_processed.add('apply_dontcares_across_deltas')
+            showIndent(outfile, level)
+            outfile.write('apply_dontcares_across_deltas=%s,\n' % (self.apply_dontcares_across_deltas,))
+        if self.prune_aliases_in_deltas is not None and 'prune_aliases_in_deltas' not in already_processed:
+            already_processed.add('prune_aliases_in_deltas')
+            showIndent(outfile, level)
+            outfile.write('prune_aliases_in_deltas=%s,\n' % (self.prune_aliases_in_deltas,))
         if self.base_channel_reference is not None and 'base_channel_reference' not in already_processed:
             already_processed.add('base_channel_reference')
             showIndent(outfile, level)
@@ -1257,7 +1284,7 @@ class base_channel_configurationType(GeneratedsSuper):
             outfile.write('),\n')
         if self.optional_arguments is not None:
             showIndent(outfile, level)
-            outfile.write('optional_arguments=model_.optional_argumentsType11(\n')
+            outfile.write('optional_arguments=model_.optional_argumentsType12(\n')
             self.optional_arguments.exportLiteral(outfile, level, name_='optional_arguments')
             showIndent(outfile, level)
             outfile.write('),\n')
@@ -1285,6 +1312,24 @@ class base_channel_configurationType(GeneratedsSuper):
                 self.force_empty_phy_config_delta_subtract = True
             elif value in ('false', '0'):
                 self.force_empty_phy_config_delta_subtract = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('apply_dontcares_across_deltas', node)
+        if value is not None and 'apply_dontcares_across_deltas' not in already_processed:
+            already_processed.add('apply_dontcares_across_deltas')
+            if value in ('true', '1'):
+                self.apply_dontcares_across_deltas = True
+            elif value in ('false', '0'):
+                self.apply_dontcares_across_deltas = False
+            else:
+                raise_parse_error(node, 'Bad boolean attribute')
+        value = find_attr_value_('prune_aliases_in_deltas', node)
+        if value is not None and 'prune_aliases_in_deltas' not in already_processed:
+            already_processed.add('prune_aliases_in_deltas')
+            if value in ('true', '1'):
+                self.prune_aliases_in_deltas = True
+            elif value in ('false', '0'):
+                self.prune_aliases_in_deltas = False
             else:
                 raise_parse_error(node, 'Bad boolean attribute')
         value = find_attr_value_('base_channel_reference', node)
@@ -1332,7 +1377,7 @@ class base_channel_configurationType(GeneratedsSuper):
             self.link_layer_config = obj_
             obj_.original_tagname_ = 'link_layer_config'
         elif nodeName_ == 'optional_arguments':
-            obj_ = optional_argumentsType11.factory()
+            obj_ = optional_argumentsType12.factory()
             obj_.build(child_)
             self.optional_arguments = obj_
             obj_.original_tagname_ = 'optional_arguments'
@@ -2141,15 +2186,18 @@ class channel_config_entryType(GeneratedsSuper):
         MemberSpec_('profile_output_overrides', 'profile_output_overridesType4', 0),
         MemberSpec_('phy_name_override', 'xs:string', 0),
         MemberSpec_('phy_config_delta_add', 'phy_config_delta_addType', 0),
+        MemberSpec_('phy_config_dont_care_bitmasks', 'phy_config_dont_care_bitmasksType', 0),
+        MemberSpec_('phy_config_chosen_aliases', 'phy_config_chosen_aliasesType', 0),
         MemberSpec_('radio_configurator_output_model', 'xs:string', 0),
         MemberSpec_('full_register_model', 'xs:string', 0),
         MemberSpec_('optional_arguments', 'optional_argumentsType', 0),
         MemberSpec_('metadata', 'xs:string', 0),
         MemberSpec_('alternate_phy', 'alternate_phyType', 0),
+        MemberSpec_('register_groups', 'register_groupsType', 0),
     ]
     subclass = None
     superclass = None
-    def __init__(self, name=None, base_frequency=None, channel_spacing=None, physical_channel_offset=None, channel_number_start=None, channel_number_end=None, max_power=None, profile_input_overrides=None, profile_output_overrides=None, phy_name_override=None, phy_config_delta_add=None, radio_configurator_output_model=None, full_register_model=None, optional_arguments=None, metadata=None, alternate_phy=None):
+    def __init__(self, name=None, base_frequency=None, channel_spacing=None, physical_channel_offset=None, channel_number_start=None, channel_number_end=None, max_power=None, profile_input_overrides=None, profile_output_overrides=None, phy_name_override=None, phy_config_delta_add=None, phy_config_dont_care_bitmasks=None, phy_config_chosen_aliases=None, radio_configurator_output_model=None, full_register_model=None, optional_arguments=None, metadata=None, alternate_phy=None, register_groups=None):
         self.original_tagname_ = None
         self.name = _cast(None, name)
         self.base_frequency = base_frequency
@@ -2171,6 +2219,14 @@ class channel_config_entryType(GeneratedsSuper):
             self.phy_config_delta_add = phy_config_delta_addType()
         else:
             self.phy_config_delta_add = phy_config_delta_add
+        if phy_config_dont_care_bitmasks is None:
+            self.phy_config_dont_care_bitmasks = phy_config_dont_care_bitmasksType()
+        else:
+            self.phy_config_dont_care_bitmasks = phy_config_dont_care_bitmasks
+        if phy_config_chosen_aliases is None:
+            self.phy_config_chosen_aliases = phy_config_chosen_aliasesType()
+        else:
+            self.phy_config_chosen_aliases = phy_config_chosen_aliases
         self.radio_configurator_output_model = radio_configurator_output_model
         self.full_register_model = full_register_model
         if optional_arguments is None:
@@ -2182,6 +2238,10 @@ class channel_config_entryType(GeneratedsSuper):
             self.alternate_phy = alternate_phyType()
         else:
             self.alternate_phy = alternate_phy
+        if register_groups is None:
+            self.register_groups = register_groupsType()
+        else:
+            self.register_groups = register_groups
     def factory(*args_, **kwargs_):
         if channel_config_entryType.subclass:
             return channel_config_entryType.subclass(*args_, **kwargs_)
@@ -2218,6 +2278,12 @@ class channel_config_entryType(GeneratedsSuper):
     def get_phy_config_delta_add(self): return self.phy_config_delta_add
     def set_phy_config_delta_add(self, phy_config_delta_add): self.phy_config_delta_add = phy_config_delta_add
     phy_config_delta_addProp = property(get_phy_config_delta_add, set_phy_config_delta_add)
+    def get_phy_config_dont_care_bitmasks(self): return self.phy_config_dont_care_bitmasks
+    def set_phy_config_dont_care_bitmasks(self, phy_config_dont_care_bitmasks): self.phy_config_dont_care_bitmasks = phy_config_dont_care_bitmasks
+    phy_config_dont_care_bitmasksProp = property(get_phy_config_dont_care_bitmasks, set_phy_config_dont_care_bitmasks)
+    def get_phy_config_chosen_aliases(self): return self.phy_config_chosen_aliases
+    def set_phy_config_chosen_aliases(self, phy_config_chosen_aliases): self.phy_config_chosen_aliases = phy_config_chosen_aliases
+    phy_config_chosen_aliasesProp = property(get_phy_config_chosen_aliases, set_phy_config_chosen_aliases)
     def get_radio_configurator_output_model(self): return self.radio_configurator_output_model
     def set_radio_configurator_output_model(self, radio_configurator_output_model): self.radio_configurator_output_model = radio_configurator_output_model
     radio_configurator_output_modelProp = property(get_radio_configurator_output_model, set_radio_configurator_output_model)
@@ -2233,6 +2299,9 @@ class channel_config_entryType(GeneratedsSuper):
     def get_alternate_phy(self): return self.alternate_phy
     def set_alternate_phy(self, alternate_phy): self.alternate_phy = alternate_phy
     alternate_phyProp = property(get_alternate_phy, set_alternate_phy)
+    def get_register_groups(self): return self.register_groups
+    def set_register_groups(self, register_groups): self.register_groups = register_groups
+    register_groupsProp = property(get_register_groups, set_register_groups)
     def get_name(self): return self.name
     def set_name(self, name): self.name = name
     nameProp = property(get_name, set_name)
@@ -2248,11 +2317,14 @@ class channel_config_entryType(GeneratedsSuper):
             self.profile_output_overrides is not None or
             self.phy_name_override is not None or
             self.phy_config_delta_add is not None or
+            self.phy_config_dont_care_bitmasks is not None or
+            self.phy_config_chosen_aliases is not None or
             self.radio_configurator_output_model is not None or
             self.full_register_model is not None or
             self.optional_arguments is not None or
             self.metadata is not None or
-            self.alternate_phy is not None
+            self.alternate_phy is not None or
+            self.register_groups is not None
         ):
             return True
         else:
@@ -2311,6 +2383,10 @@ class channel_config_entryType(GeneratedsSuper):
             outfile.write('<%sphy_name_override>%s</%sphy_name_override>%s' % (namespace_, self.gds_format_string(quote_xml(self.phy_name_override), input_name='phy_name_override'), namespace_, eol_))
         if self.phy_config_delta_add is not None:
             self.phy_config_delta_add.export(outfile, level, namespace_, name_='phy_config_delta_add', pretty_print=pretty_print)
+        if self.phy_config_dont_care_bitmasks is not None:
+            self.phy_config_dont_care_bitmasks.export(outfile, level, namespace_, name_='phy_config_dont_care_bitmasks', pretty_print=pretty_print)
+        if self.phy_config_chosen_aliases is not None:
+            self.phy_config_chosen_aliases.export(outfile, level, namespace_, name_='phy_config_chosen_aliases', pretty_print=pretty_print)
         if self.radio_configurator_output_model is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%sradio_configurator_output_model>%s</%sradio_configurator_output_model>%s' % (namespace_, self.gds_format_string(quote_xml(self.radio_configurator_output_model), input_name='radio_configurator_output_model'), namespace_, eol_))
@@ -2324,6 +2400,8 @@ class channel_config_entryType(GeneratedsSuper):
             outfile.write('<%smetadata>%s</%smetadata>%s' % (namespace_, self.gds_format_string(quote_xml(self.metadata), input_name='metadata'), namespace_, eol_))
         if self.alternate_phy is not None:
             self.alternate_phy.export(outfile, level, namespace_, name_='alternate_phy', pretty_print=pretty_print)
+        if self.register_groups is not None:
+            self.register_groups.export(outfile, level, namespace_, name_='register_groups', pretty_print=pretty_print)
     def exportLiteral(self, outfile, level, name_='channel_config_entryType'):
         level += 1
         already_processed = set()
@@ -2375,6 +2453,18 @@ class channel_config_entryType(GeneratedsSuper):
             self.phy_config_delta_add.exportLiteral(outfile, level, name_='phy_config_delta_add')
             showIndent(outfile, level)
             outfile.write('),\n')
+        if self.phy_config_dont_care_bitmasks is not None:
+            showIndent(outfile, level)
+            outfile.write('phy_config_dont_care_bitmasks=model_.phy_config_dont_care_bitmasksType(\n')
+            self.phy_config_dont_care_bitmasks.exportLiteral(outfile, level, name_='phy_config_dont_care_bitmasks')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        if self.phy_config_chosen_aliases is not None:
+            showIndent(outfile, level)
+            outfile.write('phy_config_chosen_aliases=model_.phy_config_chosen_aliasesType(\n')
+            self.phy_config_chosen_aliases.exportLiteral(outfile, level, name_='phy_config_chosen_aliases')
+            showIndent(outfile, level)
+            outfile.write('),\n')
         if self.radio_configurator_output_model is not None:
             showIndent(outfile, level)
             outfile.write('radio_configurator_output_model=%s,\n' % quote_python(self.radio_configurator_output_model))
@@ -2394,6 +2484,12 @@ class channel_config_entryType(GeneratedsSuper):
             showIndent(outfile, level)
             outfile.write('alternate_phy=model_.alternate_phyType(\n')
             self.alternate_phy.exportLiteral(outfile, level, name_='alternate_phy')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        if self.register_groups is not None:
+            showIndent(outfile, level)
+            outfile.write('register_groups=model_.register_groupsType(\n')
+            self.register_groups.exportLiteral(outfile, level, name_='register_groups')
             showIndent(outfile, level)
             outfile.write('),\n')
     def build(self, node):
@@ -2469,6 +2565,16 @@ class channel_config_entryType(GeneratedsSuper):
             obj_.build(child_)
             self.phy_config_delta_add = obj_
             obj_.original_tagname_ = 'phy_config_delta_add'
+        elif nodeName_ == 'phy_config_dont_care_bitmasks':
+            obj_ = phy_config_dont_care_bitmasksType.factory()
+            obj_.build(child_)
+            self.phy_config_dont_care_bitmasks = obj_
+            obj_.original_tagname_ = 'phy_config_dont_care_bitmasks'
+        elif nodeName_ == 'phy_config_chosen_aliases':
+            obj_ = phy_config_chosen_aliasesType.factory()
+            obj_.build(child_)
+            self.phy_config_chosen_aliases = obj_
+            obj_.original_tagname_ = 'phy_config_chosen_aliases'
         elif nodeName_ == 'radio_configurator_output_model':
             radio_configurator_output_model_ = child_.text
             radio_configurator_output_model_ = self.gds_validate_string(radio_configurator_output_model_, node, 'radio_configurator_output_model')
@@ -2491,6 +2597,11 @@ class channel_config_entryType(GeneratedsSuper):
             obj_.build(child_)
             self.alternate_phy = obj_
             obj_.original_tagname_ = 'alternate_phy'
+        elif nodeName_ == 'register_groups':
+            obj_ = register_groupsType.factory()
+            obj_.build(child_)
+            self.register_groups = obj_
+            obj_.original_tagname_ = 'register_groups'
 # end class channel_config_entryType
 
 
@@ -3923,6 +4034,398 @@ class resetMask(GeneratedsSuper):
 # end class resetMask
 
 
+class phy_config_dont_care_bitmasksType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('register_mask', 'register_maskType', 1),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, register_mask=None):
+        self.original_tagname_ = None
+        if register_mask is None:
+            self.register_mask = []
+        else:
+            self.register_mask = register_mask
+    def factory(*args_, **kwargs_):
+        if phy_config_dont_care_bitmasksType.subclass:
+            return phy_config_dont_care_bitmasksType.subclass(*args_, **kwargs_)
+        else:
+            return phy_config_dont_care_bitmasksType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_register_mask(self): return self.register_mask
+    def set_register_mask(self, register_mask): self.register_mask = register_mask
+    def add_register_mask(self, value): self.register_mask.append(value)
+    def insert_register_mask(self, index, value): self.register_mask[index] = value
+    register_maskProp = property(get_register_mask, set_register_mask)
+    def hasContent_(self):
+        if (
+            self.register_mask
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='phy_config_dont_care_bitmasksType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_dont_care_bitmasksType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_dont_care_bitmasksType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_dont_care_bitmasksType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_dont_care_bitmasksType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for register_mask_ in self.register_mask:
+            register_mask_.export(outfile, level, namespace_, name_='register_mask', pretty_print=pretty_print)
+    def exportLiteral(self, outfile, level, name_='phy_config_dont_care_bitmasksType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        showIndent(outfile, level)
+        outfile.write('register_mask=[\n')
+        level += 1
+        for register_mask_ in self.register_mask:
+            showIndent(outfile, level)
+            outfile.write('model_.register_maskType(\n')
+            register_mask_.exportLiteral(outfile, level, name_='register_maskType')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        level -= 1
+        showIndent(outfile, level)
+        outfile.write('],\n')
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'register_mask':
+            obj_ = register_maskType.factory()
+            obj_.build(child_)
+            self.register_mask.append(obj_)
+            obj_.original_tagname_ = 'register_mask'
+# end class phy_config_dont_care_bitmasksType
+
+
+class register_maskType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('key', 'xs:string', 0),
+        MemberSpec_('value', 'xs:string', 0),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, key=None, value=None):
+        self.original_tagname_ = None
+        self.key = key
+        self.value = value
+    def factory(*args_, **kwargs_):
+        if register_maskType.subclass:
+            return register_maskType.subclass(*args_, **kwargs_)
+        else:
+            return register_maskType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_key(self): return self.key
+    def set_key(self, key): self.key = key
+    keyProp = property(get_key, set_key)
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    valueProp = property(get_value, set_value)
+    def hasContent_(self):
+        if (
+            self.key is not None or
+            self.value is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='register_maskType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='register_maskType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='register_maskType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='register_maskType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='register_maskType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.key is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%skey>%s</%skey>%s' % (namespace_, self.gds_format_string(quote_xml(self.key), input_name='key'), namespace_, eol_))
+        if self.value is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
+    def exportLiteral(self, outfile, level, name_='register_maskType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        if self.key is not None:
+            showIndent(outfile, level)
+            outfile.write('key=%s,\n' % quote_python(self.key))
+        if self.value is not None:
+            showIndent(outfile, level)
+            outfile.write('value=%s,\n' % quote_python(self.value))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'key':
+            key_ = child_.text
+            key_ = self.gds_validate_string(key_, node, 'key')
+            self.key = key_
+        elif nodeName_ == 'value':
+            value_ = child_.text
+            value_ = self.gds_validate_string(value_, node, 'value')
+            self.value = value_
+# end class register_maskType
+
+
+class phy_config_chosen_aliasesType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('address', 'addressType', 1),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, address=None):
+        self.original_tagname_ = None
+        if address is None:
+            self.address = []
+        else:
+            self.address = address
+    def factory(*args_, **kwargs_):
+        if phy_config_chosen_aliasesType.subclass:
+            return phy_config_chosen_aliasesType.subclass(*args_, **kwargs_)
+        else:
+            return phy_config_chosen_aliasesType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_address(self): return self.address
+    def set_address(self, address): self.address = address
+    def add_address(self, value): self.address.append(value)
+    def insert_address(self, index, value): self.address[index] = value
+    addressProp = property(get_address, set_address)
+    def hasContent_(self):
+        if (
+            self.address
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='phy_config_chosen_aliasesType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_chosen_aliasesType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_chosen_aliasesType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_chosen_aliasesType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_chosen_aliasesType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for address_ in self.address:
+            address_.export(outfile, level, namespace_, name_='address', pretty_print=pretty_print)
+    def exportLiteral(self, outfile, level, name_='phy_config_chosen_aliasesType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        showIndent(outfile, level)
+        outfile.write('address=[\n')
+        level += 1
+        for address_ in self.address:
+            showIndent(outfile, level)
+            outfile.write('model_.addressType(\n')
+            address_.exportLiteral(outfile, level, name_='addressType')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        level -= 1
+        showIndent(outfile, level)
+        outfile.write('],\n')
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'address':
+            obj_ = addressType.factory()
+            obj_.build(child_)
+            self.address.append(obj_)
+            obj_.original_tagname_ = 'address'
+# end class phy_config_chosen_aliasesType
+
+
+class addressType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('key', 'xs:string', 0),
+        MemberSpec_('value', 'xs:string', 0),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, key=None, value=None):
+        self.original_tagname_ = None
+        self.key = key
+        self.value = value
+    def factory(*args_, **kwargs_):
+        if addressType.subclass:
+            return addressType.subclass(*args_, **kwargs_)
+        else:
+            return addressType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_key(self): return self.key
+    def set_key(self, key): self.key = key
+    keyProp = property(get_key, set_key)
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    valueProp = property(get_value, set_value)
+    def hasContent_(self):
+        if (
+            self.key is not None or
+            self.value is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='addressType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='addressType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='addressType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='addressType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='addressType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.key is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%skey>%s</%skey>%s' % (namespace_, self.gds_format_string(quote_xml(self.key), input_name='key'), namespace_, eol_))
+        if self.value is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
+    def exportLiteral(self, outfile, level, name_='addressType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        if self.key is not None:
+            showIndent(outfile, level)
+            outfile.write('key=%s,\n' % quote_python(self.key))
+        if self.value is not None:
+            showIndent(outfile, level)
+            outfile.write('value=%s,\n' % quote_python(self.value))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'key':
+            key_ = child_.text
+            key_ = self.gds_validate_string(key_, node, 'key')
+            self.key = key_
+        elif nodeName_ == 'value':
+            value_ = child_.text
+            value_ = self.gds_validate_string(value_, node, 'value')
+            self.value = value_
+# end class addressType
+
+
 class optional_argumentsType(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('argument', 'argumentType', 1),
@@ -4246,7 +4749,207 @@ class alternate_phyType(GeneratedsSuper):
 # end class alternate_phyType
 
 
-class phy_config_baseType(GeneratedsSuper):
+class register_groupsType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('register_group', 'register_groupType', 1),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, register_group=None):
+        self.original_tagname_ = None
+        if register_group is None:
+            self.register_group = []
+        else:
+            self.register_group = register_group
+    def factory(*args_, **kwargs_):
+        if register_groupsType.subclass:
+            return register_groupsType.subclass(*args_, **kwargs_)
+        else:
+            return register_groupsType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_register_group(self): return self.register_group
+    def set_register_group(self, register_group): self.register_group = register_group
+    def add_register_group(self, value): self.register_group.append(value)
+    def insert_register_group(self, index, value): self.register_group[index] = value
+    register_groupProp = property(get_register_group, set_register_group)
+    def hasContent_(self):
+        if (
+            self.register_group
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='register_groupsType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='register_groupsType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='register_groupsType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='register_groupsType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='register_groupsType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for register_group_ in self.register_group:
+            register_group_.export(outfile, level, namespace_, name_='register_group', pretty_print=pretty_print)
+    def exportLiteral(self, outfile, level, name_='register_groupsType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        showIndent(outfile, level)
+        outfile.write('register_group=[\n')
+        level += 1
+        for register_group_ in self.register_group:
+            showIndent(outfile, level)
+            outfile.write('model_.register_groupType(\n')
+            register_group_.exportLiteral(outfile, level, name_='register_groupType')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        level -= 1
+        showIndent(outfile, level)
+        outfile.write('],\n')
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'register_group':
+            obj_ = register_groupType.factory()
+            obj_.build(child_)
+            self.register_group.append(obj_)
+            obj_.original_tagname_ = 'register_group'
+# end class register_groupsType
+
+
+class register_groupType(GeneratedsSuper):
+    """Name of Register Group"""
+    member_data_items_ = [
+        MemberSpec_('name', 'xs:string', 0),
+        MemberSpec_('phy_config_delta_grouped_add', 'phy_config_delta_grouped_addType', 0),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, phy_config_delta_grouped_add=None):
+        self.original_tagname_ = None
+        self.name = _cast(None, name)
+        if phy_config_delta_grouped_add is None:
+            self.phy_config_delta_grouped_add = phy_config_delta_grouped_addType()
+        else:
+            self.phy_config_delta_grouped_add = phy_config_delta_grouped_add
+    def factory(*args_, **kwargs_):
+        if register_groupType.subclass:
+            return register_groupType.subclass(*args_, **kwargs_)
+        else:
+            return register_groupType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_phy_config_delta_grouped_add(self): return self.phy_config_delta_grouped_add
+    def set_phy_config_delta_grouped_add(self, phy_config_delta_grouped_add): self.phy_config_delta_grouped_add = phy_config_delta_grouped_add
+    phy_config_delta_grouped_addProp = property(get_phy_config_delta_grouped_add, set_phy_config_delta_grouped_add)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    nameProp = property(get_name, set_name)
+    def hasContent_(self):
+        if (
+            self.phy_config_delta_grouped_add is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='register_groupType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='register_groupType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='register_groupType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='register_groupType'):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            outfile.write(' name=%s' % (self.gds_format_string(quote_attrib(self.name), input_name='name'), ))
+    def exportChildren(self, outfile, level, namespace_='', name_='register_groupType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.phy_config_delta_grouped_add is not None:
+            self.phy_config_delta_grouped_add.export(outfile, level, namespace_, name_='phy_config_delta_grouped_add', pretty_print=pretty_print)
+    def exportLiteral(self, outfile, level, name_='register_groupType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        if self.name is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            showIndent(outfile, level)
+            outfile.write('name="%s",\n' % (self.name,))
+    def exportLiteralChildren(self, outfile, level, name_):
+        if self.phy_config_delta_grouped_add is not None:
+            showIndent(outfile, level)
+            outfile.write('phy_config_delta_grouped_add=model_.phy_config_delta_grouped_addType(\n')
+            self.phy_config_delta_grouped_add.exportLiteral(outfile, level, name_='phy_config_delta_grouped_add')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        value = find_attr_value_('name', node)
+        if value is not None and 'name' not in already_processed:
+            already_processed.add('name')
+            self.name = value
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'phy_config_delta_grouped_add':
+            obj_ = phy_config_delta_grouped_addType.factory()
+            obj_.build(child_)
+            self.phy_config_delta_grouped_add = obj_
+            obj_.original_tagname_ = 'phy_config_delta_grouped_add'
+# end class register_groupType
+
+
+class phy_config_delta_grouped_addType(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('register', 'registerType6', 1),
     ]
@@ -4259,10 +4962,10 @@ class phy_config_baseType(GeneratedsSuper):
         else:
             self.register = register
     def factory(*args_, **kwargs_):
-        if phy_config_baseType.subclass:
-            return phy_config_baseType.subclass(*args_, **kwargs_)
+        if phy_config_delta_grouped_addType.subclass:
+            return phy_config_delta_grouped_addType.subclass(*args_, **kwargs_)
         else:
-            return phy_config_baseType(*args_, **kwargs_)
+            return phy_config_delta_grouped_addType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_register(self): return self.register
     def set_register(self, register): self.register = register
@@ -4276,7 +4979,7 @@ class phy_config_baseType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='phy_config_baseType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='phy_config_delta_grouped_addType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4286,24 +4989,24 @@ class phy_config_baseType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_baseType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_delta_grouped_addType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_baseType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_delta_grouped_addType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_baseType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_delta_grouped_addType'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_baseType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_delta_grouped_addType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for register_ in self.register:
             register_.export(outfile, level, namespace_, name_='register', pretty_print=pretty_print)
-    def exportLiteral(self, outfile, level, name_='phy_config_baseType'):
+    def exportLiteral(self, outfile, level, name_='phy_config_delta_grouped_addType'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -4340,7 +5043,7 @@ class phy_config_baseType(GeneratedsSuper):
             obj_.build(child_)
             self.register.append(obj_)
             obj_.original_tagname_ = 'register'
-# end class phy_config_baseType
+# end class phy_config_delta_grouped_addType
 
 
 class registerType6(GeneratedsSuper):
@@ -4554,7 +5257,7 @@ class registerType6(GeneratedsSuper):
 # end class registerType6
 
 
-class phy_config_delta_subtractType(GeneratedsSuper):
+class phy_config_baseType(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('register', 'registerType7', 1),
     ]
@@ -4567,10 +5270,10 @@ class phy_config_delta_subtractType(GeneratedsSuper):
         else:
             self.register = register
     def factory(*args_, **kwargs_):
-        if phy_config_delta_subtractType.subclass:
-            return phy_config_delta_subtractType.subclass(*args_, **kwargs_)
+        if phy_config_baseType.subclass:
+            return phy_config_baseType.subclass(*args_, **kwargs_)
         else:
-            return phy_config_delta_subtractType(*args_, **kwargs_)
+            return phy_config_baseType(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_register(self): return self.register
     def set_register(self, register): self.register = register
@@ -4584,7 +5287,7 @@ class phy_config_delta_subtractType(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='phy_config_delta_subtractType', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='phy_config_baseType', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -4594,24 +5297,24 @@ class phy_config_delta_subtractType(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_delta_subtractType')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_baseType')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_delta_subtractType', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_baseType', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_delta_subtractType'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_baseType'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_delta_subtractType', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_baseType', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for register_ in self.register:
             register_.export(outfile, level, namespace_, name_='register', pretty_print=pretty_print)
-    def exportLiteral(self, outfile, level, name_='phy_config_delta_subtractType'):
+    def exportLiteral(self, outfile, level, name_='phy_config_baseType'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -4648,7 +5351,7 @@ class phy_config_delta_subtractType(GeneratedsSuper):
             obj_.build(child_)
             self.register.append(obj_)
             obj_.original_tagname_ = 'register'
-# end class phy_config_delta_subtractType
+# end class phy_config_baseType
 
 
 class registerType7(GeneratedsSuper):
@@ -4862,12 +5565,320 @@ class registerType7(GeneratedsSuper):
 # end class registerType7
 
 
+class phy_config_delta_subtractType(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('register', 'registerType8', 1),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, register=None):
+        self.original_tagname_ = None
+        if register is None:
+            self.register = []
+        else:
+            self.register = register
+    def factory(*args_, **kwargs_):
+        if phy_config_delta_subtractType.subclass:
+            return phy_config_delta_subtractType.subclass(*args_, **kwargs_)
+        else:
+            return phy_config_delta_subtractType(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_register(self): return self.register
+    def set_register(self, register): self.register = register
+    def add_register(self, value): self.register.append(value)
+    def insert_register(self, index, value): self.register[index] = value
+    registerProp = property(get_register, set_register)
+    def hasContent_(self):
+        if (
+            self.register
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='phy_config_delta_subtractType', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phy_config_delta_subtractType')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phy_config_delta_subtractType', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phy_config_delta_subtractType'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='phy_config_delta_subtractType', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        for register_ in self.register:
+            register_.export(outfile, level, namespace_, name_='register', pretty_print=pretty_print)
+    def exportLiteral(self, outfile, level, name_='phy_config_delta_subtractType'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        showIndent(outfile, level)
+        outfile.write('register=[\n')
+        level += 1
+        for register_ in self.register:
+            showIndent(outfile, level)
+            outfile.write('model_.registerType8(\n')
+            register_.exportLiteral(outfile, level, name_='registerType8')
+            showIndent(outfile, level)
+            outfile.write('),\n')
+        level -= 1
+        showIndent(outfile, level)
+        outfile.write('],\n')
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'register':
+            obj_ = registerType8.factory()
+            obj_.build(child_)
+            self.register.append(obj_)
+            obj_.original_tagname_ = 'register'
+# end class phy_config_delta_subtractType
+
+
+class registerType8(GeneratedsSuper):
+    member_data_items_ = [
+        MemberSpec_('name', 'xs:string', 0),
+        MemberSpec_('value', 'xs:string', 0),
+        MemberSpec_('baseAddress', 'xs:string', 0),
+        MemberSpec_('addressOffset', 'xs:string', 0),
+        MemberSpec_('fullname', 'xs:string', 0),
+        MemberSpec_('access', 'xs:string', 0),
+        MemberSpec_('description', 'xs:string', 0),
+        MemberSpec_('resetValue', 'xs:string', 0),
+        MemberSpec_('resetMask', 'xs:string', 0),
+    ]
+    subclass = None
+    superclass = None
+    def __init__(self, name=None, value=None, baseAddress=None, addressOffset=None, fullname=None, access=None, description=None, resetValue=None, resetMask=None):
+        self.original_tagname_ = None
+        self.name = name
+        self.value = value
+        self.baseAddress = baseAddress
+        self.addressOffset = addressOffset
+        self.fullname = fullname
+        self.access = access
+        self.description = description
+        self.resetValue = resetValue
+        self.resetMask = resetMask
+    def factory(*args_, **kwargs_):
+        if registerType8.subclass:
+            return registerType8.subclass(*args_, **kwargs_)
+        else:
+            return registerType8(*args_, **kwargs_)
+    factory = staticmethod(factory)
+    def get_name(self): return self.name
+    def set_name(self, name): self.name = name
+    nameProp = property(get_name, set_name)
+    def get_value(self): return self.value
+    def set_value(self, value): self.value = value
+    valueProp = property(get_value, set_value)
+    def get_baseAddress(self): return self.baseAddress
+    def set_baseAddress(self, baseAddress): self.baseAddress = baseAddress
+    baseAddressProp = property(get_baseAddress, set_baseAddress)
+    def get_addressOffset(self): return self.addressOffset
+    def set_addressOffset(self, addressOffset): self.addressOffset = addressOffset
+    addressOffsetProp = property(get_addressOffset, set_addressOffset)
+    def get_fullname(self): return self.fullname
+    def set_fullname(self, fullname): self.fullname = fullname
+    fullnameProp = property(get_fullname, set_fullname)
+    def get_access(self): return self.access
+    def set_access(self, access): self.access = access
+    accessProp = property(get_access, set_access)
+    def get_description(self): return self.description
+    def set_description(self, description): self.description = description
+    descriptionProp = property(get_description, set_description)
+    def get_resetValue(self): return self.resetValue
+    def set_resetValue(self, resetValue): self.resetValue = resetValue
+    resetValueProp = property(get_resetValue, set_resetValue)
+    def get_resetMask(self): return self.resetMask
+    def set_resetMask(self, resetMask): self.resetMask = resetMask
+    resetMaskProp = property(get_resetMask, set_resetMask)
+    def hasContent_(self):
+        if (
+            self.name is not None or
+            self.value is not None or
+            self.baseAddress is not None or
+            self.addressOffset is not None or
+            self.fullname is not None or
+            self.access is not None or
+            self.description is not None or
+            self.resetValue is not None or
+            self.resetMask is not None
+        ):
+            return True
+        else:
+            return False
+    def export(self, outfile, level, namespace_='', name_='registerType8', namespacedef_='', pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.original_tagname_ is not None:
+            name_ = self.original_tagname_
+        showIndent(outfile, level, pretty_print)
+        outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
+        already_processed = set()
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='registerType8')
+        if self.hasContent_():
+            outfile.write('>%s' % (eol_, ))
+            self.exportChildren(outfile, level + 1, namespace_='', name_='registerType8', pretty_print=pretty_print)
+            showIndent(outfile, level, pretty_print)
+            outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
+        else:
+            outfile.write('/>%s' % (eol_, ))
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='registerType8'):
+        pass
+    def exportChildren(self, outfile, level, namespace_='', name_='registerType8', fromsubclass_=False, pretty_print=True):
+        if pretty_print:
+            eol_ = '\n'
+        else:
+            eol_ = ''
+        if self.name is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sname>%s</%sname>%s' % (namespace_, self.gds_format_string(quote_xml(self.name), input_name='name'), namespace_, eol_))
+        if self.value is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
+        if self.baseAddress is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sbaseAddress>%s</%sbaseAddress>%s' % (namespace_, self.gds_format_string(quote_xml(self.baseAddress), input_name='baseAddress'), namespace_, eol_))
+        if self.addressOffset is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%saddressOffset>%s</%saddressOffset>%s' % (namespace_, self.gds_format_string(quote_xml(self.addressOffset), input_name='addressOffset'), namespace_, eol_))
+        if self.fullname is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sfullname>%s</%sfullname>%s' % (namespace_, self.gds_format_string(quote_xml(self.fullname), input_name='fullname'), namespace_, eol_))
+        if self.access is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%saccess>%s</%saccess>%s' % (namespace_, self.gds_format_string(quote_xml(self.access), input_name='access'), namespace_, eol_))
+        if self.description is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sdescription>%s</%sdescription>%s' % (namespace_, self.gds_format_string(quote_xml(self.description), input_name='description'), namespace_, eol_))
+        if self.resetValue is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sresetValue>%s</%sresetValue>%s' % (namespace_, self.gds_format_string(quote_xml(self.resetValue), input_name='resetValue'), namespace_, eol_))
+        if self.resetMask is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sresetMask>%s</%sresetMask>%s' % (namespace_, self.gds_format_string(quote_xml(self.resetMask), input_name='resetMask'), namespace_, eol_))
+    def exportLiteral(self, outfile, level, name_='registerType8'):
+        level += 1
+        already_processed = set()
+        self.exportLiteralAttributes(outfile, level, already_processed, name_)
+        if self.hasContent_():
+            self.exportLiteralChildren(outfile, level, name_)
+    def exportLiteralAttributes(self, outfile, level, already_processed, name_):
+        pass
+    def exportLiteralChildren(self, outfile, level, name_):
+        if self.name is not None:
+            showIndent(outfile, level)
+            outfile.write('name=%s,\n' % quote_python(self.name))
+        if self.value is not None:
+            showIndent(outfile, level)
+            outfile.write('value=%s,\n' % quote_python(self.value))
+        if self.baseAddress is not None:
+            showIndent(outfile, level)
+            outfile.write('baseAddress=%s,\n' % quote_python(self.baseAddress))
+        if self.addressOffset is not None:
+            showIndent(outfile, level)
+            outfile.write('addressOffset=%s,\n' % quote_python(self.addressOffset))
+        if self.fullname is not None:
+            showIndent(outfile, level)
+            outfile.write('fullname=%s,\n' % quote_python(self.fullname))
+        if self.access is not None:
+            showIndent(outfile, level)
+            outfile.write('access=%s,\n' % quote_python(self.access))
+        if self.description is not None:
+            showIndent(outfile, level)
+            outfile.write('description=%s,\n' % quote_python(self.description))
+        if self.resetValue is not None:
+            showIndent(outfile, level)
+            outfile.write('resetValue=%s,\n' % quote_python(self.resetValue))
+        if self.resetMask is not None:
+            showIndent(outfile, level)
+            outfile.write('resetMask=%s,\n' % quote_python(self.resetMask))
+    def build(self, node):
+        already_processed = set()
+        self.buildAttributes(node, node.attrib, already_processed)
+        for child in node:
+            if isinstance(child.tag, str):
+                nodeName_ = Tag_pattern_.match(child.tag).groups()[-1]
+                self.buildChildren(child, node, nodeName_)
+        return self
+    def buildAttributes(self, node, attrs, already_processed):
+        pass
+    def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
+        if nodeName_ == 'name':
+            name_ = child_.text
+            name_ = self.gds_validate_string(name_, node, 'name')
+            self.name = name_
+        elif nodeName_ == 'value':
+            value_ = child_.text
+            value_ = self.gds_validate_string(value_, node, 'value')
+            self.value = value_
+        elif nodeName_ == 'baseAddress':
+            baseAddress_ = child_.text
+            baseAddress_ = self.gds_validate_string(baseAddress_, node, 'baseAddress')
+            self.baseAddress = baseAddress_
+        elif nodeName_ == 'addressOffset':
+            addressOffset_ = child_.text
+            addressOffset_ = self.gds_validate_string(addressOffset_, node, 'addressOffset')
+            self.addressOffset = addressOffset_
+        elif nodeName_ == 'fullname':
+            fullname_ = child_.text
+            fullname_ = self.gds_validate_string(fullname_, node, 'fullname')
+            self.fullname = fullname_
+        elif nodeName_ == 'access':
+            access_ = child_.text
+            access_ = self.gds_validate_string(access_, node, 'access')
+            self.access = access_
+        elif nodeName_ == 'description':
+            description_ = child_.text
+            description_ = self.gds_validate_string(description_, node, 'description')
+            self.description = description_
+        elif nodeName_ == 'resetValue':
+            resetValue_ = child_.text
+            resetValue_ = self.gds_validate_string(resetValue_, node, 'resetValue')
+            self.resetValue = resetValue_
+        elif nodeName_ == 'resetMask':
+            resetMask_ = child_.text
+            resetMask_ = self.gds_validate_string(resetMask_, node, 'resetMask')
+            self.resetMask = resetMask_
+# end class registerType8
+
+
 class link_layer_configType(GeneratedsSuper):
     """Name of Link Layer profile - TBD"""
     member_data_items_ = [
         MemberSpec_('name', 'xs:string', 0),
         MemberSpec_('inputs', 'inputsType', 0),
-        MemberSpec_('phy', 'phyType9', 0),
+        MemberSpec_('phy', 'phyType10', 0),
         MemberSpec_('link_layer_model', 'xs:string', 0),
     ]
     subclass = None
@@ -4880,7 +5891,7 @@ class link_layer_configType(GeneratedsSuper):
         else:
             self.inputs = inputs
         if phy is None:
-            self.phy = phyType9()
+            self.phy = phyType10()
         else:
             self.phy = phy
         self.link_layer_model = link_layer_model
@@ -4965,7 +5976,7 @@ class link_layer_configType(GeneratedsSuper):
             outfile.write('),\n')
         if self.phy is not None:
             showIndent(outfile, level)
-            outfile.write('phy=model_.phyType9(\n')
+            outfile.write('phy=model_.phyType10(\n')
             self.phy.exportLiteral(outfile, level, name_='phy')
             showIndent(outfile, level)
             outfile.write('),\n')
@@ -4992,7 +6003,7 @@ class link_layer_configType(GeneratedsSuper):
             self.inputs = obj_
             obj_.original_tagname_ = 'inputs'
         elif nodeName_ == 'phy':
-            obj_ = phyType9.factory()
+            obj_ = phyType10.factory()
             obj_.build(child_)
             self.phy = obj_
             obj_.original_tagname_ = 'phy'
@@ -5072,7 +6083,7 @@ class link_layer_model(GeneratedsSuper):
 
 class inputsType(GeneratedsSuper):
     member_data_items_ = [
-        MemberSpec_('input', 'inputType8', 1),
+        MemberSpec_('input', 'inputType9', 1),
     ]
     subclass = None
     superclass = None
@@ -5141,8 +6152,8 @@ class inputsType(GeneratedsSuper):
         level += 1
         for input_ in self.input:
             showIndent(outfile, level)
-            outfile.write('model_.inputType8(\n')
-            input_.exportLiteral(outfile, level, name_='inputType8')
+            outfile.write('model_.inputType9(\n')
+            input_.exportLiteral(outfile, level, name_='inputType9')
             showIndent(outfile, level)
             outfile.write('),\n')
         level -= 1
@@ -5160,14 +6171,14 @@ class inputsType(GeneratedsSuper):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'input':
-            obj_ = inputType8.factory()
+            obj_ = inputType9.factory()
             obj_.build(child_)
             self.input.append(obj_)
             obj_.original_tagname_ = 'input'
 # end class inputsType
 
 
-class inputType8(GeneratedsSuper):
+class inputType9(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('key', 'xs:string', 0),
         MemberSpec_('value', 'xs:string', 0),
@@ -5179,10 +6190,10 @@ class inputType8(GeneratedsSuper):
         self.key = key
         self.value = value
     def factory(*args_, **kwargs_):
-        if inputType8.subclass:
-            return inputType8.subclass(*args_, **kwargs_)
+        if inputType9.subclass:
+            return inputType9.subclass(*args_, **kwargs_)
         else:
-            return inputType8(*args_, **kwargs_)
+            return inputType9(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_key(self): return self.key
     def set_key(self, key): self.key = key
@@ -5198,7 +6209,7 @@ class inputType8(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='inputType8', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='inputType9', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5208,17 +6219,17 @@ class inputType8(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='inputType8')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='inputType9')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='inputType8', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='inputType9', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='inputType8'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='inputType9'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='inputType8', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='inputType9', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5229,7 +6240,7 @@ class inputType8(GeneratedsSuper):
         if self.value is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
-    def exportLiteral(self, outfile, level, name_='inputType8'):
+    def exportLiteral(self, outfile, level, name_='inputType9'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -5263,10 +6274,10 @@ class inputType8(GeneratedsSuper):
             value_ = child_.text
             value_ = self.gds_validate_string(value_, node, 'value')
             self.value = value_
-# end class inputType8
+# end class inputType9
 
 
-class phyType9(GeneratedsSuper):
+class phyType10(GeneratedsSuper):
     """Name of PHY user selected."""
     member_data_items_ = [
         MemberSpec_('name', 'xs:string', 0),
@@ -5282,10 +6293,10 @@ class phyType9(GeneratedsSuper):
         else:
             self.overrides = overrides
     def factory(*args_, **kwargs_):
-        if phyType9.subclass:
-            return phyType9.subclass(*args_, **kwargs_)
+        if phyType10.subclass:
+            return phyType10.subclass(*args_, **kwargs_)
         else:
-            return phyType9(*args_, **kwargs_)
+            return phyType10(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_overrides(self): return self.overrides
     def set_overrides(self, overrides): self.overrides = overrides
@@ -5300,7 +6311,7 @@ class phyType9(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='phyType9', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='phyType10', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5310,26 +6321,26 @@ class phyType9(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phyType9')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='phyType10')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='phyType9', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='phyType10', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phyType9'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='phyType10'):
         if self.name is not None and 'name' not in already_processed:
             already_processed.add('name')
             outfile.write(' name=%s' % (self.gds_format_string(quote_attrib(self.name), input_name='name'), ))
-    def exportChildren(self, outfile, level, namespace_='', name_='phyType9', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='phyType10', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         if self.overrides is not None:
             self.overrides.export(outfile, level, namespace_, name_='overrides', pretty_print=pretty_print)
-    def exportLiteral(self, outfile, level, name_='phyType9'):
+    def exportLiteral(self, outfile, level, name_='phyType10'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -5366,12 +6377,12 @@ class phyType9(GeneratedsSuper):
             obj_.build(child_)
             self.overrides = obj_
             obj_.original_tagname_ = 'overrides'
-# end class phyType9
+# end class phyType10
 
 
 class overridesType(GeneratedsSuper):
     member_data_items_ = [
-        MemberSpec_('override', 'overrideType10', 1),
+        MemberSpec_('override', 'overrideType11', 1),
     ]
     subclass = None
     superclass = None
@@ -5440,8 +6451,8 @@ class overridesType(GeneratedsSuper):
         level += 1
         for override_ in self.override:
             showIndent(outfile, level)
-            outfile.write('model_.overrideType10(\n')
-            override_.exportLiteral(outfile, level, name_='overrideType10')
+            outfile.write('model_.overrideType11(\n')
+            override_.exportLiteral(outfile, level, name_='overrideType11')
             showIndent(outfile, level)
             outfile.write('),\n')
         level -= 1
@@ -5459,14 +6470,14 @@ class overridesType(GeneratedsSuper):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'override':
-            obj_ = overrideType10.factory()
+            obj_ = overrideType11.factory()
             obj_.build(child_)
             self.override.append(obj_)
             obj_.original_tagname_ = 'override'
 # end class overridesType
 
 
-class overrideType10(GeneratedsSuper):
+class overrideType11(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('key', 'xs:string', 0),
         MemberSpec_('value', 'xs:string', 0),
@@ -5478,10 +6489,10 @@ class overrideType10(GeneratedsSuper):
         self.key = key
         self.value = value
     def factory(*args_, **kwargs_):
-        if overrideType10.subclass:
-            return overrideType10.subclass(*args_, **kwargs_)
+        if overrideType11.subclass:
+            return overrideType11.subclass(*args_, **kwargs_)
         else:
-            return overrideType10(*args_, **kwargs_)
+            return overrideType11(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_key(self): return self.key
     def set_key(self, key): self.key = key
@@ -5497,7 +6508,7 @@ class overrideType10(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='overrideType10', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='overrideType11', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5507,17 +6518,17 @@ class overrideType10(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='overrideType10')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='overrideType11')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='overrideType10', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='overrideType11', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='overrideType10'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='overrideType11'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='overrideType10', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='overrideType11', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5528,7 +6539,7 @@ class overrideType10(GeneratedsSuper):
         if self.value is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
-    def exportLiteral(self, outfile, level, name_='overrideType10'):
+    def exportLiteral(self, outfile, level, name_='overrideType11'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -5562,12 +6573,12 @@ class overrideType10(GeneratedsSuper):
             value_ = child_.text
             value_ = self.gds_validate_string(value_, node, 'value')
             self.value = value_
-# end class overrideType10
+# end class overrideType11
 
 
-class optional_argumentsType11(GeneratedsSuper):
+class optional_argumentsType12(GeneratedsSuper):
     member_data_items_ = [
-        MemberSpec_('argument', 'argumentType12', 1),
+        MemberSpec_('argument', 'argumentType13', 1),
     ]
     subclass = None
     superclass = None
@@ -5578,10 +6589,10 @@ class optional_argumentsType11(GeneratedsSuper):
         else:
             self.argument = argument
     def factory(*args_, **kwargs_):
-        if optional_argumentsType11.subclass:
-            return optional_argumentsType11.subclass(*args_, **kwargs_)
+        if optional_argumentsType12.subclass:
+            return optional_argumentsType12.subclass(*args_, **kwargs_)
         else:
-            return optional_argumentsType11(*args_, **kwargs_)
+            return optional_argumentsType12(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_argument(self): return self.argument
     def set_argument(self, argument): self.argument = argument
@@ -5595,7 +6606,7 @@ class optional_argumentsType11(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='optional_argumentsType11', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='optional_argumentsType12', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5605,24 +6616,24 @@ class optional_argumentsType11(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='optional_argumentsType11')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='optional_argumentsType12')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='optional_argumentsType11', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='optional_argumentsType12', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='optional_argumentsType11'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='optional_argumentsType12'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='optional_argumentsType11', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='optional_argumentsType12', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
             eol_ = ''
         for argument_ in self.argument:
             argument_.export(outfile, level, namespace_, name_='argument', pretty_print=pretty_print)
-    def exportLiteral(self, outfile, level, name_='optional_argumentsType11'):
+    def exportLiteral(self, outfile, level, name_='optional_argumentsType12'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -5636,8 +6647,8 @@ class optional_argumentsType11(GeneratedsSuper):
         level += 1
         for argument_ in self.argument:
             showIndent(outfile, level)
-            outfile.write('model_.argumentType12(\n')
-            argument_.exportLiteral(outfile, level, name_='argumentType12')
+            outfile.write('model_.argumentType13(\n')
+            argument_.exportLiteral(outfile, level, name_='argumentType13')
             showIndent(outfile, level)
             outfile.write('),\n')
         level -= 1
@@ -5655,14 +6666,14 @@ class optional_argumentsType11(GeneratedsSuper):
         pass
     def buildChildren(self, child_, node, nodeName_, fromsubclass_=False):
         if nodeName_ == 'argument':
-            obj_ = argumentType12.factory()
+            obj_ = argumentType13.factory()
             obj_.build(child_)
             self.argument.append(obj_)
             obj_.original_tagname_ = 'argument'
-# end class optional_argumentsType11
+# end class optional_argumentsType12
 
 
-class argumentType12(GeneratedsSuper):
+class argumentType13(GeneratedsSuper):
     member_data_items_ = [
         MemberSpec_('key', 'xs:string', 0),
         MemberSpec_('value', 'xs:string', 0),
@@ -5674,10 +6685,10 @@ class argumentType12(GeneratedsSuper):
         self.key = key
         self.value = value
     def factory(*args_, **kwargs_):
-        if argumentType12.subclass:
-            return argumentType12.subclass(*args_, **kwargs_)
+        if argumentType13.subclass:
+            return argumentType13.subclass(*args_, **kwargs_)
         else:
-            return argumentType12(*args_, **kwargs_)
+            return argumentType13(*args_, **kwargs_)
     factory = staticmethod(factory)
     def get_key(self): return self.key
     def set_key(self, key): self.key = key
@@ -5693,7 +6704,7 @@ class argumentType12(GeneratedsSuper):
             return True
         else:
             return False
-    def export(self, outfile, level, namespace_='', name_='argumentType12', namespacedef_='', pretty_print=True):
+    def export(self, outfile, level, namespace_='', name_='argumentType13', namespacedef_='', pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5703,17 +6714,17 @@ class argumentType12(GeneratedsSuper):
         showIndent(outfile, level, pretty_print)
         outfile.write('<%s%s%s' % (namespace_, name_, namespacedef_ and ' ' + namespacedef_ or '', ))
         already_processed = set()
-        self.exportAttributes(outfile, level, already_processed, namespace_, name_='argumentType12')
+        self.exportAttributes(outfile, level, already_processed, namespace_, name_='argumentType13')
         if self.hasContent_():
             outfile.write('>%s' % (eol_, ))
-            self.exportChildren(outfile, level + 1, namespace_='', name_='argumentType12', pretty_print=pretty_print)
+            self.exportChildren(outfile, level + 1, namespace_='', name_='argumentType13', pretty_print=pretty_print)
             showIndent(outfile, level, pretty_print)
             outfile.write('</%s%s>%s' % (namespace_, name_, eol_))
         else:
             outfile.write('/>%s' % (eol_, ))
-    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='argumentType12'):
+    def exportAttributes(self, outfile, level, already_processed, namespace_='', name_='argumentType13'):
         pass
-    def exportChildren(self, outfile, level, namespace_='', name_='argumentType12', fromsubclass_=False, pretty_print=True):
+    def exportChildren(self, outfile, level, namespace_='', name_='argumentType13', fromsubclass_=False, pretty_print=True):
         if pretty_print:
             eol_ = '\n'
         else:
@@ -5724,7 +6735,7 @@ class argumentType12(GeneratedsSuper):
         if self.value is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%svalue>%s</%svalue>%s' % (namespace_, self.gds_format_string(quote_xml(self.value), input_name='value'), namespace_, eol_))
-    def exportLiteral(self, outfile, level, name_='argumentType12'):
+    def exportLiteral(self, outfile, level, name_='argumentType13'):
         level += 1
         already_processed = set()
         self.exportLiteralAttributes(outfile, level, already_processed, name_)
@@ -5758,7 +6769,7 @@ class argumentType12(GeneratedsSuper):
             value_ = child_.text
             value_ = self.gds_validate_string(value_, node, 'value')
             self.value = value_
-# end class argumentType12
+# end class argumentType13
 
 
 class output_filesType(GeneratedsSuper):
@@ -6027,21 +7038,28 @@ GDSClassesMapping = {
     'output_files': output_filesType,
     'base_channel_configuration': base_channel_configurationType,
     'profile_inputs': profile_inputsType,
-    'phy': phyType9,
+    'phy': phyType10,
     'profile_output_overrides': profile_output_overridesType4,
     'channel_config_entries': channel_config_entriesType,
     'phy_config_base': phy_config_baseType,
     'phy_config_delta_subtract': phy_config_delta_subtractType,
     'link_layer_config': link_layer_configType,
     'optional_arguments': optional_argumentsType,
-    'input': inputType8,
+    'input': inputType9,
     'profile_input_overrides': profile_input_overridesType2,
-    'override': overrideType10,
+    'override': overrideType11,
     'channel_config_entry': channel_config_entryType,
     'phy_config_delta_add': phy_config_delta_addType,
+    'phy_config_dont_care_bitmasks': phy_config_dont_care_bitmasksType,
+    'phy_config_chosen_aliases': phy_config_chosen_aliasesType,
     'alternate_phy': alternate_phyType,
-    'register': registerType7,
-    'argument': argumentType12,
+    'register_groups': register_groupsType,
+    'register': registerType8,
+    'register_mask': register_maskType,
+    'address': addressType,
+    'argument': argumentType13,
+    'register_group': register_groupType,
+    'phy_config_delta_grouped_add': phy_config_delta_grouped_addType,
     'inputs': inputsType,
     'overrides': overridesType,
     'file': fileType,
@@ -6174,9 +7192,10 @@ if __name__ == '__main__':
 __all__ = [
     "access",
     "addressOffset",
+    "addressType",
     "alternate_phyType",
     "argumentType",
-    "argumentType12",
+    "argumentType13",
     "baseAddress",
     "base_channel_configurationType",
     "base_channel_configurationsType",
@@ -6187,25 +7206,28 @@ __all__ = [
     "full_register_model",
     "fullname",
     "inputType",
-    "inputType8",
+    "inputType9",
     "inputsType",
     "link_layer_configType",
     "link_layer_model",
     "multi_phy_configuration",
     "optional_argumentsType",
-    "optional_argumentsType11",
+    "optional_argumentsType12",
     "output_filesType",
     "overrideType",
     "overrideType1",
-    "overrideType10",
+    "overrideType11",
     "overrideType3",
     "overrideType5",
     "overridesType",
     "phyType",
-    "phyType9",
+    "phyType10",
     "phy_config_baseType",
+    "phy_config_chosen_aliasesType",
     "phy_config_delta_addType",
+    "phy_config_delta_grouped_addType",
     "phy_config_delta_subtractType",
+    "phy_config_dont_care_bitmasksType",
     "phy_name_override",
     "profile_input_overridesType",
     "profile_input_overridesType2",
@@ -6216,6 +7238,10 @@ __all__ = [
     "registerType",
     "registerType6",
     "registerType7",
+    "registerType8",
+    "register_groupType",
+    "register_groupsType",
+    "register_maskType",
     "resetMask",
     "resetValue",
     "source_code",

@@ -43,7 +43,7 @@ extern "C" {
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup nvm3halCrypto
+ * @addtogroup nvm3halcrypto
  * @{
  * @details
  * This module provides the NVM3 interface to crypto.
@@ -58,7 +58,7 @@ extern "C" {
 
 extern const nvm3_HalCryptoHandle_t nvm3_halCryptoHandle;    ///< The HAL crypto handle.
 
-/** @} (end addtogroup nvm3halCrypto) */
+/** @} (end addtogroup nvm3halcrypto) */
 /** @} (end addtogroup nvm3) */
 
 #ifdef __cplusplus

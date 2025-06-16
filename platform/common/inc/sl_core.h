@@ -187,19 +187,10 @@ extern "C" {
  *****************************   DEFINES   *************************************
  ******************************************************************************/
 
-#if !defined(CORE_ATOMIC_BASE_PRIORITY_LEVEL)
 /** The interrupt priority level disabled within ATOMIC regions. Interrupts
  *  with priority level equal to or lower than this definition will be disabled
  *  within ATOMIC regions. */
 #define CORE_ATOMIC_BASE_PRIORITY_LEVEL 3
-#else
-#ifndef SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2024_6
-#warning "The CORE_ATOMIC_BASE_PRIORITY_LEVEL configuration is DEPRECATED. In \
-  later releases, the base priority of atomic sections will be hardcoded to 3 \
-  and will no longer be configurable. Please consider updating the priorities \
-  of interrupts in your application to account for this new hardcoded value."
-#endif
-#endif
 
 /*******************************************************************************
  ************************   MACRO API   ***************************************
@@ -347,10 +338,6 @@ CORE_irqState_t CORE_EnterCritical(void);
  *   Disable interrupts with a priority lower or equal to
  *   @ref CORE_ATOMIC_BASE_PRIORITY_LEVEL. Sets core BASEPRI register
  *   to CORE_ATOMIC_BASE_PRIORITY_LEVEL.
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is @ref CORE_ATOMIC_METHOD_PRIMASK, this
- *   function is identical to @ref CORE_CriticalDisableIrq().
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 void  CORE_AtomicDisableIrq(void);
@@ -360,15 +347,6 @@ void  CORE_AtomicDisableIrq(void);
  *   Enable interrupts.
  *
  *   Enable interrupts by setting core BASEPRI register to 0.
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is @ref CORE_ATOMIC_METHOD_BASEPRI and PRIMASK
- *   is set (CPU is inside a CRITICAL section), interrupts will still be
- *   disabled after calling this function.
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is @ref CORE_ATOMIC_METHOD_PRIMASK, this
- *   function is identical to @ref CORE_CriticalEnableIrq().
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 void  CORE_AtomicEnableIrq(void);
@@ -381,10 +359,6 @@ void  CORE_AtomicEnableIrq(void);
  *   The interrupt priority blocking level to restore to BASEPRI when exiting
  *   the ATOMIC section. This value is usually the one returned by a prior
  *   call to @ref CORE_EnterAtomic().
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is set to @ref CORE_ATOMIC_METHOD_PRIMASK, this
- *   function is identical to @ref CORE_ExitCritical().
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 void  CORE_ExitAtomic(CORE_irqState_t irqState);
@@ -396,10 +370,6 @@ void  CORE_ExitAtomic(CORE_irqState_t irqState);
  *
  * @note
  *   Usually used within an ATOMIC section.
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is @ref CORE_ATOMIC_METHOD_PRIMASK, this
- *   function is identical to @ref CORE_YieldCritical().
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_CORE, SL_CODE_CLASS_TIME_CRITICAL)
 void  CORE_YieldAtomic(void);
@@ -410,10 +380,6 @@ void  CORE_YieldAtomic(void);
  *
  *   When an ATOMIC section is entered, interrupts with priority lower or equal
  *   to @ref CORE_ATOMIC_BASE_PRIORITY_LEVEL are disabled.
- *
- * @note
- *   If @ref CORE_ATOMIC_METHOD is @ref CORE_ATOMIC_METHOD_PRIMASK, this
- *   function is identical to @ref CORE_EnterCritical().
  *
  * @return
  *   The value of BASEPRI register prior to ATOMIC section entry.

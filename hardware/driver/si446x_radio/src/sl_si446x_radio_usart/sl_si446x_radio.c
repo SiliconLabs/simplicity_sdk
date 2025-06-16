@@ -32,7 +32,7 @@
 
 #include "em_bus.h"
 #include "sl_clock_manager.h"
-#include "em_core.h"
+#include "sl_core.h"
 #include "sl_hal_gpio.h"
 #include "sl_gpio.h"
 #include "em_usart.h"

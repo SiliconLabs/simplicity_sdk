@@ -125,7 +125,9 @@ Next time you issue the `wisun join_xxxxx` command, the device starts a connecti
 | wisun.async_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to async frames | |
 | wisun.unicast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to unicast frequency hopping | |
 | wisun.broadcast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to broadcast frequency hopping | |
-| wisun.neighbor_table_size | R/W | integer | 1 to 254 | Size of the neighbor table, excluding temporary entries and RPL parents | |
+| wisun.max_child_count | R/W | integer | 1 to 254 | Maximum number of RPL children | |
+| wisun.max_neighbor_count | R/W | integer | 1 to 254 | Size of the neighbor table, including temporary entries and RPL parents | |
+| wisun.max_security_neighbor_count | R/W | integer | 1 to 254 | Size of the security neighbor table | |
 | wisun.keychain | R/W | integer | - automatic (0) <br> - built-in (1) <br> - NVM (2) | Keychain to use for device credentials | |
 | wisun.keychain_index | R/W | integer | 0 to 255 | Device credential index to use for built-in keychain | |
 

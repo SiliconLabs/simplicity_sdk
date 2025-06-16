@@ -94,6 +94,7 @@ typedef struct {
   uint16_t timer;
   uint16_t startTime;
   uint16_t tag;
+  sl_status_t tx_status;
 } sli_zigbee_retry_queue_entry_t;
 
 typedef struct storeAndForwardEntryS {
@@ -118,6 +119,7 @@ typedef struct {
   uint8_t status;                      // See below.
   uint8_t addressIndex;                // Index into the address or binding tables.
   uint16_t tag;
+  sl_status_t tx_status;               // Tx status of APS message
 } sli_zigbee_aps_unicast_message_data_t;
 
 typedef uint8_t sli_802154mac_frame_info_element_type;

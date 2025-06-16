@@ -21,8 +21,6 @@
 #include <string.h>
 #include <CC_Supervision.h>
 #include <ZAF_Common_interface.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
 #include <zpal_radio.h>
 #include "zaf_transport_tx.h"
 
@@ -61,11 +59,11 @@ static void ZCB_PowerLevelTimeout(SSwTimer* pTimer);
 static void SetRadioAttenuation(uint8_t adjustTxPower);
 
 /*===========================   SendTestReport   ============================
- **    Send current Powerlevel test results
- **
- **    This is an application function example
- **
- **--------------------------------------------------------------------------*/
+**    Send current Powerlevel test results
+**
+**    This is an application function example
+**
+**--------------------------------------------------------------------------*/
 static void
 SendTestReport(void)
 {
@@ -103,32 +101,24 @@ SendTestReport(void)
  * @param txStatusReport Status report.
  */
 static void
-ZCB_SendTestDone (void *callback_param)
+ZCB_SendTestDone(void *callback_param)
 {
-
   transmission_result_t *tmp = callback_param;
 
   uint8_t bStatus = tmp->status;
 
-  if (bStatus == TRANSMIT_COMPLETE_OK)
-  {
+  if (bStatus == TRANSMIT_COMPLETE_OK) {
     testFrameSuccessCount++;
   }
 
   TimerStop(&delayTestFrameTimer);
 
-  if (testFrameCount && (--testFrameCount))
-  {
+  if (testFrameCount && (--testFrameCount)) {
     TimerStart(&delayTestFrameTimer, 40);
-  }
-  else
-  {
-    if (testFrameSuccessCount)
-    {
+  } else {
+    if (testFrameSuccessCount) {
       testState = POWERLEVEL_TEST_NODE_REPORT_ZW_TEST_SUCCES;
-    }
-    else
-    {
+    } else {
       testState = POWERLEVEL_TEST_NODE_REPORT_ZW_TEST_FAILED;
     }
     SendTestReport();
@@ -140,11 +130,10 @@ ZCB_SendTestDone (void *callback_param)
  * ZPAL_RADIO_TX_POWER_DEFAULT after the designated time period.
  */
 static void
-ZCB_PowerLevelTimeout (SSwTimer* pTimer)
+ZCB_PowerLevelTimeout(SSwTimer* pTimer)
 {
   timerPowerLevelSec -= 1;
-  if (0 == timerPowerLevelSec)
-  {
+  if (0 == timerPowerLevelSec) {
     currentPower = ZPAL_RADIO_TX_POWER_DEFAULT; /* Reset powerlevel to ZPAL_RADIO_TX_POWER_DEFAULT */
     SetRadioAttenuation(currentPower);
     TimerStop(pTimer);
@@ -166,7 +155,7 @@ static void StartTest(void)
  * This function is called when the delay timer triggers.
  */
 static void
-ZCB_DelayTestFrame (__attribute__((unused)) SSwTimer* pTimer)
+ZCB_DelayTestFrame(__attribute__((unused)) SSwTimer* pTimer)
 {
   SQueueNotifying* pTxQueueNotifying = ZAF_getZwTxQueue();
 
@@ -179,12 +168,11 @@ ZCB_DelayTestFrame (__attribute__((unused)) SSwTimer* pTimer)
   };
 
   // Put the package on queue (and dont wait for it)
-  if (EQUEUENOTIFYING_STATUS_TIMEOUT == QueueNotifyingSendToBack(pTxQueueNotifying, (uint8_t*)&FramePackage, 0))
-  {
-      transmission_result_t rs = {
-        .status = TRANSMIT_COMPLETE_FAIL,
-        .isFinished = TRANSMISSION_RESULT_UNKNOWN
-      };
+  if (EQUEUENOTIFYING_STATUS_TIMEOUT == QueueNotifyingSendToBack(pTxQueueNotifying, (uint8_t*)&FramePackage, 0)) {
+    transmission_result_t rs = {
+      .status = TRANSMIT_COMPLETE_FAIL,
+      .isFinished = TRANSMISSION_RESULT_UNKNOWN
+    };
     ZCB_SendTestDone(&rs);
   }
 }
@@ -207,8 +195,7 @@ static void loadInitStatusPowerLevel(void)
 
   timerPowerLevelSec = 0;
   // Stop the timer if active
-  if (TimerIsActive(&timerPowerLevel))
-  {
+  if (TimerIsActive(&timerPowerLevel)) {
     TimerStop(&timerPowerLevel);
   }
 }
@@ -221,16 +208,13 @@ CC_Powerlevel_handler(
   ZW_APPLICATION_TX_BUFFER * pFrameOut,
   uint8_t * pLengthOut)
 {
-  switch (pCmd->ZW_Common.cmd)
-  {
+  switch (pCmd->ZW_Common.cmd) {
     case POWERLEVEL_SET:
-      if (pCmd->ZW_PowerlevelSetFrame.powerLevel > ZPAL_RADIO_TX_POWER_MINUS9_DBM)
-      {
+      if (pCmd->ZW_PowerlevelSetFrame.powerLevel > ZPAL_RADIO_TX_POWER_MINUS9_DBM) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
-      if (0 == pCmd->ZW_PowerlevelSetFrame.timeout)
-      {
+      if (0 == pCmd->ZW_PowerlevelSetFrame.timeout) {
         // A timeout value of zero is invalid.
         return RECEIVED_FRAME_STATUS_FAIL;
       }
@@ -238,13 +222,10 @@ CC_Powerlevel_handler(
       AppTimerRegister(&timerPowerLevel, true, ZCB_PowerLevelTimeout);
       TimerStop(&timerPowerLevel); /* Stop any ongoing POWERLEVEL_SET operation */
 
-      if (ZPAL_RADIO_TX_POWER_DEFAULT == pCmd->ZW_PowerlevelSetFrame.powerLevel)
-      {
+      if (ZPAL_RADIO_TX_POWER_DEFAULT == pCmd->ZW_PowerlevelSetFrame.powerLevel) {
         // If the power level is set to normal, we ignore the timeout.
         timerPowerLevelSec = 0;
-      }
-      else
-      {
+      } else {
         // Otherwise start the timer with 1 sec timeout period
         timerPowerLevelSec = pCmd->ZW_PowerlevelSetFrame.timeout;
         TimerStart(&timerPowerLevel, 1 * 1000);
@@ -257,12 +238,11 @@ CC_Powerlevel_handler(
       currentPower = pCmd->ZW_PowerlevelSetFrame.powerLevel;
       SetRadioAttenuation(currentPower);
       return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      break;
 
     case POWERLEVEL_GET:
 
-      if (true == Check_not_legal_response_job(rxOpt))
-      {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -274,19 +254,17 @@ CC_Powerlevel_handler(
       *pLengthOut = sizeof(ZW_POWERLEVEL_REPORT_FRAME);
 
       return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      break;
 
     case POWERLEVEL_TEST_NODE_SET:
-      if (POWERLEVEL_TEST_NODE_REPORT_ZW_TEST_INPROGRESS == testState) // 0x02
-      {
+      if (POWERLEVEL_TEST_NODE_REPORT_ZW_TEST_INPROGRESS == testState) { // 0x02
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
       testFrameCount = (uint16_t)((((uint16_t)pCmd->ZW_PowerlevelTestNodeSetFrame.testFrameCount1) << 8)
                                   | (uint16_t)pCmd->ZW_PowerlevelTestNodeSetFrame.testFrameCount2);
 
-      if (0 == testFrameCount)
-      {
+      if (0 == testFrameCount) {
         return RECEIVED_FRAME_STATUS_FAIL;
       }
 
@@ -297,27 +275,26 @@ CC_Powerlevel_handler(
 
       StartTest();
       return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      break;
 
     case POWERLEVEL_TEST_NODE_GET:
-      {
-        if (true == Check_not_legal_response_job(rxOpt))
-        {
-          /*Do not support endpoint bit-addressing */
-          return RECEIVED_FRAME_STATUS_FAIL;
-        }
-
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.cmdClass = COMMAND_CLASS_POWERLEVEL;
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.cmd = POWERLEVEL_TEST_NODE_REPORT;
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.testNodeid = (uint8_t)testNodeID;
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.statusOfOperation = testState;
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.testFrameCount1 = (uint8_t)(testFrameSuccessCount >> 8);
-        pFrameOut->ZW_PowerlevelTestNodeReportFrame.testFrameCount2 = (uint8_t)(testFrameSuccessCount);
-
-        *pLengthOut = sizeof(ZW_POWERLEVEL_TEST_NODE_REPORT_FRAME);
+    {
+      if (true == Check_not_legal_response_job(rxOpt)) {
+        /*Do not support endpoint bit-addressing */
+        return RECEIVED_FRAME_STATUS_FAIL;
       }
+
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.cmdClass = COMMAND_CLASS_POWERLEVEL;
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.cmd = POWERLEVEL_TEST_NODE_REPORT;
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.testNodeid = (uint8_t)testNodeID;
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.statusOfOperation = testState;
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.testFrameCount1 = (uint8_t)(testFrameSuccessCount >> 8);
+      pFrameOut->ZW_PowerlevelTestNodeReportFrame.testFrameCount2 = (uint8_t)(testFrameSuccessCount);
+
+      *pLengthOut = sizeof(ZW_POWERLEVEL_TEST_NODE_REPORT_FRAME);
+    }
       return RECEIVED_FRAME_STATUS_SUCCESS;
-    break;
+      break;
 
     default:
       break;

@@ -13,7 +13,7 @@ package: Z-Wave
 quality: production
 component:
   # Z-Wave
-  - id: zw_role_type_always_on
+  - id: zw_role_type_serial_api_end_device
   - id: zaf_ncp
   - id: zw_core
   - id: zw_appshw_serialapi
@@ -28,11 +28,12 @@ component:
   - id: emlib_timer
   - id: emlib_msc
   - id: gpiointerrupt
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   - id: simple_led
     instance: [led0, led1]
+  - id: clock_manager
 source:
   - path: app_node_info.c
   - path: cmd_handlers_invoker.c
@@ -49,7 +50,6 @@ source:
   - path: app.c
   - path: utils.c
   - path: virtual_slave_node_info.c
-  - path: main.c
 include:
   - path: .
     file_list:
@@ -144,8 +144,6 @@ configuration:
     value: 0
   - name: ZAF_APP_NAME
     value: '"serial_api_end_device"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -153,6 +151,11 @@ define:
 
 post_build:
   profile: zwave_application
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_developer_tool
+  - name: zwave_ncp_serial_api_end_device
 
 tag:
   - prebuilt_demo

@@ -176,7 +176,7 @@ bool sl_wisun_nwm_get_secondary_parent_stat(sl_wisun_nwm_node_stat_t * const des
 
 /**************************************************************************//**
  * @brief Get Children Statistics
- * @details Get all of available Childre statistics
+ * @details Get all of available Children statistics
  * @param[out] dest Destination buffer start address
  * @param[in] dest_size Destination buffer size for assertion
  * @param[out] children_count Count of children

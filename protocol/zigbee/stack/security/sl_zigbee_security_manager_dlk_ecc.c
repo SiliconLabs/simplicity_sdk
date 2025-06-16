@@ -499,11 +499,30 @@ static sl_status_t speke_generate_keypair(sl_zigbee_sec_man_dlk_ecc_context_t *d
   if (dlk_ecc_ctx->test != NULL) {
     speke_test_vector_load_private_key(dlk_ecc_ctx);
   } else {
-    crypto_ret = mbedtls_ecdh_gen_public(&dlk_ecc_ctx->ecc_group,
-                                         &dlk_ecc_ctx->d,
-                                         &dlk_ecc_ctx->Q,
-                                         f_rng_wrapper,
-                                         NULL);
+    // NOTE manually generate keypair because mbedtls_ecdh_gen_public does not work for us?...
+    // crypto_ret = mbedtls_ecdh_gen_public(&dlk_ecc_ctx->ecc_group,
+    //                                      &dlk_ecc_ctx->d,
+    //                                      &dlk_ecc_ctx->Q,
+    //                                      f_rng_wrapper,
+    //                                      NULL);
+    uint8_t gen_private_key[DLK_ECC_COORDINATE_SIZE] = { 0, };
+    crypto_ret = f_rng_wrapper(NULL, gen_private_key, DLK_ECC_COORDINATE_SIZE);
+    if (crypto_ret != 0) {
+      return SL_STATUS_SECURITY_RANDOM_NUM_GEN_ERROR;
+    }
+    // clamp the private key
+    x25519_key_clamp(gen_private_key);
+    crypto_ret = mbedtls_mpi_read_binary_le(&dlk_ecc_ctx->d, gen_private_key, DLK_ECC_COORDINATE_SIZE);
+    if (crypto_ret != 0) {
+      return SL_STATUS_SECURITY_KEY_ERROR;
+    }
+    // perform point multiplication dG = Q
+    crypto_ret = mbedtls_ecp_mul(&dlk_ecc_ctx->ecc_group,
+                                 &dlk_ecc_ctx->Q,
+                                 &dlk_ecc_ctx->d,
+                                 &dlk_ecc_ctx->ecc_group.G,
+                                 f_rng_wrapper,
+                                 NULL);
   }
   if (crypto_ret != 0) {
     return SL_STATUS_FAIL;

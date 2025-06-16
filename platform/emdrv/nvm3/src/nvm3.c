@@ -205,6 +205,7 @@ static sl_status_t fifoReadObj(nvm3_Handle_t *h, void *dstPtr,
                                read_operation_t read_operation);
 static sl_status_t findObj(nvm3_Handle_t *h, nvm3_ObjectKey_t key, nvm3_Obj_t *obj, nvm3_ObjGroup_t *pObjGroup);
 #endif
+static void getMemInfo(nvm3_Handle_t *h);
 
 //****************************************************************************
 // Static functions
@@ -368,7 +369,7 @@ static void getSecType(nvm3_Handle_t *h, nvm3_SecurityType_t *secType)
  *
  * @param[out] nonceVal    A pointer to nonce buffer which is updated by this function.
  *
- * @return                 Returns SL_STATUS_OK on success or SL_STATUS_NVM3_RANDOM_NUM_GENERATION_FAILED on failure.
+ * @return                 Returns SL_STATUS_OK on success or SL_STATUS_SECURITY_RANDOM_NUM_GEN_ERROR on failure.
  ********************************************************************************************************************/
 static sl_status_t createNonce(nvm3_Handle_t *h, nvm3_HalPtr_t objAdr, uint8_t *nonceVal)
 {
@@ -380,7 +381,7 @@ static sl_status_t createNonce(nvm3_Handle_t *h, nvm3_HalPtr_t objAdr, uint8_t *
   // Construct nonce from random number, obj adr and page erase count
   sta = nvm3_halCryptoGenRandNum(HAL_CRYPTO, &nonce[0], NVM3_RANDOM_NUM_SIZE);
   if (sta != SL_STATUS_OK) {
-    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - random number generation failed, sta=0x%x.\n", sta);
+    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - random number generation failed, sta=0x%lx.\n", sta);
     NVM3_ERROR_ASSERT();
     return sta;
   }
@@ -712,7 +713,7 @@ static sl_status_t writeObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, nvm3_Obj_t *ds
     if (objGroup == objGroupData) {
       sta = fifoReadObj(h, (void *)decBufPtr, 0, srcLen, srcObj, read_data);
       if (sta != SL_STATUS_OK) {
-        nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - writeObj: read encrypted data failed during copy obj, key=%u, sta=0x%x.\n", key, sta);
+        nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - writeObj: read encrypted data failed during copy obj, key=%lu, sta=0x%lx.\n", srcObj->key, sta);
         NVM3_ERROR_ASSERT();
         return sta;
       } else {
@@ -807,7 +808,7 @@ static sl_status_t writeObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, nvm3_Obj_t *ds
           // For counter objects write only the base value.
           if (!baseWr && ((offset + fragLen) >= COUNTER_SIZE_BASE)) {
             sta = nvm3_halWriteWords(HAL, dstAdr, &baseVal, 1);
-            nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntWr: key=%u, fAdr=%p, bAdr=%p, base=%u.\n", srcObj->key, fragAdr, dstAdr, baseVal);
+            nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntWr: key=%lu, fAdr=%p, bAdr=%p, base=%lu.\n", srcObj->key, fragAdr, dstAdr, baseVal);
             if (sta != SL_STATUS_OK) {
               break;
             }
@@ -859,7 +860,7 @@ static sl_status_t writeObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, nvm3_Obj_t *ds
                 }
               }
             } else {
-              nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - writeObj: data encryption failed, key=%u, sta=0x%x.\n", key, sta);
+              nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - writeObj: data encryption failed, key=%lu, sta=0x%lx.\n", srcObj->key, sta);
               NVM3_ERROR_ASSERT();
               return sta;
             }
@@ -1052,7 +1053,7 @@ static sl_status_t writeObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, nvm3_Obj_t *ds
           // For counter objects write only the base value.
           if (!baseWr && ((offset + fragLen) >= COUNTER_SIZE_BASE)) {
             sta = nvm3_halWriteWords(HAL, dstAdr, &baseVal, 1);
-            nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntWr: key=%u, fAdr=%p, bAdr=%p, base=%u.\n", srcObj->key, fragAdr, dstAdr, baseVal);
+            nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntWr: key=%lu, fAdr=%p, bAdr=%p, base=%lu.\n", srcObj->key, fragAdr, dstAdr, baseVal);
             if (sta != SL_STATUS_OK) {
               break;
             }
@@ -1216,12 +1217,12 @@ static sl_status_t fifoWriteObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, bool copyO
                   curAdr = (uint8_t *)curAdr + pObjD->totalLen + NVM3_OBJ_HEADER_SIZE_SMALL;
                 }
               } else {
-                nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoWriteObj: write failed during copy obj, key=%u, staCpy=0x%x.\n", key, staCpy);
+                nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoWriteObj: write failed during copy obj, key=%lu, staCpy=0x%lx.\n", key, staCpy);
                 NVM3_ERROR_ASSERT();
                 return staCpy;
               }
             } else {
-              nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoWriteObj: find obj failed during copy obj, key=%u, staCpy=0x%x.\n", key, staCpy);
+              nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoWriteObj: find obj failed during copy obj, key=%lu, staCpy=0x%lx.\n", key, staCpy);
               NVM3_ERROR_ASSERT();
               return staCpy;
             }
@@ -1284,7 +1285,7 @@ static sl_status_t fifoWriteObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, bool copyO
     sta = writeObj(h, srcObj, pObjC, dstAdr, copyObj, objGroup, &wrFailure);
     if (sta == SL_STATUS_OK) {
       h->fifoNextObj = pObjC->nextObjAdr;
-    } else {
+    } else if (sta == SL_STATUS_FLASH_PROGRAM_FAILED) {
       size_t curIdx;
       nvm3_HalPtr_t curAdr;
       size_t badIdx;
@@ -1326,6 +1327,8 @@ static sl_status_t fifoWriteObj(nvm3_Handle_t *h, nvm3_Obj_t *srcObj, bool copyO
         (void)findValidPageCnt(h);
         h->unusedNvmSize = getFreeSize(h);
       } while ((staCpy != SL_STATUS_OK) && (writeFullAllowed(h, srcObj->totalLen)));
+    } else {
+      break;
     }
   } while ((sta != SL_STATUS_OK) && (writeFullAllowed(h, srcObj->totalLen)));
 
@@ -1394,6 +1397,16 @@ static sl_status_t fifoWriteWrapper(nvm3_Handle_t *h, nvm3_ObjectKey_t key,
   sta = fifoWriteObj(h, pObjB, COPY_OBJ_FALSE, objGroup);
   objEnd(pObjB);
 
+  // Check if a low memory callback is registered
+  if (h->lowMemCallback != NULL) {
+    // Get memory information
+    getMemInfo(h);
+    // Invoke the callback if either low memory or cache overflow conditions are detected
+    if (h->memInfo.isMemoryLow || h->memInfo.isCacheLow) {
+      h->lowMemCallback(&h->memInfo);
+    }
+  }
+
   return sta;
 }
 
@@ -1440,7 +1453,7 @@ static sl_status_t fifoReadObj(nvm3_Handle_t *h, void *dstPtr,
 
     nvm3_ObjectKey_t keyAct = nvm3_objHdrGetKey(&fraHdrSmall);
     if (keyAct != obj->key) {
-      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: fragment has wrong key, exp=%u, act=%u.\n", obj->key, keyAct);
+      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: fragment has wrong key, exp=%lu, act=%lu.\n", obj->key, keyAct);
       NVM3_ERROR_ASSERT();
       return SL_STATUS_NVM3_KEY_MISMATCH;
     }
@@ -1479,7 +1492,7 @@ static sl_status_t fifoReadObj(nvm3_Handle_t *h, void *dstPtr,
     if (h->secType == NVM3_SECURITY_AEAD) {
       sta = nvm3_halCryptoDecrypt(HAL_CRYPTO, &nonceVal[0], objHdr, hdrLen, &nvm3_encBuf[NVM3_DATA_OFFSET], (actLen - NVM3_GCM_SIZE_OVERHEAD), decBufPtr, &nvm3_encBuf[actLen - NVM3_GCM_TAG_SIZE], convertSecTypeToCryptoAlgo(h->secType));
       if (sta != SL_STATUS_OK) {
-        nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: data decryption failed, key=%u, sta=0x%x.\n", key, sta);
+        nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: data decryption failed, key=%lu, sta=0x%lx.\n", obj->key, sta);
         NVM3_ERROR_ASSERT();
         return sta;
       }
@@ -1566,7 +1579,7 @@ static sl_status_t fifoReadObj(nvm3_Handle_t *h, void *dstPtr,
 
     nvm3_ObjectKey_t keyAct = nvm3_objHdrGetKey(&fraHdrSmall);
     if (keyAct != obj->key) {
-      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: fragment has wrong key, exp=%u, act=%u.\n", obj->key, keyAct);
+      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - fifoReadObj: fragment has wrong key, exp=%lu, act=%lu.\n", obj->key, keyAct);
       NVM3_ERROR_ASSERT();
       return SL_STATUS_NVM3_KEY_MISMATCH;
     }
@@ -1808,13 +1821,13 @@ static bool validateObjFragments(nvm3_Handle_t *h, nvm3_ObjPtr_t fragAdr, nvm3_O
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "      validateObjFragments: key=%u, len=%u, total=%d, adr=%p.\n", key, fragLen, obj->totalLen, fragAdr);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "      validateObjFragments: key=%lu, len=%u, total=%d, adr=%p.\n", key, fragLen, obj->totalLen, fragAdr);
 
   /* Find the next object location. For fragmentation or
      packet error, the next object is the current object.
      Retry, starting from that new object. */
   if (obj->isValid) {
-    if ((!fragError) || ((fragError) && ((fragTyp != fragTypeFirst) && (fragTyp != fragTypeNone)))) {
+    if ((!fragError) || (fragError && ((fragTyp != fragTypeFirst) && (fragTyp != fragTypeNone)))) {
       obj->nextObjAdr = getNextObj(h, fragAdr, hdrLen, fragLen);
     }
   }
@@ -1832,7 +1845,7 @@ static bool validateObjFragments(nvm3_Handle_t *h, nvm3_ObjPtr_t fragAdr, nvm3_O
   }
 
   // If the object is fragmented, validate the next fragment.
-  if ((checkAllFrag) && (obj->isValid)) {
+  if (checkAllFrag && (obj->isValid)) {
     if ((obj->isFragmented)
         && (!fragError)
         && (fragTyp != fragTypeLast)
@@ -1841,7 +1854,7 @@ static bool validateObjFragments(nvm3_Handle_t *h, nvm3_ObjPtr_t fragAdr, nvm3_O
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "      validateObjFragments: done, key=%u, adr=%p, valid=%s, group=%d\n", obj->key, fragAdr, obj->isValid ? "true" : "false", *pObjGroup);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "      validateObjFragments: done, key=%lu, adr=%p, valid=%s, group=%d\n", obj->key, fragAdr, obj->isValid ? "true" : "false", *pObjGroup);
 
   return obj->isValid;
 }
@@ -1850,13 +1863,13 @@ static bool validateObj(nvm3_Handle_t *h, nvm3_Obj_t *obj, bool checkAllFrag, nv
 {
   bool isValid;
 
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "    validateObj: objAdr=%p, key=%u, checkAll=%u.\n", obj->objAdr, obj->key, checkAllFrag);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "    validateObj: objAdr=%p, key=%lu, checkAll=%u.\n", obj->objAdr, obj->key, checkAllFrag);
   obj->frag.idx = 0;
   isValid = validateObjFragments(h, obj->objAdr, obj, checkAllFrag, pObjGroup);
   if (isValid) {
     obj->isValid = obj->isFragmented ? obj->frag.isLastFragFound : true;
   }
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "    validateObj: key=%u, valid=%u, grp=%u\n", obj->key, obj->isValid, *pObjGroup);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "    validateObj: key=%lu, valid=%u, grp=%u\n", obj->key, obj->isValid, *pObjGroup);
   return obj->isValid;
 }
 
@@ -1883,7 +1896,7 @@ static sl_status_t findObj(nvm3_Handle_t *h, nvm3_ObjectKey_t key, nvm3_Obj_t *o
   nvm3_ObjGroup_t objGroup = objGroupUnknown;
   NVM3_OBJ_T_ALLOCATION(ObjC);
 
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "  findObj: key=%u.\n", key);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "  findObj: key=%lu.\n", key);
 
   nvm3_objInit(obj, NVM3_OBJ_PTR_INVALID);
 
@@ -1904,7 +1917,7 @@ static sl_status_t findObj(nvm3_Handle_t *h, nvm3_ObjectKey_t key, nvm3_Obj_t *o
       found = true;
       *pObjGroup = objGroup;
     } else {
-      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - findObj: cache hit, but the object is NOT valid, key=%u, adr=%p.\n", key, objAdr);
+      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - findObj: cache hit, but the object is NOT valid, key=%lu, adr=%p.\n", key, objAdr);
       NVM3_ERROR_ASSERT();
     }
   }
@@ -1953,7 +1966,7 @@ static sl_status_t findObj(nvm3_Handle_t *h, nvm3_ObjectKey_t key, nvm3_Obj_t *o
         nvm3_objInit(pObjC, objAdr);
         isValid = validateObj(h, pObjC, checkAllFrag, &objGroup);
         if (isValid) {
-          if ((!checkAllFrag) || ((checkAllFrag) && (key == pObjC->key))) {
+          if ((!checkAllFrag) || (checkAllFrag && (key == pObjC->key))) {
             found = true;
             *pObjGroup = objGroup;
             // Copy the object.
@@ -1990,7 +2003,7 @@ static sl_status_t findObj(nvm3_Handle_t *h, nvm3_ObjectKey_t key, nvm3_Obj_t *o
   }
 
   sl_status_t sta = (found ? SL_STATUS_OK : SL_STATUS_NOT_FOUND);
-  nvm3_tracePrint(TRACE_LEVEL_LOW, "  findObj: ----- key=%u, sta=0x%x, objAdr=%p, objGroup=%u -----\n", key, sta, obj->objAdr, *pObjGroup);
+  nvm3_tracePrint(TRACE_LEVEL_LOW, "  findObj: ----- key=%lu, sta=0x%lx, objAdr=%p, objGroup=%u -----\n", key, sta, obj->objAdr, *pObjGroup);
 
   return sta;
 }
@@ -2079,12 +2092,12 @@ static void findFirstPage(nvm3_Handle_t *h)
 
   if ((eraseCntMax - eraseCntMin) > 1U) {
     h->fifoFirstIdx = NVM3_PAGE_INDEX_INVALID;
-    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - findFirstPage: Error in erase count, min=%u, max=%u.\n", eraseCntMin, eraseCntMax);
+    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - findFirstPage: Error in erase count, min=%lu, max=%lu.\n", eraseCntMin, eraseCntMax);
     for (idx = 0; idx < h->totalNvmPageCnt; idx++) {
       pageAdr = pageAdrFromIdx(h, idx);
       nvm3_halReadWords(HAL, pageAdr, &pageHdr, NVM3_PAGE_HEADER_WSIZE);
       eraseCnt = nvm3_pageGetEraseCnt(&pageHdr);
-      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "  ERROR: idx=%u, adr=%p, eraseCnt=%u\n", idx, pageAdr, eraseCnt);
+      nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "  ERROR: idx=%u, adr=%p, eraseCnt=%lu\n", idx, pageAdr, eraseCnt);
     }
     NVM3_ERROR_ASSERT();
   }
@@ -2276,7 +2289,7 @@ static bool repackFirstPageCallback(nvm3_Handle_t *h, nvm3_ObjPtr_t obj, nvm3_Ob
         parameters->copyAccumulated += (obj->totalLen + NVM3_OBJ_HEADER_SIZE_LARGE);
         parameters->status = fifoWriteObj(h, obj, COPY_OBJ_TRUE, group);
         if (parameters->status != SL_STATUS_OK) {
-          nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "NVM3 ERROR - repackFirstPageCallback: Write error, sta=0x%x.\n", parameters->status);
+          nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "NVM3 ERROR - repackFirstPageCallback: Write error, sta=0x%lx.\n", parameters->status);
           NVM3_ERROR_ASSERT();  // Assert even if it is defined as a warning, used during test.
           return false;
         }
@@ -2333,7 +2346,7 @@ static sl_status_t repackFirstPage(nvm3_Handle_t *h, repackCopyMode_t copyMode)
     (void)nvm3_pageSetEip(HAL, pageAdr);
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_REPACK, "    repackFirstPage: done status=%u, nextObj=%p.\n", parameters.status, h->fifoNextObj);
+  nvm3_tracePrint(TRACE_LEVEL_REPACK, "    repackFirstPage: done status=%lu, nextObj=%p.\n", parameters.status, h->fifoNextObj);
 
   return parameters.status;
 }
@@ -2401,7 +2414,6 @@ static sl_status_t erasePage(nvm3_Handle_t *h, size_t idx, uint32_t eraseCnt)
 
   (void)findValidPageCnt(h);
 
-  //nvm3_tracePrint(TRACE_LEVEL_LOW, "  erasePage: sta=%u.\n", sta);
   return sta;
 }
 
@@ -2471,17 +2483,14 @@ static void eraseAllPages(nvm3_Handle_t *h, uint32_t newCfgEraseCnt)
 {
   uint32_t newEraseCnt;
   size_t idx;
-  size_t i;
   nvm3_HalPtr_t pageAdr;
   nvm3_PageHdr_t pageHdr;
   nvm3_PageState_t pageState;
   bool firstIdxIsUnknown;
 
-  //nvm3_tracePrint(TRACE_LEVEL_LOW, "  eraseAllPages: newCfgEraseCnt=%u\n", newCfgEraseCnt);
-
   firstIdxIsUnknown = (h->fifoFirstIdx == NVM3_PAGE_INDEX_INVALID);
   idx = firstIdxIsUnknown ? 0 : h->fifoFirstIdx;
-  for (i = 0; i < h->totalNvmPageCnt; i++) {
+  for (size_t i = 0; i < h->totalNvmPageCnt; i++) {
     pageAdr = pageAdrFromIdx(h, idx);
     nvm3_halReadWords(HAL, pageAdr, &pageHdr, NVM3_PAGE_HEADER_WSIZE);
     pageState = nvm3_pageGetState(&pageHdr);
@@ -2792,7 +2801,7 @@ static uint32_t readCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj)
   hdrLen = NVM3_OBJ_HEADER_SIZE_COUNTER;
   adr = calcAdr(obj->objAdr, hdrLen);
   nvm3_halReadWords(HAL, adr, &counterBase, 1);
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: oAdr=%p, bAdr=%p, base=%u.\n", obj->objAdr, adr, counterBase);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: oAdr=%p, bAdr=%p, base=%lu.\n", obj->objAdr, adr, counterBase);
 
   // Look for info in the counter increments.
   // It can be either increments or new base values.
@@ -2808,7 +2817,7 @@ static uint32_t readCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj)
       isAValidNewBase = counterIsValidNewBase(h, obj, idx, &counterBase);
       if (isAValidNewBase) {
         // Index is pointing to a valid new base
-        nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, base=%u.\n", idx, counterBase);
+        nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, base=%lu.\n", idx, counterBase);
       } else {
         // Index is pointing to an invalid new base, just ignore it.
         nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, base=INVALID.\n", idx);
@@ -2824,7 +2833,7 @@ static uint32_t readCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj)
       if (isAValidNewInc) {
         // Handle only valid increments
         counterBase += incField;
-        nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, incr=%u=0x%04x, val=%u.\n", idx, incField, incField, counterBase);
+        nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, incr=%lu=0x%04lx, val=%lu.\n", idx, incField, incField, counterBase);
       } else {
         nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: idx=%2u, incr=INVALID.\n", idx);
       }
@@ -2832,7 +2841,7 @@ static uint32_t readCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj)
     idx++;
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: val=%u.\n", counterBase);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntRd: val=%lu.\n", counterBase);
 
   return counterBase;
 }
@@ -2901,36 +2910,36 @@ static sl_status_t counterUpdateBase(nvm3_Handle_t *h, nvm3_Obj_t *obj, uint8_t 
   if (h->halInfo.writeSize == NVM3_HAL_WRITE_SIZE_16) {
     BCCB = 8;
     nvm3_utilsComputeBergerCode(&BCCB, &base, 32);
-    incField = (((uint32_t)BCCB << 8));
+    incField = ((uint32_t)BCCB << 8);
   } else {
     BCCB = 16;
     nvm3_utilsComputeBergerCode(&BCCB, &base, 32);
-    incField = (((uint32_t)BCCB << 16));
+    incField = ((uint32_t)BCCB << 16);
   }
 
   // Write the inc value.
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: inc=%u=0x%4x.\n", incField, incField);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: inc=%lu=0x%4lx.\n", incField, incField);
   sta = counterIncFldSet(h, obj, idx, incField);
   idx++;
 
   // Write the base value.
   if (h->halInfo.writeSize == NVM3_HAL_WRITE_SIZE_16) {
     if (sta == SL_STATUS_OK) {
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: baseLsb=%u.\n", (base & 0xFFFF));
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: baseLsb=%lu.\n", (base & 0xFFFF));
       sta = counterIncFldSet(h, obj, idx, (base & 0xFFFFU));
       idx++;
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%x.\n", sta);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%lx.\n", sta);
     }
     if (sta == SL_STATUS_OK) {
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: baseMsb=%u.\n", (base >> 16));
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: baseMsb=%lu.\n", (base >> 16));
       sta = counterIncFldSet(h, obj, idx, (base >> 16));
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%x.\n", sta);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%lx.\n", sta);
     }
   } else {
     if (sta == SL_STATUS_OK) {
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: base=%u.\n", base);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: base=%lu.\n", base);
       sta = counterIncFldSet(h, obj, idx, base);
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%x.\n", sta);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpdBase: sta=0x%lx.\n", sta);
     }
   }
 
@@ -2958,7 +2967,7 @@ static sl_status_t fifoUpdateCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj,
     incNeeded += (uint8_t)counterNumberOfIncPrBase(h);
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: old=%u, new=%u, dif=%u, incNeeded=%u.\n", cntOld, cntNew, cntDif, incNeeded);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: old=%lu, new=%lu, dif=%lu, incNeeded=%u.\n", cntOld, cntNew, cntDif, incNeeded);
 
   // Find out how many increments are left.
   idx = getCounterFreeIncrementIdx(h, obj);
@@ -2966,10 +2975,10 @@ static sl_status_t fifoUpdateCounter(nvm3_Handle_t *h, nvm3_Obj_t *obj,
   if ((counterMaxNumberOfInc(h) - idx) >= incNeeded) {
     // Update the existing counter.
     if (incNeeded == 1U) {
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: inc - idx=%u, cntDif=%u.\n", idx, cntDif);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: inc - idx=%u, cntDif=%lu.\n", idx, cntDif);
       sta = counterUpdateInc(h, obj, idx, cntDif);
     } else {
-      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: base - idx=%u, cntNew=%u.\n", idx, cntNew);
+      nvm3_tracePrint(TRACE_LEVEL_COUNTER, "      cntUpd: base - idx=%u, cntNew=%lu.\n", idx, cntNew);
       sta = counterUpdateBase(h, obj, idx, cntNew);
     }
     hasBeenUpdated = (sta == SL_STATUS_OK);
@@ -3048,7 +3057,7 @@ static sl_status_t initialize(nvm3_Handle_t *h, uint32_t newCfgEraseCnt)
   // Crypto initialization.
   sta = nvm3_halCryptoInit(HAL_CRYPTO);
   if (sta != SL_STATUS_OK) {
-    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - crypto initialization failed, sta=0x%x.\n", sta);
+    nvm3_tracePrint(NVM3_TRACE_LEVEL_ERROR, "NVM3 ERROR - crypto initialization failed, sta=0x%lx.\n", sta);
     NVM3_ERROR_ASSERT();
     return sta;
   }
@@ -3061,7 +3070,7 @@ static sl_status_t initialize(nvm3_Handle_t *h, uint32_t newCfgEraseCnt)
       pageAdr = pageAdrFromIdx(h, h->fifoFirstIdx);
       nvm3_halReadWords(HAL, pageAdr, &pageHdr, NVM3_PAGE_HEADER_WSIZE);
       eraseCnt = nvm3_pageGetEraseCnt(&pageHdr);
-      nvm3_tracePrint(TRACE_LEVEL_INIT, "  initialize: -> first page=%u, eraseCnt=%u.\n", h->fifoFirstIdx, eraseCnt);
+      nvm3_tracePrint(TRACE_LEVEL_INIT, "  initialize: -> first page=%u, eraseCnt=%lu.\n", h->fifoFirstIdx, eraseCnt);
       findFirstObj(h);
       nvm3_tracePrint(TRACE_LEVEL_INIT, "  initialize: -> first object=%p.\n", h->fifoFirstObj);
       findNextObj(h);
@@ -3083,7 +3092,7 @@ static sl_status_t initialize(nvm3_Handle_t *h, uint32_t newCfgEraseCnt)
             pageAdr = pageAdrFromIdx(h, pageIdx);
             nvm3_halReadWords(HAL, pageAdr, &pageHdr, NVM3_PAGE_HEADER_WSIZE);
             eraseCnt = nvm3_pageGetEraseCnt(&pageHdr);
-            nvm3_tracePrint(TRACE_LEVEL_INIT, "  initialize: -> erase idx=%u, eraseCnt=%u.\n", pageIdx, eraseCnt);
+            nvm3_tracePrint(TRACE_LEVEL_INIT, "  initialize: -> erase idx=%u, eraseCnt=%lu.\n", pageIdx, eraseCnt);
 #if defined(NVM3_SECURITY)
             (void)nvm3_pageErase(HAL, pageAdr, eraseCnt, &h->halInfo, h->secType);
 #else
@@ -3188,6 +3197,7 @@ sl_status_t nvm3_open(nvm3_Handle_t *h, const nvm3_Init_t *i)
     NVM3_ERROR_ASSERT();
     return SL_STATUS_INVALID_PARAMETER;
   }
+  h->lowMemCallback = NULL;
 #if defined(NVM3_SECURITY)
   h->halCryptoHandle = i->halCryptoHandle;
   h->secType = i->secType;
@@ -3299,7 +3309,7 @@ sl_status_t nvm3_open(nvm3_Handle_t *h, const nvm3_Init_t *i)
     nvm3_lockDisableExecute(h->nvmAdr, h->nvmSize);
   }
 
-  nvm3_tracePrint(TRACE_LEVEL_INIT, "nvm3_open: firstPage=%u, pageCnt=%u, unusedNvmSize=%u, sta=0x%x.\n", h->fifoFirstIdx, h->totalNvmPageCnt, h->unusedNvmSize, sta);
+  nvm3_tracePrint(TRACE_LEVEL_INIT, "nvm3_open: firstPage=%u, pageCnt=%u, unusedNvmSize=%u, sta=0x%lx.\n", h->fifoFirstIdx, h->totalNvmPageCnt, h->unusedNvmSize, sta);
   workEnd(h);
 
   return sta;
@@ -3345,7 +3355,7 @@ sl_status_t nvm3_writeData(nvm3_Handle_t *h, nvm3_ObjectKey_t key, const void *v
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RDWR);
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_writeData: key=%u, len=%u.\n", key, len);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_writeData: key=%lu, len=%u.\n", key, len);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if (sta == SL_STATUS_OK) {
@@ -3356,6 +3366,7 @@ sl_status_t nvm3_writeData(nvm3_Handle_t *h, nvm3_ObjectKey_t key, const void *v
         secObjLen += (pObjA->frag.idx * NVM3_GCM_SIZE_OVERHEAD);
       } else {
         NVM3_ERROR_ASSERT();
+        workEnd(h);
         return SL_STATUS_INVALID_TYPE;
       }
     }
@@ -3403,7 +3414,7 @@ sl_status_t nvm3_readData(nvm3_Handle_t *h, nvm3_ObjectKey_t key, void *value, s
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_readData: key=%u, len=%u.\n", key, len);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_readData: key=%lu, len=%u.\n", key, len);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if (sta == SL_STATUS_OK) {
@@ -3414,6 +3425,7 @@ sl_status_t nvm3_readData(nvm3_Handle_t *h, nvm3_ObjectKey_t key, void *value, s
           len += (pObjA->frag.idx * NVM3_GCM_SIZE_OVERHEAD);
         } else {
           NVM3_ERROR_ASSERT();
+          workEnd(h);
           return SL_STATUS_INVALID_TYPE;
         }
       }
@@ -3460,7 +3472,7 @@ sl_status_t nvm3_readPartialData(nvm3_Handle_t* h, nvm3_ObjectKey_t key, void* v
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_readData: key=%u, len=%u.\n", key, len);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_readData: key=%lu, len=%u.\n", key, len);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if (sta == SL_STATUS_OK) {
@@ -3472,6 +3484,7 @@ sl_status_t nvm3_readPartialData(nvm3_Handle_t* h, nvm3_ObjectKey_t key, void* v
         sizeOverhead = NVM3_GCM_SIZE_OVERHEAD;
       } else {
         NVM3_ERROR_ASSERT();
+        workEnd(h);
         return SL_STATUS_INVALID_TYPE;
       }
       if (pObjA->totalLen > 0U) {
@@ -3527,7 +3540,7 @@ sl_status_t nvm3_writeCounter(nvm3_Handle_t *h, nvm3_ObjectKey_t key, uint32_t v
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RDWR);
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_writeCounter, key=%u, value=%u.\n", key, value);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_writeCounter, key=%lu, value=%lu.\n", key, value);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if ((sta != SL_STATUS_OK)
@@ -3577,7 +3590,7 @@ sl_status_t nvm3_readCounter(nvm3_Handle_t *h, nvm3_ObjectKey_t key, uint32_t *v
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_readCounter: key=%u.\n", key);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_readCounter: key=%lu.\n", key);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if ((sta == SL_STATUS_OK) && (objGroup != objGroupDeleted)) {
@@ -3615,7 +3628,7 @@ sl_status_t nvm3_incrementCounter(nvm3_Handle_t *h, nvm3_ObjectKey_t key, uint32
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RDWR);
-  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_incrementCounter: key=%u.\n", key);
+  nvm3_tracePrint(TRACE_LEVEL_COUNTER, "nvm3_incrementCounter: key=%lu.\n", key);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if ((sta == SL_STATUS_OK) && (objGroup != objGroupDeleted)) {
@@ -3659,7 +3672,7 @@ sl_status_t nvm3_getObjectInfo(nvm3_Handle_t *h, nvm3_ObjectKey_t key, uint32_t 
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_getObjectInfo: key=%u.\n", key);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_getObjectInfo: key=%lu.\n", key);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if ((sta == SL_STATUS_OK) && (objGroup != objGroupDeleted)) {
@@ -3674,6 +3687,7 @@ sl_status_t nvm3_getObjectInfo(nvm3_Handle_t *h, nvm3_ObjectKey_t key, uint32_t 
           *len = pObjA->totalLen - (pObjA->frag.idx * NVM3_GCM_SIZE_OVERHEAD);
         } else {
           NVM3_ERROR_ASSERT();
+          workEnd(h);
           return SL_STATUS_INVALID_TYPE;
         }
       } else {
@@ -3822,7 +3836,7 @@ sl_status_t nvm3_deleteObject(nvm3_Handle_t *h, nvm3_ObjectKey_t key)
   }
 
   workBegin(h, NVM3_HAL_NVM_ACCESS_RDWR);
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_deleteObject: key=%u.\n", key);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_deleteObject: key=%lu.\n", key);
 
   sta = findObj(h, key, pObjA, &objGroup);
   if ((sta == SL_STATUS_OK) && (objGroup != objGroupDeleted)) {
@@ -3881,7 +3895,7 @@ sl_status_t nvm3_getEraseCount(nvm3_Handle_t *h, uint32_t *eraseCnt)
   nvm3_halReadWords(HAL, pageAdr, &pageHdr, NVM3_PAGE_HEADER_WSIZE);
   *eraseCnt = nvm3_pageGetEraseCnt(&pageHdr);
 
-  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_getEraseCount: cnt=%u.\n", *eraseCnt);
+  nvm3_tracePrint(TRACE_LEVEL_INFO, "nvm3_getEraseCount: cnt=%lu.\n", *eraseCnt);
   workEnd(h);
 
   return SL_STATUS_OK;
@@ -4016,7 +4030,7 @@ sl_status_t nvm3_resize(nvm3_Handle_t *h, nvm3_HalPtr_t newAddr, size_t newSize)
         nvm3_PageState_t pageState;
 
         sta = repackWorker(h, &pageState, repackCopyAll);
-        nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: repackWorker, sta=0x%x, state=%d\n", sta, pageState);
+        nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: repackWorker, sta=0x%lx, state=%d\n", sta, pageState);
         if (sta != SL_STATUS_OK) {
           break;
         }
@@ -4027,7 +4041,7 @@ sl_status_t nvm3_resize(nvm3_Handle_t *h, nvm3_HalPtr_t newAddr, size_t newSize)
     }
   }
 
-  if ((sta == SL_STATUS_OK) && (resizeInProgress)) {
+  if ((sta == SL_STATUS_OK) && resizeInProgress) {
     sta = SL_STATUS_NVM3_RESIZE_NOT_ENOUGH_SPACE;
   }
 
@@ -4051,7 +4065,7 @@ sl_status_t nvm3_resize(nvm3_Handle_t *h, nvm3_HalPtr_t newAddr, size_t newSize)
       for (uint32_t i = 0; i < eraseSize / h->halInfo.pageSize; i++) {
         pageAdr = (nvm3_HalPtr_t)((size_t)eraseAddr + i * h->halInfo.pageSize);
         sta = nvm3_halPageErase(HAL, pageAdr);
-        nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: erasePage, adr=%p, len=%u, sta=0x%x\n", pageAdr, h->halInfo.pageSize, sta);
+        nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: erasePage, adr=%p, len=%u, sta=0x%lx\n", pageAdr, h->halInfo.pageSize, sta);
         if (sta != SL_STATUS_OK) {
           break;
         }
@@ -4082,8 +4096,115 @@ sl_status_t nvm3_resize(nvm3_Handle_t *h, nvm3_HalPtr_t newAddr, size_t newSize)
 #endif
   sta = nvm3_open(h, &init);
 
-  nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: sta=0x%08x\n", sta);
+  nvm3_tracePrint(TRACE_LEVEL_RESIZE, "nvm3_resize: sta=0x%08lx\n", sta);
   return sta;
+}
+
+/***************************************************************************//**
+ * @brief
+ *  This function calculates and updates memory-related information for the
+ *  NVM3 instance.
+ *
+ * @param[in] h
+ *  A pointer to the NVM3 driver handle.
+ ******************************************************************************/
+static void getMemInfo(nvm3_Handle_t *h)
+{
+  // Update the low memory flag
+  h->memInfo.isMemoryLow = (h->unusedNvmSize <= (thrSoftMinimum(h) + h->lowMemoryThreshold));
+  // Calculate available memory for user
+  h->memInfo.availableMemory = (h->unusedNvmSize > thrSoftMinimum(h))
+                               ? (h->unusedNvmSize - thrSoftMinimum(h))
+                               : 0;
+  // Update the low cache flag
+  h->memInfo.isCacheLow = h->cache.overflow;
+  if (h->memInfo.isCacheLow) {
+    // Calculate the total cache required by summing the number of valid and deleted objects
+    size_t totalCacheRequired = nvm3_countObjects(h) + nvm3_countDeletedObjects(h);
+    h->memInfo.additionalCacheNeeded = (totalCacheRequired > h->cache.entryCount)
+                                       ? (totalCacheRequired - h->cache.entryCount)
+                                       : 0;
+  } else {
+    h->memInfo.additionalCacheNeeded = 0;
+  }
+  nvm3_tracePrint(TRACE_LEVEL_INFO,
+                  "getMemInfo: lowMemoryThreshold=%u, isMemoryLow=%s, availableMemory=%u, isCacheLow=%s, additionalCacheNeeded=%u.\n",
+                  h->lowMemoryThreshold,
+                  h->memInfo.isMemoryLow ? "true" : "false",
+                  h->memInfo.availableMemory,
+                  h->memInfo.isCacheLow ? "true" : "false",
+                  h->memInfo.additionalCacheNeeded);
+}
+
+/******************************************************************************************************//**
+ * Retrieves memory-related information for the NVM3 instance.
+ *********************************************************************************************************/
+sl_status_t nvm3_getMemInfo(nvm3_Handle_t *h, nvm3_MemInfo_t *memInfo)
+{
+  if (h == NULL || memInfo == NULL) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  if (!h->hasBeenOpened) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
+
+  // Get memory-related information
+  getMemInfo(h);
+  // Copy the memory information to the output parameter
+  *memInfo = h->memInfo;
+
+  workEnd(h);
+  return SL_STATUS_OK;
+}
+
+/******************************************************************************************************//**
+ * Registers a callback function for an NVM3 instance.
+ * This callback is invoked when the NVM3 instance detects low memory conditions or a cache overflow.
+ *********************************************************************************************************/
+sl_status_t nvm3_registerCallback(nvm3_Handle_t *h, const nvm3_CallbackParams_t *callbackParams, nvm3_LowMemCallback_t lowMemCallback)
+{
+  if ((h == NULL) || (callbackParams == NULL) || (lowMemCallback == NULL)) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  if (!h->hasBeenOpened) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
+
+  // Set the low memory threshold and register the callback
+  h->lowMemoryThreshold = callbackParams->lowMemoryThreshold;
+  h->lowMemCallback = lowMemCallback;
+
+  workEnd(h);
+  return SL_STATUS_OK;
+}
+
+/******************************************************************************************************//**
+ * Deregisters the callback function for an NVM3 instance.
+ *********************************************************************************************************/
+sl_status_t nvm3_deregisterCallback(nvm3_Handle_t *h)
+{
+  if (h == NULL) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+  if (!h->hasBeenOpened) {
+    NVM3_ERROR_ASSERT();
+    return SL_STATUS_NOT_INITIALIZED;
+  }
+  workBegin(h, NVM3_HAL_NVM_ACCESS_RD);
+
+  // Deregister the callback and reset the low memory threshold
+  h->lowMemCallback = NULL;
+  h->lowMemoryThreshold = 0U;
+
+  workEnd(h);
+  return SL_STATUS_OK;
 }
 
 /// @endcond

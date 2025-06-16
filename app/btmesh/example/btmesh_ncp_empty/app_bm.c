@@ -31,12 +31,13 @@
 #include <stdbool.h>
 #include "sl_core.h"
 #include "app.h"
+#include "sl_main_init.h"
 
 // Semaphore indicating that it is required to execute application process action.
 static uint16_t proceed_semaphore;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for bare metal.
+void app_permanent_memory_alloc(void)
 {
   proceed_semaphore = 0;
 }

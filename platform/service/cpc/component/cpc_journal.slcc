@@ -1,14 +1,14 @@
 id: cpc_journal
 label: CPC Journal Utility
-package: platform
+package: cpc
 description: >
-  The Co-Processor Communication (CPC) journal utility is a software component
-  designed to enable developers to log CPC events efficiently.
+    The Co-Processor Communication (CPC) journal utility is a software component
+    designed to enable developers to log CPC events efficiently.
 category: Services|Co-Processor Communication|CPC Journal
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/cpc
 source:
   - path: src/sl_cpc_journal.c
@@ -36,9 +36,9 @@ template_contribution:
     value: cpc_journal
   - name: event_handler
     value:
-      event: service_init
-      include: sl_cpc_journal.h
-      handler: sl_cpc_journal_init
+        event: service_init
+        include: sl_cpc_journal.h
+        handler: sl_cpc_journal_init
     priority: -2
 
 documentation:

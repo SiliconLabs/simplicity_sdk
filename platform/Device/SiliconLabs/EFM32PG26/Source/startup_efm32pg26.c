@@ -60,11 +60,10 @@ typedef void (*VECTOR_TABLE_Type)(void);
  * External References
  *---------------------------------------------------------------------------*/
 extern uint32_t __INITIAL_SP;
-#if defined (SL_TRUSTZONE_SECURE)
 extern uint32_t __STACK_LIMIT;
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined (SL_TRUSTZONE_SECURE) \
+  && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 extern uint64_t __STACK_SEAL;
-#endif // __ARM_FEATURE_CMSE
 #endif // SL_TRUSTZONE_SECURE
 
 extern __NO_RETURN void __PROGRAM_START(void);
@@ -216,124 +215,124 @@ extern const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS];
 const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
 #endif
   { .topOfStack = &__INITIAL_SP },            /*      Initial Stack Pointer     */
-  { Reset_Handler },                          /*      Reset Handler             */
-  { NMI_Handler },                            /*      -14 NMI Handler           */
-  { HardFault_Handler },                      /*      -13 Hard Fault Handler    */
-  { MemManage_Handler },                      /*      -12 MPU Fault Handler     */
-  { BusFault_Handler },                       /*      -11 Bus Fault Handler     */
-  { UsageFault_Handler },                     /*      -10 Usage Fault Handler   */
-  { SecureFault_Handler },                    /*      -9 Secure Fault Handler   */
-  { Default_Handler },                        /*      Reserved                  */
-  { Default_Handler },                        /*      Reserved                  */
+  { &Reset_Handler },                         /*      Reset Handler             */
+  { &NMI_Handler },                           /*      -14 NMI Handler           */
+  { &HardFault_Handler },                     /*      -13 Hard Fault Handler    */
+  { &MemManage_Handler },                     /*      -12 MPU Fault Handler     */
+  { &BusFault_Handler },                      /*      -11 Bus Fault Handler     */
+  { &UsageFault_Handler },                    /*      -10 Usage Fault Handler   */
+  { &SecureFault_Handler },                   /*      -9 Secure Fault Handler   */
+  { &Default_Handler },                       /*      Reserved                  */
+  { &Default_Handler },                       /*      Reserved                  */
 #ifdef BOOTLOADER_ENABLE
   { (VECTOR_TABLE_Type) & mainStageTable },
 #else
-  { Default_Handler },                         /*      Reserved                  */
+  { &Default_Handler },                        /*      Reserved                  */
 #endif
-  { SVC_Handler },                             /*      -5 SVCall Handler         */
-  { DebugMon_Handler },                        /*      -4 Debug Monitor Handler  */
+  { &SVC_Handler },                            /*      -5 SVCall Handler         */
+  { &DebugMon_Handler },                       /*      -4 Debug Monitor Handler  */
 #ifdef SL_APP_PROPERTIES
   { (VECTOR_TABLE_Type) & sl_app_properties }, /*      Application properties    */
 #else
-  { sl_app_properties },                       /*      Application properties    */
+  { &sl_app_properties },                      /*      Application properties    */
 #endif
-  { PendSV_Handler },                          /*      -2 PendSV Handler         */
-  { SysTick_Handler },                         /*      -1 SysTick Handler        */
+  { &PendSV_Handler },                         /*      -2 PendSV Handler         */
+  { &SysTick_Handler },                        /*      -1 SysTick Handler        */
 
   /* External interrupts */
-  { SMU_SECURE_IRQHandler },                       /* 00 = SMU_SECURE */
-  { SMU_S_PRIVILEGED_IRQHandler },                 /* 01 = SMU_S_PRIVILEGED */
-  { SMU_NS_PRIVILEGED_IRQHandler },                /* 02 = SMU_NS_PRIVILEGED */
-  { EMU_IRQHandler },                              /* 03 = EMU */
-  { TIMER0_IRQHandler },                           /* 04 = TIMER0 */
-  { TIMER1_IRQHandler },                           /* 05 = TIMER1 */
-  { TIMER2_IRQHandler },                           /* 06 = TIMER2 */
-  { TIMER3_IRQHandler },                           /* 07 = TIMER3 */
-  { TIMER4_IRQHandler },                           /* 08 = TIMER4 */
-  { TIMER5_IRQHandler },                           /* 09 = TIMER5 */
-  { TIMER6_IRQHandler },                           /* 10 = TIMER6 */
-  { TIMER7_IRQHandler },                           /* 11 = TIMER7 */
-  { TIMER8_IRQHandler },                           /* 12 = TIMER8 */
-  { TIMER9_IRQHandler },                           /* 13 = TIMER9 */
-  { USART0_RX_IRQHandler },                        /* 14 = USART0_RX */
-  { USART0_TX_IRQHandler },                        /* 15 = USART0_TX */
-  { USART1_RX_IRQHandler },                        /* 16 = USART1_RX */
-  { USART1_TX_IRQHandler },                        /* 17 = USART1_TX */
-  { USART2_RX_IRQHandler },                        /* 18 = USART2_RX */
-  { USART2_TX_IRQHandler },                        /* 19 = USART2_TX */
-  { EUSART0_RX_IRQHandler },                       /* 20 = EUSART0_RX */
-  { EUSART0_TX_IRQHandler },                       /* 21 = EUSART0_TX */
-  { EUSART1_RX_IRQHandler },                       /* 22 = EUSART1_RX */
-  { EUSART1_TX_IRQHandler },                       /* 23 = EUSART1_TX */
-  { EUSART2_RX_IRQHandler },                       /* 24 = EUSART2_RX */
-  { EUSART2_TX_IRQHandler },                       /* 25 = EUSART2_TX */
-  { EUSART3_RX_IRQHandler },                       /* 26 = EUSART3_RX */
-  { EUSART3_TX_IRQHandler },                       /* 27 = EUSART3_TX */
-  { MVP_IRQHandler },                              /* 28 = MVP */
-  { ICACHE0_IRQHandler },                          /* 29 = ICACHE0 */
-  { BURTC_IRQHandler },                            /* 30 = BURTC */
-  { LETIMER0_IRQHandler },                         /* 31 = LETIMER0 */
-  { SYSCFG_IRQHandler },                           /* 32 = SYSCFG */
-  { MPAHBRAM0_IRQHandler },                        /* 33 = MPAHBRAM0 */
-  { MPAHBRAM1_IRQHandler },                        /* 34 = MPAHBRAM1 */
-  { LDMA_IRQHandler },                             /* 35 = LDMA */
-  { LFXO_IRQHandler },                             /* 36 = LFXO */
-  { LFRCO_IRQHandler },                            /* 37 = LFRCO */
-  { ULFRCO_IRQHandler },                           /* 38 = ULFRCO */
-  { GPIO_ODD_IRQHandler },                         /* 39 = GPIO_ODD */
-  { GPIO_EVEN_IRQHandler },                        /* 40 = GPIO_EVEN */
-  { I2C0_IRQHandler },                             /* 41 = I2C0 */
-  { I2C1_IRQHandler },                             /* 42 = I2C1 */
-  { I2C2_IRQHandler },                             /* 43 = I2C2 */
-  { I2C3_IRQHandler },                             /* 44 = I2C3 */
-  { EMUDG_IRQHandler },                            /* 45 = EMUDG */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { HOSTMAILBOX_IRQHandler },                      /* 54 = HOSTMAILBOX */
-  { Default_Handler },                             /* Reserved */
-  { ACMP0_IRQHandler },                            /* 56 = ACMP0 */
-  { ACMP1_IRQHandler },                            /* 57 = ACMP1 */
-  { WDOG0_IRQHandler },                            /* 58 = WDOG0 */
-  { WDOG1_IRQHandler },                            /* 59 = WDOG1 */
-  { HFXO0_IRQHandler },                            /* 60 = HFXO0 */
-  { HFRCO0_IRQHandler },                           /* 61 = HFRCO0 */
-  { HFRCOEM23_IRQHandler },                        /* 62 = HFRCOEM23 */
-  { CMU_IRQHandler },                              /* 63 = CMU */
-  { Default_Handler },                             /* Reserved */
-  { IADC_IRQHandler },                             /* 65 = IADC */
-  { MSC_IRQHandler },                              /* 66 = MSC */
-  { DPLL0_IRQHandler },                            /* 67 = DPLL0 */
-  { EMUEFP_IRQHandler },                           /* 68 = EMUEFP */
-  { DCDC_IRQHandler },                             /* 69 = DCDC */
-  { PCNT0_IRQHandler },                            /* 70 = PCNT0 */
-  { SW0_IRQHandler },                              /* 71 = SW0 */
-  { SW1_IRQHandler },                              /* 72 = SW1 */
-  { SW2_IRQHandler },                              /* 73 = SW2 */
-  { SW3_IRQHandler },                              /* 74 = SW3 */
-  { KERNEL0_IRQHandler },                          /* 75 = KERNEL0 */
-  { KERNEL1_IRQHandler },                          /* 76 = KERNEL1 */
-  { M33CTI0_IRQHandler },                          /* 77 = M33CTI0 */
-  { M33CTI1_IRQHandler },                          /* 78 = M33CTI1 */
-  { FPUEXH_IRQHandler },                           /* 79 = FPUEXH */
-  { SETAMPERHOST_IRQHandler },                     /* 80 = SETAMPERHOST */
-  { SEMBRX_IRQHandler },                           /* 81 = SEMBRX */
-  { SEMBTX_IRQHandler },                           /* 82 = SEMBTX */
-  { SYSRTC_APP_IRQHandler },                       /* 83 = SYSRTC_APP */
-  { SYSRTC_SEQ_IRQHandler },                       /* 84 = SYSRTC_SEQ */
-  { KEYSCAN_IRQHandler },                          /* 85 = KEYSCAN */
-  { Default_Handler },                             /* Reserved */
-  { Default_Handler },                             /* Reserved */
-  { VDAC0_IRQHandler },                            /* 88 = VDAC0 */
-  { VDAC1_IRQHandler },                            /* 89 = VDAC1 */
-  { AHB2AHB0_IRQHandler },                         /* 90 = AHB2AHB0 */
-  { AHB2AHB1_IRQHandler },                         /* 91 = AHB2AHB1 */
-  { LCD_IRQHandler },                              /* 92 = LCD */
+  { &SMU_SECURE_IRQHandler },                      /* 00 = SMU_SECURE */
+  { &SMU_S_PRIVILEGED_IRQHandler },                /* 01 = SMU_S_PRIVILEGED */
+  { &SMU_NS_PRIVILEGED_IRQHandler },               /* 02 = SMU_NS_PRIVILEGED */
+  { &EMU_IRQHandler },                             /* 03 = EMU */
+  { &TIMER0_IRQHandler },                          /* 04 = TIMER0 */
+  { &TIMER1_IRQHandler },                          /* 05 = TIMER1 */
+  { &TIMER2_IRQHandler },                          /* 06 = TIMER2 */
+  { &TIMER3_IRQHandler },                          /* 07 = TIMER3 */
+  { &TIMER4_IRQHandler },                          /* 08 = TIMER4 */
+  { &TIMER5_IRQHandler },                          /* 09 = TIMER5 */
+  { &TIMER6_IRQHandler },                          /* 10 = TIMER6 */
+  { &TIMER7_IRQHandler },                          /* 11 = TIMER7 */
+  { &TIMER8_IRQHandler },                          /* 12 = TIMER8 */
+  { &TIMER9_IRQHandler },                          /* 13 = TIMER9 */
+  { &USART0_RX_IRQHandler },                       /* 14 = USART0_RX */
+  { &USART0_TX_IRQHandler },                       /* 15 = USART0_TX */
+  { &USART1_RX_IRQHandler },                       /* 16 = USART1_RX */
+  { &USART1_TX_IRQHandler },                       /* 17 = USART1_TX */
+  { &USART2_RX_IRQHandler },                       /* 18 = USART2_RX */
+  { &USART2_TX_IRQHandler },                       /* 19 = USART2_TX */
+  { &EUSART0_RX_IRQHandler },                      /* 20 = EUSART0_RX */
+  { &EUSART0_TX_IRQHandler },                      /* 21 = EUSART0_TX */
+  { &EUSART1_RX_IRQHandler },                      /* 22 = EUSART1_RX */
+  { &EUSART1_TX_IRQHandler },                      /* 23 = EUSART1_TX */
+  { &EUSART2_RX_IRQHandler },                      /* 24 = EUSART2_RX */
+  { &EUSART2_TX_IRQHandler },                      /* 25 = EUSART2_TX */
+  { &EUSART3_RX_IRQHandler },                      /* 26 = EUSART3_RX */
+  { &EUSART3_TX_IRQHandler },                      /* 27 = EUSART3_TX */
+  { &MVP_IRQHandler },                             /* 28 = MVP */
+  { &ICACHE0_IRQHandler },                         /* 29 = ICACHE0 */
+  { &BURTC_IRQHandler },                           /* 30 = BURTC */
+  { &LETIMER0_IRQHandler },                        /* 31 = LETIMER0 */
+  { &SYSCFG_IRQHandler },                          /* 32 = SYSCFG */
+  { &MPAHBRAM0_IRQHandler },                       /* 33 = MPAHBRAM0 */
+  { &MPAHBRAM1_IRQHandler },                       /* 34 = MPAHBRAM1 */
+  { &LDMA_IRQHandler },                            /* 35 = LDMA */
+  { &LFXO_IRQHandler },                            /* 36 = LFXO */
+  { &LFRCO_IRQHandler },                           /* 37 = LFRCO */
+  { &ULFRCO_IRQHandler },                          /* 38 = ULFRCO */
+  { &GPIO_ODD_IRQHandler },                        /* 39 = GPIO_ODD */
+  { &GPIO_EVEN_IRQHandler },                       /* 40 = GPIO_EVEN */
+  { &I2C0_IRQHandler },                            /* 41 = I2C0 */
+  { &I2C1_IRQHandler },                            /* 42 = I2C1 */
+  { &I2C2_IRQHandler },                            /* 43 = I2C2 */
+  { &I2C3_IRQHandler },                            /* 44 = I2C3 */
+  { &EMUDG_IRQHandler },                           /* 45 = EMUDG */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &HOSTMAILBOX_IRQHandler },                     /* 54 = HOSTMAILBOX */
+  { &Default_Handler },                            /* Reserved */
+  { &ACMP0_IRQHandler },                           /* 56 = ACMP0 */
+  { &ACMP1_IRQHandler },                           /* 57 = ACMP1 */
+  { &WDOG0_IRQHandler },                           /* 58 = WDOG0 */
+  { &WDOG1_IRQHandler },                           /* 59 = WDOG1 */
+  { &HFXO0_IRQHandler },                           /* 60 = HFXO0 */
+  { &HFRCO0_IRQHandler },                          /* 61 = HFRCO0 */
+  { &HFRCOEM23_IRQHandler },                       /* 62 = HFRCOEM23 */
+  { &CMU_IRQHandler },                             /* 63 = CMU */
+  { &Default_Handler },                            /* Reserved */
+  { &IADC_IRQHandler },                            /* 65 = IADC */
+  { &MSC_IRQHandler },                             /* 66 = MSC */
+  { &DPLL0_IRQHandler },                           /* 67 = DPLL0 */
+  { &EMUEFP_IRQHandler },                          /* 68 = EMUEFP */
+  { &DCDC_IRQHandler },                            /* 69 = DCDC */
+  { &PCNT0_IRQHandler },                           /* 70 = PCNT0 */
+  { &SW0_IRQHandler },                             /* 71 = SW0 */
+  { &SW1_IRQHandler },                             /* 72 = SW1 */
+  { &SW2_IRQHandler },                             /* 73 = SW2 */
+  { &SW3_IRQHandler },                             /* 74 = SW3 */
+  { &KERNEL0_IRQHandler },                         /* 75 = KERNEL0 */
+  { &KERNEL1_IRQHandler },                         /* 76 = KERNEL1 */
+  { &M33CTI0_IRQHandler },                         /* 77 = M33CTI0 */
+  { &M33CTI1_IRQHandler },                         /* 78 = M33CTI1 */
+  { &FPUEXH_IRQHandler },                          /* 79 = FPUEXH */
+  { &SETAMPERHOST_IRQHandler },                    /* 80 = SETAMPERHOST */
+  { &SEMBRX_IRQHandler },                          /* 81 = SEMBRX */
+  { &SEMBTX_IRQHandler },                          /* 82 = SEMBTX */
+  { &SYSRTC_APP_IRQHandler },                      /* 83 = SYSRTC_APP */
+  { &SYSRTC_SEQ_IRQHandler },                      /* 84 = SYSRTC_SEQ */
+  { &KEYSCAN_IRQHandler },                         /* 85 = KEYSCAN */
+  { &Default_Handler },                            /* Reserved */
+  { &Default_Handler },                            /* Reserved */
+  { &VDAC0_IRQHandler },                           /* 88 = VDAC0 */
+  { &VDAC1_IRQHandler },                           /* 89 = VDAC1 */
+  { &AHB2AHB0_IRQHandler },                        /* 90 = AHB2AHB0 */
+  { &AHB2AHB1_IRQHandler },                        /* 91 = AHB2AHB1 */
+  { &LCD_IRQHandler },                             /* 92 = LCD */
 };
 
 #if defined (__GNUC__)
@@ -374,22 +373,24 @@ void Zero_Table()
 #if defined (__GNUC__)
 __attribute__((optimize("no-tree-loop-distribute-patterns")))
 #endif
-// Instructions are 4 bytes long
-void CopyInstructions(const uint32_t *from, uint32_t *to, uint32_t num_instructions)
+
+void CopyMemory(const uint32_t *from, uint32_t *to, uint32_t count)
 {
-  while (num_instructions--) {
+  while (count--) {
     *to++ = *from++;
   }
 }
 #if defined (__GNUC__)
-void CopyToRam()
+void CopyToRam(void)
 {
   extern uint32_t __lma_ramfuncs_start__;
   extern uint32_t __lma_ramfuncs_end__;
   extern uint32_t __ramfuncs_start__;
+
   uint32_t        num_instructions = &__lma_ramfuncs_end__ - &__lma_ramfuncs_start__;
 
-  CopyInstructions(&__lma_ramfuncs_start__, &__ramfuncs_start__, num_instructions);
+  // Copy RAM functions
+  CopyMemory(&__lma_ramfuncs_start__, &__ramfuncs_start__, num_instructions);
 }
 #elif defined (__ICCARM__)
 #pragma language=save
@@ -402,7 +403,7 @@ void CopyToRam(void)
   uint32_t * from           = __section_begin("text_ram_init");
   uint32_t * to             = __section_begin("text_ram");
 
-  CopyInstructions(from, to, num_instructions);
+  CopyMemory(from, to, num_instructions);
 }
 #pragma language=restore
 #endif
@@ -413,13 +414,12 @@ void CopyToRam(void)
  *---------------------------------------------------------------------------*/
 __NO_RETURN void Reset_Handler(void)
 {
-#if defined (SL_TRUSTZONE_SECURE)
   __set_MSPLIM((uint32_t) (&__STACK_LIMIT));
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+#if defined (SL_TRUSTZONE_SECURE) \
+  && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   __TZ_set_STACKSEAL_S((uint32_t *) (&__STACK_SEAL));
-#endif // __ARM_FEATURE_CMSE
-#endif // SL_TRUSTZONE_SECURE
+#endif // SL_TRUSTZONE_SECURE && __ARM_FEATURE_CMSE
 
   #ifndef __NO_SYSTEM_INIT
   SystemInit();                    /* CMSIS System Initialization */
@@ -454,6 +454,7 @@ __NO_RETURN void Reset_Handler(void)
 void Default_Handler(void)
 {
   while (true) {
+    // Default behavior is halting execution.
   }
 }
 

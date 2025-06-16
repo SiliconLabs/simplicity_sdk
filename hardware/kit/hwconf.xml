@@ -476,16 +476,6 @@
     <property key="installationPath" value="./EFR32MG27_BRD4194A/config/brd4194a.hwconf"/>
   </contentItemData>
   <contentItemData>
-    <property key="partCompatibility" value="mcu.arm.efr32.xg27.efr32xg29x300f768im40_lsl"/>
-    <property key="boardCompatibility" value="brd4109z"/>
-    <property key="installationPath" value="./EFR32XG29_BRD4109Z/config/brd4109z.hwconf"/>
-  </contentItemData>
-  <contentItemData>
-    <property key="partCompatibility" value="mcu.arm.efr32.xg27.efr32xg29x300f768im40_lsl"/>
-    <property key="boardCompatibility" value="brd4194z"/>
-    <property key="installationPath" value="./EFR32XG29_BRD4194Z/config/brd4194z.hwconf"/>
-  </contentItemData>
-  <contentItemData>
     <property key="partCompatibility" value="mcu.arm.efr32.zg13.efr32zg13p531f512gm32"/>
     <property key="boardCompatibility" value="brd4201b"/>
     <property key="installationPath" value="./EFR32ZG13_BRD4201B/config/brd4201b.hwconf"/>

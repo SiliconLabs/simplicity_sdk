@@ -34,7 +34,6 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include <stdint.h>
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -68,12 +67,6 @@ typedef enum {
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
-/**************************************************************************//**
- * API to set up the rail TX fifo for later usage.
- *
- * @param[in] rail_handle RAIL handle update
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle);
 
 /**************************************************************************//**
  * The function is used for Application logic.
@@ -83,7 +76,7 @@ void set_up_tx_fifo(RAIL_Handle_t rail_handle);
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 /**************************************************************************//**
  * API to set the next state of the state machine.

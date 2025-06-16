@@ -56,8 +56,6 @@ extern "C" {
  *******************************   DEFINES   ***********************************
  ******************************************************************************/
 
-#define SLI_POWER_MANAGER_EM_TABLE_SIZE  2
-
 #define SLI_POWER_MANAGER_EM4_ENTRY_WAIT_LOOPS 200
 /*******************************************************************************
  *****************************   DATA TYPES   *********************************
@@ -74,6 +72,9 @@ typedef struct {
  ******************************************************************************/
 
 void sli_power_manager_init_hardware(void);
+
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
+void sli_power_manager_save_oscillators_usage(void);
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 void sli_power_manager_apply_em(sl_power_manager_em_t em);
@@ -105,12 +106,6 @@ uint32_t sli_power_manager_convert_delay_us_to_tick(uint32_t time_us);
  * Returns the default minimum offtime for xtal high frequency oscillator.
  ******************************************************************************/
 uint32_t sli_power_manager_get_default_high_frequency_minimum_offtime(void);
-
-/*******************************************************************************
- * Restores the Low Frequency clocks according to which LF oscillators are used.
- ******************************************************************************/
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
-void sli_power_manager_low_frequency_restore(void);
 
 /***************************************************************************//**
  * Informs the power manager if the high accuracy/high frequency clock

@@ -133,7 +133,7 @@ SL_ENUM(sl_cpc_endpoint_option_t){
 #define SL_CPC_OPEN_ENDPOINT_FLAG_DISABLE_ENCRYPTION        SL_CPC_ENDPOINT_FLAG_DISABLE_ENCRYPTION
 
 #define SL_CPC_MAJOR_VERSION     4
-#define SL_CPC_MINOR_VERSION     6
+#define SL_CPC_MINOR_VERSION     7
 #define SL_CPC_PATCH_VERSION     0
 
 /***************************************************************************//**
@@ -300,6 +300,14 @@ typedef struct {
  * @retval  Other sl_status_t if error occurred.
  ******************************************************************************/
 sl_status_t sl_cpc_init(void);
+
+/***************************************************************************//**
+ * Initialize and allocate permanent memory for CPC
+ *
+ * @retval  SL_STATUS_OK    CPC specific permanent memory was allocated and initialized.
+ * @retval  Other sl_status_t if error occurred.
+ ******************************************************************************/
+sl_status_t sl_cpc_init_permanent_allocations(void);
 
 /***************************************************************************/ /**
  *  The bare metal process action function.

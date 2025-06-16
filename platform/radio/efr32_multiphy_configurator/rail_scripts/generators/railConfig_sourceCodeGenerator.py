@@ -36,6 +36,7 @@ class RAILConfig_generator:
     self.jinja_env.filters['split16'] = self.split16
     self.jinja_env.filters['first16'] = self.first16
     self.jinja_env.filters['last16'] = self.last16
+    self.jinja_env.globals['zip'] = zip
 
     # Register the templates
     self.template_path_h = "rail_config_multi_phy_{}x.h.j2".format(self.rail_version)
@@ -75,9 +76,8 @@ class RAILConfig_generator:
     except:
       self.context['accelerationBufferSize'] = 0
 
-    # self.rail_stack_info = yaml.safe_load(open(os.path.join(RAILAdapter.current_dir, "rail_stack_info_3x.yml")))
     if self.rail_version >= 3:
-      with open(os.path.join(os.getcwd(), "rail_stack_info_{}x.yml".format(self.rail_version))) as f:
+      with open(os.path.join(os.path.dirname(__file__), "..", "rail_stack_info_{}x.yml".format(self.rail_version))) as f:
         self.yamlobject = None
         if hasattr(yaml, 'FullLoader'):
           self.yamlobject = yaml.load(f.read(), Loader=yaml.FullLoader)

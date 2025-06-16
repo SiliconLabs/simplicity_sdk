@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: CLI commands for printing various information about the stack, such as the child table, neighbor table, and routing table.
 id: zigbee_stack_diagnostics
 label: Stack Diagnostics

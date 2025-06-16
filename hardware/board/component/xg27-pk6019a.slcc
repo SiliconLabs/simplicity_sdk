@@ -1,7 +1,7 @@
 !!omap
 - id: xg27_pk6019a
 - label: XG27-PK6019A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG27 2.4 GHz +4 dBm Pro Kit (Boost).
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

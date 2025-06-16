@@ -241,7 +241,7 @@ void emberAfPluginOtaBootloaderClientIncomingImageSegmentCallback(EmberNodeId se
 
 /**************************************************************************//**
  * A callback invoked on an OTA Bootloader Client to indicate
- * that an image downlaod is completed.
+ * that an image download is completed.
  *****************************************************************************/
 void emberAfPluginOtaBootloaderClientImageDownloadCompleteCallback(EmberAfOtaBootloaderStatus status,
                                                                    uint8_t imageTag,

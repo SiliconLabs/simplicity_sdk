@@ -1,6 +1,6 @@
 id: zigbee_i386
 label: Zigbee i386
-package: Zigbee
+package: zigbee
 category: Zigbee
 quality: production
 description: This plugin contains defines to build Zigbee apps against i386.

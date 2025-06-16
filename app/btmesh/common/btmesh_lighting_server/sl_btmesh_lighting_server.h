@@ -31,6 +31,11 @@
 #ifndef SL_BTMESH_LIGHTING_SERVER_H
 #define SL_BTMESH_LIGHTING_SERVER_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_lighting_server
+ * @{
+ ******************************************************************************/
+
 #include "sl_btmesh_api.h"
 #include "sl_btmesh_lighting_level_transition_handler.h"
 
@@ -39,9 +44,6 @@
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
  * This function is called automatically after enabling the component.
- *
- * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
  ******************************************************************************/
 void sl_btmesh_lighting_server_init(void);
 
@@ -54,7 +56,7 @@ void sl_btmesh_lighting_server_init(void);
  ******************************************************************************/
 void sl_btmesh_lighting_server_on_event(sl_btmesh_msg_t *evt);
 
-/*******************************************************************************
+/***************************************************************************//**
  * Handle node reset.
  *
  * Function for clearing component specific nvm content during node reset.
@@ -125,7 +127,7 @@ uint32_t sl_btmesh_get_default_transition_time(void);
  *
  * @return Default lightness on power up
  ******************************************************************************/
-uint16_t sl_btmesh_get_lightness_onpowerup(void);
+uint8_t sl_btmesh_get_lightness_onpowerup(void);
 
 /***************************************************************************//**
  * This function updates the lightness level in the mesh stack during a transition
@@ -134,5 +136,22 @@ uint16_t sl_btmesh_get_lightness_onpowerup(void);
  * @param[in] remaining_ms  Remaining transition time in milliseconds
  ******************************************************************************/
 void sl_btmesh_update_lightness(uint16_t lightness, uint32_t remaining_ms);
+
+/***************************************************************************//**
+ * This function stops generic level move on primary element.
+ ******************************************************************************/
+void pri_level_move_stop(void);
+
+/** @} (end addtogroup btmesh_lighting_server) */
+
+/***************************************************************************//**
+ * Register a callback function to be called when the lightness state changes.
+ * Example: when the lightness state is changed by a client request, either by
+ * a Generic OnOff Set message or a Light Lightness Set message.
+ *
+ ******************************************************************************/
+typedef void (*sl_btmesh_lighting_onoff_state_change_cb_t)(void);
+
+sl_status_t sl_btmesh_register_lightness_onoff_state_change_cb(sl_btmesh_lighting_onoff_state_change_cb_t callback);
 
 #endif // SL_BTMESH_LIGHTING_SERVER_H

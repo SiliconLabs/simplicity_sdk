@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_rb4186a
 - label: XG24-RB4186A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG24 2.4 GHz 10 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

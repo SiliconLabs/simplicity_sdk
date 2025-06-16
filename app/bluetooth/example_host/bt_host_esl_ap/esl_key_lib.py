@@ -383,7 +383,7 @@ class Lib:
         if status != eklw.SL_STATUS_OK:
             raise Error(status)
 
-    def delete_ltk(self, address: esl_lib.Address):
+    def delete_ltk(self, address: esl_lib.Address, ap_address: esl_lib.Address = None):
         """Delete the LTK key of an ESL database entry with the specified address"""
         esl_record = eklw.db_record_p()
         ble_address = eklw.bd_addr()
@@ -393,6 +393,14 @@ class Lib:
                 self.key_db_handle, byref(ble_address), byref(esl_record)
             )
             if status == eklw.SL_STATUS_OK:
+                ap_bd_addr = eklw.bd_addr()
+                status = eklw.esl_key_lib_get_bind_address(
+                    self.key_db_handle, esl_record, byref(ap_bd_addr)
+                )
+                if status == eklw.SL_STATUS_OK and ap_address is not None and esl_lib.Address(bytes(ap_bd_addr.addr)) != ap_address:
+                    # Do not delete LTK keys that belongs to another AP!
+                    return
+
                 ltk_key = eklw.aes_key_128()
                 ltk_key.data = (c_ubyte * AES_KEY_SIZE).from_buffer_copy(bytes(AES_KEY_SIZE))
                 status = eklw.esl_key_lib_set_long_term_key(

@@ -311,12 +311,17 @@ void printInfo(sl_cli_command_arg_t *arguments)
 
 #ifdef RECORD_LQI_RSSI
 // Provided by the "zigbee_packet_handoff" component
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void *data)
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void *data,
+                                                                  uint8_t size_d)
 {
   sl_802154_short_addr_t macSource = SL_ZIGBEE_NULL_NODE_ID;
+  UNUSED_VAR(packetData);
+  UNUSED_VAR(size_p);
+  UNUSED_VAR(data);
+  UNUSED_VAR(size_d);
 
   switch (packetType) {
     case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_RAW_MAC:
@@ -335,7 +340,7 @@ sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbe
       // APS frames will have been called as SL_ZIGBEE_ZIGBEE_PACKET_TYPE_NWK_DATA
       // as well, so no need to double record them
       break;
-    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN:
+    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN_ZLL:
       // Only called for Interpan messages, which lack short source
       break;
     case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_BEACON:

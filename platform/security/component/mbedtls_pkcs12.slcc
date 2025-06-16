@@ -1,5 +1,5 @@
 id: mbedtls_pkcs12
-package: platform
+package: security_mbedtls
 quality: production
 label: PKCS#12
 description: >-

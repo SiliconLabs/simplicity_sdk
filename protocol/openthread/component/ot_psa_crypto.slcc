@@ -1,6 +1,6 @@
 id: ot_psa_crypto
 label: PSA Crypto
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: This component references to all the third party support needed by the OpenThread stack

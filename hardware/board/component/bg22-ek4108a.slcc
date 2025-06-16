@@ -1,7 +1,7 @@
 !!omap
 - id: bg22_ek4108a
 - label: BG22-EK4108A
-- package: platform
+- package: boards
 - description: Kit BSP support for the BG22 Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

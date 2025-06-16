@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Door Lock server cluster. This is an incomplete component implementation. It does all of the mandatory and optional behavior in the Door Lock cluster needed to pass the Door Lock cluster tests. It does NOT store user and schedule tables in persistent memory, check user pin activation against user status or user schedule, or offer callbacks and component options to the application for further customization of functionality.
 label: Door Lock Server Cluster
 quality: evaluation

@@ -3,7 +3,7 @@
  * @brief Application Runtime Adaptor (RTA) Core implementation for RTOS
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,12 +37,15 @@
 #include "app_rta_runtime.h"
 #include "app_rta_list.h"
 #include "sl_memory_manager.h"
+#include "sl_component_catalog.h"
 
 // -----------------------------------------------------------------------------
 // Private variables
 
+#ifndef SL_CATALOG_SL_MAIN_PRESENT
 /// Flag indicating if the scheduler has started or not
 static bool scheduler_started = false;
+#endif // SL_CATALOG_SL_MAIN_PRESENT
 
 // -----------------------------------------------------------------------------
 // Public functions
@@ -362,6 +365,8 @@ void app_rta_internal_init(void)
 
 void runtime_function(void *arg)
 {
+#ifndef SL_CATALOG_SL_MAIN_PRESENT
+  // sl_system is used, so there is only one init event.
   // Signal to the contributors that the scheduler has started
   sl_status_t sc;
   sc = app_rta_runtime_protected_begin();
@@ -374,6 +379,7 @@ void runtime_function(void *arg)
       (void)app_rta_runtime_protected_end();
     }
   }
+#endif // SL_CATALOG_SL_MAIN_PRESENT
 
   app_rta_runtime_t *runtime = (app_rta_runtime_t *)arg;
   for (;; ) {

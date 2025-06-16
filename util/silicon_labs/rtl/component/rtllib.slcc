@@ -1,6 +1,6 @@
 id: rtllib
 label: Real-Time Locationing Library
-package: rtl
+package: realtime_locationing
 description: Real time locationing library component for SoC
 category: Bluetooth|Direction Finding
 quality: production

@@ -68,12 +68,12 @@
 // -----------------------------------------------------------------------------
 // Private function declarations
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initialize the Generic Level Client model
  ******************************************************************************/
 static void generic_client_init(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Process responses from the generic client server
  *
  * @param[in] model_id       Client model ID
@@ -94,7 +94,7 @@ static void generic_level_client_ext_on_response(uint16_t model_id,
                                                  uint32_t remaining_ms,
                                                  uint8_t response_flags);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_client_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have a return value.
@@ -107,7 +107,7 @@ static void generic_client_register_handler(uint16_t model_id,
                                             uint16_t elem_index,
                                             mesh_lib_generic_client_server_response_cb response);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Publish one Generic Level request, depending on the request kind
  *
  * @param[in] retrans        Indicates if it's the first request or a retransmission
@@ -120,7 +120,7 @@ static void send_request(bool retrans, mesh_generic_request_t kind);
 
 /// Periodic timer callbacks
 
-/***************************************************************************//**
+/*******************************************************************************
  * Generic Level Delta retransmission timer callback
  *
  * @param[in] handle Pointer to handle instance
@@ -129,7 +129,7 @@ static void send_request(bool retrans, mesh_generic_request_t kind);
 static void on_delta_retransmission_timer_expiry(app_timer_t *handle,
                                                  void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Generic Level Move retransmission timer callback
  *
  * @param[in] handle Pointer to handle instance
@@ -138,7 +138,7 @@ static void on_delta_retransmission_timer_expiry(app_timer_t *handle,
 static void on_move_retransmission_timer_expiry(app_timer_t *handle,
                                                 void *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Move Halt retransmission timer callback
  *
  * @param[in] handle Pointer to handle instance
@@ -174,7 +174,7 @@ static void generic_client_init(void)
                                   generic_level_client_ext_on_response);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Wrapper for mesh_lib_generic_client_register_handler with an assert which
  * detects if the Btmesh API call results in error. The parameters of the two
  * functions are the same but the wrapper does not have a return value.
@@ -250,7 +250,7 @@ static void send_request(bool retrans, mesh_generic_request_t kind)
 
   // Keep track of how many requests have been sent
   if (request_count > 0) {
-    (request_count)--;
+    request_count--;
   }
 }
 
@@ -267,16 +267,27 @@ static void send_request(bool retrans, mesh_generic_request_t kind)
  ******************************************************************************/
 void sl_btmesh_generic_level_client_ext_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      generic_client_init();
-      break;
-    case sl_btmesh_evt_node_initialized_id:
-      if (evt->data.evt_node_initialized.provisioned) {
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
         generic_client_init();
       }
+      booted = true;
       break;
+    }
+    case sl_btmesh_evt_node_initialized_id: {
+      if (evt->data.evt_node_initialized.provisioned) {
+        generic_client_init();
+        booted = true;
+      }
+      break;
+    }
     default:
       break;
   }
@@ -300,11 +311,11 @@ void sl_btmesh_generic_level_client_ext_delta_set_unack(int32_t delta)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after the configured delay
   if (request_count > 0) {
-    sl_status_t sc = app_timer_start(&retransmission_timer,
-                                     SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     on_delta_retransmission_timer_expiry,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&retransmission_timer,
+                         SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         on_delta_retransmission_timer_expiry,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start delta periodic timer");
   }
 
@@ -314,7 +325,7 @@ void sl_btmesh_generic_level_client_ext_delta_set_unack(int32_t delta)
 /*******************************************************************************
  * Send Generic Level Move Set Unacknowledged message
  ******************************************************************************/
-void sl_btmesh_generic_level_client_ext_move_set_unack(int16_t delta_level)
+void sl_btmesh_generic_level_client_ext_move_set_unack(int16_t delta_level_step)
 {
   sl_status_t sc = app_btmesh_rta_acquire();
   if (sc != SL_STATUS_OK) {
@@ -322,18 +333,18 @@ void sl_btmesh_generic_level_client_ext_move_set_unack(int16_t delta_level)
   }
 
   request_count = SL_BTMESH_GENERIC_LEVEL_EXT_MOVE_RETRANSMISSION_COUNT_CFG_VAL;
-  move_level = delta_level;
+  move_level = delta_level_step;
 
   send_request(false, mesh_generic_request_level_move);  // Send the first request
 
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after the configured delay
   if (request_count > 0) {
-    sl_status_t sc = app_timer_start(&retransmission_timer,
-                                     SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     on_move_retransmission_timer_expiry,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&retransmission_timer,
+                         SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         on_move_retransmission_timer_expiry,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start move periodic timer");
   }
 
@@ -357,11 +368,11 @@ void sl_btmesh_generic_level_client_ext_halt(void)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after the configured delay
   if (request_count > 0) {
-    sl_status_t sc = app_timer_start(&retransmission_timer,
-                                     SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     on_halt_retransmission_timer_expiry,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&retransmission_timer,
+                         SL_BTMESH_GENERIC_LEVEL_EXT_DELTA_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         on_halt_retransmission_timer_expiry,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start halt periodic timer");
   }
 
@@ -371,7 +382,7 @@ void sl_btmesh_generic_level_client_ext_halt(void)
 // -----------------------------------------------------------------------------
 // Event / callback definitions
 
-/***************************************************************************//**
+/*******************************************************************************
  * Generic Level Delta retransmission timer callback
  ******************************************************************************/
 static void on_delta_retransmission_timer_expiry(app_timer_t *handle,
@@ -396,7 +407,7 @@ static void on_delta_retransmission_timer_expiry(app_timer_t *handle,
   (void) app_btmesh_rta_release();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Generic Level Move retransmission timer callback
  ******************************************************************************/
 static void on_move_retransmission_timer_expiry(app_timer_t *handle,
@@ -421,7 +432,7 @@ static void on_move_retransmission_timer_expiry(app_timer_t *handle,
   (void) app_btmesh_rta_release();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Move Halt retransmission timer callback
  ******************************************************************************/
 static void on_halt_retransmission_timer_expiry(app_timer_t *handle,

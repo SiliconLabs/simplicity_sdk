@@ -51,6 +51,14 @@ class ImageTypeRequired(Exception):
     """Image update failed"""
 
 
+class PAwRSyncLostError(Exception):
+    """PAwR sync lost occured"""
+    def __init__(self, message, esl_id, group_id, ble_address):            
+        super().__init__(message)
+        self.esl_id = esl_id
+        self.group_id = group_id
+        self.ble_address = ble_address
+
 class TagState(int):
     """Tag state from the point of view of the AP"""
 
@@ -134,7 +142,7 @@ class Tag:
         # PAST timer, Note: interval is re-initialized properly after PA interval is set below
         self._past_timer = threading.Timer(10, self.__past_timeout)
         self._past_timer.daemon = True
-        self._past_initiated = False
+        self._past_subevents_max = None
         self._advertising = False
         self.raw_image = None
         self.image_file = None
@@ -385,7 +393,7 @@ class Tag:
     @property
     def past_initiated(self):
         """PAST procedure progress monitor"""
-        return self._past_initiated
+        return self._past_subevents_max is not None
 
     @connection_handle.setter
     def connection_handle(self, value):
@@ -437,7 +445,7 @@ class Tag:
         # Reset busy state
         self.busy = False
         self.connection_handle = None
-        self._past_initiated = False
+        self._past_subevents_max = None
         self._associated = False
 
     def block(self, lib_status=elw.ESL_LIB_STATUS_UNSPECIFIED_ERROR):
@@ -487,7 +495,8 @@ class Tag:
         """Handle TLV response"""
         # Error
         if data[0] == TLV_RESPONSE_ERROR:
-            pass
+            self.unresp_command_number += 1
+            return
         # LED state
         elif data[0] == TLV_RESPONSE_LED_STATE:
             pass
@@ -671,7 +680,7 @@ class Tag:
                     self._connection_timer.cancel()
                 self.reset_advertising()
                 self._past_timer.cancel()
-                self._past_initiated = False
+                self._past_subevents_max = None
                 self.connection_handle = evt.connection_handle
                 self.gattdb_handles = evt.gattdb_handles
                 self.pending_unassociate = False
@@ -733,9 +742,8 @@ class Tag:
             ):
                 self._past_timer.cancel()
                 self.connection_handle = None
-                self._past_initiated = False
                 if evt.reason == elw.SL_STATUS_BT_CTRL_REMOTE_USER_TERMINATED:
-                    if self.provisioned and not self.pending_unassociate:
+                    if self.provisioned and not self.pending_unassociate and self._past_subevents_max > self.group_id:
                         self.__update_flags(BASIC_STATE_FLAG_SYNCHRONIZED)
                     else:
                         self.__update_flags(BASIC_STATE_FLAG_SYNCHRONIZED, False)
@@ -746,6 +754,7 @@ class Tag:
                     == elw.SL_STATUS_BT_CTRL_CONNECTION_TERMINATED_BY_LOCAL_HOST
                 ):
                     self.__update_flags(BASIC_STATE_FLAG_SYNCHRONIZED, False)
+                self._past_subevents_max = None
                 self.log.info(
                     "Connection to %s closed with reason %s",
                     self.ble_address,
@@ -901,14 +910,9 @@ class Tag:
                     self._advertising = True  # setting this has to precede self.esl_state == EslState.SYNCHRONIZED check!
                 if self.advertising:
                     if self.esl_state == EslState.SYNCHRONIZED:
-                        self.log.warning(
-                            "ESL ID %d in group %d at %s address lost sync!",
-                            self.esl_id,
-                            self.group_id,
-                            self.ble_address,
-                        )
                         self.reset()  # reset will clear _advertising state, too
                         self._advertising = True  # set _advertising back - since it is indeed advertising
+                        raise PAwRSyncLostError("ESL sync lost!", self.esl_id, self.group_id, self.ble_address)
                     self.start_advertising_governor()
         elif isinstance(evt, esl_lib.EventError):
             self.reset_advertising()
@@ -957,12 +961,11 @@ class Tag:
                     and self._past_timer.is_alive()
                 ):
                     self._past_timer.cancel()
-                self._past_initiated = False
+                self._past_subevents_max = None
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT:
                 if self._past_timer.is_alive():
                     self._past_timer.cancel()
-                self._past_initiated = False
-                self.connection_handle = None
+                self._past_subevents_max = None
                 if evt.data in [
                     elw.ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION,
                     elw.ESL_LIB_CONNECTION_STATE_PAST_INIT,
@@ -970,7 +973,11 @@ class Tag:
                     self.log.warning(
                         "Tag at address %s failed to sync!", self.ble_address
                     )
-                    self.reset()
+                    self.close_connection(force_close=True)
+                    if not self.busy:
+                        self.connection_handle = None
+                else:
+                    self.connection_handle = None
             elif evt.lib_status == elw.ESL_LIB_STATUS_OTS_GOTO_FAILED:
                 if evt.sl_status == elw.SL_STATUS_NOT_FOUND:
                     self.log.error(
@@ -980,7 +987,7 @@ class Tag:
                 self.busy = False
             elif evt.lib_status == elw.ESL_LIB_STATUS_PAST_INIT_FAILED:
                 self.busy = False
-                self._past_initiated = False
+                self._past_subevents_max = None
                 if self._past_timer.is_alive():
                     self._past_timer.cancel()
                 if evt.sl_status in [
@@ -1059,12 +1066,12 @@ class Tag:
             raise InvalidTagStateError(
                 f"Invalid ESL object state: {self._state} at address {self.ble_address}"
             )
-        self._past_initiated = False
+        self._past_subevents_max = None
         try:
             if force_close:
                 self.log.debug("Abort connection to ESL at %s.", self.ble_address)
-            self.lib.close_connection(self.connection_handle)
-            self.busy = True
+            status = self.lib.close_connection(self.connection_handle)
+            self.busy = (status == elw.SL_STATUS_OK)
         except esl_lib.CommandFailedError as e:
             self.log.error(e)
 
@@ -1102,6 +1109,14 @@ class Tag:
             self.busy = True
         except esl_lib.CommandFailedError as e:
             self.log.error(e)
+
+    def response_key_update(self, response_key_material = bytes):
+        """Update response key material of an already configured Tag"""
+        if len(response_key_material) == EAD_KEY_MATERIAL_SIZE and elw.ESL_LIB_DATA_TYPE_GATT_RESPONSE_KEY in self.gatt_write_values:
+            self.log.trace("Response key material change request accepted.")
+            self.gatt_write_values[elw.ESL_LIB_DATA_TYPE_GATT_RESPONSE_KEY] = response_key_material
+        else:
+            self.log.warning("Response key material change request ignored because condition(s) not met!")
 
     def write_control_point(self, data: bytes, att_response: bool = True):
         """Write ESL Control Point"""
@@ -1273,19 +1288,27 @@ class Tag:
                 f"Cannot upload file: image conversion failed for address {self.ble_address}"
             )
 
-    def initiate_past(self, pawr_handle, pa_interval):
+    def initiate_past(self, pawr_handle, pa_interval, subevent_count):
         """Initiate PAST"""
         if self.state != TagState.CONNECTED:
             raise InvalidTagStateError(
                 f"Invalid ESL object state: {self._state} at address {self.ble_address}!"
             )
-        if self._past_initiated:
+        if self._past_subevents_max is not None:
             raise InvalidTagStateError(
                 f"PAST has been already initiated for ESL at address {self.ble_address}!"
             )
+        if subevent_count <= self.group_id:
+            self.close_connection(force_close=True)
+            raise PAwRSyncLostError(
+                f"PAST can't be initiated for ESL at address {self.ble_address} because of invalid Group ID config {self.group_id} for PAwR subevent count of {subevent_count}!",
+                self.esl_id,
+                self.group_id,
+                self.ble_address,
+            )
         try:
             self.lib.initiate_past(self.connection_handle, pawr_handle)
-            self._past_initiated = True
+            self._past_subevents_max = subevent_count
             if self._past_timer.is_alive():
                 self._past_timer.cancel()
             # Allow one interval more grace period over the library internal PAST timer

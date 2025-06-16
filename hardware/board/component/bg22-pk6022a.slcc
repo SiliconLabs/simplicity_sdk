@@ -1,7 +1,7 @@
 !!omap
 - id: bg22_pk6022a
 - label: BG22-PK6022A
-- package: platform
+- package: boards
 - description: Kit BSP support for the BG22 Direction Finding Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

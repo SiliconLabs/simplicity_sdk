@@ -1,6 +1,6 @@
 id: "btmesh_stack_migration"
 label: "Migration"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh stack persistent storage migration code for applications that were built with releases older than v3.2. The migration commands need to be executed once, before the node is initialized. This migration code does not need to be included in subsequent application versions, as long as the persistent storage has been migrated once."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

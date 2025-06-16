@@ -3,7 +3,7 @@
  * @brief defines structured format for 'gp-proxy-table' ipc messages
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -55,7 +55,7 @@ typedef struct {
   uint16_t sinkNwkAddress;
   uint16_t sinkGroupId;
   uint16_t assignedAlias;
-  uint8_t sinkIeeeAddress;
+  uint8_t sinkIeeeAddress[EUI64_SIZE];
   sl_zigbee_key_data_t gpdKey;
   uint32_t gpdSecurityFrameCounter;
   uint8_t forwardingRadius;
@@ -69,5 +69,13 @@ typedef struct {
   sli_zigbee_stack_gp_proxy_table_process_gp_pairing_ipc_req_t request;
   sli_zigbee_stack_gp_proxy_table_process_gp_pairing_ipc_rsp_t response;
 } sli_zigbee_stack_gp_proxy_table_process_gp_pairing_ipc_msg_t;
+
+typedef struct {
+  uint8_t index;
+} sli_zigbee_stack_gp_proxy_table_remove_entry_ipc_req_t;
+
+typedef struct {
+  sli_zigbee_stack_gp_proxy_table_remove_entry_ipc_req_t request;
+} sli_zigbee_stack_gp_proxy_table_remove_entry_ipc_msg_t;
 
 #endif // GP_PROXY_TABLE_IPC_COMMAND_MESSAGES_H

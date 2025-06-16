@@ -80,23 +80,17 @@ class CALC_Demodulator_ocelot(ICalculator):
 
         self._addModelVariable(model, 'maximize_bwsel_range', bool, ModelVariableFormat.DECIMAL)
 
+        var = self._addModelVariable(model, 'bpsk_feature', Enum, ModelVariableFormat.DECIMAL,
+                                     'IEEE802154 BPSK Feature')
         member_data = [
-            ['NONE', 0, 'None'],
-            ['STANDARD', 1, 'Standard'],
-            ['LEGACY', 2, 'Legacy Demod'],
-            ['COHERENT', 3, 'Coherent Demod'],
-            ['ANTDIV', 4, 'Antenna Diversity'],
-            ['FEM', 5, 'External LNA'],
-            ['ANTDIV_FEM', 6, 'Antenna Diversity with External LNA'],
-            ['FCS', 7, 'Fast channel switch'],
-            ['GB868_863', 8, 'UK Metering 863 MHz Band'],
-            ['GB868_915', 9, 'UK Metering 915 MHz Band'],
-            ['NA915_R23', 10, 'NA R23 915 MHz Band'],
+            ['STANDARD_20KBPS', 0, 'IEEE802154 Standard 20kbps'],
+            ['STANDARD_40KBPS', 1, 'IEEE802154 Standard 40kbps'],
         ]
-        model.vars.zigbee_feature.var_enum = CreateModelVariableEnum(
-            'ZigbeeFeatureEnum',
-            'List of supported zigbee PHY features',
-            member_data)
+        var.var_enum = CreateModelVariableEnum(
+            'BPSKFeatureEnum',
+            'List of supported IEEE802154 PHY features',
+            member_data
+        )
 
     def calc_default_feature_mode(self, model):
         model.vars.zigbee_feature.value = model.vars.zigbee_feature.var_enum.NONE

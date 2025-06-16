@@ -1,14 +1,14 @@
 id: rail_lib_singleprotocol
 label: RAIL Library, Single Protocol
 description: Single Protocol RAIL Library Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_lib_singleprotocol
-    name: RAIL Library, Single Protocol
-    license: MSLA
+    sbom:
+        id: rail_lib_singleprotocol
+        name: RAIL Library, Single Protocol
+        license: MSLA
 requires:
   - name: rail_lib
   - name: rail_util_built_in_phys
@@ -18,8 +18,8 @@ provides:
   - name: rail_lib_singleprotocol # specific tag
   - name: rail_lib_Xprotocol # generic tag
 documentation:
-  docset: rail
-  document: rail-api/rail-lib
+    docset: rail
+    document: rail-api/rail-lib
 define:
   - name: SL_RAIL_LIB_MULTIPROTOCOL_SUPPORT
     value: '0'

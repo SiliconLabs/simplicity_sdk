@@ -6,13 +6,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_cbap.bt_soc_cbap_tz.slcw"/>
     <properties key="projectFilePaths" value="example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_cbap.bt_soc_cbap_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
   </descriptors>
@@ -22,15 +24,51 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator_tz.slcw"/>
     <properties key="projectFilePaths" value="example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
+  </descriptors>
+  <descriptors name="bt_ncp_dhc" label="Bluetooth - Dynamic Hardware Configuration over NCP" description="Enables runtime configuration of radio values such as RSSI offset, PA curve, PA mode and CTUNE using NCP user messages.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_dhc.bt_ncp_dhc.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_dhc/bt_ncp_dhc.slcp"/>
+    <properties key="readmeFiles" value="example/bt_dhc/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2703a brd4115a brd4115b brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4197a brd4198a brd4198b brd4411a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g24.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_dhc/bt_ncp_dhc.slcp"/>
+    <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_rcp_dhc" label="Bluetooth - Dynamic Hardware Configuration over RCP" description="Enables runtime configuration of radio values such as RSSI offset, PA curve, PA mode and CTUNE using HCI (RCP) messages.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_dhc.bt_rcp_dhc.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_dhc/bt_rcp_dhc.slcp"/>
+    <properties key="readmeFiles" value="example/bt_dhc/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2703a brd4115a brd4115b brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4197a brd4198a brd4198b brd4411a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g24.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_dhc/bt_rcp_dhc.slcp"/>
+    <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_esl_ap_freertos" label="Bluetooth - NCP ESL Access Point FreeRTOS" description="Network Co-Processor (NCP) target application with additional features to support the Electronic Shelf Label Profile ESL Access Point role. Note: Some BLE features unused by the ESL Access Point are removed compared to the NCP target application.&#xA;">
     <properties key="namespace" value="template.uc"/>
@@ -38,13 +76,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_ncp.bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_esl_ap_micriumos" label="Bluetooth - NCP ESL Access Point Micrium OS" description="Network Co-Processor (NCP) target application with additional features to support the Electronic Shelf Label Profile ESL Access Point role. Note: Some BLE features unused by the ESL Access Point are removed compared to the NCP target application.&#xA;">
@@ -53,13 +93,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_ncp.bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4115a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4332a brd4337a brd4350a brd4351a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*[bm]gm21.* .*[bm]gm24.* .*mgm26.* .*[bm]gm27.* .*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32mg26.* .*efr32[bm]g27.* .*efr32[bm]g29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_freertos" label="Bluetooth - NCP FreeRTOS" description="Network Co-Processor (NCP) target application. Runs the Bluetooth stack dynamically and provides access to it via Bluetooth API (BGAPI) using UART connection. NCP mode makes it possible to run your application on a host controller or PC.&#xA;">
@@ -68,13 +110,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_ncp.bt_ncp_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_micriumos" label="Bluetooth - NCP Micrium OS" description="Network Co-Processor (NCP) target application. Runs the Bluetooth stack dynamically and provides access to it via Bluetooth API (BGAPI) using UART connection. NCP mode makes it possible to run your application on a host controller or PC.&#xA;">
@@ -83,13 +127,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_ncp.bt_ncp_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_ncp/bt_ncp_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_ncp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_cpc_freertos" label="Bluetooth - RCP CPC FreeRTOS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over CPC (Co-Processor Communication) protocol through UART connection.&#xA;">
@@ -98,13 +144,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_rcp.bt_rcp_cpc_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_rcp/bt_rcp_cpc_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_rcp/readme_rcp_cpc.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_cpc_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_freertos" label="Bluetooth - RCP FreeRTOS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over a UART connection.&#xA;">
@@ -113,13 +161,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_rcp.bt_rcp_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_rcp/bt_rcp_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_rcp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_micriumos" label="Bluetooth - RCP Micrium OS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over a UART connection.&#xA;">
@@ -128,13 +178,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_rcp.bt_rcp_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_rcp/bt_rcp_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_rcp/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*efr32mr21.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_freertos" label="Bluetooth - SoC Blinky FreeRTOS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -143,28 +195,32 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_blinky.bt_soc_blinky_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_blinky/bt_soc_blinky_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_blinky/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2703a brd2709a brd2713a brd2902a brd2903a brd2904a brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4318a brd4335a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2703a brd2709a brd2713a brd2902a brd2903a brd2904a brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4318a brd4335a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
-  <descriptors name="bt_soc_blinky_freertos_shared" label="Bluetooth - SoC Blinky FreeRTOS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the  Simplicity Connect mobile app.&#xA;">
+  <descriptors name="bt_soc_blinky_freertos_shared" label="Bluetooth - SoC Blinky FreeRTOS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_blinky.bt_soc_blinky_freertos_shared.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_blinky/bt_soc_blinky_freertos_shared.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_blinky/readme.md"/>
-    <properties key="boardCompatibility" value="brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4188a brd4188b brd4194a brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4319a brd4337a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4188a brd4188b brd4194a brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4319a brd4337a brd4356a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_micriumos" label="Bluetooth - SoC Blinky Micrium OS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -173,13 +229,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_blinky.bt_soc_blinky_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_blinky/bt_soc_blinky_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_blinky/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2703a brd2709a brd2713a brd2902a brd2903a brd2904a brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4318a brd4335a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2703a brd2709a brd2713a brd2902a brd2903a brd2904a brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4318a brd4335a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_micriumos_shared" label="Bluetooth - SoC Blinky Micrium OS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -188,13 +246,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_blinky.bt_soc_blinky_micriumos_shared.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_blinky/bt_soc_blinky_micriumos_shared.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_blinky/readme.md"/>
-    <properties key="boardCompatibility" value="brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4188a brd4188b brd4194a brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4319a brd4337a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4188a brd4188b brd4194a brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4319a brd4337a brd4356a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_cbap" label="Bluetooth - SoC Certificate Based Authentication and Pairing (Secure Vault)&#xA;" description="Demonstrates Certificate Based Authentication and Pairing over BLE. This example utilizes Secure Vault for storing keys.&#xA;">
@@ -203,13 +263,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_cbap.bt_soc_cbap.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_cbap/bt_soc_cbap.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_cbap/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2608a brd2703a brd2704a brd2709a brd2902a brd2903a brd2904a brd2905a brd4116a brd4117a brd4118a brd4120a brd4121a brd4181c brd4186b brd4186c brd4187b brd4187c brd4188a brd4188b brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308c brd4308d brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2608a brd2703a brd2704a brd2709a brd2902a brd2903a brd2904a brd2905a brd4116a brd4117a brd4118a brd4120a brd4121a brd4181c brd4186b brd4186c brd4187b brd4187c brd4188a brd4188b brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308c brd4308d brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32[bm]g21b.* .*efr32[bm]g24b.* .*efr32[bm]g26b.* .*efr32[fz]g28b.* .*efr32[bm]g29b.* .*[bm]gm210pb.* .*[bm]gm240pb.* .*[bm]gm240sb.* .*[bm]gm241sd.* .*[bm]gm260pb.* .*mgm240sd.* .*mgm240l[0d].*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_cbap_tz_ns" label="Bluetooth - SoC Certificate Based Authentication and Pairing (TrustZone)&#xA;" description="Demonstrates Certificate Based Authentication and Pairing over BLE. This example utilizes TrustZone for storing keys.&#xA;">
@@ -225,6 +287,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz_ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_csr_generator" label="Bluetooth - SoC Certificate Signing Request Generator (Secure Vault)&#xA;" description="Certificate generating firmware example. Software is generating the device EC key pair, the signing request for the device certificate, and other related data. The generated data can be read out by the Central Authority. This example utilizes Secure Vault for storing keys.&#xA;">
@@ -233,13 +297,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_csr_generator/bt_soc_csr_generator.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_csr_generator/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2608a brd2703a brd2704a brd2709a brd2902a brd2903a brd2904a brd2905a brd4116a brd4117a brd4118a brd4120a brd4121a brd4181c brd4186b brd4186c brd4187b brd4187c brd4188a brd4188b brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308c brd4308d brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2608a brd2703a brd2704a brd2709a brd2902a brd2903a brd2904a brd2905a brd4116a brd4117a brd4118a brd4120a brd4121a brd4181c brd4186b brd4186c brd4187b brd4187c brd4188a brd4188b brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308c brd4308d brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32[bm]g21b.* .*efr32[bm]g24b.* .*efr32[bm]g26b.* .*efr32[fz]g28b.* .*efr32[bm]g29b.* .*[bm]gm210pb.* .*[bm]gm240pb.* .*[bm]gm240sb.* .*[bm]gm241sd.* .*[bm]gm260pb.* .*mgm240sd.* .*mgm240l[0d].*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_csr_generator_tz_ns" label="Bluetooth - SoC Certificate Signing Request Generator (TrustZone)&#xA;" description="Certificate generating firmware example. Software is generating the device EC key pair, the signing request for the device certificate, and other related data. The generated data can be read out by the Central Authority. This example utilizes TrustZone for storing keys.&#xA;">
@@ -255,6 +321,42 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz_ns.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_dtm_freertos" label="Bluetooth - SoC DTM FreeRTOS" description="This example implements the direct test mode (DTM) application for radio testing. DTM commands can be called via UART.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_dtm.bt_soc_dtm_freertos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_dtm/bt_soc_dtm_freertos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_dtm/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_dtm/bt_soc_dtm_freertos.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_dtm_micriumos" label="Bluetooth - SoC DTM Micrium OS" description="This example implements the direct test mode (DTM) application for radio testing. DTM commands can be called via UART.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_dtm.bt_soc_dtm_micriumos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_dtm/bt_soc_dtm_micriumos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_dtm/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_dtm/bt_soc_dtm_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_empty_freertos" label="Bluetooth - SoC Empty FreeRTOS" description="A minimal project structure, that serves as a starting point for custom Bluetooth applications. The application starts advertising after boot and restarts advertising after a connection is closed.&#xA;">
@@ -263,13 +365,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_empty.bt_soc_empty_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_empty/bt_soc_empty_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_empty/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_empty_micriumos" label="Bluetooth - SoC Empty Micrium OS" description="A minimal project structure, that serves as a starting point for custom Bluetooth applications. The application starts advertising after boot and restarts advertising after a connection is closed.&#xA;">
@@ -278,13 +382,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_empty.bt_soc_empty_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_empty/bt_soc_empty_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_empty/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_ibeacon_freertos" label="Bluetooth - SoC iBeacon FreeRTOS" description="Sends non-connectable advertisements in iBeacon format. The iBeacon Service gives Bluetooth accessories a simple and convenient way to send iBeacons to smartphones. This example can be tested together with the Simplicity Connect mobile app.&#xA;">
@@ -293,13 +399,15 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_ibeacon.bt_soc_ibeacon_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_ibeacon/bt_soc_ibeacon_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_ibeacon/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_ibeacon_micriumos" label="Bluetooth - SoC iBeacon Micrium OS" description="Sends non-connectable advertisements in iBeacon format. The iBeacon Service gives Bluetooth accessories a simple and convenient way to send iBeacons to smartphones. This example can be tested together with the Simplicity Connect mobile app.&#xA;">
@@ -308,44 +416,118 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_ibeacon.bt_soc_ibeacon_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_ibeacon/bt_soc_ibeacon_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_ibeacon/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
-  <descriptors name="bt_soc_iop_test_freertos" label="Bluetooth - SoC Interoperability Test FreeRTOS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity  Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop  view of the app.&#xA;">
+  <descriptors name="bt_soc_iop_test_freertos" label="Bluetooth - SoC Interoperability Test FreeRTOS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop view of the app.&#xA;">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_iop_test.bt_soc_iop_test_freertos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_iop_test/bt_soc_iop_test_freertos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_iop_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
-  <descriptors name="bt_soc_iop_test_micriumos" label="Bluetooth - SoC Interoperability Test Micrium OS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop  view of the app.&#xA;">
+  <descriptors name="bt_soc_iop_test_micriumos" label="Bluetooth - SoC Interoperability Test Micrium OS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop view of the app.&#xA;">
     <properties key="namespace" value="template.uc"/>
     <properties key="keywords" value="universal\ configurator"/>
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_iop_test.bt_soc_iop_test_micriumos.slcp"/>
     <properties key="projectFilePaths" value="example/bt_soc_iop_test/bt_soc_iop_test_micriumos.slcp"/>
     <properties key="readmeFiles" value="example/bt_soc_iop_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4411a brd4414a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_thermometer_client_freertos" label="Bluetooth - SoC Thermometer Client FreeRTOS" description="Implements a GATT Client that discovers and connects with up to 4 BLE devices advertising themselves as Thermometer Servers. It displays the discovery process and the temperature values received via UART.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_thermometer_client.bt_soc_thermometer_client_freertos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_thermometer_client/bt_soc_thermometer_client_freertos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_thermometer_client/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_thermometer_client/bt_soc_thermometer_client_freertos.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_thermometer_client_micriumos" label="Bluetooth - SoC Thermometer Client Micrium OS" description="Implements a GATT Client that discovers and connects with up to 4 BLE devices advertising themselves as Thermometer Servers. It displays the discovery process and the temperature values received via UART.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_thermometer_client.bt_soc_thermometer_client_micriumos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_thermometer_client/bt_soc_thermometer_client_micriumos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_thermometer_client/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2902a brd2903a brd2904a brd2905a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_thermometer_client/bt_soc_thermometer_client_micriumos.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_throughput_freertos" label="Bluetooth - SoC Throughput FreeRTOS" description="This example tests the throughput capabilities of the device and can be used to measure throughput between 2 *EFR32* devices, as well as between a device and a smartphone using the 'Si Connect' mobile app, through the 'Throughput' demo tile.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_throughput.bt_soc_throughput_freertos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_throughput/bt_soc_throughput_freertos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_throughput/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2709a brd2713a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_throughput/bt_soc_throughput_freertos.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+  </descriptors>
+  <descriptors name="bt_soc_throughput_micriumos" label="Bluetooth - SoC Throughput Micrium OS" description="This example tests the throughput capabilities of the device and can be used to measure throughput between 2 *EFR32* devices, as well as between a device and a smartphone using the 'Si Connect' mobile app, through the 'Throughput' demo tile.&#xA;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_throughput.bt_soc_throughput_micriumos.slcp"/>
+    <properties key="projectFilePaths" value="example/bt_soc_throughput/bt_soc_throughput_micriumos.slcp"/>
+    <properties key="readmeFiles" value="example/bt_soc_throughput/readme.md"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2709a brd2713a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4198a brd4198b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4335a brd4337a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.* .*si[bm]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar"/>
+    <properties key="category" value="Bluetooth Examples"/>
+    <properties key="quality" value="EXPERIMENTAL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_throughput/bt_soc_throughput_micriumos.slcp"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_tz_secure_application" label="Sample project for TrustZone Secure Key Library" description="This project can be used as a reference implementation for creating secure applications with TrustZone for bluetooth products.&#xA;This project makes a TrustZone secure library for running PSA libraries in the secure world.">
     <properties key="namespace" value="template.uc"/>
@@ -360,6 +542,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_tz_secure_application/bt_soc_tz_secure_application.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
 </model:MDescriptors>

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_connection_analyzer"
 label: "Bluetooth connection analyzer"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   The component provides functionality to capture and analyze the packets on a
   Bluetooth connection.

@@ -1,5 +1,5 @@
 id: psa_crypto_ecc_curve448
-package: platform
+package: security_mbedtls
 label: Curve448
 description: >-
   This component adds support for the Montgomery 448 bit elliptic curve

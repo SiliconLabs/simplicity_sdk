@@ -1,6 +1,6 @@
 id: "app_button_press"
 label: "Button Press"
-package: "platform"
+package: "platform_common_apps"
 description: >
   The Button Press component is used for handling the button state, button states are:
   1) Button is not pressed,
@@ -93,3 +93,11 @@ template_contribution:
     value:
       include: app_button_press_internal.h
       handler: app_button_press_init
+
+  - name: event_handler
+    condition: [app_em4h_reset]
+    value:
+      event: platform_init
+      include: app_button_press.h
+      handler: app_button_press_check_wakeup_cause
+    priority: -9981 # Invoke before EM4H-Reset's app_unlatch_pin_retention

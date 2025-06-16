@@ -309,7 +309,7 @@ void cli_reset(sl_cli_command_arg_t *arguments)
 
 /******************************************************************************
  * CLI - toggle_radio command
- * The command turnes on and of the radio (for Rx)
+ * The command turns on and off the radio (for Rx)
  *****************************************************************************/
 void cli_toggle_radio(sl_cli_command_arg_t *arguments)
 {

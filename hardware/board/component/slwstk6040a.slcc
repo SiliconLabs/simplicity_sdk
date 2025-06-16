@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6040a
 - label: SLWSTK6040A
-- package: platform
+- package: boards
 - description: Kit BSP support for the Wireless Starter Kit main board 10x bundle.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

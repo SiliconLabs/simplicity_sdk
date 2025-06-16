@@ -35,8 +35,9 @@
 static sl_zigbee_af_event_t app_cli_event;
 static void app_cli_event_handler(const sl_zigbee_af_event_t *event);
 
-void app_cli_init(void)
+void app_cli_init(uint8_t init_level)
 {
+  (void) init_level;
   sl_zigbee_af_event_init(&app_cli_event, app_cli_event_handler);
 }
 
@@ -180,8 +181,9 @@ static inline void print_eui64(const uint8_t *eui64)
                               eui64[0]);
 }
 
-void info_command(void)
+void info_command(sl_cli_command_arg_t *arguments)
 {
+  (void) arguments;
   sl_802154_long_addr_t myEui64;
   sl_zigbee_node_type_t nodeType;
   sl_zigbee_network_parameters_t networkParams;
@@ -205,8 +207,9 @@ void info_command(void)
                               sl_zigbee_network_state());
 }
 
-void keys_print_command(void)
+void keys_print_command(sl_cli_command_arg_t *arguments)
 {
+  (void) arguments;
   sl_zigbee_sec_man_context_t context;
   sl_zigbee_sec_man_key_t plaintext_key;
   sl_zigbee_sec_man_network_key_info_t network_key_info;
@@ -268,4 +271,10 @@ void set_profile_command(sl_cli_command_arg_t *arguments)
 {
   uint8_t stackProfile = sl_cli_get_argument_uint8(arguments, 0);
   sl_zigbee_set_stack_profile(stackProfile);
+}
+
+void hal_reboot_command(sl_cli_command_arg_t *arguments)
+{
+  (void) arguments;
+  halReboot();
 }

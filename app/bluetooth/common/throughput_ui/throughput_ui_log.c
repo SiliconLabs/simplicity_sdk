@@ -132,7 +132,7 @@ static void refresh_ui(uint8_t refresh_row)
         UI_PRINTBOX("  ");
         break;
       case ROW_INTERVAL:
-        UI_PRINTF(THROUGHPUT_UI_INTERVAL_FORMAT, (int)((float) ui_state.interval * 1.25) );
+        UI_PRINTF(THROUGHPUT_UI_INTERVAL_FORMAT, (int)((float) ui_state.interval * 1.25f) );
         UI_PRINTBOX("  ");
         break;
       case ROW_PDU_SIZE:

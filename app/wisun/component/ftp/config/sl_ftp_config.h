@@ -79,9 +79,9 @@
 // <i> Default value 20000 ms
 #define SL_FTP_CLNT_RECV_TIMEOUT_MS                   20000UL ///< FTP default receive timeout (ms)
 
-// <s SL_FTP_CLNT_AUTH_DEFAUL_HOST> FTP Default remote host address string
+// <s SL_FTP_CLNT_AUTH_DEFAULT_HOST> FTP Default remote host address string
 // <i> Default: "aabb:ccdd::eeff:0011:2233:4455" (dummy)
-#define SL_FTP_CLNT_AUTH_DEFAUL_HOST                  "aabb:ccdd::eeff:0011:2233:4455" ///< FTP Default remote host address string
+#define SL_FTP_CLNT_AUTH_DEFAULT_HOST                  "aabb:ccdd::eeff:0011:2233:4455" ///< FTP Default remote host address string
 
 // <s SL_FTP_CLNT_AUTH_DEFAULT_USER> FTP Default user name
 // <i> Default: "user" (dummy)

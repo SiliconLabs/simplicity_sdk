@@ -62,4 +62,4 @@ bool sl_is_multi_channel_enabled(void);
  * @retval  OT_ERROR_INVALID_ARGS   Argument passed was invalid.
  *
  */
-otError sl_get_channel_switching_cfg(RAIL_IEEE802154_RxChannelSwitchingCfg_t *channelSwitchingCfg);
+otError sl_get_channel_switching_cfg(sl_rail_ieee802154_rx_channel_switching_cfg_t *channelSwitchingCfg);

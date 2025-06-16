@@ -268,46 +268,8 @@ WEAK(void sl_zigbee_ezsp_counter_rollover_handler(sl_zigbee_counter_type_t type)
 }
 
 WEAK(void sl_zigbee_ezsp_gpep_incoming_message_handler(
-       // XXXAn sl_status_t value of SL_ZIGBEE_GP_STATUS_OK if the pairing process
-       // succeeded and a pairing link has been established.
-       sl_zigbee_gp_status_t status,
-       // The index of the entry the pairing table corresponding to the pairing
-       // link that was established during the pairing process.
-       uint8_t gpdLink,
-       // stuff
-       uint8_t sequenceNumber,
-       // The vendor information of the peer device. This parameter is non-NULL
-       // only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       sl_zigbee_gp_address_t *addr,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       sl_zigbee_gp_security_level_t gpdfSecurityLevel,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       sl_zigbee_gp_key_type_t gpdfSecurityKeyType,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       bool autoCommissioning,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       bool rxAfterTx,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint32_t gpdSecurityFrameCounter,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint8_t gpdCommandId,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint32_t mic,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint8_t gpdCommandPayloadLength,
-       // The application information of the peer device. This parameter is
-       // non-NULL only if the status parameter is SL_ZIGBEE_GP_STATUS_OK.
-       uint8_t *gpdCommandPayload,
-       // Rx packet information
-       sl_zigbee_rx_packet_info_t *packetInfo))
+       // GP parameters list represented as a macro for GP endpoint incoming message handler and callbacks prototypes.
+       sl_zigbee_gp_params_t *params))
 {
 }
 

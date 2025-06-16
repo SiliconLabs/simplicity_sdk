@@ -3,7 +3,7 @@
  * @brief Direct Test Mode core logic.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -28,11 +28,12 @@
  *
  ******************************************************************************/
 #include <stdlib.h>
-#include "dtm.h"
-#include "rail_features.h"
+#include "sl_rail_features.h"
 #include "sl_bt_api.h"
 #include "sl_memory_manager.h"
 #include "app_assert.h"
+#include "app.h"
+#include "dtm.h"
 #include "dtm_config.h"
 
 #if DTM_CONFIG_SPECIFY_TX_POWER == 1
@@ -63,16 +64,16 @@
 
 #define CALC_MAX_PDU_TIME(octet_time, packet_overhead_time) (MAX_PDU_OCTETS * (octet_time) + (packet_overhead_time))
 
-#define SUPPORTED_FEATURES (                                                   \
-    BIT(1, FEATURE_PACKET_EXTENSION)                                           \
-    | BIT(RAIL_BLE_SUPPORTS_2MBPS, FEATURE_2M_PHY)                             \
-    | BIT(0, FEATURE_STABLE_MODULATION_INDEX)                                  \
-    | BIT(RAIL_FEAT_BLE_CODED, FEATURE_CODED_PHY)                              \
-    | BIT(RAIL_BLE_SUPPORTS_CTE, FEATURE_CTE_SUPPORTED)                        \
-    | BIT(RAIL_BLE_SUPPORTS_ANTENNA_SWITCHING, FEATURE_ANTENNA_SWITCH_SUPPORT) \
-    | BIT(RAIL_FEAT_BLE_AOX_SUPPORTED, FEATURE_1US_SAMPLING_AOD_TRANS_SUPPORT) \
-    | BIT(RAIL_FEAT_BLE_AOX_SUPPORTED, FEATURE_1US_SAMPLING_AOD_REC_SUPPORT)   \
-    | BIT(RAIL_FEAT_BLE_AOX_SUPPORTED, FEATURE_1US_SWITCH_SAMPLE_AOA_SUPPORT))
+#define SUPPORTED_FEATURES (                                                      \
+    BIT(1, FEATURE_PACKET_EXTENSION)                                              \
+    | BIT(SL_RAIL_BLE_SUPPORTS_2_MBPS, FEATURE_2M_PHY)                            \
+    | BIT(0, FEATURE_STABLE_MODULATION_INDEX)                                     \
+    | BIT(SL_RAIL_BLE_SUPPORTS_CODED_PHY, FEATURE_CODED_PHY)                      \
+    | BIT(SL_RAIL_BLE_SUPPORTS_CTE, FEATURE_CTE_SUPPORTED)                        \
+    | BIT(SL_RAIL_BLE_SUPPORTS_ANTENNA_SWITCHING, FEATURE_ANTENNA_SWITCH_SUPPORT) \
+    | BIT(SL_RAIL_BLE_SUPPORTS_AOX, FEATURE_1US_SAMPLING_AOD_TRANS_SUPPORT)       \
+    | BIT(SL_RAIL_BLE_SUPPORTS_AOX, FEATURE_1US_SAMPLING_AOD_REC_SUPPORT)         \
+    | BIT(SL_RAIL_BLE_SUPPORTS_AOX, FEATURE_1US_SWITCH_SAMPLE_AOA_SUPPORT))
 
 enum feature {
   FEATURE_PACKET_EXTENSION = 0,
@@ -186,7 +187,7 @@ enum packet_type {
   PACKET_TYPE_MAX
 };
 
-static testmode_config_t cfg;
+static config_t cfg;
 
 static const uint16_t MAX_PDU_TIME[] = {
   [PHY_1M] = CALC_MAX_PDU_TIME(8, 80),
@@ -226,7 +227,6 @@ static void reset_cmd_buffer(void);
 static void reset_transceiver_test_state(void);
 static void set_transceiver_test_state(cmd_type_t cmd);
 static cmd_type_t get_transceiver_test_state(void);
-static inline uint32_t t_min_in_ticks(void);
 static void send_test_status(uint8_t status, uint16_t response);
 static void send_packet_counter(uint16_t counter);
 static void parse_cmd_buffer(cmd_packet_t *result);
@@ -234,7 +234,7 @@ static void process_setup_command(setup_cmd_packet_t *cmd);
 static void process_transceiver_command(cmd_type_t cmd_type,
                                         transceiver_cmd_packet_t *cmd);
 static void process_command(void);
-static void handle_dtm_completed(sl_bt_msg_t *evt);
+static void handle_dtm_completed(const sl_bt_evt_test_dtm_completed_t *dtm_completed);
 static void tx_power_set(int8_t tx_power_dbm,
                          int16_t *tx_power_out_dbm,
                          uint16_t *response,
@@ -243,7 +243,7 @@ static void tx_power_set(int8_t tx_power_dbm,
 /**************************************************************************//**
  * Initialize testmode library.
  *****************************************************************************/
-void testmode_init(const testmode_config_t *config)
+void testmode_init(const config_t *config)
 {
   cfg = *config;
   reset_setup();
@@ -254,33 +254,42 @@ void testmode_init(const testmode_config_t *config)
 /**************************************************************************//**
  * Test mode process command byte.
  *****************************************************************************/
-void testmode_process_command_byte(uint8_t byte)
+void testmode_process_command_byte(const uint8_t byte)
 {
-  if (cmd_buffer.len >= sizeof(cmd_buffer.data)) {
-    // Processing previous command => ignore byte
-    return;
-  }
+  if (app_mutex_acquire()) {
+    if (cmd_buffer.len >= sizeof(cmd_buffer.data)) {
+      // Processing previous command => ignore byte
+      app_mutex_release();
+      return;
+    }
 
-  uint32_t current_byte_time = cfg.get_ticks();
+    uint32_t current_byte_time = cfg.get_ticks();
 
-  if (cmd_buffer.len
-      && current_byte_time - cmd_buffer.last_byte_time > t_min_in_ticks()) {
-    // Inter byte timeout occurred
-    reset_cmd_buffer();
-  }
+    if (cmd_buffer.len
+        && current_byte_time - cmd_buffer.last_byte_time > cfg.ms_to_tick(T_MIN)) {
+      // Inter byte timeout occurred
+      reset_cmd_buffer();
+    }
 
-  cmd_buffer.last_byte_time = current_byte_time;
-  cmd_buffer.data[cmd_buffer.len++] = byte;
+    cmd_buffer.last_byte_time = current_byte_time;
+    cmd_buffer.data[cmd_buffer.len++] = byte;
 
-  if (cmd_buffer.len == sizeof(cmd_buffer.data)) {
-    sl_bt_external_signal(cfg.command_ready_signal);
+    if (cmd_buffer.len == sizeof(cmd_buffer.data)) {
+      app_mutex_release();
+      sl_bt_external_signal(cfg.command_ready_signal);
+    } else {
+      app_mutex_release();
+    }
+  } else {
+    // No task should hold cmd_buffer for this long.
+    app_assert_status(SL_STATUS_TIMEOUT);
   }
 }
 
 /**************************************************************************//**
  * Test mode handle Bluetooth events.
  *****************************************************************************/
-void testmode_handle_gecko_event(sl_bt_msg_t *evt)
+void testmode_on_event(const sl_bt_msg_t *evt)
 {
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_bt_evt_system_boot_id:
@@ -297,7 +306,7 @@ void testmode_handle_gecko_event(sl_bt_msg_t *evt)
       break;
 
     case sl_bt_evt_test_dtm_completed_id:
-      handle_dtm_completed(evt);
+      handle_dtm_completed(&evt->data.evt_test_dtm_completed);
       break;
 
     default:
@@ -332,49 +341,60 @@ static cmd_type_t get_transceiver_test_state(void)
   return test_state.transceiver_cmd;
 }
 
-static inline uint32_t t_min_in_ticks(void)
-{
-  return T_MIN * cfg.ticks_per_second / 1000;
-}
-
 static void send_test_status(uint8_t status, uint16_t response)
 {
+  sl_status_t sc;
   response &= 0x3fff;
 
   uint8_t response_high = response >> 7;
-  uint8_t response_low = response & 0x7f;
+  sc = cfg.tx(cfg.stream, response_high);
+  app_assert_status(sc);
 
-  cfg.write_response_byte(response_high);
-  cfg.write_response_byte((response_low << 1) | (status ? TEST_STATUS_ERROR : TEST_STATUS_SUCCESS));
+  uint8_t response_low = response & 0x7f;
+  sc = cfg.tx(cfg.stream, (response_low << 1) | (status ? TEST_STATUS_ERROR : TEST_STATUS_SUCCESS));
+  app_assert_status(sc);
 }
 
 static void send_packet_counter(uint16_t counter)
 {
+  sl_status_t sc;
   counter |= 0x8000;  // EV bit on
-  cfg.write_response_byte(counter >> 8);
-  cfg.write_response_byte(counter & 0xff);
+
+  sc = cfg.tx(cfg.stream, counter >> 8);
+  app_assert_status(sc);
+
+  sc = cfg.tx(cfg.stream, counter & 0xff);
+  app_assert_status(sc);
 }
 
 static void parse_cmd_buffer(cmd_packet_t *result)
 {
-  result->cmd_type = (cmd_type_t)(cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] >> 6);
+  if (app_mutex_acquire()) {
+    result->cmd_type = (cmd_type_t)(cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] >> 6);
 
-  switch (result->cmd_type) {
-    case CMD_TYPE_SETUP:
-    case CMD_TYPE_TESTEND:
-      result->cmd.setup.control = cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] & CONTROL_MASK;
-      result->cmd.setup.parameter = cmd_buffer.data[CMD_PACKET_PARAM_BYTE];
-      result->cmd.setup.dc = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] & 0x03;
-      break;
+    switch (result->cmd_type) {
+      case CMD_TYPE_SETUP:
+      case CMD_TYPE_TESTEND:
+        result->cmd.setup.control = cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] & CONTROL_MASK;
+        result->cmd.setup.parameter = cmd_buffer.data[CMD_PACKET_PARAM_BYTE];
+        result->cmd.setup.dc = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] & 0x03;
+        break;
 
-    case CMD_TYPE_RXTEST:
-    case CMD_TYPE_TXTEST:
-      result->cmd.transceiver.frequency = cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] & CONTROL_MASK;
-      result->cmd.transceiver.length = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] >> 2;
-      result->cmd.transceiver.pkt = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] & 0x03;
-      break;
-    default:
-      break;
+      case CMD_TYPE_RXTEST:
+      case CMD_TYPE_TXTEST:
+        result->cmd.transceiver.frequency = cmd_buffer.data[CMD_PACKET_CONTROL_BYTE] & CONTROL_MASK;
+        result->cmd.transceiver.length = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] >> 2;
+        result->cmd.transceiver.pkt = cmd_buffer.data[CMD_PACKET_PARAM_BYTE] & 0x03;
+        break;
+
+      default:
+        break;
+    }
+
+    app_mutex_release();
+  } else {
+    // No task should hold cmd_buffer for this long.
+    app_assert_status(SL_STATUS_TIMEOUT);
   }
 }
 
@@ -519,7 +539,7 @@ static void process_setup_command(setup_cmd_packet_t *cmd)
         case PDU_PARAMETER_MAX_TX_TIME:
         case PDU_PARAMETER_MAX_RX_TIME:
 
-          if (RAIL_FEAT_BLE_CODED) {
+          if (SL_RAIL_BLE_SUPPORTS_CODED_PHY) {
             response = MAX_PDU_TIME[PHY_CODED_S_8] / 2;
           } else {
             response = MAX_PDU_TIME[PHY_1M] / 2;
@@ -704,19 +724,19 @@ static void process_command(void)
   }
 }
 
-static void handle_dtm_completed(sl_bt_msg_t *evt)
+static void handle_dtm_completed(const sl_bt_evt_test_dtm_completed_t *dtm_completed)
 {
   cmd_packet_t cmd_packet;
   parse_cmd_buffer(&cmd_packet);
 
   if (cmd_packet.cmd_type == CMD_TYPE_TESTEND) {
     if (get_transceiver_test_state() == CMD_TYPE_RXTEST) {
-      send_packet_counter(evt->data.evt_test_dtm_completed.number_of_packets);
+      send_packet_counter(dtm_completed->number_of_packets);
     } else {
       send_packet_counter(0);
     }
   } else {
-    send_test_status(evt->data.evt_test_dtm_completed.result, 0);
+    send_test_status(dtm_completed->result, 0);
   }
 
   // Command is executed and the response is sent => reset command buffer for next command

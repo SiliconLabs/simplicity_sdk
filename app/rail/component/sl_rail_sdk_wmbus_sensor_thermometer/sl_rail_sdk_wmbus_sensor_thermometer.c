@@ -46,6 +46,7 @@
 #if defined(SL_CATALOG_SEGMENT_LCD_DRIVER_PRESENT)
 #include "sl_segmentlcd.h"
 #endif
+#include "sl_code_classification.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -101,7 +102,7 @@ static lcd_print_change_t lcd_print_type = LCD_PRINT_TEMPERATURE;
  * @param[in] handle Not used
  * @param[in] data Not used
  *****************************************************************************/
-static void sl_rail_sdk_wmbus_sensor_thermometer_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
+SL_CODE_RAM static void sl_rail_sdk_wmbus_sensor_thermometer_sleeptimer_callback(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   (void)handle;
   (void)data;

@@ -4,7 +4,7 @@ label: Bluetooth Mesh - SoC Switch CTL FreeRTOS
 description: >
   An out-of-the-box Software Demo where the device acts as a switch using
   the Light CTL Client Model. Push Button presses or CLI commands can control
-  the lightness and color temperature of the LEDs on a remote device. This example 
+  the lightness and color temperature of the LEDs on a remote device. This example
   runs on top of FreeRTOS.
 
 
@@ -44,13 +44,13 @@ component:
   - id: clock_manager
   - id: device_init
   - id: freertos
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: iostream_recommended_stream
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
@@ -58,7 +58,6 @@ source:
   - path: app_freertos.c
   - path: app_out_lcd.c
   - path: local_cli_commands.c
-  - path: main.c
 
 include:
   - path: .
@@ -78,20 +77,22 @@ config_file:
     directory: btmeshconf
 
 readme:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_rtos.md
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_rtos.md
 
 other_file:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img0.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img1.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img2.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img3.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img4.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img5.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img6.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img7.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img8.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img0.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img1.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img2.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img3.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img4.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img5.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img6.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img7.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img8.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
   - name: APP_BUTTON_PRESS_CONFIG_QUEUE_SIZE
@@ -129,6 +130,10 @@ template_contribution:
       help: "Prints info about BT address and mesh UUID"
     condition:
       - cli
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:sdid:!205

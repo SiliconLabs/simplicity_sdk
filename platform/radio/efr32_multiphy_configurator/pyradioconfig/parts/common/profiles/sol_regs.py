@@ -204,6 +204,8 @@ def build_modem_regs_sol_only(model, profile):
     profile.outputs.append(ModelOutput(model.vars.AGC_COLLDETCTRL_OVRTHDSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.COLLDETCTRL.OVRTHDSEL'))
     profile.outputs.append(ModelOutput(model.vars.AGC_COLLDETCTRL_RSSIINSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.COLLDETCTRL.RSSIINSEL'))
     profile.outputs.append(ModelOutput(model.vars.AGC_COLLDETCTRL_INPUTSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.COLLDETCTRL.INPUTSEL'))
+    profile.outputs.append(ModelOutput(model.vars.AGC_COLLDETTHD_MATHRESHOLD, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.COLLDETTHD.MATHRESHOLD'))
+    profile.outputs.append(ModelOutput(model.vars.AGC_COLLDETTHD_OVRTHRESHOLD, '', ModelOutputType.SVD_REG_FIELD, readable_name='AGC.COLLDETTHD.OVRTHRESHOLD'))
 
     # RFFPLL Configuration
     profile.outputs.append(ModelOutput(model.vars.RFFPLL0_RFFPLLCTRL1_DIVXADCSEL, '', ModelOutputType.SVD_REG_FIELD, readable_name='RFFPLL0.RFFPLLCTRL1.DIVXADCSEL'))
@@ -255,6 +257,9 @@ def build_modem_regs_sol_only(model, profile):
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_COARSEFREQ, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.COARSEFREQ'))
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_EXTCOARSEFREQ, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.EXTCOARSEFREQ'))
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_GIRECOMB, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.GIRECOMB'))
+    profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_PSDU_CE_MODE, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.PSDU_CE_MODE'))
+    profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_PHR_CE_MODE, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.PHR_CE_MODE'))
+    profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG1_FRCMAXSPEED, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG1.FRCMAXSPEED'))
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_RXCFG2_RSSISETPOINT, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.RXCFG2.RSSISETPOINT'))
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_COLLDET_COLLDETTHR, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.COLLDET.COLLDETTHR'))
     profile.outputs.append(ModelOutput(model.vars.SUNOFDM_AFC_AFCMIXERRATIOGAIN, '', ModelOutputType.SVD_REG_FIELD, readable_name='SUNOFDM.AFC.AFCMIXERRATIOGAIN'))

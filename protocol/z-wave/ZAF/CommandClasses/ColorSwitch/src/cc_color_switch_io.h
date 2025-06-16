@@ -15,7 +15,6 @@
  * @{
  */
 
-
 bool cc_color_switch_write(uint8_t color_component_id, s_colorComponent *color_component);
 bool cc_color_switch_read(uint8_t color_component_id, s_colorComponent *color_component);
 

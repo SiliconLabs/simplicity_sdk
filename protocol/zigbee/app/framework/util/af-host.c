@@ -39,7 +39,6 @@
 #endif // SL_CATALOG_ZIGBEE_FRAGMENTATION_PRESENT
 
 #define MAX_CLUSTER (EZSP_MAX_FRAME_LENGTH) / 2 //currently == 94
-#define UNKNOWN_NETWORK_STATE 0xFF
 
 // This is used to store the local EUI of the NCP when using
 // fake certificates.
@@ -156,17 +155,6 @@ sl_status_t sl_zigbee_af_get_network_parameters(sl_zigbee_node_type_t* nodeType,
   return sl_zigbee_ezsp_get_network_parameters(nodeType, parameters);
 }
 
-// Because an EZSP call can be expensive in terms of bandwidth,
-// we cache the node ID so it can be quickly retrieved by the host.
-sl_802154_short_addr_t sl_zigbee_af_get_node_id(void)
-{
-  uint8_t networkIndex = sl_zigbee_get_current_network();
-  if (networkCache[networkIndex].nodeId == SL_ZIGBEE_NULL_NODE_ID) {
-    networkCache[networkIndex].nodeId = sl_zigbee_get_node_id();
-  }
-  return networkCache[networkIndex].nodeId;
-}
-
 sl_status_t sl_zigbee_af_get_node_type(sl_zigbee_node_type_t *nodeType)
 {
   sl_zigbee_network_parameters_t parameters;
@@ -181,30 +169,6 @@ uint8_t sl_zigbee_af_get_open_network_duration_sec(void)
                            &valueLength,
                            &openTimeSec);
   return openTimeSec;
-}
-
-sl_802154_pan_id_t sl_zigbee_af_get_pan_id(void)
-{
-  uint8_t networkIndex = sl_zigbee_get_current_network();
-  if (networkCache[networkIndex].panId == 0xFFFF) {
-    sl_zigbee_node_type_t nodeType;
-    sl_zigbee_network_parameters_t parameters;
-    sl_zigbee_af_get_network_parameters(&nodeType, &parameters);
-    networkCache[networkIndex].panId = parameters.panId;
-  }
-  return networkCache[networkIndex].panId;
-}
-
-uint8_t sl_zigbee_af_get_radio_channel(void)
-{
-  uint8_t networkIndex = sl_zigbee_get_current_network();
-  if (networkCache[networkIndex].radioChannel == 0xFF) {
-    sl_zigbee_node_type_t nodeType;
-    sl_zigbee_network_parameters_t parameters;
-    sl_zigbee_af_get_network_parameters(&nodeType, &parameters);
-    networkCache[networkIndex].radioChannel = parameters.radioChannel;
-  }
-  return networkCache[networkIndex].radioChannel;
 }
 
 uint8_t sl_zigbee_af_get_route_table_size(void)
@@ -257,15 +221,6 @@ bool sl_zigbee_af_memory_byte_compare(const uint8_t* pointer,
     }
   }
   return true;
-}
-
-sl_zigbee_network_status_t sl_zigbee_af_network_state(void)
-{
-  uint8_t networkIndex = sl_zigbee_get_current_network();
-  if (networkCache[networkIndex].networkState == UNKNOWN_NETWORK_STATE) {
-    networkCache[networkIndex].networkState = sl_zigbee_network_state();
-  }
-  return networkCache[networkIndex].networkState;
 }
 
 bool sl_zigbee_stack_is_up(void)
@@ -569,14 +524,6 @@ void sli_zigbee_af_host_framework_tick(void)
     // Wait until ECC operations are done.  Don't allow any of the clusters
     // to send messages as the NCP is busy doing ECC
   } while (sli_zigbee_af_is_crypto_operation_in_progress());
-}
-
-void sli_zigbee_af_clear_network_cache(uint8_t networkIndex)
-{
-  networkCache[networkIndex].nodeId = SL_ZIGBEE_NULL_NODE_ID;
-  networkCache[networkIndex].panId = 0xFFFF;
-  networkCache[networkIndex].networkState = UNKNOWN_NETWORK_STATE;
-  networkCache[networkIndex].radioChannel = 0xFF;
 }
 
 void sli_zigbee_af_cli_version_command(void)

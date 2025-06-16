@@ -63,6 +63,16 @@
 // <i> Allow zcl
 #define SL_ZIGBEE_AF_PLUGIN_PACKET_HANDOFF_ALLOW_ZCL   0
 
+// <q SL_ZIGBEE_PACKET_HANDOFF_ALLOW_ZLL> Handoff ZLL message
+// <i> Default: FALSE
+// <i> Allow ZLL message. ZLL messages are also subject to the Allow Interpan message configuration policy. If interpan messages are configured to be dropped, then ZLL messages are also dropped.
+#define  SL_ZIGBEE_PACKET_HANDOFF_ALLOW_ZLL  0
+
+// <q SL_ZIGBEE_PACKET_HANDOFF_ALLOW_INTERPAN> Handoff Interpan message
+// <i> Default: FALSE
+// <i> Allow Interpan message
+#define  SL_ZIGBEE_PACKET_HANDOFF_ALLOW_INTERPAN  0
+
 // <q SL_ZIGBEE_AF_PLUGIN_PACKET_HANDOFF_ALLOW_BEACON> Handoff Beacons
 // <i> Default: FALSE
 // <i> Allow beacon

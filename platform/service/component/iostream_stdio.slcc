@@ -1,14 +1,14 @@
 id: iostream_stdio
-package: platform
-label: "IO Stream: STDIO"
+package: platform_core
+label: 'IO Stream: STDIO'
 description: IO Stream STDIO (Hostbased Only)
 category: Services|IO Stream|Driver
 quality: experimental
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 root_path: platform/service/iostream
 provides:
   - name: iostream_stdio
@@ -31,10 +31,10 @@ template_contribution:
     value: stdio
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_iostream_stdio.h
       handler: sl_iostream_stdio_init
   - name: iostream_instance_info
     value:
-      include: sl_iostream_stdio.h
-      handler: sl_iostream_instance_stdio_info
+        include: sl_iostream_stdio.h
+        handler: sl_iostream_instance_stdio_info

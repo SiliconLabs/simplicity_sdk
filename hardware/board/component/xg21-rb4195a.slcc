@@ -1,7 +1,7 @@
 !!omap
 - id: xg21_rb4195a
 - label: XG21-RB4195A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG21 2.4 GHz 10 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

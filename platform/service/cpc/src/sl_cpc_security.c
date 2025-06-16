@@ -50,6 +50,10 @@
  ******************************************************************************/
 #define SLI_CPC_SECURITY_PSA_CRYPTO_BINDING_KEY_ID 0x00004200
 
+#if !defined(SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE)
+#define SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE 0
+#endif
+
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
  ******************************************************************************/
@@ -82,8 +86,7 @@ static bool is_bound = false;
 static psa_key_id_t session_key_id;
 static const psa_key_id_t binding_key_id = SLI_CPC_SECURITY_PSA_CRYPTO_BINDING_KEY_ID;
 
-static sli_cpc_security_nonce_t nonce_primary;
-static sli_cpc_security_nonce_t nonce_secondary;
+static sli_cpc_security_context_t security_ctx;
 
 static sl_slist_node_t *unbind_observers;
 
@@ -128,7 +131,7 @@ static bool security_open_endpoint(void);
 
 static psa_algorithm_t get_algorithm(void);
 
-static void security_nonce_increment(uint32_t *frame_counter);
+static void security_nonce_increment(sli_cpc_security_context_t *ctx, uint32_t *frame_counter);
 
 static sl_status_t store_binding_key(uint8_t *key, uint16_t key_size);
 
@@ -142,14 +145,16 @@ static void process_security_command_rx(sli_cpc_security_protocol_cmd_t *cmd);
 
 static void send_request(sli_cpc_security_protocol_cmd_t *request);
 
-static psa_status_t encrypt(const uint8_t *header,
+static psa_status_t encrypt(sli_cpc_security_nonce_t *nonce,
+                            const uint8_t *header,
                             const size_t header_len,
                             uint8_t *payload,
                             const size_t payload_len,
                             uint8_t *tag,
                             const size_t tag_len);
 
-static psa_status_t decrypt(const uint8_t *header,
+static psa_status_t decrypt(sli_cpc_security_nonce_t *nonce,
+                            const uint8_t *header,
                             const size_t header_len,
                             uint8_t *payload,
                             const size_t buffer_size,
@@ -226,6 +231,7 @@ sl_status_t sli_cpc_security_init(sli_cpc_on_security_state_change_t state_chang
     on_state_change = state_change_cb;
   }
 
+  security_ctx.count = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
   set_state(SL_CPC_SECURITY_STATE_INITIALIZING);
   security_open_endpoint();
 
@@ -360,20 +366,21 @@ sl_status_t sli_cpc_security_encrypt(sl_cpc_endpoint_t *ep,
                                      uint8_t *payload, const size_t payload_len,
                                      uint8_t *tag, const size_t tag_len)
 {
+  sli_cpc_security_nonce_t iv;
   psa_status_t ret;
 
-  nonce_secondary.endpoint_id = ep->id;
-  nonce_secondary.frame_counter = ep->frame_counter_tx;
+  iv.endpoint_id = ep->id;
+  iv.frame_counter = ep->frame_counter_tx;
+  memcpy(iv.session_id, security_ctx.session_id_secondary, SLI_SECURITY_SESSION_ID_LENGTH_BYTES);
 
-  ret = encrypt(header, header_len,
+  ret = encrypt(&iv,
+                header, header_len,
                 payload, payload_len,
                 tag, tag_len);
 
   if (ret == PSA_SUCCESS) {
-    security_nonce_increment(&ep->frame_counter_tx);
+    security_nonce_increment(&security_ctx, &ep->frame_counter_tx);
   }
-
-  nonce_secondary.endpoint_id = 0;
 
   return psa_status_to_sl_status(ret);
 }
@@ -386,16 +393,18 @@ sl_status_t sli_cpc_security_decrypt(sl_cpc_endpoint_t *ep,
                                      uint8_t *payload, const size_t buffer_len,
                                      const size_t payload_len, size_t *output_len)
 {
+  sli_cpc_security_nonce_t iv;
   psa_status_t ret;
 
-  nonce_primary.endpoint_id = ep->id;
-  nonce_primary.frame_counter = ep->frame_counter_rx | SLI_SECURITY_NONCE_FRAME_COUNTER_PRIMARY_ENCRYPT_BITMASK;
+  iv.endpoint_id = ep->id;
+  iv.frame_counter = ep->frame_counter_rx | SLI_SECURITY_NONCE_FRAME_COUNTER_PRIMARY_ENCRYPT_BITMASK;
+  memcpy(iv.session_id, security_ctx.session_id_primary, SLI_SECURITY_SESSION_ID_LENGTH_BYTES);
 
-  ret = decrypt(header, header_len, payload,
+  ret = decrypt(&iv, header, header_len, payload,
                 buffer_len, payload_len, output_len);
 
   if (ret == PSA_SUCCESS) {
-    security_nonce_increment(&ep->frame_counter_rx);
+    security_nonce_increment(&security_ctx, &ep->frame_counter_rx);
   }
 
   return psa_status_to_sl_status(ret);
@@ -410,16 +419,9 @@ void sli_cpc_security_rollback_decrypt(sl_cpc_endpoint_t *ep)
 
   if (security_state == SL_CPC_SECURITY_STATE_INITIALIZED) {
     ep->frame_counter_rx--;
-  }
-}
 
-/***************************************************************************//**
- * Init Nonce
- ******************************************************************************/
-static void security_nonce_init(sli_cpc_security_nonce_t *nonce)
-{
-  nonce->endpoint_id = 0;
-  nonce->frame_counter = 0;
+    security_ctx.count--;
+  }
 }
 
 /***************************************************************************//**
@@ -457,6 +459,7 @@ static void on_security_write_completed(sl_cpc_user_endpoint_id_t endpoint_id,
 
   state = sl_cpc_security_get_state();
   if (state == SL_CPC_SECURITY_STATE_WAITING_ON_TX_COMPLETE) {
+    security_ctx.count = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
     set_state(SL_CPC_SECURITY_STATE_INITIALIZED);
   }
 }
@@ -935,12 +938,19 @@ sl_status_t erase_binding_key(void)
  ******************************************************************************/
 sl_status_t initialize_session(uint8_t *random1, uint8_t *random2)
 {
+  sl_cpc_security_state_t security_state;
   psa_status_t psa_status;
   const size_t half_random_len = SLI_SECURITY_SESSION_INIT_RANDOM_LENGTH_BYTES / 2;
   uint8_t random3[SLI_SECURITY_SESSION_INIT_RANDOM_LENGTH_BYTES];
   uint8_t sha256_random3[SLI_SECURITY_SHA256_LENGTH_BYTES];
   uint8_t random4[SLI_SECURITY_SESSION_INIT_RANDOM_LENGTH_BYTES + SLI_SECURITY_BINDING_KEY_LENGTH_BYTES];
   uint8_t tmp_session_key[SLI_SECURITY_SESSION_KEY_LENGTH_BYTES] = { 0 };
+
+  // If remote decides to reinit the security session, honor its request
+  security_state = sl_cpc_security_get_state();
+  if (security_state == SL_CPC_SECURITY_STATE_INITIALIZED) {
+    set_state(SL_CPC_SECURITY_STATE_RESETTING);
+  }
 
   // Generate Session ID and Session Key
   {
@@ -991,11 +1001,11 @@ sl_status_t initialize_session(uint8_t *random1, uint8_t *random2)
 
     // The resulting 32-byte number will be split into two 8-byte values as follows: Result = Session-ID-Host || Session-ID-NCP || Discarded data
     {
-      memcpy(nonce_primary.session_id,
+      memcpy(security_ctx.session_id_primary,
              &sha256_random3[0],
              SLI_SECURITY_SESSION_ID_LENGTH_BYTES);
 
-      memcpy(nonce_secondary.session_id,
+      memcpy(security_ctx.session_id_secondary,
              &sha256_random3[SLI_SECURITY_SESSION_ID_LENGTH_BYTES + 1],
              SLI_SECURITY_SESSION_ID_LENGTH_BYTES);
     }
@@ -1090,12 +1100,6 @@ sl_status_t initialize_session(uint8_t *random1, uint8_t *random2)
     }
   }
 
-  // Initialize the nonce
-  {
-    security_nonce_init(&nonce_primary);
-    security_nonce_init(&nonce_secondary);
-  }
-
   set_state(SL_CPC_SECURITY_STATE_WAITING_ON_TX_COMPLETE);
 
   return SL_STATUS_OK;
@@ -1176,11 +1180,13 @@ static psa_algorithm_t get_algorithm(void)
  * Increment nonce's internal frame counter. Triggers a reset of the security
  * session if the frame counter reaches its maximum allowed value.
  ******************************************************************************/
-static void security_nonce_increment(uint32_t *frame_counter)
+static void security_nonce_increment(sli_cpc_security_context_t *ctx, uint32_t *frame_counter)
 {
   (*frame_counter)++;
 
-  if (*frame_counter == SLI_SECURITY_NONCE_FRAME_COUNTER_MAX_VALUE) {
+  ctx->count++;
+
+  if (ctx->count == SLI_SECURITY_NONCE_FRAME_COUNTER_MAX_VALUE) {
     if (sl_cpc_security_get_state() == SL_CPC_SECURITY_STATE_INITIALIZED) {
       set_state(SL_CPC_SECURITY_STATE_RESETTING);
     }
@@ -1207,7 +1213,8 @@ static size_t __sli_cpc_security_get_tag_length(void)
 /***************************************************************************//**
  * Encrypt data
  ******************************************************************************/
-static psa_status_t encrypt(const uint8_t *header,
+static psa_status_t encrypt(sli_cpc_security_nonce_t *nonce,
+                            const uint8_t *header,
                             const size_t header_len,
                             uint8_t *payload,
                             const size_t payload_len,
@@ -1231,7 +1238,7 @@ static psa_status_t encrypt(const uint8_t *header,
     return ret;
   }
 
-  ret = psa_aead_set_nonce(&op, (uint8_t*)&nonce_secondary, sizeof(nonce_secondary));
+  ret = psa_aead_set_nonce(&op, (uint8_t*)nonce, sizeof(*nonce));
   if (ret != PSA_SUCCESS) {
     psa_aead_abort(&op);
     return ret;
@@ -1274,7 +1281,8 @@ static psa_status_t encrypt(const uint8_t *header,
 /***************************************************************************//**
  * Decrypt data
  ******************************************************************************/
-static psa_status_t decrypt(const uint8_t *header,
+static psa_status_t decrypt(sli_cpc_security_nonce_t *nonce,
+                            const uint8_t *header,
                             const size_t header_len,
                             uint8_t *payload,
                             const size_t buffer_size,
@@ -1285,8 +1293,8 @@ static psa_status_t decrypt(const uint8_t *header,
 
   ret = psa_aead_decrypt(session_key_id,
                          get_algorithm(),
-                         (uint8_t*)&nonce_primary,
-                         sizeof(nonce_primary),
+                         (uint8_t*)nonce,
+                         sizeof(*nonce),
                          header, header_len,
                          payload, buffer_size,
                          payload, payload_len,

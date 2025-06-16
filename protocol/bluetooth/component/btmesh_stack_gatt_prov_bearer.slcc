@@ -1,6 +1,6 @@
 id: "btmesh_stack_gatt_prov_bearer"
 label: "GATT Provisioning Bearer"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Enables the Bluetooth Mesh PB-GATT Provisioning Bearer for the Node."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

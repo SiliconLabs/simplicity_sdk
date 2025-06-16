@@ -1,7 +1,7 @@
 !!omap
 - id: brd4179b
 - label: BRD4179B
-- package: platform
+- package: boards
 - description: Board support for BRD4179B.
 - category: Platform|Board|Radio Board
 - quality: production

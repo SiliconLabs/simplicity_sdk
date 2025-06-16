@@ -1,6 +1,6 @@
 id: "apploader_util"
 label: "AppLoader Utility"
-package: "Bluetooth"
+package: bluetooth_apploader
 description: >
   This component provides utility functions related to OTA DFU with Apploader
   for series 2 devices, such as a unified API for resetting the device to DFU

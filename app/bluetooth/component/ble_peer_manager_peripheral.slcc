@@ -1,5 +1,5 @@
 id: ble_peer_manager_peripheral
-package: Bluetooth
+package: bluetooth_le_middleware
 label: BLE Peer Manager Peripheral
 description: >
   Peer Manager for Bluetooth Low Energy. Responsible for advertising and
@@ -21,7 +21,7 @@ requires:
   - name: app_log
   - name: bluetooth_stack
   - name: bluetooth_feature_system
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_legacy_advertiser
   - name: ble_peer_manager_common
 provides:

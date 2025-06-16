@@ -1,8 +1,0 @@
-Platform 5.1.2
-- CMSIS Device
-  - Added support for EFR32BG22L and EFR32BG24L families.
-- CPC
-  - Targeted quality improvements and bug fixes.
-- RAIL 5.1.2
-  - Targeted quality improvements and bug fixes.
-

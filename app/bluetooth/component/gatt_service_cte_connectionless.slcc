@@ -1,6 +1,6 @@
 id: gatt_service_cte_connectionless
 label: Constant Tone Extension GATT Service (Connectionless)
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Constant Tone Extension GATT Service reference implementation for periodic advertising.
 

@@ -62,6 +62,8 @@ RAIL_ENUM(RAIL_WMBUS_Phy_t) {
 #define RAIL_WMBUS_ModeCFrameB ((RAIL_WMBUS_Phy_t) RAIL_WMBUS_ModeCFrameB)
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Configure WMBUS simultaneous M2O RX of T and C modes feature.
  *
@@ -81,6 +83,8 @@ RAIL_ENUM(RAIL_WMBUS_Phy_t) {
  */
 RAIL_Status_t RAIL_WMBUS_Config(RAIL_Handle_t railHandle,
                                 bool enableSimultaneousTCRx);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /// @} // End of group WMBUS
 

@@ -1,5 +1,5 @@
 id: esl_tag_core
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag core
 description: >
   Implements the ESL Tag role of the Bluetooth Electronic Shelf Label Profile.
@@ -63,7 +63,7 @@ requires:
   - name: bluetooth_feature_gatt_server
   - name: bluetooth_feature_legacy_advertiser
   - name: bluetooth_feature_past_receiver
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_pawr_sync
   - name: bluetooth_feature_system
   - name: bluetooth_feature_sm

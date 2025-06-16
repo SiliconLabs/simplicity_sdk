@@ -250,6 +250,14 @@ uint32_t sli_cpc_instance_bus_get_bitrate(sli_cpc_instance_t *inst);
  ******************************************************************************/
 uint32_t sli_cpc_instance_bus_get_max_bitrate(sli_cpc_instance_t *inst);
 
+/***************************************************************************//**
+ * Allocate kernel-related resources for a CPC instance.
+ *
+ * @retval  SL_STATUS_OK    Successfully initialized kernel resources
+ * @retval  Other sl_status_t if error occurred.
+ ******************************************************************************/
+sl_status_t sli_cpc_instance_kernel_init(sli_cpc_instance_t *inst);
+
 #if defined(SL_CATALOG_CPC_PRIMARY_PRESENT)
 /***************************************************************************/ /**
  * Checks if CPC has been initialized

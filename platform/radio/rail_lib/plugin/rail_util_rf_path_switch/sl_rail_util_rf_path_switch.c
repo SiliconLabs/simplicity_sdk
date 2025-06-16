@@ -27,11 +27,24 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_rail_util_rf_path_switch.h"
+#include <stdint.h>
 #include "em_assert.h"
 #include "sl_gpio.h"
 #include "em_cmu.h"
 #include "em_prs.h"
+#include "sl_rail_util_rf_path_switch.h"
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif // SL_COMPONENT_CATALOG_PRESENT
+
+#ifdef SL_CATALOG_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
+#include "sl_rail_util_rf_path_switch_config.h"
+#endif // SL_CATALOG_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
+
+#if defined(SL_RAIL_UTIL_RF_PATH_SWITCH_CONTROL_PORT) \
+  || defined(SL_RAIL_UTIL_RF_PATH_SWITCH_INVERTED_CONTROL_PORT)
+#define SL_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
+#endif
 
 #ifdef SL_RAIL_UTIL_RF_PATH_SWITCH_PRESENT
 #ifdef _SILICON_LABS_32B_SERIES_2

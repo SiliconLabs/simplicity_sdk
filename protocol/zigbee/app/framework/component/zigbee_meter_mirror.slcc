@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component for mirroring attributes of a sleepy meter in a Smart Energy network.  The device is expected to be a configured as mirror server on as many endpoints as are allocated as meters.  Those endpoints must be contiguous.
 label: Meter Mirror
 quality: production

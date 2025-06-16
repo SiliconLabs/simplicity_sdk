@@ -23,6 +23,6 @@ void cc_multilevel_sensor_config_register_instances(void);
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_MULTILEVEL_SENSOR_CONFIG_API_H */

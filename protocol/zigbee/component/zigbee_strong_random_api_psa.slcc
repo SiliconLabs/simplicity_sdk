@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Provides APIs for generating cryptographically-strong random numbers using PSA Crypto integration.
 label: Strong Random Api (PSA)
 id: zigbee_strong_random_api_psa

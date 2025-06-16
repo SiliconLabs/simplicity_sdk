@@ -8,6 +8,9 @@ category: Platform|Bootloader|Drivers
 quality: production
 source:
   - path: platform/bootloader/driver/btl_driver_spi_peripheral_eusart.c
+    condition: [device_series_2]
+  - path: platform/bootloader/series3/driver/btl_driver_spi_peripheral_eusart.c
+    condition: [device_series_3]
 define:
   - name: BTL_SPI_EUSART_ENABLE
 include:

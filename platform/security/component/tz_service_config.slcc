@@ -1,5 +1,5 @@
 id: tz_service_config
-package: platform
+package: security_trustzone
 description: >-
   This component provides TZ service config
 category: Platform|Security|TrustZone

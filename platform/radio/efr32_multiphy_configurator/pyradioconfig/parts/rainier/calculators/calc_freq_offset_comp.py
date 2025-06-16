@@ -70,9 +70,9 @@ class CalcFreqOffsetCompRainier(Calc_Freq_Offset_Comp_Bobcat):
             afcscale =  model.vars.pro2_afc_gain.value /  res
             afcscale_tx = model.vars.pro2_afc_gain.value / synth_res
         elif (demod_sel == model.vars.demod_select.var_enum.ENHANCED_DSSS):
-            # feedback 80% of estimated offset to digital mixer
-            afcscale = baudrate / (256 * res) * 0.8
-            afcscale_tx = baudrate / (256 * synth_res) * 0.8
+            # feedback 25% of estimated offset to digital mixer
+            afcscale = 0.25 * baudrate / (256 * res)
+            afcscale_tx = baudrate / (256 * synth_res)
         else:
             afcscale = 0.0
             afcscale_tx = 0.0
@@ -91,7 +91,7 @@ class CalcFreqOffsetCompRainier(Calc_Freq_Offset_Comp_Bobcat):
     def calc_freq_comp_mode(self, model):
         demod_sel = model.vars.demod_select.value
         if demod_sel == model.vars.demod_select.var_enum.ENHANCED_DSSS:
-            model.vars.afc_run_mode.value = model.vars.afc_run_mode.var_enum.ONE_SHOT
+            model.vars.afc_run_mode.value = model.vars.afc_run_mode.var_enum.INTERNAL
         else:
             super().calc_freq_comp_mode(model)
 

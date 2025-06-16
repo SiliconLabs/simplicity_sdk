@@ -1,5 +1,5 @@
 id: ead_core
-package: Bluetooth
+package: bluetooth_le_middleware
 label: Encrypted Advertising Data core API
 description: >
   Provides simple to use API for Advertising, Periodic Advertising and Scan

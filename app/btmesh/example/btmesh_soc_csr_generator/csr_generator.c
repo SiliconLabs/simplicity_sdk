@@ -33,8 +33,6 @@
 
 #include "sl_status.h"
 
-#include "sl_system_init.h"
-
 #include "app_assert.h"
 #include "app_log.h"
 
@@ -248,7 +246,6 @@ void csr_generate(void)
                                 | CSR_NVM3_PRODDATA_CONTROL_BLOCK;
         uint8_t data;
         size_t len = sizeof(data);
-        sl_status_t sc = SL_STATUS_FAIL;
         sc = read_raw_nvm3(CSR_GENERATOR_NVM3_REGION,
                            cert_nvm_tag,
                            &data,
@@ -309,10 +306,8 @@ void csr_generate(void)
       // If it already exists (and is not exportable) we can't create an equivalent
       // signing key anymore
       return;
-    } else {
-      app_log_info("EC key created successfully in ITS, signing key ID is %04X" APP_LOG_NL,
-                   (int)signing_key_id);
     }
+    app_log_info("EC key created successfully in ITS, signing key ID is %04X" APP_LOG_NL, (int)signing_key_id);
 
     update_provisoning_control_block(POS_DEVICE_EC_KEY, true, 0);
 
@@ -345,7 +340,6 @@ void csr_generate(void)
     // Fill in PID
     *p++ = ' ';
     sprintf(p, "BPID:" CSR_GENERATOR_PRODUCT_ID);
-    p += 9;
 
     field_count = config.subject_name_field_count;
     mbedtls_ret = der_encode_csr(config.subject_name_field_array,
@@ -364,7 +358,7 @@ void csr_generate(void)
                                      config.certificate_on_device,
                                      certificate_position);
 
-    config.output->csr_len = csr_der_len;
+    config.output->csr_len = (uint16_t)(csr_der_len);
     memcpy(config.output->csr, csr_der_buf, csr_der_len);
   }
 

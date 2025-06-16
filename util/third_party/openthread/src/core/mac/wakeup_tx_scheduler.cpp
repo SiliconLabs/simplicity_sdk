@@ -80,15 +80,17 @@ Mac::TxFrame *WakeupTxScheduler::PrepareWakeupFrame(Mac::TxFrames &aTxFrames)
     Mac::TxFrame      *frame = nullptr;
     Mac::Address       target;
     Mac::Address       source;
-    uint32_t           radioTxUs;
+    uint32_t           radioTxDelay;
     uint32_t           rendezvousTimeUs;
+    TimeMicro          nowUs = TimerMicro::GetNow();
     Mac::ConnectionIe *connectionIe;
 
     VerifyOrExit(mIsRunning);
 
     target.SetExtended(mWedAddress);
     source.SetExtended(Get<Mac::Mac>().GetExtAddress());
-    radioTxUs = static_cast<uint32_t>(Get<Radio>().GetNow()) + (mTxTimeUs - TimerMicro::GetNow());
+    VerifyOrExit(mTxTimeUs >= nowUs);
+    radioTxDelay = mTxTimeUs - nowUs;
 
 #if OPENTHREAD_CONFIG_MULTI_RADIO
     frame = &aTxFrames.GetTxFrame(Mac::kRadioTypeIeee802154);
@@ -97,9 +99,9 @@ Mac::TxFrame *WakeupTxScheduler::PrepareWakeupFrame(Mac::TxFrames &aTxFrames)
 #endif
 
     VerifyOrExit(frame->GenerateWakeupFrame(Get<Mac::Mac>().GetPanId(), target, source) == kErrorNone, frame = nullptr);
-    frame->SetTxDelayBaseTime(0);
-    frame->SetTxDelay(radioTxUs);
-    frame->SetCsmaCaEnabled(false);
+    frame->SetTxDelayBaseTime(static_cast<uint32_t>(Get<Radio>().GetNow()));
+    frame->SetTxDelay(radioTxDelay);
+    frame->SetCsmaCaEnabled(kWakeupFrameTxCca);
     frame->SetMaxCsmaBackoffs(0);
     frame->SetMaxFrameRetries(0);
 
@@ -156,13 +158,9 @@ void WakeupTxScheduler::UpdateFrameRequestAhead(void)
 {
     // A rough estimate of the size of data that has to be exchanged with the radio to schedule a wake-up frame TX.
     // This is used to make sure that a wake-up frame is received by the radio early enough to be transmitted on time.
-    constexpr uint32_t kWakeupFrameWeight = 100;
+    constexpr uint32_t kWakeupFrameSize = 100;
 
-    uint32_t busSpeedHz  = otPlatRadioGetBusSpeed(&GetInstance());
-    uint32_t busLatency  = otPlatRadioGetBusLatency(&GetInstance());
-    uint32_t busTxTimeUs = ((busSpeedHz == 0) ? 0 : (kWakeupFrameWeight * 8 * 1000000 + busSpeedHz - 1) / busSpeedHz);
-
-    mTxRequestAheadTimeUs = OPENTHREAD_CONFIG_MAC_CSL_REQUEST_AHEAD_US + busTxTimeUs + busLatency;
+    mTxRequestAheadTimeUs = Mac::kCslRequestAhead + Get<Mac::Mac>().CalculateRadioBusTransferTime(kWakeupFrameSize);
 }
 
 } // namespace ot

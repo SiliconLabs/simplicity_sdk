@@ -43,11 +43,6 @@
 #include "sl_btmesh_hsl_signal_transition_handler.h"
 #include "sl_btmesh_hsl_server_config.h"
 
-/***************************************************************************//**
- * @addtogroup HSL Transition Handler
- * @{
- ******************************************************************************/
-
 #define NO_FLAGS              0       ///< No flags used for message
 #define IMMEDIATE             0       ///< Immediate transition time is 0 seconds
 #define NO_CALLBACK_DATA      NULL    // Callback has no parameters
@@ -70,20 +65,20 @@ static uint16_t target_saturation;
 /// hue transition time in ms
 static uint32_t hue_transtime_ms;
 /// time elapsed from hue transition start
-static uint32_t hue_transtime_elapsed;
+static uint64_t hue_transtime_elapsed;
 /// non-zero if hue transition is active
 static uint8_t hue_transitioning;
-/// timestamp of the last sleeptimer tick
-static uint64_t hue_last_tick;
+/// timestamp of the transition start
+static uint64_t hue_start_tick;
 
 /// saturation transition time in ms
 static uint32_t saturation_transtime_ms;
 /// time elapsed from saturation transition start
-static uint32_t saturation_transtime_elapsed;
+static uint64_t saturation_transtime_elapsed;
 /// non-zero if saturation transition is active
 static uint8_t saturation_transitioning;
-/// timestamp of the last sleeptimer tick
-static uint64_t saturation_last_tick;
+/// timestamp of the transition start
+static uint64_t saturation_start_tick;
 
 static app_timer_t hue_transition_timer;
 static app_timer_t saturation_transition_timer;
@@ -116,7 +111,7 @@ SL_WEAK void sl_btmesh_hsl_saturation_on_ui_update(uint16_t saturation)
   (void)saturation;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handler for Hue Transition Timer, which manages LEDs transitions.
  ******************************************************************************/
 static void hue_transition_timer_cb(app_timer_t *timer, void *data)
@@ -126,9 +121,7 @@ static void hue_transition_timer_cb(app_timer_t *timer, void *data)
 
   // Use sleeptimer to account for scheduling errors
   uint64_t current_tick = sl_sleeptimer_get_tick_count64();
-  uint64_t period_ms = 0;
-  sl_sleeptimer_tick64_to_ms(current_tick - hue_last_tick, &period_ms);
-  hue_last_tick = current_tick;
+  sl_sleeptimer_tick64_to_ms(current_tick - hue_start_tick, &hue_transtime_elapsed);
 
   // Initialize the variable to UI update period in order to trigger a UI update
   // at the beginning of the transition.
@@ -139,8 +132,6 @@ static void hue_transition_timer_cb(app_timer_t *timer, void *data)
     app_assert_status_f(sc, "Failed to stop Periodic Hue Transition Timer");
     return;
   } else {
-    hue_transtime_elapsed += period_ms;
-
     if (hue_transtime_elapsed >= hue_transtime_ms) {
       // transition complete
       hue_transitioning = 0;
@@ -156,15 +147,15 @@ static void hue_transition_timer_cb(app_timer_t *timer, void *data)
     } else {
       // calculate current hue based on elapsed transition time
       if (target_hue >= start_hue) {
-        current_hue = start_hue
-                      + (target_hue - start_hue)
-                      * (uint64_t)hue_transtime_elapsed
-                      / hue_transtime_ms;
+        current_hue = (uint16_t)(start_hue
+                                 + (target_hue - start_hue)
+                                 * (uint64_t)hue_transtime_elapsed
+                                 / hue_transtime_ms);
       } else {
-        current_hue = start_hue
-                      - (start_hue - target_hue)
-                      * (uint64_t)hue_transtime_elapsed
-                      / hue_transtime_ms;
+        current_hue = (uint16_t)(start_hue
+                                 - (start_hue - target_hue)
+                                 * (uint64_t)hue_transtime_elapsed
+                                 / hue_transtime_ms);
       }
 
       // When transition is ongoing generate an event to application once every
@@ -182,7 +173,7 @@ static void hue_transition_timer_cb(app_timer_t *timer, void *data)
   sl_btmesh_hsl_hue_cb(current_hue);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handler for Saturation Transition Timer, which manages LEDs transitions.
  ******************************************************************************/
 static void saturation_transition_timer_cb(app_timer_t *timer, void *data)
@@ -192,9 +183,7 @@ static void saturation_transition_timer_cb(app_timer_t *timer, void *data)
 
   // Use sleeptimer to account for scheduling errors
   uint64_t current_tick = sl_sleeptimer_get_tick_count64();
-  uint64_t period_ms = 0;
-  sl_sleeptimer_tick64_to_ms(current_tick - saturation_last_tick, &period_ms);
-  saturation_last_tick = current_tick;
+  sl_sleeptimer_tick64_to_ms(current_tick - saturation_start_tick, &saturation_transtime_elapsed);
 
   // Initialize the variable to UI update period in order to trigger a UI update
   // at the beginning of the transition.
@@ -205,8 +194,6 @@ static void saturation_transition_timer_cb(app_timer_t *timer, void *data)
     app_assert_status_f(sc, "Failed to stop Periodic Saturation Transition Timer");
     return;
   } else {
-    saturation_transtime_elapsed += period_ms;
-
     if (saturation_transtime_elapsed >= saturation_transtime_ms) {
       // transition complete
       saturation_transitioning = 0;
@@ -222,15 +209,15 @@ static void saturation_transition_timer_cb(app_timer_t *timer, void *data)
     } else {
       // calculate current hue based on elapsed transition time
       if (target_saturation >= start_saturation) {
-        current_saturation = start_saturation
-                             + (target_saturation - start_saturation)
-                             * (uint64_t)saturation_transtime_elapsed
-                             / saturation_transtime_ms;
+        current_saturation = (uint16_t)(start_saturation
+                                        + (target_saturation - start_saturation)
+                                        * (uint64_t)saturation_transtime_elapsed
+                                        / saturation_transtime_ms);
       } else {
-        current_saturation = start_saturation
-                             - (target_saturation - start_saturation)
-                             * (uint64_t)saturation_transtime_elapsed
-                             / saturation_transtime_ms;
+        current_saturation = (uint16_t)(start_saturation
+                                        - (target_saturation - start_saturation)
+                                        * (uint64_t)saturation_transtime_elapsed
+                                        / saturation_transtime_ms);
       }
 
       // When transition is ongoing generate an event to application once every
@@ -269,7 +256,7 @@ void sl_btmesh_hsl_set_hue_level(uint16_t hue, uint32_t transition_ms)
 #endif
 
   // get last tick before running the first transition timer
-  hue_last_tick = sl_sleeptimer_get_tick_count64();
+  hue_start_tick = sl_sleeptimer_get_tick_count64();
 
   if (transition_ms == 0) {
     current_hue = hue;
@@ -330,7 +317,7 @@ void sl_btmesh_hsl_set_saturation_level(uint16_t saturation, uint32_t transition
 #endif
 
   // get last tick before running the first transition timer
-  saturation_last_tick = sl_sleeptimer_get_tick_count64();
+  saturation_start_tick = sl_sleeptimer_get_tick_count64();
 
   if (transition_ms == 0) {
     current_saturation = saturation;
@@ -377,7 +364,7 @@ void sl_btmesh_hsl_set_saturation_level(uint16_t saturation, uint32_t transition
  ******************************************************************************/
 uint16_t sl_btmesh_get_hue(void)
 {
-  return(current_hue);
+  return current_hue;
 }
 
 /*******************************************************************************
@@ -387,7 +374,5 @@ uint16_t sl_btmesh_get_hue(void)
  ******************************************************************************/
 uint16_t sl_btmesh_get_saturation(void)
 {
-  return(current_saturation);
+  return current_saturation;
 }
-
-/** @} (end addtogroup HSL Transition Handler) */

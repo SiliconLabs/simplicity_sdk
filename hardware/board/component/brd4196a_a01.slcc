@@ -1,7 +1,7 @@
 !!omap
 - id: brd4196a_a01
 - label: BRD4196A rev A01
-- package: platform
+- package: boards
 - description: Board support for BRD4196A.
 - category: Platform|Board|Radio Board
 - quality: production

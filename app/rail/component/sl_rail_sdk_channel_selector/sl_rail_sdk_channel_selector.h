@@ -35,7 +35,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
 #include "app_log.h"
 #endif
@@ -92,9 +92,9 @@ uint16_t get_selected_channel(void);
 /**
  * @brief Restarts the RX operation on the selected channel
  *
- * @return status of the RAIL_StartRx() function
+ * @return status of the sl_rail_start_rx() function
  */
-RAIL_Status_t restart_rx_channel(void);
+sl_rail_status_t restart_rx_channel(void);
 
 #endif // SL_RAIL_SDK_CHANNEL_SELECTOR_H
 /** @} */ // end of channel_selector group

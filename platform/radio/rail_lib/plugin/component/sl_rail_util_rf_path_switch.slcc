@@ -1,0 +1,18 @@
+id: sl_rail_util_rf_path_switch
+label: SL RAIL Utility, RF Path Switch
+description: Utility to aid with RAIL RF Path Switch control.
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_rf_path_switch
+        name: SL RAIL Utility, RF Path Switch
+        license: Zlib
+provides:
+  - name: sl_rail_util_rf_path_switch
+requires:
+  - name: rail_util_rf_path_switch
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

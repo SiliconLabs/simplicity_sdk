@@ -22,36 +22,31 @@ component:
   - id: micriumos_kernel
   - id: bluetooth_stack
   - id: gatt_configuration
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: bluetooth_feature_legacy_advertiser
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gatt_server
   - id: bluetooth_feature_sm
   - id: bluetooth_feature_system
-  - id: bootloader_interface
-    condition:
-      - device_series_2
   - id: mpu
   - id: in_place_ota_dfu
     condition:
       - device_series_2
-  - id: rail_util_init
+  - id: sl_rail_util_init
     instance:
       - inst0
   - id: rail_util_recommended
   - id: rail_lib_multiprotocol
   - id: radio_config_simple_rail_singlephy
   - id: app_assert
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 conflicts:
   - name: device_is_module
 
 source:
-  - path: main.c
   - path: app.c
   - path: app_bluetooth.c
   - path: micriumos/app_proprietary.c
@@ -59,7 +54,6 @@ source:
 include:
   - path: .
     file_list:
-      - path: app.h
       - path: app_bluetooth.h
   - path: micriumos
     file_list:

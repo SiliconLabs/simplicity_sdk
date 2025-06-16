@@ -1,6 +1,6 @@
 id: wake_lock
 label: Wake-Lock
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Component that provides support for sleep and remote wake-up functionality.
   The UART driver is not able to receive data in EM2 (deep sleep) mode, therefore an external signal is needed to wake the controller up before UART communication.

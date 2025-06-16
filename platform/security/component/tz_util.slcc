@@ -1,5 +1,5 @@
 id: tz_util
-package: platform
+package: security_trustzone
 category: Platform|Security|TrustZone
 description: >-
   This component provides includes utility files for TZ Secure and NonSecure applications.

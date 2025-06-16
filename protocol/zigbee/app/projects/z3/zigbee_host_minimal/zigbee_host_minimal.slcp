@@ -1,6 +1,6 @@
 project_name: zigbee_host_minimal
 label: Zigbee - Host Minimal
-package: Zigbee
+package: zigbee
 category: Zigbee Application
 quality: production
 
@@ -10,6 +10,7 @@ description: >
 author: Silicon Laboratories, Inc.
 
 component:
+  - id: sl_main
   - id: cli
     instance:
       - example
@@ -39,6 +40,7 @@ component:
 
 source:
   - path: main.c
+    unless: [cmsis_rtos2]
 
 config_file:
   - path: config/zcl/zcl_config.zap
@@ -85,11 +87,11 @@ configuration:
     value: sl_iostream_get_default()
 
 readme:
-  - path: ./readme.html
+  - path: ./readme.md
 
 ui_hints:
   highlight:
-    - path: readme.html
+    - path: readme.md
       focus: false
 
 filter:

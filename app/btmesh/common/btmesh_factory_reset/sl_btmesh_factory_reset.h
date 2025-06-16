@@ -32,6 +32,11 @@
 #define SL_BTMESH_FACTORY_RESET_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_factory_reset
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * This function is called to initiate node reset.
  ******************************************************************************/
 void sl_btmesh_initiate_node_reset(void);
@@ -57,4 +62,5 @@ void sl_btmesh_factory_reset_on_node_reset(void);
  ******************************************************************************/
 void sl_btmesh_factory_reset_on_full_reset(void);
 
+/** @} (end addtogroup btmesh_factory_reset) */
 #endif // SL_BTMESH_FACTORY_RESET_H

@@ -20,7 +20,7 @@
 #include "app/framework/security/af-security.h"
 #include "app/framework/util/af-main.h"
 #include "app/framework/util/attribute-storage.h"
-
+#include "stack/include/zigbee-security-manager.h"
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
 #endif
@@ -29,11 +29,11 @@
 #endif
 #ifdef SL_CATALOG_ZIGBEE_NETWORK_CREATOR_SECURITY_PRESENT
 #include "network-creator-security-config.h"
-#if (SL_ZIGBEE_AF_PLUGIN_NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY == 1)
-#define NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY
-#endif
 #endif
 
+#if !defined (EZSP_HOST)
+#include "stack/internal/inc/network-formation-internal-def.h"
+#endif
 //------------------------------------------------------------------------------
 // Globals
 
@@ -188,7 +188,7 @@ sl_status_t sli_zigbee_af_install_code_to_key(uint8_t* installCode, uint8_t leng
   for (index = 0; index < length - SL_ZIGBEE_INSTALL_CODE_CRC_SIZE; index++) {
     crc = halCommonCrc16(reverse(installCode[index]), crc);
   }
-  crc = ~HIGH_LOW_TO_INT(reverse(LOW_BYTE(crc)), reverse(HIGH_BYTE(crc)));
+  crc = (uint16_t)(~HIGH_LOW_TO_INT(reverse(LOW_BYTE(crc)), reverse(HIGH_BYTE(crc))));
   if (installCode[length - SL_ZIGBEE_INSTALL_CODE_CRC_SIZE] != LOW_BYTE(crc)
       || installCode[length - SL_ZIGBEE_INSTALL_CODE_CRC_SIZE + 1] != HIGH_BYTE(crc)) {
     return SL_STATUS_INVALID_CONFIGURATION;
@@ -288,9 +288,7 @@ sl_zigbee_join_decision_t sli_zigbee_af_trust_center_pre_join_callback(sl_802154
           && (securityState.bitmask & SL_ZIGBEE_DISTRIBUTED_TRUST_CENTER_MODE)
           && (status == SL_ZIGBEE_STANDARD_SECURITY_UNSECURED_REJOIN))) {
     joinDecision = SL_ZIGBEE_NO_ACTION;
-  }
-#ifdef NETWORK_CREATOR_SECURITY_BDB_JOIN_USES_INSTALL_CODE_KEY
-  else {
+  } else if (sli_zigbee_stack_get_join_uses_install_code()) {
     sl_zigbee_sec_man_context_t context;
     sl_zigbee_sec_man_aps_key_metadata_t key_info;
     sl_zigbee_sec_man_init_context(&context);
@@ -304,8 +302,6 @@ sl_zigbee_join_decision_t sli_zigbee_af_trust_center_pre_join_callback(sl_802154
       joinDecision = SL_ZIGBEE_DENY_JOIN;
     }
   }
-#endif
-
 #if defined(DELAYED_JOIN_PRESENT)
   if (sl_zigbee_delayed_join_is_activated()) {
     joinDecision = (status == SL_ZIGBEE_STANDARD_SECURITY_SECURED_REJOIN
@@ -322,12 +318,20 @@ sl_zigbee_join_decision_t sli_zigbee_af_trust_center_pre_join_callback(sl_802154
   }
 
   (void) sl_zigbee_af_pop_network_index();
+  #if !defined (EZSP_HOST)
+  #if defined(EMBER_AF_PRINT_SECURITY)  || defined(SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT)
+  uint8_t numDeviceUpdateText = sizeof(deviceUpdateText) / sizeof(deviceUpdateText[0]);
+  if (status >= numDeviceUpdateText) {
+    return SL_ZIGBEE_NO_ACTION;
+  }
 
   sl_zigbee_af_security_println("Trust Center Join Handler: status = %s, decision = %s (%02X), shortid 0x%04X",
                                 deviceUpdateText[status],
                                 joinDecisionText[joinDecision],
                                 joinDecision,
                                 newNodeId);
+  #endif // SL_ZIGBEE_AF_PRINT_APP
+  #endif // EZSP_HOST
   sl_zigbee_af_security_flush();
   return joinDecision;
 }

@@ -4,6 +4,8 @@ This is a Network Co-Processor (NCP) based target application. It serves as a ta
 
 The distance estimation is performed at the NCP side, and only the measurement results are sent to the host using special CS-specific BGAPI commands. In this mode, the host and the NCP can also act as a reflector.
 
+If the configuration is changed to create less than 4 initiator instances, SL_BT_CONFIG_BUFFER_SIZE can be reduced.
+
 ## Getting Started with NCP
 
 The NCP Host and Target communicate via a serial interface (UART), which can be tunneled either via USB or via Ethernet if you use a development kit. The communication between the NCP Host and Target is defined in the Silicon Labs proprietary protocol called BGAPI. BGLib is the C reference implementation of the BGAPI protocol, which is to be used on the NCP Host side.
@@ -31,6 +33,18 @@ All interface related data types are defined in cs_acp.h.
 ## Usage
 
 Build and flash the application. Use the "bt_cs_host" host sample application to connect to it. If the host was started with any initiator instance, it will scan for a reflectors advertising with the "CS RFLCT" device name. If started with reflector instances, it will start advertising. When an initiator instance finds a reflector, it will create a connection between them and will start the distance measurement process. The initiator estimates the distance, and displays them in the command line terminal.
+
+## Resource optimization
+- Flash usage can be reduced by
+  - removing "Bluetooth controller anchor selection" component if no multiple reflector connection is required,
+  - turning off some of the "Supported features" in "CS Ranging Service Server" component. Note that "Real-Time Ranging Data" feature is used by default on the Initiator,
+  - turning off "Logging" in "CS Reflector" and "CS Initiator" component or completely in "Application"- "Utility" -"Log" component,
+- RAM usage can be reduced by
+  - decreasing the "Max number of connections reserved for user" in Bluetooth "Connection" component configuration to the required amount.
+  - decreasing the "Maximum initiator connections" in "CS Initiator" component configuration to the required amount,
+  - decreasing "Maximum ranging data size" in "CS Initiator" component configuration. Note that "Maximum ranging data size" should be enough to store Ranging Data in format defined in RAS specification.
+  - decreasing "Procedure maximum length" or "Procedure per connection" "CS Ranging Service Server" component configuration. Note that reducing "Procedure maximum length" also affects the maximum number of procedures that can be stored in the buffer in case of RAS On-Demand mode,
+  - reducing "Buffer memory size for Bluetooth stack" in "Bluetooth Core" component configuration if the "Maximum initiator connections" is changed to create less than 4 initiator instances.
 
 ## Troubleshooting
 
@@ -71,6 +85,8 @@ In case of a WSTK & Radio Board setup, before programming the radio board mounte
 [AN1259: Using the v3.x Silicon Labs Bluetooth Stack in Network Co-Processor Mode](https://www.silabs.com/documents/public/application-notes/an1259-bt-ncp-mode-sdk-v3x.pdf)
 
 [Bluetooth Training](https://www.silabs.com/support/training/bluetooth)
+
+[Ranging Service](https://www.bluetooth.com/specifications/specs/ranging-service-1-0/)
 
 ## Report Bugs & Get Support
 

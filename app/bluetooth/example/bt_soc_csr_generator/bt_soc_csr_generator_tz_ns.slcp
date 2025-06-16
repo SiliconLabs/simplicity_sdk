@@ -40,22 +40,19 @@ component:
   - id: psa_crypto_hmac
   - id: psa_crypto_sha256
   - id: psa_crypto_sha1
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: sleeptimer
-  - id: sl_common
 
 source:
   - path: app.c
-  - path: main.c
   - path: csr_generator.c
   - path: der.c
 
 include:
   - path: .
     file_list:
-      - path: app.h
       - path: csr_generator.h
       - path: der.h
 

@@ -152,6 +152,22 @@ class MultiPHYConfig(object):
                         phy_config_delta_add.add_register(self._conver_register_obj_to_xml(regsiter_obj))
                     channel_config_entry.phy_config_delta_add = phy_config_delta_add
 
+                if not isinstance(channel_config_entry.phy_config_dont_care_bitmasks, phy_config_dont_care_bitmasksType):
+                    # process phy_config_dont_care_bitmasks
+                    phy_config_dont_care_bitmasks_dict = channel_config_entry.phy_config_dont_care_bitmasks
+                    phy_config_dont_care_bitmasks = phy_config_dont_care_bitmasksType()
+                    for register_name, register_obj in phy_config_dont_care_bitmasks_dict.items():
+                        phy_config_dont_care_bitmasks.add_register_mask(register_maskType(register_obj))
+                    channel_config_entry.phy_config_dont_care_bitmasks = phy_config_dont_care_bitmasks
+
+                if not isinstance(channel_config_entry.phy_config_chosen_aliases, phy_config_chosen_aliasesType):
+                    # process phy_config_chosen_aliases
+                    phy_config_chosen_aliases_dict = channel_config_entry.phy_config_chosen_aliases
+                    phy_config_chosen_aliases = phy_config_chosen_aliasesType()
+                    for address, address_alias in phy_config_chosen_aliases_dict.items():
+                        phy_config_chosen_aliases.add_address(addressType(address_alias))
+                    channel_config_entry.phy_config_chosen_aliases = phy_config_chosen_aliases
+
                 if (channel_config_entry.radio_configurator_output_model is not None) and not type(channel_config_entry.radio_configurator_output_model) in [str, basestring, unicode]:
                     # process radio_configurator_output_model
                     radio_configurator_output_model_obj = channel_config_entry.radio_configurator_output_model

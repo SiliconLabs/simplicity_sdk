@@ -1,14 +1,14 @@
 id: rail_lib
 label: RAIL Library, Core
 description: Radio Abstraction Interface Library (RAIL) Library Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    license: MSLA
+    sbom:
+        license: MSLA
 ui_hints:
-  visibility: never
+    visibility: never
 requires:
   - name: rail_lib_Xprotocol # generic requirement
   - name: rail_lib_config_module
@@ -95,6 +95,11 @@ provides:
 include:
   - path: platform/radio/rail_lib/common
     file_list:
+      - path: sl_rail.h
+      - path: sl_rail_mfm.h
+      - path: sl_rail_assert_error_codes.h
+      - path: sl_rail_types.h
+      - path: sl_rail_features.h
       - path: rail.h
       - path: rail_mfm.h
       - path: rail_assert_error_codes.h
@@ -102,28 +107,35 @@ include:
       - path: rail_features.h
   - path: platform/radio/rail_lib/protocol/ble
     file_list:
+      - path: sl_rail_ble.h
       - path: rail_ble.h
   - path: platform/radio/rail_lib/protocol/ieee802154
     file_list:
+      - path: sl_rail_ieee802154.h
       - path: rail_ieee802154.h
   - path: platform/radio/rail_lib/protocol/wmbus
     file_list:
+      - path: sl_rail_wmbus.h
       - path: rail_wmbus.h
   - path: platform/radio/rail_lib/protocol/zwave
     file_list:
+      - path: sl_rail_zwave.h
       - path: rail_zwave.h
   - path: platform/radio/rail_lib/chip/efr32/efr32xg2x
     file_list:
+      - path: sl_rail_chip_specific.h
       - path: rail_chip_specific.h
     condition:
       - device_series_2
   - path: platform/radio/rail_lib/chip/efr32/sixg3xx
     file_list:
+      - path: sl_rail_chip_specific.h
       - path: rail_chip_specific.h
     condition:
       - device_series_3
   - path: platform/radio/rail_lib/protocol/sidewalk
     file_list:
+      - path: sl_rail_sidewalk.h
       - path: rail_sidewalk.h
 template_contribution:
   - name: component_catalog

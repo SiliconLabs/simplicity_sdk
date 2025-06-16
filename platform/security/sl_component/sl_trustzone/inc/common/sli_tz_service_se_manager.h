@@ -79,6 +79,7 @@ sl_status_t sli_tz_se_roll_challenge(sli_tz_invec *in_vec, size_t in_len, sli_tz
 sl_status_t sli_tz_se_open_debug(sli_tz_invec *in_vec, size_t in_len, sli_tz_outvec *out_vec, size_t out_len);
 sl_status_t sli_tz_se_read_cert_size(sli_tz_invec *in_vec, size_t in_len, sli_tz_outvec *out_vec, size_t out_len);
 sl_status_t sli_tz_se_read_cert(sli_tz_invec *in_vec, size_t in_len, sli_tz_outvec *out_vec, size_t out_len);
+sl_status_t sli_tz_se_ecdh_compute_shared_secret(sli_tz_invec in_vec[], size_t in_len, sli_tz_outvec *out_vec, size_t out_len);
 #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
 sl_status_t sli_tz_se_write_user_data(sli_tz_invec *in_vec, size_t in_len, sli_tz_outvec *out_vec, size_t out_len);
 sl_status_t sli_tz_se_erase_user_data(sli_tz_invec *in_vec, size_t in_len, sli_tz_outvec *out_vec, size_t out_len);

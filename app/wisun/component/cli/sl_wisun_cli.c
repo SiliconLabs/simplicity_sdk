@@ -59,6 +59,11 @@
 #include "sl_wisun_ping_cli.h"
 #endif
 
+#if defined(SL_CATALOG_WISUN_RTT_LOGGER_PRESENT) \
+  && SL_WISUN_RTT_LOGGER_CLI_ENABLED
+#include "sl_wisun_rtt_logger_cli.h"
+#endif
+
 #if defined(SL_CATALOG_IPERF_PRESENT) \
   && SL_WISUN_IPERF_CLI_ENABLED
 #include "sl_iperf_cli.h"
@@ -100,6 +105,12 @@
   && !defined(SL_CATALOG_WISUN_COAP_PRESENT)    \
   && SL_WISUN_COLLECTOR_CLI_ENABLED
 #include "sl_wisun_collector_cli.h"
+#endif
+
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+#include "sl_wisun_trace_api.h"
+#include "sl_memory_manager.h"
 #endif
 
 #endif // SL_WISUN_CLI_ENABLED
@@ -244,7 +255,7 @@ typedef struct sl_wisun_cli_handler_property {
  * @brief Set CLI common PHY parameters from PHY config
  * @details Synchronization is required because of common parameters,
  *          like reg. domain and PHY mode ID
- * @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL otherwise
+ * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 static sl_status_t _load_common_params_from_phy_cfg(void);
 
@@ -252,7 +263,7 @@ static sl_status_t _load_common_params_from_phy_cfg(void);
  * @brief Store CLI common PHY parameters to PHY config
  * @details Synchronization is required because of common parameters,
  *          like reg domain and phy mode id
- * @return sl_status_t SL_STATUS_OK on succes, SL_STATUS_FAIL otherwise
+ * @return sl_status_t SL_STATUS_OK on success, SL_STATUS_FAIL otherwise
  *****************************************************************************/
 static sl_status_t _store_common_params_to_phy_cfg(void);
 
@@ -342,7 +353,7 @@ static sl_status_t _app_cli_get_tx_power(char *value_str,
 
 /**************************************************************************//**
  * @brief Is CLI setting parameter is used.
- * @details It indicates the parameteris used in the current setup.
+ * @details It indicates the parameters used in the current setup.
  * @param param_str Parameter string.
  * @return true Parameter is used.
  * @return false Parameter is not used.
@@ -492,6 +503,24 @@ static sl_status_t _app_settings_get_mac_address(char *value_str,
                                                  const app_settings_entry_t *entry);
 #endif
 
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                         \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+/**************************************************************************//**
+ * @brief Helper to set trace level for setter
+ * @param[out] *trace_config is the trace group configuration
+ * @param[out] *group_count is the number of groups
+ * @param[in] group_id is the group ID
+ * @param[in] trace_level is the trace level
+ * @return true if found existing group.
+ * @return false if group is not found.
+ * *****************************************************************************/
+static bool _trace_level_add_entry(sl_wisun_trace_group_config_t *trace_config,
+                                   uint8_t *group_count,
+                                   uint8_t group_id,
+                                   uint8_t trace_level);
+#endif
+
 #if defined(SL_CATALOG_WISUN_LFN_DEVICE_SUPPORT_PRESENT)
 /**************************************************************************//**
  * @brief Helper to get device type
@@ -572,6 +601,29 @@ static const app_enum_t _phy_cfg_map[] = {
   // End list
   { NULL, 0 }
 };
+
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                         \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+static const app_enum_t _app_trace_level_type_enum[] =
+{
+  { "all", 0xFF },
+  { NULL, 0 }
+};
+
+static const app_enum_t _app_trace_level_enum[] =
+{
+  { "none", 0 },
+  { "error", 1 },
+  { "err", 1 },
+  { "warning", 2 },
+  { "warn", 2 },
+  { "info", 3 },
+  { "debug", 4 },
+  { "dbg", 4 },
+  { NULL, 0 }
+};
+#endif
 
 #if defined(SL_CATALOG_IPERF_PRESENT) \
   && SL_WISUN_CLI_ENABLED             \
@@ -795,6 +847,17 @@ static sl_wisun_cli_handler_property_t _wisun_app_cli_handler_properties[] = {
     .cli_command_shortcut = "md",
     .cli_handler_fnc = &app_mac_deny
   },
+  #if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                           \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+  {
+    .cli_group = "wisun",
+    .cli_group_shortcut = "w",
+    .cli_command = "set_trace_level",
+    .cli_command_shortcut = "tl",
+    .cli_handler_fnc = &app_set_trace_level
+  },
+#endif
 #if defined(SL_CATALOG_WISUN_PING_PRESENT) \
   && SL_WISUN_CLI_ENABLED                  \
   && SL_WISUN_PING_CLI_ENABLED
@@ -804,6 +867,24 @@ static sl_wisun_cli_handler_property_t _wisun_app_cli_handler_properties[] = {
     .cli_command = "ping",
     .cli_command_shortcut = "p",
     .cli_handler_fnc = &app_ping
+  },
+#endif
+#if defined(SL_CATALOG_WISUN_RTT_LOGGER_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                        \
+  && SL_WISUN_RTT_LOGGER_CLI_ENABLED
+  {
+    .cli_group = "wisun",
+    .cli_group_shortcut = "w",
+    .cli_command = "start_rtt_report",
+    .cli_command_shortcut = "strr",
+    .cli_handler_fnc = &app_start_rtt_report
+  },
+  {
+    .cli_group = "wisun",
+    .cli_group_shortcut = "w",
+    .cli_command = "stop_rtt_report",
+    .cli_command_shortcut = "sprr",
+    .cli_handler_fnc = &app_stop_rtt_report
   },
 #endif
 #if defined(SL_CATALOG_WISUN_NETWORK_MEASUREMENT_PRESENT) \
@@ -1544,7 +1625,104 @@ void app_mac_deny(const sl_cli_command_arg_t *arguments)
 
   printf("[MAC address added to the deny list]\n");
 }
+#endif
 
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                         \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+void app_set_trace_level(const sl_cli_command_arg_t *arguments)
+{
+  sl_status_t ret = SL_STATUS_OK;
+  uint8_t i = 0U;
+  uint8_t group_count = 0U;
+  char *trace_config_string;
+  uint32_t trace_level = 0UL;
+  uint32_t group_id = 0UL;
+  char group_id_str[20];
+  char trace_level_str[20];
+  sl_wisun_trace_group_config_t *trace_config = NULL;
+  int res = 0;
+  const app_enum_t *value_enum;
+
+  trace_config_string = sl_cli_get_argument_string(arguments, 0);
+  trace_config = sl_malloc(SL_WISUN_TRACE_GROUP_COUNT * sizeof(sl_wisun_trace_group_config_t));
+  if (trace_config == NULL) {
+    printf("[Failed: Memory allocation for trace config is failed]\n");
+    return;
+  }
+
+  trace_config_string = strtok(trace_config_string, ";");
+  while (trace_config_string != NULL) {
+    res = sscanf(trace_config_string, "%[^,],%s", group_id_str, trace_level_str);
+    if (res != 2) {
+      // Error parsing string
+      ret = SL_STATUS_INVALID_PARAMETER;
+      break;
+    }
+
+    // Check group_id enum
+    value_enum = app_util_get_enum_by_string(_app_trace_level_type_enum, group_id_str);
+    if (value_enum) {
+      // group_id is an enum (only "all" accepted)
+
+      // Check trace_level enum
+      value_enum = app_util_get_enum_by_string(_app_trace_level_enum, trace_level_str);
+
+      if (value_enum) {
+        trace_level = value_enum->value;
+      } else {
+        ret = app_util_get_integer(&trace_level, trace_level_str, NULL, false);
+        if (ret != SL_STATUS_OK) {
+          // Not a valid level value
+          ret = SL_STATUS_INVALID_TYPE;
+          break;
+        }
+      }
+
+      for (i = 0; i < SL_WISUN_TRACE_GROUP_COUNT; ++i) {
+        _trace_level_add_entry(trace_config, &group_count, i, trace_level);
+      }
+    } else {
+      // group_id is not an enum
+
+      ret = app_util_get_integer(&group_id, group_id_str, NULL, false);
+      if (ret != SL_STATUS_OK) {
+        // Not a valid group value
+        ret = SL_STATUS_INVALID_TYPE;
+        break;
+      }
+
+      // Check trace_level enum
+      value_enum = app_util_get_enum_by_string(_app_trace_level_enum, trace_level_str);
+
+      if (value_enum) {
+        trace_level = value_enum->value;
+      } else {
+        ret = app_util_get_integer(&trace_level, trace_level_str, NULL, false);
+        if (ret != SL_STATUS_OK) {
+          // Not a valid level value
+          ret = SL_STATUS_INVALID_TYPE;
+          break;
+        }
+      }
+
+      _trace_level_add_entry(trace_config, &group_count, group_id, trace_level);
+    }
+    trace_config_string = strtok(NULL, ";");
+  }
+
+  if (ret == SL_STATUS_OK) {
+    ret = sl_wisun_set_trace_level(group_count, trace_config);
+  }
+
+  sl_free(trace_config);
+
+  if (ret == SL_STATUS_OK) {
+    printf("[Set %d trace groups]\n", group_count);
+  } else {
+    printf("[Error when setting trace level: %lu]\n", ret);
+  }
+}
 #endif
 
 /* App CLI handler */
@@ -2080,7 +2258,7 @@ static sl_status_t _app_ms_get_counters(char *value_str,
     return res;
   }
 
-  // gets the statsitic that contains the mode switch information
+  // gets the statistics that contains the mode switch information
   res = sl_wisun_get_statistics(SL_WISUN_STATISTICS_TYPE_MAC, &stat);
 
   if (res != SL_STATUS_OK) {
@@ -2377,7 +2555,30 @@ static sl_status_t _app_settings_get_mac_address(char *value_str,
 
   return ret;
 }
+#endif
 
+#if defined(SL_CATALOG_WISUN_STACK_DEBUG_PRESENT) \
+  && SL_WISUN_CLI_ENABLED                         \
+  && SL_WISUN_TRACE_LEVEL_CONTROL_CLI_ENABLED
+static bool _trace_level_add_entry(sl_wisun_trace_group_config_t *trace_config,
+                                   uint8_t *group_count,
+                                   uint8_t group_id,
+                                   uint8_t trace_level)
+{
+  for (uint8_t i = 0; i < *group_count; i++) {
+    if (trace_config[i].group_id == group_id) {
+      // Found existing group. Update it.
+      trace_config[i].trace_level = trace_level;
+      return true;
+    }
+  }
+
+  // Group not found. Add new one at the current count index.
+  trace_config[*group_count].group_id = group_id;
+  trace_config[*group_count].trace_level = trace_level;
+  (*group_count)++;
+  return false;
+}
 #endif
 
 #if defined(SL_CATALOG_WISUN_LFN_DEVICE_SUPPORT_PRESENT)

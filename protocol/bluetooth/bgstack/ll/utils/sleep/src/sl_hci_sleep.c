@@ -113,13 +113,6 @@ void sl_btctrl_hci_sleep_init(void)
 #endif // (!defined(SL_CATALOG_CPC_SECONDARY_PRESENT))
   sl_btctrl_hci_clear_sleep_request();
   sli_power_manager_update_em_requirement(SL_POWER_MANAGER_EM1, true);
-  sli_power_manager_update_em_requirement(SL_POWER_MANAGER_EM2, true);
-
-  // Initialize power manager support on RAIL.
-  void *BTLE_LL_GetRadioHandle();
-  RAIL_Handle_t rail_handle = BTLE_LL_GetRadioHandle();
-  RAIL_ConfigSleep(rail_handle, RAIL_SLEEP_CONFIG_TIMERSYNC_ENABLED);
-  RAIL_InitPowerManager();
 }
 
 // this callback function can be overwritten by hci layer and can

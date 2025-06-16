@@ -1,6 +1,6 @@
 id: zigbee_r22_support
 label: R22 support
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Implements the features added in Zigbee Specification Rev22, library supports enhanced beacon request, link power delta and nwk IEEE joining list commands.

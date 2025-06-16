@@ -171,9 +171,8 @@ sl_status_t ble_peer_manager_central_set_scanner(sl_bt_gap_phy_coding_t scanning
                                                  uint8_t scan_window)
 {
   if (get_state() == BLE_PEER_MANAGER_SCANNING) {
-    ble_peer_manager_log_error("Already scanning. \
-                                Please stop the scanner before changing it's settings." APP_LOG_NL);
-    return SL_STATUS_INVALID_STATE;
+    ble_peer_manager_log_info("Already scanning. \
+                              New settings will take effect the next time scanning is started." APP_LOG_NL);
   }
   scanner.scanning_phy = scanning_phy;
   scanner.scan_discovery_mode = scan_discovery_mode;
@@ -187,8 +186,8 @@ sl_status_t ble_peer_manager_central_create_connection()
 {
   sl_status_t sc;
   if (get_state() == BLE_PEER_MANAGER_SCANNING) {
-    ble_peer_manager_log_error("Already scanning" APP_LOG_NL);
-    return SL_STATUS_INVALID_STATE;
+    ble_peer_manager_log_info("Already scanning" APP_LOG_NL);
+    return SL_STATUS_OK;
   }
 
   // Set scanner

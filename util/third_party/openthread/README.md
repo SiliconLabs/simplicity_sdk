@@ -1,4 +1,4 @@
-[![OpenThread][ot-logo]][ot-repo] [![Build][ot-gh-action-build-svg]][ot-gh-action-build] [![Simulation][ot-gh-action-simulation-svg]][ot-gh-action-simulation] [![Docker][ot-gh-action-docker-svg]][ot-gh-action-docker] [![Coverage Status][ot-codecov-svg]][ot-codecov]
+[![OpenThread][ot-logo]][ot-repo] [![Build][ot-gh-action-build-svg]][ot-gh-action-build] [![Simulation][ot-gh-action-simulation-svg]][ot-gh-action-simulation] [![Docker][ot-gh-action-docker-svg]][ot-gh-action-docker] [![Coverage Status][ot-codecov-svg]][ot-codecov] [![Ask DeepWiki][deep-wiki-svg]][deep-wiki]
 
 ---
 
@@ -10,7 +10,7 @@ OpenThread released by Google is... <a href="https://www.threadgroup.org/What-is
 
 **...OS and platform agnostic**, with a narrow platform abstraction layer and a small memory footprint, making it highly portable. It supports both system-on-chip (SoC) and network co-processor (NCP) designs.
 
-**...a Thread Certified Component**, implementing all features defined in the [Thread 1.3.0 specification](https://www.threadgroup.org/support#specifications), including all Thread networking layers (IPv6, 6LoWPAN, IEEE 802.15.4 with MAC security, Mesh Link Establishment, Mesh Routing) and device roles, as well as [Border Router](https://github.com/openthread/ot-br-posix) support.
+**...a Thread Certified Component**, implementing all features defined in the [Thread 1.4.0 specification](https://www.threadgroup.org/support#specifications), including all Thread networking layers (IPv6, 6LoWPAN, IEEE 802.15.4 with MAC security, Mesh Link Establishment, Mesh Routing) and device roles, as well as [Border Router](https://github.com/openthread/ot-br-posix) support.
 
 More information about Thread can be found at [threadgroup.org](http://threadgroup.org/). Thread is a registered trademark of the Thread Group, Inc.
 
@@ -24,6 +24,8 @@ More information about Thread can be found at [threadgroup.org](http://threadgro
 [ot-gh-action-docker-svg]: https://github.com/openthread/openthread/workflows/Docker/badge.svg?branch=main&event=push
 [ot-codecov]: https://codecov.io/gh/openthread/openthread
 [ot-codecov-svg]: https://codecov.io/gh/openthread/openthread/branch/main/graph/badge.svg
+[deep-wiki]: https://deepwiki.com/openthread/openthread
+[deep-wiki-svg]: https://deepwiki.com/badge.svg
 
 # Who supports OpenThread?
 

@@ -1,9 +1,9 @@
 !!omap
 - id: EFR32BG29B220F1024CJ45
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32BG29B220F1024CJ45.
 - category: Platform|Device|EFR32BG29
-- quality: evaluation
+- quality: production
 - define:
   - name: EFR32BG29B220F1024CJ45
     unless:

@@ -26,9 +26,7 @@
 #include <zpal_misc.h>
 #include <CC_DeviceResetLocally.h>
 #include <CC_Indicator.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /**
  * This is the first of the registered app handlers
@@ -116,7 +114,7 @@ EventHandlerZwRx(void)
 
   // Handle incoming replies
   while (xQueueReceive(pAppHandles->ZwRxQueue, (uint8_t*)(&RxPackage), 0) == pdTRUE) {
-    DPRINT("Incoming Rx msg\r\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Incoming Rx msg\r\n");
 
     switch (RxPackage.eReceiveType) {
       case EZWAVERECEIVETYPE_SINGLE:
@@ -151,16 +149,16 @@ EventHandlerZwCommandStatus(void)
 
   // Handle incoming replies
   while (xQueueReceive(pAppHandles->ZwCommandStatusQueue, (uint8_t*)(&Status), 0) == pdTRUE) {
-    DPRINT("Incoming Status msg\r\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Incoming Status msg\r\n");
 
     switch (Status.eStatusType) {
       case EZWAVECOMMANDSTATUS_TX:
       {
         SZWaveTransmitStatus* pTxStatus = &Status.Content.TxStatus;
         if (!pTxStatus->bIsTxFrameLegal) {
-          DPRINT("Auch - not sure what to do\r\n");
+          ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Auch - not sure what to do\r\n");
         } else {
-          DPRINTF("Tx Status received: %#02x\r\n", pTxStatus->TxStatus);
+          ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Tx Status received: %#02x\r\n", pTxStatus->TxStatus);
           if (pTxStatus->Handle) {
             ZAF_TX_Callback_t callback = (ZAF_TX_Callback_t)pTxStatus->Handle;
             transmission_result_t result = {
@@ -177,13 +175,13 @@ EventHandlerZwCommandStatus(void)
 
       case EZWAVECOMMANDSTATUS_GENERATE_RANDOM:
       {
-        DPRINT("Generate Random status\r\n");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Generate Random status\r\n");
         break;
       }
 
       case EZWAVECOMMANDSTATUS_LEARN_MODE_STATUS:
       {
-        DPRINTF("Learn status %d\r\n", Status.Content.LearnModeStatus.Status);
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Learn status %d\r\n", Status.Content.LearnModeStatus.Status);
         if (ELEARNSTATUS_ASSIGN_COMPLETE == Status.Content.LearnModeStatus.Status) {
           // When security S0 or higher is set, remove all settings which happen before secure inclusion
           // calling function zafi_event_distributor_set_default_configuration(). The same function is used when there is an
@@ -201,6 +199,8 @@ EventHandlerZwCommandStatus(void)
         } else if (ELEARNSTATUS_LEARN_MODE_COMPLETED_FAILED == Status.Content.LearnModeStatus.Status) {
           //Reformats protocol and application NVM. Then soft reset.
           zaf_event_distributor_enqueue_app_event(EVENT_SYSTEM_RESET);
+        } else if (ELEARNSTATUS_LEARN_MODE_UNSECURE_INCLUSION_DONE == Status.Content.LearnModeStatus.Status) {
+          Board_IndicateStatus(BOARD_STATUS_IDLE);
         }
         break;
       }
@@ -212,7 +212,7 @@ EventHandlerZwCommandStatus(void)
 
       case EZWAVECOMMANDSTATUS_SET_DEFAULT:
       { // Received when protocol is started (not implemented yet), and when SetDefault command is completed
-        DPRINT("Protocol Ready\r\n");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Protocol Ready\r\n");
         zaf_event_distributor_enqueue_app_event(EVENT_SYSTEM_FLUSHMEM_READY);
 
         break;
@@ -220,28 +220,28 @@ EventHandlerZwCommandStatus(void)
 
       case EZWAVECOMMANDSTATUS_INVALID_TX_REQUEST:
       {
-        DPRINTF("ERROR: Invalid TX Request to protocol - %d", Status.Content.InvalidTxRequestStatus.InvalidTxRequest);
+        ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "ERROR: Invalid TX Request to protocol - %d", Status.Content.InvalidTxRequestStatus.InvalidTxRequest);
         break;
       }
 
       case EZWAVECOMMANDSTATUS_INVALID_COMMAND:
       {
-        DPRINTF("ERROR: Invalid command to protocol - %d", Status.Content.InvalidCommandStatus.InvalidCommand);
+        ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "ERROR: Invalid command to protocol - %d", Status.Content.InvalidCommandStatus.InvalidCommand);
         break;
       }
 
       case EZWAVECOMMANDSTATUS_ZW_SET_MAX_INCL_REQ_INTERVALS:
       {
         // Status response from calling the ZAF_SetMaxInclusionRequestIntervals function
-        DPRINTF("SetMaxInclusionRequestIntervals status: %s\r\n",
-                Status.Content.NetworkManagementStatus.statusInfo[0] == true ? "SUCCESS" : "FAIL");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "SetMaxInclusionRequestIntervals status: %s\r\n",
+                       Status.Content.NetworkManagementStatus.statusInfo[0] == true ? "SUCCESS" : "FAIL");
         break;
       }
 
       case EZWAVECOMMANDSTATUS_ZW_SET_TX_ATTENUATION:
       {
         if (false == Status.Content.SetTxAttenuation.result) {
-          DPRINT("Not allowed to attenuate tx-power\r\n");
+          ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Not allowed to attenuate tx-power\r\n");
         }
         break;
       }
@@ -272,10 +272,10 @@ event_manager(const uint8_t event)
 
       appHandles = ZAF_getAppHandle();
       if (EINCLUSIONSTATE_EXCLUDED != appHandles->pNetworkInfo->eInclusionState) {
-        DPRINT("LEARN_MODE_EXCLUSION\r\n");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "LEARN_MODE_EXCLUSION\r\n");
         ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_EXCLUSION_NWE);
       } else {
-        DPRINT("LEARN_MODE_INCLUSION\r\n");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "LEARN_MODE_INCLUSION\r\n");
         ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION);
       }
       learnModeInProgress = true;
@@ -305,7 +305,7 @@ event_manager(const uint8_t event)
     case EVENT_SYSTEM_RESET:
       resetInProgress = true;
       if (zaf_event_distributor_is_primary_controller()) {
-        DPRINT("Primary controller. Skip Device Reset Locally Notification.\n");
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Primary controller. Skip Device Reset Locally Notification.\n");
         set_protocol_default();
       } else {
         /* Send reset notification*/
@@ -325,7 +325,7 @@ EventHandlerApp(void)
   uint8_t event = EVENT_SYSTEM_EMPTY;
 
   while (xQueueReceive(m_AppEventQueue, &event, 0) == pdTRUE) {
-    DPRINTF("Event: %d\r\n", event);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Event: %d\r\n", event);
     event_manager(event);
   }
 }
@@ -362,7 +362,7 @@ EventHandlerCC(void)
   event_cc_t event_cc = { 0 };
 
   while (xQueueReceive(m_CCEventQueue, (uint8_t*)(&event_cc), 0) == pdTRUE) {
-    DPRINTF("CC:%d Event: %d\n", event_cc.command_class, event_cc.event);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "CC:%d Event: %d\n", event_cc.command_class, event_cc.event);
     cc_handlers_for_each(call_handler, &event_cc);
   }
 }
@@ -467,11 +467,11 @@ bool zaf_event_distributor_enqueue_app_event(const uint8_t event)
       returnValue = true;
       break;
     case EQUEUENOTIFYING_STATUS_WRONG_PARAMETER:
-      DPRINT("Failed to queue event because of wrong input parameter\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of wrong input parameter\n");
       returnValue = false;
       break;
     case EQUEUENOTIFYING_STATUS_TIMEOUT:
-      DPRINT("Failed to queue event because of timeout\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of timeout\n");
       returnValue = false;
       break;
     default:
@@ -494,11 +494,11 @@ bool zaf_event_distributor_enqueue_app_event_from_isr(const uint8_t event)
       returnValue = true;
       break;
     case EQUEUENOTIFYING_STATUS_WRONG_PARAMETER:
-      DPRINT("Failed to queue event because of wrong input parameter\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of wrong input parameter\n");
       returnValue = false;
       break;
     case EQUEUENOTIFYING_STATUS_TIMEOUT:
-      DPRINT("Failed to queue event because of timeout\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of timeout\n");
       returnValue = false;
       break;
     default:
@@ -528,11 +528,11 @@ bool zaf_event_distributor_enqueue_cc_event(const uint16_t command_class,
       returnValue = true;
       break;
     case EQUEUENOTIFYING_STATUS_WRONG_PARAMETER:
-      DPRINT("Failed to queue event because of wrong input parameter\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of wrong input parameter\n");
       returnValue = false;
       break;
     case EQUEUENOTIFYING_STATUS_TIMEOUT:
-      DPRINT("Failed to queue event because of timeout\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of timeout\n");
       returnValue = false;
       break;
     default:
@@ -562,11 +562,11 @@ bool zaf_event_distributor_enqueue_cc_event_from_isr(const uint16_t command_clas
       returnValue = true;
       break;
     case EQUEUENOTIFYING_STATUS_WRONG_PARAMETER:
-      DPRINT("Failed to queue event because of wrong input parameter\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of wrong input parameter\n");
       returnValue = false;
       break;
     case EQUEUENOTIFYING_STATUS_TIMEOUT:
-      DPRINT("Failed to queue event because of timeout\n");
+      ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Failed to queue event because of timeout\n");
       returnValue = false;
       break;
     default:

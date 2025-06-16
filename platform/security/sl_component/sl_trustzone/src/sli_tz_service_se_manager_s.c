@@ -37,6 +37,7 @@
 #include "sli_tz_service_se_manager.h"
 #include "sl_se_manager.h"
 #include "sl_se_manager_util.h"
+#include "sl_se_manager_key_derivation.h"
 
 #include "em_device.h"
 
@@ -677,6 +678,29 @@ sl_status_t sli_tz_se_read_cert(sli_tz_invec in_vec[],
   uint32_t num_bytes = out_vec[0].len;
 
   return sl_se_read_cert(cmd_ctx, cert_type, cert, num_bytes);
+}
+
+sl_status_t sli_tz_se_ecdh_compute_shared_secret(sli_tz_invec in_vec[],
+                                                 size_t in_len,
+                                                 sli_tz_outvec out_vec[],
+                                                 size_t out_len)
+{
+  _TZ_SE_MANAGER_ASSERT_N_IOVECS(4, 1);
+
+  _TZ_SE_MANAGER_ASSERT_IOVEC_STRUCT_SIZE(in_vec[1], sl_se_command_context_t);
+  _TZ_SE_MANAGER_ASSERT_IOVEC_STRUCT_SIZE(in_vec[2], sl_se_key_descriptor_t);
+  _TZ_SE_MANAGER_ASSERT_IOVEC_STRUCT_SIZE(in_vec[3], sl_se_key_descriptor_t);
+  _TZ_SE_MANAGER_ASSERT_IOVEC_STRUCT_SIZE(out_vec[0], sl_se_key_descriptor_t);
+
+  // Input arguments
+  sl_se_command_context_t *cmd_ctx = (sl_se_command_context_t *)in_vec[1].base;
+  sl_se_key_descriptor_t *key_in_priv = (sl_se_key_descriptor_t *)in_vec[2].base;
+  sl_se_key_descriptor_t *key_in_pub = (sl_se_key_descriptor_t *)in_vec[3].base;
+
+  // Output arguments
+  sl_se_key_descriptor_t *key_out = (sl_se_key_descriptor_t *) out_vec[0].base;
+
+  return sl_se_ecdh_compute_shared_secret(cmd_ctx, key_in_priv, key_in_pub, key_out);
 }
 
 #if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)

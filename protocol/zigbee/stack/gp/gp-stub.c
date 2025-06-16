@@ -27,6 +27,7 @@ sl_status_t sli_zigbee_gp_init(void)
 
 void sli_zigbee_gp_proxy_table_init(void)
 {
+  // stub function
 }
 void sli_zigbee_gp_incoming_message_handler(sli_zigbee_packet_header_t header)
 {
@@ -176,11 +177,22 @@ void sli_zigbee_stack_gp_sink_table_remove_entry(uint8_t index)
   (void)index;
 }
 
+void sli_zigbee_stack_gp_proxy_table_remove_entry(uint8_t index)
+{
+  (void)index;
+}
+
+void sli_zigbee_stack_gp_clear_proxy_table(void)
+{
+  // Stub function.
+}
 void sli_zigbee_stack_gp_sink_table_clear_all(void)
 {
+  // stub function
 }
 void sli_zigbee_stack_gp_sink_table_init(void)
 {
+  // stub function
 }
 
 void sli_zigbee_stack_gp_sink_table_set_security_frame_counter(uint8_t index,

@@ -1,5 +1,5 @@
 id: mbedtls_base64
-package: platform
+package: security_mbedtls
 label: Base64 Encoding and Decoding
 description: >-
   This component provides support for Base64 encoding and decoding using Mbed TLS.

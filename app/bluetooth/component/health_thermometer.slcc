@@ -1,6 +1,6 @@
 id: health_thermometer
 label: Health Thermometer API
-package: Bluetooth
+package: bluetooth_le_middleware
 description: API for the Health Thermometer GATT service
 
   This is a Low-Code component. At start, the temperature sensor has to be

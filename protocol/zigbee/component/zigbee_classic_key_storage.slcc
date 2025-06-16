@@ -1,5 +1,5 @@
 id: zigbee_classic_key_storage
-package: Zigbee
+package: zigbee
 label: Zigbee Classic Key Storage
 description: This component will store keys in clear NVM3 tokens on the device. Note that storing keys in clear NVM3 tokens poses a security risk, whereby attackers can read flash contents and glean security keys. This component also provides crypto routines that operate on key values.
 category: Zigbee|Utility

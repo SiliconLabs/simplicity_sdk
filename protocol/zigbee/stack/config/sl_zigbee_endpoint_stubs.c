@@ -38,9 +38,8 @@ uint8_t sli_zigbee_stack_get_endpoint(uint8_t index)
 bool sli_zigbee_stack_get_endpoint_description(uint8_t endpoint,
                                                sl_zigbee_endpoint_description_t *result)
 {
-  uint8_t i;
-  sl_zigbee_endpoint_t *endpoints = sl_zigbee_endpoints;
-  for (i = 0; i < sl_zigbee_endpoint_count; i++, endpoints++) {
+  const sl_zigbee_endpoint_t *endpoints = sl_zigbee_endpoints;
+  for (uint8_t i = 0; i < sl_zigbee_endpoint_count; i++, endpoints++) {
     if (endpoints->endpoint == endpoint) {
       sl_zigbee_endpoint_description_t const * d = endpoints->description;
       result->profileId                   = d->profileId;
@@ -58,17 +57,16 @@ uint16_t sli_zigbee_stack_get_endpoint_cluster(uint8_t endpoint,
                                                sl_zigbee_cluster_list_id_t listId,
                                                uint8_t listIndex)
 {
-  uint8_t i;
-  sl_zigbee_endpoint_t *endpoints = sl_zigbee_endpoints;
-  for (i = 0; i < sl_zigbee_endpoint_count; i++, endpoints++) {
+  const sl_zigbee_endpoint_t *endpoints = sl_zigbee_endpoints;
+  for (uint8_t i = 0; i < sl_zigbee_endpoint_count; i++, endpoints++) {
     if (endpoints->endpoint == endpoint) {
       switch (listId) {
         case SL_ZIGBEE_INPUT_CLUSTER_LIST:
           return endpoints->inputClusterList[listIndex];
         case SL_ZIGBEE_OUTPUT_CLUSTER_LIST:
           return endpoints->outputClusterList[listIndex];
-        default: {
-        }
+        default:
+          break;
       }
     }
   }

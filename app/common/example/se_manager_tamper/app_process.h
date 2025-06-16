@@ -23,12 +23,16 @@
 #include "app_se_manager_macro.h"
 #include "app_se_manager_tamper.h"
 #include "app_se_manager_tamper_disable.h"
+#include "sl_udelay.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
+
+// Delay for printing program statements before enabling tamper interrupt
+#define RESET_DELAY        50000
 // -----------------------------------------------------------------------------
 /// State machine states
 typedef enum {

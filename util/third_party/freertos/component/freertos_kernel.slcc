@@ -1,13 +1,21 @@
 id: freertos
-label: FreeRTOS
-package: platform
+label: FreeRTOS Kernel
+package: freertos
 description: >
-  FreeRTOS kernel
+  The FreeRTOS Kernel (v11.1.0).
 category: RTOS|FreeRTOS
 quality: production
 metadata:
   sbom:
+    id: freertos 
     license: MSLA
+    upstream:
+      name: FreeRTOS kernel
+      version: 11.1.0
+      supplier: AWS open source
+      url: https://github.com/FreeRTOS/FreeRTOS-Kernel
+      package_url: https://github.com/FreeRTOS/FreeRTOS-Kernel/releases/tag/V11.1.0
+      comment: FreeRTOS kernel, Version 11.1.0
 config_file:
   - path: util/third_party/freertos/config/series2/FreeRTOSConfig.h
     file_id: freertos_config
@@ -27,8 +35,6 @@ source:
   - path: util/third_party/freertos/kernel/stream_buffer.c
   - path: util/third_party/freertos/kernel/tasks.c
   - path: util/third_party/freertos/kernel/timers.c
-  - path: util/third_party/freertos/kernel/portable/SiliconLabs/tick_power_manager.c
-    condition: [power_manager]
 include:
   - path: util/third_party/freertos/kernel/include
     file_list:
@@ -40,6 +46,7 @@ include:
       - path: list.h
       - path: message_buffer.h
       - path: mpu_prototypes.h
+      - path: mpu_syscall_numbers.h
       - path: mpu_wrappers.h
       - path: portable.h
       - path: projdefs.h
@@ -59,15 +66,12 @@ provides:
     condition: [device_cortexm]
 requires:
   - name: freertos_heap
-  - name: sleeptimer
-    condition: [power_manager]
   - name: component_catalog
     condition: [power_manager]
   - name: freertos_arch
   - name: code_classification
 recommends:
   - id: freertos_heap_3
-  - id: device_init
 validation_helper:
   - path: util/third_party/freertos/script/freertos_validation.lua
 template_contribution:

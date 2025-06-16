@@ -30,9 +30,8 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSConfig.h"
 #include "task.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
-#include "sl_common.h"
 #include "app_assert.h"
 #include "app_proprietary.h"
 
@@ -108,13 +107,13 @@ static void app_proprietary_task(void *p_arg)
   /////////////////////////////////////////////////////////////////////////////
 
 /*
-   RAIL_Handle_t rail_handle;
-   RAIL_Status_t status;
+   sl_rail_handle_t rail_handle;
+   sl_rail_status_t status;
 
    rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
    // Start reception.
-   status = RAIL_StartRx(rail_handle, 0, NULL);
-   app_assert(status == RAIL_STATUS_NO_ERROR,
+   status = sl_rail_start_rx(rail_handle, 0, NULL);
+   app_assert(status == SL_RAIL_STATUS_NO_ERROR,
           "[E: 0x%04x] Failed to start RAIL reception" APP_LOG_NEW_LINE,
           (int)status);
  */
@@ -140,10 +139,10 @@ static void app_proprietary_task(void *p_arg)
 
 /**************************************************************************//**
  * This callback is called on registered RAIL events.
- * Overrides dummy weak implementation.
+ * Overrides the default weak implementation.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
-                           RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   (void)rail_handle;
   (void)events;

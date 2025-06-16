@@ -86,6 +86,19 @@ The following PSA Crypto APIs are used in this example:
 * `psa_aead_decrypt`
 * `mbedtls_psa_crypto_free`
 
+### Buffer Management
+
+By default, the macro `SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS` is **enabled** in this example to optimize for memory and performance. This is NOT the most secure configuration as it assumes that input and output buffers passed to PSA functions are exclusively owned by the PSA function and are not shared across trust boundaries. This allows the implementation to avoid making local copies of the buffers, reducing memory usage and allocation overhead, and improving performance.
+
+#### Performance Considerations:
+When `SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS` is disabled, additional memory allocations (`malloc` calls) are made to create local copies of input and output buffers. This ensures that the original input data remain unaltered and secure, and that the output buffers (if used for intermediate data) are not touched during the operation which may leak info to an attacker. However, this can lead to:
+- **Increased Memory Usage**: Temporary buffers are allocated for each operation.
+- **Performance Degradation**: The overhead of `malloc`, `memcpy` and `free` calls can impact performance, especially in memory-constrained environments or during frequent cryptographic operations.
+
+#### Use Case:
+- **Disable `SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS`**: Recommended for applications where security is critical, and buffers may be shared across trust boundaries.
+- **Enable `SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS`**: Suitable for performance-critical applications where buffers are guaranteed to be exclusive and not shared.
+
 ## Troubleshooting
 ### Serial Port Settings
 Be sure to select the following settings to see the serial output of this example:
@@ -106,7 +119,7 @@ Before programming the radio board mounted on the mainboard, make sure the power
 
 [AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS Guide](https://www.silabs.com/documents/public/application-notes/an1311-mbedtls-psa-crypto-porting-guide.pdf)
 
-[Platform Security API Documentation] (https://docs.silabs.com/gecko-platform/4.3/platform-security/)
+[Platform Security API Documentation](https://docs.silabs.com/gecko-platform/4.3/platform-security/)
 
 ## Report Bugs & Get Support
 

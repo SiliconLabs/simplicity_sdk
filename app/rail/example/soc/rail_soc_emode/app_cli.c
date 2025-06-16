@@ -77,8 +77,8 @@ void cli_idle(sl_cli_command_arg_t *arguments)
 {
   uint8_t energy_mode = 0;
   energy_mode = sl_cli_get_argument_uint8(arguments, 0);
-  if (energy_mode > 3) {
-    energy_mode = 3;
+  if (energy_mode > 2) {
+    energy_mode = 2;
     app_log_info(PARAM_WARNING, get_name(energy_mode), energy_mode);
   }
   sleep_mode = energy_mode;
@@ -149,8 +149,8 @@ void cli_periodic_tx(sl_cli_command_arg_t *arguments)
   uint8_t energy_mode = 0;
   energy_mode = sl_cli_get_argument_uint8(arguments, 1);
   sleep_period = sl_cli_get_argument_uint32(arguments, 0);
-  if (energy_mode > 3) {
-    energy_mode = 3;
+  if (energy_mode > 2) {
+    energy_mode = 2;
     app_log_info(PARAM_WARNING, get_name(energy_mode), energy_mode);
   }
   sleep_mode = energy_mode;
@@ -181,8 +181,8 @@ void cli_periodic_rx(sl_cli_command_arg_t *arguments)
   rx_on_period = sl_cli_get_argument_uint32(arguments, 1);
   energy_mode = sl_cli_get_argument_uint8(arguments, 2);
 
-  if (energy_mode > 3) {
-    energy_mode = 3;
+  if (energy_mode > 2) {
+    energy_mode = 2;
     app_log_info(PARAM_WARNING, get_name(energy_mode), energy_mode);
   }
   sleep_mode = energy_mode;

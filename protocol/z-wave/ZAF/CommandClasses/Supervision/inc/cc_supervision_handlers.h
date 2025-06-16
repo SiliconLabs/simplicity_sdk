@@ -20,7 +20,7 @@
 /**
  * @brief Invoked upon reception of a Supervision Get
  * This function is weakly defined in CC_Supervision.c and can be defined in the application if desired.
- * 
+ *
  * @param pArgs parameters for the handler
  */
 void cc_supervision_get_received_handler(SUPERVISION_GET_RECEIVED_HANDLER_ARGS * pArgs);
@@ -28,7 +28,7 @@ void cc_supervision_get_received_handler(SUPERVISION_GET_RECEIVED_HANDLER_ARGS *
 /**
  * @brief Invoked upon reception of a Supervision Report
  * This function is weakly defined in CC_Supervision.c and can be defined in the application if desired.
- * 
+ *
  * @param status the required status
  * @param duration the required duration
  */
@@ -37,6 +37,6 @@ void cc_supervision_report_recived_handler(cc_supervision_status_t status, uint8
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_SUPERVISION_HANDLERS_H */

@@ -1,7 +1,7 @@
 !!omap
 - id: brd3201a
 - label: BRD3201A
-- package: platform
+- package: boards
 - description: Board support for BRD3201A.
 - category: Platform|Board|DK Main Board
 - quality: production

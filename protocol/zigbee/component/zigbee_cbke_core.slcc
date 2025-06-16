@@ -1,6 +1,6 @@
 id: zigbee_cbke_core
 label: CBKE core
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Certificate-Based Key Exchange Library. It provides support for managing the Elliptic Curve Cryptography (ECC) operations.  It provides key agreement and ephemeral key generation interfaces with the ability to save the generated link key key.  It is used by the Smart Energy 1.x Profile to authenticate and authorize devices.

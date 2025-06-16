@@ -15,7 +15,6 @@ filter:
     value: ["Advanced"]
 source:
   - path: app.c
-  - path: main.c
   - path: usb_hid_app.c
 include:
   - path: .
@@ -23,7 +22,7 @@ include:
     - path: app.h
     - path: usb_hid_app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: micriumos_kernel

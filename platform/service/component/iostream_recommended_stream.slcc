@@ -1,14 +1,12 @@
 id: iostream_recommended_stream
-label: "IO Stream: Recommended Stream"
-package: platform
+label: 'IO Stream: Recommended Stream'
+package: platform_core
 description: IO Stream Recommended Stream
 category: Services|IO Stream
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-ui_hints:
-  visibility: never
+    sbom:
+        license: Zlib
 root_path: platform/service/iostream
 provides:
   - name: iostream_recommended_stream

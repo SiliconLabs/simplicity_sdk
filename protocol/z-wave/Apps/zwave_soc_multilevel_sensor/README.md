@@ -142,9 +142,10 @@ Please note external wakeup is not supported on button 1 in case of brd2603a and
 This section will describe backward compatibility when upgrading the MultilevelSensor application from one SDK to a newer version. 
 
 ## CLI Support
-In case CLI support is needed please install zw_cli_common component to the project. Please note the zw_cli_common component will modify the power consumption in case of sleeping applications. Like door lock keypad, sensor pir or multilevel sensor. CLI cannot work with sleep mode, after a reset the application stays awake until the user issues the enable_sleeping command. From that point CLI won't work  and sleep mode will be reached until the next reset.
 
->NOTE: Due to FLASH limitations, the CLI is not supported using the BRD2603A on this application.
+In case CLI support is needed, please install zw_cli_common component to the project. Please note that the zw_cli_common component will significantly increase the power consumption of this application, as it must always be in an active state in order to receive CLI commands. The CLI cannot function during EM4 sleep mode. After a reset, the application stays awake for 10 seconds. During this timeframe, the sleeping disable CLI command can be issued to keep the application awake.
+
+### Available CLI commands
 
 <table>
 <tr>
@@ -153,8 +154,13 @@ In case CLI support is needed please install zw_cli_common component to the proj
     <th>Description</th>
 </tr>
 <tr>
+    <th>help</th>
+    <th>-</th>
+    <th>Printing all supported CLI commands and their description.</th>
+</tr>
+<tr>
     <th>set_learn_mode</th>
-    <td></td>
+    <td>-</td>
     <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen,learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>

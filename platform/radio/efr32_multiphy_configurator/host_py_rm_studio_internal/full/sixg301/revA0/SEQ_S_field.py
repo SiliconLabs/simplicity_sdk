@@ -164,11 +164,11 @@ class RM_Field_SEQ_S_MODINDEX_CALC_MODINDEXE_DOUBLED_AMMODINDEXE(Base_RM_Field):
         self.__dict__['zz_frozen'] = True
 
 
-class RM_Field_SEQ_S_SPARE4_SPARE4(Base_RM_Field):
+class RM_Field_SEQ_S_FSWCOREINFO_CONFIG(Base_RM_Field):
     def __init__(self, register):
         self.__dict__['zz_frozen'] = False
-        super(RM_Field_SEQ_S_SPARE4_SPARE4, self).__init__(register,
-            'SPARE4', 'SEQ_S.SPARE4.SPARE4', 'read-write',
+        super(RM_Field_SEQ_S_FSWCOREINFO_CONFIG, self).__init__(register,
+            'CONFIG', 'SEQ_S.FSWCOREINFO.CONFIG', 'read-write',
             u"",
             0, 32)
         self.__dict__['zz_frozen'] = True
@@ -184,11 +184,11 @@ class RM_Field_SEQ_S_MODEMINFO_LEGACY_EN(Base_RM_Field):
         self.__dict__['zz_frozen'] = True
 
 
-class RM_Field_SEQ_S_MODEMINFO_SPARE0(Base_RM_Field):
+class RM_Field_SEQ_S_MODEMINFO_RXDC1CH_EN(Base_RM_Field):
     def __init__(self, register):
         self.__dict__['zz_frozen'] = False
-        super(RM_Field_SEQ_S_MODEMINFO_SPARE0, self).__init__(register,
-            'SPARE0', 'SEQ_S.MODEMINFO.SPARE0', 'read-write',
+        super(RM_Field_SEQ_S_MODEMINFO_RXDC1CH_EN, self).__init__(register,
+            'RXDC1CH_EN', 'SEQ_S.MODEMINFO.RXDC1CH_EN', 'read-write',
             u"",
             1, 1)
         self.__dict__['zz_frozen'] = True
@@ -244,11 +244,11 @@ class RM_Field_SEQ_S_MODEMINFO_ENHDSSS_EN(Base_RM_Field):
         self.__dict__['zz_frozen'] = True
 
 
-class RM_Field_SEQ_S_MODEMINFO_SPARE1(Base_RM_Field):
+class RM_Field_SEQ_S_MODEMINFO_FSW_EN(Base_RM_Field):
     def __init__(self, register):
         self.__dict__['zz_frozen'] = False
-        super(RM_Field_SEQ_S_MODEMINFO_SPARE1, self).__init__(register,
-            'SPARE1', 'SEQ_S.MODEMINFO.SPARE1', 'read-write',
+        super(RM_Field_SEQ_S_MODEMINFO_FSW_EN, self).__init__(register,
+            'FSW_EN', 'SEQ_S.MODEMINFO.FSW_EN', 'read-write',
             u"",
             7, 1)
         self.__dict__['zz_frozen'] = True
@@ -274,13 +274,23 @@ class RM_Field_SEQ_S_MODEMINFO_BTC_EN(Base_RM_Field):
         self.__dict__['zz_frozen'] = True
 
 
-class RM_Field_SEQ_S_MODEMINFO_SPARE2(Base_RM_Field):
+class RM_Field_SEQ_S_MODEMINFO_RXDC2CH_EN(Base_RM_Field):
     def __init__(self, register):
         self.__dict__['zz_frozen'] = False
-        super(RM_Field_SEQ_S_MODEMINFO_SPARE2, self).__init__(register,
-            'SPARE2', 'SEQ_S.MODEMINFO.SPARE2', 'read-write',
+        super(RM_Field_SEQ_S_MODEMINFO_RXDC2CH_EN, self).__init__(register,
+            'RXDC2CH_EN', 'SEQ_S.MODEMINFO.RXDC2CH_EN', 'read-write',
             u"",
-            10, 22)
+            10, 1)
+        self.__dict__['zz_frozen'] = True
+
+
+class RM_Field_SEQ_S_MODEMINFO_SPARE0(Base_RM_Field):
+    def __init__(self, register):
+        self.__dict__['zz_frozen'] = False
+        super(RM_Field_SEQ_S_MODEMINFO_SPARE0, self).__init__(register,
+            'SPARE0', 'SEQ_S.MODEMINFO.SPARE0', 'read-write',
+            u"",
+            11, 21)
         self.__dict__['zz_frozen'] = True
 
 

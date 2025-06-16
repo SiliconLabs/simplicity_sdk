@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'sl_zigbee_zdo_configuration' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -54,19 +54,19 @@ sl_status_t sl_zigbee_zdo_get_configuration_req(sl_802154_short_addr_t device_sh
   msg.data.zdo_get_configuration_req.request.device_short = device_short;
   msg.data.zdo_get_configuration_req.request.encrypt = encrypt;
 
-  if ((count) > (10)) {
+  if (count > 10) {
     assert(false); // "vector tag_ids length exceeds expected maximum
   }
 
-  memmove(msg.data.zdo_get_configuration_req.request.tag_ids, tag_ids, sizeof(uint8_t) * (count));
+  memmove(msg.data.zdo_get_configuration_req.request.tag_ids, tag_ids, sizeof(uint8_t) * count);
   msg.data.zdo_get_configuration_req.request.count = count;
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zdo_get_configuration_req_process_ipc_command, &msg);
 
-  if ((count) > (10)) {
+  if (count > 10) {
     assert(false); // "vector tag_ids length exceeds expected maximum
   }
 
-  memmove(tag_ids, msg.data.zdo_get_configuration_req.request.tag_ids, sizeof(uint8_t) * (count));
+  memmove(tag_ids, msg.data.zdo_get_configuration_req.request.tag_ids, sizeof(uint8_t) * count);
   return msg.data.zdo_get_configuration_req.response.result;
 }
 
@@ -78,11 +78,11 @@ sl_status_t sl_zigbee_zdo_set_add_configuration(uint8_t tag_id,
   msg.data.zdo_set_add_configuration.request.tag_id = tag_id;
   msg.data.zdo_set_add_configuration.request.zdo_config_arg_len = zdo_config_arg_len;
 
-  if ((zdo_config_arg_len) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (zdo_config_arg_len > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector zdo_config_arg length exceeds expected maximum
   }
 
-  memmove(msg.data.zdo_set_add_configuration.request.zdo_config_arg, zdo_config_arg, sizeof(uint8_t) * (zdo_config_arg_len));
+  memmove(msg.data.zdo_set_add_configuration.request.zdo_config_arg, zdo_config_arg, sizeof(uint8_t) * zdo_config_arg_len);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_zdo_set_add_configuration_process_ipc_command, &msg);
 
   return msg.data.zdo_set_add_configuration.response.result;

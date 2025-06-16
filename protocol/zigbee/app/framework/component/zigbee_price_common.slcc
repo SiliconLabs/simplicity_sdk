@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides common utility functions used by both the Price Server and Price Client components.
 id: zigbee_price_common
 label: Price Common

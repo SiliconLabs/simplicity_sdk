@@ -23,6 +23,7 @@
 #include PLATFORM_HEADER
 #include "sl_zigbee_types.h"
 #include "sl_zigbee_address_info.h"
+#include "zigbee_packet_types.h"
 
 uint8_t sl_zigbee_get_nwk_update_id(void);
 

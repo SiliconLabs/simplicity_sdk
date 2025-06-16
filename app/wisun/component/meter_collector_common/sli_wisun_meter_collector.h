@@ -65,13 +65,13 @@ extern "C" {
 /// Meter LED0 toggle payload string
 #define SL_WISUN_METER_LED0_TOGGLE_PAYLOAD_STR        "0"
 
-/// Meter LED1 toogle payload string
+/// Meter LED1 toggle payload string
 #define SL_WISUN_METER_LED1_TOGGLE_PAYLOAD_STR        "1"
 
 /// Meter LED toggle payload string max length
 #define SL_WISUN_METER_LED_TOGGLE_PAYLOAD_STR_MAX_LEN (16U)
 
-/// Meter request delimiter (only for simple Meter and Collectr)
+/// Meter request delimiter (only for simple Meter and Collector)
 #define SL_WISUN_METER_REQUEST_DELIMITER             " "
 
 /// Measurement packet structure

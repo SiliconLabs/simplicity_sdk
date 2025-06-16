@@ -41,16 +41,6 @@
 #include "sl_btmesh_sensor_people_count.h"
 #include "sl_btmesh_sensor_people_count_config.h"
 
-/***************************************************************************//**
- * @addtogroup Sensor
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup PeopleCount
- * @{
- ******************************************************************************/
-
 /// People count
 static count16_t people_count = SL_BTMESH_SENSOR_PEOPLE_COUNT_VALUE_IS_NOT_KNOWN;
 
@@ -132,6 +122,3 @@ void people_count_get_from_cli(sl_cli_command_arg_t *arguments)
 }
 
 #endif // SL_CATALOG_CLI_PRESENT
-
-/** @} (end addtogroup PeopleCount) */
-/** @} (end addtogroup Sensor) */

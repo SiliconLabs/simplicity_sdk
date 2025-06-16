@@ -87,6 +87,7 @@ INCLUDEPATHS += \
 -I$(SDK_DIR)/app/bluetooth/common_host/iostream_mock \
 -I$(SDK_DIR)/app/bluetooth/common_host/app_log/config \
 -I$(SDK_DIR)/protocol/bluetooth/inc \
+-I$(SDK_DIR)/protocol/bluetooth/config \
 -I$(SDK_DIR)/platform/common/inc
 
 # -MMD : Don't generate dependencies on system header files.

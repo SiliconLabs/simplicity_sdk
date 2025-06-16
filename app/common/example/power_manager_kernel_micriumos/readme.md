@@ -17,5 +17,5 @@ Once a mode is selected, the device will remain in that mode until the following
  * EM4: the device resets 
 
 #### Note:
->DCDC Boost devices will not enter EM4 mode. 
->
+>* DCDC Boost devices will not enter EM4 mode. 
+>* Enabling SL_POWER_MANAGER_INIT_EMU_EM2_DEBUG_ENABLE forces PD0B/PD0D power domain to remain active in EM2, ensuring debugger connectivity in both EM2 and EM3. Consequently, if either power domain is active, PD0E is also powered on, resulting in increased power consumption in EM2 and EM3.

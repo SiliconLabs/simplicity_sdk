@@ -1,6 +1,6 @@
 id: btmesh_blob_transfer_server
 label: BLOB Transfer Server
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides BT Mesh BLOB (Binary Large OBject) Transfer Server functionality,
   defined in mesh specification.
@@ -51,3 +51,6 @@ template_contribution:
     value: btmesh_blob_transfer_server
   - name: component_catalog
     value: "btmesh_blob_transfer_server_{{instance}}"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-transfer-server

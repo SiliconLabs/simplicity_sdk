@@ -199,6 +199,25 @@ mbedtls_svc_key_id_t emberGetKeyId(void);
 
 #endif
 
+/** @brief Set the radio receive FIFO size.
+ *
+ * This function sets the RAM memory area for the receive FIFO, a circular
+ * buffer used to hold received data from one or more packets.
+ *
+ * The actual FIFO size can be determined by the output p_size_bytes argument. The
+ * chosen size is determined based on the available FIFO sizes supported by the
+ * hardware and will be the closest allowed size less than or equal to the
+ * requested size, unless the requested size is smaller than the minimum FIFO
+ * size, in which case an assert.
+ *
+ * @param[in] rxFifoSize The size (in bytes) of the RX FIFO buffer.
+ *
+ * @return An EmberStatus value indicating:
+ * - ::EMBER_SUCCESS if the RX FIFO is set successfully.
+ * - ::EMBER_NO_BUFFERS if buffer allocation fails.
+ */
+EmberStatus emberSetRadioRxFifo(uint16_t rxFifoSize);
+
 /** @brief Set the channel for sending and receiving messages on the current
  * network. The available channels depend on the radio config you use. Channels
  * can differ more than the frequency if it's a multi-PHY config.
@@ -437,7 +456,7 @@ EmberStatus emberSetUnencryptedPacketsAcceptance(bool accept);
  *                        \b (::EMBER_MAC_ACK_TIMEOUT_MS * 1000).
  *
  * @note The CSMA/CA (CCA) values are directly used in RAIL's
- * @p RAIL_CsmaConfig_t and further information can be found in the RAIL API
+ * @p sl_rail_csma_config_t and further information can be found in the RAIL API
  * documentation.
  * @return An ::EmberStatus value indicating whether the MAC parameters were
  * successfully set or the reason of failure.

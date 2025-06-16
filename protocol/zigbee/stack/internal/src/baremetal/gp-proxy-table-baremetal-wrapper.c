@@ -3,7 +3,7 @@
  * @brief internal implementations for 'gp-proxy-table' as a thin-wrapper
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -17,6 +17,11 @@
 // automatically generated from gp-proxy-table.h.  Do not manually edit
 #include "stack/include/gp-proxy-table.h"
 #include "stack/internal/inc/gp-proxy-table-internal-def.h"
+
+void sl_zigbee_gp_clear_proxy_table(void)
+{
+  sli_zigbee_stack_gp_clear_proxy_table();
+}
 
 sl_status_t sl_zigbee_gp_proxy_table_get_entry(uint8_t proxyIndex,
                                                sl_zigbee_gp_proxy_table_entry_t *entry)
@@ -51,4 +56,9 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
                                                             gpdKey,
                                                             gpdSecurityFrameCounter,
                                                             forwardingRadius);
+}
+
+void sl_zigbee_gp_proxy_table_remove_entry(uint8_t index)
+{
+  sli_zigbee_stack_gp_proxy_table_remove_entry(index);
 }

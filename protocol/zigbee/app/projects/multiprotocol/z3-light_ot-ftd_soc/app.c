@@ -40,6 +40,7 @@
 
 #define LED_BLINK_PERIOD_MS      2000
 #define LIGHT_ENDPOINT           1
+#define ZIGBEE_STARTUP_DELAY_MS 40
 
 static sl_zigbee_af_event_t commissioning_led_event;
 static sl_zigbee_af_event_t finding_and_binding_event;
@@ -49,7 +50,7 @@ static sl_zigbee_af_event_t finding_and_binding_event;
   #include <openthread-core-config.h>
   #include <openthread/config.h>
 
-  #include <openthread/ncp.h>
+  #include <openthread/cli.h>
   #include <openthread/diag.h>
   #include <openthread/tasklet.h>
 

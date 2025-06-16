@@ -19,6 +19,7 @@ class PhyFilters(IPhyFilter):
                             'Phys_Internal_RAIL_Base_Standard_BLE',
                             'Phys_Internal_WiSUN',
                             'Phys_RAIL_Base_Standard_ZWave',
+                            'Phys_Studio_IEEE802154_BPSK',
                         ]
 
     #Studio white list (these PHYs show in Studio as proprietary starting points)
@@ -37,6 +38,7 @@ class PhyFilters(IPhyFilter):
                             'Phys_Studio_IEEE802154',
                             'Phys_Studio_BLE',
                             'Phys_Studio_Sigfox_TX',
+                            'Phys_Internal_Base_ValOnly_aliases'
     ]
 
     # Special designation for simulation PHYs

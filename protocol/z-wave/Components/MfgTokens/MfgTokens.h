@@ -42,7 +42,7 @@ extern "C" {
  * @addtogroup MfgTokens
  * @{
  */
-#define TOKEN_MFG_ZWAVE_COUNTRY_FREQ_ID	  0x0001
+#define TOKEN_MFG_ZWAVE_COUNTRY_FREQ_ID   0x0001
 #define TOKEN_MFG_ZW_PRK_ID               0x0002
 #define TOKEN_MFG_ZW_PUK_ID               0x0003
 #define TOKEN_MFG_ZW_INITIALIZED_ID       0x0004
@@ -87,9 +87,9 @@ void ZW_GetMfgTokenData(void *data, uint16_t token, uint8_t len);
 void ZW_GetMfgTokenDataCountryFreq(void *data);
 
 /**
-* Writes Rf Region to manufacturing token
-* @param[in] region Region to write
-*/
+ * Writes Rf Region to manufacturing token
+ * @param[in] region Region to write
+ */
 void ZW_SetMfgTokenDataCountryRegion(void* region);
 
 /**
@@ -98,9 +98,9 @@ void ZW_SetMfgTokenDataCountryRegion(void* region);
 void ZW_LockMfgTokenData(void);
 
 /**
-* @} // addtogroup MfgTokens
-* @} // addtogroup Components
-*/
+ * @} // addtogroup MfgTokens
+ * @} // addtogroup Components
+ */
 #ifdef __cplusplus
 }
 #endif

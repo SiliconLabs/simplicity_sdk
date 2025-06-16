@@ -1,7 +1,7 @@
 !!omap
 - id: fgm230_rb4328a
 - label: FGM230-RB4328A
-- package: platform
+- package: boards
 - description: Kit BSP support for the FGM230SB Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

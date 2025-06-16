@@ -3,7 +3,7 @@
  * @brief Interrupt Manager API internal utility functions.
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -34,8 +34,8 @@
 #include "sl_interrupt_manager.h"
 #include "em_device.h"
 
-#if defined(_SILICON_LABS_32B_SERIES_2)
-#include "sl_interrupt_manager_s2_config.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
+#include  <sl_component_catalog.h>
 #endif
 
 #ifdef __cplusplus
@@ -62,9 +62,7 @@ extern "C" {
  * @return
  *   The prior interrupt vector table address.
  ******************************************************************************/
-#if defined(_SILICON_LABS_32B_SERIES_3)                  \
-  || (defined(SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM) \
-  && (SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM == 1))
+#if defined(SL_CATALOG_INTERRUPT_MANAGER_VECTOR_TABLE_IN_RAM_PRESENT)
 
 sl_interrupt_manager_irq_handler_t *sli_interrupt_manager_set_irq_table(sl_interrupt_manager_irq_handler_t *table,
                                                                         uint32_t handler_count);
@@ -73,31 +71,15 @@ sl_interrupt_manager_irq_handler_t *sli_interrupt_manager_set_irq_table(sl_inter
 
 /***************************************************************************//**
  * @brief
- *   Pre-interrupt hook.
+ *   Gets the interrupt nesting interrupt counter.
  *
  * @details
- *   This function is called before each interrupt service routine
- *   when the interrupt manager hooks feature is enabled.
+ *   This function return the current value of the nested interrupt counter.
  *
- * @note
- *   The function is weakly defined, and may be user-defined. By default, the
- *   pre-interrupt hook is empty.
+ * @return
+ *   The number of nested loop. 1 mean first level interrupt.
  ******************************************************************************/
-void sl_interrupt_manager_irq_enter_hook(void);
-
-/***************************************************************************//**
- * @brief
- *   Register post-interrupt hook.
- *
- * @details
- *   This function is called after each interrupt service routine
- *   when the interrupt manager hooks feature is enabled.
- *
- * @note
- *   The function is weakly defined, and may be user-defined. By default, the
- *   post-interrupt hook is empty.
- ******************************************************************************/
-void sl_interrupt_manager_irq_exit_hook(void);
+uint32_t sli_interrupt_manager_get_nested_interrupt_counter(void);
 
 #ifdef __cplusplus
 }

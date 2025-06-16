@@ -1,6 +1,6 @@
 id: btmesh_firmware_update_server
 label: "Firmware Update Server"
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides BT Mesh Firmware Update Server functionality, defined in mesh
   specification.
@@ -72,3 +72,6 @@ template_contribution:
 validation_helper:
   - path: btmesh_firmware_update_server_validation.lua
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-firmware-update-server

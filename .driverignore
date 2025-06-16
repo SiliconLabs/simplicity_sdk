@@ -70,7 +70,7 @@ platform/Device/SiliconLabs/EFR32MG21/
 platform/Device/SiliconLabs/EFR32MG22/
 # platform/Device/SiliconLabs/EFR32MG24/
 platform/Device/SiliconLabs/EFR32MG26/
-platform/Device/SiliconLabs/EFR32MG27/
+# platform/Device/SiliconLabs/EFR32MG27/
 platform/Device/SiliconLabs/EFR32MG29/
 platform/Device/SiliconLabs/EFR32MR21/
 platform/Device/SiliconLabs/EFR32SG23/

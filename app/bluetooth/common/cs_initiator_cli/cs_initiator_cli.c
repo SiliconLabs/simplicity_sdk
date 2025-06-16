@@ -63,7 +63,8 @@
 // -----------------------------------------------------------------------------
 // Static variables
 static bool start = false;
-static uint8_t mode = sl_bt_cs_mode_pbr;
+static uint8_t cs_main_mode = sl_bt_cs_mode_pbr;
+static uint8_t cs_sub_mode = sl_bt_cs_submode_disabled;
 static uint8_t algo_mode = SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC;
 static uint8_t channel_map_preset = CHANNEL_MAP_PRESET_HIGH;
 static uint8_t antenna_config_idx = ACI_DUAL;
@@ -78,7 +79,15 @@ static uint8_t conn_phy = sl_bt_gap_phy_2m;
  ******************************************************************************/
 uint8_t cs_initiator_cli_get_mode(void)
 {
-  return mode;
+  return cs_main_mode;
+}
+
+/*******************************************************************************
+ * CLI Getter for CS sub mode
+ ******************************************************************************/
+uint8_t cs_initiator_cli_get_sub_mode(void)
+{
+  return cs_sub_mode;
 }
 
 /*******************************************************************************
@@ -130,7 +139,7 @@ void cs_initiator_cli_mode(sl_cli_command_arg_t *arguments)
   uint8_t arg_data;
   arg_data = sl_cli_get_argument_uint8(arguments, 0);
   if (arg_data == sl_bt_cs_mode_pbr || arg_data == sl_bt_cs_mode_rtt) {
-    mode = arg_data;
+    cs_main_mode = arg_data;
     if (arg_data == sl_bt_cs_mode_rtt
         && channel_map_preset != CHANNEL_MAP_PRESET_HIGH) {
       cli_print("ERROR. Only preset HIGH is supported with RTT mode!\n");
@@ -140,6 +149,28 @@ void cs_initiator_cli_mode(sl_cli_command_arg_t *arguments)
   } else {
     cli_print("ERROR. Mode should be %d or %d\n",
               sl_bt_cs_mode_pbr, sl_bt_cs_mode_rtt);
+  }
+}
+
+/*******************************************************************************
+ * CLI Callback for "sub_mode" command
+ * @param[in] arguments pointer to CLI arguments
+ ******************************************************************************/
+void cs_initiator_cli_sub_mode(sl_cli_command_arg_t *arguments)
+{
+  uint8_t arg_data;
+  arg_data = sl_cli_get_argument_uint8(arguments, 0);
+  if (arg_data == sl_bt_cs_submode_disabled || arg_data == sl_bt_cs_mode_rtt) {
+    cs_sub_mode = arg_data;
+    if (arg_data == sl_bt_cs_mode_rtt
+        && channel_map_preset != CHANNEL_MAP_PRESET_HIGH) {
+      cli_print("ERROR. Only preset HIGH is supported with RTT mode!\n");
+      return;
+    }
+    cli_print("OK. Initiator sub mode set to: %d\n", arg_data);
+  } else {
+    cli_print("ERROR. Mode should be %d or %d\n",
+              sl_bt_cs_submode_disabled, sl_bt_cs_mode_rtt);
   }
 }
 
@@ -159,9 +190,14 @@ void cs_initiator_cli_algo_mode(sl_cli_command_arg_t *arguments)
     cli_print("OK. Initiator object tracking mode set: static high accuracy "
               "(stationary object tracking).\n");
     algo_mode = arg_data;
+  } else if (arg_data == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST) {
+    cli_print("OK. Initiator object tracking mode set: real time fast "
+              "(moving object tracking).\n");
+    algo_mode = arg_data;
   } else {
-    cli_print("ERROR. Object tracking mode should be %d or %d\n",
+    cli_print("ERROR. Object tracking mode should be %d, %d or %d\n",
               SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC,
+              SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST,
               SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY);
   }
 }
@@ -179,7 +215,7 @@ void cs_initiator_cli_preset(sl_cli_command_arg_t *arguments)
       && arg_data != CHANNEL_MAP_PRESET_HIGH
       && arg_data != CHANNEL_MAP_PRESET_CUSTOM) {
     cli_print("ERROR. Unsupported preset (%d) provided!\n", arg_data);
-  } else if (mode == sl_bt_cs_mode_rtt
+  } else if (cs_main_mode == sl_bt_cs_mode_rtt
              && arg_data != CHANNEL_MAP_PRESET_HIGH) {
     cli_print("ERROR. Only preset HIGH is supported with RTT mode!\n");
   } else {
@@ -273,7 +309,7 @@ void cs_initiator_cli_aci(sl_cli_command_arg_t *arguments)
 {
   uint8_t arg_data;
   arg_data = sl_cli_get_argument_uint8(arguments, 0);
-  if (mode == sl_bt_cs_mode_rtt) {
+  if (cs_main_mode == sl_bt_cs_mode_rtt) {
     cli_print("ERROR. Changing Antenna configuration index is unavailable in RTT mode.\n");
   } else {
     if (arg_data != ACI_SINGLE
@@ -305,7 +341,7 @@ void cs_initiator_cli_cs_sync_antenna_usage(sl_cli_command_arg_t *arguments)
     cli_print("ERROR. Invalid argument.\n");
     return;
   }
-  if (mode == sl_bt_cs_mode_pbr) {
+  if (cs_main_mode == sl_bt_cs_mode_pbr) {
     cli_print("ERROR. Changing CS SYNC antenna usage is unavailable in PBR mode.\n");
     return;
   }

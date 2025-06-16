@@ -1,6 +1,6 @@
 id: zigbee_pro_stack_with_high_datarate_phy
 label: Zigbee PRO stack with high datarate phy
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The main Zigbee PRO Stack component for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality. This includes the high datarate phy feature.

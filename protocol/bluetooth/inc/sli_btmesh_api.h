@@ -19,6 +19,8 @@
 #define VERSION no_link_tables
 
 #include "sl_btmesh_api.h"
+#include "sli_btmesh_api.h"
+#include "sli_bgapi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -76,6 +78,7 @@ enum sli_btmesh_class_id
     sli_btmesh_on_demand_private_proxy_server_class_id = 0x6a,
     sli_btmesh_silabs_config_server_class_id = 0x6b,
     sli_btmesh_diagnostic_class_id = 0x6c,
+    sli_btmesh_model_migration_class_id = 0x6e,
 };
 
 enum sli_btmesh_command_id
@@ -129,6 +132,7 @@ enum sli_btmesh_command_id
     sli_btmesh_node_clear_proxy_service_scan_response_command_id = 0x38,
     sli_btmesh_node_set_provisioning_service_scan_response_command_id = 0x39,
     sli_btmesh_node_clear_provisioning_service_scan_response_command_id = 0x3a,
+    sli_btmesh_node_compare_dcd_command_id = 0x3b,
     sli_btmesh_prov_init_command_id = 0x00,
     sli_btmesh_prov_scan_unprov_beacons_command_id = 0x01,
     sli_btmesh_prov_create_provisioning_session_command_id = 0x41,
@@ -164,7 +168,6 @@ enum sli_btmesh_command_id
     sli_btmesh_prov_get_key_refresh_phase_command_id = 0x3e,
     sli_btmesh_prov_start_key_refresh_from_phase_command_id = 0x3f,
     sli_btmesh_prov_flush_key_refresh_state_command_id = 0x40,
-    sli_btmesh_prov_test_identity_command_id = 0x48,
     sli_btmesh_prov_get_provisioning_records_list_command_id = 0x1c,
     sli_btmesh_prov_get_provisioning_record_data_command_id = 0x1d,
     sli_btmesh_prov_init_provisioning_records_command_id = 0x1e,
@@ -242,10 +245,8 @@ enum sli_btmesh_command_id
     sli_btmesh_test_set_nettx_command_id = 0x01,
     sli_btmesh_test_get_relay_command_id = 0x02,
     sli_btmesh_test_set_relay_command_id = 0x03,
-    sli_btmesh_test_set_adv_scan_params_command_id = 0x4,
     sli_btmesh_test_set_ivupdate_test_mode_command_id = 0x05,
     sli_btmesh_test_get_ivupdate_test_mode_command_id = 0x06,
-    sli_btmesh_test_set_segment_send_delay_command_id = 0x07,
     sli_btmesh_test_set_ivupdate_state_command_id = 0x08,
     sli_btmesh_test_send_beacons_command_id = 0x09,
     sli_btmesh_test_bind_local_model_app_command_id = 0x0a,
@@ -265,7 +266,6 @@ enum sli_btmesh_command_id
     sli_btmesh_test_add_local_key_command_id = 0x1a,
     sli_btmesh_test_remove_local_key_command_id = 0x1b,
     sli_btmesh_test_update_local_key_command_id = 0x1c,
-    sli_btmesh_test_set_sar_config_command_id = 0x1d,
     sli_btmesh_test_set_adv_bearer_state_command_id = 0x1f,
     sli_btmesh_test_prov_get_device_key_command_id = 0x23,
     sli_btmesh_test_prov_prepare_key_refresh_command_id = 0x24,
@@ -425,11 +425,13 @@ enum sli_btmesh_command_id
     sli_btmesh_scene_client_recall_command_id = 0x03,
     sli_btmesh_scene_client_store_command_id = 0x04,
     sli_btmesh_scene_client_delete_command_id = 0x05,
+    sli_btmesh_scene_client_deinit_command_id = 0x06,
     sli_btmesh_scene_server_init_command_id = 0x00,
     sli_btmesh_scene_server_deinit_command_id = 0x01,
     sli_btmesh_scene_server_reset_register_command_id = 0x2,
     sli_btmesh_scene_server_enable_compact_recall_events_command_id = 0x3,
     sli_btmesh_scene_setup_server_init_command_id = 0x00,
+    sli_btmesh_scene_setup_server_deinit_command_id = 0x01,
     sli_btmesh_scheduler_client_init_command_id = 0x00,
     sli_btmesh_scheduler_client_deinit_command_id = 0x01,
     sli_btmesh_scheduler_client_get_command_id = 0x02,
@@ -598,6 +600,7 @@ enum sli_btmesh_command_id
     sli_btmesh_diagnostic_enable_friend_command_id = 0x07,
     sli_btmesh_diagnostic_disable_friend_command_id = 0x08,
     sli_btmesh_diagnostic_get_friend_command_id = 0x09,
+    sli_btmesh_model_migration_migrate_models_command_id = 0x1,
 };
 
 enum sli_btmesh_response_id
@@ -651,6 +654,7 @@ enum sli_btmesh_response_id
     sli_btmesh_node_clear_proxy_service_scan_response_response_id = 0x38,
     sli_btmesh_node_set_provisioning_service_scan_response_response_id = 0x39,
     sli_btmesh_node_clear_provisioning_service_scan_response_response_id = 0x3a,
+    sli_btmesh_node_compare_dcd_response_id = 0x3b,
     sli_btmesh_prov_init_response_id = 0x00,
     sli_btmesh_prov_scan_unprov_beacons_response_id = 0x01,
     sli_btmesh_prov_create_provisioning_session_response_id = 0x41,
@@ -686,7 +690,6 @@ enum sli_btmesh_response_id
     sli_btmesh_prov_get_key_refresh_phase_response_id = 0x3e,
     sli_btmesh_prov_start_key_refresh_from_phase_response_id = 0x3f,
     sli_btmesh_prov_flush_key_refresh_state_response_id = 0x40,
-    sli_btmesh_prov_test_identity_response_id = 0x48,
     sli_btmesh_prov_get_provisioning_records_list_response_id = 0x1c,
     sli_btmesh_prov_get_provisioning_record_data_response_id = 0x1d,
     sli_btmesh_prov_init_provisioning_records_response_id = 0x1e,
@@ -764,10 +767,8 @@ enum sli_btmesh_response_id
     sli_btmesh_test_set_nettx_response_id = 0x01,
     sli_btmesh_test_get_relay_response_id = 0x02,
     sli_btmesh_test_set_relay_response_id = 0x03,
-    sli_btmesh_test_set_adv_scan_params_response_id = 0x4,
     sli_btmesh_test_set_ivupdate_test_mode_response_id = 0x05,
     sli_btmesh_test_get_ivupdate_test_mode_response_id = 0x06,
-    sli_btmesh_test_set_segment_send_delay_response_id = 0x07,
     sli_btmesh_test_set_ivupdate_state_response_id = 0x08,
     sli_btmesh_test_send_beacons_response_id = 0x09,
     sli_btmesh_test_bind_local_model_app_response_id = 0x0a,
@@ -787,7 +788,6 @@ enum sli_btmesh_response_id
     sli_btmesh_test_add_local_key_response_id = 0x1a,
     sli_btmesh_test_remove_local_key_response_id = 0x1b,
     sli_btmesh_test_update_local_key_response_id = 0x1c,
-    sli_btmesh_test_set_sar_config_response_id = 0x1d,
     sli_btmesh_test_set_adv_bearer_state_response_id = 0x1f,
     sli_btmesh_test_prov_get_device_key_response_id = 0x23,
     sli_btmesh_test_prov_prepare_key_refresh_response_id = 0x24,
@@ -947,11 +947,13 @@ enum sli_btmesh_response_id
     sli_btmesh_scene_client_recall_response_id = 0x03,
     sli_btmesh_scene_client_store_response_id = 0x04,
     sli_btmesh_scene_client_delete_response_id = 0x05,
+    sli_btmesh_scene_client_deinit_response_id = 0x06,
     sli_btmesh_scene_server_init_response_id = 0x00,
     sli_btmesh_scene_server_deinit_response_id = 0x01,
     sli_btmesh_scene_server_reset_register_response_id = 0x2,
     sli_btmesh_scene_server_enable_compact_recall_events_response_id = 0x3,
     sli_btmesh_scene_setup_server_init_response_id = 0x00,
+    sli_btmesh_scene_setup_server_deinit_response_id = 0x01,
     sli_btmesh_scheduler_client_init_response_id = 0x00,
     sli_btmesh_scheduler_client_deinit_response_id = 0x01,
     sli_btmesh_scheduler_client_get_response_id = 0x02,
@@ -1120,6 +1122,7 @@ enum sli_btmesh_response_id
     sli_btmesh_diagnostic_enable_friend_response_id = 0x07,
     sli_btmesh_diagnostic_disable_friend_response_id = 0x08,
     sli_btmesh_diagnostic_get_friend_response_id = 0x09,
+    sli_btmesh_model_migration_migrate_models_response_id = 0x1,
 };
 
 enum sli_btmesh_event_id
@@ -1636,6 +1639,15 @@ PACKSTRUCT( struct sl_btmesh_cmd_node_set_provisioning_service_scan_response_s
 typedef struct sl_btmesh_cmd_node_set_provisioning_service_scan_response_s sl_btmesh_cmd_node_set_provisioning_service_scan_response_t;
 
 
+PACKSTRUCT( struct sl_btmesh_cmd_node_compare_dcd_s
+{
+    uint8_t page_number;
+    uint8array page_data;
+});
+
+typedef struct sl_btmesh_cmd_node_compare_dcd_s sl_btmesh_cmd_node_compare_dcd_t;
+
+
 PACKSTRUCT( struct sl_btmesh_cmd_prov_create_provisioning_session_s
 {
     uint16_t netkey_index;
@@ -1913,16 +1925,6 @@ PACKSTRUCT( struct sl_btmesh_cmd_prov_flush_key_refresh_state_s
 typedef struct sl_btmesh_cmd_prov_flush_key_refresh_state_s sl_btmesh_cmd_prov_flush_key_refresh_state_t;
 
 
-PACKSTRUCT( struct sl_btmesh_cmd_prov_test_identity_s
-{
-    uint16_t address;
-    uint16_t netkey_index;
-    uint8array data;
-});
-
-typedef struct sl_btmesh_cmd_prov_test_identity_s sl_btmesh_cmd_prov_test_identity_t;
-
-
 PACKSTRUCT( struct sl_btmesh_cmd_prov_get_provisioning_records_list_s
 {
     uuid_128 uuid;
@@ -1996,7 +1998,7 @@ typedef struct sl_btmesh_cmd_proxy_optimisation_toggle_s sl_btmesh_cmd_proxy_opt
 
 PACKSTRUCT( struct sl_btmesh_cmd_proxy_send_solicitation_s
 {
-    uint8_t enc_netkey_index;
+    uint16_t enc_netkey_index;
     uint16_t elem_index;
     uint16_t dst;
 });
@@ -2413,34 +2415,12 @@ PACKSTRUCT( struct sl_btmesh_cmd_test_set_relay_s
 typedef struct sl_btmesh_cmd_test_set_relay_s sl_btmesh_cmd_test_set_relay_t;
 
 
-PACKSTRUCT( struct sl_btmesh_cmd_test_set_adv_scan_params_s
-{
-    uint16_t adv_interval_min;
-    uint16_t adv_interval_max;
-    uint8_t adv_repeat_packets;
-    uint8_t adv_use_random_address;
-    uint8_t adv_channel_map;
-    uint16_t scan_interval;
-    uint16_t scan_window;
-});
-
-typedef struct sl_btmesh_cmd_test_set_adv_scan_params_s sl_btmesh_cmd_test_set_adv_scan_params_t;
-
-
 PACKSTRUCT( struct sl_btmesh_cmd_test_set_ivupdate_test_mode_s
 {
     uint8_t mode;
 });
 
 typedef struct sl_btmesh_cmd_test_set_ivupdate_test_mode_s sl_btmesh_cmd_test_set_ivupdate_test_mode_t;
-
-
-PACKSTRUCT( struct sl_btmesh_cmd_test_set_segment_send_delay_s
-{
-    uint8_t delay;
-});
-
-typedef struct sl_btmesh_cmd_test_set_segment_send_delay_s sl_btmesh_cmd_test_set_segment_send_delay_t;
 
 
 PACKSTRUCT( struct sl_btmesh_cmd_test_set_ivupdate_state_s
@@ -2620,19 +2600,6 @@ PACKSTRUCT( struct sl_btmesh_cmd_test_update_local_key_s
 });
 
 typedef struct sl_btmesh_cmd_test_update_local_key_s sl_btmesh_cmd_test_update_local_key_t;
-
-
-PACKSTRUCT( struct sl_btmesh_cmd_test_set_sar_config_s
-{
-    uint32_t incomplete_timer_ms;
-    uint32_t pending_ack_base_ms;
-    uint32_t pending_ack_mul_ms;
-    uint32_t wait_for_ack_base_ms;
-    uint32_t wait_for_ack_mul_ms;
-    uint8_t max_send_rounds;
-});
-
-typedef struct sl_btmesh_cmd_test_set_sar_config_s sl_btmesh_cmd_test_set_sar_config_t;
 
 
 PACKSTRUCT( struct sl_btmesh_cmd_test_set_adv_bearer_state_s
@@ -4177,6 +4144,14 @@ PACKSTRUCT( struct sl_btmesh_cmd_scene_client_delete_s
 typedef struct sl_btmesh_cmd_scene_client_delete_s sl_btmesh_cmd_scene_client_delete_t;
 
 
+PACKSTRUCT( struct sl_btmesh_cmd_scene_client_deinit_s
+{
+    uint16_t elem_index;
+});
+
+typedef struct sl_btmesh_cmd_scene_client_deinit_s sl_btmesh_cmd_scene_client_deinit_t;
+
+
 PACKSTRUCT( struct sl_btmesh_cmd_scene_server_init_s
 {
     uint16_t elem_index;
@@ -4207,6 +4182,14 @@ PACKSTRUCT( struct sl_btmesh_cmd_scene_setup_server_init_s
 });
 
 typedef struct sl_btmesh_cmd_scene_setup_server_init_s sl_btmesh_cmd_scene_setup_server_init_t;
+
+
+PACKSTRUCT( struct sl_btmesh_cmd_scene_setup_server_deinit_s
+{
+    uint16_t elem_index;
+});
+
+typedef struct sl_btmesh_cmd_scene_setup_server_deinit_s sl_btmesh_cmd_scene_setup_server_deinit_t;
 
 
 PACKSTRUCT( struct sl_btmesh_cmd_scheduler_client_init_s
@@ -5928,6 +5911,15 @@ PACKSTRUCT( struct sl_btmesh_rsp_node_clear_provisioning_service_scan_response_s
 typedef struct sl_btmesh_rsp_node_clear_provisioning_service_scan_response_s sl_btmesh_rsp_node_clear_provisioning_service_scan_response_t;
 
 
+PACKSTRUCT( struct sl_btmesh_rsp_node_compare_dcd_s
+{
+    uint16_t result;
+    uint32_t diff;
+});
+
+typedef struct sl_btmesh_rsp_node_compare_dcd_s sl_btmesh_rsp_node_compare_dcd_t;
+
+
 PACKSTRUCT( struct sl_btmesh_rsp_prov_init_s
 {
     uint16_t result;
@@ -6216,15 +6208,6 @@ PACKSTRUCT( struct sl_btmesh_rsp_prov_flush_key_refresh_state_s
 });
 
 typedef struct sl_btmesh_rsp_prov_flush_key_refresh_state_s sl_btmesh_rsp_prov_flush_key_refresh_state_t;
-
-
-PACKSTRUCT( struct sl_btmesh_rsp_prov_test_identity_s
-{
-    uint16_t result;
-    uint8_t match;
-});
-
-typedef struct sl_btmesh_rsp_prov_test_identity_s sl_btmesh_rsp_prov_test_identity_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_prov_get_provisioning_records_list_s
@@ -6853,14 +6836,6 @@ PACKSTRUCT( struct sl_btmesh_rsp_test_set_relay_s
 typedef struct sl_btmesh_rsp_test_set_relay_s sl_btmesh_rsp_test_set_relay_t;
 
 
-PACKSTRUCT( struct sl_btmesh_rsp_test_set_adv_scan_params_s
-{
-    uint16_t result;
-});
-
-typedef struct sl_btmesh_rsp_test_set_adv_scan_params_s sl_btmesh_rsp_test_set_adv_scan_params_t;
-
-
 PACKSTRUCT( struct sl_btmesh_rsp_test_set_ivupdate_test_mode_s
 {
     uint16_t result;
@@ -6876,14 +6851,6 @@ PACKSTRUCT( struct sl_btmesh_rsp_test_get_ivupdate_test_mode_s
 });
 
 typedef struct sl_btmesh_rsp_test_get_ivupdate_test_mode_s sl_btmesh_rsp_test_get_ivupdate_test_mode_t;
-
-
-PACKSTRUCT( struct sl_btmesh_rsp_test_set_segment_send_delay_s
-{
-    uint16_t result;
-});
-
-typedef struct sl_btmesh_rsp_test_set_segment_send_delay_s sl_btmesh_rsp_test_set_segment_send_delay_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_test_set_ivupdate_state_s
@@ -7052,14 +7019,6 @@ PACKSTRUCT( struct sl_btmesh_rsp_test_update_local_key_s
 });
 
 typedef struct sl_btmesh_rsp_test_update_local_key_s sl_btmesh_rsp_test_update_local_key_t;
-
-
-PACKSTRUCT( struct sl_btmesh_rsp_test_set_sar_config_s
-{
-    uint16_t result;
-});
-
-typedef struct sl_btmesh_rsp_test_set_sar_config_s sl_btmesh_rsp_test_set_sar_config_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_test_set_adv_bearer_state_s
@@ -8421,6 +8380,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_scene_client_delete_s
 typedef struct sl_btmesh_rsp_scene_client_delete_s sl_btmesh_rsp_scene_client_delete_t;
 
 
+PACKSTRUCT( struct sl_btmesh_rsp_scene_client_deinit_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_scene_client_deinit_s sl_btmesh_rsp_scene_client_deinit_t;
+
+
 PACKSTRUCT( struct sl_btmesh_rsp_scene_server_init_s
 {
     uint16_t result;
@@ -8459,6 +8426,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_scene_setup_server_init_s
 });
 
 typedef struct sl_btmesh_rsp_scene_setup_server_init_s sl_btmesh_rsp_scene_setup_server_init_t;
+
+
+PACKSTRUCT( struct sl_btmesh_rsp_scene_setup_server_deinit_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_scene_setup_server_deinit_s sl_btmesh_rsp_scene_setup_server_deinit_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_scheduler_client_init_s
@@ -9910,6 +9885,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_diagnostic_get_friend_s
 typedef struct sl_btmesh_rsp_diagnostic_get_friend_s sl_btmesh_rsp_diagnostic_get_friend_t;
 
 
+PACKSTRUCT( struct sl_btmesh_rsp_model_migration_migrate_models_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_model_migration_migrate_models_s sl_btmesh_rsp_model_migration_migrate_models_t;
+
+
 
 PACKSTRUCT( struct sl_btmesh_packet {
   uint32_t   header;
@@ -9945,6 +9928,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_node_set_proxy_service_scan_response_t         cmd_node_set_proxy_service_scan_response;
     sl_btmesh_cmd_node_clear_proxy_service_scan_response_t       cmd_node_clear_proxy_service_scan_response;
     sl_btmesh_cmd_node_set_provisioning_service_scan_response_t  cmd_node_set_provisioning_service_scan_response;
+    sl_btmesh_cmd_node_compare_dcd_t                             cmd_node_compare_dcd;
     sl_btmesh_cmd_prov_create_provisioning_session_t             cmd_prov_create_provisioning_session;
     sl_btmesh_cmd_prov_set_provisioning_suspend_event_t          cmd_prov_set_provisioning_suspend_event;
     sl_btmesh_cmd_prov_provision_adv_device_t                    cmd_prov_provision_adv_device;
@@ -9975,7 +9959,6 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_prov_get_key_refresh_phase_t                   cmd_prov_get_key_refresh_phase;
     sl_btmesh_cmd_prov_start_key_refresh_from_phase_t            cmd_prov_start_key_refresh_from_phase;
     sl_btmesh_cmd_prov_flush_key_refresh_state_t                 cmd_prov_flush_key_refresh_state;
-    sl_btmesh_cmd_prov_test_identity_t                           cmd_prov_test_identity;
     sl_btmesh_cmd_prov_get_provisioning_records_list_t           cmd_prov_get_provisioning_records_list;
     sl_btmesh_cmd_prov_get_provisioning_record_data_t            cmd_prov_get_provisioning_record_data;
     sl_btmesh_cmd_proxy_connect_t                                cmd_proxy_connect;
@@ -10020,9 +10003,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_generic_server_get_cached_state_t              cmd_generic_server_get_cached_state;
     sl_btmesh_cmd_test_set_nettx_t                               cmd_test_set_nettx;
     sl_btmesh_cmd_test_set_relay_t                               cmd_test_set_relay;
-    sl_btmesh_cmd_test_set_adv_scan_params_t                     cmd_test_set_adv_scan_params;
     sl_btmesh_cmd_test_set_ivupdate_test_mode_t                  cmd_test_set_ivupdate_test_mode;
-    sl_btmesh_cmd_test_set_segment_send_delay_t                  cmd_test_set_segment_send_delay;
     sl_btmesh_cmd_test_set_ivupdate_state_t                      cmd_test_set_ivupdate_state;
     sl_btmesh_cmd_test_bind_local_model_app_t                    cmd_test_bind_local_model_app;
     sl_btmesh_cmd_test_unbind_local_model_app_t                  cmd_test_unbind_local_model_app;
@@ -10039,7 +10020,6 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_test_add_local_key_t                           cmd_test_add_local_key;
     sl_btmesh_cmd_test_remove_local_key_t                        cmd_test_remove_local_key;
     sl_btmesh_cmd_test_update_local_key_t                        cmd_test_update_local_key;
-    sl_btmesh_cmd_test_set_sar_config_t                          cmd_test_set_sar_config;
     sl_btmesh_cmd_test_set_adv_bearer_state_t                    cmd_test_set_adv_bearer_state;
     sl_btmesh_cmd_test_prov_get_device_key_t                     cmd_test_prov_get_device_key;
     sl_btmesh_cmd_test_prov_prepare_key_refresh_t                cmd_test_prov_prepare_key_refresh;
@@ -10187,10 +10167,12 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_scene_client_recall_t                          cmd_scene_client_recall;
     sl_btmesh_cmd_scene_client_store_t                           cmd_scene_client_store;
     sl_btmesh_cmd_scene_client_delete_t                          cmd_scene_client_delete;
+    sl_btmesh_cmd_scene_client_deinit_t                          cmd_scene_client_deinit;
     sl_btmesh_cmd_scene_server_init_t                            cmd_scene_server_init;
     sl_btmesh_cmd_scene_server_deinit_t                          cmd_scene_server_deinit;
     sl_btmesh_cmd_scene_server_reset_register_t                  cmd_scene_server_reset_register;
     sl_btmesh_cmd_scene_setup_server_init_t                      cmd_scene_setup_server_init;
+    sl_btmesh_cmd_scene_setup_server_deinit_t                    cmd_scene_setup_server_deinit;
     sl_btmesh_cmd_scheduler_client_init_t                        cmd_scheduler_client_init;
     sl_btmesh_cmd_scheduler_client_deinit_t                      cmd_scheduler_client_deinit;
     sl_btmesh_cmd_scheduler_client_get_t                         cmd_scheduler_client_get;
@@ -10371,6 +10353,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_node_clear_proxy_service_scan_response_t       rsp_node_clear_proxy_service_scan_response;
     sl_btmesh_rsp_node_set_provisioning_service_scan_response_t  rsp_node_set_provisioning_service_scan_response;
     sl_btmesh_rsp_node_clear_provisioning_service_scan_response_t rsp_node_clear_provisioning_service_scan_response;
+    sl_btmesh_rsp_node_compare_dcd_t                             rsp_node_compare_dcd;
     sl_btmesh_rsp_prov_init_t                                    rsp_prov_init;
     sl_btmesh_rsp_prov_scan_unprov_beacons_t                     rsp_prov_scan_unprov_beacons;
     sl_btmesh_rsp_prov_create_provisioning_session_t             rsp_prov_create_provisioning_session;
@@ -10406,7 +10389,6 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_prov_get_key_refresh_phase_t                   rsp_prov_get_key_refresh_phase;
     sl_btmesh_rsp_prov_start_key_refresh_from_phase_t            rsp_prov_start_key_refresh_from_phase;
     sl_btmesh_rsp_prov_flush_key_refresh_state_t                 rsp_prov_flush_key_refresh_state;
-    sl_btmesh_rsp_prov_test_identity_t                           rsp_prov_test_identity;
     sl_btmesh_rsp_prov_get_provisioning_records_list_t           rsp_prov_get_provisioning_records_list;
     sl_btmesh_rsp_prov_get_provisioning_record_data_t            rsp_prov_get_provisioning_record_data;
     sl_btmesh_rsp_prov_init_provisioning_records_t               rsp_prov_init_provisioning_records;
@@ -10484,10 +10466,8 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_test_set_nettx_t                               rsp_test_set_nettx;
     sl_btmesh_rsp_test_get_relay_t                               rsp_test_get_relay;
     sl_btmesh_rsp_test_set_relay_t                               rsp_test_set_relay;
-    sl_btmesh_rsp_test_set_adv_scan_params_t                     rsp_test_set_adv_scan_params;
     sl_btmesh_rsp_test_set_ivupdate_test_mode_t                  rsp_test_set_ivupdate_test_mode;
     sl_btmesh_rsp_test_get_ivupdate_test_mode_t                  rsp_test_get_ivupdate_test_mode;
-    sl_btmesh_rsp_test_set_segment_send_delay_t                  rsp_test_set_segment_send_delay;
     sl_btmesh_rsp_test_set_ivupdate_state_t                      rsp_test_set_ivupdate_state;
     sl_btmesh_rsp_test_send_beacons_t                            rsp_test_send_beacons;
     sl_btmesh_rsp_test_bind_local_model_app_t                    rsp_test_bind_local_model_app;
@@ -10507,7 +10487,6 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_test_add_local_key_t                           rsp_test_add_local_key;
     sl_btmesh_rsp_test_remove_local_key_t                        rsp_test_remove_local_key;
     sl_btmesh_rsp_test_update_local_key_t                        rsp_test_update_local_key;
-    sl_btmesh_rsp_test_set_sar_config_t                          rsp_test_set_sar_config;
     sl_btmesh_rsp_test_set_adv_bearer_state_t                    rsp_test_set_adv_bearer_state;
     sl_btmesh_rsp_test_prov_get_device_key_t                     rsp_test_prov_get_device_key;
     sl_btmesh_rsp_test_prov_prepare_key_refresh_t                rsp_test_prov_prepare_key_refresh;
@@ -10667,11 +10646,13 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_scene_client_recall_t                          rsp_scene_client_recall;
     sl_btmesh_rsp_scene_client_store_t                           rsp_scene_client_store;
     sl_btmesh_rsp_scene_client_delete_t                          rsp_scene_client_delete;
+    sl_btmesh_rsp_scene_client_deinit_t                          rsp_scene_client_deinit;
     sl_btmesh_rsp_scene_server_init_t                            rsp_scene_server_init;
     sl_btmesh_rsp_scene_server_deinit_t                          rsp_scene_server_deinit;
     sl_btmesh_rsp_scene_server_reset_register_t                  rsp_scene_server_reset_register;
     sl_btmesh_rsp_scene_server_enable_compact_recall_events_t    rsp_scene_server_enable_compact_recall_events;
     sl_btmesh_rsp_scene_setup_server_init_t                      rsp_scene_setup_server_init;
+    sl_btmesh_rsp_scene_setup_server_deinit_t                    rsp_scene_setup_server_deinit;
     sl_btmesh_rsp_scheduler_client_init_t                        rsp_scheduler_client_init;
     sl_btmesh_rsp_scheduler_client_deinit_t                      rsp_scheduler_client_deinit;
     sl_btmesh_rsp_scheduler_client_get_t                         rsp_scheduler_client_get;
@@ -10840,6 +10821,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_diagnostic_enable_friend_t                     rsp_diagnostic_enable_friend;
     sl_btmesh_rsp_diagnostic_disable_friend_t                    rsp_diagnostic_disable_friend;
     sl_btmesh_rsp_diagnostic_get_friend_t                        rsp_diagnostic_get_friend;
+    sl_btmesh_rsp_model_migration_migrate_models_t               rsp_model_migration_migrate_models;
     sl_btmesh_evt_node_initialized_t                             evt_node_initialized;
     sl_btmesh_evt_node_provisioned_t                             evt_node_provisioned;
     sl_btmesh_evt_node_config_get_t                              evt_node_config_get;

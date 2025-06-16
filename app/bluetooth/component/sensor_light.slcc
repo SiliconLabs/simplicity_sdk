@@ -1,6 +1,6 @@
 id: sensor_light
 label: Ambient light and UV index sensor
-package: Bluetooth
+package: bluetooth_le_middleware
 description: Ambient light and UV index sensor driver abstraction designed for Thunderboard. Not suitable for other applications.
 category: Bluetooth|Application|Miscellaneous
 metadata:

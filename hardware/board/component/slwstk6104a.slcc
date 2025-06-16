@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6104a
 - label: SLWSTK6104A
-- package: platform
+- package: boards
 - description: Kit BSP support for the MGM220P Wireless Gecko Module Starter Kit.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

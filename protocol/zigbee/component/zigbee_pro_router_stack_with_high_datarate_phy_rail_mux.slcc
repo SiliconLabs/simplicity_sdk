@@ -1,6 +1,6 @@
 id: zigbee_pro_router_stack_with_high_datarate_phy_rail_mux
 label: Pro Router Stack with high datarate phy and rail mux
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The main Zigbee PRO Stack component for routers only for parsing, processing, generating and managing the Zigbee PRO stack messages and functionality.  It includes stubs for code only needed on end devices or coordinators.This includes the high datarate phy feature and rail mux

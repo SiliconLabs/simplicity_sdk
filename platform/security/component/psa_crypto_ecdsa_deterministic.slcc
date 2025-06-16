@@ -1,5 +1,5 @@
 id: psa_crypto_ecdsa_deterministic
-package: platform
+package: security_mbedtls
 label: Deterministic ECDSA
 description:
   "This component provides support for signature generation with deterministic ECDSA (RFC-6979) in PSA Crypto."

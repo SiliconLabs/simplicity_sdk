@@ -53,14 +53,6 @@
 #endif
 #include "sl_psa_crypto.h"
 
-#if defined(_SILICON_LABS_32B_SERIES_2)
-#define GET_SECURITY_CAPABILITY SYSTEM_GetSecurityCapability
-#define VAULT_ENABLED securityCapabilityVault
-#else
-#define GET_SECURITY_CAPABILITY sl_hal_system_get_security_capability
-#define VAULT_ENABLED SL_SYSTEM_SECURITY_CAPABILITY_VAULT
-#endif
-
 #define PERSISTENCE_KEY_ID_USED_MAX (7)
 #define MAX_HMAC_KEY_SIZE (32)
 
@@ -208,7 +200,7 @@ static void checkAndWrapKeys(void)
 void otPlatCryptoInit(void)
 {
 #if defined(SEMAILBOX_PRESENT) && !defined(SL_TRUSTZONE_NONSECURE)
-    if (GET_SECURITY_CAPABILITY() == VAULT_ENABLED)
+    if (sl_psa_get_most_secure_key_location() == SL_PSA_KEY_LOCATION_WRAPPED)
     {
         checkAndWrapKeys();
     }

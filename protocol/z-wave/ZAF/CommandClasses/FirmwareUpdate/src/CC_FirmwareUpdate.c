@@ -1,8 +1,8 @@
 /**
-* @file
-* Command Class Firmware Update source file.
-* @copyright 2018 Silicon Laboratories Inc.
-*/
+ * @file
+ * Command Class Firmware Update source file.
+ * @copyright 2018 Silicon Laboratories Inc.
+ */
 
 /****************************************************************************/
 /*                              INCLUDE FILES                               */
@@ -15,13 +15,10 @@
 #include <zaf_config_api.h>
 #include <cc_firmware_update_config.h>
 #include "zaf_transport_tx.h"
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
 /****************************************************************************/
-
 
 /****************************************************************************/
 /*                              PRIVATE DATA                                */
@@ -43,15 +40,13 @@ CC_FirmwareUpdate_handler(
   ZW_APPLICATION_TX_BUFFER *pFrameOut,
   uint8_t * pFrameOutLength)
 {
-  if (true == Check_not_legal_response_job(rxOpt))
-  {
+  if (true == Check_not_legal_response_job(rxOpt)) {
     // None of the following commands support endpoint bit addressing.
-    DPRINT("RECEIVED_FRAME_STATUS_FAIL\n");
+    ZPAL_LOG_WARNING(ZPAL_LOG_CC_FIRMWARE_UPDATE, "RECEIVED_FRAME_STATUS_FAIL\n");
     return RECEIVED_FRAME_STATUS_FAIL;
   }
 
-  switch (pCmd->ZW_Common.cmd)
-  {
+  switch (pCmd->ZW_Common.cmd) {
     case FIRMWARE_MD_GET_V5:
     {
       uint8_t * pData;
@@ -70,7 +65,7 @@ CC_FirmwareUpdate_handler(
       pFrameOut->ZW_FirmwareMdReport1byteV5Frame.firmware0Checksum2 = 0x00; // Checksum N/A for SDK7
       pFrameOut->ZW_FirmwareMdReport1byteV5Frame.firmwareUpgradable = 0xFF; // Hardcode to upgradable.
       numberOfFirmwareTargets = zaf_config_get_firmware_target_count();
-      if(zaf_config_get_bootloader_upgradable()) {
+      if (zaf_config_get_bootloader_upgradable()) {
         numberOfFirmwareTargets++;
       }
       pFrameOut->ZW_FirmwareMdReport1byteV5Frame.numberOfFirmwareTargets = numberOfFirmwareTargets - 1; /* -1 : Firmware version 0 */
@@ -79,8 +74,7 @@ CC_FirmwareUpdate_handler(
       pFrameOut->ZW_FirmwareMdReport1byteV5Frame.maxFragmentSize2 = (uint8_t)maxFragmentSize;
       pData = (uint8_t *)pFrameOut;
       uint8_t  i;
-      for (i = 1; i < numberOfFirmwareTargets; i++)
-      {
+      for (i = 1; i < numberOfFirmwareTargets; i++) {
         *(pData + 10 + (2 * i)) = (uint8_t)(handleFirmWareIdGetExtended(i) >> 8);
         *(pData + 10 + (2 * i) + 1) = (uint8_t)(handleFirmWareIdGetExtended(i) & 0xff);
       }
@@ -93,75 +87,71 @@ CC_FirmwareUpdate_handler(
     }
     break;
     case FIRMWARE_UPDATE_MD_REPORT_V5:
-      {
-        DPRINT("FIRMWARE_UPDATE_MD_REPORT_V5 - Report received!\n");
+    {
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_FIRMWARE_UPDATE, "FIRMWARE_UPDATE_MD_REPORT_V5 - Report received!\n");
 
-        uint16_t crc16Result = CRC_CheckCrc16(CRC_INITAL_VALUE, &(pCmd->ZW_Common.cmdClass), cmdLength);
-        DPRINTF("crc16Result = 0x%04x (valid CRC = %s)\n", crc16Result, (crc16Result == 0) ? "true" : "false");
+      uint16_t crc16Result = CRC_CheckCrc16(CRC_INITAL_VALUE, &(pCmd->ZW_Common.cmdClass), cmdLength);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_FIRMWARE_UPDATE, "crc16Result = 0x%04x (valid CRC = %s)\n", crc16Result, (crc16Result == 0) ? "true" : "false");
 
-        uint16_t  firmwareUpdateReportNumber = (uint16_t)((uint16_t)(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1 &
-                                      FIRMWARE_UPDATE_MD_REPORT_PROPERTIES1_REPORT_NUMBER_1_MASK_V5) << 8) +
-                                     (uint16_t)(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.reportNumber2);
-        DPRINTF("Report number = 0x%04x (dec: %u)\n", firmwareUpdateReportNumber, firmwareUpdateReportNumber);
+      uint16_t  firmwareUpdateReportNumber = (uint16_t)((uint16_t)(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1
+                                                                   & FIRMWARE_UPDATE_MD_REPORT_PROPERTIES1_REPORT_NUMBER_1_MASK_V5) << 8)
+                                             + (uint16_t)(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.reportNumber2);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_FIRMWARE_UPDATE, "Report number = 0x%04x (dec: %u)\n", firmwareUpdateReportNumber, firmwareUpdateReportNumber);
 
-        uint8_t fw_actualFrameSize =  cmdLength -
-                                  /* Calculate length of actual data1 field */
-                                  (uint8_t)(sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.cmdClass) +
-                                   sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.cmd) +
-                                   sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1) +
-                                   sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.reportNumber2) +
-                                   sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.checksum1) +
-                                   sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.checksum2));
-        DPRINTF("fw_actualFrameSize = 0x%02x\n", fw_actualFrameSize);
+      uint8_t fw_actualFrameSize =  cmdLength
+                                   -/* Calculate length of actual data1 field */
+                                   (uint8_t)(sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.cmdClass)
+                                             + sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.cmd)
+                                             + sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1)
+                                             + sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.reportNumber2)
+                                             + sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.checksum1)
+                                             + sizeof(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.checksum2));
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_FIRMWARE_UPDATE, "fw_actualFrameSize = 0x%02x\n", fw_actualFrameSize);
 
-        handleCmdClassFirmwareUpdateMdReport(crc16Result,
-                                             firmwareUpdateReportNumber,
-                                             pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1,
-                                             &(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.data1),
-                                             fw_actualFrameSize);
-
-
-      }
+      handleCmdClassFirmwareUpdateMdReport(crc16Result,
+                                           firmwareUpdateReportNumber,
+                                           pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.properties1,
+                                           &(pCmd->ZW_FirmwareUpdateMdReport1byteV5Frame.data1),
+                                           fw_actualFrameSize);
+    }
       return RECEIVED_FRAME_STATUS_SUCCESS;
     case FIRMWARE_UPDATE_MD_REQUEST_GET_V5:
-      {
-        uint8_t status = 0;
-        zaf_tx_options_t tx_options = { 0 };
+    {
+      uint8_t status = 0;
+      zaf_tx_options_t tx_options = { 0 };
 
-        handleCmdClassFirmwareUpdateMdReqGet(
-            rxOpt,
-            (ZW_FIRMWARE_UPDATE_MD_REQUEST_GET_V5_FRAME *)pCmd,
-            cmdLength,
-            &status);
+      handleCmdClassFirmwareUpdateMdReqGet(
+        rxOpt,
+        (ZW_FIRMWARE_UPDATE_MD_REQUEST_GET_V5_FRAME *)pCmd,
+        cmdLength,
+        &status);
 
-        ZAF_TRANSPORT_TX_BUFFER  TxBuf = {
-          .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.cmdClass = COMMAND_CLASS_FIRMWARE_UPDATE_MD_V5,
-          .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.cmd = FIRMWARE_UPDATE_MD_REQUEST_REPORT_V5,
-          .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.status = status
+      ZAF_TRANSPORT_TX_BUFFER  TxBuf = {
+        .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.cmdClass = COMMAND_CLASS_FIRMWARE_UPDATE_MD_V5,
+        .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.cmd = FIRMWARE_UPDATE_MD_REQUEST_REPORT_V5,
+        .appTxBuf.ZW_FirmwareUpdateMdRequestReportV5Frame.status = status
+      };
+
+      zaf_transport_rx_to_tx_options(rxOpt, &tx_options);
+      tx_options.use_supervision = true;
+      if (!zaf_transport_tx((uint8_t *)&(TxBuf.appTxBuf),
+                            sizeof(ZW_FIRMWARE_UPDATE_MD_REQUEST_REPORT_V5_FRAME),
+                            ZCB_CmdClassFwUpdateMdReqReport, &tx_options)) {
+        transmission_result_t txResult = {
+          .status = TRANSMIT_COMPLETE_FAIL
         };
-
-        zaf_transport_rx_to_tx_options(rxOpt, &tx_options);
-        tx_options.use_supervision = true;
-        if(!zaf_transport_tx((uint8_t *)&(TxBuf.appTxBuf),
-                sizeof(ZW_FIRMWARE_UPDATE_MD_REQUEST_REPORT_V5_FRAME),
-                ZCB_CmdClassFwUpdateMdReqReport, &tx_options))
-        {
-          transmission_result_t txResult = {
-            .status = TRANSMIT_COMPLETE_FAIL
-          };
-          ZCB_CmdClassFwUpdateMdReqReport(&txResult);
-        }
-        return RECEIVED_FRAME_STATUS_SUCCESS;
+        ZCB_CmdClassFwUpdateMdReqReport(&txResult);
       }
+      return RECEIVED_FRAME_STATUS_SUCCESS;
+    }
     case FIRMWARE_UPDATE_ACTIVATION_SET_V5:
     {
       uint8_t status;
-      if (true != CC_FirmwareUpdate_ActivationSet_handler((ZW_FIRMWARE_UPDATE_ACTIVATION_SET_V5_FRAME *)pCmd, &status))
-      {
+      if (true != CC_FirmwareUpdate_ActivationSet_handler((ZW_FIRMWARE_UPDATE_ACTIVATION_SET_V5_FRAME *)pCmd, &status)) {
         memcpy(
-            ((uint8_t*)pFrameOut),
-            ((uint8_t*)pCmd),
-            sizeof(ZW_FIRMWARE_UPDATE_ACTIVATION_SET_V5_FRAME) - 1);
+          ((uint8_t*)pFrameOut),
+          ((uint8_t*)pCmd),
+          sizeof(ZW_FIRMWARE_UPDATE_ACTIVATION_SET_V5_FRAME) - 1);
 
         pFrameOut->ZW_FirmwareUpdateActivationStatusReportV5Frame.cmd = FIRMWARE_UPDATE_ACTIVATION_STATUS_REPORT_V5;
         pFrameOut->ZW_FirmwareUpdateActivationStatusReportV5Frame.firmwareUpdateStatus = FIRMWARE_UPDATE_ACTIVATION_STATUS_REPORT_INVALID_COMBINATION_V5;
@@ -212,4 +202,3 @@ static void init_and_reset(void)
 }
 
 REGISTER_CC_V4(COMMAND_CLASS_FIRMWARE_UPDATE_MD_V5, FIRMWARE_UPDATE_MD_VERSION_V5, CC_FirmwareUpdate_handler, NULL, NULL, NULL, 0, init_and_reset, init_and_reset);
-

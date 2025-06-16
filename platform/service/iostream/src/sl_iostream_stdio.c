@@ -113,23 +113,24 @@ static sl_status_t stdio_read(void *context,
                               size_t buffer_length,
                               size_t *bytes_read)
 {
-  sl_status_t status = SL_STATUS_OK;
   char *buf = buffer;
+  size_t i;
 
   (void)context;
 
-  for (size_t i = 0; i < buffer_length; i++) {
+  for (i = 0; i < buffer_length; i++) {
     int c = getchar();
     if (c == EOF) {
       break;
     }
     buf[i] = (char)c;
-    (*bytes_read)++;
   }
 
-  if (*bytes_read == 0) {
-    status = SL_STATUS_EMPTY;
+  *bytes_read = i;
+
+  if (i == 0) {
+    return SL_STATUS_EMPTY;
   }
 
-  return status;
+  return SL_STATUS_OK;
 }

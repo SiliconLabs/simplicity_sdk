@@ -1,5 +1,5 @@
 id: tz_sl_interface_crypto_asym_sign_funcs
-package: platform
+package: security_trustzone
 description: >-
   This component provides a TrustZone secure library interface crypto asym sign functions
 category: Platform|Security|TrustZone

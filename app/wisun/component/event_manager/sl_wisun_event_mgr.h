@@ -48,6 +48,10 @@ extern "C" {
 /// User can implement own callbacks and register them (not mandatory)
 typedef void (*custom_wisun_event_callback_t) (sl_wisun_evt_t *);
 
+/// Wi-SUN event notification condition callback type.
+/// User can implement own condition callbacks and register them (not mandatory)
+typedef bool (*wisun_event_notify_cond_callback_t) (sl_wisun_evt_t *);
+
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
@@ -92,7 +96,7 @@ sl_status_t app_wisun_em_subscribe_evt_notification(const sl_wisun_msg_ind_id_t 
                                                     uint8_t * const evt_ch);
 
 /**************************************************************************//**
- * @brief Unubscribe to event notification.
+ * @brief Unsubscribe to event notification.
  * @details Remove event channel from event notification
  * @param[in] id event ID
  * @param[in] evt_ch Destination event channel
@@ -110,6 +114,40 @@ sl_status_t app_wisun_em_unsubscribe_evt_notification(const sl_wisun_msg_ind_id_
  *****************************************************************************/
 sl_status_t app_wisun_em_wait_evt_notification(const sl_wisun_msg_ind_id_t id,
                                                const uint8_t evt_ch);
+
+/**************************************************************************//**
+ * @brief Waiting for event notification (extended)
+ * @details Waiting for the particular event flag described by notification channel
+ * @param[in] id event ID
+ * @param[in] evt_ch Destination event channel
+ * @param[in] timeout Timeout value in kernel ticks
+ * @return sl_status_t SL_STATUS_OK if it is successful otherwise SL_STATUS_FAIL
+ *****************************************************************************/
+sl_status_t app_wisun_em_wait_evt_notification_ext(const sl_wisun_msg_ind_id_t id,
+                                                   const uint8_t evt_ch,
+                                                   const uint32_t timeout);
+
+/**************************************************************************//**
+ * @brief Add condition event notification
+ * @details Add condition event notification for the particular event flag
+ *          described by notification channel
+ * @param[in] id event ID
+ * @param[in] evt_ch Destination event channel
+ * @param[in] cond_cb Condition callback
+ *****************************************************************************/
+sl_status_t app_wisun_em_add_condition_evt_notification(const sl_wisun_msg_ind_id_t id,
+                                                        const uint8_t evt_ch,
+                                                        wisun_event_notify_cond_callback_t cond_cb);
+
+/**************************************************************************//**
+* @brief Remove condition event notification
+* @details Remove condition event notification for the particular event flag
+*          described by notification channel
+* @param[in] id event ID
+* @param[in] evt_ch Destination event channel
+*****************************************************************************/
+sl_status_t app_wisun_em_rm_condition_evt_notification(const sl_wisun_msg_ind_id_t id,
+                                                       const uint8_t evt_ch);
 
 // ------------------------- event callbacks -----------------------------------
 
@@ -135,7 +173,7 @@ void sl_wisun_connected_event_hnd(sl_wisun_evt_t *evt);
 void sl_wisun_socket_data_event_hnd(sl_wisun_evt_t *evt);
 
 /**************************************************************************//**
- * @brief Data avialable event handler
+ * @brief Data available event handler
  * @details
  * @param[in] evt event ptr
  *****************************************************************************/

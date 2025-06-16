@@ -35,12 +35,7 @@
 #include "sl_btmesh_provisionee_config.h"
 
 /***************************************************************************//**
- * @defgroup provisionee
- * @brief
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup provisionee
+ * @addtogroup btmesh_provisionee
  * @{
  ******************************************************************************/
 
@@ -230,6 +225,6 @@ void sl_btmesh_provisionee_on_event(sl_btmesh_msg_t *evt);
  ******************************************************************************/
 void sl_bt_provisionee_on_event(sl_bt_msg_t* evt);
 
-/** @} (end addtogroup provisionee) */
+/** @} (end addtogroup btmesh_provisionee) */
 
 #endif /* SL_BTMESH_PROVISIONEE_H */

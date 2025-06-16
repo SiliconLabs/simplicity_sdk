@@ -5,8 +5,8 @@
 
 // <o EMDRV_DMADRV_DMA_IRQ_PRIORITY> DMA interrupt priority <0-15>
 // <i> Priority of the DMA interrupt. Smaller number equals higher priority.
-// <i> Default: 8
-#define EMDRV_DMADRV_DMA_IRQ_PRIORITY 8
+// <i> Default: 6
+#define EMDRV_DMADRV_DMA_IRQ_PRIORITY 6
 
 // <o EMDRV_DMADRV_DMA_CH_COUNT> Number of available channels <1-8>
 // <i> Number of DMA channels supported by the driver. A lower channel count

@@ -35,7 +35,6 @@
 #include "semphr.h"
 #include "queue.h"
 #include "portmacro.h"
-#include "sl_common.h"
 #include "app_assert.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
@@ -733,7 +732,7 @@ void sl_button_on_change(const sl_button_t *handle)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/

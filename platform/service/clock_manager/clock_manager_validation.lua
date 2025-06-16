@@ -25,9 +25,13 @@ local hfxo_mode = slc.config("SL_CLOCK_MANAGER_HFXO_MODE")
 local socpll_enable = slc.config("SL_CLOCK_MANAGER_SOCPLL_EN")
 local socpll_refclk = slc.config("SL_CLOCK_MANAGER_SOCPLL_REFCLK")
 local clkin0_freq = slc.config("SL_CLOCK_MANAGER_CLKIN0_FREQ")
-local qspi_advanced_config_enable = slc.config("SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ")
+local qspi_advanced_config_enable = slc.config("SL_CLOCK_MANAGER_QSPICLK_ADVANCED_CONFIG_EN")
 local qspi_custom_freq = slc.config("SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ")
-local socpll_advanced_settings = slc.config("SOCPLL_ADVANCED_SETTINGS")
+local ext_flash_max_freq = slc.config("SL_CLOCK_MANAGER_EXT_FLASH_MAX_FREQ")
+local socpll_advanced_settings = slc.config("SL_CLOCK_MANAGER_SOCPLL_ADVANCED_SETTINGS")
+local hclk_divider = slc.config("SL_CLOCK_MANAGER_HCLK_DIVIDER")
+local pclk_divider = slc.config("SL_CLOCK_MANAGER_PCLK_DIVIDER")
+local is_sixx301 = slc.is_provided("device_generic_family_sixx301")
 
 -- OSCILLATORS VALIDATION --
 -- HFXO related
@@ -111,7 +115,7 @@ end
   elseif dpll_refclk.value == "CMU_DPLLREFCLKCTRL_CLKSEL_CLKIN0" then
     dpll_refclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_CLKIN0_FREQ").value)
   elseif dpll_refclk.value == "CMU_DPLLREFCLKCTRL_CLKSEL_DISABLED" then
-    validation.warning(
+    validation.error(
       "DPLL module is enabled but no Reference clock is selected",
       validation.target_for_defines({"SL_CLOCK_MANAGER_DPLL_REFCLK"}),
       nil,
@@ -121,7 +125,7 @@ end
     -- check formula validation: dpll_freq = hfxo_freq * (N+1)/(M+1)
     local dpll_freq = dpll_refclk_freq * (dpll_n + 1) / (dpll_m + 1)
     if dpll_freq ~= dpll_freq_expected then
-      validation.warning(
+      validation.error(
       "Target frequency is not reachable based on DPLL settings and Reference clock",
       validation.target_for_defines({"SL_CLOCK_MANAGER_DPLL_FREQ"}),
       nil,
@@ -149,7 +153,7 @@ end
       socpll_refclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_HFRCO_BAND").value)
     end
   end
-  if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings == 1 then
+  if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings.value == "1" then
     -- check formula validation: socpll_freq = Fref * (DIVN+2 + DIVF/1024) / 6
     local socpll_freq
     local socpll_freq_expected = tonumber(slc.config("SL_CLOCK_MANAGER_SOCPLL_FREQ").value)
@@ -165,13 +169,22 @@ end
     local socpll_range_max = socpll_freq + socpll_max_ppm * socpll_freq/1000000
     local socpll_range_min = socpll_freq - socpll_max_ppm * socpll_freq/1000000
     if socpll_freq_expected < socpll_range_min or socpll_freq_expected > socpll_range_max then
-      validation.warning(
+      validation.error(
       "Target frequency is not reachable based on SOCPLL settings and Reference clock",
       validation.target_for_defines({"SL_CLOCK_MANAGER_SOCPLL_FREQ"}),
       nil,
       nil)
     end
   end
+end
+
+-- EXTERNAL FLASH
+if ext_flash_max_freq ~= nil and ext_flash_max_freq.value == "0" then
+  validation.error(
+    "The part has an External Flash without SL_CLOCK_MANAGER_EXT_FLASH_MAX_FREQ being set to the maximum supported frequency.",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_EXT_FLASH_MAX_FREQ"}),
+    nil,
+    nil)
 end
 
 -- CLOCK BRANCHES VALIDATION --
@@ -430,12 +443,90 @@ if i2c0clk_source ~= nil then
 
 -- QSPICLK
 if qspi_advanced_config_enable ~= nil then
-  if qspi_advanced_config_enable ==  "1" and qspi_custom_freq.value == "0" then
-    validation.error(
-      "QSPI advanced configuration are enabled and requires a QSPI custom frequency greater than zero",
-      validation.target_for_defines({"SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ"}),
-      nil,
-      nil)
+  if qspi_advanced_config_enable.value == "1" then
+    if tonumber(qspi_custom_freq.value) < 90000000 then
+      validation.error(
+        "QSPI advanced configuration are enabled and requires a QSPI custom frequency greater than 90MHz",
+        validation.target_for_defines({"SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ"}),
+        nil,
+        nil)
+    end
+    if ext_flash_max_freq ~= nil and tonumber(qspi_custom_freq.value) > tonumber(ext_flash_max_freq.value) then
+      validation.error(
+        "QSPI advanced configuration are enabled and frequency must be equal or lower than the SL_CLOCK_MANAGER_EXT_FLASH_MAX_FREQ configuration",
+        validation.target_for_defines({"SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ"}),
+        nil,
+        nil)
+    end
   end
 end
 
+-- FREQUENCY VALIDATION --
+if is_sixx301 then
+  -- SYSCLK --
+  local sysclk_freq
+  if sysclk_source.value == "SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE" then
+    sysclk_source = slc.config("SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE")
+    if sysclk_source.value == "SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE_AUTO" then
+      sysclk_source = slc.config("SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE_AUTO")
+    end
+  end
+  if sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_FSRCO" or sysclk_source.value == "SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE_FSRCO" then
+    sysclk_freq = 20000000
+  elseif sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_HFRCODPLL" or sysclk_source.value == "SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE_HFRCODPLL" then
+    if dpll_enable.value == "1" then
+      sysclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_DPLL_FREQ").value)
+    else
+      sysclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_HFRCO_BAND").value)
+    end
+  elseif sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_HFXO" or sysclk_source.value == "SL_CLOCK_MANAGER_DEFAULT_HF_CLOCK_SOURCE_HFXO" then
+    sysclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_HFXO_FREQ").value)
+  elseif sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_CLKIN0" then
+    sysclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_CLKIN0_FREQ").value)
+  elseif sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_SOCPLL" then
+    sysclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_SOCPLL_FREQ").value)
+  else
+    validation.error(
+      "Invalid SYSCLK source selected",
+      validation.target_for_defines({"SL_CLOCK_MANAGER_SYSCLK_SOURCE"}),
+      nil,
+      nil)
+  end
+  if sysclk_freq < 2000000 or sysclk_freq > 150000000 then
+    validation.warning(
+    "Unsupported SYSCLK frequency. It should be between 2MHz and 150MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_SYSCLK_SOURCE"}),
+    nil,
+    nil)
+  end
+  -- HCLK --
+  local hclk_divider = tonumber(string.match(hclk_divider.value, "%d"))
+  local hclk_freq = sysclk_freq / hclk_divider
+  if hclk_freq < 2000000 or hclk_freq > 150000000 then
+    validation.warning(
+    "Unsupported HCLK frequency. It should be between 2MHz and 150MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_HCLK_DIVIDER"}),
+    nil,
+    nil)
+  end
+  -- PCLK --
+  local pclk_divider = tonumber(string.match(pclk_divider.value, "%d"))
+  local pclk_freq = hclk_freq / pclk_divider
+  if pclk_freq < 2000000 or pclk_freq > 75000000 then
+    validation.warning(
+    "Unsupported PCLK frequency. It should be between 2MHz and 75MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_PCLK_DIVIDER"}),
+    nil,
+    nil)
+  end
+  -- LSPCLK --
+  local lspclk_divider = 2
+  local lspclk_freq = pclk_freq / lspclk_divider
+  if lspclk_freq < 1000000 or lspclk_freq > 37500000 then
+    validation.warning(
+    "Unsupported LSPCLK frequency. It should be between 1MHz and 37.5MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_LSPCLK_DIVIDER"}),
+    nil,
+    nil)
+  end
+end

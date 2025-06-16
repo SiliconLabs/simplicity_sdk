@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "sl_status.h"
+#include "sl_bgapi_config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,13 +59,6 @@ extern "C" {
 #endif
 #endif
 
-/**
- * The maximum BGAPI command payload size.
- */
-#ifndef SL_BGAPI_MAX_PAYLOAD_SIZE
-#define SL_BGAPI_MAX_PAYLOAD_SIZE 256
-#endif
-
 /***************************************************************************//**
  * @addtogroup sl_bgapi_types BGAPI Types
  * @brief Common types in BGAPI protocol
@@ -82,11 +76,12 @@ typedef struct {
 
 #ifndef SL_BT_TYPE_BYTE_ARRARY
 #define SL_BT_TYPE_BYTE_ARRARY
-/** @brief Variable-length int8_t array. Maximum length: 65535 */
-typedef struct {
+/** @brief Variable-length uint8_t array. Maximum length: 65535 */
+PACKSTRUCT(struct byte_array_s {
   uint16_t len;    /**< Number of bytes stored in @p data */
-  int8_t   data[]; /**< Data bytes*/
-} byte_array;
+  uint8_t  data[]; /**< Data bytes*/
+});
+typedef struct byte_array_s byte_array;
 #endif
 
 #ifndef SL_BT_TYPE_BDADDR
@@ -183,6 +178,16 @@ enum sl_bgapi_dev_types {
 #define SL_BGAPI_MSG_ID(HDR) ((HDR) & 0xffff00f8)
 
 /**
+ * @brief The maximum value the BGAPI header payload length field can store
+ */
+#define SL_BGAPI_HEADER_MAX_PAYLOAD_LEN (0x7FF)
+
+// Verify that the the payload size configuration we see is within valid range
+#if SL_BGAPI_MAX_PAYLOAD_SIZE > SL_BGAPI_HEADER_MAX_PAYLOAD_LEN
+#error Invalid BGAPI payload configuration. SL_BGAPI_MAX_PAYLOAD_SIZE must not exceed 2047.
+#endif
+
+/**
  * @brief Get the data payload length in a BGAPI message.
  *
  * @param HDR The header of the message as a uint32_t integer
@@ -229,7 +234,88 @@ enum sl_bgapi_dev_types {
  */
 
 /**
+ * @brief Obtain a buffer that can be used to execute BGAPI or user commands.
+ *
+ * This function is provided as a convenience for NCP/CPC components that need
+ * to handle BGAPI or user commands and responses in their binary format. If the
+ * user of @ref sl_bgapi_execute_binary_command already has memory available for
+ * the command and response buffer (such as the memory allocated for UART RX/TX
+ * buffers), the user is encouraged to use the already existing memory when
+ * executing @ref sl_bgapi_execute_binary_command.
+ *
+ * If the user needs to allocate dedicated memory for any reason, using this
+ * function for the allocation may reduce the overall memory usage depending on
+ * the application configuration. If the configuration allows safe sharing of a
+ * message buffer (this is the case in a single-threaded baremetal application),
+ * the function returns the shared message buffer instead of making a separate
+ * allocation. When an RTOS is used, the function allocates a dedicated buffer
+ * for the caller.
+ *
+ * Callers that use this function must call @ref sl_bgapi_release_message_buffer
+ * to release the message buffer when it is no longer needed.
+ *
+ * @param[in] max_payload_size The maximum payload size of the messages that the
+ *   buffer will be used for. The value may not exceed the BGAPI configuration
+ *   value SL_BGAPI_MAX_PAYLOAD_SIZE.
+ *
+ * @param[out] buffer Set to point to the buffer that the caller can use to
+ *   execute BGAPI or user commands
+ *
+ * @return SL_STATUS_OK if the buffer was obtained, otherwise an error code
+ */
+sl_status_t sl_bgapi_obtain_message_buffer(size_t max_payload_size,
+                                           void **buffer);
+
+/**
+ * @brief Release a buffer that was obtained with @ref sl_bgapi_obtain_message_buffer.
+ *
+ * @param[in] buffer The buffer to release
+ */
+void sl_bgapi_release_message_buffer(void *buffer);
+
+/**
+ * @brief Execute a BGAPI command in binary format.
+ *
+ * This function is provided for NCP/CPC components that need to handle BGAPI
+ * commands and responses in their binary format. This function automatically
+ * performs any locking or inter-process communication required to execute the
+ * command. The function returns when the command has been executed.
+ *
+ * If the caller does not need the command buffer after executing the command,
+ * it is acceptable to point the response buffer @p response_buf to the same
+ * memory location as the command buffer @p command_buf. In this case the
+ * response overwrites the command buffer. Provided that the response buffer is
+ * large enough, this function guarantees that the response buffer is always
+ * filled with a valid response message. If command execution fails, the
+ * response buffer is filled with a generic error response.
+ *
+ * @param[in] command_buf Pointer to the full BGAPI command message including
+ *   the header and the command-specific payload
+ * @param[in] command_buf_size The size of the command buffer. This is used to
+ *   verify that the command header is valid and the full command message is
+ *   available.
+ * @param[out] response_buf Pointer to the response buffer to fill. It is
+ *   acceptable to point to the same buffer as the command buffer in @p
+ *   command_buf.
+ * @param[in] response_buf_size The size of the response buffer
+ *
+ * @return SL_STATUS_OK if the command was executed, otherwise an error code.
+ *   Note that SL_STATUS_OK does not mean that the command was successful, only
+ *   that it was executed.
+ */
+sl_status_t sl_bgapi_execute_binary_command(const void *command_buf,
+                                            size_t command_buf_size,
+                                            void *response_buf,
+                                            size_t response_buf_size);
+
+/**
  * @brief Lock the BGAPI for exclusive access.
+ *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
  *
  * NOTE: This function is provided for NCP/CPC components that need to handle
  * BGAPI commands and responses in their binary format in an application that
@@ -242,10 +328,16 @@ enum sl_bgapi_dev_types {
  *
  * @return SL_STATUS_OK if the lock has been obtained, otherwise an error code
  */
-sl_status_t sl_bgapi_lock(void);
+SL_BGAPI_DEPRECATED sl_status_t sl_bgapi_lock(void);
 
 /**
  * @brief Release the lock obtained by @ref sl_bgapi_lock
+ *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
  *
  * NOTE: This function is provided for NCP/CPC components that need to handle
  * BGAPI commands and responses in their binary format in an application that
@@ -256,10 +348,16 @@ sl_status_t sl_bgapi_lock(void);
  * See the documentation of @ref sl_bgapi_handle_command for the full sequence
  * that must be followed when processing commands in their binary format.
  */
-void sl_bgapi_unlock(void);
+SL_BGAPI_DEPRECATED void sl_bgapi_unlock(void);
 
 /**
  * @brief Handle a BGAPI command in binary format.
+ *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
  *
  * NOTE: This function is provided for NCP/CPC components that need to handle
  * BGAPI commands and responses in their binary format. Normal application code
@@ -300,10 +398,16 @@ void sl_bgapi_unlock(void);
  * @param[in] hdr The BGAPI command header
  * @param[in] data The payload data associated with the command
  */
-void sl_bgapi_handle_command(uint32_t hdr, const void* data);
+SL_BGAPI_DEPRECATED void sl_bgapi_handle_command(uint32_t hdr, const void* data);
 
 /**
  * @brief Get the response of a handled BGAPI command.
+ *
+ * <b>Deprecated</b> and replaced by @ref sl_bgapi_execute_binary_command. The
+ * replacement provides a more flexible and efficient way to execute BGAPI
+ * commands in their binary format. The new function automatically performs any
+ * locking that's needed and enables re-using the command buffer memory for the
+ * response.
  *
  * NOTE: This function is provided for NCP/CPC components that need to handle
  * BGAPI commands and responses in their binary format. Normal application code
@@ -316,7 +420,7 @@ void sl_bgapi_handle_command(uint32_t hdr, const void* data);
  * @return Pointer to the BGAPI response structure that was filled when the
  *   command was executed in @ref sl_bgapi_handle_command.
  */
-void* sl_bgapi_get_command_response(void);
+SL_BGAPI_DEPRECATED void* sl_bgapi_get_command_response(void);
 
 /**
  * @brief Set a generic error response to the specified buffer.

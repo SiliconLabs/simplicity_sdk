@@ -35,6 +35,11 @@
 #include "sl_simple_led.h"
 #include "sl_simple_led_instances.h"
 #include <em_emu.h>
+#include "sl_board_control_config.h"
+
+#if SL_BOARD_ENABLE_SENSOR_RHT || SL_BOARD_ENABLE_SENSOR_IMU
+#include "sl_board_control.h"
+#endif
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -63,4 +68,12 @@
 void EMU_EM4PresleepHook(void)
 {
   sl_simple_led_turn_off(sl_led_led1.context);
+
+#if SL_BOARD_ENABLE_SENSOR_RHT
+  sl_board_disable_sensor(SL_BOARD_SENSOR_RHT);
+#endif
+
+#if SL_BOARD_ENABLE_SENSOR_IMU
+  sl_board_disable_sensor(SL_BOARD_SENSOR_IMU);
+#endif
 }

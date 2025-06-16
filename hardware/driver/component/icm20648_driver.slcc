@@ -1,13 +1,13 @@
 id: icm20648_driver
-package: platform
+package: board_drivers
 label: ICM20648 - Motion Sensor
 description: >
-  Driver for the Invensense ICM20648 6-axis motion sensor
+    Driver for the Invensense ICM20648 6-axis motion sensor
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/icm20648
 provides:
   - name: icm20648_driver

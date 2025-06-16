@@ -19,7 +19,9 @@
 #include "app/framework/util/common.h"
 #include "app/framework/util/util.h"
 #include "client-api.h"
-
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif
 uint8_t *sli_zigbee_af_zcl_buffer = NULL;
 uint16_t sli_zigbee_af_zcl_buffer_len = 0;
 
@@ -184,10 +186,16 @@ void sl_zigbee_af_set_external_buffer(uint8_t *buffer,
                                       uint16_t *lenPtr,
                                       sl_zigbee_aps_frame_t *apsFrame)
 {
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_acquire_lock();
+#endif
   sli_zigbee_af_zcl_buffer = buffer;
   sli_zigbee_af_zcl_buffer_len = bufferLen;
   sli_zigbee_af_response_length_ptr = lenPtr;
   sli_zigbee_af_command_aps_frame = apsFrame;
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_release_lock();
+#endif
 }
 
 uint16_t sl_zigbee_af_fill_external_manufacturer_specific_buffer(uint8_t frameControl,
@@ -200,6 +208,9 @@ uint16_t sl_zigbee_af_fill_external_manufacturer_specific_buffer(uint8_t frameCo
   uint16_t returnValue;
   va_list argPointer = { 0 };
 
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_acquire_lock();
+#endif
   va_start(argPointer, format);
   returnValue = vFillBuffer(sli_zigbee_af_zcl_buffer,
                             sli_zigbee_af_zcl_buffer_len,
@@ -212,6 +223,9 @@ uint16_t sl_zigbee_af_fill_external_manufacturer_specific_buffer(uint8_t frameCo
   *sli_zigbee_af_response_length_ptr = returnValue;
   sli_zigbee_af_command_aps_frame->clusterId = clusterId;
   sli_zigbee_af_command_aps_frame->options = SL_ZIGBEE_AF_DEFAULT_APS_OPTIONS;
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_release_lock();
+#endif
   return returnValue;
 }
 
@@ -224,6 +238,9 @@ uint16_t sl_zigbee_af_fill_external_buffer(uint8_t frameControl,
   uint16_t returnValue;
   va_list argPointer = { 0 };
 
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_acquire_lock();
+#endif
   va_start(argPointer, format);
   returnValue = vFillBuffer(sli_zigbee_af_zcl_buffer,
                             sli_zigbee_af_zcl_buffer_len,
@@ -236,6 +253,9 @@ uint16_t sl_zigbee_af_fill_external_buffer(uint8_t frameControl,
   *sli_zigbee_af_response_length_ptr = returnValue;
   sli_zigbee_af_command_aps_frame->clusterId = clusterId;
   sli_zigbee_af_command_aps_frame->options = SL_ZIGBEE_AF_DEFAULT_APS_OPTIONS;
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_release_lock();
+#endif
   return returnValue;
 }
 
@@ -358,6 +378,12 @@ sl_zigbee_aps_frame_t *sl_zigbee_af_get_command_aps_frame(void)
 
 void sl_zigbee_af_set_command_endpoints(uint8_t sourceEndpoint, uint8_t destinationEndpoint)
 {
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_acquire_lock();
+#endif
   sli_zigbee_af_command_aps_frame->sourceEndpoint = sourceEndpoint;
   sli_zigbee_af_command_aps_frame->destinationEndpoint = destinationEndpoint;
+#ifdef SL_CATALOG_KERNEL_PRESENT
+  sl_zigbee_af_release_lock();
+#endif
 }

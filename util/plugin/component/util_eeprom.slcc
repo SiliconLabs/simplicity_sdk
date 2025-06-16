@@ -1,5 +1,5 @@
 id: util_eeprom
-package: platform
+package: zigbee
 label: EEPROM
 description: |-
   This component manages the state of the EEPROM so that it will be correctly initialized before operations are executed. This is important, for example, when sleeping/waking the chip. The SPI or I2C bus must often be reinitialized. It also handles partial writes (less than the word size of the part), caching that partial word for writing later when a call to write is made that is at the next address to the partial word. If this component is not enabled or similar functionality is not implemented, deep sleep may not be possible. This component must be disabled if the module it is being used for does not have EEPROM.

@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'zigbee-security-manager' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -205,17 +205,17 @@ sl_status_t sl_zigbee_sec_man_aes_128_crypt_block(bool encrypt,
   msg.data.sec_man_aes_128_crypt_block.request.encrypt = encrypt;
 
   if (input != NULL) {
-    memmove(msg.data.sec_man_aes_128_crypt_block.request.input, input, sizeof(uint8_t) * (16));
+    memmove(msg.data.sec_man_aes_128_crypt_block.request.input, input, sizeof(uint8_t) * 16);
   }
 
   if (output != NULL) {
-    memmove(msg.data.sec_man_aes_128_crypt_block.request.output, output, sizeof(uint8_t) * (16));
+    memmove(msg.data.sec_man_aes_128_crypt_block.request.output, output, sizeof(uint8_t) * 16);
   }
 
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_aes_128_crypt_block_process_ipc_command, &msg);
 
   if (output != NULL) {
-    memmove(output, msg.data.sec_man_aes_128_crypt_block.request.output, sizeof(uint8_t) * (16));
+    memmove(output, msg.data.sec_man_aes_128_crypt_block.request.output, sizeof(uint8_t) * 16);
   }
 
   return msg.data.sec_man_aes_128_crypt_block.response.result;
@@ -232,21 +232,21 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
   if (nonce != NULL) {
-    memmove(msg.data.sec_man_aes_ccm_extended.request.nonce, nonce, sizeof(uint8_t) * (NONCE_LENGTH));
+    memmove(msg.data.sec_man_aes_ccm_extended.request.nonce, nonce, sizeof(uint8_t) * NONCE_LENGTH);
   }
 
   msg.data.sec_man_aes_ccm_extended.request.encrypt = encrypt;
 
-  if ((length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if ((length + mic_length) > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector input length exceeds expected maximum
   }
 
-  memmove(msg.data.sec_man_aes_ccm_extended.request.input, input, sizeof(uint8_t) * (length));
+  memmove(msg.data.sec_man_aes_ccm_extended.request.input, input, sizeof(uint8_t) * (length + mic_length));
   msg.data.sec_man_aes_ccm_extended.request.encryption_start_index = encryption_start_index;
   msg.data.sec_man_aes_ccm_extended.request.length = length;
   msg.data.sec_man_aes_ccm_extended.request.mic_length = mic_length;
 
-  if ((length + mic_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if ((length + mic_length) > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector output length exceeds expected maximum
   }
 
@@ -254,10 +254,10 @@ sl_status_t sl_zigbee_sec_man_aes_ccm_extended(uint8_t *nonce,
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_aes_ccm_extended_process_ipc_command, &msg);
 
   if (nonce != NULL) {
-    memmove(nonce, msg.data.sec_man_aes_ccm_extended.request.nonce, sizeof(uint8_t) * (NONCE_LENGTH));
+    memmove(nonce, msg.data.sec_man_aes_ccm_extended.request.nonce, sizeof(uint8_t) * NONCE_LENGTH);
   }
 
-  if ((length + mic_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if ((length + mic_length) > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector output length exceeds expected maximum
   }
 
@@ -652,25 +652,25 @@ void sl_zigbee_sec_man_hmac_aes_mmo(const uint8_t *input,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((data_length) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (data_length > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector input length exceeds expected maximum
   }
 
-  memmove(msg.data.sec_man_hmac_aes_mmo.request.input, input, sizeof(uint8_t) * (data_length));
+  memmove(msg.data.sec_man_hmac_aes_mmo.request.input, input, sizeof(uint8_t) * data_length);
   msg.data.sec_man_hmac_aes_mmo.request.data_length = data_length;
 
-  if ((16) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (16 > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector output length exceeds expected maximum
   }
 
-  memmove(msg.data.sec_man_hmac_aes_mmo.request.output, output, sizeof(uint8_t) * (16));
+  memmove(msg.data.sec_man_hmac_aes_mmo.request.output, output, sizeof(uint8_t) * 16);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_sec_man_hmac_aes_mmo_process_ipc_command, &msg);
 
-  if ((16) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (16 > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector output length exceeds expected maximum
   }
 
-  memmove(output, msg.data.sec_man_hmac_aes_mmo.request.output, sizeof(uint8_t) * (16));
+  memmove(output, msg.data.sec_man_hmac_aes_mmo.request.output, sizeof(uint8_t) * 16);
 }
 
 sl_status_t sl_zigbee_sec_man_import_key(sl_zigbee_sec_man_context_t *context,

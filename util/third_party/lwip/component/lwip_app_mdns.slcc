@@ -1,6 +1,6 @@
 id: lwip_app_mdns
 label: "LWIP mDNS High Layer Application"
-package: platform
+package: lwip
 description: >
     The LWIP mDNS high layer application specifically programmed with the lwIP low-level raw API,
     multicast DNS lwip the MDNS responder does not have all features required by the standards.

@@ -1,6 +1,6 @@
 id: l2cap_transfer
 label: L2CAP transfer
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   The L2CAP data channel component is used to transfer data through the
   link layer. The component serves as an API to access the L2CAP data

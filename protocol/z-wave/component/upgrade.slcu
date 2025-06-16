@@ -1,0 +1,7 @@
+upgrade:
+  - sdk:
+      id: simplicity_sdk
+      version: 2025.6.0
+    configuration:
+      - script: protocol/z-wave/component/scripts/rail_pm_init_upgrade.lua
+        description: Enable rail power manager init in z-wave applications.

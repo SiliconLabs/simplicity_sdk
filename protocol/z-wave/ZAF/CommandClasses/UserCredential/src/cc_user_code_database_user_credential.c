@@ -23,8 +23,7 @@
 #include "cc_user_credential_operations.h"
 #include <string.h>
 #include "assert.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 /****************************************************************************/
 /*                           STATIC PARAMETER CHECK                         */
@@ -34,17 +33,17 @@
 _Static_assert(CC_USER_CREDENTIAL_MAX_CREDENTIAL_SLOTS_PIN_CODE <= 255,
                "PIN slots must be less or equal to 255 if User Code v1 is supported");
 
-// Ensure Duress and Disposable User Types must not be enabled if User Code v1 is supported, CC:0083.01.00.21.017
+// Ensure Duress and Disposable User Types are not enabled if User Code v1 is supported, CC:0083.01.00.21.017
 _Static_assert(CC_USER_CREDENTIAL_USER_TYPE_SUPPORTED_DISPOSABLE == 0,
                "Disposable User Type must not be enabled if User Code v1 is supported");
 _Static_assert(CC_USER_CREDENTIAL_USER_TYPE_SUPPORTED_DURESS == 0,
-               "Disposable User Type must not be enabled if User Code v1 is supported");
+               "Duress User Type must not be enabled if User Code v1 is supported");
 
-/****************************************************************************/
-/*                           FORWARD DECLARATIONS                           */
-/****************************************************************************/
-
-extern void set_default_name(uint8_t * pName, u3c_user * pUser);
+// Ensure Minimum and Maximum PIN Code Data Length is compatible with User Code CC, CC:0083.01.00.21.014
+_Static_assert(CC_USER_CREDENTIAL_MIN_DATA_LENGTH_PIN_CODE == 4,
+               "STATIC_ASSERT_FAILED_Minimum_length_PIN_Code_data_is_smaller_than_4");
+_Static_assert(CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE == 10,
+               "STATIC_ASSERT_FAILED_Maximum_length_PIN_Code_data_is_larger_than_10");
 
 /****************************************************************************/
 /*                                CONSTANTS                                 */
@@ -90,7 +89,7 @@ static bool set_user_code(
   const uint16_t assigned_uuid)
 {
   if (status == USER_ID_AVAILABLE || status == USER_ID_NO_STATUS) {
-    DPRINTF("The status 0x%X is invalid!", status);
+    ZPAL_LOG_ERROR(ZPAL_LOG_CC_USER_CREDENTIAL, "The status 0x%X is invalid!", status);
     assert(false);
     return false;
   }
@@ -111,7 +110,7 @@ static bool set_user_code(
   uint16_t uuid = (assigned_uuid != 0)
                   ? assigned_uuid
                   : user_identifier;
-  u3c_user existing_user = { 0 };
+  u3c_user_t existing_user = { 0 };
   // True if the associated user was found in the database
   bool user_found = CC_UserCredential_get_user(uuid, &existing_user, NULL)
                     == U3C_DB_OPERATION_RESULT_SUCCESS;
@@ -119,7 +118,7 @@ static bool set_user_code(
   if (!user_found) {
     // Add a new User with the same UUID as the User Identifier
     uint8_t name[U3C_BUFFER_SIZE_USER_NAME];
-    u3c_user user = {
+    u3c_user_t user = {
       .unique_identifier = user_identifier,
       .type = USER_TYPE_GENERAL,
       .modifier_type = modifier_type,
@@ -129,7 +128,7 @@ static bool set_user_code(
       .name_encoding = USER_NAME_ENCODING_STANDARD_ASCII,
       .name_length = 0
     };
-    set_default_name(name, &user);
+    CC_UserCredential_set_default_name(name, &user);
     if (CC_UserCredential_add_user(&user, name)
         != U3C_DB_OPERATION_RESULT_SUCCESS) {
       return false;
@@ -140,7 +139,7 @@ static bool set_user_code(
     CC_UserCredential_modify_user(&existing_user, NULL);
   }
 
-  u3c_credential credential = {
+  u3c_credential_t credential = {
     .data = pUserCode,
     .metadata = {
       .length = len,
@@ -194,14 +193,14 @@ bool CC_UserCode_getId_handler(
 
   // Determine the User ID Status according to CC:0083.01.00.21.021
   *pUserIdStatus = USER_ID_NO_STATUS;
-  u3c_credential_metadata credential_metadata = { 0 };
+  u3c_credential_metadata_t credential_metadata = { 0 };
   switch (CC_UserCredential_get_credential(
             0, CREDENTIAL_TYPE_PIN_CODE, user_identifier, &credential_metadata,
             NULL)
           ) {
     case U3C_DB_OPERATION_RESULT_SUCCESS: {
       // The credential exists
-      u3c_user user = { 0 };
+      u3c_user_t user = { 0 };
       if (CC_UserCredential_get_user(credential_metadata.uuid, &user, NULL)
           == U3C_DB_OPERATION_RESULT_SUCCESS) {
         // The associated user exists
@@ -245,7 +244,7 @@ bool CC_UserCode_Report_handler(
     return false;
   }
 
-  u3c_credential_metadata metadata = { 0 };
+  u3c_credential_metadata_t metadata = { 0 };
   uint8_t credential_data[U3C_BUFFER_SIZE_CREDENTIAL_DATA] = { 0 };
   u3c_db_operation_result result_credential_get =
     CC_UserCredential_get_credential(
@@ -297,7 +296,7 @@ e_cmd_handler_return_code_t CC_UserCode_Set_handler(
 
   e_cmd_handler_return_code_t status = E_CMD_HANDLER_RETURN_CODE_FAIL;
   bool credential_found = false;
-  u3c_credential_metadata credential_metadata = { 0 };
+  u3c_credential_metadata_t credential_metadata = { 0 };
   u3c_db_operation_result get_result =
     CC_UserCredential_get_credential(0, CREDENTIAL_TYPE_PIN_CODE,
                                      user_identifier, &credential_metadata,
@@ -311,12 +310,31 @@ e_cmd_handler_return_code_t CC_UserCode_Set_handler(
       break;
     default:
       // I/O error
-      DPRINT("Credential retrieval failed!");
+      ZPAL_LOG_ERROR(ZPAL_LOG_CC_USER_CREDENTIAL, "Credential retrieval failed!");
       assert(false);
       return E_CMD_HANDLER_RETURN_CODE_FAIL;
   }
 
-  if (user_id_status == USER_ID_AVAILABLE) {
+  if (user_id_status == USER_ID_AVAILABLE && user_identifier == 0) {
+    uint16_t user_num = cc_user_credential_get_max_credential_slots(CREDENTIAL_TYPE_PIN_CODE);
+    // Return value will be this, except on error. Those will be handled below.
+    status = E_CMD_HANDLER_RETURN_CODE_HANDLED;
+    for (uint16_t user_i = 1; user_i <= user_num; user_i++) {
+      // Delete user code.
+      // No action needed when successful or when the credential does not exist.
+      u3c_db_operation_result delete_result =
+        CC_UserCredential_delete_credential(CREDENTIAL_TYPE_PIN_CODE, user_i);
+
+      if (delete_result != U3C_DB_OPERATION_RESULT_FAIL_DNE
+          && delete_result != U3C_DB_OPERATION_RESULT_SUCCESS) {
+        // I/O error
+        ZPAL_LOG_ERROR(ZPAL_LOG_CC_USER_CREDENTIAL, "Credential deletion failed!");
+        assert(false);
+        status = E_CMD_HANDLER_RETURN_CODE_FAIL;
+        break;
+      }
+    }
+  } else if (user_id_status == USER_ID_AVAILABLE) {
     if (credential_found) {
       // Delete User Code
       u3c_db_operation_result delete_result =
@@ -325,7 +343,7 @@ e_cmd_handler_return_code_t CC_UserCode_Set_handler(
       if (delete_result == U3C_DB_OPERATION_RESULT_SUCCESS) {
         status = E_CMD_HANDLER_RETURN_CODE_HANDLED;
       } else {
-        DPRINT("Credential deletion failed!");
+        ZPAL_LOG_ERROR(ZPAL_LOG_CC_USER_CREDENTIAL, "Credential deletion failed!");
         assert(false);
       }
     } else {
@@ -355,7 +373,7 @@ void CC_UserCode_reset_data(void)
 void CC_UserCode_set_usercode(char * new_user_code)
 {
   const uint16_t user_identifier = 1;
-  u3c_credential_metadata credential_metadata = { 0 };
+  u3c_credential_metadata_t credential_metadata = { 0 };
   CC_UserCredential_get_credential(0, CREDENTIAL_TYPE_PIN_CODE, user_identifier,
                                    &credential_metadata, NULL);
   uint8_t length = (uint8_t)strnlen(new_user_code,
@@ -374,7 +392,7 @@ bool CC_UserCode_Validate(uint8_t identifier, const uint8_t *pCode, uint8_t len)
 {
   uint8_t data[U3C_BUFFER_SIZE_CREDENTIAL_DATA] = { 0 };
   memcpy(&data, pCode, len);
-  const u3c_credential credential = {
+  const u3c_credential_t credential = {
     .data = data,
     .metadata = {
       .length = len,
@@ -385,7 +403,7 @@ bool CC_UserCode_Validate(uint8_t identifier, const uint8_t *pCode, uint8_t len)
       .slot = identifier
     }
   };
-  u3c_credential_metadata existing_metadata = { 0 };
+  u3c_credential_metadata_t existing_metadata = { 0 };
   return find_existing_credential(&credential, &existing_metadata)
          && (existing_metadata.slot == identifier);
 }

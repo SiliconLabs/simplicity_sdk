@@ -1,7 +1,7 @@
 !!omap
 - id: brd2704a
 - label: BRD2704A
-- package: platform
+- package: boards
 - description: Board support for BRD2704A.
 - category: Platform|Board|Starter Kit
 - quality: production

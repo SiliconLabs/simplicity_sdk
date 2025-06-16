@@ -105,6 +105,15 @@
 #define UARTDRV_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION         1
 #endif
 
+/// Set to 1 to add user-specified call back parameter.
+#if !defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE)
+// <o UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE> Add user-specified callback parameter.
+// <1=> Enable
+// <0=> Disable
+// <i> Default: 0
+#define UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE       0
+#endif
+
 //</h>
 
 // <<< end of configuration section >>>

@@ -21,6 +21,7 @@
 #include PLATFORM_HEADER
 #include "stack/include/sl_zigbee_types.h"
 #include "buffer_manager/legacy-packet-buffer.h"
+#include "message_internal_def.h"
 
 #ifdef PRO_COMPLIANCE
  #include "app/test/pro-compliance.h"
@@ -62,30 +63,39 @@
 #if (SL_ZIGBEE_AF_PLUGIN_PACKET_HANDOFF_ALLOW_BEACON == 1)
 #define ALLOW_BEACON
 #endif
-#define sl_zigbee_internal_packet_handoff_incoming_handler sli_zigbee_af_packet_handoff_incoming_callback
-#define sl_zigbee_internal_packet_handoff_outgoing_handler sli_zigbee_af_packet_handoff_outgoing_callback
+#if (SL_ZIGBEE_PACKET_HANDOFF_ALLOW_ZLL == 1)
+#define ALLOW_ZLL
+#endif // SL_ZIGBEE_PACKET_HANDOFF_ALLOW_ZLL
+#if (SL_ZIGBEE_PACKET_HANDOFF_ALLOW_INTERPAN == 1)
+#define ALLOW_INTERPAN
+#endif // SL_ZIGBEE_PACKET_HANDOFF_ALLOW_INTERPAN
+#define sl_zigbee_internal_packet_handoff_incoming_handler sli_zigbee_dispatch_packet_handoff_incoming_callback
+#define sl_zigbee_internal_packet_handoff_outgoing_handler sli_zigbee_dispatch_packet_handoff_outgoing_callback
 
 // Callbacks
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void* data);
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d);
 
-sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void* data);
+sl_zigbee_packet_action_t sl_zigbee_pre_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void* data,
+                                                                  uint8_t size_d);
 
 // ----------------------------------------------------------------
 // Intermediate Packet Handoff Mechanism
 // Converts ::sli_buffer_manager_buffer_t into a flat array then produces the callback
-// to sl_zigbee_af_incoming_packet_filter_cb and sl_zigbee_af_outgoing_packet_filter_cb
+// to sl_zigbee_pre_incoming_packet_filter_cb and sl_zigbee_pre_outgoing_packet_filter_cb
 // ----------------------------------------------------------------
 
 sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_zigbee_zigbee_packet_type_t packetType,
                                                                              sli_buffer_manager_buffer_t packetBuffer,
                                                                              uint8_t index,
-                                                                             void *data)
+                                                                             void *data,
+                                                                             uint8_t data_len)
 {
   uint8_t flatPacket[PACKET_HANDOFF_BUFFER_SIZE];
 
@@ -147,10 +157,15 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
       return SL_ZIGBEE_ACCEPT_PACKET;
       #endif // BEACON
 
-       #ifndef EMBER_AF_PLUGIN_PACKET_HANDOFF_ALLOW_INTERPAN
-    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN:
+       #ifndef ALLOW_ZLL
+    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN_ZLL:
       return SL_ZIGBEE_ACCEPT_PACKET;
-      #endif // INTERPAN
+      #endif // ALLOW_ZLL
+
+       #ifndef ALLOW_INTERPAN
+    case SL_ZIGBEE_PACKET_TYPE_INTERPAN:
+      return SL_ZIGBEE_ACCEPT_PACKET;
+      #endif // ALLOW_INTERPAN
 
     #endif // !ALLOW_ALL_PACKETS
     default:
@@ -163,7 +178,7 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
         // Something is malformed in the constructed packet; don't receive it
         return SL_ZIGBEE_DROP_PACKET;
       }
-      uint8_t packetLength = bufferLength - index;
+      uint8_t packetLength = (uint8_t)bufferLength - index;
       sl_zigbee_packet_action_t act;
       sl_legacy_buffer_manager_copy_from_linked_buffers(packetBuffer,
                                                         index,
@@ -173,7 +188,9 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
       extern sli_buffer_manager_buffer_t emTempHandoffHeader;
       emTempHandoffHeader = packetBuffer;
 #endif
-      act = sl_zigbee_af_incoming_packet_filter_cb(packetType, flatPacket, &packetLength, data);
+      act = sl_zigbee_pre_incoming_packet_filter_cb(packetType, flatPacket, &packetLength, data, data_len);
+      // notify application
+      sli_zigbee_stack_post_incoming_packet_filter_cb(packetType, flatPacket, packetLength, data, data_len, act);
 #ifdef SL_CATALOG_ZIGBEE_TEST_HARNESS_Z3_PRESENT
       emTempHandoffHeader = NULL_BUFFER;
 #endif
@@ -199,7 +216,8 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_incoming_handler(sl_
 sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_zigbee_zigbee_packet_type_t packetType,
                                                                              sli_buffer_manager_buffer_t packetBuffer,
                                                                              uint8_t index,
-                                                                             void *data)
+                                                                             void *data,
+                                                                             uint8_t data_len)
 {
   uint8_t flatPacket[PACKET_HANDOFF_BUFFER_SIZE];
 
@@ -251,10 +269,15 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_
       return SL_ZIGBEE_ACCEPT_PACKET;
       #endif // BEACON
 
-      #ifndef EMBER_AF_PLUGIN_PACKET_HANDOFF_ALLOW_INTERPAN
-    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN:
+      #ifndef ALLOW_ZLL
+    case SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN_ZLL:
       return SL_ZIGBEE_ACCEPT_PACKET;
-      #endif // ZLL
+      #endif // ALLOW_ZLL
+
+       #ifndef ALLOW_INTERPAN
+    case SL_ZIGBEE_PACKET_TYPE_INTERPAN:
+      return SL_ZIGBEE_ACCEPT_PACKET;
+      #endif // ALLOW_INTERPAN
 
     #endif // !ALLOW_ALL_PACKETS
     default:
@@ -267,7 +290,7 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_
         // Something is malformed in the constructed packet; don't send it
         return SL_ZIGBEE_DROP_PACKET;
       }
-      uint8_t packetLength = bufferLength - index;
+      uint8_t packetLength = (uint8_t)bufferLength - index;
       sl_zigbee_packet_action_t act;
       sl_legacy_buffer_manager_copy_from_linked_buffers(packetBuffer,
                                                         index,
@@ -282,7 +305,9 @@ sl_zigbee_packet_action_t sl_zigbee_internal_packet_handoff_outgoing_handler(sl_
                                                           payloadLength);
         packetLength += payloadLength;
       }
-      act = sl_zigbee_af_outgoing_packet_filter_cb(packetType, flatPacket, &packetLength, data);
+      act = sl_zigbee_pre_outgoing_packet_filter_cb(packetType, flatPacket, &packetLength, data, data_len);
+      // notify application
+      sli_zigbee_stack_post_outgoing_packet_filter_cb(packetType, flatPacket, packetLength, data, data_len, act);
       if (act == SL_ZIGBEE_MANGLE_PACKET) {
         sl_status_t status = sl_legacy_buffer_manager_set_linked_buffers_length(packetBuffer,
                                                                                 packetLength + index);

@@ -1,6 +1,6 @@
 id: token_manager_nvm3
-label: Token Manager using NVM3
-package: platform
+label: Legacy Token Manager - NVM3 Extension
+package: platform_core
 description: Token Manager using NVM3 for storage.
 category: Services|Token Manager
 quality: production

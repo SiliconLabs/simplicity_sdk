@@ -17,7 +17,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: nvm3_app.c
 include:
   - path: .
@@ -25,7 +24,7 @@ include:
     - path: app.h
     - path: nvm3_app.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: freertos
@@ -45,6 +44,9 @@ configuration:
     value: 204
   - name: SL_CLI_INPUT_BUFFER_SIZE
     value: 256
+  - name: SL_MAIN_START_TASK_STACK_SIZE_BYTES
+    value: 1024
+    condition: [device_series_3]
 template_contribution:
   - name: cli_command
     value:

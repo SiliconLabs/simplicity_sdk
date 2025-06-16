@@ -1,11 +1,11 @@
 /**
-*
-* @file
-* Network management utility functions
-*
-* @copyright 2019 Silicon Laboratories Inc.
-*
-*/
+ *
+ * @file
+ * Network management utility functions
+ *
+ * @copyright 2019 Silicon Laboratories Inc.
+ *
+ */
 
 #ifndef _ZAF_NETWORK_MANAGEMENT_H_
 #define _ZAF_NETWORK_MANAGEMENT_H_

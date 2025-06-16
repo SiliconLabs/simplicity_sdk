@@ -27,12 +27,12 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
 #include "app_assert.h"
 #include "sl_bt_api.h"
 #include "gatt_db.h"
 #include "app_log.h"
 #include "app.h"
+#include "sl_main_init.h"
 #include "ble_peer_manager_connections.h"
 #include "ble_peer_manager_peripheral.h"
 #include "cs_reflector.h"
@@ -58,13 +58,12 @@ static void on_connection_closed(uint8_t conn_handle);
 /**************************************************************************//**
  * Application Init
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   app_log_info(APP_LOG_NL);
   app_log_info("+-[CS Reflector by Silicon Labs]------------------------+" APP_LOG_NL);
   app_log_info("+-------------------------------------------------------+" APP_LOG_NL);
-  app_log_info(APP_PREFIX "Maximum concurrent connections: %u" APP_LOG_NL, CS_REFLECTOR_MAX_CONNECTIONS);
-  app_log_info(APP_PREFIX "Channel Sounding event buffer size: %u" APP_LOG_NL, CS_REFLECTOR_CS_EVENT_BUF_SIZE);
+  app_log_info(APP_PREFIX "Maximum concurrent connections: %u" APP_LOG_NL, SL_BT_CONFIG_MAX_CONNECTIONS);
   app_log_info(APP_PREFIX "Default minimum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MIN_TX_POWER_DBM);
   app_log_info(APP_PREFIX "Default maximum transmit power: %d dBm" APP_LOG_NL, CS_REFLECTOR_MAX_TX_POWER_DBM);
 
@@ -100,7 +99,7 @@ SL_WEAK void app_init(void)
 /**************************************************************************//**
  * Application Process Action
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //
@@ -151,7 +150,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       app_assert_status(sc);
 
       // Start advertising for initiator connections
-      if (CS_REFLECTOR_MAX_CONNECTIONS > 0) {
+      if (SL_BT_CONFIG_MAX_CONNECTIONS > 0) {
 #ifndef SL_CATALOG_CS_REFLECTOR_CLI_PRESENT
         sc = ble_peer_manager_peripheral_start_advertising(SL_BT_INVALID_ADVERTISING_SET_HANDLE);
         app_assert_status(sc);
@@ -275,7 +274,7 @@ static void on_connection_opened_with_initiator(uint8_t conn_handle)
   }
 
   // Advertise for new initiator connections if we have room for more
-  if (cs_reflector_get_active_instance_count() < CS_REFLECTOR_MAX_CONNECTIONS) {
+  if (cs_reflector_get_active_instance_count() < SL_BT_CONFIG_MAX_CONNECTIONS) {
     sc = ble_peer_manager_peripheral_start_advertising(SL_BT_INVALID_ADVERTISING_SET_HANDLE);
     app_assert_status(sc);
     app_log_info(APP_PREFIX "Advertising restarted for new initiator connections..." APP_LOG_NL);
@@ -289,7 +288,7 @@ static void on_connection_closed(uint8_t conn_handle)
   uint8_t reflector_count = cs_reflector_get_active_instance_count();
   // If we are at the maximum capacity - it means that the advertisement is not running
   // Restart advertising for new initiator connections if we were at the limit
-  if (reflector_count == CS_REFLECTOR_MAX_CONNECTIONS) {
+  if (reflector_count <= SL_BT_CONFIG_MAX_CONNECTIONS) {
     advertisement_should_be_restarted = true;
   }
 

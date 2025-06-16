@@ -79,7 +79,11 @@ class RAILAdapter(object):
   def _encodeWriteAddress(self, reg_address, write_length=1, radio_action=0):
 
     if self.pte_script is False:
-      reg_base = self._regBases[int(reg_address) & 0xFFFF0000]
+      try:
+        reg_base = self._regBases[int(reg_address) & 0xFFFF0000]
+      except:
+        # Toggle the address in the event of trustzone mismatch.
+        reg_base = self._regBases[int((reg_address ^ 0x10000000)) & 0xFFFF0000]
       reg_offset = int(reg_address) & 0x0000FFFF
 
       encodedAddress = (radio_action << 28) \
@@ -89,7 +93,7 @@ class RAILAdapter(object):
     else:
       # Don't encrypt register address for PTE output
       # only update address value based on opearation(Write/SET/CLR)
-      encodedAddress =  reg_address + radio_action 
+      encodedAddress =  reg_address + radio_action
 
     return encodedAddress
 
@@ -104,7 +108,6 @@ class RAILAdapter(object):
     if self.series == 3:
       try:
         regAddr = self._getRegAddress(block, register, suffix='_NS')
-        regBase = self._regBases[int(regAddr) & 0xFFFF0000]
       except (KeyError, AttributeError):
         try:
           regAddr = self._getRegAddress(block, register, suffix='_S')
@@ -180,7 +183,7 @@ class RAILAdapter(object):
   def _getSeriesFromFamily(family):
     if family in ["dumbo", "jumbo", "nerio", "nixi"]:
       series = 1
-    elif family in ["panther", "lynx", "ocelot", "bobcat", "leopard", "margay", "caracal", "lion", "sol"]:
+    elif family in ["panther", "lynx", "ocelot", "bobcat", "leopard", "margay", "caracal", "lion", "sol", "serval"]:
       series = 2
     else:
       series = 3

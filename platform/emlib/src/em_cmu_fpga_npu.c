@@ -38,11 +38,6 @@
 #include "sl_assert.h"
 
 /***************************************************************************//**
- * @addtogroup emlib
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
  * @addtogroup CMU
  * @brief Clock management unit (CMU) Peripheral API
  * @details
@@ -478,5 +473,4 @@ void CMU_LFXOPrecisionSet(uint16_t precision)
 }
 
 /** @} (end addtogroup CMU) */
-/** @} (end addtogroup emlib) */
 #endif /* defined(CMU_PRESENT) && defined(FPGA) */

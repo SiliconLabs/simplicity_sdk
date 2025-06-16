@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component used to handle sending and receiving inter-PAN messages, which are messages that are sent by unjoined devices 1-hop away.
 label: Interpan
 quality: production

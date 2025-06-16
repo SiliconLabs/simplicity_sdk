@@ -91,6 +91,8 @@ static SL_ALIGN(4) cmd_t cmd SL_ATTRIBUTE_ALIGN(4) =
 {
   0
 };
+static void *rsp_buf = NULL;
+static size_t rsp_buf_size = 0;
 static SL_ALIGN(4) evt_t evt SL_ATTRIBUTE_ALIGN(4) =
 {
   0
@@ -180,6 +182,18 @@ void sl_ncp_init(void)
   if (sc != SL_STATUS_OK) {
     on_runtime_error(APP_RTA_ERROR_RUNTIME_INIT_FAILED, sc);
   }
+
+  // Obtain a buffer we can use for responses
+  sc = sl_bgapi_obtain_message_buffer(SL_BGAPI_MAX_PAYLOAD_SIZE, &rsp_buf);
+  if (sc != SL_STATUS_OK) {
+    sl_ncp_on_error(SL_NCP_ERROR_RSP_BUFFER, sc);
+    rsp_buf_size = 0;
+    return;
+  }
+  rsp_buf_size = SL_BGAPI_MSG_HEADER_LEN + SL_BGAPI_MAX_PAYLOAD_SIZE;
+
+  // Use the buffer for user responses as well
+  sl_bt_set_user_response_buffer(rsp_buf, rsp_buf_size);
 }
 
 void sl_ncp_rta_ready(void)
@@ -344,7 +358,7 @@ static void handle_user_command(uint32_t hdr, void *data)
       break;
   }
 #ifdef SL_CATALOG_BGAPI_TRACE_PRESENT
-  sl_bt_msg_t *response = sl_bt_get_command_response();
+  sl_bt_msg_t *response = (sl_bt_msg_t *)rsp_buf;
   sli_bgapi_trace_output_message(sli_bgapi_trace_message_type_response, response->header, response->data.payload);
 #endif // SL_CATALOG_BGAPI_TRACE_PRESENT
 }
@@ -355,7 +369,7 @@ static void handle_user_command(uint32_t hdr, void *data)
 /**************************************************************************//**
  * Bluetooth stack event handler.
  *
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -383,7 +397,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 /**************************************************************************//**
  * Bluetooth mesh stack event handler.
  *
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth Mesh stack.
  *****************************************************************************/
@@ -529,7 +543,7 @@ void sl_bt_ncp_transport_on_receive(sl_status_t status, uint32_t len, uint8_t *d
 #if defined(SL_CATALOG_WAKE_LOCK_PRESENT)
 /**************************************************************************//**
  * Wake-up signal arrived from host.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *****************************************************************************/
 void sl_wake_lock_set_req_rx_cb(void)
 {
@@ -541,7 +555,7 @@ void sl_wake_lock_set_req_rx_cb(void)
 
 /**************************************************************************//**
  * Go to sleep signal arrived from host.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *****************************************************************************/
 void sl_wake_lock_clear_req_rx_cb(void)
 {
@@ -571,7 +585,7 @@ static void ncp_step(void)
   // Command available and NCP not busy
   if (cmd_is_available() && !busy) {
     sl_bt_msg_t *command = (sl_bt_msg_t *)cmd.buf;
-    sl_bt_msg_t *response;
+    sl_bt_msg_t *response = (sl_bt_msg_t *)rsp_buf;
 
     #if defined(SL_CATALOG_NCP_SEC_PRESENT)
     uint32_t result = 0;
@@ -582,21 +596,17 @@ static void ncp_step(void)
     #endif // SL_CATALOG_NCP_SEC_PRESENT
     {
       cmd_clr_available();
-      sc = sl_bgapi_lock();
-      if (sc != SL_STATUS_OK) {
-        // Signal fatal error to the app, skip command processing afterwards
-        sl_ncp_on_error(SL_NCP_ERROR_BGAPI_LOCK, SL_STATUS_FAIL);
-        // Drop command from the buffer as locking error is already fatal
-        cmd_dequeue();
-        // Exit processing current command
-        return;
-      }
       // Check for user command
       if (is_user_command(command->header)) {
         handle_user_command(command->header, command->data.payload);
       } else {
-        // Call Bluetooth API binary command handler
-        sl_bt_handle_command(command->header, command->data.payload);
+        // Execute the binary command. The function will always set a response
+        // even if the command failed, so we can ignore the return value.
+        sc = sl_bgapi_execute_binary_command(command,
+                                             cmd.len,
+                                             response,
+                                             rsp_buf_size);
+        (void) sc;
       }
     }
     #if defined(SL_CATALOG_NCP_SEC_PRESENT)
@@ -605,11 +615,9 @@ static void ncp_step(void)
       cmd_dequeue();
     } else if ((result & SL_NCP_SEC_RSP_PROCESS)
                == SL_NCP_SEC_RSP_PROCESS) {
-      response = sl_ncp_sec_process_response(
-        sl_bt_get_command_response(), cmd_is_encrypted);
+      response = sl_ncp_sec_process_response(response, cmd_is_encrypted);
     #else
     {
-      response = sl_bt_get_command_response();
     #endif // SL_CATALOG_NCP_SEC_PRESENT
       busy = true;
       // Clear command buffer
@@ -621,8 +629,6 @@ static void ncp_step(void)
       // Transmit command response
       sl_bt_ncp_transport_transmit((uint32_t)(MSG_GET_LEN(response)),
                                    (uint8_t *)response);
-      // Finally unlock the BGAPI to allow other commands to proceed
-      sl_bgapi_unlock();
     }
   }
 
@@ -830,8 +836,8 @@ static void cmd_timer_cb2(const app_timer_t *timer, const void *data)
 {
   (void)data;
   (void)timer;
-  uint8_t rsp_buf[SL_BGAPI_MSG_HEADER_LEN + SL_BGAPI_MSG_ERROR_PAYLOAD_LEN] = { 0 };
-  sl_bt_msg_t *response = (sl_bt_msg_t *)rsp_buf;
+  uint8_t error_rsp_buf[SL_BGAPI_MSG_HEADER_LEN + SL_BGAPI_MSG_ERROR_PAYLOAD_LEN] = { 0 };
+  sl_bt_msg_t *response = (sl_bt_msg_t *)error_rsp_buf;
   uint32_t cmd_hdr;
 
   // Clear missing bytes of header if it's also incomplete
@@ -844,8 +850,8 @@ static void cmd_timer_cb2(const app_timer_t *timer, const void *data)
   // only partially then send the response. The timer is already stopped.
   sl_bgapi_set_error_response(cmd_hdr,
                               (uint16_t) SL_STATUS_COMMAND_INCOMPLETE,
-                              &rsp_buf,
-                              sizeof(rsp_buf));
+                              &error_rsp_buf,
+                              sizeof(error_rsp_buf));
 
   cmd_dequeue();
 #if defined(SL_CATALOG_NCP_SEC_PRESENT)
@@ -861,13 +867,13 @@ static void cmd_timer_cb2(const app_timer_t *timer, const void *data)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-  sl_bt_ncp_transport_transmit((uint32_t)(MSG_GET_LEN(response)), rsp_buf);
+  sl_bt_ncp_transport_transmit((uint32_t)(MSG_GET_LEN(response)), error_rsp_buf);
 #if defined(__GNUC__)
 #pragma GCC diagnostic pop
 #endif
 #if SL_NCP_EMIT_SYSTEM_ERROR_EVT
   // Sending system error event as well to help app devs to give async response
-  sl_bt_send_system_error(SL_STATUS_COMMAND_INCOMPLETE, sizeof(cmd_hdr), rsp_buf);
+  sl_bt_send_system_error(SL_STATUS_COMMAND_INCOMPLETE, sizeof(cmd_hdr), error_rsp_buf);
 #endif // SL_NCP_EMIT_SYSTEM_ERROR_EVT
 }
 

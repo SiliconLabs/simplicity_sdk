@@ -1,6 +1,6 @@
 id: gatt_service_sound
 label: Environment Sensing - Sound Level GATT Service
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides microphone sound level data in GATT characteristics.
   Designed for the Thunderboard smartphone app.

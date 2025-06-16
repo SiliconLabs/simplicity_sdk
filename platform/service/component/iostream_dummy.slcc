@@ -1,14 +1,14 @@
 id: iostream_dummy
-label: "IO Stream: DUMMY"
-package: platform
+label: 'IO Stream: DUMMY'
+package: platform_core
 description: IO Stream DUMMY
 category: Services|IO Stream|Driver
 quality: experimental
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 instantiable:
-  prefix: inst
+    prefix: inst
 root_path: platform/service/iostream
 provides:
   - name: iostream_dummy
@@ -21,17 +21,17 @@ template_file:
   - path: init/sl_iostream_init_dummy_instances.h.jinja
 template_contribution:
   - name: iostream_dummy_instances
-    value: "{{instance}}"
+    value: '{{instance}}'
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_iostream_init_dummy_instances.h
       handler: sl_iostream_dummy_init_instances
   - name: iostream_instance_info
     value:
-      include: sl_iostream_init_dummy_instances.h
-      handler: "sl_iostream_instance_dummy_{{instance}}_info"
+        include: sl_iostream_init_dummy_instances.h
+        handler: sl_iostream_instance_dummy_{{instance}}_info
 requires:
   - name: iostream
 ui_hints:
-  visibility: never
+    visibility: never

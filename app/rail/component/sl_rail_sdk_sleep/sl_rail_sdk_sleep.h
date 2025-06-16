@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail_types.h"
+#include "sl_rail_types.h"
 
 /**
  * \addtogroup rail_sdk_utility
@@ -61,11 +61,11 @@
  * sleep module for operation. It should be called before using any other
  * functions in the sleep module.
  *
- * @return RAIL_Status_t
- *   - RAIL_STATUS_NO_ERROR if initialization was successful.
+ * @return sl_rail_status_t
+ *   - SL_RAIL_STATUS_NO_ERROR if initialization was successful.
  *   - An appropriate error code otherwise.
  */
-RAIL_Status_t sl_rail_sdk_sleep_init(void);
+sl_rail_status_t sl_rail_sdk_sleep_init(void);
 
 #endif // SL_RAIL_SDK_SLEEP_H
 /** @} */ // end of sl_rail_sdk_sleep group

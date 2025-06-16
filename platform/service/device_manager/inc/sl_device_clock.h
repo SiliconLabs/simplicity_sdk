@@ -58,6 +58,7 @@ extern "C" {
 // ENUMS
 
 /// Oscillators
+#if !defined(DEVICE_CLOCK_INTERNAL_PRESENT)
 SL_ENUM(sl_oscillator_t) {
   SL_OSCILLATOR_FSRCO,      ///< FSRCO Oscillator
   SL_OSCILLATOR_HFRCODPLL,  ///< HFRCODPLL Oscillator
@@ -65,15 +66,18 @@ SL_ENUM(sl_oscillator_t) {
   SL_OSCILLATOR_HFRCOEM23,  ///< HFRCOEM23 Oscillator
   SL_OSCILLATOR_RFFPLL,     ///< RFFPLL Oscillator
   SL_OSCILLATOR_USBPLL,     ///< USBPLL Oscillator
-  SL_OSCILLATOR_SOCPLL,     ///< SOCPLL Oscillator
+  SL_OSCILLATOR_SOCPLL0,    ///< SOCPLL0 Oscillator
   SL_OSCILLATOR_LFXO,       ///< LFXO Oscillator
   SL_OSCILLATOR_LFRCO,      ///< LFRCO Oscillator
   SL_OSCILLATOR_ULFRCO,     ///< ULFRCO Oscillator
   SL_OSCILLATOR_CLKIN0,     ///< CLKIN0 Oscillator
-  SL_OSCILLATOR_FLPLL       ///< FLPLL Oscillator
+  SL_OSCILLATOR_FLPLL,      ///< FLPLL Oscillator
+  SL_OSCILLATOR_INVALID     ///< INVALID Oscillator
 };
+#endif
 
 /// Clock Branches
+#if !defined(DEVICE_CLOCK_INTERNAL_PRESENT)
 SL_ENUM(sl_clock_branch_t) {
   SL_CLOCK_BRANCH_SYSCLK,        ///< SYSCLK Clock Branch
   SL_CLOCK_BRANCH_HCLK,          ///< HCLK Clock Branch
@@ -97,6 +101,7 @@ SL_ENUM(sl_clock_branch_t) {
   SL_CLOCK_BRANCH_SYSRTCCLK,     ///< SYSRTCCLK Clock Branch
   SL_CLOCK_BRANCH_EUART0CLK,     ///< EUART0CLK Clock Branch
   SL_CLOCK_BRANCH_EUSART0CLK,    ///< EUSART0CLK Clock Branch
+  SL_CLOCK_BRANCH_EUSART1CLK,    ///< EUSART1CLK Clock Branch
   SL_CLOCK_BRANCH_DPLLREFCLK,    ///< DPLLREFCLK Clock Branch
   SL_CLOCK_BRANCH_I2C0CLK,       ///< I2C0CLK Clock Branch
   SL_CLOCK_BRANCH_LCDCLK,        ///< LCDCLK Clock Branch
@@ -109,8 +114,10 @@ SL_ENUM(sl_clock_branch_t) {
   SL_CLOCK_BRANCH_VDAC1CLK,      ///< VDAC1CLK Clock Branch
   SL_CLOCK_BRANCH_USB0CLK,       ///< USB0CLK Clock Branch
   SL_CLOCK_BRANCH_FLPLLREFCLK,   ///< FLPLLREFCLK Clock Branch
+  SL_CLOCK_BRANCH_PDM0CLK,       ///< PDM0CLK Clock Branch
   SL_CLOCK_BRANCH_INVALID        ///< INVALID Clock Branch
 };
+#endif
 
 // ----------------------------------------------------------------------------
 // DEFINES

@@ -49,6 +49,7 @@ class BtmeshResetCmd(BtmeshCmd):
         )
         self.reset_parser.add_argument(
             "--type",
+            "-t",
             choices=["system", "factory"],
             default="system",
             help="System or factory reset selection (default: %(default)s)",

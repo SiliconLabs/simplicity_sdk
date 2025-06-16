@@ -185,8 +185,6 @@ void sli_power_manager_init_hardware(void)
 #endif
 #endif
 
-  // Get the current HF oscillator for the SYSCLK
-  cmu_sys_clock_register = CMU->SYSCLKCTRL & _CMU_SYSCLKCTRL_CLKSEL_MASK;
 #if defined(_CMU_DPLLREFCLKCTRL_CLKSEL_MASK)
   cmu_dpll_ref_clock_register = CMU->DPLLREFCLKCTRL & _CMU_DPLLREFCLKCTRL_CLKSEL_MASK;
 #endif
@@ -197,22 +195,8 @@ void sli_power_manager_init_hardware(void)
   CMU->CLKEN0_SET = CMU_CLKEN0_DPLL0;
 #endif
 
-  is_dpll_used = ((DPLL0->STATUS & _DPLL_STATUS_ENS_MASK) != 0);
-
-  is_hf_x_oscillator_used = ((cmu_sys_clock_register == CMU_SYSCLKCTRL_CLKSEL_HFXO)
-                             || ((CMU->EM01GRPACLKCTRL & _CMU_EM01GRPACLKCTRL_CLKSEL_MASK) == CMU_EM01GRPACLKCTRL_CLKSEL_HFXO));
-
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
-  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->RADIOCLKCTRL & _CMU_RADIOCLKCTRL_EN_MASK) != 0);
-#endif
-
-#if defined(CMU_EM01GRPBCLKCTRL_CLKSEL_HFXO)
-  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->EM01GRPBCLKCTRL & _CMU_EM01GRPBCLKCTRL_CLKSEL_MASK) == CMU_EM01GRPBCLKCTRL_CLKSEL_HFXO);
-#endif
-
-#if defined(CMU_EM01GRPCCLKCTRL_CLKSEL_HFXO)
-  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->EM01GRPCCLKCTRL & _CMU_EM01GRPCCLKCTRL_CLKSEL_MASK) == CMU_EM01GRPCCLKCTRL_CLKSEL_HFXO);
-#endif
+  // Retrieve clocks information about HFXO and DPLL
+  sli_power_manager_save_oscillators_usage();
 
 #if defined(SL_CATALOG_POWER_MANAGER_DEEPSLEEP_BLOCKING_HFXO_RESTORE_PRESENT)
   // Set HFXO wakeup time to conservative default value
@@ -222,10 +206,6 @@ void sli_power_manager_init_hardware(void)
     hfxo_wakeup_time_sum_average += hfxo_wakeup_time_tick;
   }
 #endif
-
-  if (is_dpll_used && !is_hf_x_oscillator_used) {
-    is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->DPLLREFCLKCTRL & _CMU_DPLLREFCLKCTRL_CLKSEL_MASK) == _CMU_DPLLREFCLKCTRL_CLKSEL_HFXO);
-  }
 
   // Calculate DPLL locking delay from its configuration
   if (is_dpll_used) {
@@ -256,6 +236,41 @@ void sli_power_manager_init_hardware(void)
 
   process_wakeup_overhead_tick += sli_power_manager_convert_delay_us_to_tick(EM2_WAKEUP_PROCESS_TIME_OVERHEAD_US);
 
+#endif
+}
+
+/***************************************************************************//**
+ * Retrieve information about if HFXO and DPLL oscillators are used.
+ ******************************************************************************/
+void sli_power_manager_save_oscillators_usage(void)
+{
+#if !defined(SL_CATALOG_POWER_MANAGER_NO_DEEPSLEEP_PRESENT)
+  // Get the current HF oscillator for the SYSCLK.
+  cmu_sys_clock_register = CMU->SYSCLKCTRL & _CMU_SYSCLKCTRL_CLKSEL_MASK;
+
+  // Get DPLL state.
+  is_dpll_used = ((DPLL0->STATUS & _DPLL_STATUS_ENS_MASK) != 0);
+
+  // Get HFXO state.
+  is_hf_x_oscillator_used = ((cmu_sys_clock_register == CMU_SYSCLKCTRL_CLKSEL_HFXO)
+                             || ((CMU->EM01GRPACLKCTRL & _CMU_EM01GRPACLKCTRL_CLKSEL_MASK) == CMU_EM01GRPACLKCTRL_CLKSEL_HFXO));
+
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1)
+  // EFRXG21 has its RADIOCLK directly connected to HFXO.
+  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->RADIOCLKCTRL & _CMU_RADIOCLKCTRL_EN_MASK) != 0);
+#endif
+
+#if defined(CMU_EM01GRPBCLKCTRL_CLKSEL_HFXO)
+  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->EM01GRPBCLKCTRL & _CMU_EM01GRPBCLKCTRL_CLKSEL_MASK) == CMU_EM01GRPBCLKCTRL_CLKSEL_HFXO);
+#endif
+
+#if defined(CMU_EM01GRPCCLKCTRL_CLKSEL_HFXO)
+  is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->EM01GRPCCLKCTRL & _CMU_EM01GRPCCLKCTRL_CLKSEL_MASK) == CMU_EM01GRPCCLKCTRL_CLKSEL_HFXO);
+#endif
+
+  if (is_dpll_used && !is_hf_x_oscillator_used) {
+    is_hf_x_oscillator_used = is_hf_x_oscillator_used || ((CMU->DPLLREFCLKCTRL & _CMU_DPLLREFCLKCTRL_CLKSEL_MASK) == _CMU_DPLLREFCLKCTRL_CLKSEL_HFXO);
+  }
 #endif
 }
 
@@ -598,11 +613,8 @@ void sli_power_manager_apply_em(sl_power_manager_em_t em)
       break;
 
     case SL_POWER_MANAGER_EM2:
-      EMU_EnterEM2(false);
-      break;
-
     case SL_POWER_MANAGER_EM3:
-      EMU_EnterEM3(false);
+      EMU_EnterEM2(false);
       break;
 
     default:
@@ -663,17 +675,6 @@ void sli_power_manager_set_high_accuracy_hf_clock_as_used(void)
 #endif
 
 #if !defined(SL_CATALOG_POWER_MANAGER_NO_DEEPSLEEP_PRESENT)
-/*******************************************************************************
- * Restores the Low Frequency clocks according to what LF oscillators are used.
- *
- * @note On series 2, the on-demand will enable automatically the oscillators
- *       used when coming from sleep.
- ******************************************************************************/
-void sli_power_manager_low_frequency_restore(void)
-{
-  // Nothing to do as on-demand feature will enable the LF oscillators automatically.
-}
-
 /***************************************************************************//**
  * Informs the power manager if the high accuracy/high frequency clock
  * is used, prior to scheduling an early clock restore.

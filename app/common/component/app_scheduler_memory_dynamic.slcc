@@ -8,7 +8,7 @@ description: >
 
   Note:
   Allocated resource must be freed to avoid memory leakages.
-package: platform
+package: platform_common_apps
 quality: production
 metadata:
   sbom:

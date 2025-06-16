@@ -35,7 +35,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup mesh_fw_update_server BT Mesh Firmware Update Server
+ * @addtogroup btmesh_firmware_update_server
  * @{
  ******************************************************************************/
 
@@ -66,7 +66,7 @@ void sl_btmesh_firmware_update_server_verify_step_handle(void);
 void sl_btmesh_firmware_update_server_metadata_check_step_handle(void);
 
 /***************************************************************************//**
- * @} end mesh_fw_update_server
+ * @} end btmesh_firmware_update_server
  ******************************************************************************/
 
 #ifdef __cplusplus

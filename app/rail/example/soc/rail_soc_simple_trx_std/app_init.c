@@ -40,7 +40,7 @@
 #endif
 #include "sl_component_catalog.h"
 #include "sl_common.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_sdk_simple_assistance.h"
 #include "app_process.h"
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
@@ -84,13 +84,10 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_sdk_util_get_handle();
-
-  // sets the RAIL TX FIFO
-  (void)app_set_rail_tx_fifo(rail_handle);
+  sl_rail_handle_t rail_handle = sl_rail_sdk_util_get_handle();
 
   // initializes the app process
   app_process_init(rail_handle);
@@ -105,8 +102,15 @@ RAIL_Handle_t app_init(void)
 #else
   print_sample_app_name("\nNo STD(IEEE 802.15.4 or BLE) starts");
 #endif
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

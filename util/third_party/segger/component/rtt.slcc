@@ -1,6 +1,6 @@
 id: "segger_rtt"
 label: "SEGGER RTT"
-package: "platform"
+package: "segger"
 description: "SEGGER RTT"
 category: "Third Party|Segger|RTT"
 quality: "production"
@@ -28,11 +28,5 @@ define:
 template_contribution:
   - name: linker_rtt_section
     value: 1
-  - name: event_handler
-    value:
-      event: platform_init
-      include: SEGGER_RTT.h
-      handler: SEGGER_RTT_Init
-    priority: -9203
   - name: component_catalog
     value: segger_rtt

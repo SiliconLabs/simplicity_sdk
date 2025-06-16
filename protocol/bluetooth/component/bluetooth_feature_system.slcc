@@ -1,6 +1,6 @@
 id: "bluetooth_feature_system"
 label: "System"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Local device configruation and software timers
 

@@ -31,6 +31,11 @@
 #ifndef SL_BTMESH_SENSOR_CLIENT_H
 #define SL_BTMESH_SENSOR_CLIENT_H
 
+/***************************************************************************//**
+ * @addtogroup btmesh_sensor_client
+ * @{
+ ******************************************************************************/
+
 #include "sl_btmesh_sensor.h"
 #include "sl_status.h"
 #include "sl_enum.h"
@@ -38,8 +43,15 @@
 // -----------------------------------------------------------------------------
 // Sensor Data Constants which represents the unknown value of each sensors
 
+/// Represents an unknown value for power consumption sensor data
+#define SL_BTMESH_SENSOR_POWER_CONSUMPTION_UNKNOWN   ((energy32_t)      0xFFFFFFFF)
+/// Represents an invalid value for power consumption sensor data
+#define SL_BTMESH_SENSOR_POWER_CONSUMPTION_INVALID   ((energy32_t)      0xFFFFFFFE)
+/// Represents an unknown value for illuminance sensor data
 #define SL_BTMESH_SENSOR_CLIENT_ILLUMINANCE_UNKNOWN  ((illuminance_t)   0xFFFFFF)
+/// Represents an unknown value for people count sensor data
 #define SL_BTMESH_SENSOR_CLIENT_PEOPLE_COUNT_UNKNOWN ((count16_t)       0xFFFF)
+/// Represents an unknown value for temperature sensor data
 #define SL_BTMESH_SENSOR_CLIENT_TEMPERATURE_UNKNOWN  ((temperature_8_t) 0x7F)
 
 /***************************************************************************//**
@@ -66,6 +78,7 @@ SL_ENUM(sl_btmesh_sensor_client_data_status_t){
  * This is a callback which can be implemented in the application.
  * @note If no implementation is provided in the application,
  *       then the default weak implementation will be an empty function.
+ * @param[in] property_id  property id of the device being discovered.
  ******************************************************************************/
 void sl_btmesh_sensor_client_on_discovery_started(uint16_t property_id);
 
@@ -115,7 +128,7 @@ void sl_btmesh_sensor_client_on_new_temperature_data(uint8_t sensor_idx,
  *                        servers were registered.
  * @param[in] address     Address of the sensor server.
  * @param[in] status      Determines if the data is valid, available or unknown
- * @param[in] temperature Measured people count on the sensor server.
+ * @param[in] people_count Measured people count on the sensor server.
  ******************************************************************************/
 void sl_btmesh_sensor_client_on_new_people_count_data(uint8_t sensor_idx,
                                                       uint16_t address,
@@ -142,6 +155,27 @@ void sl_btmesh_sensor_client_on_new_illuminance_data(uint8_t sensor_idx,
                                                      uint16_t address,
                                                      sl_btmesh_sensor_client_data_status_t status,
                                                      illuminance_t illuminance);
+
+/***************************************************************************//**
+ * Called when energy monitor sensor data is received from one of the
+ * registered devices.
+ *
+ * This is a callback which can be implemented in the application.
+ * @note If no implementation is provided in the application,
+ *       then the default weak implementation will be an empty function.
+ *
+ * @param[in] sensor_idx  The sensor index represents the order the sensor
+ *                        servers were registered.
+ * @param[in] address     Address of the sensor server.
+ * @param[in] status      Determines if the data is valid, available or unknown
+ * @param[in] power_consumption Measured power consumption on the sensor server
+                                in units of kilowatt-hours,
+                                with a precision of 1 Watt-hour
+ ******************************************************************************/
+void sl_btmesh_sensor_client_on_new_power_consumption_data(uint8_t sensor_idx,
+                                                           uint16_t address,
+                                                           sl_btmesh_sensor_client_data_status_t status,
+                                                           energy32_t power_consumption);
 
 // -----------------------------------------------------------------------------
 // Functions
@@ -197,4 +231,5 @@ sl_status_t sl_btmesh_sensor_client_get_sensor_data(mesh_device_properties_t pro
  ******************************************************************************/
 void sl_btmesh_handle_sensor_client_on_event(sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_sensor_client) */
 #endif // SL_BTMESH_SENSOR_CLIENT_H

@@ -331,7 +331,8 @@ uint8_t *sl_cli_get_argument_hex(sl_cli_command_arg_t *a, size_t n, size_t *l)
 {
   // Byte 0 and 1 contains the length, while 2..n contains the data.
   uint8_t *ptr;
-  uint8_t lo, hi;
+  uint8_t lo;
+  uint8_t hi;
 
   ptr = (uint8_t *)(a->argv[a->arg_ofs + n]);
   lo = *ptr++;
@@ -361,7 +362,7 @@ void sl_cli_redirect_command(sl_cli_handle_t handle, sl_cli_command_function_t c
   if ((handle->command_function == NULL) != (command_function == NULL)) {
     handle->command_function = command_function;
     handle->aux_argument = user;
-    handle->prompt_string = (prompt == NULL) ? SL_CLI_PROMPT_STRING : (char *)prompt;
+    handle->prompt_string = (prompt == NULL) ? SL_CLI_PROMPT_STRING : prompt;
   }
 }
 
@@ -391,8 +392,8 @@ sl_status_t sl_cli_instance_init(sl_cli_handle_t handle,
   sl_cli_command_add_command_group(handle, parameters->default_command_group);
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #if SL_CLI_TICK_ENABLE
-  handle->start_delay_tick = ((uint64_t)osKernelGetTickFreq() * parameters->start_delay_ms) / 1000;
-  handle->loop_delay_tick = ((uint64_t)osKernelGetTickFreq() * parameters->loop_delay_ms) / 1000;
+  handle->start_delay_tick = (osKernelGetTickFreq() * parameters->start_delay_ms) / 1000;
+  handle->loop_delay_tick = (osKernelGetTickFreq() * parameters->loop_delay_ms) / 1000;
   status = create_task(handle, parameters);
   if (status != SL_STATUS_OK) {
     return status;

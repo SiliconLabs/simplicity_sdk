@@ -16,7 +16,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: blink.c
 include:
   - path: .
@@ -24,7 +23,7 @@ include:
     - path: app.h
     - path: blink.h
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: freertos

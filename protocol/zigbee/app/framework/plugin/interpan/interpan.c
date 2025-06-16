@@ -761,7 +761,6 @@ static bool isMessageAllowed(sl_zigbee_af_interpan_header_t *headerData,
 {
   uint8_t incomingMessageOptions = 0;
   uint8_t commandId;
-  uint8_t i;
 
   if (messageLength < SL_ZIGBEE_AF_ZCL_OVERHEAD) {
     sl_zigbee_af_app_println("%smessage too short (%d < %d)!",
@@ -812,8 +811,11 @@ static bool isMessageAllowed(sl_zigbee_af_interpan_header_t *headerData,
   }
 #endif // ALLOW_FRAGMENTATION
 
-  i = 0;
-  while (messages[i].profileId != 0xFFFF) {
+  uint8_t messages_count = sizeof(messages) / sizeof(messages[0]);
+  for (uint8_t i = 0; i < messages_count; i++) {
+    if (messages[i].profileId == 0xFFFF) {
+      break;
+    }
     if (messages[i].profileId == headerData->profileId
         && messages[i].clusterId == headerData->clusterId
         && messages[i].commandId == commandId
@@ -821,7 +823,6 @@ static bool isMessageAllowed(sl_zigbee_af_interpan_header_t *headerData,
         && (messages[i].options & incomingMessageOptions)) {
       return true;
     }
-    i++;
   }
 
   sl_zigbee_af_app_println("%sprofile 0x%04X, cluster 0x%04X, command 0x%02X not permitted",

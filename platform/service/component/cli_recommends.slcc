@@ -2,7 +2,7 @@
 - id: cli_recommends
 - label: cli_recommends
 - description: CLI recommend
-- package: platform
+- package: platform_core
 - category: Services|Command Line Interface
 - quality: production
 - metadata:

@@ -28,6 +28,7 @@
  *
  ******************************************************************************/
 
+#include <inttypes.h>
 #include "sl_bt_version.h"
 #include "app_log.h"
 #include "ncp_version.h"
@@ -35,11 +36,11 @@
 void ncp_version_on_event(sl_bt_msg_t *evt)
 {
   if (SL_BT_MSG_ID(evt->header) == sl_bt_evt_system_boot_id) {
-    app_log_info("Bluetooth stack booted: v%d.%d.%d-b%d" APP_LOG_NL,
+    app_log_info("Bluetooth stack booted: v%d.%d.%d+%08" PRIx32 APP_LOG_NL,
                  evt->data.evt_system_boot.major,
                  evt->data.evt_system_boot.minor,
                  evt->data.evt_system_boot.patch,
-                 evt->data.evt_system_boot.build);
+                 evt->data.evt_system_boot.hash);
     if ((evt->data.evt_system_boot.major != SL_BT_VERSION_MAJOR)
         || (evt->data.evt_system_boot.minor != SL_BT_VERSION_MINOR)
         || (evt->data.evt_system_boot.patch != SL_BT_VERSION_PATCH)) {

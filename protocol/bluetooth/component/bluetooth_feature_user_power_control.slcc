@@ -1,6 +1,6 @@
 id: "bluetooth_feature_user_power_control"
 label:  "Application-controlled TX Power"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This is a Silicon Labs proprietary feature that allows application to control the
   transmit power of the local device on a connection.
@@ -23,10 +23,6 @@ provides:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_user_power_control
-  - name: bluetooth_controller_init
-    value:
-      function: "void sl_bt_init_app_controlled_tx_power(); sl_bt_init_app_controlled_tx_power()"
-    priority: 10
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-connection

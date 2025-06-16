@@ -1,11 +1,11 @@
 /**
-*
-* @file
-* Network management utility functions
-*
-* @copyright 2019 Silicon Laboratories Inc.
-*
-*/
+ *
+ * @file
+ * Network management utility functions
+ *
+ * @copyright 2019 Silicon Laboratories Inc.
+ *
+ */
 
 #include <assert.h>
 #include <ZAF_network_management.h>
@@ -20,8 +20,7 @@ void ZAF_SetMaxInclusionRequestIntervals(uint32_t intervals)
 
   // Put the Command on queue
   SApplicationHandles * pAppHandle = ZAF_getAppHandle();
-  if (EQUEUENOTIFYING_STATUS_SUCCESS != QueueNotifyingSendToBack(pAppHandle->pZwCommandQueue, (uint8_t *)&setMaxInclusionRequestIntervals, 0))
-  {
+  if (EQUEUENOTIFYING_STATUS_SUCCESS != QueueNotifyingSendToBack(pAppHandle->pZwCommandQueue, (uint8_t *)&setMaxInclusionRequestIntervals, 0)) {
     assert(false);
   }
 }
@@ -38,10 +37,8 @@ void ZAF_SendINIF(void (*pCallback)(uint8_t txStatus, TX_STATUS_TYPE* extendedTx
   };
 
   // Put the package on queue (and dont wait for it)
-  if (EQUEUENOTIFYING_STATUS_SUCCESS != QueueNotifyingSendToBack(pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0))
-  {
-    if (NULL != pCallback)
-    {
+  if (EQUEUENOTIFYING_STATUS_SUCCESS != QueueNotifyingSendToBack(pAppHandle->pZwTxQueue, (uint8_t*)&FramePackage, 0)) {
+    if (NULL != pCallback) {
       pCallback(TRANSMIT_COMPLETE_FAIL, NULL);
     }
   }

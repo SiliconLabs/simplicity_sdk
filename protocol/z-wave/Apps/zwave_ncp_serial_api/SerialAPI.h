@@ -5,7 +5,6 @@
 #ifndef _ZW_SERIALAPI_H_
 #define _ZW_SERIALAPI_H_
 
-
 /**
  * @addtogroup ZWaveAPI
  * @{
@@ -229,7 +228,7 @@
 #ifdef ZW_ROUTING_DEMO
 /* Max hops in route */
 #define TRANSMIT_ROUTED_ATTEMPT                         0x08  // This define is never used
-#define FUNC_ID_ZW_SEND_DATA_ROUTE_DEMO	                0x91  // This define is never used
+#define FUNC_ID_ZW_SEND_DATA_ROUTE_DEMO                 0x91  // This define is never used
 #endif
 
 /* ZW_SetPriorityRoute/ZW_GetPriorityRoute replaces ZW_SetLastWorkingRoute/ZW_GetLastWorkingRoute */
@@ -326,6 +325,8 @@
 
 #define FUNC_ID_ZW_SET_LR_VIRTUAL_IDS                   0xDD
 
+#define FUNC_ID_ZW_GET_NLS_NODES                        0xC0
+
 #define FUNC_ID_GET_DCDC_CONFIG                         0xDE
 #define FUNC_ID_SET_DCDC_CONFIG                         0xDF
 
@@ -363,24 +364,19 @@
 #define FUNC_ID_PROPRIETARY_D                           0xFD
 #define FUNC_ID_PROPRIETARY_E                           0xFE
 
-
 /* Illegal function ID */
 #define FUNC_ID_UNKNOWN                                 0xFF
 ///@}
 
 /**size of the address field of NVM_BACKUP_RESTORE or NVM_EXT_BACKUP_RESTORE frames.
-Item value is the size in byte of the address field.
-*/
-typedef enum
-{
+   Item value is the size in byte of the address field.
+ */
+typedef enum {
   NVM_BACKUP_RESTORE_ADDR_SIZE = 2,     ///< 2 bytes for the legacy NVM backup & restore command
   NVM_EXT_BACKUP_RESTORE_ADDR_SIZE = 4, ///< 4 bytes for the extended NVM backup & restore command
 } nvm_backup_restore_addr_size_t;
 
-
 ///@}
 ///@}
-
-
 
 #endif /*_ZW_SERIALAPI_H_*/

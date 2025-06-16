@@ -28,12 +28,11 @@
  *
  ******************************************************************************/
 #include <stdbool.h>
-#include "sl_common.h"
+#include "sl_main_init.h"
 #include "app_log.h"
 #include "app_assert.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
-#include "app.h"
 #include "voice.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
@@ -99,7 +98,7 @@ void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -114,11 +113,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // Do not call any stack command before receiving this boot event!
     case sl_bt_evt_system_boot_id:
       // Print boot message.
-      app_log_info("Bluetooth stack booted: v%d.%d.%d-b%d\n",
+      app_log_info("Bluetooth stack booted: v%d.%d.%d+%08lx\n",
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
 
       // Set maximal MTU for GATT Server.
       sc = sl_bt_gatt_server_set_max_mtu(250, &max_mtu_out);
@@ -252,7 +251,7 @@ void voice_transmit(uint8_t *buffer, uint32_t size)
 
 /***************************************************************************//**
  * Button event handler callback.
- * Overrides dummy weak implementation.
+ * Overrides the default weak implementation.
  ******************************************************************************/
 void sl_button_on_change(const sl_button_t *handle)
 {

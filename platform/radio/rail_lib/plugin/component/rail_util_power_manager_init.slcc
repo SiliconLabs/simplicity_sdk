@@ -1,16 +1,16 @@
 id: rail_util_power_manager_init
 label: RAIL Utility, Power manager init
 description: Utility to aid with RAIL power manager initialization
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_util_power_manager_init
-    name: RAIL Utility, Power manager init
-    license: Zlib
+    sbom:
+        id: rail_util_power_manager_init
+        name: RAIL Utility, Power manager init
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 requires:
   - name: rail_lib
   - name: power_manager
@@ -27,7 +27,7 @@ source:
 template_contribution:
   - name: event_handler
     value:
-      event: stack_init
-      include: sl_rail_util_power_manager_init.h
-      handler: sl_rail_util_power_manager_init
+        event: stack_init
+        include: sl_rail_util_power_manager_init.h
+        handler: sl_rail_util_power_manager_init
     priority: -9010

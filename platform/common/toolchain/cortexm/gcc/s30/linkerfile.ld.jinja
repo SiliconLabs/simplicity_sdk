@@ -100,19 +100,24 @@
     {%- set logical_code_region1_size = code_region1_size | first %}
   {%- else %}
 
-    {#-
-      Code Region 1 size's look-up table.
-    #}
-    {%- if (flash_size == 1900544) %} {#- 2MB #}
-      {%- set logical_code_region1_size = 884736 %}
-    {%- elif (flash_size == 2949120) %} {#- 3MB #}
-      {%- set logical_code_region1_size = 1441792 %}
-    {%- elif (flash_size == 3997696) %} {#- 4MB #}
-      {%- set logical_code_region1_size = 2031616 %}
-    {%- else %}
-      {%- set logical_code_region1_size = 2031616 %}
-    {%- endif %}
+    {%- if device_has_ext_mem is defined %}
+      {#-
+        Calculate Code Region 1 size for External Flash parts.
+      #}
+      {%- set logical_code_region1_size = ((((8 * flash_size) // 9) - physical_code_region0_size) // 2) %}
 
+    {%- else %}
+      {#-
+        Code Region 1 size's look-up table for Co-Packaged Flash parts.
+      #}
+      {%- if (flash_size == 1900544) %} {#- 2MB Co-Packaged Flash #}
+        {%- set logical_code_region1_size = 884736 %}
+      {%- elif (flash_size == 2949120) %} {#- 3MB Co-Packaged Flash #}
+        {%- set logical_code_region1_size = 1441792 %}
+      {%- elif (flash_size == 3997696) %} {#- 4MB Co-Packaged Flash #}
+        {%- set logical_code_region1_size = 2031616 %}
+      {%- endif %}
+    {%- endif %}
   {%- endif %}
   {%- set logical_code_region1_size = ((logical_code_region1_size // 32768) * 32768) %}
 
@@ -183,33 +188,14 @@
   {%- endif %}
 {%- endif %}
 
-{%- if static_tokens_enable is defined %}
-  {%- set flash_lockbits_size = lockbits_size | first %}
-  {%- set app_flash_size = app_flash_size - flash_lockbits_size %}
-{%- endif %}
-
-{% if tz_non_secure_execution is defined %}
-  {%- set app_flash_start_offset = app_flash_start - flash_addr %}
-  {#-
-    The secure_app_flash_start uses non-secure aliases when being flashed
-    by the application linkerfile, however the secure app is pre-compiled
-    using secure aliases. This was done to prevent bloating the size of the
-    binary output.
-  #}
-  {%- set secure_app_flash_start = flash_addr + app_flash_start_offset %}
-  {%- set secure_app_flash_size = device_flash_smpu_region_size | first %}
-  {#-
-    The app_flash_start begins after the configured secure flash region.
-  #}
-  {%- set app_flash_start = app_flash_start + secure_app_flash_size %}
-  {%- set app_flash_size = app_flash_size - secure_app_flash_size %}
-{%- endif %}
-
-{% if matter_certificate_store is defined %}
-  {#-
-    Currently matter certificates are stored at manufacturing time in the last flash page.
-  #}
-  {%- set app_flash_size = app_flash_size - flash_page_size %}
+{#-
+    Reserve space for static secure tokens storage at the end of flash.
+    Note that default size allocated is 8k.
+#}
+{%- if static_secure_tokens_storage_size is defined %}
+  {%- set flash_static_secure_tokens_storage_size = static_secure_tokens_storage_size | first %}
+{%- else %}
+  {%- set flash_static_secure_tokens_storage_size = 8192 %}
 {%- endif %}
 
 {%- set rtt = 0 %}
@@ -219,9 +205,6 @@
 
  MEMORY
  {
-{%- if tz_non_secure_execution is defined %}
-   FLASH_S    (rx)  : ORIGIN = 0x{{ '%0x' % secure_app_flash_start }}, LENGTH = 0x{{ '%0x' % secure_app_flash_size }}
-{%- endif %}
 {%- if bootloader_enable %}
    FLASH      (rx)  : ORIGIN = 0x{{ '%0x' % bootloader_flash_startaddr }}, LENGTH = 0x{{ '%0x' % bootloader_flash_size }}
    RAM        (rwx) : ORIGIN = 0x{{ '%0x' % app_ram_start }}, LENGTH = 0x{{ '%0x' % app_ram_size }}
@@ -236,10 +219,11 @@
 {%- endif %}
  }
 
+{#- Flash-related exported symbols used by hal_system and tz_non_secure_execution. #}
 __flash_size__ = 0x{{ '%0x' % flash_size }};
 __flash_page_size__ = 0x{{ '%0x' % flash_page_size }};
 {%- if tz_non_secure_execution is defined %}
-__secure_flash_size__ = 0x{{ '%0x' % secure_app_flash_size }};
+__mspu_region_size__ = 0x{{ '%0x' % device_flash_smpu_region_size | first }};
 {%- endif %}
 
 ENTRY(Reset_Handler)
@@ -261,13 +245,18 @@ SECTIONS
 {%- if tz_non_secure_execution is defined %}
   .secure_app :
   {
+  {%- if (app_flash_start % (device_flash_smpu_region_size | first)) != 0 %}
+    KEEP(*(.secure_vectors_copy))
+    . = ALIGN(__mspu_region_size__);
+  {%- endif %}
     __Secure_Vectors = .;
     KEEP(*(.secure_vectors))
     KEEP(*(.secure_config_data))
     __Secure_Reset_Handler = .;
     KEEP(*(.secure_reset_handler))
     KEEP(*(.secure_fault_handler))
-  } > FLASH_S
+    . = ALIGN(__mspu_region_size__);
+  } > FLASH
 {%- endif %}
 
   .vectors :
@@ -386,7 +375,7 @@ SECTIONS
   } > RAM_ALIAS AT > FLASH
 {%- endif %}
 
-  .rodata :
+  .rodata (READONLY):
   {
     __lma_ramfuncs_end__ = .;
     __rodata_start__ = .;
@@ -449,7 +438,7 @@ SECTIONS
   } > FLASH
   __exidx_end = .;
 
-  .copy.table :
+  .copy.table (READONLY):
   {
     . = ALIGN(4);
     __copy_table_start__ = .;
@@ -467,7 +456,7 @@ SECTIONS
     __copy_table_end__ = .;
   } > FLASH
 
-  .zero.table :
+  .zero.table (READONLY):
   {
     . = ALIGN(4);
     __zero_table_start__ = .;
@@ -518,7 +507,9 @@ SECTIONS
 
   .noinit (NOLOAD):
   {
+    __noinit_start__ = .;
     *(.noinit*);
+    __noinit_end__ = .;
   } > RAM
 
   .bss :
@@ -589,7 +580,6 @@ heap_size = heap_limit - __HeapBase;
     __HeapBase = .;
     . += heap_size;
     __end__ = .;
-    end = __end__;
     _end = __end__;
     KEEP(*(.memory_manager_heap*))
     __HeapLimit = ORIGIN(RAM) + LENGTH(RAM);
@@ -601,7 +591,6 @@ heap_size = heap_limit - __HeapBase;
     __HeapBase = .;
     . += heap_size;
     __end__ = .;
-    end = __end__;
     _end = __end__;
     KEEP(*(.heap*))
     __HeapLimit = ORIGIN(RAM) + LENGTH(RAM);
@@ -638,7 +627,11 @@ heap_size = heap_limit - __HeapBase;
   __ramfuncs_end__ = ORIGIN(RAM) + (__vma_ramfuncs_end__ - ORIGIN(RAM_ALIAS));
 {%- endif %}
 
-  linker_nvm_end = __main_flash_end__;
+  /* Static secure tokens reserve flash memory at the end of the flash */
+  linker_static_secure_tokens_end = __main_flash_end__;
+  linker_static_secure_tokens_begin = linker_static_secure_tokens_end - 0x{{ '%0x' % flash_static_secure_tokens_storage_size}};
+
+  linker_nvm_end = linker_static_secure_tokens_begin;
   linker_nvm_begin = linker_nvm_end - SIZEOF(.nvm);
 
 {%- if trustzone_secure is not defined %}
@@ -664,10 +657,14 @@ heap_size = heap_limit - __HeapBase;
   ASSERT((linker_storage_begin >= (__etext + SIZEOF(.data))), "FLASH memory overflowed !")
 {%- endif %}
 
+{#-
+  LINKER FILE ASSERTIONS
+#}
 {% if trustzone_secure is not defined %}
 {%- if app_flash_start and app_flash_size %}
   app_flash_end = 0x{{ '%0x' % (app_flash_start) }} + 0x{{ '%0x' % (app_flash_size) }};
-  ASSERT( (linker_nvm_begin + SIZEOF(.nvm)) <= app_flash_end, "NVM3 is excessing the flash size !")
+  ASSERT( (linker_nvm_begin + SIZEOF(.nvm)) <= linker_static_secure_tokens_begin, "NVM3 is excessing the flash size !")
+  ASSERT( (linker_static_secure_tokens_begin + 0x{{ '%0x' % flash_static_secure_tokens_storage_size}}) <= app_flash_end, "Static secure storage is exceeding the flash size !")
 {%- endif %}
 {%- endif %} {#- trustzone_secure #}
 
@@ -678,4 +675,17 @@ heap_size = heap_limit - __HeapBase;
 {%- if (memory_flash_start and not memory_flash_size) or (memory_flash_size and not memory_flash_start) %}
   ASSERT( 0, "memory_flash_start and memory_flash_size, Should define/undefine both!")
 {%- endif %}
-}
+{#-
+  Ensure the template contribution to memory_flash_size does not exceed the available flash_size.
+  On Rainier, if the AXiP is enabled, the flash size is reduced by the overhead of the AXiP regions.
+  memory_flash_size is the size of the flash region defined in the SLCP file. memory_flash_size value can be
+  hardcoded from a given SiSDK stack sample apps project or can be edited via the Memory Editor configuration tool
+  of Simplicity Studio.
+#}
+{%- if memory_flash_size is defined %}
+  memory_flash_end = 0x{{ '%0x' % (memory_flash_start | first) }} + 0x{{ '%0x' % (memory_flash_size | first) }};
+  physical_flash_end = 0x{{ '%0x' % (flash_addr) }} + 0x{{ '%0x' % (flash_size) }};
+  ASSERT( memory_flash_end <= physical_flash_end, "The template contribution to memory_flash_size exceeds the available flash_size. Check your SLCC or SLCP file to review the flash size defined by memory_flash_size for the sixx301 family.")
+{%- endif %}
+} {#- END of SECTIONS #}
+

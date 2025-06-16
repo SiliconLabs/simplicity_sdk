@@ -50,6 +50,7 @@
 #include "events.h"
 #include "cc_user_credential_config_api.h"
 #include "cc_user_credential_validation.h"
+#include "cc_user_credential_tx.h"
 #include "app_credentials.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -67,9 +68,9 @@ typedef enum _u3c_credential_attribute_t {
 // -----------------------------------------------------------------------------
 static bool u3c_add_user(const char * const user_name);
 static bool u3c_add_credential(u3c_credential_type type, uint16_t uuid, uint16_t slot, unsigned char* credential_data);
-static bool u3c_modify_user_name(u3c_user *user, const char * const name);
-static bool u3c_modify_user_type(u3c_user *user, const char * const type);
-static bool u3c_modify_user_active(u3c_user *user, const char * const state);
+static bool u3c_modify_user_name(u3c_user_t *user, const char * const name);
+static bool u3c_modify_user_type(u3c_user_t *user, const char * const type);
+static bool u3c_modify_user_active(u3c_user_t *user, const char * const state);
 static bool u3c_modify_credential(uint16_t slot, u3c_credential_type type, unsigned char* credential_data);
 static bool u3c_move_credential_slot(uint16_t slot, u3c_credential_type type, uint16_t new_slot);
 static bool u3c_move_credential_uuid(uint16_t slot, u3c_credential_type type, uint16_t new_uuid);
@@ -86,7 +87,7 @@ static uint16_t u3c_generate_uuid(void);
 // -----------------------------------------------------------------------------
 
 static uint8_t credential_learn_data[U3C_BUFFER_SIZE_CREDENTIAL_DATA + 1] = { 0 };
-static u3c_event_data_learn_read_done event_learn_read_done_data = {
+static u3c_event_data_learn_read_done_t event_learn_read_done_data = {
   .data = credential_learn_data,
   .data_length = 0
 };
@@ -154,7 +155,7 @@ void cli_u3c_db_modify_user(sl_cli_command_arg_t *arguments)
   const uint16_t     uuid            = sl_cli_get_argument_uint16(arguments, 0);
   const char * const attribute       = sl_cli_get_argument_string(arguments, 1);
   const char * const attribute_value = sl_cli_get_argument_string(arguments, 2);
-  u3c_user user;
+  u3c_user_t user;
 
   if (CC_UserCredential_get_user(uuid, &user, NULL) == U3C_DB_OPERATION_RESULT_SUCCESS) {
     if (0 == strcmp(attribute, "type")) {
@@ -206,6 +207,7 @@ void cli_u3c_db_modify_credential(sl_cli_command_arg_t *arguments)
         break;
       case CREDENTIAL_ATTRIBUTE_SLOT:
         update_status = u3c_move_credential_slot(slot, credential_type, atoi(attribute_value));
+        app_log_warning("The lifeline group cannot be notified about this change!\r\n");
         break;
       case CREDENTIAL_ATTRIBUTE_UUID:
         update_status = u3c_move_credential_uuid(slot, credential_type, atoi(attribute_value));
@@ -279,7 +281,7 @@ void cli_u3c_db_delete_credential(sl_cli_command_arg_t *arguments)
 void cli_u3c_db_get_user(sl_cli_command_arg_t *arguments)
 {
   const uint16_t uuid = sl_cli_get_argument_uint16(arguments, 0);
-  u3c_user user;
+  u3c_user_t user;
   uint8_t user_name[U3C_BUFFER_SIZE_USER_NAME];
 
   if (CC_UserCredential_get_user(uuid, &user, user_name) == U3C_DB_OPERATION_RESULT_SUCCESS) {
@@ -313,7 +315,7 @@ void cli_u3c_db_get_credential(sl_cli_command_arg_t *arguments)
   const char* const type = sl_cli_get_argument_string(arguments, 0);
   const uint16_t slot    = sl_cli_get_argument_uint16(arguments, 1);
   u3c_credential_type credential_type;
-  u3c_credential credential;
+  u3c_credential_t credential;
   uint8_t credential_data[U3C_BUFFER_SIZE_CREDENTIAL_DATA + 1] = { 0 };
   u3c_db_operation_result db_operation;
 
@@ -362,7 +364,7 @@ void cli_u3c_enter_credential(sl_cli_command_arg_t *arguments)
 
   credential_type = u3c_convert_str_to_credential_type((unsigned char*)type);
 
-  static u3c_credential credential = {
+  static u3c_credential_t credential = {
     .metadata = {
       .uuid = 1,
       .slot = 1,
@@ -370,23 +372,23 @@ void cli_u3c_enter_credential(sl_cli_command_arg_t *arguments)
       .modifier_type = MODIFIER_TYPE_LOCALLY
     }
   };
-  static u3c_event_data_validate user_credential_event_validate_data = {
+  static u3c_event_data_validate_t user_credential_event_validate_data = {
     .credential = &credential,
     .is_unlocked = true
   };
 
   if (credential_type != CREDENTIAL_TYPE_NUMBER_OF_TYPES) {
-    u3c_credential credential_search = {
+    u3c_credential_t credential_search = {
       .metadata = {
         .type = credential_type,
         .length = credential_size
       },
       .data = (uint8_t*)credential_buffer
     };
-    u3c_credential_metadata credential_find_metadata;
+    u3c_credential_metadata_t credential_find_metadata;
     bool is_credential_found = find_existing_credential(&credential_search, &credential_find_metadata);
     if (is_credential_found) {
-      u3c_user user;
+      u3c_user_t user;
       uint8_t user_name[U3C_BUFFER_SIZE_USER_NAME + 1] = { 0 };
       CC_UserCredential_get_user(credential_find_metadata.uuid, &user, user_name);
       app_log_info("Credential found for user:\r\n");
@@ -426,7 +428,7 @@ void cli_u3c_credential_learn_start(sl_cli_command_arg_t *arguments)
   uint16_t command_class = COMMAND_CLASS_NO_OPERATION;
   uint8_t cc_event = 0;
   void *cc_data = NULL;
-  static u3c_credential_learn_event_data credential_learn_start_data;
+  static u3c_event_data_learn_start_t credential_learn_start_data;
 
   u3c_credential_type credential_type = u3c_convert_str_to_credential_type((unsigned char*)type);
 
@@ -483,7 +485,7 @@ static bool u3c_add_user(const char * const user_name)
 
   uuid = u3c_generate_uuid();
 
-  u3c_user user = {
+  u3c_user_t user = {
     .active = true,
     .unique_identifier = uuid,
     .modifier_node_id = 0,
@@ -541,7 +543,7 @@ static bool u3c_add_user(const char * const user_name)
  */
 static bool u3c_modify_credential(uint16_t slot, u3c_credential_type type, unsigned char* credential_data)
 {
-  u3c_credential credential = {
+  u3c_credential_t credential = {
     .metadata = {
       .uuid = 0,
       .type = 0,
@@ -589,11 +591,10 @@ static bool u3c_modify_credential(uint16_t slot, u3c_credential_type type, unsig
 }
 
 /**
- * @brief Moves the credential to an another slot.
+ * @brief Moves the credential to another slot.
  *
  * The function moves an existing credential to a new slot.
  *
- * @param uuid UID of the assigned user
  * @param slot Current slot of the credential
  * @param type Type of the credential
  * @param new_slot Number of the new slot to move the credential to
@@ -602,16 +603,20 @@ static bool u3c_modify_credential(uint16_t slot, u3c_credential_type type, unsig
  */
 static bool u3c_move_credential_slot(uint16_t slot, u3c_credential_type type, uint16_t new_slot)
 {
-  u3c_credential credential = { 0 };
+  u3c_credential_t credential = { 0 };
   uint8_t credential_data[U3C_BUFFER_SIZE_CREDENTIAL_DATA + 1] = { 0 };
   credential.data = credential_data;
   if (CC_UserCredential_get_credential(0, type, slot, &credential.metadata, credential.data) != U3C_DB_OPERATION_RESULT_SUCCESS) {
     return false;
   }
 
-  RECEIVE_OPTIONS_TYPE_EX rx_options = { 0 };
-  if (CC_UserCredential_move_credential_and_report(type, slot,
-                                                   credential.metadata.uuid, new_slot, &rx_options) == U3C_DB_OPERATION_RESULT_SUCCESS) {
+  if (
+    /**
+     * This action is no longer supported by the specification.
+     * The lifeline group cannot be notified about this change.
+     */
+    CC_UserCredential_move_credential(type, slot, credential.metadata.uuid, new_slot)
+    == U3C_DB_OPERATION_RESULT_SUCCESS) {
     return true;
   }
 
@@ -619,9 +624,9 @@ static bool u3c_move_credential_slot(uint16_t slot, u3c_credential_type type, ui
 }
 
 /**
- * @brief Assigns an existing credential to an another user.
+ * @brief Assigns an existing credential to another user.
  *
- * The function assigns an existing credential to an another existing user in the database
+ * The function assigns an existing credential to another existing user in the database
  *
  * @param uuid Current UID of the assigned user
  * @param slot Slot of the credential
@@ -635,7 +640,7 @@ static bool u3c_move_credential_uuid(uint16_t slot, u3c_credential_type type, ui
   bool operation_result = false;
 
   RECEIVE_OPTIONS_TYPE_EX rx_options = { 0 };
-  if (CC_UserCredential_move_credential_and_report(type, slot, new_uuid, slot, &rx_options) == U3C_DB_OPERATION_RESULT_SUCCESS) {
+  if (CC_UserCredential_move_credential_and_report(type, slot, new_uuid, &rx_options) == U3C_DB_OPERATION_RESULT_SUCCESS) {
     operation_result = true;
   }
 
@@ -659,7 +664,7 @@ static bool u3c_add_credential(u3c_credential_type type, uint16_t uuid, uint16_t
 {
   bool operation_result = false;
 
-  u3c_credential credential = {
+  u3c_credential_t credential = {
     .metadata = {
       .uuid = uuid,
       .type = type,
@@ -709,15 +714,15 @@ static bool u3c_add_credential(u3c_credential_type type, uint16_t uuid, uint16_t
  * @brief Modifies the name of a user.
  *
  * This function allows for modifying the name of a user in the database.
- * It takes an instance of u3c_user structure and the new name as parameters and updates the
+ * It takes an instance of u3c_user_t structure and the new name as parameters and updates the
  * user's name accordingly.
  *
- * @param user Instance of u3c_user structure.
+ * @param user Instance of u3c_user_t structure.
  * @param new_name The new name to assign to the user.
  * @return Returns true if the user's name was successfully modified, or
  *         false value if an error occurred.
  */
-static bool u3c_modify_user_name(u3c_user *user, const char * const name)
+static bool u3c_modify_user_name(u3c_user_t *user, const char * const name)
 {
   bool operation_result = false;
   user->name_length = strnlen(name, U3C_BUFFER_SIZE_USER_NAME);
@@ -752,7 +757,7 @@ static bool u3c_modify_user_name(u3c_user *user, const char * const name)
  * @param type The new user type to be assigned.
  * @return Returns true if the user type was successfully modified, false otherwise.
  */
-static bool u3c_modify_user_type(u3c_user *user, const char * const type)
+static bool u3c_modify_user_type(u3c_user_t *user, const char * const type)
 {
   bool operation_result = false;
   uint8_t name[U3C_BUFFER_SIZE_USER_NAME];
@@ -777,12 +782,12 @@ static bool u3c_modify_user_type(u3c_user *user, const char * const type)
  * This function allows for modifying the active status of a user in the database.
  * The user's active status can be set to either active or inactive.
  *
- * @param user The u3c_user instance to modify.
+ * @param user The u3c_user_t instance to modify.
  * @param state The new active status for the user.
  *
  * @return Returns true if the user's active status was successfully modified, or false if an error occurred.
  */
-static bool u3c_modify_user_active(u3c_user *user, const char * const state)
+static bool u3c_modify_user_active(u3c_user_t *user, const char * const state)
 {
   bool operation_result = true;
   bool active_state     = false;

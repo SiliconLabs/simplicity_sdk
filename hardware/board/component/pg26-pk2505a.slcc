@@ -1,7 +1,7 @@
 !!omap
 - id: pg26_pk2505a
 - label: PG26-PK2505A
-- package: platform
+- package: boards
 - description: Kit BSP support for the PG26 Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production

@@ -725,7 +725,7 @@ void sli_zigbee_af_ota_client_stop(void)
   sl_zigbee_zcl_deactivate_client_tick(myEndpoint, ZCL_OTA_BOOTLOAD_CLUSTER_ID);
 }
 
-void sli_zigbee_af_ota_client_print_state(void)
+void sli_zigbee_af_ota_client_print_state(SL_CLI_COMMAND_ARG)
 {
   otaPrintln(" State:   %s",
              bootloadStateNames[currentBootloadState]);
@@ -1417,7 +1417,24 @@ static sl_zigbee_af_status_t queryNextImageResponseParse(uint8_t* buffer,
     zclStatus = SL_ZIGBEE_ZCL_STATUS_SUCCESS;
     goto queryNextImageResponseDone;
   } else {
-    startDownload(imageId.firmwareVersion);
+    // If an image is already available in storage,
+    // verify whether the image on the server is newer than the stored image.
+    // If the server's image is not newer, the stored image will be verified
+    // instead of downloading the server's image
+    uint32_t currentOffset;
+    sl_zigbee_af_ota_storage_status_t
+      otaStatus = sl_zigbee_af_ota_storage_check_temp_data_cb(&currentOffset,
+                                                              &totalImageSize,
+                                                              &currentDownloadFile);
+    if (otaStatus == SL_ZIGBEE_AF_OTA_STORAGE_SUCCESS
+        && imageId.firmwareVersion <= currentDownloadFile.firmwareVersion) {
+      otaPrintln("Found fully downloaded file in storage (version 0x%08X).",
+                 currentDownloadFile.firmwareVersion);
+      updateImageTypeIdAttribute(currentDownloadFile.imageTypeId);
+      continueImageVerification(SL_ZIGBEE_AF_IMAGE_UNKNOWN);
+    } else {
+      startDownload(imageId.firmwareVersion);
+    }
     return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
   }
 
@@ -2176,7 +2193,7 @@ static void updateImageTypeIdAttribute(uint16_t imageTypeId)
 
 // Sends an image block request for a file the server should
 // not have.  Test harness only (test case 9.5.6 - Missing File)
-void sli_zigbee_af_send_image_block_request_test(void)
+void sli_zigbee_af_send_image_block_request_test(SL_CLI_COMMAND_ARG)
 {
   if (currentBootloadState != BOOTLOAD_STATE_NONE) {
     otaPrintln("Image block request test only works when state is BOOTLOAD_STATE_NONE");

@@ -3,7 +3,7 @@
  * @brief Clock Manager - Oscillators configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -274,7 +274,7 @@
 
 // <<< sl:start pin_tool >>>
 
-// <cmu signal=CLKIN0> SL_CLOCK_MANAGER_CLKIN0
+// <cmu signal=CLKIN0 optional=true> SL_CLOCK_MANAGER_CLKIN0
 // $[CMU_SL_CLOCK_MANAGER_CLKIN0]
 
 

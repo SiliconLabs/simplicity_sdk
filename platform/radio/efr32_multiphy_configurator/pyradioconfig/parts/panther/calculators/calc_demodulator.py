@@ -22,12 +22,22 @@ class CALC_Demodulator_panther(CALC_Demodulator_nixi):
         member_data = [
             ['NONE', 0, 'None'],
             ['STANDARD', 1, 'Standard'],
-            ['LEGACY', 2, 'Legacy Demod'],
-            ['COHERENT', 3, 'Coherent Demod'],
-            ['ANTDIV', 4, 'Antenna Diversity'],
-            ['FEM', 5, 'External LNA'],
-            ['ANTDIV_FEM', 6, 'Antenna Diversity with External LNA'],
-            ['FCS', 7, 'Fast channel switch'],
+            ['ANTDIV', 2, 'Antenna Diversity'],
+            ['COEX', 3, 'Antenna Diversity'],
+            ['ANTDIV_COEX', 4, 'Antenna Diversity'],
+            ['FEM', 9, 'External LNA'],
+            ['ANTDIV_FEM', 10, 'Antenna Diversity with External LNA'],
+            ['COEX_FEM', 11, 'External LNA'],
+            ['ANTDIV_COEX_FEM', 12, 'External LNA'],
+            ['FCS', 14, 'Fast channel switch'],
+            ['GB868_863', 133, 'UK Metering 863 MHz Band'],
+            ['GB868_915', 134, 'UK Metering 915 MHz Band'],
+            ['NA915_R23', 135, 'NA R23 915 MHz Band'],
+            # We use the thousands place (decimal) to indicate different PHY (different demod) for same feature
+            # See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2862
+            ['LEGACY', 1001, 'Legacy Demod'],
+            ['COHERENT', 2001, 'Coherent Demod'],
+            ['ENHANCED', 3001, 'Enhanced Demod'],
         ]
         var.var_enum = CreateModelVariableEnum(
             'ZigbeeFeatureEnum',
@@ -39,9 +49,15 @@ class CALC_Demodulator_panther(CALC_Demodulator_nixi):
             ['NONE', 0, 'None'],
             ['LE_1M', 1, 'Bluetooth LE 1Mbps'],
             ['LE_2M', 2, 'Bluetooth LE 2Mbps'],
-            ['CODED_500K', 3, 'Bluetooth LE Coded 500Kbps'],
-            ['CODED_125K', 4, 'Bluetooth LE Coded 125Kbps'],
-            ['AOX_1M', 5, 'Bluetooth LE AoX 1Mbps'],
+            ['CODED_125K', 3, 'Bluetooth LE Coded 125Kbps'],
+            ['CODED_500K', 4, 'Bluetooth LE Coded 500Kbps'],
+            ['CONCURRENT', 5, 'Bluetooth Concurrent'],
+            ['HADM_1M', 6, 'Bluetooth LE AoX 1Mbps'],
+            ['HADM_2M', 7, 'Bluetooth LE AoX 2Mbps'],
+            ['AOX_2M', 8, 'Bluetooth LE AoX 2Mbps'],
+            ['AOX_1M', 10, 'Bluetooth LE AoX 1Mbps'],
+            ['HADM_2M_2BT', 11, 'Bluetooth LE AoX 2Mbps 2BT'],
+            ['FASTSW', 12, 'Fast switching'],
         ]
         var.var_enum = CreateModelVariableEnum(
             'BleFeatureEnum',

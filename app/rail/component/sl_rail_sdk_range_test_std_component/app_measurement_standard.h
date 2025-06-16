@@ -35,7 +35,7 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "app_measurement.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -252,9 +252,9 @@ bool ble_protocol_change(void);
 /*******************************************************************************
  * @brief Return the standard handler which is used currently
  *
- * @return RAIL_Handle_t: pointer for actual rail standard handler
+ * @return sl_rail_handle_t: pointer for actual rail standard handler
  ******************************************************************************/
-RAIL_Handle_t get_standard_rail_handler(void);
+sl_rail_handle_t get_standard_rail_handler(void);
 
 /*******************************************************************************
  * @brief Returns the currently used standard phy, and its data

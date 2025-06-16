@@ -22,26 +22,24 @@
 
 #include <stdbool.h>
 
-
-typedef enum sl_dcdc_config_t
-{
+typedef enum sl_dcdc_config_t{
   EDCDCMODE_AUTO,
   EDCDCMODE_BYPASS,
   EDCDCMODE_DCDC_LOW_NOISE
 } sl_dcdc_config_t;
 
 /**
-* Set Zwave DCDC configuration to AUTO, BYPASS or DCDC_LOW_NOISE.
-* @param[in]    mode EDCDCMODE_AUTO, EDCDCMODE_BYPASS, EDCDCMODE_DCDC_LOW_NOISE
-*
-*/
+ * Set Zwave DCDC configuration to AUTO, BYPASS or DCDC_LOW_NOISE.
+ * @param[in]    mode EDCDCMODE_AUTO, EDCDCMODE_BYPASS, EDCDCMODE_DCDC_LOW_NOISE
+ *
+ */
 bool sl_dcdc_config_set(sl_dcdc_config_t mode);
 
 /**
-* Get current Zwave DCDC configuration
-*
-* @return       EDCDCMODE_AUTO, EDCDCMODE_BYPASS, EDCDCMODE_DCDC_LOW_NOISE
-*/
+ * Get current Zwave DCDC configuration
+ *
+ * @return       EDCDCMODE_AUTO, EDCDCMODE_BYPASS, EDCDCMODE_DCDC_LOW_NOISE
+ */
 sl_dcdc_config_t sl_dcdc_config_get(void);
 
 /******************************************************************************
@@ -60,6 +58,5 @@ void sl_dcdc_exit_em2(void);
  * @brief Setup DC-DC converter for optimal power consumption in EM2
  *****************************************************************************/
 void sl_dcdc_setup_em4h(void);
-
 
 #endif /* __SL_DCDC_H__ */

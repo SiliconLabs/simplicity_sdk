@@ -27,33 +27,65 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
-#include "app.h"
+
+// -----------------------------------------------------------------------------
+// Includes
+
 #include "rtl_log.h"
 #include "sl_bt_api.h"
 #include "sli_bgapi_trace.h"
 #include "sl_status.h"
 #include "sl_ncp.h"
 #include "cs_acp.h"
+#include "cs_result.h"
 #include "cs_initiator.h"
+#include "cs_initiator_config.h"
 #include "cs_antenna.h"
 #include "extended_result.h"
 #include "app_log.h"
 #include "iostream_bgapi_trace.h"
+#include "sl_main_init.h"
+#include "sl_bluetooth_connection_config.h"
 
-#define RESULT_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_result_evt_t))
-#define INTERMEDIATE_RESULT_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_intermediate_result_evt_t))
-#define ERROR_MSG_LEN (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_status_t))
+// -----------------------------------------------------------------------------
+// Macros
 
-static void cs_on_result(const cs_result_t *result, const sl_rtl_cs_procedure *cs_procedure, const void *user_data);
-static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result, const void *user_data);
-static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc);
+#define RESULT_MSG_LEN(type_value_len) \
+  (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + (type_value_len))
+
+#define INTERMEDIATE_RESULT_MSG_LEN \
+  (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_intermediate_result_evt_t))
+
+#define ERROR_MSG_LEN \
+  (sizeof(uint8_t) + sizeof(cs_acp_event_id_t) + sizeof(cs_acp_status_t))
+
+// -----------------------------------------------------------------------------
+// Static function declarations
+
+static void cs_on_result(const uint8_t conn_handle,
+                         const uint16_t ranging_counter,
+                         const uint8_t *result,
+                         const cs_result_session_data_t *result_data,
+                         const cs_ranging_data_t *ranging_data,
+                         const void *user_data);
+
+static void cs_on_intermediate_result(const cs_intermediate_result_t *intermediate_result,
+                                      const void *user_data);
+
+static void cs_on_error(uint8_t conn_handle,
+                        cs_error_event_t err_evt,
+                        sl_status_t sc);
+
 static sl_status_t handle_initiator_action(const cs_acp_initiator_action_cmd_data_t *initiator_action_data);
+static void cs_get_target_config_response(cs_acp_get_target_config_rsp_t *rsp_data);
+
+// -----------------------------------------------------------------------------
+// Public function definitions
 
 /*******************************************************************************
  * Application Init
  ******************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   app_log_iostream_set(iostream_bgapi_trace_handle);
   /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +97,7 @@ SL_WEAK void app_init(void)
 /******************************************************************************
  * Application Process Action
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   extended_result_step();
   /////////////////////////////////////////////////////////////////////////////
@@ -93,7 +125,7 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(const void *data)
   cs_cmd = (cs_acp_cmd_t *)(data_arr->data);
 
   uint8_t rsp_len = 0;
-  uint8_t rsp_data[1];
+  uint8_t rsp_data[sizeof(cs_acp_get_target_config_rsp_t)];
 
   switch (cs_cmd->cmd_id) {
 #ifdef SL_CATALOG_CS_INITIATOR_CLIENT_PRESENT
@@ -143,6 +175,11 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(const void *data)
       }
       sc = SL_STATUS_OK;
       break;
+    case CS_ACP_CMD_GET_TARGET_CONFIG:
+      cs_get_target_config_response((cs_acp_get_target_config_rsp_t*)rsp_data);
+      rsp_len = sizeof(cs_acp_get_target_config_rsp_t);
+      sc = SL_STATUS_OK;
+      break;
     default:
       // Unknown command, leave the default value of sc unchanged.
       break;
@@ -150,25 +187,34 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(const void *data)
   sl_bt_send_rsp_user_cs_service_message_to_target((uint16_t)sc, rsp_len, rsp_data);
 }
 
+// -----------------------------------------------------------------------------
+// Private function definitions
+
 /******************************************************************************
  * Realize on_result callback function for CS initiator device role in order
  * to send back the measurement results in a response to the host.
  *****************************************************************************/
-static void cs_on_result(const cs_result_t *result, const sl_rtl_cs_procedure *cs_procedure, const void *user_data)
+static void cs_on_result(const uint8_t conn_handle,
+                         const uint16_t ranging_counter,
+                         const uint8_t *result,
+                         const cs_result_session_data_t *result_data,
+                         const cs_ranging_data_t *ranging_data,
+                         const void *user_data)
 {
   (void)user_data;
-  (void)cs_procedure;
+  (void)ranging_data;
+  (void)ranging_counter;
 
   cs_acp_event_t cs_user_event;
 
   cs_user_event.acp_evt_id = CS_ACP_EVT_RESULT_ID;
-  cs_user_event.connection_id = result->connection;
-  cs_user_event.data.result.distance = result->distance;
-  cs_user_event.data.result.bit_error_rate = result->bit_error_rate;
-  cs_user_event.data.result.rssi_distance = result->rssi_distance;
-  cs_user_event.data.result.likeliness = result->likeliness;
+  cs_user_event.connection_id = conn_handle;
 
-  sl_bt_send_evt_user_cs_service_message_to_host(RESULT_MSG_LEN,
+  memcpy(cs_user_event.data.result.type_value_list,
+         result,
+         result_data->size);
+
+  sl_bt_send_evt_user_cs_service_message_to_host(RESULT_MSG_LEN(result_data->size),
                                                  (uint8_t *)&cs_user_event);
 }
 
@@ -197,7 +243,9 @@ static void cs_on_intermediate_result(const cs_intermediate_result_t *intermedia
  * Realize on_error callback function for CS initiator device role
  * in order to send back the error status in a response to the host.
  *****************************************************************************/
-static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status_t sc)
+static void cs_on_error(uint8_t conn_handle,
+                        cs_error_event_t err_evt,
+                        sl_status_t sc)
 {
   cs_acp_event_t cs_user_event;
 
@@ -207,6 +255,19 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
   cs_user_event.data.stat.error = err_evt;
 
   sl_bt_send_evt_user_cs_service_message_to_host(ERROR_MSG_LEN, (uint8_t *)&cs_user_event);
+}
+
+/******************************************************************************
+ * Compile 'get target configuration' response message payload
+ *****************************************************************************/
+static void cs_get_target_config_response(cs_acp_get_target_config_rsp_t *rsp_data)
+{
+  bool ras_on_demand = (CS_INITIATOR_RAS_MODE_USE_REAL_TIME_MODE == 0);
+  rsp_data->target_config_bitfield = 0;
+  // Set bitfield if RAS mode is on-demand
+  rsp_data->target_config_bitfield |= (ras_on_demand << CS_ACP_TARGET_CONFIG_RAS_MODE_BIT_POS);
+  rsp_data->max_initiator_instance_count = CS_INITIATOR_MAX_CONNECTIONS;
+  rsp_data->max_bluetooth_connections = SL_BT_CONFIG_MAX_CONNECTIONS;
 }
 
 /******************************************************************************

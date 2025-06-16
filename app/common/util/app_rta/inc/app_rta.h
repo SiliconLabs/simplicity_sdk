@@ -193,7 +193,7 @@ sl_status_t app_rta_proceed(app_rta_context_t ctx);
  * Acquire access to variables protected by the context.
  *
  * Acquire the guard to operate on the internal state variables.
- * Guard is implemented using mutexing (RTOS) or critical section (bare-metal).
+ * Guard is implemented using mutexing (RTOS).
  * Guard must not be used from ISR context, use signal or queue instead.
  * It can be used only when the context is valid and enabled and
  * requirement.guard is set in the config for context creation.
@@ -212,7 +212,7 @@ sl_status_t app_rta_acquire(app_rta_context_t ctx);
  * Finish access to variables protected by the context.
  *
  * Release the guard to stop working on the internal state variables.
- * Guard is implemented using mutexing (RTOS) or critical section (bare-metal).
+ * Guard is implemented using mutexing (RTOS).
  * Guard must not be used from ISR context, use ISR signal or queue instead.
  * It can be used only when the context is valid and enabled and
  * requirement.guard is set in the config for context creation.

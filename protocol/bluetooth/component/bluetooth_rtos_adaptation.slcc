@@ -1,6 +1,6 @@
 id: "bluetooth_rtos_adaptation"
 label: "Bluetooth RTOS Adaptation"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth RTOS adaptation for running Bluetooth stack in a kernel.
   This component is automatically included when required and should
@@ -28,12 +28,6 @@ requires:
 template_contribution:
   - name: component_catalog
     value: bluetooth_rtos_adaptation
-  - name: event_handler
-    value:
-      event: stack_init
-      include: "sl_bt_rtos_adaptation.h"
-      handler: "sl_bt_rtos_init"
-    priority: -1000
   - name: event_handler
     value:
       event: kernel_start

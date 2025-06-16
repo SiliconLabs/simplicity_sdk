@@ -1,6 +1,6 @@
 id: "btmesh_sar_config_client"
 label: "SAR Configuration Client"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   SAR Configuration Client component enables the configuration of the lower transport layer on nodes that support
   the SAR Configuration Server model.
@@ -43,3 +43,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-sar-config-client

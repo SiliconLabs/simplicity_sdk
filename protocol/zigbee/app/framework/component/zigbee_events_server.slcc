@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component implementing the server-side functionality of the Smart Energy 1.2 Events cluster. Once the event log is full, new events will start overwriting old events at the beginning of the table.
 label: Events Server
 quality: production

@@ -19,8 +19,13 @@
 #define BTL_COMM_XMODEM_H
 
 #include "core/btl_util.h"
+#include "em_device.h"
 MISRAC_DISABLE
+#if defined (_SILICON_LABS_32B_SERIES_3)
+#include "sl_common.h"
+#else
 #include "em_common.h"
+#endif
 MISRAC_ENABLE
 
 #include "api/btl_interface.h"
@@ -92,5 +97,5 @@ int32_t bootloader_xmodem_communication_main(ImageProperties_t *imageProps,
 
 /** @} addtogroup Communication
  *  @} addtogroup Components
-*/
+ */
 #endif // BTL_COMM_XMODEM_H

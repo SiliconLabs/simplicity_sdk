@@ -4,8 +4,7 @@ label: Bluetooth - SoC Throughput (single button)
 description: >
   This example tests the throughput capabilities of the device and can be used
   to measure throughput between 2 *EFR32* devices, as well as between a device
-  and a smartphone using Simplicity Connect mobile app, through the Throughput
-  demo tile.
+  and a smartphone using the 'Si Connect' mobile app, through the 'Throughput' demo tile.
 category: Bluetooth Examples
 quality: production
 
@@ -18,10 +17,10 @@ filter:
     value: ["Advanced"]
 
 component:
+  - id: memory_manager
   - id: bluetooth_stack
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: in_place_ota_dfu
-  - id: bootloader_interface
   - id: app_assert
   - id: app_log
   - id: app_timer
@@ -38,13 +37,12 @@ component:
   - id: cli
     instance:
       - example
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
 
 include:

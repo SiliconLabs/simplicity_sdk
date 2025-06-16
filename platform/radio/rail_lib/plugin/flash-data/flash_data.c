@@ -30,8 +30,7 @@
 
 #include <string.h>
 
-#include "rail_types.h"
-#include "rail.h"
+#include "sl_rail.h"
 
 #include "flash_data_config.h"
 #include "flash_data.h"
@@ -97,20 +96,20 @@ const FD_Structure_t flash_data_structure =
 volatile FD_Structure_t *pFlash = (FD_Structure_t *)(FLASH_DATA_BASE_ADDR);
 static const uint32_t flashPrefix = FLASH_DATA_PREFIX;
 
-RAIL_Status_t FD_ReadData(uint8_t **data, uint32_t *len)
+sl_rail_status_t FD_ReadData(uint8_t **data, uint32_t *len)
 {
   if (NULL == data) {
-    return RAIL_STATUS_INVALID_PARAMETER; // invalid input pointer
+    return SL_RAIL_STATUS_INVALID_PARAMETER; // invalid input pointer
   }
   if (FD_GetLength() == 0UL) {
-    return RAIL_STATUS_INVALID_CALL; // no application data exists
+    return SL_RAIL_STATUS_INVALID_CALL; // no application data exists
   }
   // Return valid data length and address (ignoring flashPrefix).
   if (NULL != len) {
     *len = pFlash->length;
   }
   *data = (uint8_t *)(&(pFlash->byteArray[0]));
-  return RAIL_STATUS_NO_ERROR;
+  return SL_RAIL_STATUS_NO_ERROR;
 }
 
 uint32_t FD_GetLength(void)
@@ -128,9 +127,9 @@ uint32_t FD_GetMaxLength(void)
   return FLASH_DATA_BYTE_ARRAY_LENGTH;
 }
 
-RAIL_Status_t FD_WriteData(uint8_t *data, uint32_t len)
+sl_rail_status_t FD_WriteData(uint8_t *data, uint32_t len)
 {
-  RAIL_Status_t status = RAIL_STATUS_INVALID_PARAMETER;
+  sl_rail_status_t status = SL_RAIL_STATUS_INVALID_PARAMETER;
   MSC_Status_TypeDef mscStatus;
 
   // Ensure that the data to be saved fits in the flash page size,
@@ -140,7 +139,7 @@ RAIL_Status_t FD_WriteData(uint8_t *data, uint32_t len)
   if ((NULL == data)
       || (len > (uint32_t)FLASH_DATA_PAGE_SIZE
           - sizeof(flashPrefix) - sizeof(len) - (len % 4))) {
-    return RAIL_STATUS_INVALID_PARAMETER; // data too large
+    return SL_RAIL_STATUS_INVALID_PARAMETER; // data too large
   }
 
   // Erase flash page,
@@ -164,7 +163,7 @@ RAIL_Status_t FD_WriteData(uint8_t *data, uint32_t len)
                                   data,
                                   lenAligned);
         if (mscReturnOk == mscStatus) {
-          status = RAIL_STATUS_NO_ERROR;
+          status = SL_RAIL_STATUS_NO_ERROR;
         }
       }
     }
@@ -172,22 +171,22 @@ RAIL_Status_t FD_WriteData(uint8_t *data, uint32_t len)
   MSC_Deinit();
 
   // Clear the prefix in case it was written without the data itself.
-  if (RAIL_STATUS_NO_ERROR != status) {
+  if (SL_RAIL_STATUS_NO_ERROR != status) {
     FD_ClearData();
   }
 
   return status;
 }
 
-RAIL_Status_t FD_ClearData(void)
+sl_rail_status_t FD_ClearData(void)
 {
-  RAIL_Status_t status = RAIL_STATUS_INVALID_CALL; // no valid data in flash
+  sl_rail_status_t status = SL_RAIL_STATUS_INVALID_CALL; // no valid data in flash
   MSC_Status_TypeDef mscStatus;
 
   MSC_Init();
   mscStatus = MSC_ErasePage((uint32_t *)pFlash);
   if (mscReturnOk == mscStatus) {
-    status = RAIL_STATUS_NO_ERROR;
+    status = SL_RAIL_STATUS_NO_ERROR;
   }
   MSC_Deinit();
 

@@ -1,12 +1,12 @@
 id: nvm3_default_config
 label: NVM3 Default Config
-package: platform
+package: platform_core
 description: >
 category: Services|NVM3
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 config_file:
   - path: platform/emdrv/nvm3/config/s2/nvm3_default_config.h
     condition: [device_series_2]

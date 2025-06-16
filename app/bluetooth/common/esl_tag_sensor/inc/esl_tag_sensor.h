@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include "sl_status.h"
 #include "esl_tag_core.h"
-#include "sl_btmesh_device_properties.h"
+#include "esl_tag_sensor_properties.h"
 
 /// @typedef ESL Sensor Data Structures: Sensor_Size field
 typedef uint8_t   esl_sensor_size_t;

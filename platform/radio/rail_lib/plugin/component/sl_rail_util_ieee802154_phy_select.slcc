@@ -1,0 +1,20 @@
+id: sl_rail_util_ieee802154_phy_select
+label: SL RAIL Utility, IEEE802.15.4 PHY Configuration
+description: Utility to aid with IEEE802.15.4 PHY Configuration
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_ieee802154_phy_select
+        name: SL RAIL Utility, IEEE802.15.4 PHY Configuration
+        license: Zlib
+ui_hints:
+    visibility: never
+provides:
+  - name: sl_rail_util_ieee802154_phy_select
+requires:
+  - name: rail_util_ieee802154_phy_select
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

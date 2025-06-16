@@ -123,6 +123,7 @@ void networkRejoinCommand(sl_cli_command_arg_t *arguments)
                                                          channelMask,
                                                          SL_ZIGBEE_AF_REJOIN_DUE_TO_CLI_COMMAND,
                                                          SL_ZIGBEE_DEVICE_TYPE_UNCHANGED);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("%s 0x%02X", "rejoin", status);
 }
 
@@ -135,6 +136,7 @@ void networkRejoinDiffDeviceTypeCommand(sl_cli_command_arg_t *arguments)
                                                          channelMask,
                                                          SL_ZIGBEE_REJOIN_DUE_TO_APP_EVENT_1,
                                                          sl_zigbee_node_type);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("%s 0x%02X", "rejoinDiffDeviceType", status);
 }
 
@@ -175,6 +177,7 @@ void networkChangeChannelCommand(sl_cli_command_arg_t *arguments)
 {
   uint8_t channel = sl_cli_get_argument_uint8(arguments, 0);
   sl_status_t status = sl_zigbee_channel_change_request(channel);
+  UNUSED_VAR(status);
   sl_zigbee_app_debug_println("Changing to channel %d: 0x%02X",
                               channel,
                               status);

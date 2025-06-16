@@ -12,9 +12,7 @@
 #include <zaf_nvm_soc.h>
 #include <zpal_misc.h>
 #include <ZW_typedefs.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 void
 zafi_nvm_app_set_default_configuration(void)
@@ -32,7 +30,7 @@ zafi_nvm_app_set_default_configuration(void)
 void
 zafi_nvm_app_reset(void)
 {
-  DPRINT("Resetting application FileSystem to default\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_NVM, "Resetting application FileSystem to default\r\n");
 
   ZAF_nvm_app_erase();
   ZAF_nvm_erase();
@@ -62,7 +60,7 @@ zafi_nvm_app_load_configuration(void)
 
     zaf_nvm_app_load_configuration();
   } else {
-    DPRINT("Application FileSystem Verify failed\r\n");
+    ZPAL_LOG_ERROR(ZPAL_LOG_ZAF_NVM, "Application FileSystem Verify failed\r\n");
 
     // Reset the file system if ZAF_FILE_ID_APP_VERSION is missing since this indicates
     // corrupt or missing file system.

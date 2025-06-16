@@ -18,26 +18,36 @@
 // <<< Use Configuration Wizard in Context Menu >>>
 // <h> Flash Storage configuration
 
-// <e SL_BOOTLOADER_STORAGE_USE_CUSTOM_SIZE> Use custom bootloader storage size.
-// <i> Default: 0
-// <i> A value of 0 means that half of the flash minus 16kB is allocated to bootloader
-// <i> storage. Set this value to 1 in order to customize the bootloader storage
-// <i> size.
-#define SL_BOOTLOADER_STORAGE_USE_CUSTOM_SIZE  1
-
-// <o SL_BOOTLOADER_STORAGE_SIZE> Size of the bootloader storage.
-// <i> Default: 0x20000
+// <o ZW_BTL_STORAGE_SIZE_RELEASE> Size of the bootloader storage in release mode. <0x0..0xFFFFFFFF> <f.h>
+// <i> Default: 0x30000
 // <i> Note that this value is only being used if BOOTLOADER_STORAGE_USE_DEFAULT
 // <i> is set to false. This value will control how much of the flash memory
-// <i> is reserved for bootloader storage.
-#if defined(NDEBUG)
-#define SL_BOOTLOADER_STORAGE_SIZE  0x00030000
-#else /* defined(NDEBUG) */
-#define SL_BOOTLOADER_STORAGE_SIZE  0x0002C000
-#endif /* defined(NDEBUG) */
+// <i> is reserved for bootloader storage when the application is built in
+// <i> release mode (without the zw_debug component).
+#define ZW_BTL_STORAGE_SIZE_RELEASE  0x30000
 
-// </e>
+// <o ZW_BTL_STORAGE_SIZE_DEBUG> Size of the bootloader storage in debug mode. <0x0..0xFFFFFFFF> <f.h>
+// <i> Default: 0x28000
+// <i> Note that this value is only being used if BOOTLOADER_STORAGE_USE_DEFAULT
+// <i> is set to false. This value will control how much of the flash memory
+// <i> is reserved for bootloader storage when the application is built in
+// <i> debug mode (with the zw_debug component).
+#define ZW_BTL_STORAGE_SIZE_DEBUG  0x28000
+
 // </h>
 // <<< end of configuration section >>>
+
+// For Z-Wave applications, the bootloader storage slot size should always be custom
+#define SL_BOOTLOADER_STORAGE_USE_CUSTOM_SIZE  1
+
+#if defined(NDEBUG)
+#define SL_BOOTLOADER_STORAGE_SIZE ZW_BTL_STORAGE_SIZE_RELEASE
+#else
+/**
+ * Decrease the bootloader storage slot size to accommodate the size increase
+ * introduced by debug build
+ */
+#define SL_BOOTLOADER_STORAGE_SIZE ZW_BTL_STORAGE_SIZE_DEBUG
+#endif
 
 #endif

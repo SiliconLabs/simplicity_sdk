@@ -38,7 +38,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup blob_transfer_client BT Mesh BLOB Transfer Client
+ * @addtogroup btmesh_blob_transfer_client
  * @{
  ******************************************************************************/
 
@@ -131,6 +131,18 @@ typedef struct {
   } params;
 } sl_btmesh_blob_transfer_client_notification_t;
 
+/***************************************************************************//**
+ * @typedef sl_btmesh_blob_transfer_client_notify_cb_t
+ * @brief Callback function type for BLOB transfer client notifications.
+ *
+ * This callback is invoked to notify the application about events or updates
+ * related to the BLOB transfer client. The notification details are provided
+ * through the `sl_btmesh_blob_transfer_client_notification_t` structure.
+ *
+ * @param[in] notification Pointer to the notification structure containing
+ *                      details about the event or update.
+ ******************************************************************************/
+
 typedef void (*sl_btmesh_blob_transfer_client_notify_cb_t)(
   const sl_btmesh_blob_transfer_client_notification_t *const notification);
 
@@ -151,7 +163,7 @@ typedef void (*sl_btmesh_blob_transfer_client_notify_cb_t)(
  * @param[in] timeout_base If a Server does not respond within this time frame,
  *   it will be marked as inactive.
  * @param[in] group_address The group address to used if the
- *   @ref sl_btmesh_blob_transfer_client_setup::multicast_threshold is exceeded.
+ *   @p multicast_threshold is exceeded.
  *   Zero to only use unicast.
  * @param[in] virtual_address Virtual address in case virtual addresses are used
  * @param[in] multicast_threshold If the number of servers for any step exceeds
@@ -171,7 +183,7 @@ sl_status_t sl_btmesh_blob_transfer_client_setup(uint16_t elem_index,
                                                  uint32_t blob_size,
                                                  uint16_t appkey_index,
                                                  uint8_t ttl,
-                                                 uint32_t timeout_base,
+                                                 uint16_t timeout_base,
                                                  uint16_t group_address,
                                                  uuid_128 virtual_address,
                                                  uint16_t multicast_threshold,
@@ -238,7 +250,7 @@ sl_btmesh_blob_transfer_client_setup_data_provider_blob_storage(uint16_t elem_in
  *
  * @note This function is separated from @ref sl_btmesh_blob_transfer_client_setup
  *   because the @ref sl_btmesh_blob_transfer_client_setup shall not be called
- *   when @ref sl_btmesh_fw_distribution_server initiates the BLOB transfer
+ *   when @ref btmesh_fw_distribution_server initiates the BLOB transfer
  *   because BT Mesh stack sets up the BLOB transfer inside the BT Mesh stack
  *   automatically.
  *
@@ -534,7 +546,7 @@ const char *sl_btmesh_blob_transfer_client_mbt_status_to_string(sl_btmesh_mbt_se
  ******************************************************************************/
 uint16_t sl_btmesh_blob_transfer_client_get_max_servers(void);
 
-/** @} end blob_transfer_client */
+/** @} end btmesh_blob_transfer_client */
 
 #ifdef __cplusplus
 }

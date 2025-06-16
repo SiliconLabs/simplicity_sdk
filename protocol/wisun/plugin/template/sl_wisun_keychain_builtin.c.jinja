@@ -31,23 +31,23 @@
 const uint32_t sl_wisun_keychain_builtin_trustedca_count = {{ wisun_keychain_trustedca|length }};
 const sl_wisun_keychain_entry_t sl_wisun_keychain_builtin_trustedca[] = {{ '{' }}
 {%- for iter in wisun_keychain_trustedca %}
-  {{ '{' }} {{ iter.certificate }}, sizeof({{ iter.certificate }}) {{ '}' }},
+  {{ '{' }} {{ iter.certificate }}, sizeof({{ iter.certificate }}), SL_WISUN_KEYCHAIN_BUILTIN {{ '}' }},
 {%- endfor %}
-  {{ '{ NULL, 0 }' }}
+  {{ '{ NULL, 0, SL_WISUN_KEYCHAIN_BUILTIN }' }}
 {{ '};' }}
 
 const uint32_t sl_wisun_keychain_builtin_devicecert_count = {{ wisun_keychain_credential|length }};
 const sl_wisun_keychain_entry_t sl_wisun_keychain_builtin_devicecert[] = {{ '{' }}
 {%- for iter in wisun_keychain_credential %}
-  {{ '{' }} {{ iter.certificate }}, sizeof({{ iter.certificate }}) {{ '}' }},
+  {{ '{' }} {{ iter.certificate }}, sizeof({{ iter.certificate }}), SL_WISUN_KEYCHAIN_BUILTIN {{ '}' }},
 {%- endfor %}
-  {{ '{ NULL, 0 }' }}
+  {{ '{ NULL, 0, SL_WISUN_KEYCHAIN_BUILTIN }' }}
 {{ '};' }}
 
 const uint32_t sl_wisun_keychain_builtin_devicekey_count = {{ wisun_keychain_credential|length }};
 const sl_wisun_keychain_entry_t sl_wisun_keychain_builtin_devicekey[] = {{ '{' }}
 {%- for iter in wisun_keychain_credential %}
-  {{ '{' }} {{ iter.key }}, sizeof({{ iter.key }}) {{ '}' }},
+  {{ '{' }} {{ iter.key }}, sizeof({{ iter.key }}), SL_WISUN_KEYCHAIN_BUILTIN {{ '}' }},
 {%- endfor %}
-  {{ '{ NULL, 0 }' }}
+  {{ '{ NULL, 0, SL_WISUN_KEYCHAIN_BUILTIN }' }}
 {{ '};' }}

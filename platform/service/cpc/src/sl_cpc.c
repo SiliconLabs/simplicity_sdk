@@ -98,10 +98,6 @@
 #define RELEASE_ENDPOINT(ep)
 #endif
 
-#if !defined(SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE)
-#define SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE 0
-#endif
-
 #define ABS(a) (unsigned) ((a) < 0 ? -(a) : (a))
 
 /*******************************************************************************
@@ -277,16 +273,47 @@ static sl_status_t open_endpoint(sl_cpc_endpoint_handle_t *endpoint,
  ******************************************************************************/
 
 /***************************************************************************//**
+ * Initialize permanent memory for CPC
+ ******************************************************************************/
+sl_status_t sl_cpc_init_permanent_allocations(void)
+{
+  sl_status_t status;
+
+  for (uint8_t i = 0; i < sl_cpc_instances_count; i++) {
+    status = sli_cpc_memory_init(sl_cpc_instances[i]);
+    if (status != SL_STATUS_OK) {
+      SLI_CPC_ASSERT(false);
+      return status;
+    }
+  }
+
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  for (uint8_t i = 0; i < sl_cpc_instances_count; i++) {
+    status = sli_cpc_instance_kernel_init(sl_cpc_instances[i]);
+    if (status != SL_STATUS_OK) {
+      SLI_CPC_ASSERT(false);
+      return status;
+    }
+  }
+#endif
+
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************//**
  * Initialize CPC module.
  ******************************************************************************/
 sl_status_t sl_cpc_init(void)
 {
   sl_status_t status = SL_STATUS_OK;
 
-  // user configured
-  for (uint8_t i = 0; i < sl_cpc_instances_count; i++) {
-    sli_cpc_memory_init(sl_cpc_instances[i]);
+#if !defined(SL_CATALOG_SL_MAIN_PRESENT)
+  status = sl_cpc_init_permanent_allocations();
+  if (status != SL_STATUS_OK) {
+    SLI_CPC_ASSERT(false);
+    return status;
   }
+#endif
 
   for (uint8_t i = 0; i < sl_cpc_instances_count; i++) {
     status = init_instance(sl_cpc_instances[i]);
@@ -2633,8 +2660,8 @@ static sl_status_t init_endpoint(sl_cpc_endpoint_handle_t *endpoint_handle,
       ep->encrypted = true;
     }
   }
-  ep->frame_counter_tx = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
-  ep->frame_counter_rx = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
+  ep->frame_counter_tx = 0;
+  ep->frame_counter_rx = 0;
 #endif
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -5111,8 +5138,8 @@ static void on_state_change(sl_cpc_security_state_t old, sl_cpc_security_state_t
     LOCK_ENDPOINTS_LIST(&g_instance);
     SL_SLIST_FOR_EACH_ENTRY(g_instance.endpoints, endpoint, sl_cpc_endpoint_t, node) {
       LOCK_ENDPOINT(endpoint);
-      endpoint->frame_counter_rx = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
-      endpoint->frame_counter_tx = SLI_CPC_SECURITY_NONCE_FRAME_COUNTER_RESET_VALUE;
+      endpoint->frame_counter_rx = 0;
+      endpoint->frame_counter_tx = 0;
       RELEASE_ENDPOINT(endpoint);
     }
     RELEASE_ENDPOINTS_LIST(&g_instance);

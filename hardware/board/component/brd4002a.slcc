@@ -1,7 +1,7 @@
 !!omap
 - id: brd4002a
 - label: BRD4002A
-- package: platform
+- package: boards
 - description: Board support for BRD4002A.
 - category: Platform|Board|Mainboard
 - quality: production

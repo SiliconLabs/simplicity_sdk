@@ -147,8 +147,10 @@ Please note external wakeup is not supported on button 1 in case of brd2603a and
 This section will describe backward compatibility when upgrading the Switch On/Off application from one SDK to a newer version.
 
 ## CLI Support
-Please note the zw_cli_common component will modify the power consumption in case of sleeping applications. Like door lock keypad, sensor pir or multilevel sensor. CLI cannot work with sleep mode, after a reset the application stays awake until the user issues the enable_sleeping command. From that point CLI won't work  and sleep mode will be reached until the next reset.
 
+In case CLI support is needed, please install zw_cli_common component to the project. Please note that the zw_cli_common component will modify the power consumption for every application.
+
+### Available CLI commands
 
 <table>
 <tr>
@@ -157,8 +159,18 @@ Please note the zw_cli_common component will modify the power consumption in cas
     <th>Description</th>
 </tr>
 <tr>
+    <th>help</th>
+    <th>-</th>
+    <th>Printing all supported CLI commands and their description.</th>
+</tr>
+<tr>
+    <th>help</th>
+    <th>-</th>
+    <th>Printing all supported CLI commands and their description.</th>
+</tr>
+<tr>
     <th>set_learn_mode</th>
-    <td></td>
+    <td>-</td>
     <td>Toggling the learn mode functionality. In case the learn mode started, but inclusion does not happen,learn mode will automatically stop after about 30 seconds</td>
 </tr>
 <tr>

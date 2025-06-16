@@ -11,23 +11,6 @@ class Calc_Demodulator_Bobcat(CALC_Demodulator_ocelot):
     def buildVariables(self, model):
         super().buildVariables(model)
 
-        member_data = [
-            ['NONE', 0, 'None'],
-            ['LE_1M', 1, 'Blueooth LE 1Mbps'],
-            ['LE_2M', 2, 'Bluetooth LE 2Mbps'],
-            ['CODED_500K', 3, 'Bluetooth LE Coded 500Kbps'],
-            ['CODED_125K', 4, 'Bluetooth LE Coded 125Kbps'],
-            ['AOX_1M', 5, 'Bluetooth LE AoX 1Mbps'],
-            ['AOX_2M', 6, 'Bluetooth LE AoX 2Mbps'],
-            ['CONCURRENT', 7, 'Bluetooth Concurrent'],
-            ['HADM_1M', 8, 'Bluetooth LE AoX 1Mbps'],
-            ['HADM_2M', 9, 'Bluetooth LE AoX 2Mbps'],
-        ]
-        model.vars.ble_feature.var_enum = CreateModelVariableEnum(
-            'BleFeatureEnum',
-            'List of supported Bluetooth LE PHY features',
-            member_data)
-
     # Helper calculation for FW calulation of SRC2
     # These are phy specific calculations that is easier to do here
     # than to reverse calculate in firmware

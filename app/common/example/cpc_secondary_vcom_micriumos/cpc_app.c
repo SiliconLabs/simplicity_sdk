@@ -30,7 +30,7 @@
  *******************************  DEFINES   ************************************
  ******************************************************************************/
 #ifndef TASK_STACK_SIZE
-#define TASK_STACK_SIZE       128
+#define TASK_STACK_SIZE       200
 #endif
 
 #ifndef TASK_PRIO

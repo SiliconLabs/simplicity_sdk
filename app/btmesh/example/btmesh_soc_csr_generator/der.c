@@ -243,9 +243,9 @@ static sl_status_t der_encode_header(enum der_type type,
   }
 
   if (buffer) {
-    buffer[0] = type;
+    buffer[0] = (uint8_t)type;
     if (length < 0x80) {
-      buffer[1] = length;
+      buffer[1] = (uint8_t)length;
     } else if (length < 0x100) {
       buffer[1] = 0x81;
       buffer[2] = length & 0xff;
@@ -291,7 +291,7 @@ static sl_status_t der_encode(const struct der_value *value,
       if (buffer) {
         size_t pos;
         buffer[0] = DER_PRIMITIVE_INTEGER;
-        buffer[1] = len;
+        buffer[1] = (uint8_t)len;
         for (pos = 0; pos < len; pos++) {
           uint8_t byte = (value->data.integer >> (8 * (DER_INTEGER_LEN - 1 - pos))) & 0xff;
           buffer[2 + pos] = byte;
@@ -311,7 +311,7 @@ static sl_status_t der_encode(const struct der_value *value,
       if (buffer) {
         size_t pos = 0;
         buffer[pos++] = DER_PRIMITIVE_INTEGER;
-        buffer[pos++] = len;
+        buffer[pos++] = (uint8_t)len;
         if (value->data.big_integer.ptr[0] > 0x7f) {
           buffer[pos++] = 0x00;
         }

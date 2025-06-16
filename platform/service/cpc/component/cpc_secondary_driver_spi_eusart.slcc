@@ -1,15 +1,15 @@
 id: cpc_secondary_driver_spi_eusart
-package: platform
+package: cpc
 description: SPI driver over EUSART peripheral for Co-Processor Communication (CPC) Secondary Device.
 label: CPC Secondary - SPI (EUSART)
 category: Services|Co-Processor Communication|Secondary Device|Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/cpc
 instantiable:
-  prefix: inst
+    prefix: inst
 config_file:
   - path: config/s2/sl_cpc_drv_secondary_spi_eusart_{{instance}}_config.h
     file_id: cpc_drv_secondary_spi_eusart_config
@@ -46,7 +46,7 @@ template_file:
     condition: [device_series_3]
 template_contribution:
   - name: cpc_spi_instance_name
-    value: "{{instance}}"
+    value: '{{instance}}'
   - name: cpc_interface_type
     value: spi
   - name: cpc_spi_periph_type

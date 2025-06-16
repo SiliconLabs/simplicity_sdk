@@ -49,7 +49,7 @@ int sli_cli_io_getchar(void)
 
 int sli_cli_io_putchar(int ch)
 {
-  sl_status_t status = sl_iostream_putchar(SL_IOSTREAM_STDOUT, ch);
+  sl_status_t status = sl_iostream_putchar(SL_IOSTREAM_STDOUT, (char)ch);
   if (status != SL_STATUS_OK) {
     return EOF;
   }

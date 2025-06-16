@@ -1,14 +1,14 @@
 id: rail_test_graphics
 label: RAILtest Application, Graphics
 description: RAILtest Application WSTK Graphics Support
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: rail_test_graphics
-    name: RAILtest Application, Graphics
-    license: Zlib
+    sbom:
+        id: rail_test_graphics
+        name: RAILtest Application, Graphics
+        license: Zlib
 include:
   - path: platform/radio/rail_lib/apps/rail_test_graphics
     file_list:
@@ -28,8 +28,8 @@ requires:
 provides:
   - name: rail_test_graphics
 documentation:
-  docset: rail
-  document: rail-api/rail-test-graphics
+    docset: rail
+    document: rail-api/rail-test-graphics
 define:
   # LCD support
   - name: SL_RAIL_TEST_GRAPHICS_SUPPORT_ENABLE
@@ -39,13 +39,13 @@ define:
 template_contribution:
   - name: event_handler
     value:
-      event:    service_init
-      include:  sl_rail_test_graphics.h
-      handler:  sl_rail_test_graphics_init
-    priority:   1000
+        event: service_init
+        include: sl_rail_test_graphics.h
+        handler: sl_rail_test_graphics_init
+    priority: 1000
   - name: event_handler
     value:
-      event:    service_process_action
-      include:  sl_rail_test_graphics.h
-      handler:  sl_rail_test_graphics_process_action
-    priority:   0
+        event: service_process_action
+        include: sl_rail_test_graphics.h
+        handler: sl_rail_test_graphics_process_action
+    priority: 0

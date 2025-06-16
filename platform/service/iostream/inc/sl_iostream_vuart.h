@@ -86,8 +86,10 @@ extern "C" {
 // -----------------------------------------------------------------------------
 // Global Variables
 
+/// @cond
 extern sl_iostream_t *sl_iostream_vuart_handle;
 extern sl_iostream_instance_info_t sl_iostream_instance_vuart_info;
+/// @endcond
 
 // -----------------------------------------------------------------------------
 // Prototypes

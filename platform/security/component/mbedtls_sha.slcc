@@ -1,5 +1,5 @@
 id: mbedtls_sha
-package: platform
+package: security_mbedtls
 label: SHA Function Families
 description: >-
   This component provides support for all SHA hash functions supported by

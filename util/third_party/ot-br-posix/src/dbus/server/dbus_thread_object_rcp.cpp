@@ -101,15 +101,15 @@ static std::string GetNat64StateName(otNat64State aState)
 namespace otbr {
 namespace DBus {
 
-DBusThreadObjectRcp::DBusThreadObjectRcp(DBusConnection     &aConnection,
-                                         const std::string  &aInterfaceName,
-                                         otbr::Ncp::RcpHost &aHost,
-                                         Mdns::Publisher    *aPublisher,
-                                         otbr::BorderAgent  &aBorderAgent)
+DBusThreadObjectRcp::DBusThreadObjectRcp(DBusConnection            &aConnection,
+                                         const std::string         &aInterfaceName,
+                                         const DependentComponents &aDeps)
     : DBusObject(&aConnection, OTBR_DBUS_OBJECT_PREFIX + aInterfaceName)
-    , mHost(aHost)
-    , mPublisher(aPublisher)
-    , mBorderAgent(aBorderAgent)
+    , mHost(static_cast<Host::RcpHost &>(aDeps.mHost))
+    , mPublisher(&aDeps.mPublisher)
+#if OTBR_ENABLE_BORDER_AGENT
+    , mBorderAgent(aDeps.mBorderAgent)
+#endif
 {
 }
 
@@ -155,19 +155,26 @@ otbrError DBusThreadObjectRcp::Init(void)
                    std::bind(&DBusThreadObjectRcp::RemoveExternalRouteHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_ATTACH_ALL_NODES_TO_METHOD,
                    std::bind(&DBusThreadObjectRcp::AttachAllNodesToHandler, this, _1));
+#if OTBR_ENABLE_BORDER_AGENT
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_UPDATE_VENDOR_MESHCOP_TXT_METHOD,
                    std::bind(&DBusThreadObjectRcp::UpdateMeshCopTxtHandler, this, _1));
+#endif
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_GET_PROPERTIES_METHOD,
                    std::bind(&DBusThreadObjectRcp::GetPropertiesHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_SET_THREAD_ENABLED_METHOD,
+                   std::bind(&DBusThreadObjectRcp::SetThreadEnabledHandler, this, _1));
+    RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_JOIN_METHOD,
+                   std::bind(&DBusThreadObjectRcp::JoinHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_LEAVE_NETWORK_METHOD,
                    std::bind(&DBusThreadObjectRcp::LeaveNetworkHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_SET_NAT64_ENABLED_METHOD,
                    std::bind(&DBusThreadObjectRcp::SetNat64Enabled, this, _1));
+#if OTBR_ENABLE_BORDER_AGENT
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_ACTIVATE_EPHEMERAL_KEY_MODE_METHOD,
                    std::bind(&DBusThreadObjectRcp::ActivateEphemeralKeyModeHandler, this, _1));
     RegisterMethod(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_DEACTIVATE_EPHEMERAL_KEY_MODE_METHOD,
                    std::bind(&DBusThreadObjectRcp::DeactivateEphemeralKeyModeHandler, this, _1));
-
+#endif
     RegisterMethod(DBUS_INTERFACE_INTROSPECTABLE, DBUS_INTROSPECT_METHOD,
                    std::bind(&DBusThreadObjectRcp::IntrospectHandler, this, _1));
 
@@ -185,8 +192,10 @@ otbrError DBusThreadObjectRcp::Init(void)
                                std::bind(&DBusThreadObjectRcp::SetDnsUpstreamQueryState, this, _1));
     RegisterSetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_NAT64_CIDR,
                                std::bind(&DBusThreadObjectRcp::SetNat64Cidr, this, _1));
+#if OTBR_ENABLE_BORDER_AGENT
     RegisterSetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_EPHEMERAL_KEY_ENABLED,
                                std::bind(&DBusThreadObjectRcp::SetEphemeralKeyEnabled, this, _1));
+#endif
 
     RegisterGetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_LINK_MODE,
                                std::bind(&DBusThreadObjectRcp::GetLinkModeHandler, this, _1));
@@ -291,8 +300,10 @@ otbrError DBusThreadObjectRcp::Init(void)
                                std::bind(&DBusThreadObjectRcp::GetNat64ErrorCounters, this, _1));
     RegisterGetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_NAT64_CIDR,
                                std::bind(&DBusThreadObjectRcp::GetNat64Cidr, this, _1));
+#if OTBR_ENABLE_BORDER_AGENT
     RegisterGetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_EPHEMERAL_KEY_ENABLED,
                                std::bind(&DBusThreadObjectRcp::GetEphemeralKeyEnabled, this, _1));
+#endif
     RegisterGetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_INFRA_LINK_INFO,
                                std::bind(&DBusThreadObjectRcp::GetInfraLinkInfo, this, _1));
     RegisterGetPropertyHandler(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_TREL_INFO,
@@ -477,7 +488,7 @@ void DBusThreadObjectRcp::FactoryResetHandler(DBusRequest &aRequest)
     otError error = OT_ERROR_NONE;
 
     SuccessOrExit(error = mHost.GetThreadHelper()->Detach());
-    SuccessOrExit(otInstanceErasePersistentInfo(mHost.GetThreadHelper()->GetInstance()));
+    SuccessOrExit(otInstanceErasePersistentInfo(mHost.GetInstance()));
     mHost.Reset();
 
 exit:
@@ -1252,7 +1263,7 @@ otError DBusThreadObjectRcp::SetFeatureFlagListDataHandler(DBusMessageIter &aIte
     VerifyOrExit(DBusMessageExtractFromVariant(&aIter, data) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
     VerifyOrExit(featureFlagList.ParseFromString(std::string(data.begin(), data.end())), error = OT_ERROR_INVALID_ARGS);
     // TODO: implement the feature flag handler at every component
-    mBorderAgent.SetEphemeralKeyEnabled(featureFlagList.enable_ephemeralkey());
+    otBorderAgentEphemeralKeySetEnabled(mHost.GetInstance(), featureFlagList.enable_ephemeralkey());
     otbrLogInfo("Border Agent Ephemeral Key Feature has been %s by feature flag",
                 (featureFlagList.enable_ephemeralkey() ? "enable" : "disable"));
     VerifyOrExit((error = mHost.ApplyFeatureFlagList(featureFlagList)) == OT_ERROR_NONE);
@@ -1298,10 +1309,10 @@ exit:
     return error;
 }
 
+#if OTBR_ENABLE_BORDER_AGENT
 void DBusThreadObjectRcp::UpdateMeshCopTxtHandler(DBusRequest &aRequest)
 {
-    auto                                        threadHelper = mHost.GetThreadHelper();
-    otError                                     error        = OT_ERROR_NONE;
+    otError                                     error = OT_ERROR_NONE;
     std::map<std::string, std::vector<uint8_t>> update;
     std::vector<TxtEntry>                       updatedTxtEntries;
     auto                                        args = std::tie(updatedTxtEntries);
@@ -1315,11 +1326,12 @@ void DBusThreadObjectRcp::UpdateMeshCopTxtHandler(DBusRequest &aRequest)
     {
         VerifyOrExit(!update.count(reservedKey), error = OT_ERROR_INVALID_ARGS);
     }
-    threadHelper->OnUpdateMeshCopTxt(std::move(update));
+    mBorderAgent.UpdateVendorMeshCoPTxtEntries(update);
 
 exit:
     aRequest.ReplyOtResult(error);
 }
+#endif // OTBR_ENABLE_BORDER_AGENT
 
 otError DBusThreadObjectRcp::GetRadioRegionHandler(DBusMessageIter &aIter)
 {
@@ -1341,7 +1353,7 @@ exit:
 
 otError DBusThreadObjectRcp::GetSrpServerInfoHandler(DBusMessageIter &aIter)
 {
-#if OTBR_ENABLE_SRP_ADVERTISING_PROXY
+#if OTBR_ENABLE_SRP_SERVER
     auto                               threadHelper = mHost.GetThreadHelper();
     auto                               instance     = threadHelper->GetInstance();
     otError                            error        = OT_ERROR_NONE;
@@ -1401,11 +1413,11 @@ otError DBusThreadObjectRcp::GetSrpServerInfoHandler(DBusMessageIter &aIter)
 
 exit:
     return error;
-#else  // OTBR_ENABLE_SRP_ADVERTISING_PROXY
+#else  // OTBR_ENABLE_SRP_SERVER
     OTBR_UNUSED_VARIABLE(aIter);
 
     return OT_ERROR_NOT_IMPLEMENTED;
-#endif // OTBR_ENABLE_SRP_ADVERTISING_PROXY
+#endif // OTBR_ENABLE_SRP_SERVER
 }
 
 otError DBusThreadObjectRcp::GetMdnsTelemetryInfoHandler(DBusMessageIter &aIter)
@@ -1450,7 +1462,7 @@ exit:
 otError DBusThreadObjectRcp::GetTrelInfoHandler(DBusMessageIter &aIter)
 {
 #if OTBR_ENABLE_TREL
-    auto           instance = mHost.GetThreadHelper()->GetInstance();
+    auto           instance = mHost.GetInstance();
     otError        error    = OT_ERROR_NONE;
     TrelInfo       trelInfo;
     otTrelCounters otTrelCounters = *otTrelGetCounters(instance);
@@ -1674,8 +1686,7 @@ otError DBusThreadObjectRcp::GetUptimeHandler(DBusMessageIter &aIter)
 {
     otError error = OT_ERROR_NONE;
 
-    VerifyOrExit(DBusMessageEncodeToVariant(&aIter, otInstanceGetUptime(mHost.GetThreadHelper()->GetInstance())) ==
-                     OTBR_ERROR_NONE,
+    VerifyOrExit(DBusMessageEncodeToVariant(&aIter, otInstanceGetUptime(mHost.GetInstance())) == OTBR_ERROR_NONE,
                  error = OT_ERROR_INVALID_ARGS);
 
 exit:
@@ -1760,6 +1771,52 @@ void DBusThreadObjectRcp::ActiveDatasetChangeHandler(const otOperationalDatasetT
     SignalPropertyChanged(OTBR_DBUS_THREAD_INTERFACE, OTBR_DBUS_PROPERTY_ACTIVE_DATASET_TLVS, value);
 }
 
+void DBusThreadObjectRcp::SetThreadEnabledHandler(DBusRequest &aRequest)
+{
+    otError error  = OT_ERROR_NONE;
+    bool    enable = false;
+    auto    args   = std::tie(enable);
+
+    SuccessOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args), error = OT_ERROR_INVALID_ARGS);
+
+    mHost.SetThreadEnabled(enable, [aRequest](otError aError, const std::string &aErrorInfo) mutable {
+        OT_UNUSED_VARIABLE(aErrorInfo);
+        aRequest.ReplyOtResult(aError);
+    });
+
+exit:
+    if (error != OT_ERROR_NONE)
+    {
+        aRequest.ReplyOtResult(error);
+    }
+}
+
+void DBusThreadObjectRcp::JoinHandler(DBusRequest &aRequest)
+{
+    std::vector<uint8_t>     dataset;
+    otOperationalDatasetTlvs activeOpDatasetTlvs;
+    otError                  error = OT_ERROR_NONE;
+
+    auto args = std::tie(dataset);
+
+    SuccessOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args), error = OT_ERROR_INVALID_ARGS);
+
+    VerifyOrExit(dataset.size() <= sizeof(activeOpDatasetTlvs.mTlvs), error = OT_ERROR_INVALID_ARGS);
+    std::copy(dataset.begin(), dataset.end(), activeOpDatasetTlvs.mTlvs);
+    activeOpDatasetTlvs.mLength = dataset.size();
+
+    mHost.Join(activeOpDatasetTlvs, [aRequest](otError aError, const std::string &aErrorInfo) mutable {
+        OT_UNUSED_VARIABLE(aErrorInfo);
+        aRequest.ReplyOtResult(aError);
+    });
+
+exit:
+    if (error != OT_ERROR_NONE)
+    {
+        aRequest.ReplyOtResult(error);
+    }
+}
+
 void DBusThreadObjectRcp::LeaveNetworkHandler(DBusRequest &aRequest)
 {
     constexpr int kExitCodeShouldRestart = 7;
@@ -1767,7 +1824,7 @@ void DBusThreadObjectRcp::LeaveNetworkHandler(DBusRequest &aRequest)
     mHost.GetThreadHelper()->DetachGracefully([aRequest, this](otError error) mutable {
         SuccessOrExit(error);
         mPublisher->Stop();
-        SuccessOrExit(error = otInstanceErasePersistentInfo(mHost.GetThreadHelper()->GetInstance()));
+        SuccessOrExit(error = otInstanceErasePersistentInfo(mHost.GetInstance()));
 
     exit:
         aRequest.ReplyOtResult(error);
@@ -1787,7 +1844,7 @@ void DBusThreadObjectRcp::SetNat64Enabled(DBusRequest &aRequest)
     auto    args = std::tie(enable);
 
     VerifyOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
-    otNat64SetEnabled(mHost.GetThreadHelper()->GetInstance(), enable);
+    otNat64SetEnabled(mHost.GetInstance(), enable);
 
 exit:
     aRequest.ReplyOtResult(error);
@@ -1799,8 +1856,8 @@ otError DBusThreadObjectRcp::GetNat64State(DBusMessageIter &aIter)
 
     Nat64ComponentState state;
 
-    state.mPrefixManagerState = GetNat64StateName(otNat64GetPrefixManagerState(mHost.GetThreadHelper()->GetInstance()));
-    state.mTranslatorState    = GetNat64StateName(otNat64GetTranslatorState(mHost.GetThreadHelper()->GetInstance()));
+    state.mPrefixManagerState = GetNat64StateName(otNat64GetPrefixManagerState(mHost.GetInstance()));
+    state.mTranslatorState    = GetNat64StateName(otNat64GetTranslatorState(mHost.GetInstance()));
 
     VerifyOrExit(DBusMessageEncodeToVariant(&aIter, state) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
 
@@ -1817,8 +1874,8 @@ otError DBusThreadObjectRcp::GetNat64Mappings(DBusMessageIter &aIter)
     otNat64AddressMapping            otMapping;
     Nat64AddressMapping              mapping;
 
-    otNat64InitAddressMappingIterator(mHost.GetThreadHelper()->GetInstance(), &iterator);
-    while (otNat64GetNextAddressMapping(mHost.GetThreadHelper()->GetInstance(), &iterator, &otMapping) == OT_ERROR_NONE)
+    otNat64InitAddressMappingIterator(mHost.GetInstance(), &iterator);
+    while (otNat64GetNextAddressMapping(mHost.GetInstance(), &iterator, &otMapping) == OT_ERROR_NONE)
     {
         mapping.mId = otMapping.mId;
         std::copy(std::begin(otMapping.mIp4.mFields.m8), std::end(otMapping.mIp4.mFields.m8), mapping.mIp4.data());
@@ -1860,7 +1917,7 @@ otError DBusThreadObjectRcp::GetNat64ProtocolCounters(DBusMessageIter &aIter)
 
     otNat64ProtocolCounters otCounters;
     Nat64ProtocolCounters   counters;
-    otNat64GetCounters(mHost.GetThreadHelper()->GetInstance(), &otCounters);
+    otNat64GetCounters(mHost.GetInstance(), &otCounters);
 
     counters.mTotal.m4To6Packets = otCounters.mTotal.m4To6Packets;
     counters.mTotal.m4To6Bytes   = otCounters.mTotal.m4To6Bytes;
@@ -1891,7 +1948,7 @@ otError DBusThreadObjectRcp::GetNat64ErrorCounters(DBusMessageIter &aIter)
 
     otNat64ErrorCounters otCounters;
     Nat64ErrorCounters   counters;
-    otNat64GetErrorCounters(mHost.GetThreadHelper()->GetInstance(), &otCounters);
+    otNat64GetErrorCounters(mHost.GetInstance(), &otCounters);
 
     counters.mUnknown.m4To6Packets          = otCounters.mCount4To6[OT_NAT64_DROP_REASON_UNKNOWN];
     counters.mUnknown.m6To4Packets          = otCounters.mCount6To4[OT_NAT64_DROP_REASON_UNKNOWN];
@@ -1915,7 +1972,7 @@ otError DBusThreadObjectRcp::GetNat64Cidr(DBusMessageIter &aIter)
     otIp4Cidr cidr;
     char      cidrString[OT_IP4_CIDR_STRING_SIZE];
 
-    SuccessOrExit(error = otNat64GetCidr(mHost.GetThreadHelper()->GetInstance(), &cidr));
+    SuccessOrExit(error = otNat64GetCidr(mHost.GetInstance(), &cidr));
     otIp4CidrToString(&cidr, cidrString, sizeof(cidrString));
 
     VerifyOrExit(DBusMessageEncodeToVariant(&aIter, std::string(cidrString)) == OTBR_ERROR_NONE,
@@ -1933,7 +1990,7 @@ otError DBusThreadObjectRcp::SetNat64Cidr(DBusMessageIter &aIter)
 
     VerifyOrExit(DBusMessageExtractFromVariant(&aIter, cidrString) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
     SuccessOrExit(error = otIp4CidrFromString(cidrString.c_str(), &cidr));
-    SuccessOrExit(error = otNat64SetIp4Cidr(mHost.GetThreadHelper()->GetInstance(), &cidr));
+    SuccessOrExit(error = otNat64SetIp4Cidr(mHost.GetInstance(), &cidr));
 
 exit:
     return error;
@@ -1982,11 +2039,13 @@ otError DBusThreadObjectRcp::SetNat64Cidr(DBusMessageIter &aIter)
 }
 #endif // OTBR_ENABLE_NAT64
 
+#if OTBR_ENABLE_BORDER_AGENT
 otError DBusThreadObjectRcp::GetEphemeralKeyEnabled(DBusMessageIter &aIter)
 {
     otError error = OT_ERROR_NONE;
 
-    SuccessOrExit(DBusMessageEncodeToVariant(&aIter, mBorderAgent.GetEphemeralKeyEnabled()),
+    SuccessOrExit(DBusMessageEncodeToVariant(&aIter, otBorderAgentEphemeralKeyGetState(mHost.GetInstance()) !=
+                                                         OT_BORDER_AGENT_STATE_DISABLED),
                   error = OT_ERROR_INVALID_ARGS);
 
 exit:
@@ -1999,7 +2058,7 @@ otError DBusThreadObjectRcp::SetEphemeralKeyEnabled(DBusMessageIter &aIter)
     bool    enable;
 
     SuccessOrExit(DBusMessageExtractFromVariant(&aIter, enable), error = OT_ERROR_INVALID_ARGS);
-    mBorderAgent.SetEphemeralKeyEnabled(enable);
+    otBorderAgentEphemeralKeySetEnabled(mHost.GetInstance(), enable);
 
 exit:
     return error;
@@ -2012,14 +2071,27 @@ void DBusThreadObjectRcp::DeactivateEphemeralKeyModeHandler(DBusRequest &aReques
     bool    retain_active_session;
     auto    args = std::tie(retain_active_session);
 
-    VerifyOrExit(mBorderAgent.GetEphemeralKeyEnabled(), error = OT_ERROR_NOT_CAPABLE);
-
     SuccessOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args), error = OT_ERROR_INVALID_ARGS);
-    if (!retain_active_session)
+
+    // Stop the ephemeral key use if
+    //  - there is no active session, or
+    //  - there is a connected session and we should not `retain_active_session`.
+
+    switch (otBorderAgentEphemeralKeyGetState(threadHelper->GetInstance()))
     {
-        otBorderAgentDisconnect(threadHelper->GetInstance());
+    case OT_BORDER_AGENT_STATE_STARTED:
+        break;
+    case OT_BORDER_AGENT_STATE_CONNECTED:
+    case OT_BORDER_AGENT_STATE_ACCEPTED:
+        VerifyOrExit(!retain_active_session);
+        break;
+    case OT_BORDER_AGENT_STATE_DISABLED:
+        error = OT_ERROR_NOT_CAPABLE;
+    case OT_BORDER_AGENT_STATE_STOPPED:
+        ExitNow();
     }
-    otBorderAgentClearEphemeralKey(threadHelper->GetInstance());
+
+    otBorderAgentEphemeralKeyStop(threadHelper->GetInstance());
 
 exit:
     aRequest.ReplyOtResult(error);
@@ -2033,7 +2105,8 @@ void DBusThreadObjectRcp::ActivateEphemeralKeyModeHandler(DBusRequest &aRequest)
     auto        args         = std::tie(lifetime);
     std::string ePskc;
 
-    VerifyOrExit(mBorderAgent.GetEphemeralKeyEnabled(), error = OT_ERROR_NOT_CAPABLE);
+    VerifyOrExit(otBorderAgentEphemeralKeyGetState(threadHelper->GetInstance()) != OT_BORDER_AGENT_STATE_DISABLED,
+                 error = OT_ERROR_NOT_CAPABLE);
 
     SuccessOrExit(DBusMessageToTuple(*aRequest.GetMessage(), args), error = OT_ERROR_INVALID_ARGS);
     VerifyOrExit(lifetime <= OT_BORDER_AGENT_MAX_EPHEMERAL_KEY_TIMEOUT, error = OT_ERROR_INVALID_ARGS);
@@ -2041,8 +2114,8 @@ void DBusThreadObjectRcp::ActivateEphemeralKeyModeHandler(DBusRequest &aRequest)
     SuccessOrExit(mBorderAgent.CreateEphemeralKey(ePskc), error = OT_ERROR_INVALID_ARGS);
     otbrLogInfo("Created Ephemeral Key: %s", ePskc.c_str());
 
-    SuccessOrExit(error = otBorderAgentSetEphemeralKey(threadHelper->GetInstance(), ePskc.c_str(), lifetime,
-                                                       OTBR_CONFIG_BORDER_AGENT_MESHCOP_E_UDP_PORT));
+    SuccessOrExit(error = otBorderAgentEphemeralKeyStart(threadHelper->GetInstance(), ePskc.c_str(), lifetime,
+                                                         OTBR_CONFIG_BORDER_AGENT_MESHCOP_E_UDP_PORT));
 
 exit:
     if (error == OT_ERROR_NONE)
@@ -2054,6 +2127,7 @@ exit:
         aRequest.ReplyOtResult(error);
     }
 }
+#endif // OTBR_ENABLE_BORDER_AGENT
 
 otError DBusThreadObjectRcp::GetInfraLinkInfo(DBusMessageIter &aIter)
 {
@@ -2092,7 +2166,7 @@ otError DBusThreadObjectRcp::SetDnsUpstreamQueryState(DBusMessageIter &aIter)
     bool    enable;
 
     VerifyOrExit(DBusMessageExtractFromVariant(&aIter, enable) == OTBR_ERROR_NONE, error = OT_ERROR_INVALID_ARGS);
-    otDnssdUpstreamQuerySetEnabled(mHost.GetThreadHelper()->GetInstance(), enable);
+    otDnssdUpstreamQuerySetEnabled(mHost.GetInstance(), enable);
 
 exit:
     return error;
@@ -2108,8 +2182,8 @@ otError DBusThreadObjectRcp::GetDnsUpstreamQueryState(DBusMessageIter &aIter)
 #if OTBR_ENABLE_DNS_UPSTREAM_QUERY
     otError error = OT_ERROR_NONE;
 
-    VerifyOrExit(DBusMessageEncodeToVariant(
-                     &aIter, otDnssdUpstreamQueryIsEnabled(mHost.GetThreadHelper()->GetInstance())) == OTBR_ERROR_NONE,
+    VerifyOrExit(DBusMessageEncodeToVariant(&aIter, otDnssdUpstreamQueryIsEnabled(mHost.GetInstance())) ==
+                     OTBR_ERROR_NONE,
                  error = OT_ERROR_INVALID_ARGS);
 
 exit:

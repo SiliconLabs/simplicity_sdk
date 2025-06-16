@@ -1860,7 +1860,7 @@ static uint8_t handle_metadata_write(sl_bt_ots_server_t *server,
 {
   uint8_t att_error = ATT_ERR_SUCCESS;
   sl_bt_ots_object_metadata_write_parameters_t data;
-  sl_bt_ots_object_metadata_write_parameters_t *data_ptr;
+  void *data_ptr;
 
   // Check and create callback arguments
   switch (characteristic_index) {
@@ -1874,7 +1874,7 @@ static uint8_t handle_metadata_write(sl_bt_ots_server_t *server,
 #if SL_BT_OTS_SERVER_CONFIG_GLOBAL_TIME_FIRST_CREATED_SUPPORT
     case SL_BT_OTS_CHARACTERISTIC_UUID_INDEX_OBJECT_FIRST_CREATED:
       if (write_request->value.len == sizeof(sl_bt_ots_object_first_created_t)) {
-        data_ptr = (sl_bt_ots_object_metadata_write_parameters_t *)write_request->value.data;
+        data_ptr = (void *)write_request->value.data;
       } else {
         att_error = ATT_ERR_INVALID_ATTRIBUTE_LEN;
       }
@@ -1884,7 +1884,7 @@ static uint8_t handle_metadata_write(sl_bt_ots_server_t *server,
 #if SL_BT_OTS_SERVER_CONFIG_GLOBAL_TIME_LAST_MODIFIED_SUPPORT
     case SL_BT_OTS_CHARACTERISTIC_UUID_INDEX_OBJECT_LAST_MODIFIED:
       if (write_request->value.len == sizeof(sl_bt_ots_object_last_modified_t)) {
-        data_ptr = (sl_bt_ots_object_metadata_write_parameters_t *)write_request->value.data;
+        data_ptr = (void *)write_request->value.data;
       } else {
         att_error = ATT_ERR_INVALID_ATTRIBUTE_LEN;
       }
@@ -1893,7 +1893,7 @@ static uint8_t handle_metadata_write(sl_bt_ots_server_t *server,
 
     case SL_BT_OTS_CHARACTERISTIC_UUID_INDEX_OBJECT_PROPERTIES:
       if (write_request->value.len == sizeof(sl_bt_ots_object_properties_t)) {
-        data_ptr = (sl_bt_ots_object_metadata_write_parameters_t *) write_request->value.data;
+        data_ptr = (void *)write_request->value.data;
         data.object_properties = *(sl_bt_ots_object_properties_t *) data_ptr;
 
         if ((data.object_properties & SL_BT_OTS_OBJECT_PROPERTY_RFU_MASK) != 0) {
@@ -1921,7 +1921,7 @@ static uint8_t handle_metadata_write(sl_bt_ots_server_t *server,
                                                       client->connection_handle,
                                                       &server->client_db->current_object,
                                                       (sl_bt_ots_object_metadata_write_event_type_t)characteristic_index,
-                                                      data_ptr);
+                                                      (sl_bt_ots_object_metadata_write_parameters_t *)data_ptr);
         // Use result as ATT error code
         att_error = (uint8_t)result;
       }

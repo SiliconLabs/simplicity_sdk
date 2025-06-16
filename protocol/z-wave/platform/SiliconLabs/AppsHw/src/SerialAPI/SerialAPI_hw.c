@@ -1,7 +1,7 @@
 /**
  * @file
  * Platform abstraction for Serial API application
- * 
+ *
  * @copyright 2022 Silicon Laboratories Inc.
  */
 #include <SerialAPI_hw.h>
@@ -16,25 +16,24 @@
 
 static const zpal_uart_config_ext_t zpal_uart_config_ext = {
 #if defined(SERIAL_API_TX_PIN)
-    .tx_pin = SERIAL_API_TX_PIN,
+  .tx_pin = SERIAL_API_TX_PIN,
 #endif /* defined(SERIAL_API_TX_PIN) */
 #if defined(SERIAL_API_TX_PORT)
-    .tx_port = SERIAL_API_TX_PORT,
+  .tx_port = SERIAL_API_TX_PORT,
 #endif /* defined(SERIAL_API_TX_PORT) */
 #if defined(SERIAL_API_TX_LOC)
-    .tx_loc = SERIAL_API_TX_LOC,
+  .tx_loc = SERIAL_API_TX_LOC,
 #endif /* defined(SERIAL_API_TX_LOC) */
 #if defined(SERIAL_API_RX_PIN)
-    .rx_pin = SERIAL_API_RX_PIN,
+  .rx_pin = SERIAL_API_RX_PIN,
 #endif /* defined(SERIAL_API_RX_PIN) */
 #if defined(SERIAL_API_RX_PORT)
-    .rx_port = SERIAL_API_RX_PORT,
+  .rx_port = SERIAL_API_RX_PORT,
 #endif /* defined(SERIAL_API_RX_PORT) */
 #if defined(SERIAL_API_RX_LOC)
-    .rx_loc = SERIAL_API_RX_LOC,
+  .rx_loc = SERIAL_API_RX_LOC,
 #endif /* defined(SERIAL_API_RX_LOC) */
 };
-
 
 void app_hw_init(void)
 {

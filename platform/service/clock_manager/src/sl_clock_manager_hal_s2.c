@@ -37,6 +37,12 @@
 #include "em_bus.h"
 #include "em_device.h"
 #include "em_gpio.h"
+#if defined(SL_COMPONENT_CATALOG_PRESENT)
+#include "sl_component_catalog.h"
+#endif
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+#include "sl_power_manager.h"
+#endif
 
 /***************************************************************************//**
  * Performs Clock Manager runtime initialization.
@@ -751,6 +757,15 @@ sl_status_t sli_clock_manager_hal_hfxo_calibrate_ctune(uint32_t ctune)
 }
 
 /***************************************************************************//**
+ * Gets the HFXO's average startup time.
+ ******************************************************************************/
+sl_status_t sli_clock_manager_hal_get_hfxo_average_startup_time(uint32_t *val)
+{
+  (void) val;
+  return SL_STATUS_NOT_SUPPORTED; // Not supported on Series 2
+}
+
+/***************************************************************************//**
  * Sets LFXO frequency tuning control.
  ******************************************************************************/
 sl_status_t sli_clock_manager_hal_set_lfxo_calibration(uint32_t val)
@@ -967,6 +982,10 @@ sl_status_t sli_clock_manager_hal_set_sysclk_source(sl_oscillator_t source)
 
   CORE_EXIT_ATOMIC();
 
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+  slx_power_manager_update_clock_info();
+#endif
+
   return return_status;
 }
 
@@ -1023,7 +1042,7 @@ sl_status_t sli_clock_manager_hal_wait_usbpll(void)
 sl_status_t sli_clock_manager_hal_set_ext_flash_clk(sl_oscillator_t oscillator)
 {
   (void)oscillator;
-  return SL_STATUS_NOT_AVAILABLE;
+  return SL_STATUS_NOT_SUPPORTED;
 }
 
 /***************************************************************************//**
@@ -1036,5 +1055,5 @@ sl_status_t sli_clock_manager_hal_get_ext_flash_clk(sl_oscillator_t *oscillator)
   }
 
   (void)oscillator;
-  return SL_STATUS_NOT_AVAILABLE;
+  return SL_STATUS_NOT_SUPPORTED;
 }

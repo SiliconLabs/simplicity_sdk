@@ -1,6 +1,6 @@
 id: "bluetooth_feature_periodic_sync"
 label: "Synchronization to Periodic Advertising without responses trains"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Provides events and control for synchronized periodic advertising trains that
   do not have subevents or response slots. Synchronization is achieved by

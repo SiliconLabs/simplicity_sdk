@@ -52,7 +52,7 @@ void emberAfPluginBootloaderInterfaceGetVersion(uint16_t *blVersion);
 bool emberAfPluginBootloaderInterfaceInit(void);
 
 /**************************************************************************//**
- * Set the storage mechanism to its lowerest power state.
+ * Set the storage mechanism to its lowest power state.
  *
  * Call this function when you are finished access the storage mechanism.
  *****************************************************************************/
@@ -76,7 +76,7 @@ bool emberAfPluginBootloaderInterfaceChipErase(void);
  *
  * @param[in] slotId The slot ID to write to
  *
- * @return TRUE if erase was sucessful, FALSE otherwise.
+ * @return TRUE if erase was successful, FALSE otherwise.
  *****************************************************************************/
 bool emberAfPluginBootloaderInterfaceChipEraseSlot(uint32_t slot);
 

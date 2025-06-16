@@ -9,12 +9,12 @@
 
 uint8_t aVirtualSlaveCommandClasses[MAX_VIRTUAL_SLAVE_NODES][APPL_SLAVENODEPARM_MAX];
 
-SVirtualSlaveNodeInfo_t aVirtualSlaveNodeInfo[MAX_VIRTUAL_SLAVE_NODES] = {{.bListening = true,
-                                                                           .NodeType.generic = GENERIC_TYPE_SWITCH_MULTILEVEL,
-                                                                           .NodeType.specific = SPECIFIC_TYPE_NOT_USED,
-                                                                           .CommandClasses.iListLength = 0,
-                                                                           .CommandClasses.pCommandClasses = &aVirtualSlaveCommandClasses[0][0]}};
-SVirtualSlaveNodeInfo_t *apVirtualSlaveNodeInfo[sizeof_array(aVirtualSlaveNodeInfo)] = {&aVirtualSlaveNodeInfo[0]};
+SVirtualSlaveNodeInfo_t aVirtualSlaveNodeInfo[MAX_VIRTUAL_SLAVE_NODES] = { { .bListening = true,
+                                                                             .NodeType.generic = GENERIC_TYPE_SWITCH_MULTILEVEL,
+                                                                             .NodeType.specific = SPECIFIC_TYPE_NOT_USED,
+                                                                             .CommandClasses.iListLength = 0,
+                                                                             .CommandClasses.pCommandClasses = &aVirtualSlaveCommandClasses[0][0] } };
+SVirtualSlaveNodeInfo_t *apVirtualSlaveNodeInfo[sizeof_array(aVirtualSlaveNodeInfo)] = { &aVirtualSlaveNodeInfo[0] };
 
 const SVirtualSlaveNodeInfoTable_t VirtualSlaveNodeInfoTable =
 {

@@ -1,6 +1,6 @@
 id: btmesh_target_node
 label: DFU target node
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Wrapper software component for DFU target node role in Bluetooth Mesh applications.
   This component is prepared for integration into SOC applications.
@@ -22,3 +22,6 @@ recommends:
 
 validation_helper:
   - path: "script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-target-node

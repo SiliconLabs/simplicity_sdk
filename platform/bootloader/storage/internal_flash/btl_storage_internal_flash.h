@@ -26,6 +26,6 @@
  *   the device for upgrade image storage.
  ******************************************************************************/
 
-/** @} // addtogroup Storage */
+/** @} (end addtogroup Storage) */
 
 #endif // BTL_STORAGE_INTERNAL_FLASH_H

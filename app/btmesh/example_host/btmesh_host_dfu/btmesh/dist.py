@@ -26,7 +26,7 @@ import enum
 import logging
 import os
 import struct
-from typing import Callable, ClassVar, Iterable, List, Optional, Tuple
+from typing import Callable, ClassVar, Dict, Iterable, List, Optional, Tuple
 
 from bgapix.bglibx import BGLibExtRetryParams, EventParamValues
 from bgapix.slstatus import SlStatus
@@ -35,12 +35,20 @@ from . import util
 from .conf import Configurator
 from .core import BtmeshComponent, BtmeshCore
 from .db import ModelID
-from .dfu import (FWID, FwReceiver, FwReceiverInfo, FwReceiverPhase,
-                  FwUpdateAdditionalInfo, FwUpdateClient, FwUpdateStatus)
+from .dfu import (
+    FWID,
+    FwReceiver,
+    FwReceiverInfo,
+    FwReceiverPhase,
+    FwReceiverResult,
+    FwUpdateAdditionalInfo,
+    FwUpdateClient,
+    FwUpdateMetadataStatus,
+    FwUpdateStatus,
+)
 from .errors import BtmeshError, BtmeshErrorCode
 from .event import LocalEvent
-from .mbt import (Blob, BlobTransferClient, BlobTransferMode, MBTProgressEvent,
-                  MBTStatus)
+from .mbt import Blob, BlobTransferClient, BlobTransferMode, MBTProgressEvent, MBTStatus
 from .mdl import NamedModelID
 from .util import BtmeshMulticastRetryParams, BtmeshRetryParams
 
@@ -452,7 +460,7 @@ class FwDistributionClient(BtmeshComponent):
             # then it means that upload timeout occurred because the Firmware
             # Distribution Upload Status message is not received from the
             # Distributor node.
-            final_events=[upload_evt]
+            final_events = [upload_evt]
 
         if len(final_events) != 0:
             upload_evt = final_events[0]
@@ -1078,7 +1086,7 @@ class FwDistributionClient(BtmeshComponent):
         ttl: int = 5,
         dist_poll_int: float = 5,
         retry_params: Optional[BtmeshMulticastRetryParams] = None,
-    ) -> Tuple[FwDistDistributionStatus, Iterable[FwReceiverInfo]]:
+    ) -> Tuple[FwDistDistributionStatus, Iterable[FwReceiverResult]]:
         for receiver in receivers:
             util.validate_unicast_address(
                 receiver.server_addr, "Invalid receiver address."
@@ -1135,7 +1143,11 @@ class FwDistributionClient(BtmeshComponent):
                 fw_list_index=fw_list_index,
             )
             receivers_info = failed_receivers_info
-            return dist_status, receivers_info
+            receivers_result = FwReceiverResult.create_fw_receivers_result(
+                receivers_info, metadata_status_dict
+            )
+            return dist_status, receivers_result
+
         self.delete_receivers(
             elem_index=elem_index,
             dist_addr=dist_addr,
@@ -1183,7 +1195,10 @@ class FwDistributionClient(BtmeshComponent):
             ):
                 node = self.db.get_node_by_elem_addr(addr)
                 self.conf.reset_node(node=node, local=True)
-        return dist_status, receivers_info
+        receivers_result = FwReceiverResult.create_fw_receivers_result(
+            receivers_info, metadata_status_dict
+        )
+        return dist_status, receivers_result
 
     def cancel_distribution(
         self,

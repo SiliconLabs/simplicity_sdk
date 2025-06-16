@@ -37,7 +37,7 @@
 #include "sl_status.h"
 
 /// API version used to check compatibility (do not edit when using this header)
-#define SL_WISUN_LFN_PARAMS_API_VERSION 0x0002
+#define SL_WISUN_LFN_PARAMS_API_VERSION  3
 
 /***************************************************************************//**
  * @addtogroup SL_WISUN_TYPES
@@ -69,6 +69,8 @@ typedef struct {
   uint32_t unicast_interval_min_ms;
   /// Maximum acceptable LFN unicast interval (milliseconds)
   uint32_t unicast_interval_max_ms;
+  /// Shorter LFN Unicast interval used during the EAPOL exchange (milliseconds).
+  uint32_t eapol_unicast_interval_ms;
   /// The LFN assumes its parent is lost after [lfn_maintain_parent_time]
   /// number of Broadcast sync periods with no message received from its parent.
   /// Specification range [1, 60]
@@ -132,7 +134,7 @@ typedef struct {
   sl_wisun_lfn_params_network_t network;
   /// LFN power parameters
   sl_wisun_lfn_params_power_t power;
-} sl_wisun_lfn_params_t;
+} SL_ATTRIBUTE_PACKED sl_wisun_lfn_params_t;
 SL_PACK_END()
 
 /***************************************************************************//**
@@ -158,6 +160,7 @@ static const sl_wisun_lfn_params_t SL_WISUN_PARAMS_LFN_TEST = {
     .unicast_interval_ms = SEC_TO_MS(6),
     .unicast_interval_min_ms = SEC_TO_MS(5),
     .unicast_interval_max_ms = SEC_TO_MS(60),
+    .eapol_unicast_interval_ms = 1300,
     .lfn_maintain_parent_time = 5,
     .reserved = { 0 }
   },
@@ -186,6 +189,7 @@ static const sl_wisun_lfn_params_t SL_WISUN_PARAMS_LFN_BALANCED = {
     .unicast_interval_ms = SEC_TO_MS(60),
     .unicast_interval_min_ms = SEC_TO_MS(30),
     .unicast_interval_max_ms = SEC_TO_MS(300),
+    .eapol_unicast_interval_ms = 1300,
     .lfn_maintain_parent_time = 20,
     .reserved = { 0 }
   },
@@ -214,6 +218,7 @@ static const sl_wisun_lfn_params_t SL_WISUN_PARAMS_LFN_ECO = {
     .unicast_interval_ms = SEC_TO_MS(300),
     .unicast_interval_min_ms = SEC_TO_MS(60),
     .unicast_interval_max_ms = SEC_TO_MS(16776), /// 4.660 hours per spec
+    .eapol_unicast_interval_ms = 1300,
     .lfn_maintain_parent_time = 60,
     .reserved = { 0 }
   },

@@ -125,7 +125,7 @@ static void beginTcLinkKeyUpdateEventHandler(sl_zigbee_af_event_t * event)
   sl_zigbee_af_update_tc_link_key_set_delay(LinkKeyUpdateTimerMilliseconds);
 }
 
-void sl_zigbee_af_set_t_c_link_key_update_timer_milli_seconds(uint32_t timeInMilliseconds)
+void sl_zigbee_af_set_tc_link_key_update_timer_ms(uint32_t timeInMilliseconds)
 {
   LinkKeyUpdateTimerMilliseconds = timeInMilliseconds;
 }
@@ -136,4 +136,14 @@ void sli_zigbee_af_update_tc_link_key_begin_tc_link_key_update_init(uint8_t init
 
   sl_zigbee_af_network_event_init(beginTcLinkKeyUpdateEvents,
                                   beginTcLinkKeyUpdateEventHandler);
+}
+
+sl_status_t sl_zigbee_af_tc_link_key_update_now(void)
+{
+  // If we're in request, wait until that's done
+  if (inRequest) {
+    return SL_STATUS_IN_PROGRESS;
+  }
+  sl_zigbee_af_event_set_active(beginTcLinkKeyUpdateEvents);
+  return SL_STATUS_OK;
 }

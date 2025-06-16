@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component is an implementation of the calendar server cluster.  It responds to requests for the calendar data using data from the Calendar Common component.
 label: Calendar Server
 quality: production

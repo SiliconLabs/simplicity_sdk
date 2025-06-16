@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Zigbee Over-the-air Bootload Client Cluster (a multi-hop, application bootloader). This implementation finds the OTA server in the network, periodically queries the server for a new image to download, downloads the data, and then waits for the server command to tell it to upgrade. Optionally it can cryptographically verify the image before upgrade.
 label: OTA Bootload Cluster Client
 quality: production

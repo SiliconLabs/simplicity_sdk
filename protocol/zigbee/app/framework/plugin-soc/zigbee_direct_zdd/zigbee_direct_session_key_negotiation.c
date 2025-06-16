@@ -226,11 +226,11 @@ static sl_status_t sli_zigbee_direct_p256_expand_shared_secret(sl_zigbee_sec_man
   return ret;
 }
 
-sl_status_t sli_zigbee_handle_incoming_dlk_negotiation_request(uint8_t messageLength,
-                                                               uint8_t* messageContents,
-                                                               uint16_t payloadIndex,
-                                                               sl_802154_short_addr_t partnerId,
-                                                               uint16_t characteristic)
+sl_status_t sli_zigbee_direct_handle_incoming_dlk_negotiation_request(uint8_t messageLength,
+                                                                      uint8_t* messageContents,
+                                                                      uint16_t payloadIndex,
+                                                                      sl_802154_short_addr_t partnerId,
+                                                                      uint16_t characteristic)
 {
   sl_zigbee_key_data_t psk;
   tokTypeMfgInstallationCode tokInstallCode;
@@ -339,7 +339,7 @@ sl_status_t sli_zigbee_handle_incoming_dlk_negotiation_request(uint8_t messageLe
 #endif //SL_CATALOG_ZIGBEE_DIRECT_SECURITY_CURVE25519_PRESENT
 
     case DLK_SECRET_ENUM_BASIC_ACCESS_KEY:   // basic key,
-      sl_zigbee_direct_calculate_basic_key((uint8_t*)peerEuiData, sl_zigbee_key_contents(&basic_key));
+      sli_zigbee_direct_calculate_basic_key((uint8_t*)peerEuiData, sl_zigbee_key_contents(&basic_key));
       memmove(sl_zigbee_key_contents(&psk), sl_zigbee_key_contents(&basic_key), SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
       sl_zigbee_core_debug_println("Calculated Basic Key:");
       sl_zigbee_af_print_zigbee_key(sl_zigbee_key_contents(&basic_key));

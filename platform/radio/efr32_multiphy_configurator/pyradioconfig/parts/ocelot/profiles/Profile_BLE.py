@@ -70,7 +70,6 @@ class ProfileBLEOcelot(ProfileBLELynx):
         profile.outputs.append(ModelOutput(model.vars.fec_tx_enable, '', ModelOutputType.INFO, readable_name="Enable FEC"))
         profile.outputs.append(ModelOutput(model.vars.preamble_detection_length, '', ModelOutputType.INFO, readable_name="Preamble Detection Length"))
         profile.outputs.append(ModelOutput(model.vars.skip2ant, '', ModelOutputType.INFO, readable_name="Skip 2nd antenna check with phase demod antenna diversity"))
-
     def _build_feature_settings(self, model):
         ble_feature = model.profile.inputs.ble_feature.var_value
 

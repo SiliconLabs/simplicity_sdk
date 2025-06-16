@@ -81,10 +81,8 @@ ReadApplicationRfRegion(zpal_radio_region_t* rfRegion);
 uint8_t
 SaveApplicationNodeIdBaseType(eSerialAPISetupNodeIdBaseType nodeIdBaseType);
 
-
 uint8_t
 ReadApplicationNodeIdBaseType(eSerialAPISetupNodeIdBaseType* nodeIdBaseType);
-
 
 /**
  * @brief Writes the application Tx power configuration to file system
@@ -97,7 +95,6 @@ SaveApplicationTxPowerlevel(zpal_tx_power_t ipower, zpal_tx_power_t power0dbmMea
  */
 uint8_t
 ReadApplicationTxPowerlevel(zpal_tx_power_t *ipower, zpal_tx_power_t *power0dbmMeasured);
-
 
 /**
  * Writes the application Max LR tx power value configuration to file system

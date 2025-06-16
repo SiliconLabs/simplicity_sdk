@@ -29,19 +29,18 @@
  ******************************************************************************/
 
 #include <stdbool.h>
-#include "sl_common.h"
 #include "em_emu.h"
 #include "em_gpio.h"
 #include "sl_status.h"
 #include "sl_simple_button_instances.h"
 #include "app_log.h"
 #include "app_assert.h"
+#include "sl_main_init.h"
 #include "sl_bluetooth.h"
 #include "app_timer.h"
 #include "advertise.h"
 #include "sl_power_supply.h"
 #include "board.h"
-#include "app.h"
 #include "sl_component_catalog.h"
 #ifdef SL_CATALOG_GATT_SERVICE_AIO_PRESENT
 #include "sl_gatt_service_aio.h"
@@ -113,7 +112,7 @@ void app_init(void)
   shutdown_start_timer();
 }
 
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   #ifdef SL_CATALOG_GATT_SERVICE_SOUND_PRESENT
   sensor_sound_step();
@@ -139,11 +138,11 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
     // -------------------------------
     case sl_bt_evt_system_boot_id:
       // Print boot message.
-      app_log_info("Bluetooth stack booted: v%d.%d.%d-b%d" APP_LOG_NL,
+      app_log_info("Bluetooth stack booted: v%d.%d.%d+%08lx" APP_LOG_NL,
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
       sc = sl_bt_gap_get_identity_address(&address, &address_type);
       app_assert_status(sc);
       app_log_info("Bluetooth %s address: %02X:%02X:%02X:%02X:%02X:%02X" APP_LOG_NL,
@@ -316,7 +315,7 @@ sl_status_t sl_gatt_service_hall_get(float *field_strength, bool *alert, bool *t
   sl_status_t sc;
   sc = sensor_hall_get(field_strength, alert, tamper);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Magnetic flux = %4.3f mT" APP_LOG_NL, *field_strength);
+    app_log_info("Magnetic flux = %4.3f mT" APP_LOG_NL, (double)*field_strength);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Hall sensor is not initialized" APP_LOG_NL);
   } else {
@@ -332,7 +331,7 @@ sl_status_t sl_gatt_service_light_get(float *lux, float *uvi)
   sl_status_t sc;
   sc = sl_sensor_light_get(lux, uvi);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Ambient light = %f lux" APP_LOG_NL, *lux);
+    app_log_info("Ambient light = %f lux" APP_LOG_NL, (double)*lux);
     app_log_info("UV Index = %u" APP_LOG_NL, (unsigned int)*uvi);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Ambient light and UV index sensor is not initialized" APP_LOG_NL);
@@ -349,7 +348,7 @@ sl_status_t sl_gatt_service_lux_get(float *lux)
   sl_status_t sc;
   sc = sl_sensor_lux_get(lux);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Ambient light = %f lux" APP_LOG_NL, *lux);
+    app_log_info("Ambient light = %f lux" APP_LOG_NL, (double)*lux);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Ambient light sensor is not initialized" APP_LOG_NL);
   } else {
@@ -365,8 +364,8 @@ sl_status_t sl_gatt_service_rht_get(uint32_t *rh, int32_t *t)
   sl_status_t sc;
   sc = sl_sensor_rht_get(rh, t);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Humidity = %3.2f %%RH" APP_LOG_NL, (float)*rh / 1000.0f);
-    app_log_info("Temperature = %3.2f C" APP_LOG_NL, (float)*t / 1000.0f);
+    app_log_info("Humidity = %3.2f %%RH" APP_LOG_NL, (double)*rh / 1000.0);
+    app_log_info("Temperature = %3.2f C" APP_LOG_NL, (double)*t / 1000.0);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Relative Humidity and Temperature sensor is not initialized" APP_LOG_NL);
   } else {
@@ -434,7 +433,7 @@ sl_status_t sl_gatt_service_pressure_get(float *pressure)
   sl_status_t sc;
   sc = sensor_pressure_get(pressure);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Pressure = %0.3f mbar" APP_LOG_NL, *pressure);
+    app_log_info("Pressure = %0.3f mbar" APP_LOG_NL, (double)*pressure);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Air pressure sensor is not initialized" APP_LOG_NL);
   } else {
@@ -450,7 +449,7 @@ sl_status_t sl_gatt_service_sound_get(float *sound_level)
   sl_status_t sc;
   sc = sensor_sound_get(sound_level);
   if (SL_STATUS_OK == sc) {
-    app_log_info("Sound level = %3.2f dBA" APP_LOG_NL, *sound_level);
+    app_log_info("Sound level = %3.2f dBA" APP_LOG_NL, (double)*sound_level);
   } else if (SL_STATUS_NOT_INITIALIZED == sc) {
     app_log_info("Sound level sensor is not initialized" APP_LOG_NL);
   } else {

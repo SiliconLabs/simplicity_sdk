@@ -176,11 +176,23 @@ struct UARTDRV_HandleData;
  *
  * @param[in] transferCount
  *   A number of bytes transferred.
+ *
+ * @param[in] userParam
+ *   A User-specified callback parameter.
+ *
+ * @note: userParam parameter is only available when UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE
+ *        is set to 1 in uartdrv_config.h. If UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE
+ *        is set to 0, this parameter is ignored.
  ******************************************************************************/
 typedef void (*UARTDRV_Callback_t)(struct UARTDRV_HandleData *handle,
                                    Ecode_t transferStatus,
                                    uint8_t *data,
-                                   UARTDRV_Count_t transferCount);
+                                   UARTDRV_Count_t transferCount
+                                   #if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) \
+                                   && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
+                                   , void *userParam
+                                   #endif
+                                   );
 
 /// UART transfer buffer
 typedef struct {
@@ -188,6 +200,9 @@ typedef struct {
   UARTDRV_Count_t transferCount;           ///< Transfer item count
   volatile UARTDRV_Count_t itemsRemaining; ///< Transfer items remaining
   UARTDRV_Callback_t callback;             ///< Completion callback
+#if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
+  void *userParam;                         ///< User-specified callback parameter
+#endif
   Ecode_t transferStatus;                  ///< Completion status of the transfer operation
 } UARTDRV_Buffer_t;
 
@@ -339,9 +354,6 @@ typedef struct UARTDRV_HandleData{
 #if (defined(UART_COUNT) && (UART_COUNT > 0)) || (defined(USART_COUNT) && (USART_COUNT > 0))
     USART_TypeDef * uart;
 #endif
-#if defined(LEUART_COUNT) && (LEUART_COUNT > 0) && !defined(_SILICON_LABS_32B_SERIES_2)
-    LEUART_TypeDef * leuart;
-#endif
 #if (defined(EUART_COUNT) && (EUART_COUNT > 0)) || (defined(EUSART_COUNT) && (EUSART_COUNT > 0))
     EUSART_TypeDef * euart;
 #endif
@@ -377,6 +389,7 @@ typedef struct UARTDRV_HandleData{
   volatile int                  em1RequestCount;   // A EM1 request count for the handle
   sl_sleeptimer_timer_handle_t  delayedTxTimer;    // A timer to wait for the last byte out
   size_t                        sleep;             // Sleep state on isr return
+  uint32_t                      baudRate;          // Baud rate for the handle.
   /// @endcond
 } UARTDRV_HandleData_t;
 
@@ -418,12 +431,22 @@ uint8_t UARTDRV_GetTransmitDepth(UARTDRV_Handle_t handle);
 Ecode_t UARTDRV_Transmit(UARTDRV_Handle_t handle,
                          uint8_t *data,
                          UARTDRV_Count_t count,
-                         UARTDRV_Callback_t callback);
+                         UARTDRV_Callback_t callback
+                         #if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) \
+                         && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
+                         , void *userParam
+                         #endif
+                         );
 
 Ecode_t UARTDRV_Receive(UARTDRV_Handle_t handle,
                         uint8_t *data,
                         UARTDRV_Count_t count,
-                        UARTDRV_Callback_t callback);
+                        UARTDRV_Callback_t callback
+                        #if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) \
+                        && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
+                        , void *userParam
+                        #endif
+                        );
 
 Ecode_t UARTDRV_TransmitB(UARTDRV_Handle_t handle,
                           uint8_t *data,

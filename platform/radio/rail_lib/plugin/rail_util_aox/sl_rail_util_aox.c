@@ -33,8 +33,13 @@
 #include "sl_rail_util_aox.h"
 #include "sl_rail_util_aox_config.h"
 #include "sl_gpio.h"
+#include "sl_component_catalog.h"
 
-#if SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT
+#if    SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT == 0
+#if    (!RAILTEST && !defined(SL_CATALOG_RAIL_UTIL_BLE_CS_PRESENT))
+#warning "The AoX component is only needed to configure multiple AoX antennas!"
+#endif
+#else//SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT != 0
 static RAIL_BLE_AoxAntennaPortPins_t antennaPortPin[] = {
 #ifdef SL_RAIL_UTIL_AOX_ANTENNA_PIN0_PORT
   {

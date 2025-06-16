@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32FG23A010F512GM48
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32FG23A010F512GM48.
 - category: Platform|Device|EFR32FG23
 - quality: production
@@ -169,6 +169,7 @@
   - name: device_supports_rail
   - name: device_supports_rail_stack
   - name: device_supports_connect
+  - name: device_supports_wisun
   - name: device_compute_basic
 - recommends:
   - id: trustzone_unaware

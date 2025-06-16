@@ -918,11 +918,13 @@ enum
   /** Distinguishing between raw MAC and beacons for simplicity */
   SL_ZIGBEE_ZIGBEE_PACKET_TYPE_BEACON,
   /** Describes a ZigBee Light Link message. */
-  SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN,
+  SL_ZIGBEE_ZIGBEE_PACKET_TYPE_INTERPAN_ZLL,
   /** Describes a ZigBee Network layer data message prior to (potential) decryption. */
   SL_ZIGBEE_ZIGBEE_PACKET_TYPE_NWK_DATA_PRE_DECRYPTION,
   /** Describes a ZigBee Network layer command prior to (potential) decryption. */
   SL_ZIGBEE_ZIGBEE_PACKET_TYPE_NWK_COMMAND_PRE_DECRYPTION,
+  /** Describes an interpan message. */
+  SL_ZIGBEE_PACKET_TYPE_INTERPAN,
 };
 
 /**

@@ -56,7 +56,7 @@ void sli_mac_stack_high_datarate_phy_tx_callback(uint8_t mac_index,
   cb_event->data.high_datarate_phy_tx_callback.packet_length = packet_length;
 
   if (packet_contents != NULL) {
-    memmove(cb_event->data.high_datarate_phy_tx_callback.packet_contents, packet_contents, sizeof(uint8_t) * (packet_length));
+    memmove(cb_event->data.high_datarate_phy_tx_callback.packet_contents, packet_contents, sizeof(uint8_t) * packet_length);
   }
 
   cb_event->data.high_datarate_phy_tx_callback.tag = tag;

@@ -1,6 +1,6 @@
 !!omap
 - id: EFM32PG22C200F256IM40
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFM32PG22C200F256IM40.
 - category: Platform|Device|EFM32PG22
 - quality: production

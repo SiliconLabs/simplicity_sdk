@@ -1,6 +1,6 @@
 id: cmsis_dsp
 label: CMSIS-DSP
-package: platform
+package: platform_cmsis_dsp
 description: CMSIS-DSP compute library for Cortex-M
 category: CMSIS|DSP
 quality: production

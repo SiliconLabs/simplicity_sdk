@@ -54,7 +54,7 @@ typedef struct {
 } sl_cpc_journal_circular_buffer_t;
 
 // Made volatile to ensure it does not get optimized out and is accessible by a debugger
-volatile sl_cpc_journal_circular_buffer_t sl_cpc_journal_cb[1 + (SL_CPC_JOURNAL_LEVEL > SL_CPC_JOURNAL_INFO_LEVEL)];
+volatile sl_cpc_journal_circular_buffer_t sl_cpc_journal_cb[1 + (SL_CPC_JOURNAL_LEVEL >= SL_CPC_JOURNAL_DEBUG_LEVEL)];
 static uint32_t last_timestamp;
 static uint8_t persistant_sequence_id;
 
@@ -216,10 +216,5 @@ static const char* level_to_string(sl_cpc_journal_level_t level)
  *****************************************************************************/
 static volatile sl_cpc_journal_circular_buffer_t* get_circular_buffer(sl_cpc_journal_level_t level)
 {
-#if SL_CPC_JOURNAL_LEVEL > SL_CPC_JOURNAL_INFO_LEVEL
-  return &sl_cpc_journal_cb[level > SL_CPC_JOURNAL_INFO_LEVEL];
-#else
-  (void)level;
-  return &sl_cpc_journal_cb[0];
-#endif
+  return &sl_cpc_journal_cb[SL_MIN(level >= SL_CPC_JOURNAL_DEBUG_LEVEL, ARRAY_SIZE(sl_cpc_journal_cb) > 1)];
 }

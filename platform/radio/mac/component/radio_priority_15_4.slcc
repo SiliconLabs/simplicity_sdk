@@ -1,7 +1,7 @@
 id: "radio_priority_15_4"
 label: "802.15.4 Unified radio scheduler priority"
-package: platform
-category: Radio|Mac
+package: common_15_4
+category: 802.15.4|Radio
 quality: "production"
 description: "This component is used to configure the radio priorities of a 15.4 stack"
 provides:

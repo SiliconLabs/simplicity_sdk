@@ -51,24 +51,6 @@ extern "C" {
  * for setting the interrupt vector in RAM, managing the core reset initiation function and
  * doing general interrupt management operations.
  *
- * ## Configuration Options
- *
- * Some properties of the Interrupt Manager are compile-time configurable. These
- * properties are set in the sl_interrupt_manager_s2_config.h file.
- * These are the available configuration parameters with default values defined.
- * @code
- *
- * // <q SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM> Put the interrupt vector table in RAM.
- * // <i> Set to 1 to put the vector table in RAM.
- * // <i> Default: 0
- * #define SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM  0
- * @endcode
- *
- * @note The SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM configuration is only available
- * on series 2. Enabling the S2_INTERRUPTS_IN_RAM configuration will tell the Interrupt Manager
- * to copy the interrupt vector table from ROM to RAM and select it as the interrupt table.
- * On newer series this feature is always enabled.
- *
  * ## The API
  *
  * This section contains brief descriptions of the functions in the API. For more
@@ -253,7 +235,7 @@ void sl_interrupt_manager_clear_irq_pending(int32_t irqn);
  *
  * @note
  *   This function depends on a RAM based interrupt vector table, i.e.
- *   SL_INTERRUPT_MANAGER_S2_INTERRUPTS_IN_RAM must be true. Or the device
+ *   interrupt_manager_vector_table_in_ram component must be added. Or the device
  *   must be Series 3.
  *
  * @param[in] irqn

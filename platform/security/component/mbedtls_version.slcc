@@ -1,5 +1,5 @@
 id: mbedtls_version
-package: platform
+package: security_mbedtls
 label: Version Helpers
 description: >-
   This component enables the Mbed TLS run-time version information API functions.

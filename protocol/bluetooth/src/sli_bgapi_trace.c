@@ -189,16 +189,11 @@ size_t sli_bgapi_trace_log_custom_message(const void *buffer,
     return 0;
   }
 
-  // The maximum length of a custom message is limited by the BGAPI maximum
-  // payload size and by the `uint8_t` length field. Truncate the supplied
-  // buffer to the maximum length if we need to.
-  size_t max_message_len =
-    SL_BGAPI_MAX_PAYLOAD_SIZE - sizeof(sl_bgapi_debug_evt_trace_custom_message_t);
-  if (max_message_len > UINT8_MAX) {
-    max_message_len = UINT8_MAX;
-  }
-  if (buffer_length > max_message_len) {
-    buffer_length = max_message_len;
+  // The maximum length of a custom message is limited by what we can fit in the
+  // `uint8_t` length field. Truncate the supplied buffer to the maximum length
+  // if we need to.
+  if (buffer_length > UINT8_MAX) {
+    buffer_length = UINT8_MAX;
   }
 
   // Construct the header

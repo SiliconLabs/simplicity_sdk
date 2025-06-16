@@ -1,7 +1,7 @@
 !!omap
 - id: brd4314a
 - label: BRD4314A
-- package: platform
+- package: boards
 - description: Board support for BRD4314A.
 - category: Platform|Board|Thunderboard
 - quality: production

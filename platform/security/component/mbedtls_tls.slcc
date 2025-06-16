@@ -1,5 +1,5 @@
 id: mbedtls_tls
-package: platform
+package: security_mbedtls
 label: TLS Client
 description: >-
   This component provides support for using TLS (as a client) in Mbed TLS.

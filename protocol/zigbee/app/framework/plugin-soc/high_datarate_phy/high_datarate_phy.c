@@ -21,19 +21,35 @@
 #include "zigbee_app_framework_event.h"
 #include "sl_zigbee_multi_network.h"
 #include "high_datarate_phy_stack_interface.h"
+#include "high_datarate_phy_config.h"
+
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif // SL_COMPONENT_CATALOG_PRESENT
+
+#ifdef SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT_PRESENT
+#include "sl_rail_util_ieee802154_phy_select.h"
+#endif // SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT
+
+#ifdef SL_CATALOG_MEMORY_MANAGER_PRESENT
+#include "sl_memory_manager.h"
+#else
+#include "sl_malloc.h"
+#endif // SL_CATALOG_MEMORY_MANAGER_PRESENT
 
 static sl_zigbee_af_event_t app_cli_event;
 
 #define MIN_PAYLOAD_LEN 2
-#define MAX_PAYLOAD_LEN 251
-#define FUTURE_MAX_PAYLOAD_LEN 2049
+#define MAX_PAYLOAD_LEN  (SL_HDR_PHY_MAX_PACKET_SIZE - 2 /* len bytes*/)
 
 #define LEN_BYTES (2u)
-// In future parts, there is expected to be support for 2047 byte packets
+
 static uint8_t local_byte_array[MAX_PAYLOAD_LEN + LEN_BYTES];
 static uint32_t high_datarate_phy_rx_packet_count = 0;
 static uint32_t high_datarate_phy_tx_packet_count = 0;
 static void app_cli_event_handler(sl_zigbee_af_event_t *event);
+
+uint32_t *sli_phy_rx_fifo = NULL;
 
 // CLI Command handlers
 void sl_high_datarate_phy_set_rx_enable_command(sl_cli_command_arg_t *arguments);
@@ -41,14 +57,15 @@ void sl_high_datarate_phy_clr_stats_command(sl_cli_command_arg_t *arguments);
 void sl_high_datarate_phy_print_stats_command(sl_cli_command_arg_t *arguments);
 void sl_high_datarate_phy_tx_command(sl_cli_command_arg_t *arguments);
 void sl_high_datarate_phy_tx_sched_command(sl_cli_command_arg_t *arguments);
+void sl_high_datarate_phy_set_phy_command(sl_cli_command_arg_t *arguments);
 
 void (*sl_high_datarate_phy_rx_callback)(uint8_t *packet, uint8_t linkQuality, int8_t rssi, uint32_t pkt_rx_timestamp) = NULL;
 void (*sl_high_datarate_phy_tx_complete_callback)(uint8_t mac_index, sl_status_t status, uint16_t packet_length, uint8_t *packet, uint8_t tag) = NULL;
 extern sl_status_t sl_mac_send_raw_high_datarate_phy_message(uint8_t nwk_index, uint8_t *payload);
-extern sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_index, uint8_t *payload, RAIL_Time_t timestamp);
-extern void sli_mac_lower_mac_set_high_datarate_csma_params (RAIL_CsmaConfig_t *csmaParams);
+extern sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_index, uint8_t *payload, sl_rail_time_t timestamp);
+extern void sli_mac_lower_mac_set_high_datarate_csma_params (sl_rail_csma_config_t *csmaParams);
 extern void sli_mac_lower_mac_set_high_datarate_phy_radio_priorities (sl_802154_radio_priorities_t *priorities);
-extern RAIL_Status_t sl_mac_set_mode_switch_sync_detect(bool enable_f);
+extern sl_rail_status_t sl_mac_set_mode_switch_sync_detect(bool enable_f);
 
 /**
  * Default receive callback function for High-BW-phy packets
@@ -162,7 +179,7 @@ void sl_high_datarate_phy_config_tx_complete_callback(void (*tx_complete_callbac
  * @param[in]  Pointer to csma params used on high datarate phy packets
  *
  */
-void sl_high_datarate_phy_config_csma_params(RAIL_CsmaConfig_t *csma_params)
+void sl_high_datarate_phy_config_csma_params(sl_rail_csma_config_t *csma_params)
 {
   sli_mac_lower_mac_set_high_datarate_csma_params(csma_params);
 }
@@ -222,7 +239,7 @@ void sl_high_datarate_phy_tx_sched_command(sl_cli_command_arg_t *arguments)
 {
   length = sl_cli_get_argument_uint16(arguments, 0);
   uint32_t timestamp_delta = sl_cli_get_argument_uint32(arguments, 1);
-  timestamp = RAIL_GetTime() + timestamp_delta;
+  timestamp = sl_rail_get_time(SL_RAIL_EFR32_HANDLE) + timestamp_delta;
   sl_zigbee_af_event_set_active(&app_cli_event);
 }
 
@@ -258,7 +275,7 @@ static void app_cli_event_handler(sl_zigbee_af_event_t *event)
  *                       high bandwidth phy packets
  *
  */
-RAIL_Status_t sl_high_datarate_phy_set_reception_enable(bool enable_f)
+sl_rail_status_t sl_high_datarate_phy_set_reception_enable(bool enable_f)
 {
   return (sl_mac_set_mode_switch_sync_detect(enable_f));
 }
@@ -304,7 +321,7 @@ void sl_high_datarate_phy_print_stats_command(sl_cli_command_arg_t *arguments)
  * @param[in] absolute timestamp that packet is expected to be transmitted
  *
  */
-sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, RAIL_Time_t timestamp)
+sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, sl_rail_time_t timestamp)
 {
   uint16_t requested_len = (payload[1] << 8) + payload[0];
   if ( requested_len < MIN_PAYLOAD_LEN  || requested_len > MAX_PAYLOAD_LEN ) {
@@ -314,4 +331,36 @@ sl_status_t sl_high_datarate_phy_transmit_scheduled(uint8_t *payload, RAIL_Time_
     return SL_STATUS_INVALID_MODE;
   }
   return sl_mac_send_raw_high_datarate_phy_scheduled_message(sli_zigbee_get_current_network_index(), payload, timestamp);
+}
+
+static sl_rail_util_radio_config_t desired_radio_config = SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS;
+
+sl_rail_util_radio_config_t sl_rail_util_ieee802154_get_high_speed_phy_config(void)
+{
+  return desired_radio_config;
+}
+
+void sl_high_datarate_phy_set_phy_command(sl_cli_command_arg_t *arguments)
+{
+  uint8_t switch_rate = sl_cli_get_argument_uint8(arguments, 0);
+  if ( switch_rate == 1) {
+    desired_radio_config = SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_1MBPS_FEC;
+  } else if (switch_rate == 2) {
+    desired_radio_config = SL_RAIL_UTIL_IEEE802154_RADIO_CONFIG_2P4_2MBPS;
+  } else {
+    sl_zigbee_app_debug_println("No HDR phy switch to the invalid value of %d Mps.", switch_rate);
+  }
+}
+
+// permanent rx_fifo allocation
+void sli_mac_hdr_phy_rx_fifo_initialize(void)
+{
+  #if defined(_SILICON_LABS_32B_SERIES_3)
+  sli_phy_rx_fifo = sl_malloc(sli_mac_max_flat_pkt_size << 1); // Allocate extra space for alignment
+  if (sli_phy_rx_fifo == NULL) {
+    // Handle memory allocation failure
+    sl_zigbee_app_debug_println("Failed to allocate memory for HDR phy rx fifo");
+    return;
+  }
+  #endif // defined(_SILICON_LABS_32B_SERIES_3)
 }

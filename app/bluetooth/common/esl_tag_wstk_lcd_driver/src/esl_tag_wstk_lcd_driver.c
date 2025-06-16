@@ -34,6 +34,8 @@
 #include "esl_tag_display.h"
 #include "sl_board_control.h"
 #include "sl_common.h"
+#include "sl_memlcd_display.h"
+#include "sl_power_manager.h"
 #include "esl_tag_image_core.h"
 #include "esl_tag_wstk_lcd_driver.h"
 
@@ -249,6 +251,114 @@ const struct qr_ph_s qr_info = {
   .qr_data = pic_data
 };
 
+typedef enum esl_wstk_lcd_states_e {
+  ESL_WSK_DISPLAY_STATE_IDLE,
+  ESL_WSK_DISPLAY_STATE_START_UPDATE,
+  ESL_WSK_DISPLAY_STATE_UPDATING,
+  ESL_WSK_DISPLAY_STATE_DONE,
+} esl_wstk_lcd_states_t;
+
+typedef struct esl_wstk_async_writer_s {
+  sl_status_t last_error;
+  esl_wstk_lcd_states_t state;
+  uint16_t clipWidth;
+  uint16_t clipHeight;
+  uint16_t offset;
+  uint16_t read_count;
+  uint8_t image_index;
+} esl_wstk_async_writer_t;
+
+static esl_wstk_async_writer_t esl_wstk_async_writer = {
+  .last_error  = SL_STATUS_OK,
+  .state       = ESL_WSK_DISPLAY_STATE_IDLE,
+  .clipWidth   = SL_MEMLCD_DISPLAY_WIDTH,
+  .clipHeight  = SL_MEMLCD_DISPLAY_HEIGHT,
+  .offset      = 0,
+  .read_count  = 1,
+  .image_index = 0
+};
+
+void esl_wstk_lcd_write_step(void)
+{
+  EMSTATUS status = DMD_ERROR_TEST_FAILED;
+
+  switch (esl_wstk_async_writer.state) {
+    case ESL_WSK_DISPLAY_STATE_IDLE:
+      // just stay here, do nothing
+      break;
+
+    case ESL_WSK_DISPLAY_STATE_START_UPDATE: {
+      DMD_DisplayGeometry*  pgeometry;
+
+      // get display geometry data
+      status = DMD_getDisplayGeometry(&pgeometry);
+
+      // initiate static state variables
+      if (status == DMD_OK) {
+        esl_wstk_async_writer.last_error  = SL_STATUS_OK;
+        esl_wstk_async_writer.state       = ESL_WSK_DISPLAY_STATE_UPDATING;
+        esl_wstk_async_writer.clipWidth   = pgeometry->clipWidth;
+        esl_wstk_async_writer.clipHeight  = pgeometry->clipHeight;
+      } else {
+        esl_wstk_async_writer.last_error  = SL_STATUS_FAIL;
+        esl_wstk_async_writer.state       = ESL_WSK_DISPLAY_STATE_IDLE;
+      }
+      esl_wstk_async_writer.offset      = 0;
+      esl_wstk_async_writer.read_count  = 1;
+    } break;
+
+    case ESL_WSK_DISPLAY_STATE_UPDATING:
+      if (esl_wstk_async_writer.last_error == SL_STATUS_OK
+          && esl_wstk_async_writer.read_count != 0) {
+        uint8_t  image_chunk[IMAGE_CHUNK_BUFFER_SIZE];
+        uint16_t x_offset = GetPixelCount(esl_wstk_async_writer.offset) % esl_wstk_async_writer.clipWidth;
+        uint16_t y_offset = GetPixelCount(esl_wstk_async_writer.offset) / esl_wstk_async_writer.clipHeight;
+
+        esl_wstk_async_writer.read_count = esl_wstk_async_writer.offset;  // temporary storage
+        esl_wstk_async_writer.last_error = esl_image_get_data(esl_wstk_async_writer.image_index,
+                                                              &esl_wstk_async_writer.offset,
+                                                              sizeof(image_chunk),
+                                                              image_chunk);
+
+        esl_wstk_async_writer.read_count = esl_wstk_async_writer.offset - esl_wstk_async_writer.read_count;
+
+        if (esl_wstk_async_writer.last_error == SL_STATUS_OK) {
+          status = DMD_writeData(x_offset, y_offset, image_chunk,
+                                 GetPixelCount(esl_wstk_async_writer.read_count));
+        }
+
+        if (status != DMD_OK && esl_wstk_async_writer.last_error == SL_STATUS_OK) {
+          // set the generic error to last_error if it hasn't been set yet
+          esl_wstk_async_writer.last_error = SL_STATUS_FAIL;
+        }
+      } else {
+        esl_wstk_async_writer.state = ESL_WSK_DISPLAY_STATE_DONE;
+      }
+      break;
+
+    case ESL_WSK_DISPLAY_STATE_DONE:
+      if (esl_wstk_async_writer.last_error == SL_STATUS_OK) {
+        status = DMD_updateDisplay();
+      }
+
+      if (status != DMD_OK) {
+        esl_wstk_async_writer.last_error = SL_STATUS_FAIL;
+      }
+      esl_wstk_async_writer.state = ESL_WSK_DISPLAY_STATE_IDLE;
+      break;
+
+    default:
+      esl_wstk_async_writer.state = ESL_WSK_DISPLAY_STATE_IDLE;
+      esl_wstk_async_writer.last_error = SL_STATUS_INVALID_STATE;
+      break;
+  }
+}
+
+bool esl_wstk_lcd_is_ok_to_sleep(void)
+{
+  return (esl_wstk_async_writer.state == ESL_WSK_DISPLAY_STATE_IDLE);
+}
+
 bool esl_wstk_lcd_is_logo()
 {
   if (memcmp(&original_magic,
@@ -260,14 +370,12 @@ bool esl_wstk_lcd_is_logo()
   }
 }
 
-sl_status_t esl_wstk_lcd_write(int param_count, ...)
+sl_status_t esl_wstk_lcd_write_async(int param_count, ...)
 {
   // Declaring pointer to the argument list
-  va_list               ptr;
-  EMSTATUS              status;
-  sl_status_t           result = SL_STATUS_FAIL;
-  DMD_DisplayGeometry*  pgeometry;
-  uint8_t               image_index;
+  va_list     ptr;
+  sl_status_t result = SL_STATUS_OK;
+  uint16_t    offset = 0;
 
   // LCD write_func: Invalid parameters!
   sl_bt_esl_assert(param_count == ESL_DISPLAY_WRITE_FUNC_PARAMETERS_COUNT);
@@ -277,43 +385,22 @@ sl_status_t esl_wstk_lcd_write(int param_count, ...)
 
   // accessing variables (after each call to va_arg our ptr points to next one)
   (void)va_arg(ptr, int); // this simple driver just ignores the display index!
-  image_index = (uint8_t)va_arg(ptr, int);
+  esl_wstk_async_writer.image_index = (uint8_t)va_arg(ptr, int);
 
   // end argument list traversal
   va_end(ptr);
 
-  // get display geometry data
-  status = DMD_getDisplayGeometry(&pgeometry);
+  // check if image is available, will respond with an appropriate error, otherwise
+  esl_wstk_async_writer.last_error = esl_image_get_data(esl_wstk_async_writer.image_index,
+                                                        &offset,
+                                                        0,
+                                                        NULL);
 
-  if (status == DMD_OK) {
-    uint8_t        data[IMAGE_CHUNK_BUFFER_SIZE];
-    uint16_t       offset     = 0;
-    uint16_t       read_count = 1;
-
-    result = SL_STATUS_OK;
-
-    while (result == SL_STATUS_OK && read_count) {
-      uint16_t x_offset = GetPixelCount(offset) % pgeometry->clipWidth;
-      uint16_t y_offset = GetPixelCount(offset) / pgeometry->clipHeight;
-
-      read_count = offset;  // temporary storage
-      result = esl_image_get_data(image_index, &offset, sizeof(data), data);
-
-      read_count = offset - read_count;
-
-      status = DMD_ERROR_TEST_FAILED;
-      if (result == SL_STATUS_OK) {
-        status = DMD_writeData(x_offset, y_offset, data,
-                               GetPixelCount(read_count));
-        if (status == DMD_OK) {
-          status = DMD_updateDisplay();
-        }
-      }
-
-      if (status != DMD_OK) {
-        result = SL_STATUS_FAIL;
-      }
-    }
+  if (esl_wstk_async_writer.last_error != SL_STATUS_OK) {
+    result = esl_wstk_async_writer.last_error;
+    esl_wstk_async_writer.last_error = SL_STATUS_OK;
+  } else {
+    esl_wstk_async_writer.state = ESL_WSK_DISPLAY_STATE_START_UPDATE;
   }
 
   return result;
@@ -374,7 +461,7 @@ void esl_wstk_lcd_bt_on_event(sl_bt_msg_t *evt)
                                 &info);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
         // register display we just created temporary - this makes it permanent
-        sc = esl_display_add(info, esl_wstk_lcd_init, esl_wstk_lcd_write);
+        sc = esl_display_add(info, esl_wstk_lcd_init, esl_wstk_lcd_write_async);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
       }
       break;

@@ -1,6 +1,6 @@
 id: ot_posix_reuse
 label: OpenThread Posix Reuse
-package: OpenThread
+package: openthread
 category: OpenThread Posix
 quality: experimental
 description: This component provides the OpenThread Posix reusable files for MCU host.

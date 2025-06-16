@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Gas Proxy Function (GPF). This component receives and processes GBZ Top Off Messages. NOTE This component uses malloc and should only be used in a non-SoC setup.
 label: Gas Proxy Function (GPF)
 quality: production

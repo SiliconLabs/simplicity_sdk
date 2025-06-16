@@ -3,7 +3,7 @@
  * @brief internal names for 'network-formation' declarations
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -39,6 +39,8 @@ sl_status_t sli_zigbee_stack_find_unused_pan_id(uint32_t channelMask,
 sl_status_t sli_zigbee_stack_form_network(sl_zigbee_network_parameters_t *parameters);
 
 sl_status_t sli_zigbee_stack_get_beacon_classification_params(sl_zigbee_beacon_classification_params_t *param);
+
+bool sli_zigbee_stack_get_join_uses_install_code(void);
 
 sl_zigbee_leave_reason_t sli_zigbee_stack_get_last_leave_reason(sl_802154_short_addr_t *returnNodeIdThatSentLeave);
 
@@ -81,6 +83,8 @@ sl_status_t sli_zigbee_stack_send_zigbee_leave(sl_802154_short_addr_t destinatio
 sl_status_t sli_zigbee_stack_set_beacon_classification_params(sl_zigbee_beacon_classification_params_t *param);
 
 sl_status_t sli_zigbee_stack_set_beacon_jitter_duration(uint8_t beaconJitterDuration);
+
+void sli_zigbee_stack_set_join_uses_install_code(bool enable);
 
 sl_status_t sli_zigbee_stack_set_num_beacons_to_store(uint8_t numBeacons);
 

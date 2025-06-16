@@ -10,7 +10,6 @@
 #include <CC_Common.h>
 #include <ZW_TransportEndpoint.h>
 
-
 /**
  * @addtogroup CC Command Classes
  * @{
@@ -21,22 +20,19 @@
 /**
  * Contains all configuration parameters.
  */
-typedef struct
-{
+typedef struct {
   uint8_t slowRefresh;
 }
 central_scene_configuration_t;
 
-typedef struct s_CC_centralScene_data_t_
-{
+typedef struct s_CC_centralScene_data_t_{
   RECEIVE_OPTIONS_TYPE_EX rxOptions; /**< rxOptions */
 } s_CC_centralScene_data_t;
 
 /**
  * Structure that describes a single scene
  */
-typedef struct _cc_central_scene_t
-{
+typedef struct _cc_central_scene_t{
   uint8_t scene_number;       /// Number of scene
   uint8_t scene_attributes;   /// Supported attributes of scene
 } cc_central_scene_t;
@@ -58,7 +54,6 @@ cc_central_scene_notification_tx(
   uint8_t sceneNumber,
   ZAF_TX_Callback_t pCbFunc);
 
-
 /**
  * Start or stop Central Scene Notification timer
  * Used when event CENTRAL_SCENE_NOTIFICATION_KEY_ATTRIBUTES_KEY_HELD_DOWN
@@ -71,8 +66,8 @@ cc_central_scene_notification_tx(
  */
 void
 cc_central_scene_handle_notification_timer(
-    bool start_timer,
-    uint8_t scene_number);
+  bool start_timer,
+  uint8_t scene_number);
 
 /**
  * Size of supported scenes.
@@ -82,8 +77,7 @@ cc_central_scene_handle_notification_timer(
  */
 #define CC_CENTRAL_SCENE_SIZE_OF_SUPPORTED_SCENES_ATTRIBUTES  sizeof(((cc_central_scene_t *)0)->scene_attributes)
 
-
- /**
+/**
  * Returns the array of central scenes.
  * @note If scenes are identical, the array will contain only one element
  * @return Address of the first element in the central scene array.

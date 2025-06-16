@@ -165,6 +165,16 @@ SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 void sli_power_manager_notify_em_transition(sl_power_manager_em_t from,
                                             sl_power_manager_em_t to);
 
+/***************************************************************************//**
+ * Performs post interrupt handling operations.
+ *
+ * @note Hook function called by the Interrupt Manager at each ISR's exit.
+ *
+ * @note Only used with the Sleep-on-exit Power Manager implementation.
+ ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_POWER_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
+void sli_power_manager_hal_exit_interrupt(void);
+
 #ifdef __cplusplus
 }
 #endif

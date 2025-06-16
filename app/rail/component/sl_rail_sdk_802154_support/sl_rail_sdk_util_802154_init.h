@@ -34,7 +34,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_sdk_util_802154_init_config.h"
 
 // -----------------------------------------------------------------------------
@@ -57,29 +57,29 @@ void sl_rail_sdk_util_init(void);
 /**************************************************************************//**
  * Returns RAIL handle
  *****************************************************************************/
-RAIL_Handle_t sl_rail_sdk_util_get_handle(void);
+sl_rail_handle_t sl_rail_sdk_util_get_handle(void);
 
 /**************************************************************************//**
  * RAIL callback: called when any assert happens
  *****************************************************************************/
-void sl_rail_util_on_assert_failed(RAIL_Handle_t rail_handle,
-                                   RAIL_AssertErrorCodes_t error_code);
+void sl_rail_util_on_assert_failed(sl_rail_handle_t rail_handle,
+                                   sl_rail_assert_error_codes_t error_code);
 
 /**************************************************************************//**
  * RAIL callback: called when the RAIL is ready for use
  *****************************************************************************/
-void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * RAIL callback: called when channel changed
  *****************************************************************************/
-void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                           const RAIL_ChannelConfigEntry_t *entry);
+void sl_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                           const sl_rail_channel_config_entry_t *entry);
 
 /**************************************************************************//**
  * RAIL callback: called when any event occurred inside of RAIL
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
-                           RAIL_Events_t events);
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events);
 
 #endif // SL_RAIL_SDK_UTIL_802154_INIT_H

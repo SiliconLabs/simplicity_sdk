@@ -1,6 +1,6 @@
 !!omap
 - id: MGM260PB22VNA
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for MGM260PB22VNA.
 - category: Platform|Device|MGM26
 - quality: production

@@ -48,7 +48,7 @@ template_contribution:
     value:
       name: bootloader_unicast_distribute
       handler: cli_bootloader_unicast_unicast_distribute
-      help: "Sart sending the image to the target node"
+      help: "Start sending the image to the target node"
       argument:
       - type: uint32
         help: "Length of the GBL image in bytes"

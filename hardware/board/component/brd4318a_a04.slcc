@@ -1,7 +1,7 @@
 !!omap
 - id: brd4318a_a04
 - label: BRD4318A rev A04
-- package: platform
+- package: boards
 - description: Board support for BRD4318A.
 - category: Platform|Board|Radio Board
 - quality: production

@@ -30,11 +30,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "app.h"
+#include "sl_main_init.h"
 #include "app_assert.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "sl_component_catalog.h"
 #include "task.h"
+#include "sl_main_kernel.h"
 
 #ifdef SL_CATALOG_APP_LOG_PRESENT
 #include "app_log.h"
@@ -51,9 +53,18 @@ static TaskHandle_t      app_task_handle  = NULL;
 // Semaphore handle
 static SemaphoreHandle_t app_semaphore_handle = NULL;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for RTOS before the kernel is started
+void app_permanent_memory_alloc(void)
 {
+  // Create the semaphore
+  app_semaphore_handle = xSemaphoreCreateCounting(UINT16_MAX, 0);
+  app_assert(app_semaphore_handle != NULL, "Semaphore creation failed.");
+
+  //If the start task is reused, there is no need to start another application task
+  if (sl_main_start_task_should_continue()) {
+    return;
+  }
+
   BaseType_t ret;
   // Create the task for app_process_action
   ret = xTaskCreate(app_task,
@@ -64,8 +75,17 @@ void app_init_runtime(void)
                     &app_task_handle);
   app_assert(ret == pdPASS, "Application task creation failed.");
   // Create the semaphore
-  app_semaphore_handle = xSemaphoreCreateCounting(UINT16_MAX, 0);
-  app_assert(app_semaphore_handle != NULL, "Semaphore creation failed.");
+}
+
+// Application Runtime Init.
+void app_init_runtime(void)
+{
+  app_log("BT mesh NLC Occupancy Sensor initialized" APP_LOG_NL);
+  // Ensure right init order in case of shared pin for enabling buttons
+  app_change_buttons_to_leds();
+  // Change LEDs to buttons in case of shared pin
+  app_change_leds_to_buttons();
+  app_handle_reset_conditions();
 }
 
 /******************************************************************************
@@ -74,12 +94,6 @@ void app_init_runtime(void)
 static void app_task(void *p_arg)
 {
   (void)p_arg;
-  app_log("BT mesh NLC Occupancy Sensor initialized" APP_LOG_NL);
-  // Ensure right init order in case of shared pin for enabling buttons
-  app_change_buttons_to_leds();
-  // Change LEDs to buttons in case of shared pin
-  app_change_leds_to_buttons();
-  app_handle_reset_conditions();
   while (1) {
     app_process_action();
   }

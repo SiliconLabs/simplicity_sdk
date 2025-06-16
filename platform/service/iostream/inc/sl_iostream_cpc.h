@@ -58,12 +58,11 @@ extern "C" {
  *
  *   On the host side, the python script ***cpc_iostream_bridge.py*** is available
  *   under the script folder
- *   (<a href="https ://github.com/SiliconLabs/cpc-daemon/tree/main/doc/iostream_bridge.md">
+ *   (<a href="https://github.com/SiliconLabs/cpc-daemon/blob/main/doc/iostream_bridge.md">
  *   see Github repository</a>).
  *   This script enables you to bridge the CPC host CLI endpoint over to a network
  *   socket and thus allows you to communicate with your secondary CLI application
  *   through a telnet terminal. See host documentation for more details.
- *   **TODO Link to github doc**
  *
  * ## Initialization
  *

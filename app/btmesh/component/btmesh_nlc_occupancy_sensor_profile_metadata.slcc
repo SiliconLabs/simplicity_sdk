@@ -1,6 +1,6 @@
 id: "btmesh_nlc_occupancy_sensor_profile_metadata"
 label: "Occupancy Sensor Profile Metadata"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   This component provides the relevant metadata so the Occupancy Sensor
   NLC profile is included in DCD Page 2.
@@ -18,3 +18,6 @@ config_file:
     directory: btmeshconf
 provides:
   - name: "btmesh_nlc_occupancy_sensor_profile_metadata"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-nlc-occupancy-sensor-profile-metadata

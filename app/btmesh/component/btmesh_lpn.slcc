@@ -1,6 +1,6 @@
 id: "btmesh_lpn"
 label: "Low Power Node"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Low Power component enables Bluetooth Mesh Low Power Node (LPN) Feature for the node.
   LPNs consume less power by remaining in sleep for the majority of their operation cycle,
@@ -50,3 +50,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-lpn

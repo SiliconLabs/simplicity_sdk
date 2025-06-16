@@ -18,7 +18,7 @@
 #include "stack/include/high_datarate_phy_stack_interface.h"
 #include "stack/internal/inc/high_datarate_phy_stack_interface_internal_def.h"
 
-void sl_mac_lower_mac_set_high_datarate_csma_params(RAIL_CsmaConfig_t *csma_params)
+void sl_mac_lower_mac_set_high_datarate_csma_params(sl_rail_csma_config_t *csma_params)
 {
   sli_mac_stack_lower_mac_set_high_datarate_csma_params(csma_params);
 }
@@ -37,14 +37,14 @@ sl_status_t sl_mac_send_raw_high_datarate_phy_message(uint8_t nwk_index,
 
 sl_status_t sl_mac_send_raw_high_datarate_phy_scheduled_message(uint8_t nwk_index,
                                                                 uint8_t *payload,
-                                                                RAIL_Time_t timestamp)
+                                                                sl_rail_time_t timestamp)
 {
   return sli_mac_stack_send_raw_high_datarate_phy_scheduled_message(nwk_index,
                                                                     payload,
                                                                     timestamp);
 }
 
-RAIL_Status_t sl_mac_set_mode_switch_sync_detect(bool enable_f)
+sl_rail_status_t sl_mac_set_mode_switch_sync_detect(bool enable_f)
 {
   return sli_mac_stack_set_mode_switch_sync_detect(enable_f);
 }

@@ -1,6 +1,6 @@
 id: "bluetooth_gattdb_definition"
 label: "Bluetooth GATT database structure definition"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Bluetooth GATT database structure definition
 category: Bluetooth|Bluetooth Host (Stack)

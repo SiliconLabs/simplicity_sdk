@@ -1,6 +1,6 @@
 id: "btmesh_generic_base"
 label: "Generic Base"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   This Component initializes the Generic Server and Client Models which are added to the project
   as components and provides an interface to register handlers for their events.
@@ -52,3 +52,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-generic-base

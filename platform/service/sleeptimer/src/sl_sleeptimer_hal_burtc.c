@@ -361,19 +361,13 @@ void sleeptimer_hal_reset_prs_signal(void)
  *
  * @note If power_manager_no_deepsleep component is included in a project, the
  *       lowest possible energy mode is EM1, else lowest energy mode is
- *       determined by clock source.
+ *       determined by peripheral used.
  ******************************************************************************/
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
 void sli_sleeptimer_set_pm_em_requirement(void)
 {
-  switch (CMU->EM4GRPACLKCTRL & _CMU_EM4GRPACLKCTRL_CLKSEL_MASK) {
-    case CMU_EM4GRPACLKCTRL_CLKSEL_LFRCO:
-    case CMU_EM4GRPACLKCTRL_CLKSEL_LFXO:
-      sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM2);
-      break;
-    default:
-      break;
-  }
+  // No EM requirement to add for LF peripherals that continue to work in
+  // Deep Sleep.
 }
 #endif
 #endif

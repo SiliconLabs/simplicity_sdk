@@ -75,7 +75,7 @@ The list of available commands is output on the console with the associated help
 | wisun clear_credential_cache | Clear the wisun credential cache | > wisun clear_credential_cache |
 | wisun reset_statistics | Reset the statistics | > wisun reset_statistics |
 | wisun set_trace_level \<string> | Set [trace level](https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-level-t) for a [trace group](https://docs.silabs.com/wisun/latest/wisun-stack-api/sl-wisun-types#sl-wisun-trace-group-t) | > wisun set_trace_level all,debug<br>[Set 64 trace groups]<br>> wisun set_trace_level 1,none;4,info<br>[Set 2 trace groups]|
-| wisun set_lfn_support \<lfn_limit> | configure LFN support: <br> - [uint8] lfn_limit: Number of LFN children (10 maximum) | > wisun set_lfn_support 3 |
+| wisun set_lfn_support \<lfn_limit> | configure LFN support: <br> - [uint8] lfn_limit: Number of LFN children | > wisun set_lfn_support 3 |
 | wisun mode_switch \<mode> \<phy_mode_id> \<neighbor_mac_address> |  configure mode switch: <br> - [uint8] mode: 0=disabled, 1=enabled, 2=default <br> - [uint8] PhyModeID <br> - [string] neighbor MAC address (optional)   | > wisun mode_switch 1 84 <br> > wisun mode_switch 1 84 01:02:03:04:05:06:07:08 |
 | wisun trigger \<frame type> | Trigger a transmission of a periodic frame <br> - [string] pas: PAN Advertisement Solicit, pa: PAN Advertisement, pcs: PAN Configuration Solicit, pc: PAN Configuration, dis: DODAG Information Solicitation, dio: DODAG Information Object | > wisun trigger pas |
 | wisun getsockname \<socket> | Get local IP address of the socket | > wisun getsockname 3 |
@@ -83,6 +83,9 @@ The list of available commands is output on the console with the associated help
 | wisun set_dhcp_vendor_data \<enterprise number> \<sub-option\|length\|vendor data> | Set DHCPv6 Vendor Data delivered to nodes | > wisun set_dhcp_vendor_data 39873 {0001000568656c6c6f} |
 | wisun set_phy_sens \<phy_mode_id> \<sensitivy> | Set the sensitivity for the given PhyModeID <br> - [uint8] PhyModeID <br> - [int16] sensitivy in dBm | > wisun set_phy_sens 1 -70 |
 | wisun pan_defect_advertise \<state> \<min_scan_time> \<max_scan_time> | Set PAN Defect Advertisement parameters <br> - [uint8] state: 0=disabled, 1=enabled <br> - [uint32] minimum duration in seconds for switching PANs <br> - [uint32] maximum duration in seconds for switching PANs | wisun pan_defect_advertise 1 600 1800 |
+| wisun concurrent_detection \<state> | Configure concurrent detection <br> - [uint8] state: 0=disabled, 1=enabled <br> | > wisun concurrent_detection 1 |
+| wisun trigger_global_repair | Increase DODAG version to trigger RPL global repair procedure | > wisun trigger_global_repair |
+| wisun routing_table | Display border router's routing table | > wisun routing_table |
 
 ## Wi-SUN Border Router Settings
 
@@ -144,7 +147,9 @@ Next time you issue the `wisun start_fan11` command in the case of a FAN-1.1 PHY
 | wisun.async_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to async frames | |
 | wisun.unicast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to unicast frequency hopping | |
 | wisun.broadcast_channel_mask | R | xx:...:xx | - Not masked (0) <br> - Masked (1) | Excluded channel mask applied to broadcast frequency hopping | |
-| wisun.neighbor_table_size | R/W | integer | 1 to 254 | Size of the neighbor table, excluding temporary entries and RPL parents | |
+| wisun.max_child_count | R/W | integer | 1 to 254 | Maximum number of RPL children | |
+| wisun.max_neighbor_count | R/W | integer | 1 to 254 | Size of the neighbor table, including temporary entries and RPL parents | |
+| wisun.max_security_neighbor_count | R/W | integer | 1 to 254 | Size of the security neighbor table | |
 | wisun.keychain | R/W | integer | - automatic (0) <br> - built-in (1) <br> - NVM (2) | Keychain to use for device credentials | |
 | wisun.keychain_index | R/W | integer | 0 to 255 | Device credential index to use for built-in keychain | |
 | wisun.gtk1 | R/W | string | GTK as hex, 'none' to disable | GTK1 to install |  |
@@ -163,6 +168,10 @@ Next time you issue the `wisun start_fan11` command in the case of a FAN-1.1 PHY
 | wisun.lfn_gak3 | R | string |  | LGAK3 in use |  |
 | wisun.ipv6_prefix | R/W | string | IPv6 address | IPv6 prefix for DODAG |  |
 | wisun.dhcpv6_server | R/W | string | IPv6 address | IPv6 address of the external DHCPv6 server |  |
+| wisun.lowpan_mtu | R/W | integer |  | Maximum size of 6LoWPAN packets after which packets are fragmented |
+| wisun.ipv6_mru | R/W | integer |  | Maximum size of a fragmented IPv6 packet the node is willing to accept after reassembly |
+| wisun.max_edfe_fragment_count | R/W | integer | 0 - 10 | Maximum amount of 6LoWPAN/IPv6 fragments to send in a single EDFE exchange |
+| wisun.socket_rx_buffer_size | R/W | integer |  | Socket receiver buffer size for ICMP echo requests |
 
 #### GTK/LGTK Management
 

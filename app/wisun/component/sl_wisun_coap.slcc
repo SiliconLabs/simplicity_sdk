@@ -62,20 +62,20 @@ include:
     - "path": "sl_wisun_coap_rhnd.h"
     - "path": "sl_wisun_coap_notify.h"
     - "path": "sli_wisun_coap_rd.h"
-  - path: "./mbed-coap"
+  - path: "mbed-coap"
     file_list:
     - "path": "sn_config.h"
     - "path": "sn_coap_protocol.h"
     - "path": "sn_coap_header.h"
     - "path": "ns_list.h"
-  - path: "./mbed-trace"
+  - path: "mbed-trace"
     file_list:
     - "path": "mbed_trace.h"
-  - path: "./mbed-client-randlib"
+  - path: "mbed-client-randlib"
     file_list:
     - "path": "randLIB.h"
 
-  - path: "./mbed-coap/include"
+  - path: "mbed-coap/include"
     file_list:
     - "path": "sn_coap_protocol_internal.h"
     - "path": "sn_coap_header_internal.h"

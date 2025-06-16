@@ -34,7 +34,6 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -48,10 +47,14 @@
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
 /*******************************************************************************
- * The function is used for application initialization.
- * @return RAIL_Handle_t Null pointer to keep style with other sample apps
+ * Wrapper function to help with baremetal and RTOS compatibility.
  ******************************************************************************/
-RAIL_Handle_t app_init(void);
+void app_init(void);
+
+/*******************************************************************************
+ * The function is used for application initialization.
+ ******************************************************************************/
+void rail_app_init(void);
 
 /*******************************************************************************
  * The function is used for stopping the timer in the init block.

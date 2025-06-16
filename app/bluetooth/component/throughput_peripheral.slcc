@@ -1,5 +1,5 @@
 id: throughput_peripheral
-package: Bluetooth
+package: bluetooth_le_middleware
 label: Throughput Test Transmitter (Peripheral) Role API
 description: >
   Throughput Test Transmitter (Peripheral) Role API acts as a server and accepts connection from
@@ -20,20 +20,25 @@ include:
   - path: .
     file_list:
       - path: throughput_peripheral.h
+  - path: rta
+    file_list:
+      - path: throughput_peripheral_rta.h
 config_file:
   - path: config/throughput_peripheral_config.h
   - path: throughput_peripheral.xml
     directory: btconf
 source:
   - path: throughput_peripheral.c
+  - path: rta/throughput_peripheral_rta.c
 requires:
   - name: app_log
   - name: app_assert
+  - name: app_rta
   - name: gatt_configuration
   - name: bluetooth_stack
   - name: bluetooth_feature_system
   - name: bluetooth_feature_power_control
-  - name: bluetooth_feature_connection
+  - name: bluetooth_feature_connection_role_peripheral
   - name: bluetooth_feature_legacy_advertiser
   - name: bluetooth_feature_extended_advertiser
   - name: bluetooth_feature_gatt_server
@@ -50,6 +55,14 @@ recommends:
 provides:
   - name: throughput_peripheral
 template_contribution:
+  - name: app_rta_init
+    value:
+      include: throughput_peripheral_rta.h
+      handler: throughput_peripheral_rta_init
+  - name: app_rta_ready
+    value:
+      include: throughput_peripheral_rta.h
+      handler: throughput_peripheral_rta_ready
   - name: bluetooth_on_event
     value:
       include: throughput_peripheral.h

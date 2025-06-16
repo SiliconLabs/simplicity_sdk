@@ -24,8 +24,8 @@
  * In our case we would like to use
  * TRNG on secure vault devices.
  **
-  #define MBEDTLS_ENTROPY_HARDWARE_ALT
-  #define MBEDTLS_ENTROPY_FORCE_SHA256
+ #define MBEDTLS_ENTROPY_HARDWARE_ALT
+ #define MBEDTLS_ENTROPY_FORCE_SHA256
  */
 
 #define MBEDTLS_CIPHER_C
@@ -38,14 +38,14 @@
 #define MBEDTLS_PSA_CRYPTO_BUILTIN_KEYS
 
 /* Set these for enabling mutex usage , including
- for the CTR-DRBG context and SE mailbox access.
+   for the CTR-DRBG context and SE mailbox access.
  */
 #define MBEDTLS_THREADING_C
 #define MBEDTLS_THREADING_ALT
 
 /* Set this for CTR_CRBG (and disable TRNG related defs)
-#define MBEDTLS_CTR_DRBG_C
-*/
+ #define MBEDTLS_CTR_DRBG_C
+ */
 
 #if !defined(NO_CRYPTO_ACCELERATION)
 #include "sli_mbedtls_omnipresent.h"

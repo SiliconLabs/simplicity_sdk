@@ -10,6 +10,8 @@ DTM is typically used with a separate Bluetooth Tester device.
 
 DTM can be used either through a 2-wire UART interface, as described in this example, or over HCI, which is currently not supported. The 2-wire UART interface uses baud rates from 1200 up to 115200 bps (the default) always with 8 data bits, no parity, 1 stop bit and without flow control (no RTS nor CTS).
 
+> Note: The DTM example uses UART VCOM (USB). When using a mainboard with a Radio Board, the EXP-header UART also can be used because of the same pin layout. Since flow control is not in use, only the TX and RX UART pins are needed. For more information, please refer to the configuration of the iostream component.
+
 ![Connecting the Bluetooth Tester to the WSTK](image/readme_img1.png)
 
 DTM can be also used without a separate Bluetooth Tester device when testing more manually with a spectrum analyzer and signal generator setup by sending the command bytes with a special terminal. To use this setup more easily, consider using the [BGTool](https://www.silabs.com/documents/public/application-notes/an1267-bt-rf-phy-evaluation-using-dtm-sdk-v3x.pdf) desktop application instead, which uses the [NCP-mode](https://www.silabs.com/documents/public/application-notes/an1259-bt-ncp-mode-sdk-v3x.pdf) [BGAPI](https://docs.silabs.com/bluetooth/latest)-interface.
@@ -50,22 +52,22 @@ Detailed specifications are in the Bluetooth Specifications.
 
 ### Bootloader Issues
 
-Note that Example Projects do not include a bootloader. However, Bluetooth-based Example Projects expect a bootloader to be present on the device in order to support device firmware upgrade (DFU). To get your application to work, you should either 
+Note that Example Projects do not include a bootloader. However, Bluetooth-based Example Projects expect a bootloader to be present on the device in order to support device firmware upgrade (DFU). To get your application to work, you should either
 - flash the proper bootloader or
 - remove the DFU functionality from the project.
 
 **If you do not wish to add a bootloader**, then remove the DFU functionality by uninstalling the *Bootloader Application Interface* software component -- and all of its dependants. This will automatically put your application code to the start address of the flash, which means that a bootloader is no longer needed, but also that you will not be able to upgrade your firmware.
 
-**If you want to add a bootloader**, then either 
+**If you want to add a bootloader**, then either
 - Create a bootloader project, build it and flash it to your device. Note that different projects expect different bootloaders:
   - for NCP and RCP projects create a *BGAPI UART DFU* type bootloader
   - for SoC projects on Series 2 devices create a *Bluetooth Apploader OTA DFU* type bootloader
 
-- or run a precompiled Demo on your device from the Launcher view before flashing your application. Precompiled demos flash both bootloader and application images to the device. Flashing your own application image after the demo will overwrite the demo application but leave the bootloader in place. 
+- or run a precompiled Demo on your device from the Launcher view before flashing your application. Precompiled demos flash both bootloader and application images to the device. Flashing your own application image after the demo will overwrite the demo application but leave the bootloader in place.
   - For NCP and RCP projects, flash the *Bluetooth - NCP* demo.
   - For SoC projects, flash the *Bluetooth - SoC Thermometer* demo.
 
-**Important Notes:** 
+**Important Notes:**
 - when you flash your application image to the device, use the *.hex* or *.s37* output file. Flashing *.bin* files may overwrite (erase) the bootloader.
 
 - On Series 2 devices SoC example projects require a *Bluetooth Apploader OTA DFU* type bootloader by default. This bootloader needs a lot of flash space and does not fit into the regular bootloader area, hence the application start address must be shifted. This shift is automatically done by the *Apploader Support for Applications* software component, which is installed by default. If you want to use any other bootloader type, you should remove this software component in order to shift the application start address back to the end of the regular bootloader area. Note, that in this case you cannot do OTA DFU with Apploader, but you can still implement application-level OTA DFU by installing the *Application OTA DFU* software component instead of *In-place OTA DFU*.
@@ -78,10 +80,6 @@ For more information on bootloaders, see [UG103.6: Bootloader Fundamentals](http
 Before programming the radio board mounted on the mainboard, make sure the power supply switch is in the AEM position (right side) as shown below.
 
 ![Radio board power supply switch](image/readme_img0.png)
-
-
-**Note!** With the mainboard and the Radio Board, the DTM example uses EXP-header UART pins by default and not the USB UART as most of the other examples. Also, the default is no flow control.
-
 
 ## Resources
 

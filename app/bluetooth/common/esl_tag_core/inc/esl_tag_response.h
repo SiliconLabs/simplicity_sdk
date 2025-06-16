@@ -59,7 +59,7 @@
  * Init ESL Tag responses queue. ESL Core component will call this during the
  * initialization of application. This call is hidden and happens automatically.
  *****************************************************************************/
-void esl_core_respones_init();
+void esl_core_respones_init(void);
 
 /**************************************************************************//**
  * Create response byte stream for single TLV based on input data and error
@@ -84,8 +84,8 @@ sl_status_t esl_core_build_response(tlv_t tlv, const void *input_data);
  * remaining responses which doesn't fit into the target buffer. Consistency of
  * any response will be kept, that is, it might copy less data than the allowed
  * maximum length passed as the first parameter, if there are responses left
- * still in the internal circular buffer which otherwise wont fit into the
- * target buffer.
+ * still in the internal circular buffer which otherwise wouldn't fit into the
+ * target buffer as a whole message.
  * @param[in] remaining_length size of data out buffer
  * @param[out] buf_p pointer to data buffer to copy the responses into
  *

@@ -39,6 +39,8 @@
 #endif
 
 #if defined(__GNUC__)
+#include <sys/reent.h>
+
 // Wrapping a system function with GCC works by using the linker option '--wrap=symbol'.
 // Any undefined reference to "symbol" will be resolved to "__wrap_symbol".
 // Any undefined reference to "__real_symbol" will be resolved to "symbol".
@@ -97,7 +99,7 @@
 #define STD_LIB_WRAPPER_FREE    $Sub$$__iar_dlfree
 #define STD_LIB_WRAPPER_CALLOC  $Sub$$__iar_dlcalloc
 #define STD_LIB_WRAPPER_REALLOC $Sub$$__iar_dlrealloc
-#elif (__VER__ == 9040001)
+#elif (__VER__ == 9040001) || (__VER__ == 9060004)
 #define STD_LIB_WRAPPER_MALLOC  $Sub$$__basic_malloc
 #define STD_LIB_WRAPPER_FREE    $Sub$$__basic_free
 #define STD_LIB_WRAPPER_CALLOC  $Sub$$__basic_calloc

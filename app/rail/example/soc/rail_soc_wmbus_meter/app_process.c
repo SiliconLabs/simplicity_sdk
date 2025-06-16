@@ -31,10 +31,11 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_component_catalog.h"
 #include "app_init.h"
 #include "app_process.h"
+#include "sl_rail_util_init.h"
 #include "sl_rail_sdk_simple_assistance.h"
 #include "sl_rail_sdk_wmbus_support.h"
 #include "sl_rail_sdk_wmbus_packet_assembler.h"
@@ -47,13 +48,17 @@
 #include "app_task_init.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 #include "sl_rail_sdk_fifo_size_config.h"
+#include "sl_code_classification.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
+
+/// TX buffer length
+#define TX_BUFFER_LENGTH (256U)
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -63,9 +68,9 @@
  * @param[in] rail_handle: which rail handle to use for sending
  * @param[in] length: length of the packet
  * @param[in] send_at: absolute time when to send it
- * @return RAIL_Status_t: status of the transmission
+ * @return sl_rail_status_t: status of the transmission
  ******************************************************************************/
-RAIL_Status_t send_packet_at(RAIL_Handle_t rail_handle, uint16_t length, uint64_t send_at);
+sl_rail_status_t send_packet_at(sl_rail_handle_t rail_handle, uint16_t length, uint64_t send_at);
 
 /*******************************************************************************
  * @brief Handles the scheduling of a transmission.
@@ -76,7 +81,7 @@ RAIL_Status_t send_packet_at(RAIL_Handle_t rail_handle, uint16_t length, uint64_
  *
  * @param[in] rail_handle The RAIL handle used to manage the transmission.
  ******************************************************************************/
-void handle_schedule_tx(RAIL_Handle_t rail_handle);
+void handle_schedule_tx(sl_rail_handle_t rail_handle);
 
 /*******************************************************************************
  * @brief Handles the completion of a transmission.
@@ -95,7 +100,7 @@ void handle_tx_done(void);
  * @param[in] rail_handle: The RAIL handle for which the response delay
  * is to be handled.
  ******************************************************************************/
-void handle_response_delay(RAIL_Handle_t rail_handle);
+void handle_response_delay(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * @brief Handle unlimited access.
@@ -106,7 +111,7 @@ void handle_response_delay(RAIL_Handle_t rail_handle);
  *
  * @param[in] rail_handle The RAIL handle.
  *****************************************************************************/
-void handle_unlimited_access(RAIL_Handle_t rail_handle);
+void handle_unlimited_access(sl_rail_handle_t rail_handle);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -116,8 +121,11 @@ extern uint16_t rx_channel;
 extern uint8_t access_number;
 
 /// Time for calculation for the proper sending timing
-RAIL_Time_t last_tx_start_time = 0;
-RAIL_Time_t last_tx_end_time = 0;
+sl_rail_time_t last_tx_start_time = 0;
+sl_rail_time_t last_tx_end_time = 0;
+
+// TX Buffer
+static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_buffer[SL_RAIL_SDK_TX_FIFO_SIZE];
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -129,16 +137,13 @@ static volatile state_t state = S_SCHEDULE_TX;
 static volatile uint64_t current_rail_err = 0U;
 
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = RAIL_STATUS_NO_ERROR;
+static volatile sl_rail_status_t calibration_status = SL_RAIL_STATUS_NO_ERROR;
 
 /// Variable to allow to go to sleep
 static volatile bool ok_to_sleep = true;
 
 /// Last sent packet length, need for calculating the next one
 static uint16_t last_tx_length = 0U;
-
-/// Buffer to store in packets before sending
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_buffer[SL_RAIL_SDK_TX_FIFO_SIZE];
 
 /// Wireless M-Bus specific parameters
 static uint64_t wmbus_app_period_acc = 500e3;
@@ -162,9 +167,11 @@ void set_next_state(state_t next_state)
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  (void) rail_handle;
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
   switch (state) {
     case S_SCHEDULE_TX:
       handle_schedule_tx(rail_handle);
@@ -199,22 +206,29 @@ bool app_is_ok_to_sleep(void)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
-  if ( events & RAIL_EVENT_TX_STARTED) {
-    RAIL_GetTxTimePreambleStart(rail_handle, RAIL_TX_STARTED_BYTES, &last_tx_start_time);
+  if ( events & SL_RAIL_EVENT_TX_STARTED) {
+    sl_rail_tx_packet_details_t packet_details;
+    sl_rail_get_tx_packet_details(rail_handle, &packet_details);
+    packet_details.time_sent.total_packet_bytes = RAIL_TX_STARTED_BYTES;
+    sl_rail_get_tx_time_preamble_start(rail_handle, &packet_details);
+    last_tx_start_time = packet_details.time_sent.packet_time;
   }
 
-  if ( events & RAIL_EVENTS_TX_COMPLETION ) {
-    if ( events & RAIL_EVENT_TX_PACKET_SENT ) {
-      RAIL_GetTxPacketDetailsAlt(rail_handle, false, &last_tx_end_time);
-      RAIL_GetTxTimeFrameEnd(rail_handle, last_tx_length, &last_tx_end_time);
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION ) {
+    if ( events & SL_RAIL_EVENT_TX_PACKET_SENT ) {
+      sl_rail_tx_packet_details_t packet_details;
+      sl_rail_get_tx_packet_details(rail_handle, &packet_details);
+      packet_details.time_sent.total_packet_bytes = last_tx_length;
+      sl_rail_get_tx_time_frame_end(rail_handle, &packet_details);
+      last_tx_end_time = packet_details.time_sent.packet_time;
     }
     state = S_TX_DONE;
   }
 
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       toggle_receive_led();
     }
     switch (sl_rail_sdk_wmbus_get_accessibility()) {
@@ -229,15 +243,15 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     }
   }
 
-  if ( events & RAIL_EVENT_RX_SCHEDULED_RX_END ) {
+  if ( events & SL_RAIL_EVENT_RX_SCHEDULED_RX_END ) {
     state = S_SCHEDULE_TX;
   }
 
   // Perform all calibrations when needed
-  if ( events & RAIL_EVENT_CAL_NEEDED ) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL, RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
-      current_rail_err = (events & RAIL_EVENT_CAL_NEEDED);
+  if ( events & SL_RAIL_EVENT_CAL_NEEDED ) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL, SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
+      current_rail_err = (events & SL_RAIL_EVENT_CAL_NEEDED);
     }
   }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -258,11 +272,12 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
  *
  * @param[in] rail_handle The RAIL handle used to manage the transmission.
  ******************************************************************************/
-void handle_schedule_tx(RAIL_Handle_t rail_handle)
+void handle_schedule_tx(sl_rail_handle_t rail_handle)
 {
   uint16_t length = 0;
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   memset(tx_buffer, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
+
 #if defined(SL_CATALOG_WMBUS_SENSOR_CORE_PRESENT)
   length = sl_rail_sdk_wmbus_sensor_core_process(tx_buffer, &access_number);
 #else
@@ -276,9 +291,10 @@ void handle_schedule_tx(RAIL_Handle_t rail_handle)
 #endif
   // TX is scheduled, sleep can be enabled as RAIL deals with power manager
   rail_status = send_packet_at(rail_handle, length, last_tx_start_time + wmbus_app_period_acc);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
+
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     // TX failed, schedule the next TX immediately
-    last_tx_start_time = RAIL_GetTime();
+    last_tx_start_time = sl_rail_get_time(rail_handle);
     state = S_SCHEDULE_TX;
   } else {
     // TX is scheduled, sleep can be enabled as RAIL deals with power manager
@@ -308,7 +324,7 @@ void handle_tx_done(void)
    */
   access_number++;
   wmbus_app_period_acc = access_number > 128 ? access_number - 128 : 128 - access_number;
-  wmbus_app_period_acc = (2048 + wmbus_app_period_acc - 64) * (wmbus_app_period_nom / 2048);
+  wmbus_app_period_acc = (uint64_t)(2048 + wmbus_app_period_acc - 64) * wmbus_app_period_nom / 2048;
   switch (sl_rail_sdk_wmbus_get_accessibility()) {
     case WMBUS_ACCESSIBILITY_LIMITED_ACCESS:
       state = S_RESPONSE_DELAY;
@@ -334,19 +350,20 @@ void handle_tx_done(void)
  *
  * @param[in] rail_handle: The RAIL handle for which the response delay is to be handled.
  ******************************************************************************/
-void handle_response_delay(RAIL_Handle_t rail_handle)
+void handle_response_delay(sl_rail_handle_t rail_handle)
 {
-  RAIL_Status_t rail_status;
-  RAIL_ScheduleRxConfig_t schedule = {
+  sl_rail_status_t rail_status;
+  sl_rail_scheduled_rx_config_t schedule = {
     .start = last_tx_end_time + sl_rail_sdk_wmbus_get_meter_limited_acc_rx_start(false) - response_delay_safety_margin,
-    .startMode = RAIL_TIME_ABSOLUTE,
+    .start_mode = SL_RAIL_TIME_ABSOLUTE,
     .end = last_tx_end_time + sl_rail_sdk_wmbus_get_meter_limited_acc_rx_stop(false) + response_delay_safety_margin,
-    .endMode = RAIL_TIME_ABSOLUTE,
-    .hardWindowEnd = 0,
+    .end_mode = SL_RAIL_TIME_ABSOLUTE,
+    .rx_transition_end_schedule = 0U,
+    .hard_window_end = 0,
   };
-  rail_status = RAIL_ScheduleRx(rail_handle, rx_channel, &schedule, NULL);
+  rail_status = sl_rail_start_scheduled_rx(rail_handle, rx_channel, &schedule, NULL);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     // RX failed, schedule the next TX immediately
     state = S_SCHEDULE_TX;
   } else {
@@ -368,23 +385,23 @@ void handle_response_delay(RAIL_Handle_t rail_handle)
  *
  * @param[in] rail_handle The RAIL handle.
  *****************************************************************************/
-void handle_unlimited_access(RAIL_Handle_t rail_handle)
+void handle_unlimited_access(sl_rail_handle_t rail_handle)
 {
-  RAIL_Status_t rail_status;
-  RAIL_ScheduleRxConfig_t schedule = {
+  sl_rail_status_t rail_status;
+  sl_rail_scheduled_rx_config_t schedule = {
     .start =  last_tx_end_time + sl_rail_sdk_wmbus_get_meter_limited_acc_rx_start(false) - response_delay_safety_margin,
-    .startMode = RAIL_TIME_ABSOLUTE,
+    .start_mode = SL_RAIL_TIME_ABSOLUTE,
     .end = (uint32_t)(last_tx_end_time + wmbus_app_period_acc - 2000),
-    .endMode = RAIL_TIME_ABSOLUTE,
-    .rxTransitionEndSchedule = 0,
-    .hardWindowEnd = 0,
+    .end_mode = SL_RAIL_TIME_ABSOLUTE,
+    .rx_transition_end_schedule = 0,
+    .hard_window_end = 0,
   };
   // RX is scheduled, sleep can be enabled as RAIL deals with power manager
   // although, if the gap between RX and TX is short enough, the device will
   // not have time to go to sleep
-  rail_status = RAIL_ScheduleRx(rail_handle, rx_channel, &schedule, NULL);
+  rail_status = sl_rail_start_scheduled_rx(rail_handle, rx_channel, &schedule, NULL);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     // RX failed, schedule the next TX immediately
     state = S_SCHEDULE_TX;
   } else {
@@ -403,21 +420,21 @@ void handle_unlimited_access(RAIL_Handle_t rail_handle)
  * @param[in] rail_handle: which rail handle to use for sending
  * @param[in] length: length of the packet
  * @param[in] send_at: absolute time when to send it
- * @return RAIL_Status_t: status of the transmission
+ * @return sl_rail_status_t: status of the transmission
  ******************************************************************************/
-RAIL_Status_t send_packet_at(RAIL_Handle_t rail_handle, uint16_t length, uint64_t send_at)
+sl_rail_status_t send_packet_at(sl_rail_handle_t rail_handle, uint16_t length, uint64_t send_at)
 {
-  last_tx_length = sl_rail_sdk_wmbus_phy_software(tx_buffer, (uint8_t) length, SL_RAIL_SDK_TX_FIFO_SIZE);
-  RAIL_SetTxFifo(rail_handle, tx_buffer, last_tx_length, SL_RAIL_SDK_TX_FIFO_SIZE);
+  last_tx_length = sl_rail_sdk_wmbus_phy_software(tx_buffer, (uint8_t) length, TX_BUFFER_LENGTH);
+  sl_rail_write_tx_fifo(rail_handle, tx_buffer, last_tx_length, true);
   if ( last_tx_length != length ) {
     //Only for Series 1 Mode T M2O
-    RAIL_SetFixedLength(rail_handle, last_tx_length);
+    sl_rail_set_fixed_length(rail_handle, last_tx_length);
   } else {
-    RAIL_SetFixedLength(rail_handle, RAIL_SETFIXEDLENGTH_INVALID);
+    sl_rail_set_fixed_length(rail_handle, SL_RAIL_SET_FIXED_LENGTH_INVALID);
   }
-  RAIL_ScheduleTxConfig_t schedule = {
+  sl_rail_scheduled_tx_config_t schedule = {
     .when = send_at,
-    .mode = RAIL_TIME_ABSOLUTE,
+    .mode = SL_RAIL_TIME_ABSOLUTE,
   };
-  return RAIL_StartScheduledTx(rail_handle, DEFAULT_CHANNEL, RAIL_TX_OPTIONS_DEFAULT, &schedule, NULL);
+  return sl_rail_start_scheduled_tx(rail_handle, DEFAULT_CHANNEL, SL_RAIL_TX_OPTIONS_DEFAULT, &schedule, NULL);
 }

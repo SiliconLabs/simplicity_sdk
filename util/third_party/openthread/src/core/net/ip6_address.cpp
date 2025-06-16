@@ -204,7 +204,7 @@ void Prefix::ToString(char *aBuffer, uint16_t aSize) const
 
 void Prefix::ToString(StringWriter &aWriter) const
 {
-    uint8_t sizeInUint16 = (GetBytesSize() + sizeof(uint16_t) - 1) / sizeof(uint16_t);
+    uint8_t sizeInUint16 = DivideAndRoundUp<uint8_t>(GetBytesSize(), sizeof(uint16_t));
     Prefix  tidyPrefix   = *this;
 
     tidyPrefix.Tidy();
@@ -254,18 +254,6 @@ void InterfaceIdentifier::SetFromExtAddress(const Mac::ExtAddress &aExtAddress)
     addr = aExtAddress;
     addr.ToggleLocal();
     addr.CopyTo(mFields.m8);
-}
-
-void InterfaceIdentifier::ConvertToExtAddress(Mac::ExtAddress &aExtAddress) const
-{
-    aExtAddress.Set(mFields.m8);
-    aExtAddress.ToggleLocal();
-}
-
-void InterfaceIdentifier::ConvertToMacAddress(Mac::Address &aMacAddress) const
-{
-    aMacAddress.SetExtended(mFields.m8);
-    aMacAddress.GetExtended().ToggleLocal();
 }
 
 void InterfaceIdentifier::SetToLocator(uint16_t aLocator)

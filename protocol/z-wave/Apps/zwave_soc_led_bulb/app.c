@@ -8,9 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "MfgTokens.h"
-#include "DebugPrintConfig.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "ZW_system_startup_api.h"
 #include "CC_MultilevelSwitch_Support.h"
 #include "ZAF_Common_helper.h"
@@ -18,22 +16,19 @@
 #include "ZAF_network_learn.h"
 #include "events.h"
 #include "zpal_watchdog.h"
-#include "app_hw.h"
 #include "board_indicator.h"
 #include "zw_region_config.h"
 #include "ZAF_ApplicationEvents.h"
 #include "zaf_event_distributor_soc.h"
 #include "zpal_misc.h"
 #include "zaf_protocol_config.h"
-#ifdef DEBUGPRINT
 #include "ZAF_PrintAppInfo.h"
-#endif
 
 #ifdef SL_CATALOG_ZW_CLI_COMMON_PRESENT
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
+#if (!defined(UNIT_TEST))
 #include "app_hw.h"
 #endif
 
@@ -46,13 +41,10 @@ ZW_APPLICATION_STATUS ApplicationInit(__attribute__((unused)) zpal_reset_reason_
 {
   SRadioConfig_t* RadioConfig;
 
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
-#ifdef DEBUGPRINT
-  static uint8_t m_aDebugPrintBuffer[96];
-  DebugPrintConfig(m_aDebugPrintBuffer, sizeof(m_aDebugPrintBuffer), zpal_debug_output);
-  DebugPrintf("ApplicationInit eResetReason = %d\n", eResetReason);
-#endif
+  ZPAL_LOG_INFO(ZPAL_LOG_APP, "ApplicationInit eResetReason = %d\n", eResetReason);
 
   RadioConfig = zaf_get_radio_config();
 
@@ -93,12 +85,9 @@ static void ApplicationTask(SApplicationHandles* pAppHandles)
   uint32_t unhandledEvents = 0;
   ZAF_Init(xTaskGetCurrentTaskHandle(), pAppHandles);
 
-#ifdef DEBUGPRINT
   ZAF_PrintAppInfo();
-#endif
 
-#if (!defined(SL_CATALOG_SILICON_LABS_ZWAVE_APPLICATION_PRESENT) && !defined(UNIT_TEST))
-  /* This preprocessor statement can be deleted from the source code */
+#if (!defined(UNIT_TEST))
   app_hw_init();
 #endif
 
@@ -107,11 +96,11 @@ static void ApplicationTask(SApplicationHandles* pAppHandles)
   ZAF_setNetworkLearnMode(E_NETWORK_LEARN_MODE_INCLUSION_SMARTSTART);
 
   // Wait for and process events
-  DPRINT("LED Bulb Event processor Started\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "LED Bulb Event processor Started\r\n");
   for (;; ) {
     unhandledEvents = zaf_event_distributor_distribute();
     if (0 != unhandledEvents) {
-      DPRINTF("Unhandled Events: 0x%08lx\n", unhandledEvents);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Unhandled Events: 0x%08lx\n", unhandledEvents);
 #ifdef UNIT_TEST
       return;
 #endif
@@ -126,7 +115,7 @@ static void ApplicationTask(SApplicationHandles* pAppHandles)
 void
 zaf_event_distributor_app_event_manager(const uint8_t event)
 {
-  DPRINTF("zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "zaf_event_distributor_app_event_manager Ev: %d\r\n", event);
 
   switch (event) {
     default:

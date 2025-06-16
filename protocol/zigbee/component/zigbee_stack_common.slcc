@@ -1,6 +1,6 @@
 id: zigbee_stack_common
 label: Stack Common
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 ui_hints:
@@ -14,7 +14,7 @@ requires:
   - name: device_supports_zigbee
     condition:
       - device_cortexm
-  - name: rail_util_ieee802154_phy_select
+  - name: sl_rail_util_ieee802154_phy_select
     condition:
       - device_has_radio
   - name: rail_util_ieee802154_stack_event
@@ -125,6 +125,7 @@ include:
       - path: sl_zigbee_zdo_configuration.h
       - path: sl_zigbee_zdo_dlk_negotiation.h
       - path: sl_zigbee_zdo_management.h
+      - path: zigbee_packet_types.h
   - path: protocol/zigbee/stack/include
     file_list:
       - path: gp-token-config.h
@@ -590,7 +591,9 @@ source:
   - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_address_info_ipc_command_messages.c
     condition:
       - zigbee_use_ipc
-
+  - path: platform/service/legacy_hal_wdog/src/sl_legacy_hal_wdog_stub.c
+    unless:
+      - legacy_hal_wdog
 validation_helper:
   # NCP doesn't have DEVICE_TYPE before it connects to Host
   # so we don't run the validation script for NCP
@@ -602,7 +605,7 @@ define:
   - name: SL_ZIGBEE_PHY_SELECT_STACK_SUPPORT
     value: 1
     condition:
-      - rail_util_ieee802154_phy_select
+      - sl_rail_util_ieee802154_phy_select
   - name: SL_ZIGBEE_MULTI_NETWORK_STRIPPED
     unless:
       - zigbee_multi_network

@@ -44,7 +44,7 @@ extern "C" {
 #include "sl_enum.h"
 
 /***************************************************************************//**
- * @addtogroup keyscan
+ * @addtogroup keyscan KEYSCAN
  * @{
  ******************************************************************************/
 
@@ -106,29 +106,34 @@ typedef struct {
  ******************************************************************************/
 
 /***************************************************************************//**
- * Initializes KEYSCAN module.
+ * @brief
+ *   Initializes KEYSCAN module.
  *
- * @param[in] p_config  A pointer to the KEYSCAN initialization structure
- *                      variable.
+ * @param[in] p_config
+ *  A pointer to the KEYSCAN initialization structure variable.
  ******************************************************************************/
 void sl_hal_keyscan_init(const sl_hal_keyscan_config_t *p_config);
 
 /***************************************************************************//**
- * Enables KEYSCAN module.
+ * @brief
+ *   Enables KEYSCAN module.
  ******************************************************************************/
 void sl_hal_keyscan_enable(void);
 
 /***************************************************************************//**
- * Disables KEYSCAN module.
+ * @brief
+ *   Disables KEYSCAN module.
  *
- * @note The disabling of the module could take some time. This function will
- *       not wait for the disabling to finish before returning. Use the function
- *       sl_hal_keyscan_wait_ready to wait for the module to be fully disable.
+ * @note
+ *   The disabling of the module could take some time. This function will
+ *   not wait for the disabling to finish before returning. Use the function
+ *   sl_hal_keyscan_wait_ready to wait for the module to be fully disable.
  ******************************************************************************/
 void sl_hal_keyscan_disable(void);
 
 /***************************************************************************//**
- * Waits for the KEYSCAN to complete reseting or disabling procedure.
+ * @brief
+ *    Waits for the KEYSCAN to complete resetting or disabling procedure.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_wait_ready(void)
 {
@@ -138,8 +143,9 @@ __STATIC_INLINE void sl_hal_keyscan_wait_ready(void)
 }
 
 /***************************************************************************//**
- * Waits for the KEYSCAN to complete all synchronization of register changes
- * and commands.
+ * @brief
+ *   Waits for the KEYSCAN to complete all synchronization of register changes
+ *   and commands.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_wait_sync(void)
 {
@@ -149,13 +155,16 @@ __STATIC_INLINE void sl_hal_keyscan_wait_sync(void)
 }
 
 /***************************************************************************//**
- * Starts KEYSCAN scan.
+ * @brief
+ *   Starts KEYSCAN scan.
  *
- * @note This function will send a start command to the KEYSCAN peripheral.
- *       The sl_hal_keyscan_wait_sync function can be used to wait for the start
- *       command to be executed.
+ * @note
+ *   This function will send a start command to the KEYSCAN peripheral.
+ *   The sl_hal_keyscan_wait_sync function can be used to wait for the start
+ *   command to be executed.
  *
- * @note This function requires the KEYSCAN to be enabled.
+ * @note
+ *   This function requires the KEYSCAN to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_start_scan(void)
 {
@@ -165,13 +174,16 @@ __STATIC_INLINE void sl_hal_keyscan_start_scan(void)
 }
 
 /***************************************************************************//**
- * Stops the KEYSCAN scan.
+ * @brief
+ *   Stops the KEYSCAN scan.
  *
- * @note This function will send a stop command to the KEYSCAN peripheral.
- *       The sl_hal_keyscan_wait_sync function can be used to wait for the stop
- *       command to be executed.
+ * @note
+ *   This function will send a stop command to the KEYSCAN peripheral.
+ *   The sl_hal_keyscan_wait_sync function can be used to wait for the stop
+ *   command to be executed.
  *
- * @note This function requires the KEYSCAN to be enabled.
+ * @note
+ *   This function requires the KEYSCAN to be enabled.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_stop_scan(void)
 {
@@ -181,18 +193,22 @@ __STATIC_INLINE void sl_hal_keyscan_stop_scan(void)
 }
 
 /***************************************************************************//**
- * Restores KEYSCAN to its reset state.
+ * @brief
+ *   Restores KEYSCAN to its reset state.
  *
- * @note The resetting of the module could take some time. This function will
- *       not wait for the resetting to finish before returning. Use the function
- *       sl_hal_keyscan_wait_ready to wait for the module to be fully reset.
+ * @note
+ *   The resetting of the module could take some time. This function will
+ *   not wait for the resetting to finish before returning. Use the function
+ *   sl_hal_keyscan_wait_ready to wait for the module to be fully reset.
  ******************************************************************************/
 void sl_hal_keyscan_reset(void);
 
 /***************************************************************************//**
- * Gets KEYSCAN STATUS register value.
+ * @brief
+ *   Gets KEYSCAN STATUS register value.
  *
- * @return  Current STATUS register value.
+ * @return
+ *   Current STATUS register value.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_keyscan_get_status(void)
 {
@@ -200,15 +216,17 @@ __STATIC_INLINE uint32_t sl_hal_keyscan_get_status(void)
 }
 
 /***************************************************************************//**
- * Enables one or more KEYSCAN interrupts.
+ * @brief
+ *   Enables one or more KEYSCAN interrupts.
  *
- * @note  Depending on the use, a pending interrupt may already be set prior to
+ * @note
+ *   Depending on the use, a pending interrupt may already be set prior to
  *        enabling the interrupt. To ignore a pending interrupt, consider using
  *        sl_hal_keyscan_clear_interrupts prior to enabling the interrupt.
  *
- * @param[in] flags   KEYSCAN interrupt sources to enable.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   KEYSCAN interrupt sources to enable. Use a set of interrupt flags
+ *   OR-ed together to set multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_enable_interrupts(uint32_t flags)
 {
@@ -216,11 +234,13 @@ __STATIC_INLINE void sl_hal_keyscan_enable_interrupts(uint32_t flags)
 }
 
 /***************************************************************************//**
- * Disables one or more KEYSCAN interrupts.
+ * @brief
+ *   Disables one or more KEYSCAN interrupts.
  *
- * @param[in] flags   KEYSCAN interrupt sources to disable.
- *                    Use a set of interrupt flags OR-ed together to disable
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   KEYSCAN interrupt sources to disable.
+ *   Use a set of interrupt flags OR-ed together to disable
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_disable_interrupts(uint32_t flags)
 {
@@ -228,11 +248,13 @@ __STATIC_INLINE void sl_hal_keyscan_disable_interrupts(uint32_t flags)
 }
 
 /***************************************************************************//**
- * Clears one or more pending KEYSCAN interrupts.
+ * @brief
+ *   Clears one or more pending KEYSCAN interrupts.
  *
- * @param[in] flags   KEYSCAN interrupt sources to clear.
- *                    Use a set of interrupt flags OR-ed together to clear
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   KEYSCAN interrupt sources to clear.
+ *   Use a set of interrupt flags OR-ed together to clear
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_clear_interrupts(uint32_t flags)
 {
@@ -240,13 +262,16 @@ __STATIC_INLINE void sl_hal_keyscan_clear_interrupts(uint32_t flags)
 }
 
 /***************************************************************************//**
- * Gets pending KEYSCAN interrupt flags.
+ * @brief
+ *   Gets pending KEYSCAN interrupt flags.
  *
- * @note  Event bits are not cleared by using this function.
+ * @note
+ *   Event bits are not cleared by using this function.
  *
- * @return  Pending KEYSCAN interrupt sources.
- *          Returns a set of interrupt flags OR-ed together for multiple
- *          interrupt sources.
+ * @return
+ *   Pending KEYSCAN interrupt sources.
+ *   Returns a set of interrupt flags OR-ed together for multiple
+ *   interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_keyscan_get_interrupts(void)
 {
@@ -254,15 +279,18 @@ __STATIC_INLINE uint32_t sl_hal_keyscan_get_interrupts(void)
 }
 
 /***************************************************************************//**
- * Gets enabled and pending KEYSCAN interrupt flags.
- * Useful for handling more interrupt sources in the same interrupt handler.
+ * @brief
+ *   Gets enabled and pending KEYSCAN interrupt flags.
+ *   Useful for handling more interrupt sources in the same interrupt handler.
  *
- * @note  Interrupt flags are not cleared by using this function.
+ * @note
+ *   Interrupt flags are not cleared by using this function.
  *
- * @return  Pending and enabled KEYSCAN interrupt sources.
- *          The return value is the bitwise AND of
- *          - the enabled interrupt sources in KEYSCAN_IEN and
- *          - the pending interrupt flags KEYSCAN_IF.
+ * @return
+ *   Pending and enabled KEYSCAN interrupt sources.
+ *   The return value is the bitwise AND of
+ *   - the enabled interrupt sources in KEYSCAN_IEN and
+ *   - the pending interrupt flags KEYSCAN_IF.
  ******************************************************************************/
 __STATIC_INLINE uint32_t sl_hal_keyscan_get_enabled_interrupts(void)
 {
@@ -270,11 +298,13 @@ __STATIC_INLINE uint32_t sl_hal_keyscan_get_enabled_interrupts(void)
 }
 
 /***************************************************************************//**
- * Sets one or more pending KEYSCAN interrupts from Software.
+ * @brief
+ *   Sets one or more pending KEYSCAN interrupts from Software.
  *
- * @param[in] flags   KEYSCAN interrupt sources to set to pending.
- *                    Use a set of interrupt flags OR-ed together to set
- *                    multiple interrupt sources.
+ * @param[in] flags
+ *   KEYSCAN interrupt sources to set to pending.
+ *   Use a set of interrupt flags OR-ed together to set
+ *   multiple interrupt sources.
  ******************************************************************************/
 __STATIC_INLINE void sl_hal_keyscan_set_interrupts(uint32_t flags)
 {
@@ -286,6 +316,88 @@ __STATIC_INLINE void sl_hal_keyscan_set_interrupts(uint32_t flags)
 #ifdef __cplusplus
 }
 #endif
+
+/***************************************************************************//**
+ * @addtogroup keyscan KEYSCAN
+ * @{
+ *
+ * @n @section keyscan_example Example
+ * The following example demonstrates how to configure and use the KEYSCAN module
+ * to detect key presses on a keypad matrix.
+ *
+ * @code{.c}
+ * // Global variables for key press tracking
+ * volatile bool key_pressed = false;
+ * volatile uint8_t detected_key = 0xFF;
+ *
+ * // Interrupt handler for key press detection
+ * void KEYSCAN_IRQHandler(void)
+ * {
+ *   uint32_t flags = sl_hal_keyscan_get_interrupts();
+ *
+ *   if (flags & KEYSCAN_IF_KEY) {
+ *     // Read the pressed key data
+ *     uint32_t key_data = KEYSCAN->KEYDATA;
+ *     uint8_t row = (key_data & _KEYSCAN_KEYDATA_ROW_MASK) >> _KEYSCAN_KEYDATA_ROW_SHIFT;
+ *     uint8_t col = (key_data & _KEYSCAN_KEYDATA_COL_MASK) >> _KEYSCAN_KEYDATA_COL_SHIFT;
+ *
+ *     // Calculate key index (assuming 3 columns)
+ *     detected_key = row * 3 + col;
+ *     key_pressed = true;
+ *
+ *     // Clear the interrupt flag
+ *     sl_hal_keyscan_clear_interrupts(KEYSCAN_IF_KEY);
+ *   }
+ * }
+ *
+ * // Example of configuring and using KEYSCAN
+ * void keyscan_example(void)
+ * {
+ *   // Configure KEYSCAN with custom settings
+ *   sl_hal_keyscan_config_t keyscan_config = KEYSCAN_CONFIG_DEFAULT;
+ *
+ *   // Configure for a 3x4 keypad
+ *   keyscan_config.column_number = 3;     // 3 columns
+ *   keyscan_config.row_number = 4;        // 4 rows
+ *
+ *   // Increase debounce delay to 20ms for improved reliability
+ *   keyscan_config.debounce_delay = SL_HAL_KEYSCAN_DELAY_20MS;
+ *
+ *   // Initialize KEYSCAN with our configuration
+ *   sl_hal_keyscan_init(&keyscan_config);
+ *
+ *   // Enable KEY interrupt
+ *   sl_hal_keyscan_enable_interrupts(KEYSCAN_IEN_KEY);
+ *
+ *   // Enable NVIC interrupt for KEYSCAN
+ *   sl_interrupt_manager_enable_irq(KEYSCAN_IRQn);
+ *
+ *   // Enable KEYSCAN peripheral
+ *   sl_hal_keyscan_enable();
+ *   sl_hal_keyscan_wait_sync();
+ *
+ *   // Start keypad scanning
+ *   sl_hal_keyscan_start_scan();
+ *
+ *   // At this point, the KEYSCAN peripheral will automatically scan the keypad
+ *   // and generate interrupts when keys are pressed. The interrupt handler will
+ *   // process these events.
+ *
+ *   // Main application code would go here
+ *   // ...
+ *
+ *   // When done with scanning, clean up
+ *   sl_hal_keyscan_stop_scan();
+ *   sl_hal_keyscan_disable_interrupts(KEYSCAN_IEN_KEY);
+ *   sl_hal_keyscan_clear_interrupts(KEYSCAN_IF_KEY);
+ *   sl_hal_keyscan_disable();
+ *   sl_hal_keyscan_wait_ready();
+ *   sl_hal_keyscan_reset();
+ *   sl_hal_keyscan_wait_ready();
+ * }
+ * @endcode
+ * @} (end addtogroup keyscan)
+ ******************************************************************************/
 
 #endif /* defined(KEYSCAN_COUNT) && (KEYSCAN_COUNT > 0) */
 #endif /* SL_HAL_KEYSCAN_H */

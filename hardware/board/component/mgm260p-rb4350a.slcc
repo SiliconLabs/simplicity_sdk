@@ -1,7 +1,7 @@
 !!omap
 - id: mgm260p_rb4350a
 - label: MGM260P-RB4350A
-- package: platform
+- package: boards
 - description: Kit BSP support for the MGM260P 10 dBm Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

@@ -30,11 +30,11 @@
 #define __RAIL_CONFIG_H__
 
 #include "board_config.h"
-#include "rail_types.h"
+#include "sl_rail_types.h"
 #include <stdint.h>
 
 #if RADIO_CONFIG_SUBGHZ_SUPPORT
-extern const RAIL_ChannelConfig_t *channelConfigs[];
+extern const sl_rail_channel_config_t *channelConfigs[];
 #endif
 
 #endif // __RAIL_CONFIG_H__

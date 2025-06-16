@@ -382,7 +382,8 @@ typedef void (*mesh_trans_tx_event_cb)(mesh_trans_tx_event_t *event,
  */
 typedef enum {
   mesh_gatt_service_proxy, /**< Mesh proxy service */
-  mesh_gatt_service_provisioning /**< Mesh provisioning service */
+  mesh_gatt_service_custom_proxy, /**< Mesh proxy service with special_uuid service */
+  mesh_gatt_service_provisioning, /**< Mesh provisioning service */
 } mesh_gatt_service_t;
 
 /**
@@ -1132,7 +1133,50 @@ typedef struct {
   const uint8_t *data; /**< Page content */
 } mesh_metadata_page_t;
 
+/**
+ * DCD page comparison result flags
+ *
+ * These flags are used to indicate the differences found between the given
+ * DCD page data and the current DCD page in use.
+ *
+ * DCD_COMPARISON_COMPOSITION_CHANGED indicates that the page content differs in any way.
+ * Other flags indicate specific changes in the DCD page data.
+ */
+
+#define DCD_COMPARISON_COMPOSITION_CHANGED  0x0001 /**< Page content differs in any way */
+#define DCD_COMPARISON_CID_CHANGED          0x0002 /**< Company Identifier changed */
+#define DCD_COMPARISON_PID_CHANGED          0x0004 /**< Product Identifier changed */
+#define DCD_COMPARISON_VID_CHANGED          0x0008 /**< Version Identifier changed */
+#define DCD_COMPARISON_CRPL_CHANGED         0x0010 /**< Replay Protection List size changed */
+#define DCD_COMPARISON_FEATURES_CHANGED     0x0020 /**< Features changed */
+#define DCD_COMPARISON_ELEMENT_LOC_CHANGED  0x0040 /**< Element location changed for at least one element */
+#define DCD_COMPARISON_SIG_MODEL_ADDED      0x0080 /**< SIG model added */
+#define DCD_COMPARISON_SIG_MODEL_REMOVED    0x0100 /**< SIG model removed */
+#define DCD_COMPARISON_VENDOR_MODEL_ADDED   0x0200 /**< Vendor model added */
+#define DCD_COMPARISON_VENDOR_MODEL_REMOVED 0x0400 /**< Vendor model removed */
+#define DCD_COMPARISON_ELEMENT_ADDED        0x0800 /**< Element added */
+#define DCD_COMPARISON_ELEMENT_REMOVED      0x1000 /**< Element removed */
+
 /** Maximum size record fragment supported by this implementation */
 #define MESH_PROV_RECORD_FRAGMENT_LEN 128
+
+/** Model config extension */
+typedef struct {
+  uint8_t len; /**< Length of extension when storing; size of buffer when reading */
+  uint8_t data[]; /**< Extension data */
+} mesh_model_config_extension_t;
+
+/** Model config structure */
+struct sl_btmesh_model_config_t {
+  mesh_model_publish_t *publish_ptr; /**< Model publication configuration */
+  size_t appkey_binding_count; /**< Number of appkey bindings */
+  mesh_crypto_key_index_t *appkey_binding_ptr; /**< Appkey bindings */
+  size_t subscription_count; /**< Number of regular subscription addresses */
+  mesh_addr_t *subscription_addr_ptr; /**< Regular subscription addresses */
+  size_t subscription_va_count; /**< Number of virtual subscription addresses */
+  uint8_t *subscription_va_ptr; /**< Virtual subscription addresses */
+  size_t extension_count; /**< Number of configuration extensions */
+  mesh_model_config_extension_t **extension_ptr; /**< Configuration extensions */
+};
 
 #endif

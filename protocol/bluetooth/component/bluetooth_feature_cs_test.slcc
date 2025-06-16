@@ -1,11 +1,11 @@
 id: "bluetooth_feature_cs_test"
 label: "Channel Sounding test"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component, corresponding to the "cs_test" class in Bluetooth APIs,
   provides the additional Channel Sounding test feature.
-category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events
-quality: "experimental"
+category: Bluetooth|Bluetooth LE Controller (Link Layer)|Features with Commands and Events
+quality: "production"
 root_path: "protocol/bluetooth"
 requires:
   - name: "bluetooth_controller"

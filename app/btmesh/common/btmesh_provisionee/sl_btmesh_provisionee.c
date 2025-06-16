@@ -51,11 +51,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup provisionee
- * @{
- ******************************************************************************/
-
 // Suppress compiler warning of unused static function
 #define SL_UNUSED  __attribute__((unused))
 
@@ -71,7 +66,7 @@ static app_timer_t sl_btmesh_system_reset_timer;
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-/***************************************************************************//**
+/*******************************************************************************
  * Dispatch the execution to one of the callback functions
  * based on the provided input action.
  *
@@ -80,7 +75,7 @@ static app_timer_t sl_btmesh_system_reset_timer;
  ******************************************************************************/
 SL_UNUSED static void on_input_oob_request(uint8_t input_action, uint8_t input_size);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Dispatch the execution to one of the callback functions
  * based on the provided output action.
  *
@@ -89,7 +84,7 @@ SL_UNUSED static void on_input_oob_request(uint8_t input_action, uint8_t input_s
  ******************************************************************************/
 SL_UNUSED static void on_output_oob_data(uint8_t output_action, uint8array* data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Convert a big endian uint8array's lowest 4 bytes to an uint32_t number
  *
  * @param[in] data uint8array containing the authentication value
@@ -97,7 +92,7 @@ SL_UNUSED static void on_output_oob_data(uint8_t output_action, uint8array* data
  ******************************************************************************/
 SL_UNUSED static uint32_t oob_data_to_num(uint8array *data);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Timer callback for system reset after node reset event occured
  *
  * @param[in] handle timer handler
@@ -136,7 +131,6 @@ void sl_btmesh_provisionee_on_event(sl_btmesh_msg_t* evt)
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_node_initialized_id:
       if (!(evt->data.evt_node_initialized.provisioned)) {
-        sl_status_t sc;
       #if SL_BTMESH_PROVISIONEE_INIT_PROV_RECORDS_CFG_VAL
         sc = sl_btmesh_node_init_provisioning_records();
         app_assert_status_f(sc, "Failed to init provisioning records");
@@ -199,9 +193,9 @@ sl_status_t sl_btmesh_provisionee_input_oob_num(uint32_t oob_num)
   app_assert(auth_val_size >= 4, "auth_val_size should be at least 4.");
   app_assert(auth_val_size <= AUTH_VAL_SIZE_MAX, "auth_val_size should be at most AUTH_VAL_SIZE_MAX.");
   uint8_t auth_val_buff[AUTH_VAL_SIZE_MAX] = { 0 };
-  uint8_t last_index = auth_val_size - 1;
+  uint8_t last_index = (uint8_t)(auth_val_size - 1);
   for (uint8_t i = 0; i < 4; i++) {
-    auth_val_buff[last_index - i] = (oob_num >> (8 * i)) & 0xFF;
+    auth_val_buff[last_index - i] = (uint8_t)((oob_num >> (8 * i)) & 0xFF);
   }
   return sl_btmesh_node_send_input_oob_request_response(auth_val_size, auth_val_buff);
 }
@@ -296,7 +290,7 @@ static void on_output_oob_data(uint8_t output_action, uint8array* data)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Timer Callback
  ******************************************************************************/
 static void on_system_reset_timer(app_timer_t *handle, void *data)
@@ -379,5 +373,3 @@ SL_WEAK void sl_btmesh_on_static_oob_request(size_t oob_size)
   log_info("Static OOB request" NL);
 }
 #endif
-
-/** @} (end addtogroup provisionee) */

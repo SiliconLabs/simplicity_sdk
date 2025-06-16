@@ -1,6 +1,6 @@
 id: rtllib_eigen
 label: Eigen SBOM
-package: rtl
+package: realtime_locationing
 category: Bluetooth|Direction Finding
 quality: production
 description: This component defines upstream Eigen SBOM metadata.

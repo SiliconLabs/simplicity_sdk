@@ -1,6 +1,6 @@
 id: gatt_service_hall
 label: Hall Effect GATT Service
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Provides hall sensor data in GATT characteristics.
   Designed for the Thunderboard smartphone app.

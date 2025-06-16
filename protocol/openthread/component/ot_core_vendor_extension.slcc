@@ -1,6 +1,6 @@
 id: ot_core_vendor_extension
 label: Silicon Labs OpenThread Core Vendor Extension
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: |-

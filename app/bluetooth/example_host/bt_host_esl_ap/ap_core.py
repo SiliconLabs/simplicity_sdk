@@ -44,12 +44,14 @@ from esl_tag import (
     InvalidTagStateError,
     ImageUpdateFailed,
     ImageTypeRequired,
+    PAwRSyncLostError,
 )
 from esl_tag_db import TagDB
 from ap_ead import KeyMaterial, EAD
 from esl_command import ESLCommand
 from qrcode_generator import generate_qrcode
 from io import BytesIO
+from secrets import token_bytes
 import esl_key_lib
 import esl_lib
 import esl_lib_wrapper as elw
@@ -80,6 +82,7 @@ class AccessPoint:
         self.demo_controller_connected = False
         self.event_handler_prefix_list = [""]  # TODO: this list should be thread safe!
         self.set_mode_handlers()
+        self.randomizer = token_bytes(EAD_RANDOMIZER_SIZE)
         # some PAwR stuff
         self.cli_queue = None
         self.ead = EAD()
@@ -426,8 +429,14 @@ class AccessPoint:
             for key, param in params.items():
                 # ESL ID
                 if key == "esl_addr" and bt_addr != ALL:
-                    esl_addr = param
-                    self.log.info("Set ESL ID to %d.", esl_addr & 0xFF)
+                    if param == BROADCAST_ADDRESS:
+                        if not IOP_TEST:
+                            self.log.error("Broadcast address as ESL ID is prohibited, ESL address change request will be ignored!")
+                            continue
+                        else:
+                            self.log.warning("IOP test mode enabdled, trying to set the broadcast address as ESL address.")
+                    esl_addr = param & 0xFF
+                    self.log.info("Set ESL ID to %d.", esl_addr)
                     if group_id is None:
                         if tag.group_id is not None:
                             group_id = tag.group_id
@@ -435,7 +444,13 @@ class AccessPoint:
                             group_id = 0
                 # Group
                 elif key == "group_id":
-                    group_id = param
+                    if param & 0x80 != 0:
+                        if not IOP_TEST:
+                            self.log.error("RFU bit in group ID shall not be set, ESL group change request will be ignored!")
+                            continue
+                        else:
+                            self.log.warning("IOP test mode enabled, trying to set an invalid ESL address with RFU bit set in group ID value.")
+                    group_id = param & 0xFF
                     self.log.info("Set group ID to %d.", group_id)
                     if esl_addr is None:
                         if tag.esl_id is not None:
@@ -469,7 +484,7 @@ class AccessPoint:
 
             if group_id is not None and esl_addr is not None:
                 values[elw.ESL_LIB_DATA_TYPE_GATT_ESL_ADDRESS] = bytes(
-                    [esl_addr & 0xFF, group_id & 0x7F]
+                    [esl_addr, group_id]
                 )
             if len(values):
                 self.write_values(tag, values)
@@ -975,7 +990,7 @@ class AccessPoint:
                     CCMD_DISPLAY_IMAGE, CONTROLLER_COMMAND_SUCCESS, esl_id
                 )
 
-    def ap_ping(self, address, group_id):
+    def ap_ping(self, address, group_id, force_pawr=False):
         """
         Send ESL ping command.
         input:
@@ -998,7 +1013,7 @@ class AccessPoint:
 
         data = bytearray(self.get_opcode_len(tlv))
         data[0:2] = tlv, esl_id
-        self.route_command(esl_id, group_id, data)
+        self.route_command(esl_id, group_id, data, force_pawr)
         if self.controller_command == CCMD_PING and esl_id == BROADCAST_ADDRESS:
             self.notify_controller(CCMD_PING, CONTROLLER_COMMAND_SUCCESS, esl_id)
 
@@ -1428,7 +1443,7 @@ class AccessPoint:
                                 already_sent.append(cmd.slot_number)
                         elif tag.unresp_command_number >= ESL_CMD_MAX_RETRY_COUNT:
                             self.log.warning(
-                                " ESL ID %d in group %d at address %s does not respond to synchronization packets, stop retrying",
+                                "ESL ID %d in group %d at address %s does not respond to synchronization packets, stop retrying",
                                 tag.esl_id,
                                 tag.group_id,
                                 tag.ble_address,
@@ -1502,7 +1517,25 @@ class AccessPoint:
                 tag = None  # prevent sending unsolicited / mismatching events to tag found in previous cylcle iteration!
 
             if tag is not None:
-                tag.handle_event(event)
+                try:
+                    tag.handle_event(event)
+                except PAwRSyncLostError as e:
+                    if self.pawr_active and self.subevent_count <= e.group_id:
+                        self.log.error(
+                            "ESL ID %d in group %d at %s address can't be synced because the group ID can't be mapped to an existing PAwR subevent (subevent count: %d)!",
+                            e.esl_id,
+                            e.group_id,
+                            e.ble_address,
+                            self.subevent_count,
+                        )
+                    else:
+                        tag.response_key_update(self.ead.generate_key_material())
+                        self.log.warning(
+                            "ESL ID %d in group %d at %s address lost sync!",
+                            e.esl_id,
+                            e.group_id,
+                            e.ble_address,
+                        )
 
             try:
                 enum_prefix = "ESL_LIB_EVT_"
@@ -1532,6 +1565,16 @@ class AccessPoint:
             self.key_db.delete_ltk(tag.ble_address)
             tag.reset()
 
+    def check_sync(self, tag: Tag):
+        if tag is not None and tag.provisioned and not tag.advertising:
+            self.log.debug(
+                "Check if Tag at address %s got synchronized despite the connection closing timeout.",
+                tag.ble_address,
+            )
+            self.ap_ping(
+                tag.esl_id, tag.group_id, force_pawr=True
+            )  # Special edge case in which the synced flag may not be set after disconnection -> check if tag is synced
+       
     # ----------------------------------------------------------------------------------------------
     # Common ESL event handler methods for all modes (auto/command line/demo)
 
@@ -1816,7 +1859,7 @@ class AccessPoint:
                 tag = self.tag_db.find(evt.node_id)
                 self.bonding_finished = True
                 if tag is not None:
-                    self.key_db.delete_ltk(tag.ble_address)
+                    self.key_db.delete_ltk(tag.ble_address, self.ncp_address)
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT or (
             evt.lib_status == elw.ESL_LIB_STATUS_CONN_FAILED
             and evt.sl_status
@@ -1833,6 +1876,12 @@ class AccessPoint:
                 self.remove_tag(
                     tag=tag
                 )  # keeps the tag database safe from orphaned objects which have shown no sign of existing
+            if (
+                evt.sl_status == elw.SL_STATUS_TIMEOUT
+                and evt.data == elw.ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION
+            ):
+                self.check_sync(tag)
+
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_FAILED:
             self.bonding_finished = True
             tag = self.tag_db.find(evt.node_id)
@@ -1908,15 +1957,7 @@ class AccessPoint:
                 evt.sl_status == elw.SL_STATUS_TIMEOUT
                 and evt.data == elw.ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION
             ):
-                tag = self.tag_db.find(evt.node_id)
-                if tag is not None and tag.provisioned and not tag.advertising:
-                    self.log.debug(
-                        "Check if Tag at address %s got synchronized despite the connection closing timeout.",
-                        tag.ble_address,
-                    )
-                    self.ap_ping(
-                        tag.esl_id, tag.group_id
-                    )  # Special edge case in which the synced flag may not be set after disconnection -> check if tag is synced
+                self.check_sync(self.tag_db.find(evt.node_id))
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_ESL_SERVICE_VIOLATION:
             tag = self.tag_db.find(evt.node_id)
             if tag is not None and not tag.blocked:
@@ -1925,6 +1966,42 @@ class AccessPoint:
                     evt.node_id,
                 )
                 tag.block(evt.lib_status)
+        elif evt.lib_status == elw.ESL_LIB_STATUS_PAWR_SET_DATA_FAILED:
+            already_sent = []  # List of slots for resent tag commands
+            # Resend unsuccesful commands
+            if evt.node_id.subevent in self.esl_pending_commands:
+                current_pending_commands = self.esl_pending_commands[evt.node_id.subevent]
+                for cmd in current_pending_commands:
+                    self.remove_esl_pending_command(
+                        cmd
+                    )  # this will remove given command from self.esl_pending_commands
+                    tag = self.tag_db.find((cmd.esl_id, cmd.group_id))
+                    # Tag must be in IDLE state to send the command
+                    if (
+                        tag is not None and
+                        tag.state == TagState.IDLE
+                        and tag.unresp_command_number < ESL_CMD_MAX_RETRY_COUNT
+                    ):
+                        self.log.info(
+                            "Resending command: (0x%s) to ESL ID %d in group %d",
+                            cmd.params.hex(),
+                            tag.esl_id,
+                            tag.group_id,
+                        )
+                        self.requeue_pawr_command(
+                            cmd.group_id, cmd.params
+                        )  # and then re-queuing it to the bottom of the "FIFO"
+                        if cmd.slot_number not in already_sent:
+                            tag.unresp_command_number += 1
+                            already_sent.append(cmd.slot_number)
+                    elif tag.unresp_command_number >= ESL_CMD_MAX_RETRY_COUNT:
+                        self.log.warning(
+                            "ESL ID %d in group %d at address %s does not respond to synchronization packets, stop retrying",
+                            tag.esl_id,
+                            tag.group_id,
+                            tag.ble_address,
+                        )
+                        tag.unresp_command_number = 0
 
     def esl_event_image_type(self, evt: esl_lib.EventImageType):
         """Generic handler for the image type received event of the ESL library"""
@@ -2713,9 +2790,11 @@ class AccessPoint:
             for tlv in tlvs:
                 payload += tlv
             self.log.debug("Unencrypted PAwR payload to send: %s", payload.hex())
-
-            pack = self.ead.encrypt(payload, KeyMaterial(self.ap_key))
-            # print(pack.hex())
+            pack = self.ead.encrypt(payload, KeyMaterial(self.ap_key), self.randomizer)
+            self.log.debug("Encrypted PAwR payload: %s",pack.hex())
+            randomizer = int.from_bytes(self.randomizer, 'little')
+            randomizer += 1
+            self.randomizer = (0xFFFFFFFFFF & randomizer).to_bytes(EAD_RANDOMIZER_SIZE, 'little')
             # pack = pack[:2] + b"*" + pack[3:] # uncomment for ESLP/ESL/SYNC/BI-02-I [Invalid Synchronization Packet] Case 2
             # print(pack.hex())
         else:
@@ -2845,7 +2924,10 @@ class AccessPoint:
             tag.close_connection()
             return
         try:
-            tag.initiate_past(self.pawr_handle, self.pa_timer_interval)
+            tag.initiate_past(self.pawr_handle, self.pa_timer_interval, self.subevent_count)
+        except PAwRSyncLostError as e:
+            tag.block(elw.ESL_LIB_STATUS_PAST_INIT_FAILED)
+            self.log.error(e)
         except Exception as e:
             self.log.error(e)
 
@@ -2921,7 +3003,7 @@ class AccessPoint:
             return
         for tag in tags_to_remove:
             if tag.blocked in [
-                elw.ESL_LIB_STATUS_NO_ERROR,
+                elw.ESL_LIB_STATUS_UNSPECIFIED_ERROR,
                 elw.ESL_LIB_STATUS_UNASSOCIATED,
             ]:  # keep tags with blocked status - manual connection can override blocking, later!
                 self.log.info(
@@ -3168,15 +3250,23 @@ class AccessPoint:
                                         elw.ESL_LIB_STATUS_UNASSOCIATED
                                     )  # blocking before calling remove_tag() will preserve the tag object in memory, but still remove its bonding database record!
                                     self.remove_tag(tag=tag)
-                                # Resend retry error responses
-                                if response_data[0] == TLV_RESPONSE_ERROR:
+                                
+                                # Resend retry error responses unless retry count reached
+                                if tag.unresp_command_number > ESL_CMD_MAX_RETRY_COUNT:
+                                    self.log.warning(
+                                            "ESL ID %d in group %d at address %s has sent too many error responses. Stop retrying.",
+                                            tag.esl_id,
+                                            tag.group_id,
+                                            tag.ble_address,
+                                        )
+                                    tag.unresp_command_number = 0
+                                elif response_data[0] == TLV_RESPONSE_ERROR:
                                     if (
                                         response_data[1] == ERROR_RESPONSE_RETRY
-                                        or response_data[1]
-                                        == ERROR_RESPONSE_CAPACITY_LIMIT
+                                        or response_data[1] == ERROR_RESPONSE_CAPACITY_LIMIT
                                     ):
                                         self.log.info(
-                                            "Resending command: (0x%s) to ESL ID %d in group %d",
+                                            "Resending command: (0x%s) due error response to ESL ID %d in group %d",
                                             cmd.params.hex(),
                                             tag.esl_id,
                                             tag.group_id,

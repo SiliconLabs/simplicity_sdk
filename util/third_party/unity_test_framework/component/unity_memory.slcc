@@ -1,6 +1,6 @@
 id: test_framework_unity_memory
 label: Unity test framework memory component
-package: platform
+package: unity_test_framework
 description: Unity test framework - memory component
 category: Third Party|Unity
 quality: production

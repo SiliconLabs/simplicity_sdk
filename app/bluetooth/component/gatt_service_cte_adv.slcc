@@ -1,6 +1,6 @@
 id: gatt_service_cte_adv
 label: Constant Tone Extension GATT Service (Advertising)
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Constant Tone Extension GATT Service reference implementation for advertising.
   This component is shared between the connectionless and Silabs proprietary CTE components

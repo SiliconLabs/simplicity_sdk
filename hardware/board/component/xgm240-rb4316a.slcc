@@ -1,7 +1,7 @@
 !!omap
 - id: xgm240_rb4316a
 - label: XGM240-RB4316A
-- package: platform
+- package: boards
 - description: Kit BSP support for the xGM240P 10 dBm Module Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

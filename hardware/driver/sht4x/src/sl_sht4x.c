@@ -64,18 +64,11 @@ static sl_status_t sl_sht4x_read_data(sl_i2cspm_t *i2cspm, uint8_t addr, uint64_
  ******************************************************************************/
 sl_status_t sl_sht4x_init(sl_i2cspm_t *i2cspm, uint8_t addr)
 {
-  sl_status_t status;
+  sl_status_t status = SL_STATUS_OK;
 
-  status = SL_STATUS_OK;
+  /* check if the sensor is ready */
+  status = sl_sht4x_present(i2cspm, addr, NULL);
 
-  /* Loop until the sensor is ready */
-  while (!sl_sht4x_present(i2cspm, addr, NULL)) {
-    /* Wait for sensor to get ready */
-    sl_sleeptimer_delay_millisecond(80);
-    status = SL_STATUS_INITIALIZATION;
-  }
-
-  status = SL_STATUS_OK;
   return status;
 }
 

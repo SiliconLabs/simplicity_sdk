@@ -1,7 +1,7 @@
 !!omap
 - id: cpc_recommend_vcom_eusart
-- label: "CPC: Recommend VCOM EUSART interface"
-- package: platform
+- label: 'CPC: Recommend VCOM EUSART interface'
+- package: cpc
 - description: CPC Recommend VCOM EUSART interface
 - category: Services|Co-Processor Communication|Secondary Device
 - quality: production
@@ -19,7 +19,7 @@
   - name: cpc_recommend_vcom_eusart
 - recommends:
   - id: cpc_secondary_driver_uart_eusart
-    instance: 
+    instance:
     - vcom
   - id: cpc_config_vcom
     instance:

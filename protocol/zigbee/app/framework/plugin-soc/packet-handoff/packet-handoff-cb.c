@@ -39,14 +39,16 @@
  * the buffer starts with the command id followed by the payload
  * @param size_p a pointer to the size of the packet data
  * @param data This is a pointer to auxiliary data for the command.
+ * @param size_d The size of the auxiliary data.
  *
  * @return a ::sl_zigbee_packet_action_t indicating what action should be taken for
  * the packet, SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
  */
-WEAK(sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                      uint8_t* packetData,
-                                                                      uint8_t* size_p,
-                                                                      void *data))
+WEAK(sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                       uint8_t* packetData,
+                                                                       uint8_t* size_p,
+                                                                       void *data,
+                                                                       uint8_t size_d))
 {
   return SL_ZIGBEE_ACCEPT_PACKET;
 }
@@ -74,14 +76,16 @@ WEAK(sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_
  * @param data This is a pointer to auxiliary data for the command. ZDO
  * commands pass the ::sl_zigbee_aps_frame_t associated with the packet here. Otherwise,
  * this value is NULL.
+ * @param size_d The size of the auxiliary data.
  *
  * @return a ::sl_zigbee_packet_action_t indicating what action should be taken for
  * the packet, SL_ZIGBEE_ACCEPT_PACKET, SL_ZIGBEE_DROP_PACKET, or SL_ZIGBEE_MANGLE_PACKET
  */
-WEAK(sl_zigbee_packet_action_t sl_zigbee_af_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                      uint8_t* packetData,
-                                                                      uint8_t* size_p,
-                                                                      void* data))
+WEAK(sl_zigbee_packet_action_t sl_zigbee_pre_outgoing_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                       uint8_t* packetData,
+                                                                       uint8_t* size_p,
+                                                                       void* data,
+                                                                       uint8_t size_d))
 {
   return SL_ZIGBEE_ACCEPT_PACKET;
 }

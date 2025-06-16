@@ -1,14 +1,14 @@
 id: cli_recommended_instance
-label: "Load recommended instance"
-package: platform
+label: Load recommended instance
+package: platform_core
 description: CLI Load recommended instance
 category: Services|Command Line Interface
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never   #to be used by the sample app only
+    visibility: never #to be used by the sample app only
 provides:
   - name: cli_recommended_instance
 requires:

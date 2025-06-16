@@ -27,13 +27,13 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_power_manager_init.h"
 #include "sl_rail_util_power_manager_init_config.h"
 
 void sl_rail_util_power_manager_init(void)
 {
 #if SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT == 1
-  RAIL_InitPowerManager();
+  (void) sl_rail_init_power_manager();
 #endif
 }

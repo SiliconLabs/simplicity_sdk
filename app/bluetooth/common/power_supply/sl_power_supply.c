@@ -68,10 +68,10 @@
 
 #if defined(ADC_PRESENT)
 // 5V reference voltage, no attenuation on AVDD, 12 bit ADC data
-  #define ADC_SCALE_FACTOR   (5.0 / 4095.0)
+  #define ADC_SCALE_FACTOR   (5.0f / 4095.0f)
 #elif defined(IADC_PRESENT)
 // 1.21V reference voltage, AVDD attenuated by a factor of 4, 12 bit ADC data
-  #define ADC_SCALE_FACTOR   (4.84 / 4095.0)
+  #define ADC_SCALE_FACTOR   (4.84f / 4095.0f)
 #endif
 
 // -----------------------------------------------------------------------------
@@ -271,7 +271,7 @@ static float measure_supply_ir(uint8_t loadSetting)
   r = (supplyVoltage - supplyVoltageLoad) / i;
 
   power_supply_log_info("Power supply - sv = %.3f   svl = %.3f   i = %.3f   r = %.3f" POWER_SUPPLY_LOG_NEW_LINE,
-                        supplyVoltage, supplyVoltageLoad, i, r);
+                        (double)supplyVoltage, (double)supplyVoltageLoad, (double)i, (double)r);
 
   return r;
 }
@@ -326,9 +326,9 @@ void sl_power_supply_probe(void)
     // Try to measure using 9.18 mA first.
     v = sl_power_supply_measure_voltage(16);
     r = measure_supply_ir(0x00);
-    if ( r > 5.0 ) {
+    if ( r > 5.0f ) {
       type = SL_POWER_SUPPLY_TYPE_CR2032;
-    } else if (r > 0.5) {
+    } else if (r > 0.5f) {
       type = SL_POWER_SUPPLY_TYPE_AAA;
     } else {
       type = SL_POWER_SUPPLY_TYPE_USB;

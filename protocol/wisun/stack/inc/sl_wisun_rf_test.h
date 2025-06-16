@@ -49,7 +49,7 @@
  *  - SL_STATUS_NETWORK_UP if a connection is already established or in progress.
  *  - SL_STATUS_INVALID_PARAMETER if an invalid channel is configured.
  *
- * Transmit a PN9 bytes sequence. See RAIL_StartTxStream() for more
+ * Transmit a PN9 bytes sequence. See sl_rail_start_tx_stream() for more
  * information.
  *****************************************************************************/
 sl_status_t sl_wisun_start_stream(uint16_t channel);
@@ -63,7 +63,7 @@ sl_status_t sl_wisun_start_stream(uint16_t channel);
  *  - SL_STATUS_OK if the stream transmission stopped successfully.
  *  - SL_STATUS_INVALID_STATE if while not transmitting a stream.
  *
- * See RAIL_StopTxStream() for more information.
+ * See sl_rail_stop_tx_stream() for more information.
  *****************************************************************************/
 sl_status_t sl_wisun_stop_stream();
 
@@ -78,7 +78,7 @@ sl_status_t sl_wisun_stop_stream();
  *  - SL_STATUS_NETWORK_UP if a connection is already established or in progress.
  *  - SL_STATUS_INVALID_PARAMETER if an invalid channel is configured.
  *
- * Transmit a PN9 bytes sequence. See RAIL_StartTxStream() for more
+ * Transmit a PN9 bytes sequence. See sl_rail_start_tx_stream() for more
  * information.
  *****************************************************************************/
 sl_status_t sl_wisun_start_tone(uint16_t channel);
@@ -91,7 +91,7 @@ sl_status_t sl_wisun_start_tone(uint16_t channel);
  *  - SL_STATUS_OK if the tone stopped successfully.
  *  - SL_STATUS_INVALID_STATE if while not transmitting a tone.
  *
- * See RAIL_StopTxStream() for more information.
+ * See sl_rail_stop_tx_stream() for more information.
  *****************************************************************************/
 sl_status_t sl_wisun_stop_tone();
 

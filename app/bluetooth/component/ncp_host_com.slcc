@@ -1,6 +1,6 @@
 id: ncp_host_com
 label: NCP Host Communication Interface
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Component that provides the Bluetooth Network Co-Processor (NCP) host
   communication interface.

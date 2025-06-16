@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 label: EZSP CPC
 quality: production
 id: zigbee_ezsp_cpc

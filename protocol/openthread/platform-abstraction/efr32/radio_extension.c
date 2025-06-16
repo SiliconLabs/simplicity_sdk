@@ -58,7 +58,7 @@
 #endif // SL_CATALOG_RAIL_UTIL_IEEE802154_PHY_SELECT
 
 #ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
 #endif // SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
 
 #else // SL_CATALOG_OT_SIMULATION_PRESENT
@@ -458,8 +458,8 @@ exit:
 #endif // SL_CATALOG_OPENTHREAD_COEX_PRESENT
 
 #ifdef SL_CATALOG_OPENTHREAD_TEST_CLI_PRESENT
-extern RAIL_IEEE802154_PtiRadioConfig_t efr32GetPtiRadioConfig(void);
-extern RAIL_Status_t                    efr32RadioSetCcaMode(uint8_t aMode);
+extern sl_rail_ieee802154_phy_t efr32GetPtiRadioConfig(void);
+extern sl_rail_status_t         efr32RadioSetCcaMode(uint8_t aMode);
 
 otError otPlatRadioExtensionGetPtiRadioConfig(uint16_t *radioConfig)
 {
@@ -476,9 +476,9 @@ otError otPlatRadioExtensionSetCcaMode(uint8_t aMode)
 {
     otError error = OT_ERROR_NONE;
 
-    RAIL_Status_t status = efr32RadioSetCcaMode(aMode);
-    VerifyOrExit(status != RAIL_STATUS_INVALID_PARAMETER, error = OT_ERROR_INVALID_ARGS);
-    VerifyOrExit(status == RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
+    sl_rail_status_t status = efr32RadioSetCcaMode(aMode);
+    VerifyOrExit(status != SL_RAIL_STATUS_INVALID_PARAMETER, error = OT_ERROR_INVALID_ARGS);
+    VerifyOrExit(status == SL_RAIL_STATUS_NO_ERROR, error = OT_ERROR_FAILED);
 
 exit:
     return error;

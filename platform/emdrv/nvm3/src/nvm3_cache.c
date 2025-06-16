@@ -62,13 +62,13 @@ uint32_t *K2;
 
 static inline nvm3_ObjectKey_t entryGetKey(nvm3_Cache_t *h, size_t idx)
 {
-  uint32_t tmp = (uint32_t)h->entryPtr[idx].key;
-  return (nvm3_ObjectKey_t)(tmp & NVM3_KEY_MASK);
+  uint32_t tmp = h->entryPtr[idx].key;
+  return (tmp & NVM3_KEY_MASK);
 }
 
 static inline nvm3_ObjGroup_t entryGetGroup(nvm3_Cache_t *h, size_t idx)
 {
-  uint32_t tmp = (uint32_t)h->entryPtr[idx].key;
+  uint32_t tmp = h->entryPtr[idx].key;
   return (nvm3_ObjGroup_t)(tmp >> NVM3_KEY_SIZE);
 }
 
@@ -79,7 +79,7 @@ static inline nvm3_ObjPtr_t entryGetPtr(nvm3_Cache_t *h, size_t idx)
 
 static inline void entrySetKey(nvm3_Cache_t *h, size_t idx, nvm3_ObjectKey_t key)
 {
-  uint32_t tmp = (uint32_t)h->entryPtr[idx].key;
+  uint32_t tmp = h->entryPtr[idx].key;
   tmp &= ~NVM3_KEY_MASK;
   tmp |= key;
   h->entryPtr[idx].key = (nvm3_ObjectKey_t)tmp;
@@ -87,7 +87,7 @@ static inline void entrySetKey(nvm3_Cache_t *h, size_t idx, nvm3_ObjectKey_t key
 
 static inline void entrySetGroup(nvm3_Cache_t *h, size_t idx, nvm3_ObjGroup_t group)
 {
-  uint32_t tmp = (uint32_t)h->entryPtr[idx].key;
+  uint32_t tmp = h->entryPtr[idx].key;
   tmp &= NVM3_KEY_MASK;
   tmp |= (group << NVM3_KEY_SIZE);
   h->entryPtr[idx].key = (nvm3_ObjectKey_t)tmp;
@@ -115,7 +115,7 @@ void nvm3_cacheOpen(nvm3_Cache_t *h, nvm3_CacheEntry_t *ptr, size_t count)
 
 void nvm3_cacheClear(nvm3_Cache_t *h)
 {
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheClear.\n");
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheClear.\n");
 
   for (size_t idx = 0; idx < h->entryCount; idx++) {
     setInvalid(h, idx);
@@ -316,7 +316,7 @@ bool nvm3_cacheUpdateEntry(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t 
       }
     }
   }
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheUpdateEntry, key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheUpdateEntry, key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
   return res;
 }
 
@@ -351,7 +351,7 @@ sl_status_t nvm3_cacheAddEntry(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPt
     entrySetPtr(h, idx, obj);
     cacheSet = true;
     h->usedCount++;
-    nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheAddEntry(1), key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+    nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheAddEntry(1), key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
   }
 
   // Prioritize data over deleted objects, force an overwrite if possible
@@ -366,7 +366,7 @@ sl_status_t nvm3_cacheAddEntry(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPt
         if (h->usedCount > 1U) {
           status = nvm3_cacheSort(h);
         }
-        nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheAddEntry(2), cache overflow for key=%u, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx1);
+        nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheAddEntry(2), cache overflow for key=%lu, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx1);
         break;
       }
     }
@@ -374,7 +374,7 @@ sl_status_t nvm3_cacheAddEntry(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPt
 
   if (!cacheSet) {
     h->overflow = true;
-    nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheAddEntry(3), cache overflow for key=%u, grp=%u, obj=%p.\n", key, group, obj);
+    nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheAddEntry(3), cache overflow for key=%lu, grp=%u, obj=%p.\n", key, group, obj);
   }
 
   return status;
@@ -473,7 +473,7 @@ void nvm3_cacheDelete(nvm3_Cache_t *h, nvm3_ObjectKey_t key)
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheDelete, key=%u, found=%d.\n", key, found ? 1 : 0);
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheDelete, key=%lu, found=%d.\n", key, found ? 1 : 0);
   (void)found;
 }
 #else
@@ -491,7 +491,7 @@ void nvm3_cacheDelete(nvm3_Cache_t *h, nvm3_ObjectKey_t key)
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheDelete, key=%u, found=%d.\n", key, found ? 1 : 0);
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheDelete, key=%lu, found=%d.\n", key, found ? 1 : 0);
   (void)found;
 }
 #endif
@@ -517,7 +517,7 @@ nvm3_ObjPtr_t nvm3_cacheGet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjGroup
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheGet,    key=%5u, grp=%d, obj=%p, idx=%d.\n", key, (obj != NVM3_OBJ_PTR_INVALID) ? *group : -1, obj, tmp);
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheGet, key=%lu, grp=%d, obj=%p, idx=%d.\n", key, (obj != NVM3_OBJ_PTR_INVALID) ? *group : -1, obj, tmp);
 
   return obj;
 }
@@ -542,7 +542,7 @@ nvm3_ObjPtr_t nvm3_cacheGet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjGroup
     }
   }
 
-  nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheGet,    key=%5u, grp=%d, obj=%p, idx=%d.\n", key, (obj != NVM3_OBJ_PTR_INVALID) ? *group : -1, obj, tmp);
+  nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheGet, key=%lu, grp=%d, obj=%p, idx=%d.\n", key, (obj != NVM3_OBJ_PTR_INVALID) ? *group : -1, obj, tmp);
 
   return obj;
 }
@@ -562,7 +562,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
         if (entryGetKey(h, idx) == key) {
           entrySetGroup(h, idx, group);
           entrySetPtr(h, idx, obj);
-          nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(1), key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+          nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(1), key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
           return;
         }
       }
@@ -578,7 +578,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
       entrySetPtr(h, idx, obj);
       bSet = true;
       h->usedCount++;
-      nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(2), key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+      nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(2), key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
     }
   }
 
@@ -591,7 +591,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
         entrySetGroup(h, idx1, group);
         entrySetPtr(h, idx1, obj);
         bSet = true;
-        nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(3), cache overflow for key=%u, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx1);
+        nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(3), cache overflow for key=%lu, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx1);
         break;
       }
     }
@@ -599,7 +599,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
 
   if (!bSet) {
     h->overflow = true;
-    nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(4), cache overflow for key=%u, grp=%u, obj=%p.\n", key, group, obj);
+    nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(4), cache overflow for key=%lu, grp=%u, obj=%p.\n", key, group, obj);
   }
 }
 #else
@@ -614,7 +614,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
       if (entryGetKey(h, idx) == key) {
         entrySetGroup(h, idx, group);
         entrySetPtr(h, idx, obj);
-        nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(1), key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+        nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(1), key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
         return;
       }
     }
@@ -627,7 +627,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
       entrySetGroup(h, idx, group);
       entrySetPtr(h, idx, obj);
       bSet = true;
-      nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(2), key=%5u, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
+      nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(2), key=%lu, grp=%u, obj=%p, idx=%u.\n", key, group, obj, idx);
       break;
     }
   }
@@ -641,7 +641,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
         entrySetGroup(h, idx, group);
         entrySetPtr(h, idx, obj);
         bSet = true;
-        nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(3), cache overflow for key=%u, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx);
+        nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(3), cache overflow for key=%lu, grp=%u, obj=%p, inserted at idx=%u.\n", key, group, obj, idx);
         break;
       }
     }
@@ -649,7 +649,7 @@ void nvm3_cacheSet(nvm3_Cache_t *h, nvm3_ObjectKey_t key, nvm3_ObjPtr_t obj, nvm
 
   if (!bSet) {
     h->overflow = true;
-    nvm3_tracePrint(TRACE_LEVEL, "      nvm3_cacheSet(4), cache overflow for key=%u, grp=%u, obj=%p.\n", key, group, obj);
+    nvm3_tracePrint(TRACE_LEVEL, "nvm3_cacheSet(4), cache overflow for key=%lu, grp=%u, obj=%p.\n", key, group, obj);
   }
 }
 #endif

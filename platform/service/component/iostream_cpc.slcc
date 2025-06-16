@@ -1,16 +1,16 @@
 id: iostream_cpc
-package: platform
-label: "IO Stream: CPC"
+package: cpc
+label: 'IO Stream: CPC'
 description: >
-  Instantiate the driver for using IO Stream over the Co-Processor
-  Communication (CPC) protocol. Note that the physical link used
-  to transmit the data can be selected via the configuration of
-  CPC.
+    Instantiate the driver for using IO Stream over the Co-Processor
+    Communication (CPC) protocol. Note that the physical link used
+    to transmit the data can be selected via the configuration of
+    CPC.
 category: Services|IO Stream|Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/iostream
 provides:
   - name: iostream_cpc
@@ -39,13 +39,13 @@ template_contribution:
     value: cpc
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_2
       include: sl_iostream_cpc.h
       handler: sl_iostream_cpc_init
   - name: iostream_instance_info
     value:
-      include: sl_iostream_cpc.h
-      handler: sl_iostream_instance_cpc_info
+        include: sl_iostream_cpc.h
+        handler: sl_iostream_instance_cpc_info
 documentation:
-  docset: gecko-platform
-  document: platform-service/iostream-cpc
+    docset: gecko-platform
+    document: platform-service/iostream-cpc

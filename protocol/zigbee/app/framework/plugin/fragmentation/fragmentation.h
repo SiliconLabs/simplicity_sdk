@@ -140,7 +140,7 @@ void sli_zigbee_af_fragmentation_platform_init_callback(void);
 
 sl_status_t sli_zigbee_af_fragmentation_send(sli_zigbee_tx_fragmented_packet_t* txPacket,
                                              uint8_t fragmentNumber,
-                                             uint16_t fragmentLen,
+                                             uint8_t fragmentLen,
                                              uint16_t offset);
 
 void sli_zigbee_af_fragmentation_handle_source_route(sli_zigbee_tx_fragmented_packet_t* txPacket,

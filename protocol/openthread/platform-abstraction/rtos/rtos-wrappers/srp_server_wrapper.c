@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -49,6 +49,7 @@
 extern bool OT_API_REAL_NAME(otSrpServerHostIsDeleted)(const otSrpServerHost *aHost);
 extern bool OT_API_REAL_NAME(otSrpServerHostMatchesFullName)(const otSrpServerHost *aHost, const char *aFullName);
 extern bool OT_API_REAL_NAME(otSrpServerIsAutoEnableMode)(otInstance *aInstance);
+extern bool OT_API_REAL_NAME(otSrpServerIsFastStartModeEnabled)(otInstance *aInstance);
 extern bool OT_API_REAL_NAME(otSrpServerServiceHasSubTypeServiceName)(const otSrpServerService *aService,
                                                                       const char               *aSubTypeServiceName);
 extern bool OT_API_REAL_NAME(otSrpServerServiceIsDeleted)(const otSrpServerService *aService);
@@ -73,6 +74,7 @@ extern const otSrpServerService          *OT_API_REAL_NAME(otSrpServerHostGetNex
                                                                                  const otSrpServerService *aService);
 extern const uint8_t *OT_API_REAL_NAME(otSrpServerServiceGetTxtData)(const otSrpServerService *aService,
                                                                      uint16_t                 *aDataLength);
+extern otError        OT_API_REAL_NAME(otSrpServerEnableFastStartMode)(otInstance *aInstance);
 extern otError        OT_API_REAL_NAME(otSrpServerParseSubTypeServiceName)(const char *aSubTypeServiceName,
                                                                     char       *aLabel,
                                                                     uint8_t     aLabelSize);
@@ -127,6 +129,14 @@ bool OT_API_WRAPPER_NAME(otSrpServerIsAutoEnableMode)(otInstance *aInstance)
 {
     sl_ot_rtos_acquire_stack_mutex();
     bool ret = OT_API_REAL_NAME(otSrpServerIsAutoEnableMode)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+bool OT_API_WRAPPER_NAME(otSrpServerIsFastStartModeEnabled)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    bool ret = OT_API_REAL_NAME(otSrpServerIsFastStartModeEnabled)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -262,6 +272,14 @@ const uint8_t *OT_API_WRAPPER_NAME(otSrpServerServiceGetTxtData)(const otSrpServ
 {
     sl_ot_rtos_acquire_stack_mutex();
     const uint8_t *ret = OT_API_REAL_NAME(otSrpServerServiceGetTxtData)(aService, aDataLength);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otError OT_API_WRAPPER_NAME(otSrpServerEnableFastStartMode)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otError ret = OT_API_REAL_NAME(otSrpServerEnableFastStartMode)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }

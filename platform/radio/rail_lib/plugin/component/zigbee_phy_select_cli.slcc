@@ -1,14 +1,14 @@
 id: zigbee_phy_select_cli
 label: Zigbee Utility, PHY Select CLI
 description: Zigbee PHY select CLI
-package: platform
+package: zigbee
 category: Platform|Radio
 quality: production
 metadata:
-  sbom:
-    id: zigbee_phy_select_cli
-    name: Zigbee Utility, PHY Select CLI
-    license: Zlib
+    sbom:
+        id: zigbee_phy_select_cli
+        name: Zigbee Utility, PHY Select CLI
+        license: Zlib
 requires:
   - name: rail_util_ieee802154_phy_select
     condition:
@@ -28,13 +28,13 @@ template_contribution:
 # CLI Commands < plugin phy-select >
   - name: cli_group
     value:
-      group: plugin
-      name: phy-select
-      help: The phy-select commands allow you to get information on the active radio configuration
+        group: plugin
+        name: phy-select
+        help: The phy-select commands allow you to get information on the active radio configuration
 # CLI Commands < plugin phy-select get-active-phy >
   - name: cli_command
     value:
-      group: phy-select
-      name: get-active-phy
-      handler: sl_util_af_get_active_radio_phy
-      help: Get the active radio configuration
+        group: phy-select
+        name: get-active-phy
+        handler: sl_util_af_get_active_radio_phy
+        help: Get the active radio configuration

@@ -41,7 +41,10 @@
 
 #ifndef EM_DEVICE_H
 #define EM_DEVICE_H
-#if defined(EFR32FG25A111F1152IM56)
+#if defined(EFR32FG25A021F256IM56)
+#include "efr32fg25a021f256im56.h"
+
+#elif defined(EFR32FG25A111F1152IM56)
 #include "efr32fg25a111f1152im56.h"
 
 #elif defined(EFR32FG25A121F1152IM56)

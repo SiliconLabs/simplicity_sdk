@@ -32,17 +32,20 @@
 #define SL_BTMESH_SCENE_SERVER_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_scene_server
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Scenes initialization.
  * This should be called at each boot if provisioning is already done.
  * Otherwise this function should be called after provisioning is completed.
  * This function is called automatically after enabling the component.
  *
- * @param[in] element  Index of the element where scenes models are initialized.
- *
  * @return Status of the initialization operation.
- *         Returns bg_err_success (0) if succeed, non-zero otherwise.
+ *         Returns SL_STATUS_OK (0) if successful. Error code otherwise.
  ******************************************************************************/
-uint16_t sl_btmesh_scenes_init(void);
+sl_status_t sl_btmesh_scenes_init(void);
 
 /***************************************************************************//**
  * Handling of mesh scene events.
@@ -53,4 +56,5 @@ uint16_t sl_btmesh_scenes_init(void);
  ******************************************************************************/
 void sl_btmesh_scene_server_on_event(sl_btmesh_msg_t *evt);
 
+/** @} (end addtogroup btmesh_scene_server) */
 #endif // SL_BTMESH_SCENE_SERVER_H

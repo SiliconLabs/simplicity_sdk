@@ -28,18 +28,29 @@
  *
  ******************************************************************************/
 #include <stdbool.h>
-#include "sl_common.h"
 #include "app_log.h"
 #include "app_assert.h"
-
+#include "sl_main_init.h"
 #include "sl_bluetooth.h"
 #include "sl_simple_button_instances.h"
 #include "btl_errorcode.h"
 #include "btl_interface.h"
 #include "sl_component_catalog.h"
-#include "app.h"
 #include "sl_bt_app_ota_dfu.h"
 #include "app_timer.h"
+
+/// Status indication timer cycletimes in millisec.
+#define DOWNLOAD_TIMER_CYCLE 1000u
+#define VERIFICATION_TIMER_CYCLE 2500u
+
+/// Returns a data blocks percentage based on a byte position.
+#define GET_DATA_PERCENTAGE(storage_size, actual_byte_pos) \
+  (uint8_t) (actual_byte_pos / (storage_size / 100U))      \
+
+/// Estimate the actual transfer speed in Kbps based on the current byte
+/// position in the used storage and the elapsed seconds.
+#define GET_TRANSFER_SPEED_KBPS(actual_byte_pos, elapsed_sec) \
+  (uint32_t) (actual_byte_pos * 8U / (1024U * elapsed_sec))   \
 
 // Storage information
 static uint32_t slot_startaddr;
@@ -56,7 +67,7 @@ static sl_bt_app_ota_dfu_error_t app_ota_dfu_error_code = SL_BT_APP_OTA_DFU_NO_E
 static int32_t bootloader_api_error_code = BOOTLOADER_OK;
 static uint16_t datablock_idx = 0u;
 static uint32_t write_position = 0u;
-static uint32_t verif_position = 0u;
+static uint32_t verify_position = 0u;
 
 app_timer_t progress_timer;
 
@@ -66,7 +77,7 @@ static uint8_t advertising_set_handle = 0xffu;
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -75,9 +86,9 @@ SL_WEAK void app_init(void)
 }
 
 /**************************************************************************//**
- * Application Process Action (baremetal).
+ * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //
@@ -102,14 +113,14 @@ static void app_ota_dfu_display_progress(uint16_t elapsed_time)
   } else {
     app_log_info("Verified %u%% of the new image.(%u block)" \
                  APP_LOG_NL,
-                 GET_DATA_PERCENTAGE(write_position, verif_position),
+                 GET_DATA_PERCENTAGE(write_position, verify_position),
                  datablock_idx);
   }
 }
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -412,7 +423,6 @@ static void app_ota_dfu_on_status_change(sl_bt_app_ota_dfu_status_t curr_sts,
 
     case SL_BT_APP_OTA_DFU_VERIFY:
       datablock_idx = 0u;
-      app_log_info("Connection closed." APP_LOG_NL);
       app_log_info("Verify downloaded image..." APP_LOG_NL);
       sc = app_timer_start(&progress_timer,
                            VERIFICATION_TIMER_CYCLE,
@@ -424,7 +434,7 @@ static void app_ota_dfu_on_status_change(sl_bt_app_ota_dfu_status_t curr_sts,
     case SL_BT_APP_OTA_DFU_FINALIZE:
       sc = app_timer_stop(&progress_timer);
       app_log_info("Verified %u%% of the new image." APP_LOG_NL,
-                   GET_DATA_PERCENTAGE(write_position, verif_position));
+                   GET_DATA_PERCENTAGE(write_position, verify_position));
       app_log_info("Set image to bootload." APP_LOG_NL);
       break;
 
@@ -516,7 +526,7 @@ void sl_bt_app_ota_dfu_on_status_event(sl_bt_app_ota_dfu_status_evt_t* evt)
     case SL_BT_APP_OTA_DFU_EVT_VERIFY_IMAGE_ID:
       // Get verification information.
       datablock_idx += 1;
-      verif_position = evt->evt_info.verified_bytes;
+      verify_position = evt->evt_info.verified_bytes;
       break;
   }
 }

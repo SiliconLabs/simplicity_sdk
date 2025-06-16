@@ -17,7 +17,8 @@ RAINIER:
       0xA0210000: 1
       0xA0220000: 2
       0xA0000000: 3
-      0x40860000: 4
+      0xA3000000: 4
+      0xA0250000: 5
       0xFFFFFFFF: 0xFFFFFFFF
     Alias:
       SEQRAM: 0xA0000000
@@ -34,6 +35,8 @@ LPWH72000:
       0xB0280000: 5
       0xB0000000: 6
       0xB0010000: 7
+      0xB3000000: 8
+      0xB0250000: 9
       0xFFFFFFFF: 0xFFFFFFFF
     Alias:
       SEQRAM: 0xB0010000
@@ -50,6 +53,9 @@ LPWH74000:
       0xB0280000: 5
       0xB0000000: 6
       0xB0010000: 7
+      0xB0250000: 8
+      0xB2000000: 9
+      0xB2010000: 10
       0xFFFFFFFF: 0xFFFFFFFF
     Alias:
       SEQRAM: 0xB0010000

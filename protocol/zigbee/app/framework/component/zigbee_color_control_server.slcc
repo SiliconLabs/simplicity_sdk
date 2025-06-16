@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component is an implementation of the color server.  It supports color temperature, CIE 1931, and hue/saturation.  It also supports smooth transitions within a particular color mode.
 id: zigbee_color_control_server
 label: Color Control Cluster Server

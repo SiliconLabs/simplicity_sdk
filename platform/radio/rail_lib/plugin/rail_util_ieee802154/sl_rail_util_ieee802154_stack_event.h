@@ -31,6 +31,7 @@
 #ifndef SL_RAIL_UTIL_IEEE802154_STACK_EVENT_H
 #define SL_RAIL_UTIL_IEEE802154_STACK_EVENT_H
 
+#include "sl_rail.h"
 #include "rail.h"
 
 #ifdef __cplusplus

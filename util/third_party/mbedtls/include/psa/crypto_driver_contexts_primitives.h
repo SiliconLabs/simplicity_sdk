@@ -107,6 +107,10 @@ typedef struct {
   #include "sli_hostcrypto_transparent_types.h"
 #endif
 
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+  #include "sl_si91x_psa_aes.h"
+#endif
+
 #endif /* MBEDTLS_PSA_CRYPTO_DRIVERS */
 
 /* Define the context to be used for an operation that is executed through the
@@ -161,6 +165,9 @@ typedef union {
 #if defined(SLI_MBEDTLS_DEVICE_HC)
     sli_hostcrypto_transparent_cipher_operation_t sli_hostcrypto_transparent_ctx;
 #endif /* SLI_MBEDTLS_DEVICE_HC */
+#if defined(SLI_CIPHER_DEVICE_SI91X)
+    sli_si91x_crypto_cipher_operation_t sli_si91x_crypto_cipher_ctx;
+#endif
 #endif
 } psa_driver_cipher_context_t;
 

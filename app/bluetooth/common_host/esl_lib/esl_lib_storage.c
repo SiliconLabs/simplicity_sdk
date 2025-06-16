@@ -44,7 +44,7 @@ typedef struct {
 
 typedef struct {
   sl_slist_node_t node;
-  uint8array      data;
+  byte_array      data;
 } esl_lib_segment_t;
 
 // -----------------------------------------------------------------------------
@@ -68,7 +68,8 @@ sl_status_t esl_lib_storage_create(esl_lib_storage_handle_t *handle_out)
 }
 
 sl_status_t esl_lib_storage_append(esl_lib_storage_handle_t handle,
-                                   uint8array               *data)
+                                   uint16_t                 len,
+                                   void                     *data)
 {
   sl_status_t sc = SL_STATUS_OK;
 
@@ -81,15 +82,15 @@ sl_status_t esl_lib_storage_append(esl_lib_storage_handle_t handle,
 
   esl_lib_storage_t *storage_ptr = (esl_lib_storage_t *)handle;
 
-  size_t size = sizeof(esl_lib_segment_t) + data->len;
+  size_t size = sizeof(esl_lib_segment_t) + len;
 
   // Allocate data fot the fragment
   esl_lib_segment_t *segment_ptr = esl_lib_memory_allocate(size);
   if (segment_ptr != NULL) {
     // Set length
-    segment_ptr->data.len = data->len;
+    segment_ptr->data.len = len;
     // Copy data
-    memcpy(segment_ptr->data.data, data->data, data->len);
+    memcpy(segment_ptr->data.data, data, len);
     // Add to the list
     sl_slist_push_back(&storage_ptr->list_head, &segment_ptr->node);
     // Increment length

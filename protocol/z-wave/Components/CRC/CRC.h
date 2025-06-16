@@ -39,6 +39,6 @@ uint16_t CRC_CheckCrc16(
   uint16_t crc,
   const uint8_t *pDataAddr,
   uint16_t bDataLen
-);
+  );
 
 #endif /* _CRC_H_ */

@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Core application logic.
+ * @brief Core application logic
  *******************************************************************************
  * # License
- * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -29,7 +29,6 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <math.h>
-#include "sl_common.h"
 #include "app_log.h"
 #include "app_assert.h"
 #include "sl_bluetooth.h"
@@ -38,6 +37,7 @@
 #include "sl_cli.h"
 #endif // SL_CATALOG_CLI_PRESENT
 #include "app.h"
+#include "sl_main_init.h"
 
 // connection parameters
 #define CONN_INTERVAL_MIN             80   //100ms
@@ -125,7 +125,7 @@ static void print_values(void);
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   // Initialize connection properties
   init_properties();
@@ -139,18 +139,20 @@ SL_WEAK void app_init(void)
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
-  /////////////////////////////////////////////////////////////////////////////
-  // Put your additional application code here!                              //
-  // This is called infinitely.                                              //
-  // Do not call blocking functions from here!                               //
-  /////////////////////////////////////////////////////////////////////////////
+  if (app_is_process_required()) {
+    /////////////////////////////////////////////////////////////////////////////
+    // Put your additional application code here!                              //
+    // This is will run each time app_proceed() is called.                     //
+    // Do not call blocking functions from here!                               //
+    /////////////////////////////////////////////////////////////////////////////
+  }
 }
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -169,11 +171,11 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
     // Do not call any stack command before receiving this boot event!
     case sl_bt_evt_system_boot_id:
       // Print boot message.
-      app_log_info("Bluetooth stack booted: v%d.%d.%d-b%d" APP_LOG_NL,
+      app_log_info("Bluetooth stack booted: v%d.%d.%d+%08lx" APP_LOG_NL,
                    evt->data.evt_system_boot.major,
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
-                   evt->data.evt_system_boot.build);
+                   evt->data.evt_system_boot.hash);
       // Print bluetooth address.
       print_bluetooth_address();
 
@@ -228,7 +230,7 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
 
       if (sc == SL_STATUS_INVALID_HANDLE) {
         // Failed to open connection, restart scanning
-        app_log_warning("Primary service discovery failed with invalid handle, dropping client\n");
+        app_log_warning("Primary service discovery failed with invalid handle, dropping client" APP_LOG_NL);
         sc = sl_bt_scanner_start(sl_bt_gap_phy_1m, sl_bt_scanner_discover_generic);
         app_assert_status(sc);
         conn_state = scanning;
@@ -387,6 +389,8 @@ void sl_bt_on_event(sl_bt_msg_t* evt)
       break;
 
     default:
+      app_log_debug("BLE event: 0x%lx" APP_LOG_NL,
+                    (unsigned long)SL_BT_MSG_ID(evt->header));
       break;
   }
 }
@@ -513,7 +517,7 @@ static float translate_IEEE_11073_temperature_to_float(IEEE_11073_float const *I
   mantissa <<= 8;
   mantissa >>= 8;
 
-  return ((float)mantissa) * pow(10.0f, (float)exponent);
+  return ((float)mantissa) * powf(10.0f, (float)exponent);
 }
 
 /**************************************************************************//**
@@ -578,7 +582,7 @@ void print_values(void)
   }
 
   // Print header
-  if (true == print_header) {
+  if (print_header) {
     app_log_info("");
     for (i = 0u; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
       if (false == print_tx_power) {
@@ -588,7 +592,6 @@ void print_values(void)
       }
     }
     app_log_nl();
-
     print_header = false;
   }
 
@@ -597,7 +600,7 @@ void print_values(void)
   for (i = 0u; i < SL_BT_CONFIG_MAX_CONNECTIONS; i++) {
     if (TEMP_INVALID != conn_properties[i].temperature) {
       app_log_append("%04x ", conn_properties[i].server_address);
-      app_log_append("%6.2f", conn_properties[i].temperature);
+      app_log_append("%6.2f", (double)conn_properties[i].temperature);
       app_log_append("%c ", conn_properties[i].unit);
       if (conn_properties[i].rssi != SL_BT_CONNECTION_RSSI_UNAVAILABLE) {
         app_log_append("% 3d", conn_properties[i].rssi);
@@ -605,12 +608,12 @@ void print_values(void)
         app_log_append("---");
       }
       app_log_append("dBm");
-      if (true == print_tx_power) {
+      if (print_tx_power) {
         app_log_append(" %4d", conn_properties[i].tx_power);
         app_log_append("dBm");
       }
       app_log_append("|");
-    } else if (false == print_tx_power) {
+    } else if (!print_tx_power) {
       app_log_append("---- ------- ------|");
     } else {
       app_log_append("----  ------ ------  ------|");

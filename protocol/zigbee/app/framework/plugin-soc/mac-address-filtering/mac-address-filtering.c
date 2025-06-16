@@ -384,11 +384,14 @@ static sli_zigbee_filter_result_t parseAndMaybeFilterPacket(uint8_t* rawMacConte
 // *****************************************************************************
 // Public Functions
 
-sl_zigbee_packet_action_t sl_zigbee_af_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                 uint8_t* packetData,
-                                                                 uint8_t* size_p,
-                                                                 void *data)
+sl_zigbee_packet_action_t sl_zigbee_pre_incoming_packet_filter_cb(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                  uint8_t* packetData,
+                                                                  uint8_t* size_p,
+                                                                  void *data,
+                                                                  uint8_t size_d)
 {
+  UNUSED_VAR(data);
+  UNUSED_VAR(size_d);
   sli_zigbee_filter_result_t result;
   if (packetType != SL_ZIGBEE_ZIGBEE_PACKET_TYPE_RAW_MAC) {
     expectCheckpoint("Ignoring non-matching callback type.");

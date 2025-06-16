@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides support both for generating traffic when doing coexistence testing, and for measuring network throughput. Packets are sent periodically on a CLI-programmable interval unless the packets-in-flight limit is exceeded.
 id: zigbee_throughput
 label: Throughput
@@ -32,6 +32,9 @@ template_contribution:
       name: start
       handler: sli_zigbee_af_throughput_cli_start_test
       help: Start the throughput test.
+      argument:
+        - type: uint8opt
+          help: Whether counters should be reset when the test starts (true if this is nonzero or omitted, false if this is 0).
   - name: cli_command
     value:
       group: throughput

@@ -1,7 +1,7 @@
 !!omap
 - id: xg24_dk2601b
 - label: XG24-DK2601B
-- package: platform
+- package: boards
 - description: Kit BSP support for the xG24 Dev Kit.
 - category: Platform|Board|Kit|Development Kit
 - quality: production

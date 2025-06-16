@@ -52,11 +52,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup Lighting
- * @{
- ******************************************************************************/
-
 /// Parameter ignored for publishing
 #define IGNORED                        0
 /// No flags used for message
@@ -102,7 +97,7 @@ static uint8_t lightness_request_count;
 /// lightness transaction identifier
 static uint8_t lightness_trid = 0;
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function publishes one generic on/off request to change the state
  * of light(s) in the group. Global variable switch_pos holds the latest
  * desired light state, possible values are:
@@ -157,7 +152,7 @@ static void send_onoff_request(uint8_t retrans)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function publishes one light lightness request to change the lightness
  * level of light(s) in the group. Global variable lightness_level holds
  * the latest desired light level.
@@ -243,11 +238,11 @@ void sl_btmesh_set_lightness(uint8_t lightness_percent)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after 50 ms delay
   if (lightness_request_count > 0) {
-    sl_status_t sc = app_timer_start(&light_retransmission_timer,
-                                     SL_BTMESH_LIGHT_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     light_retransmission_timer_cb,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&light_retransmission_timer,
+                         SL_BTMESH_LIGHT_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         light_retransmission_timer_cb,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start periodic timer");
   }
 
@@ -292,11 +287,11 @@ void sl_btmesh_change_switch_position(uint8_t position)
   // If there are more requests to send, start a repeating soft timer
   // to trigger retransmission of the request after 50 ms delay
   if (onoff_request_count > 0) {
-    sl_status_t sc = app_timer_start(&onoff_retransmission_timer,
-                                     SL_BTMESH_ONOFF_RETRANSMISSION_TIMEOUT_CFG_VAL,
-                                     onoff_retransmission_timer_cb,
-                                     NO_CALLBACK_DATA,
-                                     true);
+    sc = app_timer_start(&onoff_retransmission_timer,
+                         SL_BTMESH_ONOFF_RETRANSMISSION_TIMEOUT_CFG_VAL,
+                         onoff_retransmission_timer_cb,
+                         NO_CALLBACK_DATA,
+                         true);
     app_assert_status_f(sc, "Failed to start periodic timer");
   }
 
@@ -308,11 +303,7 @@ uint16_t sl_btmesh_get_lightness(void)
   return lightness_level;
 }
 
-/***************************************************************************//**
- * @addtogroup btmesh_light_clnt_tim_cb Timer Callbacks
- * @{
- ******************************************************************************/
-/***************************************************************************//**
+/*******************************************************************************
  * Switch position retransmission function
  * @param[in] handle pointer to handle instance
  * @param[in] data pointer to input data
@@ -337,7 +328,7 @@ static void onoff_retransmission_timer_cb(app_timer_t *handle, void *data)
   (void) app_btmesh_rta_release();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Lightness value retransmission function
  * @param[in] handle pointer to handle instance
  * @param[in] data pointer to input data
@@ -361,6 +352,3 @@ static void light_retransmission_timer_cb(app_timer_t *handle, void *data)
 
   (void) app_btmesh_rta_release();
 }
-
-/** @} (end addtogroup btmesh_light_clnt_tim_cb) */
-/** @} (end addtogroup Lighting) */

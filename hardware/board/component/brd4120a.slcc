@@ -1,7 +1,7 @@
 !!omap
 - id: brd4120a
 - label: BRD4120A
-- package: platform
+- package: boards
 - description: Board support for BRD4120A.
 - category: Platform|Board|Radio Board
 - quality: production

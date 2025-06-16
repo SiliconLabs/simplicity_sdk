@@ -30,7 +30,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_status.h"
 #include "sl_wisun_api.h"
 #include "sl_wisun_rf_test.h"
@@ -50,33 +50,33 @@ do {\
   goto error_handler;\
 } while(0)
 
-#define RF_TEST_NOT_RUNNING (RAIL_STREAM_MODES_COUNT)
-static RAIL_StreamMode_t rf_test_running = RF_TEST_NOT_RUNNING;
-static RAIL_TxPowerLevel_t stack_tx_power;
+#define RF_TEST_NOT_RUNNING (SL_RAIL_STREAM_MODES_COUNT)
+static sl_rail_stream_mode_t rf_test_running = RF_TEST_NOT_RUNNING;
+static sl_rail_tx_power_level_t stack_tx_power;
 static int8_t test_tx_power;
 
 
-static sl_status_t start_rf_test(uint16_t channel, RAIL_StreamMode_t mode);
-static sl_status_t stop_rf_test(RAIL_StreamMode_t mode);
+static sl_status_t start_rf_test(uint16_t channel, sl_rail_stream_mode_t mode);
+static sl_status_t stop_rf_test(sl_rail_stream_mode_t mode);
 
 sl_status_t sl_wisun_start_stream(uint16_t channel)
 {
-  return start_rf_test(channel, RAIL_STREAM_PN9_STREAM);
+  return start_rf_test(channel, SL_RAIL_STREAM_PN9_STREAM);
 }
 
 sl_status_t sl_wisun_stop_stream()
 {
-  return stop_rf_test(RAIL_STREAM_PN9_STREAM);
+  return stop_rf_test(SL_RAIL_STREAM_PN9_STREAM);
 }
 
 sl_status_t sl_wisun_start_tone(uint16_t channel)
 {
-  return start_rf_test(channel, RAIL_STREAM_CARRIER_WAVE);
+  return start_rf_test(channel, SL_RAIL_STREAM_CARRIER_WAVE);
 }
 
 sl_status_t sl_wisun_stop_tone()
 {
-  return stop_rf_test(RAIL_STREAM_CARRIER_WAVE);
+  return stop_rf_test(SL_RAIL_STREAM_CARRIER_WAVE);
 }
 
 bool sl_wisun_is_running_rf_test()
@@ -90,33 +90,33 @@ sl_status_t sl_wisun_set_test_tx_power(int8_t tx_power)
   return SL_STATUS_OK;
 }
 
-static sl_status_t start_rf_test(uint16_t channel, RAIL_StreamMode_t mode)
+static sl_status_t start_rf_test(uint16_t channel, sl_rail_stream_mode_t mode)
 {
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   sl_status_t status;
   sl_wisun_join_state_t join_state;
-  RAIL_Handle_t rail_handle;
+  sl_rail_handle_t rail_handle;
 
   status = sli_wisun_get_rail_handle(&rail_handle);
   SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_STATUS_OK == status, SL_STATUS_NOT_READY);
 
   SLI_WISUN_ERROR_CHECK_SET_STATUS(RF_TEST_NOT_RUNNING == rf_test_running, SL_STATUS_BUSY);
 
-  rail_status = RAIL_IsValidChannel(rail_handle, channel);
-  SLI_WISUN_ERROR_CHECK_SET_STATUS(RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_INVALID_PARAMETER);
+  rail_status = sl_rail_is_valid_channel(rail_handle, channel);
+  SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_INVALID_PARAMETER);
 
   // checking that we are not connected or joining.
   status = sl_wisun_get_join_state(&join_state);
   SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_WISUN_JOIN_STATE_DISCONNECTED == join_state, SL_STATUS_NETWORK_UP);
 
   // Backup stack Tx Power
-  stack_tx_power = RAIL_GetTxPower(rail_handle);
+  stack_tx_power = sl_rail_get_tx_power(rail_handle);
 
-  rail_status = RAIL_SetTxPowerDbm(rail_handle, 10*test_tx_power);
-  SLI_WISUN_ERROR_CHECK_SET_STATUS(RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
+  rail_status = sl_rail_set_tx_power_dbm(rail_handle, 10*test_tx_power);
+  SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
 
-  rail_status = RAIL_StartTxStream(rail_handle, channel, mode);
-  SLI_WISUN_ERROR_CHECK_SET_STATUS(RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
+  rail_status = sl_rail_start_tx_stream(rail_handle, channel, mode, SL_RAIL_TX_OPTIONS_DEFAULT);
+  SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
 
   rf_test_running = mode;
 
@@ -125,22 +125,22 @@ error_handler:
   return status;
 }
 
-static sl_status_t stop_rf_test(RAIL_StreamMode_t mode)
+static sl_status_t stop_rf_test(sl_rail_stream_mode_t mode)
 {
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
   sl_status_t status;
-  RAIL_Handle_t rail_handle;
+  sl_rail_handle_t rail_handle;
 
   status = sli_wisun_get_rail_handle(&rail_handle);
   SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_STATUS_OK == status, SL_STATUS_NOT_READY);
 
   SLI_WISUN_ERROR_CHECK_SET_STATUS(mode == rf_test_running, SL_STATUS_INVALID_STATE);
 
-  rail_status = RAIL_StopTxStream(rail_handle);
-  SLI_WISUN_ERROR_CHECK_SET_STATUS(RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
+  rail_status = sl_rail_stop_tx_stream(rail_handle);
+  SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
 
-  rail_status = RAIL_SetTxPowerDbm(rail_handle, stack_tx_power);
-  SLI_WISUN_ERROR_CHECK_SET_STATUS(RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
+  rail_status = sl_rail_set_tx_power_dbm(rail_handle, stack_tx_power);
+  SLI_WISUN_ERROR_CHECK_SET_STATUS(SL_RAIL_STATUS_NO_ERROR == rail_status, SL_STATUS_FAIL);
 
   rf_test_running = RF_TEST_NOT_RUNNING;
 

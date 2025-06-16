@@ -19,7 +19,6 @@
 #define SL_WISUN_BR_MSG_API_H
 
 #include "sl_wisun_types.h"
-#include "security/eapol/kde_helper.h"
 #include "border_router/sl_wisun_br_connection_params_api.h"
 #include "border_router/sl_wisun_br_lfn_params_api.h"
 
@@ -45,6 +44,9 @@ typedef enum {
   UNUSED_0x73_REQ_ID                                    = 0x73,
   SL_WISUN_BR_MSG_PAN_DEFECT_ADVERTISE_REQ_ID           = 0x72,
   SL_WISUN_BR_MSG_SET_IPV6_PREFIX_REQ_ID                = 0x71,
+  SL_WISUN_BR_MSG_TRIGGER_GLOBAL_REPAIR_REQ_ID          = 0x70,
+  SL_WISUN_BR_MSG_GET_ROUTING_TABLE_ENTRY_COUNT_REQ_ID  = 0x6F,
+  SL_WISUN_BR_MSG_GET_ROUTING_TABLE_REQ_ID              = 0x6E,
 } sl_wisun_br_msg_req_id_t;
 
 /// Wi-SUN BR Message API confirmation IDs
@@ -64,6 +66,9 @@ typedef enum {
   UNUSED_0x73_CNF_ID                                    = 0x73,
   SL_WISUN_BR_MSG_PAN_DEFECT_ADVERTISE_CNF_ID           = 0x72,
   SL_WISUN_BR_MSG_SET_IPV6_PREFIX_CNF_ID                = 0x71,
+  SL_WISUN_BR_MSG_TRIGGER_GLOBAL_REPAIR_CNF_ID          = 0x70,
+  SL_WISUN_BR_MSG_GET_ROUTING_TABLE_ENTRY_COUNT_CNF_ID  = 0x6F,
+  SL_WISUN_BR_MSG_GET_ROUTING_TABLE_CNF_ID              = 0x6E,
 } sl_wisun_br_msg_cnf_id_t;
 
 /// Wi-SUN BR Message API common header
@@ -190,7 +195,7 @@ SL_PACK_END()
 SL_PACK_START(1)
 typedef struct {
   /// GTK
-  uint8_t gtk[GTK_LEN];
+  uint8_t gtk[SL_WISUN_GTK_LEN];
   /// Index
   uint8_t index;
   /// Reserved, set to zero
@@ -749,6 +754,127 @@ typedef struct {
 SL_PACK_END()
 
 /** @} (end SL_WISUN_BR_MSG_SET_IPV6_PREFIX) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_BR_TRIGGER_GLOBAL_REPAIR sl_wisun_br_trigger_global_repair
+ * @{
+ ******************************************************************************/
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_trigger_global_repair_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_trigger_global_repair_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_br_msg_trigger_global_repair_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_trigger_global_repair_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_BR_TRIGGER_GLOBAL_REPAIR) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_BR_MSG_GET_ROUTING_TABLE_ENTRY_COUNT sl_wisun_br_msg_get_routing_table_entry_count
+ * @{
+ ******************************************************************************/
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_entry_count_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+  /// Size of the routing table
+  uint16_t entry_count;
+  /// Reserved, set to zero
+  uint8_t reserved[2];
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_entry_count_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_br_msg_get_routing_table_entry_count_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_entry_count_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_BR_MSG_GET_ROUTING_TABLE_ENTRY_COUNT) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_BR_MSG_GET_ROUTING_TABLE sl_wisun_br_msg_get_routing_table
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// Maximum number of entries to be retrieved
+  uint16_t entry_count;
+  /// Reserved, set to zero
+  uint8_t reserved[2];
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+  /// Request message body
+  sl_wisun_br_msg_get_routing_table_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+  /// Number of entries in the routing table
+  uint16_t entry_count;
+  /// Reserved, set to zero
+  uint8_t reserved[2];
+  /// Routing table entries read
+  sl_wisun_br_routing_table_entry_t entries[];
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_br_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_br_msg_get_routing_table_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_br_msg_get_routing_table_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_BR_MSG_GET_ROUTING_TABLE) */
 
 /** @} (end addtogroup SL_WISUN_BR_MSG_API) */
 

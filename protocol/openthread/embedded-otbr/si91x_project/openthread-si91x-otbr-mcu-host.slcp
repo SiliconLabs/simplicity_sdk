@@ -1,6 +1,6 @@
 project_name: openthread-si91x-otbr-mcu-host-ftd
 label: ot-si91x
-package: OpenThread
+package: openthread
 description: This platform project is used to generate a CMake library for SiWx917 SoC
 category: OpenThread Examples
 quality: experimental

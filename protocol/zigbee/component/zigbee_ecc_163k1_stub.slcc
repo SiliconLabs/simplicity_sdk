@@ -1,6 +1,6 @@
 id: zigbee_ecc_163k1_stub
 label: ECC 163k1 Stub Support
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides the 163k1 Elliptic Curve Cryptography stub support. Download the EmberZnet-Smart-Energy.zip side package for real version of library.

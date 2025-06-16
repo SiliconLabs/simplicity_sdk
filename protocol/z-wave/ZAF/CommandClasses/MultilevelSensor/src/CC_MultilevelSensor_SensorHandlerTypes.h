@@ -65,9 +65,9 @@ typedef enum sensor_name{
  * Structure that holds the attributes of a sensor type.
  */
 typedef struct _sensor_type{
-  uint8_t value;        ///< Sensor type id from SDS13812 
-  uint8_t byte_offset;    ///< Supported bitmask byte number from SDS13812 
-  uint8_t bit_mask;       ///< Supported bitmask bit number from SDS13812 
+  uint8_t value;        ///< Sensor type id from SDS13812
+  uint8_t byte_offset;    ///< Supported bitmask byte number from SDS13812
+  uint8_t bit_mask;       ///< Supported bitmask bit number from SDS13812
   uint8_t max_scale_value;  ///< Maximum supported scale number from SDS13812
 }sensor_type_t;
 
@@ -142,7 +142,7 @@ typedef enum {
   CC_MULTILEVEL_SENSOR_RETURN_VALUE_REGISTRATION_LIMIT_REACHED,
   CC_MULTILEVEL_SENSOR_RETURN_VALUE_END
 }cc_multilevel_sensor_return_value;
- 
+
 /**
  * Structure that administrate all of the registered sensors.
  */
@@ -194,6 +194,6 @@ cc_multilevel_sensor_add_supported_scale_interface(sensor_interface_t* i_instanc
 /**
  * @}
  * @}
- */ 
+ */
 
-#endif  // CC_MULTILEVELSENSOR_SENSORHANDLER_TYPES_H
+#endif // CC_MULTILEVELSENSOR_SENSORHANDLER_TYPES_H

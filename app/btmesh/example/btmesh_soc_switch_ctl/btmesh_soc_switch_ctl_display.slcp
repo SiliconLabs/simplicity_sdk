@@ -28,12 +28,13 @@ component:
   - id: bt_post_build
   - id: btmesh_ctl_client
   - id: btmesh_factory_reset
-  - id: btmesh_stack_gatt_prov_bearer
-  - id: btmesh_stack_relay
   - id: btmesh_lpn
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
+  - id: btmesh_stack_gatt_prov_bearer
+  - id: btmesh_stack_relay
   - id: btmesh_target_node
   - id: btmesh_iv_update
   - id: btmesh_wstk_lcd
@@ -42,13 +43,13 @@ component:
     - example
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: iostream_recommended_stream
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
@@ -56,7 +57,6 @@ source:
   - path: app_bm.c
   - path: app_out_lcd.c
   - path: local_cli_commands.c
-  - path: main.c
 
 include:
   - path: .
@@ -76,20 +76,22 @@ config_file:
     directory: btmeshconf
 
 readme:
-  - path: ../../documentation/example/btmesh_soc_switch/readme.md
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme.md
 
 other_file:
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img0.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img1.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img2.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img3.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img4.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img5.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img6.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img7.png
-  - path: ../../documentation/example/btmesh_soc_switch/readme_img8.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img0.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img1.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img2.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img3.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img4.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img5.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img6.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img7.png
+  - path: ../../documentation/example/btmesh_soc_switch_ctl/readme_img8.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: APP_LOG_LEVEL
     value: "APP_LOG_LEVEL_INFO"
   - name: NVM3_DEFAULT_NVM_SIZE
@@ -139,6 +141,10 @@ template_contribution:
       help: "Prints info about BT address and mesh UUID"
     condition:
       - cli
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:sdid:!205

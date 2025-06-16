@@ -31,6 +31,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+#include <stddef.h>
 #include "sl_rail_sdk_light_switch_support.h"
 #include "em_device.h"
 #if defined _SILICON_LABS_32B_SERIES_2

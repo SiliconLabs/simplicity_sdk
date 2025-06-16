@@ -9,14 +9,10 @@
 #include <ZAF_Common_interface.h>
 #include <MfgTokens.h>
 
-//#define DEBUGPRINT
-#include <DebugPrint.h>
-
 #define SUPPORT_ZW_GET_SECURITY_S2_PUBLIC_DSK 1
 
 /* FUNC_ID_ZW_SECURITY_SETUP command definitions. */
-typedef enum
-{
+typedef enum {
   E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_KEYS = 0,
   E_SECURITY_SETUP_CMD_ZW_SET_SECURITY_S0_NETWORK_KEY, // OBSOLETE
   E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK,
@@ -31,14 +27,13 @@ typedef enum
 /* FUNC_ID_ZW_SECURITY_SETUP command supported definitions. */
 /* Used together with the Security Setup command GetSecurityCapabilities */
 /* returned supported command bitmask to determine if a specific command are supported */
-typedef enum
-{
-  E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_KEYS                            = (1<<E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_KEYS),
-  E_SECURITY_SETUP_SUPPORT_CMD_ZW_SET_SECURITY_S0_NETWORK_KEY                  = (1<<E_SECURITY_SETUP_CMD_ZW_SET_SECURITY_S0_NETWORK_KEY), // OBSOLETE
-  E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK                   = (1<<E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK),
-  E_SECURITY_SETUP_SUPPORT_CMD_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID             = (1<<E_SECURITY_SETUP_CMD_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID), // OBSOLETE
-  E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS           = (1<<E_SECURITY_SETUP_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS),
-  E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_AUTHENTICATION = (1<<E_SECURITY_SETUP_CMD_SET_SECURITY_INCLUSION_REQUESTED_AUTHENTICATION) // OBSOLETE
+typedef enum {
+  E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_KEYS                            = (1 << E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_KEYS),
+  E_SECURITY_SETUP_SUPPORT_CMD_ZW_SET_SECURITY_S0_NETWORK_KEY                  = (1 << E_SECURITY_SETUP_CMD_ZW_SET_SECURITY_S0_NETWORK_KEY), // OBSOLETE
+  E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK                   = (1 << E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK),
+  E_SECURITY_SETUP_SUPPORT_CMD_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID             = (1 << E_SECURITY_SETUP_CMD_ZW_SET_SECURITY_S2_CRITICAL_NODE_ID), // OBSOLETE
+  E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS           = (1 << E_SECURITY_SETUP_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS),
+  E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_AUTHENTICATION = (1 << E_SECURITY_SETUP_CMD_SET_SECURITY_INCLUSION_REQUESTED_AUTHENTICATION) // OBSOLETE
 } eSecuritySetupSupportCmd_t;
 
 void func_id_zw_security_setup(__attribute__((unused)) uint8_t inputLength,
@@ -50,8 +45,7 @@ void func_id_zw_security_setup(__attribute__((unused)) uint8_t inputLength,
     /* HOST->ZW: securityFuncID [| bDataLen | abData[bDataLen]] */
     /* ZW->HOST: securityFuncID | bretValLen | retVal[bretValLen] */
     *pOutputBuffer = *pInputBuffer;
-    switch ((eSecuritySetupCmd_t)*pInputBuffer)
-    {
+    switch ((eSecuritySetupCmd_t)*pInputBuffer) {
 #if SUPPORT_ZW_GET_SECURITY_KEYS
       case E_SECURITY_SETUP_CMD_ZW_GET_SECURITY_KEYS:
       {
@@ -68,8 +62,7 @@ void func_id_zw_security_setup(__attribute__((unused)) uint8_t inputLength,
         /* HOST->ZW: registeredSecurityKeysLen(1) | registeredSecurityKeys */
         /* ZW->HOST: retValLen(1) | retVal[retValLen] */
         bool retVal = false;
-        if (1 == *(pInputBuffer + 1))
-        {
+        if (1 == *(pInputBuffer + 1)) {
           /* Set the requestedSecurityKeysBits requested by protocol when doing S2 inclusion */
           //SecureKeysRequested = serial_frame->payload[2];
           SZwaveCommandPackage Package = {
@@ -110,13 +103,13 @@ void func_id_zw_security_setup(__attribute__((unused)) uint8_t inputLength,
         /* LSB first if more than one byte in securityKeys_bitmask[] */
         *(pOutputBuffer + 2) = 0
 #if SUPPORT_ZW_GET_SECURITY_KEYS
-            | E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_KEYS
-            | E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS
+                               | E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_KEYS
+                               | E_SECURITY_SETUP_SUPPORT_CMD_SET_SECURITY_INCLUSION_REQUESTED_KEYS
 #endif
 #if SUPPORT_ZW_GET_SECURITY_S2_PUBLIC_DSK
-            | E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK
+                               | E_SECURITY_SETUP_SUPPORT_CMD_ZW_GET_SECURITY_S2_PUBLIC_DSK
 #endif
-            ;
+        ;
         *pOutputLength = 3;
       }
       break;

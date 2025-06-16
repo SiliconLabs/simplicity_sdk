@@ -46,7 +46,11 @@
 void sleepyInit(void);
 void setNetworkConfiguration(void);
 void initUdp(void);
+#ifdef SL_CATALOG_KERNEL_PRESENT
+void sl_ot_rtos_application_tick(void);
+#else
 void applicationTick(void);
+#endif
 
 /**
  * This function initializes the CLI app.
@@ -110,7 +114,6 @@ void sl_ot_cli_init(void)
 /******************************************************************************
  * Application Init.
  *****************************************************************************/
-
 void app_init(void)
 {
     sleepyInit();
@@ -127,7 +130,12 @@ void app_process_action(void)
 {
     otTaskletsProcess(sInstance);
     otSysProcessDrivers(sInstance);
+
+#ifdef SL_CATALOG_KERNEL_PRESENT
+    sl_ot_rtos_application_tick();
+#else
     applicationTick();
+#endif
 }
 
 /******************************************************************************

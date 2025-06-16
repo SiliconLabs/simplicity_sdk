@@ -1,6 +1,6 @@
 id: "bluetooth_feature_legacy_scanner"
 label: "Scanner for legacy advertisements"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component brings in necessary functionalities for scanning the advertisements
   that use legacy advertising PDUs.

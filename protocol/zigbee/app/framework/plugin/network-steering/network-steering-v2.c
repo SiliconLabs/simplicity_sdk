@@ -160,9 +160,6 @@ sl_zigbee_af_event_t sl_zigbee_af_network_steering_finish_steering_event[SL_ZIGB
 #define UPDATE_TC_LINK_KEY_JITTER_MIN_MS (MILLISECOND_TICKS_PER_SECOND * 10)
 #define UPDATE_TC_LINK_KEY_JITTER_MAX_MS (MILLISECOND_TICKS_PER_SECOND * 40)
 
-// This is an attribute specified in the BDB.
-#define VERIFY_KEY_TIMEOUT_MS (5 * MILLISECOND_TICKS_PER_SECOND)
-
 sl_zigbee_af_plugin_network_steering_options_t sli_zigbee_af_network_steering_options_mask
   = SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NONE;
 
@@ -200,6 +197,7 @@ sl_zigbee_node_type_t sl_zigbee_af_network_steering_get_node_type_cb(sl_zigbee_a
 void sl_zigbee_af_network_steering_finish_steering_event_handler(sl_zigbee_af_event_t * event);
 
 static sl_zigbee_af_plugin_network_steering_joining_state_t getFirstPrimaryState(void);
+static sl_zigbee_af_plugin_network_steering_joining_state_t getLastPrimaryState(void);
 static sl_zigbee_af_plugin_network_steering_joining_state_t getFirstSecondaryState(void);
 
 //============================================================================
@@ -319,6 +317,15 @@ static sl_zigbee_af_plugin_network_steering_joining_state_t getFirstPrimaryState
   return (gUseConfiguredKey
           ? SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_CONFIGURED
           : SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_INSTALL_CODE);
+#endif
+}
+
+static sl_zigbee_af_plugin_network_steering_joining_state_t getLastPrimaryState(void)
+{
+#ifdef TRY_ALL_KEYS
+  return SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_USE_ALL_KEYS;
+#else
+  return SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_PRIMARY_DISTRIBUTED;
 #endif
 }
 
@@ -477,7 +484,13 @@ HIDDEN void scanResultsHandler(sl_zigbee_af_plugin_scan_dispatch_scan_results_t 
 
 static sl_status_t goToNextState(void)
 {
-  sli_zigbee_af_network_steering_state++;
+  if (sli_zigbee_af_network_steering_state == getLastPrimaryState()) {
+    // Skip over SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_STATE_SCAN_SECONDARY_CONFIGURED
+    // unless a preconfigured key has been set
+    sli_zigbee_af_network_steering_state = getFirstSecondaryState();
+  } else {
+    sli_zigbee_af_network_steering_state++;
+  }
 
   // If there are no more states, return error
   if ((sli_zigbee_af_network_steering_state
@@ -543,6 +556,10 @@ static void stateMachineRun(void)
     if (status != SL_STATUS_OK) {
       return;
     }
+
+    sl_zigbee_af_core_println("%s State: %s",
+                              PLUGIN_NAME,
+                              sli_zigbee_af_network_steering_stateNames[sli_zigbee_af_network_steering_state]);
 
     status = setupSecurity();
   }
@@ -748,17 +765,7 @@ void sl_zigbee_af_network_steering_finish_steering_event_handler(sl_zigbee_af_ev
   sl_status_t status;
   sl_zigbee_af_event_set_inactive(finishSteeringEvent);
 
-  if (sli_zigbee_af_network_steering_state_verify_tclk()) {
-    // If we get here, then we have failed to verify the TCLK. Therefore,
-    // we leave the network.
-    sl_zigbee_af_update_tc_link_key_stop();
-    sl_zigbee_leave_network(SL_ZIGBEE_LEAVE_NWK_WITH_NO_OPTION);
-    sl_zigbee_af_core_println("%s: %s",
-                              PLUGIN_NAME,
-                              "Key verification failed. Leaving network");
-    cleanupAndStop(SL_STATUS_FAIL);
-    sl_zigbee_af_remove_from_current_app_tasks(SL_ZIGBEE_AF_WAITING_FOR_TC_KEY_UPDATE);
-  } else if (sli_zigbee_af_network_steering_state_update_tclk()) {
+  if (sli_zigbee_af_network_steering_state_update_tclk()) {
     // Start the process to update the TC link key. We will set another event
     // for the broadcast permit join.
     // Attempt a TC link key update now.
@@ -787,8 +794,6 @@ void sl_zigbee_af_update_tc_link_key_status_cb(sl_zigbee_key_status_t keyStatus)
     switch (keyStatus) {
       case SL_ZIGBEE_TRUST_CENTER_LINK_KEY_ESTABLISHED:
         // Success! But we should still wait to make sure we verify the key.
-        sli_zigbee_af_network_steering_state_set_verify_tclk();
-        sl_zigbee_af_event_set_delay_ms(finishSteeringEvent, VERIFY_KEY_TIMEOUT_MS);
         return;
       case SL_ZIGBEE_TRUST_CENTER_IS_PRE_R21:
       case SL_ZIGBEE_VERIFY_LINK_KEY_SUCCESS:
@@ -796,7 +801,6 @@ void sl_zigbee_af_update_tc_link_key_status_cb(sl_zigbee_key_status_t keyStatus)
         // If the trust center is pre-r21, then we don't update the link key.
         // If the key status is that the link key has been verified, then we
         // have successfully updated our trust center link key and we are done!
-        sli_zigbee_af_network_steering_state_clear_verify_tclk();
         uint32_t ms = randomJitterMS();
         sl_zigbee_af_event_set_delay_ms(finishSteeringEvent, ms);
         break;

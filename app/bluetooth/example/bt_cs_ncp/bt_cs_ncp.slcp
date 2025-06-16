@@ -23,10 +23,12 @@ filter:
 component:
   - id: toolchain_gcc
   - id: bluetooth_stack
+  - id: bluetooth_controller_anchor_selection
   - id: bluetooth_feature_legacy_advertiser
   - id: bluetooth_feature_extended_advertiser
   - id: bluetooth_feature_periodic_advertiser
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_central
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gap
   - id: bluetooth_feature_gatt
   - id: bluetooth_feature_gatt_server
@@ -46,7 +48,7 @@ component:
     instance:
       - vcom
   - id: mpu
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: bootloader_interface
@@ -54,6 +56,7 @@ component:
   - id: rail_util_ble_cs_antenna_offset
   - id: cs_reflector
   - id: cs_initiator
+  - id: cs_result
   - id: cs_antenna
   - id: iostream_bgapi_trace
   - id: iostream_dummy
@@ -61,7 +64,6 @@ component:
       - mock
 
 source:
-  - path: main.c
   - path: app.c
   - path: rtl_log.c
   - path: extended_result.c
@@ -69,7 +71,6 @@ source:
 include:
   - path: .
     file_list:
-      - path: app.h
       - path: rtl_log.h
       - path: extended_result.h
   - path: ../../common/cs_acp
@@ -97,14 +98,12 @@ configuration:
     unless:
       - hardware_board
   - name: SL_STACK_SIZE
-    value: 2752
+    value: 3500
   - name: SL_BT_CONFIG_BUFFER_SIZE
-    value: 10000
+    value: 22000
   - name: SL_BT_CONFIG_USER_ADVERTISERS
     value: 4
   - name: SL_BT_CONFIG_MAX_CONNECTIONS
-    value: 4
-  - name: CS_INITIATOR_MAX_CONNECTIONS
     value: 4
   - name: SL_BT_CONFIG_MAX_CS_PROCEDURES
     value: 4

@@ -14,11 +14,11 @@ ui_hints:
 
 requires:
   - name: device_init
-  - name: sl_system
+  - name: sl_main
   - name: wisun_mac
   - name: a_radio_config
   - name: dmadrv
-  - name: silabs_core_sl_malloc
+  - name: memory_manager
   - name: cpc_secondary
     condition: [cpc_secondary_driver]
   - name: emlib_usart
@@ -26,8 +26,6 @@ requires:
   - name: emlib_eusart
     condition: [device_has_eusart]
   - name: wisun_rcp
-  - name: freertos_heap_3
-    condition: [freertos]
   - name: wisun_rcp_interface
   - name: wisun_rcp_cpc
     condition: [cpc_secondary]
@@ -39,6 +37,9 @@ requires:
 recommends:
   - id: freertos
   - id: wisun_rcp_uart
+    unless: [device_sdid_210]
+  - id: wisun_rcp_cpc
+    condition: [device_sdid_210]
 
 define:
   - name: DEBUG_EFM_USER
@@ -51,7 +52,6 @@ source:
     condition: [micriumos_kernel]
   - path: sl_ring.h
   - path: sl_ring.c
-  - path: sl_wsrcp_os_main.c
   - path: sl_wsrcp_btl_interface.h
   - path: sl_wsrcp_btl_interface.c
     condition: [bootloader_interface]

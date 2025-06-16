@@ -80,14 +80,16 @@ bool sl_zigbee_af_ncp_d_gp_sent_handler(sl_status_t status, uint8_t gpepHandle)
   return true;
 }
 
-bool sl_zigbee_af_ncp_gpep_incoming_message_handler(GP_PARAMS)
+bool sl_zigbee_af_ncp_gpep_incoming_message_handler(sl_zigbee_gp_params_t *param)
 {
   // Return true then sli_zigbee_af_gpep_incoming_message_callback will not send EZSP to host
+  (void)param;
   return true;
 }
 
 bool sl_zigbee_af_green_power_server_update_involve_t_c_cb(sl_status_t status)
 {
   // Return true here to avoid writing the TCInvolved bit
+  (void)status;
   return true;
 }

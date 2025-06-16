@@ -1,13 +1,13 @@
 id: bmp3xx_driver
-package: platform
+package: board_drivers
 label: BMP3xx - Pressure Sensor
 description: >
-  Driver for the Bosch Sensortec BMP3xx barometric pressure sensors
+    Driver for the Bosch Sensortec BMP3xx barometric pressure sensors
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/bmp3xx
 provides:
   - name: bmp3xx_driver

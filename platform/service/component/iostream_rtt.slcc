@@ -1,14 +1,14 @@
 id: iostream_rtt
-package: platform
-label: "IO Stream: RTT"
+package: platform_core
+label: 'IO Stream: RTT'
 description: >
-  Instantiate the driver for using IO Stream over the SEGGER
-  Real-Time Transfer (RTT) peripheral.
+    Instantiate the driver for using IO Stream over the SEGGER
+    Real-Time Transfer (RTT) peripheral.
 category: Services|IO Stream|Driver
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/service/iostream
 provides:
   - name: iostream_rtt
@@ -32,13 +32,13 @@ template_contribution:
     value: rtt
   - name: event_handler
     value:
-      event: iostream_instance_init
+      event: iostream_instance_init_stage_1
       include: sl_iostream_rtt.h
       handler: sl_iostream_rtt_init
   - name: iostream_instance_info
     value:
-      include: sl_iostream_rtt.h
-      handler: sl_iostream_instance_rtt_info
+        include: sl_iostream_rtt.h
+        handler: sl_iostream_instance_rtt_info
 documentation:
-  docset: gecko-platform
-  document: platform-service/iostream-rtt
+    docset: gecko-platform
+    document: platform-service/iostream-rtt

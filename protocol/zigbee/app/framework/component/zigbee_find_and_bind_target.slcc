@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides the functionality for a target device to start identifying on user-defined endpoints. The target device can then act as a target for a finding and binding initiator.
 label: Find and Bind Target
 quality: production

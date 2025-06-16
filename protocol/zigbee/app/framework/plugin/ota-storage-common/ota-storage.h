@@ -36,9 +36,35 @@
  * @{
  */
 
+/**
+ * @def OTA_MINIMUM_HEADER_LENGTH
+ * @brief Defines the minimum header length for the OTA file
+ *
+ * The total length (in bytes) was calulated from the following fields: \n
+ * 4 bytes: OTA upgrade file identifier \n
+ * 2 bytes: Unsigned 16-bit integer OTA Header version \n
+ * 2 bytes: Unsigned 16-bit integer OTA Header length \n
+ * 2 bytes: Unsigned 16-bit integer OTA Header Field control \n
+ * 2 bytes: Unsigned 16-bit integer Manufacturer code \n
+ * 2 bytes: Unsigned 16-bit integer Image type \n
+ * 4 bytes: Unsigned 32-bit integer File version \n
+ * 2 bytes: Unsigned 16-bit integer ZigBee Stack version \n
+ * 32 bytes: Character string OTA Header string \n
+ * 4 bytes: Unsigned 32-bit integer Total Image size (including header)
+ */
 #define OTA_MINIMUM_HEADER_LENGTH (20 + 32 + 4)
 // Optional fields are: security credentials, upgrade dest, and HW versions
-#define OTA_MAXIMUM_HEADER_LENGTH (OTA_MINIMUM_HEADER_LENGTH + 1 + 32 + 4)
+/**
+ * @def OTA_MAXIMUM_HEADER_LENGTH
+ * @brief Defines the maximum header length for the OTA file
+ *
+ * The total length (in bytes) was calulated from the following fields: \n
+ * 1 byte: Unsigned 8-bit integer Security credential version \n
+ * 8 bytes: IEEE Address Upgrade file destination \n
+ * 2 bytes: Unsigned 16-bit integer Minimum hardware version \n
+ * 2 bytes: Unsigned 16-bit integer
+ */
+#define OTA_MAXIMUM_HEADER_LENGTH (OTA_MINIMUM_HEADER_LENGTH + 1 + 8 + 4)
 
 // For EEPROM parts with 2-byte word sizes we need to make sure we read
 // on word boundaries.
@@ -62,8 +88,17 @@
 
 #define HEADER_LENGTH_FIELD_LENGTH 2
 
+/**
+ * @def TAG_OVERHEAD
+ * @brief Tag Overhead. 2 bytes for the Tag ID and 4 bytes for the length
+ */
 #define TAG_OVERHEAD (2 + 4)   // 2 bytes for the tag ID, 4 bytes for the length
 
+// Optional fields are: security credentials, upgrade dest, and HW versions
+/**
+ * @def isValidHeaderVersion
+ * @brief Check if the header version is valid
+ */
 #define isValidHeaderVersion(headerVersion) \
   ((headerVersion == OTA_HEADER_VERSION_ZIGBEE) || (headerVersion == OTA_HEADER_VERSION_THREAD))
 
@@ -71,10 +106,23 @@
 #define DEVICE_SPECIFIC_FILE_PRESENT_MASK              0x0002
 #define HARDWARE_VERSIONS_PRESENT_MASK                 0x0004
 
+/**
+ * @def headerHasSecurityCredentials
+ * @brief Check if the header has security credentials present
+ */
 #define headerHasSecurityCredentials(header) \
   ((header)->fieldControl & SECURITY_CREDENTIAL_VERSION_FIELD_PRESENT_MASK)
+/**
+ * @def headerHasUpgradeFileDest
+ * @brief Check if the header has an upgrade file destination
+ */
 #define headerHasUpgradeFileDest(header) \
   ((header)->fieldControl & DEVICE_SPECIFIC_FILE_PRESENT_MASK)
+
+/**
+ * @def headerHasHardwareVersions
+ * @brief Check if the header has the hardware version present
+ */
 #define headerHasHardwareVersions(header) \
   ((header)->fieldControl & HARDWARE_VERSIONS_PRESENT_MASK)
 
@@ -96,7 +144,10 @@
 
 #define INVALID_SLOT      (uint32_t)-1
 
-// Default to using storage slot 0
+/**
+ * @def DEFAULT_SLOT
+ * @brief Default to using storage slot 0
+ */
 #define DEFAULT_SLOT      0
 
 /**
@@ -104,6 +155,12 @@
  * @{
  */
 
+/** @brief A call to check if the OTA Image ID is valid
+ *
+ * @param[in] idToCompare a pointer of type: sl_zigbee_af_ota_image_id_t referring to the OTA image ID
+ *
+ * @returns A ::bool value returning true if the OTA Id is valid
+ */
 bool sl_zigbee_af_is_ota_image_id_valid(const sl_zigbee_af_ota_image_id_t* idToCompare);
 
 /** @} */ // end of name API
@@ -126,15 +183,17 @@ bool sl_zigbee_af_is_ota_image_id_valid(const sl_zigbee_af_ota_image_id_t* idToC
  */
 
 // This should be moved into the plugin callbacks file.
-/** @brief OTA Storage Delete Image callback.
+/** @brief A callback returning the status of the OTA storage deleting an image.
  *
- * @param buffer OTA Image ID
+ * @param[in] id  a pointer of type: sl_zigbee_af_ota_image_id_t referring to the OTA image ID
  *
+ * @returns A ::sl_zigbee_af_ota_storage_status_t on if image deletion was successful.
  */
 sl_zigbee_af_ota_storage_status_t sl_zigbee_af_ota_storage_delete_image_cb(const sl_zigbee_af_ota_image_id_t* id);
 
-/** @brief OTA Storage Driver Max Download Size callback.
- *
+/** @brief OTA Storage Driver max download size callback.
+ *  @param NULL
+ *  @returns A ::uint32_t on the maximum download size for the OTA file.
  */
 uint32_t sl_zigbee_af_ota_storage_driver_max_download_size_cb(void);
 

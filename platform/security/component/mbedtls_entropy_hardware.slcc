@@ -1,5 +1,5 @@
 id: mbedtls_entropy_hardware
-package: platform
+package: security_mbedtls
 label: Hardware Entropy Source
 description: >-
   This component provides support for using entropy gathered from a strict
@@ -39,6 +39,10 @@ requires:
     condition: [device_si91x]
   - name: psa_crypto_trng
     condition: [device_series_3]
+conflicts:
+  # PLATFORM_HYD-5151
+  - name: device_generic_family_sixx353
+  - name: device_family_sixg300xiwifi74000
 template_contribution:
   - name: mbedtls_config
     value: MBEDTLS_ENTROPY_HARDWARE_ALT

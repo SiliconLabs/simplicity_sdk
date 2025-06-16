@@ -1,6 +1,6 @@
 id: zigbee_system_common
 label: Application Framework Common
-package: Zigbee
+package: zigbee
 category: Zigbee|Utility
 quality: production
 description: This component declares all the required application framework globals, initializes the Zigbee stack and dispatches stack callbacks calls as needed to the application components.
@@ -15,7 +15,6 @@ config_file:
     condition:
       - cmsis_rtos2
 requires:
-  - name: sl_system
   - name: zigbee_pro_stack_support
   - name: zigbee_enhanced_routing
   - name: zigbee_phy
@@ -158,13 +157,6 @@ toolchain_settings:
     value: -Werror
     condition:
       - zigbee_pro_stack_common_source
-  # lto sometimes inlines the weak definition and bypass the strong one,
-  # resulting in run-time failures
-  # this flag helps to disable funtion inlining globally when lto is used
-  - option: gcc_compiler_option
-    value: -fno-inline
-    condition:
-      - toolchain_lto
 
 template_file:
   - path: protocol/zigbee/app/framework/common/template/zigbee_stack_callback_dispatcher.h.jinja
@@ -199,6 +191,20 @@ template_contribution:
     priority: -8999
     condition:
       - cmsis_rtos2
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: sl_zigbee_system_common.h
+      handler: sli_zigbee_stack_rtos_perm_allocation
+    priority: -8999
+    condition: [sl_main, cmsis_rtos2]
+  - name: event_handler
+    value:
+      event: stack_permanent_allocation
+      include: sl_zigbee_system_common.h
+      handler: sli_legacy_buffer_manager_initialize_buffers
+    priority: -8999
+    condition: [sl_main]
   - name: event_handler
     value:
       event: stack_process_action
@@ -285,6 +291,28 @@ template_contribution:
     condition:
       - power_manager
       - zigbee_zcl_framework_core
+
+  - name: cli_command
+    value:
+      group: idle-sleep
+      name: power-mode-performance
+      handler: sl_zigbee_af_idle_sleep_power_mode_performance_command
+      help: Set Power mode to performance
+    condition:
+      - power_manager
+      - zigbee_zcl_framework_core
+      - device_series_3
+
+  - name: cli_command
+    value:
+      group: idle-sleep
+      name: power-mode-eco
+      handler: sl_zigbee_af_idle_sleep_power_mode_eco_command
+      help: Set Power mode to eco
+    condition:
+      - power_manager
+      - zigbee_zcl_framework_core
+      - device_series_3
 
 tag:
   - idle-sleep

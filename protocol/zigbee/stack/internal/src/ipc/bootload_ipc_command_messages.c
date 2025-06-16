@@ -46,21 +46,21 @@ sl_status_t sl_zigbee_send_bootload_message(bool broadcast,
 
   msg.data.send_bootload_message.request.messageLength = messageLength;
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector messageContents length exceeds expected maximum
   }
 
-  memmove(msg.data.send_bootload_message.request.messageContents, messageContents, sizeof(uint8_t) * (messageLength));
+  memmove(msg.data.send_bootload_message.request.messageContents, messageContents, sizeof(uint8_t) * messageLength);
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_send_bootload_message_process_ipc_command, &msg);
 
   if (destEui64 != NULL) {
     memmove(destEui64, msg.data.send_bootload_message.request.destEui64, sizeof(sl_802154_long_addr_t));
   }
 
-  if ((messageLength) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if (messageLength > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector messageContents length exceeds expected maximum
   }
 
-  memmove(messageContents, msg.data.send_bootload_message.request.messageContents, sizeof(uint8_t) * (messageLength));
+  memmove(messageContents, msg.data.send_bootload_message.request.messageContents, sizeof(uint8_t) * messageLength);
   return msg.data.send_bootload_message.response.result;
 }

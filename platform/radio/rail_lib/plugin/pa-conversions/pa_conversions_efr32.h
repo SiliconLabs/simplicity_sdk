@@ -34,6 +34,10 @@
 #ifndef PA_CONVERSIONS_EFR32_H
 #define PA_CONVERSIONS_EFR32_H
 
+#if     SL_RAIL_3_API
+#include "sl_rail_util_pa_conversions_efr32.h"
+#endif//SL_RAIL_3_API
+
 #include "rail_types.h"
 
 // This macro is defined when Silicon Labs builds curves into the library as WEAK
@@ -142,6 +146,10 @@ RAIL_Status_t RAIL_GetTxPowerCurveLimits(RAIL_Handle_t railHandle,
                                          RAIL_TxPower_t *maxpower,
                                          RAIL_TxPower_t *increment);
 
+#if     SL_RAIL_3_API
+// Defer to sl_rail_util_pa_conversions_efr32.h prototypes for these
+#else//!SL_RAIL_3_API
+
 /**
  * Initialize PA TX Curves.
  */
@@ -178,6 +186,8 @@ RAIL_TxPowerConfig_t *sl_rail_util_pa_get_tx_power_config_ofdm(void);
  */
 void sl_rail_util_pa_on_channel_config_change(RAIL_Handle_t rail_handle,
                                               const RAIL_ChannelConfigEntry_t *entry);
+
+#endif//SL_RAIL_3_API
 
 /** @} */ // PA_Curve_Conversions
 

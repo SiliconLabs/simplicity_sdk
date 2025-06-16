@@ -42,7 +42,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @addtogroup App BT Mesh Utility
+ * @addtogroup app_btmesh_util
  * @{
  ******************************************************************************/
 
@@ -83,8 +83,8 @@
 #define app_btmesh_util_log_status_f(sc, ...) (void)(sc)
 #endif
 
-// This macro calculates the number of precompile logging enable request in the
-// specific c file where the this header file is included from
+/// This macro calculates the number of precompile logging enable request in the
+/// specific c file where the this header file is included from
 #define APP_BTMESH_UTIL_COMPONENT_LOGGING                 \
   (SL_BTMESH_BLOB_STORAGE_LOGGING_CFG_VAL                 \
    + SL_BTMESH_BLOB_TRANSFER_CLIENT_LOGGING_CFG_VAL       \
@@ -96,6 +96,7 @@
    + SL_BTMESH_FW_UPDATE_SERVER_LOGGING_CFG_VAL           \
    + SL_BTMESH_GENERIC_LEVEL_CLIENT_EXT_LOGGING_CFG_VAL   \
    + SL_BTMESH_GENERIC_ONOFF_SERVER_LOGGING_CFG_VAL       \
+   + SL_BTMESH_HSL_CLIENT_LOGGING_CFG_VAL                 \
    + SL_BTMESH_HSL_SERVER_LOGGING_CFG_VAL                 \
    + SL_BTMESH_IV_UPDATE_LOGGING_CFG_VAL                  \
    + SL_BTMESH_LC_SERVER_LOGGING_CFG_VAL                  \
@@ -419,6 +420,6 @@ const char *app_btmesh_bytes_to_hex(char *buffer,
                                     char separator,
                                     bool uppercase);
 
-/** @} (end addtogroup App BT Mesh Utility) */
+/** @} (end addtogroup app_btmesh_util BT Mesh Utility) */
 
 #endif /* APP_BTMESH_UTIL_H */

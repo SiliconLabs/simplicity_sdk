@@ -54,7 +54,17 @@
 #define LZ4_STATE_MATCH_LENGTH    40U
 /// LZ4 state machine: Backtracking to get matched data
 #define LZ4_STATE_BACKTRACKING    50U
-
+#if defined(_SILICON_LABS_32B_SERIES_3)
+// output buffer size
+#define OUTPUT_BUFFER_SIZE 2048
+// Configurable alignment size,it should be less than or equal to the OUTPUT_BUFFER_SIZE
+#define ALIGNMENT_SIZE 2048
+#else
+// output buffer size
+#define OUTPUT_BUFFER_SIZE 4
+// Configurable alignment size,it should be less than or equal to the OUTPUT_BUFFER_SIZE
+#define ALIGNMENT_SIZE 4
+#endif
 /// Function to output data from LZ4 decompressor
 typedef int32_t (*Lz4DataWrite_t)(uint8_t *data, size_t length);
 /// Function to read data into LZ4 decompressor
@@ -130,9 +140,9 @@ int32_t lz4_finish(Lz4Context_t *ctx);
 /// LZ4 Compressed Programming GBL Tag Parser Context
 typedef struct {
   /// Buffer to store unaligned decompressed data
-  uint8_t outputBuffer[4];
+  uint8_t outputBuffer[OUTPUT_BUFFER_SIZE];
   /// Offset into outputBuffer
-  uint8_t outputOffset;
+  uint32_t outputOffset;
   /// Whether this is the first call to the parser for this tag
   bool    firstCall;
   /// Stored pointer to the GBL parser context

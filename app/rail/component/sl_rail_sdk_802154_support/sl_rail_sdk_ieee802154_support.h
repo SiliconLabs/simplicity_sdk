@@ -34,10 +34,10 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
-#include "rail_features.h"
+#include "sl_rail.h"
+#include "sl_rail_features.h"
 #include "sl_component_catalog.h"
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
 #include "sl_rail_sdk_util_802154_protocol.h"
 #include "sl_rail_sdk_packet_asm.h"
 
@@ -58,8 +58,8 @@
 #define DEFAULT_BROADCAST_DEST_ADDR       (0xFFFF)
 
 // some board does not support the unwhitening.
-#if RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX \
-  && RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX
+#if SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX \
+  && SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX
   #define APP_WHITENING_EN                 (false)
   #define APP_WHITENING_ON_OFF             SL_RAIL_SDK_IEEE802154G_PHR_DATA_WHITENING_OFF
 #else
@@ -152,7 +152,7 @@ typedef struct {
  * @retval SL_RAIL_SDK_IEEE802154_UNSUPPORTED_RF_BAND not supported RF band
  * @retval SL_RAIL_SDK_IEEE802154_RADIO_CONFIG the radio config is selected
  *****************************************************************************/
-int16_t sl_rail_sdk_ieee802154_protocol_init(RAIL_Handle_t r_handle,
+int16_t sl_rail_sdk_ieee802154_protocol_init(sl_rail_handle_t r_handle,
                                              sl_rail_sdk_util_802154_protocol_type_t protocol);
 
 /**************************************************************************//**
@@ -199,7 +199,7 @@ void sl_rail_sdk_ieee802154_print_ack(sl_rail_sdk_ieee802154_std_t std,
  * @param[in] cli_req       structure of CLI requests
  * @param[in] cli_desired   structure of CLI desired values of requests
  *****************************************************************************/
-void sl_rail_sdk_ieee802154_request_manager(RAIL_Handle_t r_handle,
+void sl_rail_sdk_ieee802154_request_manager(sl_rail_handle_t r_handle,
                                             sl_rail_sdk_ieee802154_frame_t *tx_frame,
                                             volatile sl_rail_sdk_ieee802154_cli_requests *cli_req,
                                             volatile sl_rail_sdk_ieee802154_cli_data *cli_desired);
@@ -241,9 +241,9 @@ bool sl_rail_sdk_ieee802154_is_change_requested(
  * @param[in] packet          frame in packet shape, raw RAIL data packet
  * @param[in] packet_size     size of the packet
  *****************************************************************************/
-RAIL_Status_t sl_rail_sdk_ieee802154_transmission(RAIL_Handle_t rail_handle,
-                                                  const uint8_t *packet,
-                                                  uint16_t packet_size);
+sl_rail_status_t sl_rail_sdk_ieee802154_transmission(sl_rail_handle_t rail_handle,
+                                                     const uint8_t *packet,
+                                                     uint16_t packet_size);
 
 /**************************************************************************//**
  * This function packs the IEEE 802.15.4 frame based on the standard into a buffer.

@@ -79,6 +79,7 @@
 #include "common/notifier.hpp"
 #include "common/settings.hpp"
 #include "crypto/mbedtls.hpp"
+#include "crypto/storage.hpp"
 #include "mac/mac.hpp"
 #include "mac/wakeup_tx_scheduler.hpp"
 #include "meshcop/border_agent.hpp"
@@ -121,7 +122,6 @@
 #include "thread/link_quality.hpp"
 #include "thread/mesh_forwarder.hpp"
 #include "thread/mle.hpp"
-#include "thread/mle_router.hpp"
 #include "thread/mlr_manager.hpp"
 #include "thread/network_data_local.hpp"
 #include "thread/network_data_notifier.hpp"
@@ -353,24 +353,6 @@ public:
     static Utils::Heap &GetHeap(void);
 #endif
 
-#if OPENTHREAD_CONFIG_COAP_API_ENABLE
-    /**
-     * Returns a reference to application COAP object.
-     *
-     * @returns A reference to the application COAP object.
-     */
-    Coap::Coap &GetApplicationCoap(void) { return mApplicationCoap; }
-#endif
-
-#if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
-    /**
-     * Returns a reference to application COAP Secure object.
-     *
-     * @returns A reference to the application COAP Secure object.
-     */
-    Coap::ApplicationCoapSecure &GetApplicationCoapSecure(void) { return mApplicationCoapSecure; }
-#endif
-
 #if OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE
     /**
      * Enables/disables the "DNS name compressions" mode.
@@ -441,6 +423,23 @@ private:
     void AfterInit(void);
 #endif
 
+    //-----------------------------------------------------------------------------------------------------------------
+    // `static` variables
+
+#if OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE
+    static LogLevel sLogLevel;
+#endif
+
+#if (OPENTHREAD_MTD || OPENTHREAD_FTD) && !OPENTHREAD_CONFIG_HEAP_EXTERNAL_ENABLE
+    static Utils::Heap *sHeap;
+#endif
+
+#if (OPENTHREAD_MTD || OPENTHREAD_FTD) && OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE
+    static bool sDnsNameCompressionEnabled;
+#endif
+
+    //-----------------------------------------------------------------------------------------------------------------
+
     // Order of variables (their initialization in `Instance`)
     // is important.
     //
@@ -456,11 +455,8 @@ private:
 #if OPENTHREAD_MTD || OPENTHREAD_FTD
     // Random::Manager is initialized before other objects. Note that it
     // requires MbedTls which itself may use Heap.
-#if !OPENTHREAD_CONFIG_HEAP_EXTERNAL_ENABLE
-    static Utils::Heap *sHeap;
-#endif
     Crypto::MbedTls mMbedTls;
-#endif // OPENTHREAD_MTD || OPENTHREAD_FTD
+#endif
 
     Random::Manager mRandomManager;
 
@@ -487,6 +483,10 @@ private:
     // DNS-SD (mDNS) platform is initialized early to
     // allow other modules to use it.
     Dnssd mDnssd;
+#endif
+
+#if OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
+    Crypto::Storage::KeyRefManager mCryptoStorageKeyRefManager;
 #endif
 
     Ip6::Ip6    mIp6;
@@ -550,7 +550,7 @@ private:
     Lowpan::Lowpan                 mLowpan;
     Mac::Mac                       mMac;
     MeshForwarder                  mMeshForwarder;
-    Mle::MleRouter                 mMleRouter;
+    Mle::Mle                       mMle;
     Mle::DiscoverScanner           mDiscoverScanner;
     AddressResolver                mAddressResolver;
 
@@ -653,7 +653,7 @@ private:
 #endif
 
 #if OPENTHREAD_CONFIG_COAP_API_ENABLE
-    Coap::Coap mApplicationCoap;
+    Coap::ApplicationCoap mApplicationCoap;
 #endif
 
 #if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
@@ -715,10 +715,6 @@ private:
     Mac::LinkRaw mLinkRaw;
 #endif
 
-#if OPENTHREAD_CONFIG_LOG_LEVEL_DYNAMIC_ENABLE
-    static LogLevel sLogLevel;
-#endif
-
 #if OPENTHREAD_ENABLE_VENDOR_EXTENSION
     Extension::ExtensionBase &mExtension;
 #endif
@@ -731,10 +727,6 @@ private:
 #endif
 
     bool mIsInitialized;
-
-#if OPENTHREAD_CONFIG_REFERENCE_DEVICE_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-    static bool sDnsNameCompressionEnabled;
-#endif
 
     uint32_t mId;
 };
@@ -751,7 +743,7 @@ template <> inline Radio &Instance::Get(void) { return mRadio; }
 template <> inline Radio::Callbacks &Instance::Get(void) { return mRadio.mCallbacks; }
 
 #if OPENTHREAD_CONFIG_RADIO_STATS_ENABLE && (OPENTHREAD_FTD || OPENTHREAD_MTD)
-template <> inline RadioStatistics &Instance::Get(void) { return mRadio.mRadioStatistics; }
+template <> inline Radio::Statistics &Instance::Get(void) { return mRadio.mStatistics; }
 #endif
 
 #if OPENTHREAD_CONFIG_UPTIME_ENABLE
@@ -769,28 +761,28 @@ template <> inline SettingsDriver &Instance::Get(void) { return mSettingsDriver;
 
 template <> inline MeshForwarder &Instance::Get(void) { return mMeshForwarder; }
 
+#if OPENTHREAD_CONFIG_PLATFORM_KEY_REFERENCES_ENABLE
+template <> inline Crypto::Storage::KeyRefManager &Instance::Get(void) { return mCryptoStorageKeyRefManager; }
+#endif
+
 #if OPENTHREAD_CONFIG_MULTI_RADIO
 template <> inline RadioSelector &Instance::Get(void) { return mRadioSelector; }
 #endif
 
-template <> inline Mle::Mle &Instance::Get(void) { return mMleRouter; }
-
-#if OPENTHREAD_FTD
-template <> inline Mle::MleRouter &Instance::Get(void) { return mMleRouter; }
-#endif
+template <> inline Mle::Mle &Instance::Get(void) { return mMle; }
 
 template <> inline Mle::DiscoverScanner &Instance::Get(void) { return mDiscoverScanner; }
 
-template <> inline NeighborTable &Instance::Get(void) { return mMleRouter.mNeighborTable; }
+template <> inline NeighborTable &Instance::Get(void) { return mMle.mNeighborTable; }
 
 #if OPENTHREAD_FTD
-template <> inline ChildTable &Instance::Get(void) { return mMleRouter.mChildTable; }
+template <> inline ChildTable &Instance::Get(void) { return mMle.mChildTable; }
 
-template <> inline RouterTable &Instance::Get(void) { return mMleRouter.mRouterTable; }
+template <> inline RouterTable &Instance::Get(void) { return mMle.mRouterTable; }
 #endif
 
 #if OPENTHREAD_CONFIG_WAKEUP_COORDINATOR_ENABLE
-template <> inline WakeupTxScheduler &Instance::Get(void) { return mMleRouter.mWakeupTxScheduler; }
+template <> inline WakeupTxScheduler &Instance::Get(void) { return mMle.mWakeupTxScheduler; }
 #endif
 
 template <> inline Ip6::Netif &Instance::Get(void) { return mThreadNetif; }
@@ -807,6 +799,10 @@ template <> inline Mac::SubMac &Instance::Get(void) { return mMac.mLinks.mSubMac
 template <> inline Trel::Link &Instance::Get(void) { return mMac.mLinks.mTrel; }
 
 template <> inline Trel::Interface &Instance::Get(void) { return mMac.mLinks.mTrel.mInterface; }
+
+template <> inline Trel::PeerTable &Instance::Get(void) { return mMac.mLinks.mTrel.mPeerTable; }
+
+template <> inline Trel::PeerDiscoverer &Instance::Get(void) { return mMac.mLinks.mTrel.mPeerDiscoverer; }
 #endif
 
 #if OPENTHREAD_CONFIG_MAC_FILTER_ENABLE
@@ -821,9 +817,15 @@ template <> inline Ip6::Filter &Instance::Get(void) { return mIp6Filter; }
 
 template <> inline AddressResolver &Instance::Get(void) { return mAddressResolver; }
 
-#if OPENTHREAD_FTD
-
+#if OPENTHREAD_FTD || OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
 template <> inline IndirectSender &Instance::Get(void) { return mMeshForwarder.mIndirectSender; }
+#endif
+
+#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
+template <> inline CslTxScheduler &Instance::Get(void) { return mMeshForwarder.mIndirectSender.mCslTxScheduler; }
+#endif
+
+#if OPENTHREAD_FTD
 
 template <> inline SourceMatchController &Instance::Get(void)
 {
@@ -831,10 +833,6 @@ template <> inline SourceMatchController &Instance::Get(void)
 }
 
 template <> inline DataPollHandler &Instance::Get(void) { return mMeshForwarder.mIndirectSender.mDataPollHandler; }
-
-#if OPENTHREAD_CONFIG_MAC_CSL_TRANSMITTER_ENABLE
-template <> inline CslTxScheduler &Instance::Get(void) { return mMeshForwarder.mIndirectSender.mCslTxScheduler; }
-#endif
 
 template <> inline MeshCoP::Leader &Instance::Get(void) { return mLeader; }
 
@@ -1007,6 +1005,13 @@ template <> inline MeshCoP::DatasetUpdater &Instance::Get(void) { return mDatase
 template <> inline MeshCoP::BorderAgent &Instance::Get(void) { return mBorderAgent; }
 #endif
 
+#if OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE && OPENTHREAD_CONFIG_BORDER_AGENT_EPHEMERAL_KEY_ENABLE
+template <> inline MeshCoP::BorderAgent::EphemeralKeyManager &Instance::Get(void)
+{
+    return mBorderAgent.GetEphemeralKeyManager();
+}
+#endif
+
 #if OPENTHREAD_CONFIG_ANNOUNCE_SENDER_ENABLE
 template <> inline AnnounceSender &Instance::Get(void) { return mAnnounceSender; }
 #endif
@@ -1079,6 +1084,14 @@ template <> inline Srp::Server &Instance::Get(void) { return mSrpServer; }
 template <> inline Srp::AdvertisingProxy &Instance::Get(void) { return mSrpAdvertisingProxy; }
 #endif
 #endif // OPENTHREAD_CONFIG_SRP_SERVER_ENABLE
+
+#if OPENTHREAD_CONFIG_COAP_API_ENABLE
+template <> inline Coap::ApplicationCoap &Instance::Get(void) { return mApplicationCoap; }
+#endif
+
+#if OPENTHREAD_CONFIG_COAP_SECURE_API_ENABLE
+template <> inline Coap::ApplicationCoapSecure &Instance::Get(void) { return mApplicationCoapSecure; }
+#endif
 
 #if OPENTHREAD_CONFIG_BLE_TCAT_ENABLE
 template <> inline Ble::BleSecure &Instance::Get(void) { return mApplicationBleSecure; }

@@ -69,16 +69,14 @@ uint8_t sl_zigbee_gp_proxy_table_lookup_wrapper(sl_zigbee_gp_address_t *addr);
 uint8_t sli_zigbee_gp_proxy_table_find_or_allocate_entry_wrapper(sl_zigbee_gp_address_t *addr);
 void sli_zigbee_gp_proxy_table_add_sink_wrapper(uint8_t index,
                                                 uint8_t commMode,
-                                                sl_802154_long_addr_t sinkIeeeAddress,
+                                                const uint8_t* sinkIeeeAddress,
                                                 sl_802154_short_addr_t sinkNwkAddress,
                                                 uint16_t sinkGroupId,
-                                                uint16_t assignedAlias);
-void sli_zigbee_gp_proxy_table_remove_sink_wrapper(uint8_t index,
-                                                   sl_802154_long_addr_t sinkIeeeAddress,
-                                                   uint16_t sinkGroupId,
-                                                   uint16_t assignedAlias);
-void sli_zigbee_gp_proxy_table_remove_entry_wrapper(uint8_t index);
-void sli_zigbee_gp_proxy_table_set_key_wrapper(uint8_t index, uint8_t * gpdKey, sl_zigbee_gp_key_type_t securityKeyType);
+                                                uint16_t assignedAlias
+                                                );
+void sli_zigbee_gp_proxy_table_remove_sink_wrapper(uint8_t index, const uint8_t* sinkIeeeAddress, uint16_t sinkGroupId, uint16_t assignedAlias);
+void sl_zigbee_gp_proxy_table_remove_entry_wrapper(uint8_t index);
+void sli_zigbee_gp_proxy_table_set_key_wrapper(uint8_t index, const uint8_t * gpdKey, sl_zigbee_gp_key_type_t securityKeyType);
 void sli_zigbee_gp_proxy_table_get_key_wrapper(uint8_t index, sl_zigbee_key_data_t *key);
 bool sli_zigbee_gp_address_match_wrapper(const sl_zigbee_gp_address_t *a1, const sl_zigbee_gp_address_t *a2);
 void sl_zigbee_gp_sink_table_init_wrapper(void);
@@ -99,6 +97,7 @@ uint8_t sl_zigbee_gp_sink_table_lookup_wrapper(sl_zigbee_gp_address_t *addr);
 void sl_zigbee_gp_sink_table_remove_entry_wrapper(uint8_t index);
 void sl_zigbee_gp_sink_table_set_security_frame_counter_wrapper(uint8_t index,
                                                                 uint32_t sfc);
+void sl_zigbee_gp_clear_proxy_table_wrapper(void);
 
 #define sl_zigbee_gp_proxy_table_process_gp_pairing sl_zigbee_gp_proxy_table_process_gp_pairing_wrapper
 #define sli_zigbee_gp_proxy_table_set_entry sli_zigbee_gp_proxy_table_set_entry_wrapper
@@ -109,7 +108,7 @@ void sl_zigbee_gp_sink_table_set_security_frame_counter_wrapper(uint8_t index,
 #define sli_zigbee_gp_proxy_table_find_or_allocate_entry sli_zigbee_gp_proxy_table_find_or_allocate_entry_wrapper
 #define sli_zigbee_gp_proxy_table_add_sink sli_zigbee_gp_proxy_table_add_sink_wrapper
 #define sli_zigbee_gp_proxy_table_remove_sink sli_zigbee_gp_proxy_table_remove_sink_wrapper
-#define sli_zigbee_gp_proxy_table_remove_entry sli_zigbee_gp_proxy_table_remove_entry_wrapper
+#define sl_zigbee_gp_proxy_table_remove_entry sl_zigbee_gp_proxy_table_remove_entry_wrapper
 #define sli_zigbee_gp_proxy_table_set_key sli_zigbee_gp_proxy_table_set_key_wrapper
 #define sli_zigbee_gp_proxy_table_get_key sli_zigbee_gp_proxy_table_get_key_wrapper
 #define sli_zigbee_gp_address_match sli_zigbee_gp_address_match_wrapper
@@ -125,6 +124,7 @@ void sl_zigbee_gp_sink_table_set_security_frame_counter_wrapper(uint8_t index,
 #define sl_zigbee_gp_sink_table_remove_entry sl_zigbee_gp_sink_table_remove_entry_wrapper
 #define sl_zigbee_gp_sink_table_set_security_frame_counter sl_zigbee_gp_sink_table_set_security_frame_counter_wrapper
 #define sl_zigbee_gp_sink_table_get_number_of_active_entries sl_zigbee_gp_sink_table_get_number_of_active_entries_wrapper
+#define sl_zigbee_gp_clear_proxy_table sl_zigbee_gp_clear_proxy_table_wrapper
 
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_GP_STACK == 1)
 

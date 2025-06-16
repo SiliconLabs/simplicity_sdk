@@ -66,13 +66,13 @@
 #define SL_WISUN_OTA_DFU_TFTP_DATA_BLOCK_SIZE       1228U ///< TFTP data block size
 
 // <o SL_WISUN_OTA_DFU_TFTP_TIMEOUT_SEC> TFTP server retransmission timeout in seconds
-// <i> Default: 1 second
+// <i> Default: 8 second
 // <i> This is the retransmit duration in seconds negotiated with the TFTP server.
 // <i> When using tftp-hpa, it overwrites the --timeout value set in /etc/default/tftpd-hpa and the --retransmit value from tftpd-hpa command line.
 // <i> With tftpd-hpa, a maximum of 6 tries are done by chunk.
 // <i> <i> This value needs to be set large enough to cope with parent changes and reconnections.
 // <1-255>
-#define SL_WISUN_OTA_DFU_TFTP_TIMEOUT_SEC           1U ///< TFTP server retransmission timeout in seconds
+#define SL_WISUN_OTA_DFU_TFTP_TIMEOUT_SEC           8U ///< TFTP server retransmission timeout in seconds
 
 // <s SL_WISUN_OTA_DFU_HOST_ADDR> TFTP service listening address
 #define SL_WISUN_OTA_DFU_HOST_ADDR                  "2001:db8::1" ///< TFTP service listening address

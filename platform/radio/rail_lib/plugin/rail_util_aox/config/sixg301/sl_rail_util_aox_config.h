@@ -36,9 +36,6 @@
 // <0-6:1>
 // <i> Default: 0
 #define SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT 0
-#if SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT == 0
-#warning "The AoX component is only needed to configure multiple AoX antennas!"
-#endif //SL_RAIL_UTIL_AOX_ANTENNA_PIN_COUNT == 0
 // <<< end of configuration section >>>
 
 // <<< sl:start pin_tool >>>

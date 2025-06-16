@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component provides an API for registering a file descriptor and a callback that will be called when the select() function notifies the component there is data on that file descriptor.
 id: zigbee_file_descriptor_dispatch
 label: File Descriptor Dispatch

@@ -1,5 +1,5 @@
 id: mbedtls_cipher
-package: platform
+package: security_mbedtls
 label: Ciphers
 description: >-
   This component provides support for the generic APIs for encryption and decryption

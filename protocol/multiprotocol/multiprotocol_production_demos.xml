@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<demos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://www.silabs.com/ss/Studio.ecore" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/Demo.ecore">
+  <demo name="brd2703a.demo.ot-ble-dmp-no-buttons" label="OpenThread BLE DMP (No buttons) - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+It is identical to the ot-ble-dmp application with the exception that support for buttons has been removed. This application is meant to be used for boards which don't have buttons.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd2703a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd2703a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4116a.demo.ot-ble-dmp-no-buttons" label="OpenThread BLE DMP (No buttons) - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+It is identical to the ot-ble-dmp application with the exception that support for buttons has been removed. This application is meant to be used for boards which don't have buttons.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg26b410f3200im48.*"/>
+    <property key="core.boardCompatibility" value="brd4116a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4116a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4180a.demo.ot-ble-dmp-no-buttons" label="OpenThread BLE DMP (No buttons) - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+It is identical to the ot-ble-dmp application with the exception that support for buttons has been removed. This application is meant to be used for boards which don't have buttons.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
+    <property key="core.boardCompatibility" value="brd4180a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4180a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4186c.demo.ot-ble-dmp-no-buttons" label="OpenThread BLE DMP (No buttons) - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+It is identical to the ot-ble-dmp application with the exception that support for buttons has been removed. This application is meant to be used for boards which don't have buttons.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4186c"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4186c.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4407a.demo.ot-ble-dmp-no-buttons" label="OpenThread BLE DMP (No buttons) - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+It is identical to the ot-ble-dmp application with the exception that support for buttons has been removed. This application is meant to be used for boards which don't have buttons.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
+    <property key="core.boardCompatibility" value="brd4407a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4407a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd2703a.demo.ot-ble-dmp" label="OpenThread BLE DMP - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd2703a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd2703a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4116a.demo.ot-ble-dmp" label="OpenThread BLE DMP - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg26b410f3200im48.*"/>
+    <property key="core.boardCompatibility" value="brd4116a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4116a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4180a.demo.ot-ble-dmp" label="OpenThread BLE DMP - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
+    <property key="core.boardCompatibility" value="brd4180a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4180a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4186c.demo.ot-ble-dmp" label="OpenThread BLE DMP - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4186c"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4186c.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4407a.demo.ot-ble-dmp" label="OpenThread BLE DMP - SoC FreeRTOS">
+    <model:description>This is a simple application to test DMP (Dynamic MultiProtocol) with OpenThread and Bluetooth running on FreeRTOS.
+</model:description>
+    <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
+    <property key="core.boardCompatibility" value="brd4407a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4407a.s37"/>
+    <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4180a.demo.zigbee_ble_direct_device_light" label="Zigbee BLE - DirectDeviceLight">
+    <model:description>This is a sample application demonstrating a Zigbee Direct Device (ZDD) as part of a light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage.</model:description>
+    <property key="demos.blurb" value="Zigbee BLE - DirectDeviceLight"/>
+    <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
+    <property key="core.boardCompatibility" value="brd4180a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/zigbee_ble_direct_device_light/zigbee_ble_direct_device_light-brd4180a.s37"/>
+    <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_direct_device_light/readme.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4186c.demo.zigbee_ble_dynamic_multiprotocol_light_sed" label="Zigbee BLE - DynamicMultiprotocolLightSed">
+    <model:description>This is a sample application demonstrating a sleepy light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. We recommend the use of Micrium Kernel for this sample application.</model:description>
+    <property key="demos.blurb" value="Zigbee BLE - DynamicMultiprotocolLightSed"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4186c"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light_sed/zigbee_ble_dynamic_multiprotocol_light_sed-brd4186c.s37"/>
+    <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light_sed/readme.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+  <demo name="brd4186c.demo.zigbee_ble_dynamic_multiprotocol_light" label="Zigbee BLE - DynamicMultiprotocolLight">
+    <model:description>This is a sample application demonstrating a light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. We recommend the use of Micrium Kernel for this sample application.</model:description>
+    <property key="demos.blurb" value="Zigbee BLE - DynamicMultiprotocolLight"/>
+    <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
+    <property key="core.boardCompatibility" value="brd4186c"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light/zigbee_ble_dynamic_multiprotocol_light-brd4186c.s37"/>
+    <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light/readme.md"/>
+    <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
+    <property key="core.quality" value="PRODUCTION"/>
+  </demo>
+</demos>

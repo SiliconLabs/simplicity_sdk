@@ -775,6 +775,8 @@ static void moveHandler(uint8_t commandId, uint8_t moveMode, uint8_t rate, uint8
 
   // OnLevel is not used for Move commands.
   state->useOnLevel = false;
+  // StoredLevel is not used for Move commands.
+  state->storedLevel = INVALID_STORED_LEVEL;
 
   // The setup was successful, so mark the new state as active and return.
   schedule(endpoint, state->eventDurationMs);
@@ -889,6 +891,8 @@ static void stepHandler(uint8_t commandId,
 
   // OnLevel is not used for Step commands.
   state->useOnLevel = false;
+  // StoredLevel is not used for Step commands.
+  state->storedLevel = INVALID_STORED_LEVEL;
 
   // The setup was successful, so mark the new state as active and return.
   schedule(endpoint, state->eventDurationMs);

@@ -1,6 +1,6 @@
 project_name: rail_soc_empty
 label: "RAIL - SoC Empty"
-package: "Rail"
+package: "rail_sdk_sample_applications"
 description: >
   The RAIL Empty project is a bare-bones RAIL app that can be a basis for
   proprietary solutions.
@@ -14,21 +14,22 @@ quality: production
 #---------------- UC/UP components -------------------
 component:
   - id: radio_config_simple_rail_singlephy
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
   - id: board_control
     condition: [hardware_board]
-  - id: rail_util_init
+  - id: sl_rail_util_init
     instance:
       - inst0
-  - id: rail_util_recommended
+  - id: rail_util_pa
 #------------Memory Protection Unit-------------------
   - id: mpu
 #-----------------Series 3 OS-------------------------
   - id: micriumos_kernel
     condition: [device_series_3]
-
+#---------------Code Classification------------------
+  - id: code_classification
 #----------------- Require list ----------------------
 requires:
   - name: a_radio_config
@@ -47,7 +48,6 @@ include:
     - path: app_process.h
 
 source:
-  - path: ../common/main/main.c
   - path: app_init.c
   - path: app_process.c
 
@@ -81,13 +81,13 @@ configuration:
     value: "1"
 #------------- Other project settings ----------------
   - name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_2
   - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_NONE"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
     condition:
       - device_series_3
 #------------- RAIL init, Project --------------------

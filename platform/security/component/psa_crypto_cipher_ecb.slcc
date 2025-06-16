@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_ecb
-package: platform
+package: security_mbedtls
 label: ECB Mode
 description: >-
   This component provides support for the ECB block cipher mode

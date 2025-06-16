@@ -1,6 +1,6 @@
 id: "btmesh_dcd_configuration"
 label: "DCD Configuration"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: "Bluetooth Mesh Configuration"
 category: "Bluetooth Mesh|DCD"
 quality: "production"

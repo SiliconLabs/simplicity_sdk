@@ -62,7 +62,7 @@ void sli_eeprom_status_command(sl_cli_command_arg_t *arguments)
   }
 }
 
-void sli_eeprom_info_command(sl_cli_command_arg_t *arguments)
+void sli_eeprom_info()
 {
   const HalEepromInformationType* part = sl_util_af_eeprom_info();
   sl_zigbee_af_core_println("\nEEPROM Info");
@@ -91,4 +91,10 @@ void sli_eeprom_info_command(sl_cli_command_arg_t *arguments)
                                ? "confirmed"
                                : "assumed"));
   }
+}
+
+void sli_eeprom_info_command(sl_cli_command_arg_t *arguments)
+{
+  (void)arguments;
+  sli_eeprom_info();
 }

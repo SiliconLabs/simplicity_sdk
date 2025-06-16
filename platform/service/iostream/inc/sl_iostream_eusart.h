@@ -70,15 +70,14 @@ extern "C" {
  *   stream.
  *
  * ## Power manager integration
- *
- *   On transmission side, I/O Stream-EUSART adds a requirement on EM1 or EM2, depending on
- *   the frequency mode, until the transmit is really completed. Once the transmit is
+ *   On transmission side, I/O Stream-EUSART adds a requirement on EM1 or the clock is kept active,
+ *   depending on the frequency mode, until the transmit is really completed. Once the transmit is
  *   completed the requirement is removed and the system can go to a lower energy mode if allowed.
  *
- *   On the receive side, a requirement on EM1 or EM2, depending on the frequency mode, is
- *   added if the application can receive data asynchronously. Meaning that the system can
- *   receive data when the MCU is in sleep mode (EM1 or EM2 to allow the reception). Allowing
- *   the reception in sleep mode will obviously increase the power consumption.
+ *   On the receive side, a requirement on EM1 or the clock is kept active,, depending on the
+ *   frequency mode, is added if the application can receive data asynchronously. Meaning that
+ *   the system can receive data when the MCU is in sleep mode (EM1 or EM2 to allow the reception).
+ *   Allowing the reception in sleep mode will obviously increase the power consumption.
  *   Otherwise, If the system doesn't expect to receive anything, no requirement is added and
  *   the system can go to the lowest Energy mode allowed. You can control this behavior using a
  *   configuration per instance, see the following configuration:
@@ -119,7 +118,6 @@ typedef struct {
   sl_iostream_eusart_uart_parity_t parity;              ///< UART parity
   sl_iostream_eusart_uart_stop_bits_t stop_bits;        ///< UART stop bits
   sl_iostream_eusart_uart_flow_control_t flow_control;  ///< Flow control
-  bool enable_high_frequency;                           ///< Used for legacy clock management
   sl_bus_clock_t bus_clock;                             ///< Peripheral Clock
 #if defined(EUSART_COUNT)
   uint8_t port_index;                                   ///< Port index for GPIO routing

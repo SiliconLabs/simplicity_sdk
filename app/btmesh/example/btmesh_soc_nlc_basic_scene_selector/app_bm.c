@@ -31,12 +31,17 @@
 #include <stdbool.h>
 #include "sl_core.h"
 #include "app.h"
+#include "sl_main_init.h"
+
+#ifdef SL_CATALOG_APP_LOG_PRESENT
+#include "app_log.h"
+#endif // SL_CATALOG_APP_LOG_PRESENT
 
 // Semaphore indicating that it is required to execute application process action.
 static uint16_t proceed_semaphore;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for bare metal.
+void app_permanent_memory_alloc(void)
 {
   proceed_semaphore = 0;
 }
@@ -47,6 +52,17 @@ void app_proceed(void)
   if (proceed_semaphore < UINT16_MAX) {
     proceed_semaphore++;
   }
+}
+
+// Application Runtime Init.
+void app_init_runtime(void)
+{
+  app_log("BT Mesh NLC Basic Scene Selector initialized" APP_LOG_NL);
+  // Ensure right init order in case of shared pin for enabling buttons
+  app_change_buttons_to_leds();
+  // Change LEDs to buttons in case of shared pin
+  app_change_leds_to_buttons();
+  app_handle_reset_conditions();
 }
 
 // Check if it is required to process with execution.

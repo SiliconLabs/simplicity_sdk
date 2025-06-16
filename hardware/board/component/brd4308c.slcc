@@ -1,7 +1,7 @@
 !!omap
 - id: brd4308c
 - label: BRD4308C
-- package: platform
+- package: boards
 - description: Board support for BRD4308C.
 - category: Platform|Board|Radio Board
 - quality: production

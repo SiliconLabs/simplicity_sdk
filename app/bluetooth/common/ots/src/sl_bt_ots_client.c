@@ -151,7 +151,7 @@ static sl_bt_ots_client_status_t finish_init(sl_bt_ots_client_t *client,
 static void handle_gatt_read_response(sl_bt_ots_client_t *client,
                                       uint16_t           characteristic,
                                       uint16_t           offset,
-                                      uint8array         *data);
+                                      byte_array         *data);
 static void handle_gatt_write_response(sl_bt_ots_client_t *client,
                                        uint16_t result);
 static sl_status_t send_write_request(sl_bt_ots_client_t                  *client,
@@ -1233,7 +1233,7 @@ void sli_bt_ots_client_on_bt_event(sl_bt_msg_t *evt)
                 handle_gatt_read_response(handle,
                                           handle->gattdb_handles.characteristics.array[active_handle_index],
                                           0,
-                                          (uint8array *)&handle->received_buffer);
+                                          (byte_array *)&handle->received_buffer);
               }
               // Clear active client
               active_client[index] = NULL;
@@ -1333,7 +1333,7 @@ void sli_bt_ots_client_on_bt_event(sl_bt_msg_t *evt)
         handle = active_client[index];
         // Handle response
         if (handle != NULL && handle->status == CLIENT_STATUS_WAIT_READ) {
-          uint8array *buffer = (uint8array *)&handle->received_buffer;
+          byte_array *buffer = (byte_array *)&handle->received_buffer;
           buffer->len = evt->data.evt_gatt_characteristic_value.value.len;
           memcpy(buffer->data, evt->data.evt_gatt_characteristic_value.value.data, buffer->len);
         }
@@ -1723,7 +1723,7 @@ static void handle_gatt_write_response(sl_bt_ots_client_t *client,
 static void handle_gatt_read_response(sl_bt_ots_client_t *client,
                                       uint16_t           characteristic,
                                       uint16_t           offset,
-                                      uint8array         *data)
+                                      byte_array         *data)
 {
   (void)offset;
   sl_bt_ots_object_metadata_read_parameters_t parameter;
@@ -1757,7 +1757,7 @@ static void handle_gatt_read_response(sl_bt_ots_client_t *client,
         || data->len == SL_BT_OTS_UUID_SIZE_128 ) {
       if (client->callbacks->on_metadata_read_finished != NULL) {
         parameter.object_type.uuid_is_sig = (data->len == SL_BT_OTS_UUID_SIZE_16);
-        parameter.object_type.uuid_data   = data->data;
+        parameter.object_type.uuid_data   = (uint8_t *)data->data;
         CALL_SAFE(client,
                   on_metadata_read_finished,
                   client,
@@ -1863,7 +1863,7 @@ static void handle_gatt_read_response(sl_bt_ots_client_t *client,
           if (parameter_length == SL_BT_OTS_UUID_SIZE_16
               || parameter_length == SL_BT_OTS_UUID_SIZE_128) {
             content.parameters.type.uuid_is_sig = (parameter_length == SL_BT_OTS_UUID_SIZE_16);
-            content.parameters.type.uuid_data = &data->data[1];
+            content.parameters.type.uuid_data = (uint8_t *)&data->data[1];
             filter_is_valid = true;
           }
           break;

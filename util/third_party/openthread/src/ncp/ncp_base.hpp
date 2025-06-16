@@ -457,6 +457,12 @@ protected:
     static void HandleParentResponseInfo(otThreadParentResponseInfo *aInfo, void *aContext);
     void        HandleParentResponseInfo(const otThreadParentResponseInfo &aInfo);
 #endif
+
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE
+    static void HandleBorderAgentMeshCoPServiceChanged(void *aContext);
+    void        HandleBorderAgentMeshCoPServiceChanged(void);
+#endif
+
 #endif
 
     static void HandleDatagramFromStack(otMessage *aMessage, void *aContext);
@@ -648,6 +654,11 @@ protected:
     void        HandleDiagOutput(const char *aFormat, va_list aArguments);
 #endif
 
+#if OPENTHREAD_CONFIG_NCP_CLI_STREAM_ENABLE
+    static int HandleCliOutput(void *aContext, const char *aFormat, va_list aArguments);
+    int        HandleCliOutput(const char *aFormat, va_list aArguments);
+#endif
+
 #if OPENTHREAD_ENABLE_NCP_VENDOR_HOOK
     /**
      * Defines a vendor "command handler" hook to process vendor-specific spinel commands.
@@ -802,10 +813,7 @@ protected:
     uint32_t mDroppedInboundIpFrameCounter;   // Number of dropped inbound data/IP frames.
 
 #if OPENTHREAD_CONFIG_SRP_CLIENT_ENABLE
-    enum : uint8_t
-    {
-        kSrpClientMaxHostAddresses = OPENTHREAD_CONFIG_SRP_CLIENT_BUFFERS_MAX_HOST_ADDRESSES,
-    };
+    static constexpr uint8_t kSrpClientMaxHostAddresses = OPENTHREAD_CONFIG_SRP_CLIENT_BUFFERS_MAX_HOST_ADDRESSES;
 
     otError EncodeSrpClientHostInfo(const otSrpClientHostInfo &aHostInfo);
     otError EncodeSrpClientServices(const otSrpClientService *aServices);
@@ -875,6 +883,15 @@ protected:
 
     otPlatDnssdState mDnssdState;
 #endif // OPENTHREAD_CONFIG_NCP_DNSSD_ENABLE && OPENTHREAD_CONFIG_PLATFORM_DNSSD_ENABLE
+
+#if OPENTHREAD_CONFIG_BACKBONE_ROUTER_ENABLE && OPENTHREAD_CONFIG_BACKBONE_ROUTER_MULTICAST_ROUTING_ENABLE
+    static void HandleBackboneRouterMulticastListenerEvent(void                                  *aContext,
+                                                           otBackboneRouterMulticastListenerEvent aEvent,
+                                                           const otIp6Address                    *aAddress);
+    void        HandleBackboneRouterMulticastListenerEvent(otBackboneRouterMulticastListenerEvent aEvent,
+                                                           const otIp6Address                    *aAddress);
+#endif
+
 #endif // OPENTHREAD_FTD
 
 #if OPENTHREAD_CONFIG_DIAG_ENABLE

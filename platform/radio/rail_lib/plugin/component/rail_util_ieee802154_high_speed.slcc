@@ -1,14 +1,14 @@
 id: rail_util_ieee802154_high_speed
 label: RAIL Utility, IEEE802.15.4 High Speed PHY Configuration
 description: Utility to aid with IEEE802.15.4 High Speed PHY Configuration
-package: platform
+package: rail_library
 category: Platform|Radio
 quality: evaluation
 metadata:
-  sbom:
-    id: rail_util_ieee802154_high_speed
-    name: RAIL Utility, IEEE802.15.4 High Speed PHY Configuration
-    license: Zlib
+    sbom:
+        id: rail_util_ieee802154_high_speed
+        name: RAIL Utility, IEEE802.15.4 High Speed PHY Configuration
+        license: Zlib
 requires:
   - name: rail_util_ieee802154_phy_select
 provides:
@@ -19,9 +19,10 @@ config_file:
 template_contribution:
   - name: rail_util_ieee802154_phy_select_callbacks
     value:
-      include: sl_rail_util_ieee802154_high_speed_phy_config.h
-      radio_config: SL_RAIL_UTIL_IEEE802154_ACTIVE_RADIO_CONFIG_2P4_2MBPS
-      get_phy_select: sl_rail_util_ieee802154_is_high_speed_phy_selected
+        include: sl_rail_util_ieee802154_high_speed_phy_config.h
+        runtime_phy_select: SL_RAIL_UTIL_IEEE802154_2P4_2MBPS_RUNTIME_PHY_SELECT
+        radio_config: SL_RAIL_UTIL_IEEE802154_ACTIVE_RADIO_CONFIG_2P4_2MBPS
+        get_phy_select: sl_rail_util_ieee802154_is_high_speed_phy_selected
     priority: -9010
   - name: component_catalog
     value: rail_util_ieee802154_high_speed_phy

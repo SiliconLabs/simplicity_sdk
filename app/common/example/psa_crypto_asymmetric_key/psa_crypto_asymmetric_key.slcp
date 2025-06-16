@@ -13,7 +13,6 @@ filter:
   - name: "Project Difficulty"
     value: ["Advanced"]
 source:
-  - path: main.c
   - path: app_init.c
   - path: app_process.c
   - path: app_psa_crypto_key.c
@@ -37,7 +36,7 @@ component:
   - id: psa_crypto_ecc_secp384r1
   - id: psa_crypto_ecc_secp521r1
   - id: psa_its
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: printf

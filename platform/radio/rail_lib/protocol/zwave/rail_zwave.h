@@ -302,7 +302,7 @@ RAIL_ENUM(RAIL_ZWAVE_Baud_t) {
 #define RAIL_ZWAVE_INVALID       ((RAIL_ZWAVE_Baud_t) RAIL_ZWAVE_INVALID)
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * @enum RAIL_ZWAVE_RegionOptions_t
  * @brief Region Specific Physical
@@ -330,7 +330,7 @@ RAIL_ENUM(RAIL_ZWAVE_RegionOptions_t) {
 #define RAIL_ZWAVE_REGION_LONG_RANGE_END_MASK RAIL_ZWAVE_REGION_LONG_RANGE_3_MASK
 /** A value representing No bit to be enabled */
 #define RAIL_ZWAVE_REGION_SPECIFIC_NONE 0u
-#endif // DOXYGEN SHOULD SKIP THIS
+#endif //DOXYGEN_UNDOCUMENTED
 
 /**
  * Sentinel value to indicate that a channel (and thus its frequency)
@@ -412,18 +412,21 @@ RAIL_ENUM(RAIL_ZWAVE_RegionId_t) {
 #define RAIL_ZWAVE_REGIONID_COUNT   ((RAIL_ZWAVE_RegionId_t) RAIL_ZWAVE_REGIONID_COUNT)
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-// Largest Ack timeout period based on
-// aPhyTurnaroundTimeRxTx (1 ms max)+ (aMacTransferAckTimeTX (168 bits)* (1/data rate))
-// For slowest Data Rate R1 (19.6 kbit/s)
+#ifndef DOXYGEN_UNDOCUMENTED
+/// Largest Ack timeout period based on
+/// aPhyTurnaroundTimeRxTx (1 ms max)+ (aMacTransferAckTimeTX (168 bits)* (1/data rate))
+/// For slowest Data Rate R1 (19.6 kbit/s)
 #define RAIL_ZWAVE_MAX_ACK_TIMEOUT_US        (9600U)
 
-// Defines for Transition timing
+/// Idle-to-Rx transition timing
 #define RAIL_ZWAVE_TIME_IDLE_TO_RX_US        (100U)
+/// Tx-to-Rx transition timing
 #define RAIL_ZWAVE_TIME_TX_TO_RX_US          (0U)
+/// Idle-to-Tx transition timing
 #define RAIL_ZWAVE_TIME_IDLE_TO_TX_US        (0U)
+/// Rx-to-Tx transition timing
 #define RAIL_ZWAVE_TIME_RX_TO_TX_US          (1000U)
-#endif //DOXYGEN_SHOULD_SKIP_THIS
+#endif //DOXYGEN_UNDOCUMENTED
 
 /**
  * Invalid beam TX power value returned when \ref RAIL_ZWAVE_GetLrBeamTxPower()
@@ -502,6 +505,8 @@ typedef struct RAIL_ZWAVE_IrcalVal {
  * @brief Rx channel hopping on-channel time for all Z-Wave channels in a region
  */
 typedef RAIL_RxChannelHoppingParameter_t RAIL_RxChannelHoppingParameters_t[RAIL_NUM_ZWAVE_CHANNELS];
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Switch the Z-Wave region.
@@ -622,6 +627,8 @@ RAIL_Status_t RAIL_ZWAVE_SetNodeId(RAIL_Handle_t railHandle,
 RAIL_Status_t RAIL_ZWAVE_SetHomeId(RAIL_Handle_t railHandle,
                                    RAIL_ZWAVE_HomeId_t homeId,
                                    RAIL_ZWAVE_HomeIdHash_t homeIdHash);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Get the Node Id of the most recently seen beam frame that triggered
@@ -747,21 +754,6 @@ RAIL_Status_t RAIL_ZWAVE_SetTxLowPower(RAIL_Handle_t railHandle,
                                        uint8_t powerLevel);
 
 /**
- * Set the Low Power settings in deci-dBm.
- *
- * @param[in] railHandle A RAIL instance handle.
- * @param[in] powerLevel Desired low power level deci-dBm.
- * @return Status code indicating success of the function call.
- *
- * Low Power settings are required during Ack transmissions when
- * the Low Power Bit is set. This setting is only valid for one
- * subsequent transmission, after which all transmissions will be
- * at the nominal power setting, until re-invoked.
- */
-RAIL_Status_t RAIL_ZWAVE_SetTxLowPowerDbm(RAIL_Handle_t railHandle,
-                                          RAIL_TxPower_t powerLevel);
-
-/**
  * Get the TX low power in raw units (see \ref rail_chip_specific.h for
  * value ranges).
  *
@@ -782,8 +774,25 @@ RAIL_Status_t RAIL_ZWAVE_SetTxLowPowerDbm(RAIL_Handle_t railHandle,
  */
 RAIL_TxPowerLevel_t RAIL_ZWAVE_GetTxLowPower(RAIL_Handle_t railHandle);
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
- * Get the TX low power in terms of deci-dBm instead of raw power level.
+ * Set the Low Power settings in deci-dBm.
+ *
+ * @param[in] railHandle A RAIL instance handle.
+ * @param[in] power Desired low power in deci-dBm.
+ * @return Status code indicating success of the function call.
+ *
+ * Low Power settings are required during Ack transmissions when
+ * the Low Power Bit is set. This setting is only valid for one
+ * subsequent transmission, after which all transmissions will be
+ * at the nominal power setting, until re-invoked.
+ */
+RAIL_Status_t RAIL_ZWAVE_SetTxLowPowerDbm(RAIL_Handle_t railHandle,
+                                          RAIL_TxPower_t power);
+
+/**
+ * Get the TX low power in terms of deci-dBm.
  *
  * @param[in] railHandle A RAIL instance handle.
  * @return The chip-specific \ref RAIL_TxPower_t value of the low
@@ -849,7 +858,7 @@ RAIL_Status_t RAIL_ZWAVE_ReceiveBeam(RAIL_Handle_t railHandle,
  * @warning This function should not be used without direct instruction by Silicon Labs.
  */
 RAIL_Status_t RAIL_ZWAVE_ConfigBeamRx(RAIL_Handle_t railHandle,
-                                      RAIL_ZWAVE_BeamRxConfig_t *config);
+                                      const RAIL_ZWAVE_BeamRxConfig_t *config);
 
 /**
  * Set the default RX beam configuration.
@@ -863,6 +872,8 @@ RAIL_Status_t RAIL_ZWAVE_ConfigBeamRx(RAIL_Handle_t railHandle,
  */
 RAIL_Status_t RAIL_ZWAVE_SetDefaultRxBeamConfig(RAIL_Handle_t railHandle);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Get the current RX beam configuration.
  *
@@ -871,6 +882,8 @@ RAIL_Status_t RAIL_ZWAVE_SetDefaultRxBeamConfig(RAIL_Handle_t railHandle);
  * @return Status code indicating success of the function call.
  */
 RAIL_Status_t RAIL_ZWAVE_GetRxBeamConfig(RAIL_ZWAVE_BeamRxConfig_t *pConfig);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Configure the channel hop timings for use in Z-Wave RX channel hop configuration.
@@ -925,6 +938,8 @@ RAIL_ZWAVE_RegionId_t RAIL_ZWAVE_GetRegion(RAIL_Handle_t railHandle);
  */
 RAIL_Status_t RAIL_ZWAVE_SetLrAckData(RAIL_Handle_t railHandle,
                                       const RAIL_ZWAVE_LrAckData_t *pLrAckData);
+
+#ifndef SLI_LIBRAIL_ALIAS_VAR
 
 /** EU-European Union */
 extern const RAIL_ZWAVE_RegionConfig_t RAIL_ZWAVE_REGION_EU;
@@ -989,6 +1004,9 @@ extern const RAIL_ZWAVE_RegionConfig_t RAIL_ZWAVE_REGION_EU_LR3;
 
 /** Invalid Region */
 extern const RAIL_ZWAVE_RegionConfig_t RAIL_ZWAVE_REGION_INVALID;
+
+#endif//SLI_LIBRAIL_ALIAS_VAR
+#endif//SLI_LIBRAIL_ALIAS
 
 /** @} */ // end of Z_Wave
 

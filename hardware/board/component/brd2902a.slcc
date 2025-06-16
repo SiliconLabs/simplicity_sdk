@@ -1,7 +1,7 @@
 !!omap
 - id: brd2902a
 - label: BRD2902A
-- package: platform
+- package: boards
 - description: Board support for BRD2902A.
 - category: Platform|Board|Thunderboard
 - quality: production

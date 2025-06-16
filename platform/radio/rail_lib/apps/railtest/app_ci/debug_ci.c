@@ -54,7 +54,10 @@
 #endif // SL_RAIL_UTIL_INIT_RADIO_CONFIG_SUPPORT_INST0_ENABLE
 
 uint32_t rxOverflowDelay = 10 * 1000000; // 10 seconds
-uint32_t thermistorResistance = 0;
+
+#if RAIL_SUPPORTS_EXTERNAL_THERMISTOR
+static uint32_t thermistorResistance = 0;
+#endif
 
 #if RAIL_SUPPORTS_HFXO_COMPENSATION
 static int8_t crystalPPMError = RAIL_INVALID_PPM_VALUE;
@@ -259,7 +262,7 @@ void txCancel(sl_cli_command_arg_t *args)
 
 void configHFXOThermistor(sl_cli_command_arg_t *args)
 {
-#if RAIL_SUPPORTS_EXTERNAL_THERMISTOR
+#if RAIL_SUPPORTS_EXTERNAL_THERMISTOR && defined(GPIO_THMSW_EN_PORT)
   CHECK_RAIL_HANDLE(sl_cli_get_command_string(args, 0));
   const RAIL_HFXOThermistorConfig_t hfxoThermistorConfig = {
     .port = GPIO_THMSW_EN_PORT,

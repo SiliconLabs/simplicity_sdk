@@ -89,6 +89,11 @@ void app_button_press_cb(uint8_t button, uint8_t duration);
  ******************************************************************************/
 void app_button_press_error(sl_status_t status);
 
+/***************************************************************************//**
+ * Check if the device was woken up from EM4 by a button press
+ ******************************************************************************/
+void app_button_press_check_wakeup_cause(void);
+
 /** @} (end addtogroup ButtonPress) */
 
 #ifdef __cplusplus

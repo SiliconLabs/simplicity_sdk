@@ -38,7 +38,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup dist_server BT Mesh Firmware Distribution Server
+ * @addtogroup btmesh_fw_distribution_server
  * @{
  ******************************************************************************/
 
@@ -98,8 +98,8 @@ extern "C" {
  *   @ref sl_btmesh_fw_distribution_server_on_distribution_started callback as
  *   well to tune it to the specific FW distribution.
  *
- * @param elem_index Distribution Server model element index
- * @param multicast_threshold If the number of servers for any step exceeds or
+ * @param[in] elem_index Distribution Server model element index
+ * @param[in] multicast_threshold If the number of servers for any step exceeds or
  *   is equal to this number then the group address will be used, otherwise
  *   servers will be looped through one by one.
  *   Value of 0 disables the feature.
@@ -454,7 +454,7 @@ void sl_btmesh_fw_distribution_server_on_all_firmware_deleted(uint16_t elem_inde
  ******************************************************************************/
 void sl_btmesh_fw_distribution_server_delete_step_handle(void);
 
-/** @} end dist_server */
+/** @} end btmesh_fw_distribution_server */
 
 #ifdef __cplusplus
 }

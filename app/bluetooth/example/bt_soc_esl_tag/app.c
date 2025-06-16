@@ -30,11 +30,10 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include "app.h"
-#include "sl_common.h"
 #include "sl_bt_api.h"
 #include "esl_tag_log.h"
 #include "esl_tag_core.h"
+#include "sl_main_init.h"
 #include "sl_bluetooth.h"
 #include "sl_sleeptimer.h"
 #include "sl_power_manager.h"
@@ -271,7 +270,7 @@ static sl_power_manager_em_transition_event_info_t event_info = {
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
 #ifdef SL_CATALOG_SIMPLE_LED_LED0_PRESENT
   // Provide optical feedback of the ESL internal status through led 0 instance
@@ -291,7 +290,7 @@ SL_WEAK void app_init(void)
 /**************************************************************************//**
  * Application Process Action.
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application code here!                              //
@@ -302,7 +301,7 @@ SL_WEAK void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -611,6 +610,10 @@ sl_status_t esl_core_process_vendor_opcode(tlv_t opcode,
                                            void *data)
 {
   sl_status_t result = SL_STATUS_NOT_SUPPORTED; // default answer shall be this
+  // check the input length to make sure to avoid invalid memory access
+  if (input_length != esl_core_get_tlv_len(opcode) - sizeof(esl_id_t)) {
+    return SL_STATUS_INVALID_COUNT;
+  }
 
   switch (opcode) {
     // this vendor specified opcode allows to skip N cycle of PAwR sync train
@@ -619,8 +622,6 @@ sl_status_t esl_core_process_vendor_opcode(tlv_t opcode,
     // successful resync-by-scan resets the skip value to zero.
     case SILABS_LOW_ENERGY_ENABLE_OPCODE: {
       uint8_t settings = 0;
-      // check the input length to make sure to avoid memory corruption by copy
-      sl_bt_esl_assert(input_length == esl_core_get_tlv_len(SILABS_LOW_ENERGY_ENABLE_OPCODE));
       // get the input value to the settings variable
       memcpy(&settings, data, input_length);
 

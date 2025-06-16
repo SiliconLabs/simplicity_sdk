@@ -1,5 +1,5 @@
 id: psa_crypto_cipher_cbc
-package: platform
+package: security_mbedtls
 label: CBC Mode
 description: >-
   This component provides support for the CBC block cipher chaining mode

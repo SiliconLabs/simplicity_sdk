@@ -3,7 +3,7 @@
  * @brief SoC Certificate Generator
  *******************************************************************************
  * # License
- * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -85,7 +85,7 @@
 // Type definitions.
 
 // Provisioning record control block
-typedef struct __attribute__((__packed__)) provisioning_record_control_block {
+typedef struct __attribute__((__packed__)) provisioning_record_control_block_t {
   uint16_t header;
   uint16_t next;
   uint64_t bitmap;
@@ -93,7 +93,7 @@ typedef struct __attribute__((__packed__)) provisioning_record_control_block {
   uint16_t max_link_data_len;
 } provisioning_record_control_block_t;
 
-typedef struct  __attribute__((__packed__)) csr_output {
+typedef struct  __attribute__((__packed__)) csr_output_t {
   uint8_t completed;
   uint8_t static_auth[CRYPTO_AUTH_256_LEN];
   uint16_t csr_len; /* DER is binary format so length is required */
@@ -101,7 +101,6 @@ typedef struct  __attribute__((__packed__)) csr_output {
 } csr_output_t;
 
 typedef struct csr_config_t {
-  csr_output_t *output;                                   // Position of RAM structure for communicating with PLT
   bool generate_static_auth;                              // If True, generate 256-bit static authentication data
   bool generate_key;                                      // If True, generate device EC key and corresponding CSR
   bool certificate_on_device;                             // If True, mark certificate presence on device in control block
@@ -119,7 +118,7 @@ static const uint8_t uid64_namespace[16] = {
   0x37, 0x04, 0xa1, 0x2c, 0x07, 0x67, 0x86, 0x9c,
 };
 
-// Statich authentication data buffer
+// Static authentication data buffer
 static uint8_t auth_data[CRYPTO_AUTH_256_LEN] = { 0 };
 
 static char btmesh_common_name_uuid[37] = { 0 };
@@ -165,9 +164,11 @@ static subject_name_field_t subject_name_fields[] =
   },
 };
 
+// Position of RAM structure for communicating with PLT
+static volatile csr_output_t * const csr_output = (csr_output_t *)CSR_GENERATOR_CSR_RAM_ADDRESS;
+
 // CSR configuration
-static volatile const csr_config_t config = {
-  .output = (csr_output_t *)((intptr_t)(CSR_GENERATOR_CSR_RAM_ADDRESS)),
+static const csr_config_t config = {
   .generate_static_auth = CSR_GENERATOR_CONFIG_GENERATE_STATIC_AUTH,
   .generate_key = CSR_GENERATOR_CONFIG_GENERATE_EC_KEY,
   .certificate_on_device = CSR_GENERATOR_CONFIG_CERTIFICATE_ON_DEVICE,
@@ -183,9 +184,9 @@ static provisioning_record_control_block_t control_block = PROVISIONING_CONTROL_
 
 static sl_status_t error_code_to_sl_status(Ecode_t ecode);
 
-static void update_provisoning_control_block(int32_t index,
-                                             bool present,
-                                             uint8_t nvm3_id);
+static void update_provisioning_control_block(int32_t index,
+                                              bool present,
+                                              uint8_t nvm3_id);
 
 static sl_status_t crypto_init(void);
 
@@ -230,7 +231,9 @@ void csr_generate(void)
   app_log_info("Starting BT CSR creation" APP_LOG_NL);
 
   // Clear the RAM output area
-  memset(config.output, 0, sizeof(csr_config_t));
+  for (size_t i = 0; i < sizeof(csr_output_t); i++) {
+    ((volatile uint8_t *)csr_output)[i] = 0;
+  }
 
   sc = crypto_init();
   app_assert_status(sc);
@@ -281,12 +284,14 @@ void csr_generate(void)
       sc = SL_STATUS_OK;
     }
 
-    update_provisoning_control_block(POS_STATIC_AUTH_DATA, true, 0);
+    update_provisioning_control_block(POS_STATIC_AUTH_DATA, true, 0);
 
     if (sc == SL_STATUS_OK) {
       sc = export_static_auth_data(auth_data, sizeof(auth_data), &auth_len);
       app_assert((sc == SL_STATUS_OK), "Failed to read static authentication data." APP_LOG_NL);
-      memcpy(config.output->static_auth, auth_data, auth_len);
+      for (size_t i = 0; i < auth_len; i++) {
+        csr_output->static_auth[i] = auth_data[i];
+      }
       app_log_info("Data: ");
       app_log_hexdump_info(auth_data, CRYPTO_AUTH_256_LEN);
       app_log_append(APP_LOG_NL);
@@ -312,7 +317,7 @@ void csr_generate(void)
                    (int)signing_key_id);
     }
 
-    update_provisoning_control_block(POS_DEVICE_EC_KEY, true, 0);
+    update_provisioning_control_block(POS_DEVICE_EC_KEY, true, 0);
 
     // Generate UUID
     sc = generate_uuid(uuid);
@@ -348,12 +353,14 @@ void csr_generate(void)
     app_log_info("CSR created successfully." APP_LOG_NL);
 
     // Set device certificate as present with the configured NVM3 ID.
-    update_provisoning_control_block(POS_DEVICE_CERTIFICATE,
-                                     config.certificate_on_device,
-                                     config.certificate_pos);
-
-    config.output->csr_len = csr_der_len;
-    memcpy(config.output->csr, csr_der_buf, csr_der_len);
+    update_provisioning_control_block(POS_DEVICE_CERTIFICATE,
+                                      config.certificate_on_device,
+                                      config.certificate_pos);
+    // This assignment won't lose integer precision because sizeof(csr_der_buf) <= UINT16_MAX.
+    csr_output->csr_len = (uint16_t)csr_der_len;
+    for (size_t i = 0; i < csr_der_len; i++) {
+      csr_output->csr[i] = csr_der_buf[i];
+    }
   }
 
   // Store the provisioning record control block
@@ -361,8 +368,8 @@ void csr_generate(void)
   app_assert((sc == SL_STATUS_OK), "Could not create the provisioning control block." APP_LOG_NL);
 
   app_log_info("Provisioning control block successfully created." APP_LOG_NL);
-  app_log_info("RAM output address 0x%08X" APP_LOG_NL, (int)config.output);
-  config.output->completed = 1;
+  app_log_info("RAM output address %p" APP_LOG_NL, csr_output);
+  csr_output->completed = 1;
 
   return;
 }
@@ -423,9 +430,9 @@ sl_status_t psa_status_to_sl_status(psa_status_t sc)
   }
 }
 
-static void update_provisoning_control_block(int32_t index,
-                                             bool present,
-                                             uint8_t nvm3_id)
+static void update_provisioning_control_block(int32_t index,
+                                              bool present,
+                                              uint8_t nvm3_id)
 {
   if (present) {
     control_block.bitmap |= (1 << index);

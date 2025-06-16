@@ -31,7 +31,11 @@
 #ifndef SL_RAIL_UTIL_CALLBACKS_H
 #define SL_RAIL_UTIL_CALLBACKS_H
 
+#ifdef  SL_RAIL_3_API
+#include "sl_rail.h"
+#else//!SL_RAIL_3_API
 #include "rail.h"
+#endif//SL_RAIL_3_API
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,37 +47,56 @@ extern "C" {
  * @param[in] rail_handle The RAIL handle associated with the assert.
  * @param[in] error_code The assertion error code.
  */
+#ifdef  SL_RAIL_3_API
+void sl_rail_util_on_assert_failed(sl_rail_handle_t rail_handle,
+                                   sl_rail_assert_error_codes_t error_code);
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_assert_failed(RAIL_Handle_t rail_handle,
                                    RAIL_AssertErrorCodes_t error_code);
+#endif//SL_RAIL_3_API
 
 /**
  * A callback available to the application, called on RAIL init completion.
  *
  * @param[in] rail_handle The RAIL handle associated with the RAIL init
- * completion notification.
+ *   completion notification.
  */
+#ifdef  SL_RAIL_3_API
+void sl_rail_util_on_rf_ready(sl_rail_handle_t rail_handle);
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_rf_ready(RAIL_Handle_t rail_handle);
+#endif//SL_RAIL_3_API
 
 /**
  * A callback available to the application, called on a channel configuration
  * change.
  *
  * @param[in] rail_handle The RAIL handle associated with the channel config
- * change notification.
- * @param[in] entry The channel configuration being changed to.
+ *   change notification.
+ * @param[in] p_entry A pointer to the channel configuration being changed to.
  */
+#ifdef  SL_RAIL_3_API
+void sl_rail_util_on_channel_config_change(sl_rail_handle_t rail_handle,
+                                           const sl_rail_channel_config_entry_t *p_entry);
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_channel_config_change(RAIL_Handle_t rail_handle,
-                                           const RAIL_ChannelConfigEntry_t *entry);
+                                           const RAIL_ChannelConfigEntry_t *p_entry);
+#endif//SL_RAIL_3_API
 
 /**
  * A callback available to the application, called on registered RAIL events.
  *
  * @param[in] rail_handle The RAIL handle associated with the RAIL event
- * notification.
+ *   notification.
  * @param[in] events The RAIL events having occurred.
  */
+#ifdef  SL_RAIL_3_API
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events);
+#else//!SL_RAIL_3_API
 void sl_rail_util_on_event(RAIL_Handle_t rail_handle,
                            RAIL_Events_t events);
+#endif//SL_RAIL_3_API
 
 #ifdef __cplusplus
 }

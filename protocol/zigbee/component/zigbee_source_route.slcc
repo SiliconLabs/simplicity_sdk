@@ -1,6 +1,6 @@
 id: zigbee_source_route
 label: Source route
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack
 quality: production
 description: Provides support for Source Route table maintenance and update functionality.

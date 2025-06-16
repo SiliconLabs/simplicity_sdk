@@ -906,6 +906,33 @@ sl_status_t sl_btmesh_node_clear_provisioning_service_scan_response() {
 
 }
 
+sl_status_t sl_btmesh_node_compare_dcd(uint8_t page_number,
+                                       size_t page_data_len,
+                                       const uint8_t* page_data,
+                                       uint32_t *diff) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_node_compare_dcd.page_number=page_number;
+    if ((2+page_data_len) > SL_BGAPI_MAX_PAYLOAD_SIZE )
+    {
+        return SL_STATUS_COMMAND_TOO_LONG;
+    }
+    cmd->data.cmd_node_compare_dcd.page_data.len=page_data_len;
+    memcpy(cmd->data.cmd_node_compare_dcd.page_data.data,page_data,page_data_len);
+
+    cmd->header=sl_btmesh_cmd_node_compare_dcd_id+(((2+page_data_len)&0xff)<<8)+(((2+page_data_len)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    if (diff) {
+        *diff = rsp->data.rsp_node_compare_dcd.diff;
+    }
+    return rsp->data.rsp_node_compare_dcd.result;
+
+}
+
 sl_status_t sl_btmesh_prov_init() {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -1575,35 +1602,6 @@ sl_status_t sl_btmesh_prov_flush_key_refresh_state(uint16_t netkey_index) {
 
 }
 
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_prov_test_identity(uint16_t address,
-                                         uint16_t netkey_index,
-                                         size_t data_len,
-                                         const uint8_t* data,
-                                         uint8_t *match) {
-    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
-
-    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
-
-    cmd->data.cmd_prov_test_identity.address=address;
-    cmd->data.cmd_prov_test_identity.netkey_index=netkey_index;
-    if ((5+data_len) > SL_BGAPI_MAX_PAYLOAD_SIZE )
-    {
-        return SL_STATUS_COMMAND_TOO_LONG;
-    }
-    cmd->data.cmd_prov_test_identity.data.len=data_len;
-    memcpy(cmd->data.cmd_prov_test_identity.data.data,data,data_len);
-
-    cmd->header=sl_btmesh_cmd_prov_test_identity_id+(((5+data_len)&0xff)<<8)+(((5+data_len)&0x700)>>8);
-
-
-    sl_btmesh_host_handle_command();
-    if (match) {
-        *match = rsp->data.rsp_prov_test_identity.match;
-    }
-    return rsp->data.rsp_prov_test_identity.result;
-
-}
-
 sl_status_t sl_btmesh_prov_get_provisioning_records_list(uuid_128 uuid) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -1755,7 +1753,7 @@ sl_status_t sl_btmesh_proxy_optimisation_toggle(uint8_t enable) {
 
 }
 
-sl_status_t sl_btmesh_proxy_send_solicitation(uint8_t enc_netkey_index,
+sl_status_t sl_btmesh_proxy_send_solicitation(uint16_t enc_netkey_index,
                                               uint16_t elem_index,
                                               uint16_t dst) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
@@ -1766,7 +1764,7 @@ sl_status_t sl_btmesh_proxy_send_solicitation(uint8_t enc_netkey_index,
     cmd->data.cmd_proxy_send_solicitation.elem_index=elem_index;
     cmd->data.cmd_proxy_send_solicitation.dst=dst;
 
-    cmd->header=sl_btmesh_cmd_proxy_send_solicitation_id+(((5)&0xff)<<8)+(((5)&0x700)>>8);
+    cmd->header=sl_btmesh_cmd_proxy_send_solicitation_id+(((6)&0xff)<<8)+(((6)&0x700)>>8);
 
 
     sl_btmesh_host_handle_command();
@@ -3100,33 +3098,6 @@ sl_status_t sl_btmesh_test_set_relay(uint8_t enabled,
 
 }
 
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_adv_scan_params(uint16_t adv_interval_min,
-                                               uint16_t adv_interval_max,
-                                               uint8_t adv_repeat_packets,
-                                               uint8_t adv_use_random_address,
-                                               uint8_t adv_channel_map,
-                                               uint16_t scan_interval,
-                                               uint16_t scan_window) {
-    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
-
-    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
-
-    cmd->data.cmd_test_set_adv_scan_params.adv_interval_min=adv_interval_min;
-    cmd->data.cmd_test_set_adv_scan_params.adv_interval_max=adv_interval_max;
-    cmd->data.cmd_test_set_adv_scan_params.adv_repeat_packets=adv_repeat_packets;
-    cmd->data.cmd_test_set_adv_scan_params.adv_use_random_address=adv_use_random_address;
-    cmd->data.cmd_test_set_adv_scan_params.adv_channel_map=adv_channel_map;
-    cmd->data.cmd_test_set_adv_scan_params.scan_interval=scan_interval;
-    cmd->data.cmd_test_set_adv_scan_params.scan_window=scan_window;
-
-    cmd->header=sl_btmesh_cmd_test_set_adv_scan_params_id+(((11)&0xff)<<8)+(((11)&0x700)>>8);
-
-
-    sl_btmesh_host_handle_command();
-    return rsp->data.rsp_test_set_adv_scan_params.result;
-
-}
-
 sl_status_t sl_btmesh_test_set_ivupdate_test_mode(uint8_t mode) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -3156,21 +3127,6 @@ sl_status_t sl_btmesh_test_get_ivupdate_test_mode(uint8_t *mode) {
         *mode = rsp->data.rsp_test_get_ivupdate_test_mode.mode;
     }
     return rsp->data.rsp_test_get_ivupdate_test_mode.result;
-
-}
-
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_segment_send_delay(uint8_t delay) {
-    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
-
-    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
-
-    cmd->data.cmd_test_set_segment_send_delay.delay=delay;
-
-    cmd->header=sl_btmesh_cmd_test_set_segment_send_delay_id+(((1)&0xff)<<8)+(((1)&0x700)>>8);
-
-
-    sl_btmesh_host_handle_command();
-    return rsp->data.rsp_test_set_segment_send_delay.result;
 
 }
 
@@ -3640,31 +3596,6 @@ sl_status_t sl_btmesh_test_update_local_key(uint8_t key_type,
 
     sl_btmesh_host_handle_command();
     return rsp->data.rsp_test_update_local_key.result;
-
-}
-
-SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_set_sar_config(uint32_t incomplete_timer_ms,
-                                          uint32_t pending_ack_base_ms,
-                                          uint32_t pending_ack_mul_ms,
-                                          uint32_t wait_for_ack_base_ms,
-                                          uint32_t wait_for_ack_mul_ms,
-                                          uint8_t max_send_rounds) {
-    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
-
-    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
-
-    cmd->data.cmd_test_set_sar_config.incomplete_timer_ms=incomplete_timer_ms;
-    cmd->data.cmd_test_set_sar_config.pending_ack_base_ms=pending_ack_base_ms;
-    cmd->data.cmd_test_set_sar_config.pending_ack_mul_ms=pending_ack_mul_ms;
-    cmd->data.cmd_test_set_sar_config.wait_for_ack_base_ms=wait_for_ack_base_ms;
-    cmd->data.cmd_test_set_sar_config.wait_for_ack_mul_ms=wait_for_ack_mul_ms;
-    cmd->data.cmd_test_set_sar_config.max_send_rounds=max_send_rounds;
-
-    cmd->header=sl_btmesh_cmd_test_set_sar_config_id+(((21)&0xff)<<8)+(((21)&0x700)>>8);
-
-
-    sl_btmesh_host_handle_command();
-    return rsp->data.rsp_test_set_sar_config.result;
 
 }
 
@@ -7233,6 +7164,21 @@ sl_status_t sl_btmesh_scene_client_delete(uint16_t server_address,
 
 }
 
+sl_status_t sl_btmesh_scene_client_deinit(uint16_t elem_index) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_scene_client_deinit.elem_index=elem_index;
+
+    cmd->header=sl_btmesh_cmd_scene_client_deinit_id+(((2)&0xff)<<8)+(((2)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_scene_client_deinit.result;
+
+}
+
 sl_status_t sl_btmesh_scene_server_init(uint16_t elem_index) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -7304,6 +7250,21 @@ sl_status_t sl_btmesh_scene_setup_server_init(uint16_t elem_index) {
 
     sl_btmesh_host_handle_command();
     return rsp->data.rsp_scene_setup_server_init.result;
+
+}
+
+sl_status_t sl_btmesh_scene_setup_server_deinit(uint16_t elem_index) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_scene_setup_server_deinit.elem_index=elem_index;
+
+    cmd->header=sl_btmesh_cmd_scene_setup_server_deinit_id+(((2)&0xff)<<8)+(((2)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_scene_setup_server_deinit.result;
 
 }
 
@@ -10821,5 +10782,19 @@ sl_status_t sl_btmesh_diagnostic_get_friend(uint32_t *queue_counter,
         *remove_counter_old_segment = rsp->data.rsp_diagnostic_get_friend.remove_counter_old_segment;
     }
     return rsp->data.rsp_diagnostic_get_friend.result;
+
+}
+
+sl_status_t sl_btmesh_model_migration_migrate_models() {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+
+    cmd->header=sl_btmesh_cmd_model_migration_migrate_models_id+(((0)&0xff)<<8)+(((0)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_model_migration_migrate_models.result;
 
 }

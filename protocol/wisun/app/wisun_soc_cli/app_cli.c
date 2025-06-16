@@ -39,14 +39,16 @@
 #include "sl_se_manager.h"
 #include "sl_se_manager_util.h"
 #endif
-#include "rail_features.h"
+#include "sl_rail_features.h"
 #include "socket/socket.h"
 #include "arpa/inet.h"
 
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
 #include "sl_power_manager.h"
 #endif
-
+#if defined (SL_CATALOG_WISUN_CLI_DMP_PRESENT)
+#include "sl_bluetooth.h"
+#endif
 #if defined(SL_CATALOG_MICRIUMOS_KERNEL_PRESENT)
 #include "os.h"
 #endif
@@ -277,15 +279,20 @@ static uint32_t app_connection_tick_count;
 static bool app_direct_connect_state = false;
 static uint32_t app_direct_connect_pmk_key_id = MBEDTLS_SVC_KEY_ID_INIT;
 
+#if defined (SL_CATALOG_WISUN_CLI_DMP_PRESENT)
+static uint8_t app_ble_advertising_set_handle = 0xff;
+static bool app_ble_is_advertising;
+static bool app_ble_is_advertiser_enabled;
+static bool app_ble_is_scanning;
+#endif
+
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
 #define EM_EVENT_MASK_ALL  (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM0   \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM0  \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM1 \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM1  \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2  \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3)
+                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2)
 
 void lfn_em_cb(sl_power_manager_em_t from, sl_power_manager_em_t to)
 {
@@ -443,6 +450,7 @@ static void app_handle_network_update_ind(sl_wisun_evt_t *evt)
 {
   sl_status_t ret;
   in6_addr_t address;
+  sl_wisun_network_info_t network_info;
 
   if (evt->evt.network_update.status == SL_STATUS_OK) {
     printf("[Network update]\r\n");
@@ -471,6 +479,14 @@ static void app_handle_network_update_ind(sl_wisun_evt_t *evt)
         printf("[Secondary parent updated: %s]\r\n", app_get_ip_address_str(&address));
       } else {
         printf("[Secondary parent removed]\r\n");
+      }
+    }
+
+    if (evt->evt.network_update.flags & (1 << SL_WISUN_NETWORK_UPDATE_FLAGS_HOP_COUNT)) {
+      ret = sl_wisun_get_network_info(&network_info);
+      if (ret == SL_STATUS_OK) {
+        printf("[Node hop count: %u]\r\n", network_info.hop_count);
+        sl_wisun_set_leaf(network_info.hop_count >= app_settings_wisun.max_hop_count);
       }
     }
   }
@@ -893,7 +909,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
   uint8_t phy_mode_id[SL_WISUN_MAX_PHY_MODE_ID_COUNT];
   uint8_t *phy_mode_id_p, *phy_mode_id_count_p;
   uint8_t channel_spacing_id;
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
   bool set_pom_ie = false;
 #endif
   uint8_t trustedca_count;
@@ -996,6 +1012,10 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
         printf("[Failed: unsupported network size]\r\n");
         goto cleanup;
     }
+    params.traffic.lowpan_mtu = app_settings_wisun.lowpan_mtu;
+    params.traffic.ipv6_mru = app_settings_wisun.ipv6_mru;
+    params.traffic.max_edfe_fragment_count = app_settings_wisun.max_edfe_fragment_count;
+
     ret = sl_wisun_set_connection_parameters(&params);
   }
 
@@ -1004,7 +1024,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
-  ret = sl_wisun_set_neighbor_table_size(app_settings_wisun.neighbor_table_size);
+  ret = sl_wisun_config_neighbor_table(app_settings_wisun.max_child_count, app_settings_wisun.max_neighbor_count, app_settings_wisun.max_security_neighbor_count);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set neighbor table size: %lu]\r\n", ret);
     goto cleanup;
@@ -1059,6 +1079,11 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
       printf("[Failed to load trusted CA]\r\n");
       goto cleanup;
     }
+    if (trustedca->keychain == SL_WISUN_KEYCHAIN_NVM) {
+      printf("[Using NVM trusted CA #%u]\r\n", idx);
+    } else if (trustedca->keychain == SL_WISUN_KEYCHAIN_BUILTIN) {
+      printf("[Using built-in trusted CA #%u]\r\n", idx);
+    }
 
     ret = sl_wisun_set_trusted_certificate(certificate_options,
                                            trustedca->data_length,
@@ -1077,6 +1102,11 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
   if (!credential) {
     printf("[Failed: unable to load credential]\r\n");
     goto cleanup;
+  }
+  if (credential->certificate.keychain == SL_WISUN_KEYCHAIN_NVM) {
+    printf("[Using NVM device credentials]\r\n");
+  } else if (credential->certificate.keychain == SL_WISUN_KEYCHAIN_BUILTIN) {
+    printf("[Using built-in device credentials]\r\n");
   }
 
   ret = sl_wisun_set_device_certificate(SL_WISUN_CERTIFICATE_OPTION_IS_REF | SL_WISUN_CERTIFICATE_OPTION_HAS_KEY,
@@ -1144,7 +1174,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
   // Configure POM-IE
   // If PhyModeIds are set by user, send them to the stack, otherwise
   // retrieve the default PhyModeIds from the stack first
@@ -1323,7 +1353,7 @@ void app_ping(sl_cli_command_arg_t *arguments)
                              &socket_option_value,
                              sizeof(uint32_t));
   if (socket_retval == SOCKET_RETVAL_ERROR) {
-    printf("[Failed: unable to set socket option]\r\n");
+    printf("[Failed: unable to set SOCKET_EVENT_MODE socket option]\r\n");
     goto error_handler;
   }
 
@@ -1331,6 +1361,31 @@ void app_ping(sl_cli_command_arg_t *arguments)
     packet_data_length = sl_cli_get_argument_uint16(arguments, 1);
   } else {
     packet_data_length = app_settings_ping.packet_length;
+  }
+
+  if (packet_data_length > 2048) {
+    // Larger than default socket size
+    socket_option_value = packet_data_length;
+    socket_retval = setsockopt(app_ping_socket_id,
+                               SOL_SOCKET,
+                               SO_SNDBUF,
+                               &socket_option_value,
+                               sizeof(uint32_t));
+    if (socket_retval == SOCKET_RETVAL_ERROR) {
+      printf("[Failed: unable to set SO_SNDBUF socket option]\r\n");
+      goto error_handler;
+    }
+  }
+
+  socket_option_value = app_settings_wisun.socket_rx_buffer_size;
+  socket_retval = setsockopt(app_ping_socket_id,
+                             SOL_SOCKET,
+                             SO_RCVBUF,
+                             &socket_option_value,
+                             sizeof(uint32_t));
+  if (socket_retval == SOCKET_RETVAL_ERROR) {
+    printf("[Failed: unable to set SO_RCVBUF socket option]\r\n");
+    goto error_handler;
   }
 
   payload_data_length = packet_data_length - sizeof(app_icmpv6_echo_request_t);
@@ -2722,6 +2777,31 @@ cleanup:
   app_wisun_cli_mutex_unlock();
 }
 
+/* CLI app concurrent detection */
+void app_concurrent_detection(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  bool enable;
+  uint8_t reserved = 0;
+
+  app_wisun_cli_mutex_lock();
+
+  enable = sl_cli_get_argument_uint8(arguments, 0);
+
+  status = sl_wisun_config_concurrent_detection(enable, reserved);
+  switch (status) {
+    case SL_STATUS_OK:
+      printf("[Concurrent detection succeeded]\r\n");
+      break;
+    case SL_STATUS_NOT_SUPPORTED:
+      printf("[Concurrent detection feature not supported on this chip]\r\n");
+      break;
+    default:
+      printf("[Concurrent detection failure %"PRIu32"]\r\n", status);
+  }
+  app_wisun_cli_mutex_unlock();
+}
+
 void app_trigger_frame(sl_cli_command_arg_t *arguments)
 {
   char *value_str;
@@ -2922,3 +3002,257 @@ void app_set_phy_sensitivity(sl_cli_command_arg_t *arguments)
 
   app_wisun_cli_mutex_unlock();
 }
+
+#if defined (SL_CATALOG_WISUN_CLI_DMP_PRESENT)
+static sl_status_t app_ble_start_advertising()
+{
+  sl_status_t status;
+
+  // Start advertising and enable connections
+  status = sl_bt_legacy_advertiser_start(app_ble_advertising_set_handle,
+                                         sl_bt_legacy_advertiser_connectable);
+  if (status == SL_STATUS_OK) {
+    app_ble_is_advertising = true;
+  } else {
+    app_ble_is_advertising = false;
+  }
+
+  return status;
+}
+
+void sl_bt_on_event(sl_bt_msg_t *evt)
+{
+  sl_status_t status;
+
+  switch (SL_BT_MSG_ID(evt->header)) {
+    case sl_bt_evt_system_boot_id:
+      printf("[BLE: sl_bt_evt_system_boot_id: v%d.%d.%d-b%d]\r\n",
+        evt->data.evt_system_boot.major,
+        evt->data.evt_system_boot.minor,
+        evt->data.evt_system_boot.patch,
+        evt->data.evt_system_boot.build);
+      break;
+    case sl_bt_evt_connection_opened_id:
+      printf("[BLE: connection handle %u opened by %02x:%02x:%02x:%02x:%02x:%02x]\r\n",
+        evt->data.evt_connection_opened.connection,
+        evt->data.evt_connection_opened.address.addr[5],
+        evt->data.evt_connection_opened.address.addr[4],
+        evt->data.evt_connection_opened.address.addr[3],
+        evt->data.evt_connection_opened.address.addr[2],
+        evt->data.evt_connection_opened.address.addr[1],
+        evt->data.evt_connection_opened.address.addr[0]);
+      // Connection stops the advertiser
+      app_ble_is_advertising = false;
+      printf("[BLE: advertising paused]\r\n");
+      break;
+    case sl_bt_evt_connection_closed_id:
+      printf("[BLE: connection handle %u closed due to %u]\r\n",
+        evt->data.evt_connection_closed.connection,
+        evt->data.evt_connection_closed.reason);
+      // Restart advertising
+      if (app_ble_is_advertiser_enabled) {
+        status = app_ble_start_advertising();
+        if (status == SL_STATUS_OK) {
+          printf("[BLE: advertising resumed]\r\n");
+        } else {
+          printf("[BLE: unable to resume advertising: %lu]\r\n", status);
+        }
+      }
+      break;
+    case sl_bt_evt_scanner_legacy_advertisement_report_id:
+      printf("[BLE: legacy advertisement from %02x:%02x:%02x:%02x:%02x:%02x, rssi: %d dBm]\r\n",
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[5],
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[4],
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[3],
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[2],
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[1],
+        evt->data.evt_scanner_legacy_advertisement_report.address.addr[0],
+        evt->data.evt_scanner_legacy_advertisement_report.rssi);
+      break;
+    case sl_bt_evt_scanner_extended_advertisement_report_id:
+      printf("[BLE: extended advertisement from %02x:%02x:%02x:%02x:%02x:%02x, rssi: %d dBm]\r\n",
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[5],
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[4],
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[3],
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[2],
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[1],
+        evt->data.evt_scanner_extended_advertisement_report.address.addr[0],
+        evt->data.evt_scanner_extended_advertisement_report.rssi);
+      break;
+    default:
+      break;
+  }
+}
+
+void app_ble_start_adv(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+  uint32_t min_adv_interval = 160;
+  uint32_t max_adv_interval = 160;
+
+  app_wisun_cli_mutex_lock();
+
+  if (sl_cli_get_argument_count(arguments) > 0) {
+    min_adv_interval = sl_cli_get_argument_uint32(arguments, 0);
+  }
+  if (sl_cli_get_argument_count(arguments) > 1) {
+    max_adv_interval = sl_cli_get_argument_uint32(arguments, 1);
+  }
+
+  if (app_ble_is_advertiser_enabled) {
+    printf("[BLE: already advertising]\r\n");
+    goto cleanup;
+  }
+
+  // Create an advertising set
+  status = sl_bt_advertiser_create_set(&app_ble_advertising_set_handle);
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to create a advertising set: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  // Generate data for advertising
+  status = sl_bt_legacy_advertiser_generate_data(app_ble_advertising_set_handle,
+                                                 sl_bt_advertiser_general_discoverable);
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to generate advertising data: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  // Set advertising interval
+  status = sl_bt_advertiser_set_timing(
+    app_ble_advertising_set_handle,
+    min_adv_interval, // min. adv. interval (milliseconds * 1.6)
+    max_adv_interval, // max. adv. interval (milliseconds * 1.6)
+    0,   // adv. duration
+    0);  // max. num. adv. events
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to set advertising timing: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  status = app_ble_start_advertising();
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to start advertising: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  app_ble_is_advertiser_enabled = true;
+  printf("[BLE advertising started (min: %lu, max: %lu)]\r\n",
+    min_adv_interval, max_adv_interval);
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_ble_stop_adv(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+
+  app_wisun_cli_mutex_lock();
+
+  if (!app_ble_is_advertiser_enabled) {
+    printf("[BLE: not advertising]\r\n");
+    goto cleanup;
+  }
+
+  if (app_ble_is_advertising) {
+    // Stop advertising
+    status = sl_bt_advertiser_stop(app_ble_advertising_set_handle);
+    if (status != SL_STATUS_OK) {
+      printf("[BLE: unable to stop BLE advertising: %lu]\r\n", status);
+      goto cleanup;
+    }
+    app_ble_is_advertising = false;
+  }
+
+  // Delete the advertising set
+  status = sl_bt_advertiser_delete_set(app_ble_advertising_set_handle);
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to delete the BLE advertising set: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  app_ble_is_advertiser_enabled = false;
+  printf("[BLE: advertising stopped]\r\n");
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_ble_start_scan(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+  uint16_t scan_interval = 160;
+  uint16_t scan_window = 16;
+
+  app_wisun_cli_mutex_lock();
+
+  if (sl_cli_get_argument_count(arguments) > 0) {
+    scan_interval = sl_cli_get_argument_uint16(arguments, 0);
+  }
+  if (sl_cli_get_argument_count(arguments) > 1) {
+    scan_window = sl_cli_get_argument_uint16(arguments, 1);
+  }
+
+  if (app_ble_is_scanning) {
+    printf("[BLE: already scanning]\r\n");
+    goto cleanup;
+  }
+
+  status = sl_bt_scanner_set_parameters_and_filter(sl_bt_scanner_scan_mode_active,
+                                                   scan_interval, // scan interval (milliseconds * 1.6)
+                                                   scan_window,   // scan window (milliseconds * 1.6)
+                                                   0,
+                                                   sl_bt_scanner_filter_policy_basic_unfiltered);
+  if (status != SL_STATUS_OK) {
+    printf("[BLE: unable to set scanning parameters: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  status = sl_bt_scanner_start(sl_bt_scanner_scan_phy_1m, sl_bt_scanner_discover_observation);
+  if (status != SL_STATUS_OK) {
+    printf("[Failed: unable to start BLE scanning: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  app_ble_is_scanning = true;
+  printf("[BLE scanning started (interval: %u, window: %u)]\r\n",
+    scan_interval, scan_window);
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_ble_stop_scan(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+
+  app_wisun_cli_mutex_lock();
+
+  if (!app_ble_is_scanning) {
+    printf("[BLE: not scanning]\r\n");
+    goto cleanup;
+  }
+
+  status = sl_bt_scanner_stop();
+  if (status != SL_STATUS_OK) {
+    printf("[Failed: unable to stop BLE scanning: %lu]\r\n", status);
+    goto cleanup;
+  }
+
+  app_ble_is_scanning = false;
+  printf("[BLE scanning stopped]\r\n");
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+#endif

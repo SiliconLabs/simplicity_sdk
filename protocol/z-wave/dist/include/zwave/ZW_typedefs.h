@@ -45,12 +45,17 @@
 #define IS_NULL(x) (NULL == x)
 #define NON_NULL(x) (NULL != x)
 
+static inline uint32_t minimum(uint32_t x, uint32_t y)
+{
+  return (((x) < (y)) ? (x) : (y));
+}
+
 /* Gecko chips are little endian:
  *   https://www.silabs.com/community/mcu/32-bit/knowledge-base.entry.html/2017/11/08/endianness_of_silabs-xSJt
  *
  * This macro swaps endianness of a uint32_t
  */
-#define UIP_HTONL(x) ( ((x >> 24) & 0x000000FF) | ((x >> 8) & 0x0000FF00) | ((x << 8 ) & 0x00FF0000) | ((x << 24) & 0xFF000000) )
+#define UIP_HTONL(x) ( ((x >> 24) & 0x000000FF) | ((x >> 8) & 0x0000FF00) | ((x << 8) & 0x00FF0000) | ((x << 24) & 0xFF000000) )
 
 ///@}
 ///@}

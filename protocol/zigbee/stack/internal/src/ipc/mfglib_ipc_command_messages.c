@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'mfglib' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -170,7 +170,7 @@ sl_status_t mfglibSendPacket(uint8_t *packet,
 {
   sli_zigbee_ipc_cmd_t msg = { 0, };
 
-  if ((packet[0] + 1) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if ((packet[0] + 1) > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector packet length exceeds expected maximum
   }
 
@@ -178,7 +178,7 @@ sl_status_t mfglibSendPacket(uint8_t *packet,
   msg.data.mfgSendPacket.request.repeat = repeat;
   sli_zigbee_send_ipc_cmd(mfglibInternalSendPacket_process_ipc_command, &msg);
 
-  if ((packet[0] + 1) > (MAX_IPC_VEC_ARG_CAPACITY)) {
+  if ((packet[0] + 1) > MAX_IPC_VEC_ARG_CAPACITY) {
     assert(false); // "vector packet length exceeds expected maximum
   }
 

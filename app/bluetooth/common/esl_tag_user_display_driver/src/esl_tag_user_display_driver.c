@@ -108,8 +108,8 @@ sl_status_t esl_user_display_init(int param_count, ...)
   // If the display needs pre-initialization - especially if it takes longer //
   // time to finish (e.g. internal boot of the display or a clock to become  //
   // stable) - then it is highly recommended to take those pre-steps in the  //
-  // callback called app_init(), instead - and take only the post-init steps //
-  // here, if there's any.                                                   //
+  // callback called app_init(), instead - and take only the post-init       //
+  // steps here, if there's any.                                             //
   // Do not forget to set result = SL_STATUS_OK after successful init.       //
   /////////////////////////////////////////////////////////////////////////////
 

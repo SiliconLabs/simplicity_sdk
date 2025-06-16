@@ -23,6 +23,7 @@ bool CC_UserCode_Write(uint8_t identifier, SUserCode *userCodeData);
 
 bool CC_UserCode_Read(uint8_t identifier, SUserCode *userCodeData);
 
+bool CC_UserCode_EraseAllUserCodes(void);
 /**
  * @}
  * @}

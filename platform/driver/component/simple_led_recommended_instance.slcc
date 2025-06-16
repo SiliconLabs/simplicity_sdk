@@ -1,14 +1,14 @@
 id: simple_led_recommended_instance
 label: Simple LED Recommended Instance(s)
-package: platform
+package: platform_core
 description: Simple Led Recommended Instance(s)
 category: Platform|Driver|LED
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 provides:
   - name: simple_led_recommended_instance
 requires:

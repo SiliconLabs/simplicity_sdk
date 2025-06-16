@@ -297,6 +297,20 @@ sl_zigbee_af_status_t sl_zigbee_af_green_power_server_derive_shared_key_from_sin
  *
  */
 void sl_zigbee_af_green_power_server_remove_sink_entry(sl_zigbee_gp_address_t *gpdAddr);
+
+/** @brief Close the commissioning window of current commissioning session.
+ *
+ * This is a helper function that closes a commissioning session if there is no active
+ * GPD commissioning in progress. If the commissioning session started with "InvolveProxy"
+ * option, then it also sends out a proxy commissioning mode message with action to exit commissioning
+ * from the server side to all proxies in the network. It internally uses the same
+ * parameters used previously in the proxy commissioning mode entered but with action as "exit".
+ *
+ *  @returns Status of the command as true when success or there is no open commissioning window.
+ *           Returns false for failure of the command for any reason or there is any GPD that is still
+ *           undergoing commissioning process or a failure. Ver.: always
+ */
+bool sl_zigbee_af_green_power_cluster_gp_sink_close_commissioning_window(void);
 /** @} */ // end of name API
 
 /**

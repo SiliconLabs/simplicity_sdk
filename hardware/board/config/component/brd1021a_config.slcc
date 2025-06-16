@@ -2,7 +2,7 @@
 - id: brd1021a_config
 - label: brd1021a config
 - description: Configuration files for BRD1021A
-- package: platform
+- package: boards
 - category: Platform|Board|Config
 - quality: evaluation
 - metadata:
@@ -125,48 +125,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd1021a_brd4001a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd1021a_brd4001a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd1021a_brd4001a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd1021a_brd4001a/iot_pwm_cfg_led0.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led1
-    path: brd1021a_brd4001a/iot_pwm_cfg_led1.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd1021a_brd4001a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4001a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd1021a_brd4001a/iot_uart_cfg_loopback.h
   - condition:
     - brd4001a
     override:
@@ -344,48 +302,6 @@
       file_id: iostream_usart_config
       instance: vcom
     path: brd1021a_brd4002a/sl_iostream_usart_vcom_config.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: msc
-    path: brd1021a_brd4002a/iot_flash_cfg_msc.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_flash
-      file_id: iot_flash_cfg
-      instance: spiflash
-    path: brd1021a_brd4002a/iot_flash_cfg_spiflash.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led0
-    path: brd1021a_brd4002a/iot_pwm_cfg_led0.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_pwm
-      file_id: iot_pwm_cfg
-      instance: led1
-    path: brd1021a_brd4002a/iot_pwm_cfg_led1.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: vcom
-    path: brd1021a_brd4002a/iot_uart_cfg_vcom.h
-  - condition:
-    - brd4002a
-    override:
-      component: iot_uart
-      file_id: iot_uart_cfg
-      instance: loopback
-    path: brd1021a_brd4002a/iot_uart_cfg_loopback.h
   - condition:
     - brd4002a
     override:

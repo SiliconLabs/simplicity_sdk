@@ -99,7 +99,7 @@ const char*  debugActionPrintTags[LOWER_MAC_DEBUG_ACTION_COUNT] = {
   "CSL_TX_FIFO_THRESHOLD"
 };
 
-// These states are defined in super/platform/radio/rail_lib/common/rail_types.h
+// These states are defined in super/platform/radio/rail_lib/common/sl_rail_types.h
 const char* radioStatePrintTags[RAIL_RADIO_STATE_COUNT] = {
   "INACTIVE",
   "IDLE",
@@ -196,10 +196,10 @@ void LOWER_MAC_DEBUG_ADD_ACTION(uint8_t action, uint64_t info)
   debugActions[index].action = action;
   debugActions[index].lowerMacState = sli_802154mac_lower_mac_state;
   debugActions[index].flags = miscInternalFlags;
-  debugActions[index].radioState = RAIL_GetRadioState(connectRailHandle);
+  debugActions[index].radioState = sl_rail_get_radio_state(connectRailHandle);
   debugActions[index].infoLow = (info & 0xFFFFFFFF);
   debugActions[index].infoHigh = (info >> 32);
-  debugActions[index].timestamp = RAIL_GetTime();
+  debugActions[index].timestamp = sl_rail_get_time(SL_RAIL_EFR32_HANDLE);
 }
 
 // helper function to return debug string to be printed

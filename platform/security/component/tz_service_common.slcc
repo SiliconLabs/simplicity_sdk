@@ -1,5 +1,5 @@
 id: tz_service_common
-package: platform
+package: security_trustzone
 description: >-
   This component component includes files and functionality common to all secure
   services.

@@ -31,7 +31,6 @@
 #include "sl_hal_keyscan.h"
 #if defined(KEYSCAN_COUNT) && (KEYSCAN_COUNT > 0)
 #include "sl_assert.h"
-#include "em_bus.h"
 
 /***************************************************************************//**
  * @addtogroup keyscan KEYSCAN - Keyboard Scan

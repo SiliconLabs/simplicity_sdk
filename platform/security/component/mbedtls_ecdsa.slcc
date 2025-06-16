@@ -1,5 +1,5 @@
 id: mbedtls_ecdsa
-package: platform
+package: security_mbedtls
 label: ECDSA
 description: >-
   This component provides support for signature generation and verification with

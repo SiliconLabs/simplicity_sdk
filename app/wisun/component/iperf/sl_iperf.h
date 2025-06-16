@@ -83,7 +83,6 @@ extern "C" {
 /// iPerf Server TX FINACK max count to retry
 #define SL_IPERF_SERVER_UDP_TX_FINACK_COUNT   (10U)
 
-
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------

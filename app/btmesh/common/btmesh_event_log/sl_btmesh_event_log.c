@@ -80,11 +80,6 @@ static void log_append_byte_array_be(uint8_t *data, size_t size)
 
 #define PREFIX SL_BTMESH_EVENT_LOG_PREFIX_CFG_VAL
 
-/***************************************************************************//**
- * @addtogroup BtMeshEventLog
- * @{
- ******************************************************************************/
-
 /*******************************************************************************
  * Log Bluetooth mesh events
  * @param[in] evt     Pointer to incoming event
@@ -2882,5 +2877,3 @@ void sl_btmesh_log_bt_connection_events(sl_bt_msg_t *evt)
       break;
   }
 }
-
-/** @} (end addtogroup BtMeshEventLog) */

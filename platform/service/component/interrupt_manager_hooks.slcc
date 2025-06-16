@@ -1,13 +1,18 @@
 id: interrupt_manager_hooks
-label: "interrupt Manager: Enable Hooks support."
-package: platform
+label: 'Interrupt Manager: Enable Hooks support'
+package: platform_core
 description: |
-  Specify that Interrupt Manager enables support for Hooks.
+    Specify that Interrupt Manager enables support for Hooks.
 category: Services|Interrupt Manager
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
+ui_hints:
+    visibility: never
+root_path: platform/service/interrupt_manager
+template_file:
+  - path: template/sli_interrupt_manager_hooks.h.jinja
 provides:
   - name: interrupt_manager_hooks
 requires:

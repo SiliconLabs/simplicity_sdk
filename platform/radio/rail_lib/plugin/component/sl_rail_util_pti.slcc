@@ -1,0 +1,18 @@
+id: sl_rail_util_pti
+label: SL RAIL Utility, PTI
+description: Utility to aid with RAIL Packet Trace Interface (PTI) Support
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_pti
+        name: SL RAIL Utility, PTI
+        license: Zlib
+provides:
+  - name: sl_rail_util_pti
+requires:
+  - name: rail_util_pti
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

@@ -1,5 +1,5 @@
 id: cs_reflector_cli
-package: Bluetooth
+package: bluetooth_le_middleware
 label: CS Reflector CLI
 description: >
   Command Line Interface (CLI) for the CS Reflector example.
@@ -24,7 +24,6 @@ requires:
   - name: bluetooth_api
   - name: cli
   - name: component_catalog
-  - name: rtllib
 recommends:
   - id: cli
     instance:

@@ -1,0 +1,32 @@
+id: sl_rail_util_init_core
+label: SL RAIL Utility, Initialization Core
+description: Utility to aid with RAIL Initialization Core Support
+package: rail_library
+category: Platform|Radio
+quality: evaluation
+metadata:
+    sbom:
+        id: sl_rail_util_init_core
+        name: SL RAIL Utility, Initialization Core
+        license: Zlib
+ui_hints:
+    visibility: never
+provides:
+  - name: sl_rail_util_init_core
+requires:
+  - name: rail_lib
+  - name: sl_rail_util_init
+  - name: component_catalog
+template_file:
+  - path: platform/radio/rail_lib/plugin/sl_rail_util_init/sl_rail_util_init.c.jinja
+  - path: platform/radio/rail_lib/plugin/sl_rail_util_init/sl_rail_util_init.h.jinja
+template_contribution:
+  - name: event_handler
+    value:
+        event: stack_init
+        include: sl_rail_util_init.h
+        handler: sl_rail_util_init
+    priority: -9000
+define:
+  - name: SL_RAIL_3_API
+    value: '1'

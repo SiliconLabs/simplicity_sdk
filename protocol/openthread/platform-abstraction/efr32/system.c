@@ -45,7 +45,6 @@
 
 #include "utils/uart.h"
 
-#include "rail.h"
 #include "common/logging.hpp"
 
 #if defined(SL_CATALOG_MPU_PRESENT)
@@ -76,7 +75,7 @@
 
 otInstance *sInstance;
 
-#if (OPENTHREAD_RADIO)
+#if defined(SL_CATALOG_OPENTHREAD_NCP_PRESENT)
 static void efr32NcpProcess(void);
 #else
 static void efr32CliProcess(void);
@@ -159,14 +158,14 @@ OT_TOOL_WEAK void otSysEventSignalPending(void)
 
 void efr32SerialProcess(void)
 {
-#if (OPENTHREAD_RADIO)
+#if defined(SL_CATALOG_OPENTHREAD_NCP_PRESENT)
     efr32NcpProcess();
 #else
     efr32CliProcess();
 #endif // OPENTHREAD_RADIO
 }
 
-#if (OPENTHREAD_RADIO)
+#if defined(SL_CATALOG_OPENTHREAD_NCP_PRESENT)
 static void efr32NcpProcess(void)
 {
 #if OPENTHREAD_CONFIG_NCP_HDLC_ENABLE

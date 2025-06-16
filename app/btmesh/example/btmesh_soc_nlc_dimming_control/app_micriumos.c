@@ -30,10 +30,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "app.h"
+#include "sl_main_init.h"
 #include "app_assert.h"
 #include "os.h"
 #include "sl_component_catalog.h"
 #include "sl_memory_manager.h"
+#include "sl_main_kernel.h"
 
 #ifdef SL_CATALOG_APP_LOG_PRESENT
 #include "app_log.h"
@@ -51,10 +53,21 @@ static OS_TCB  app_task_handle;
 // Semaphore handle
 static OS_SEM  app_semaphore_handle;
 
-// Application Runtime Init.
-void app_init_runtime(void)
+// Initialization steps for RTOS before the kernel is started
+void app_permanent_memory_alloc(void)
 {
   RTOS_ERR err;
+
+  // Create the semaphore
+  OSSemCreate(&app_semaphore_handle, "Application semaphore", 0, &err);
+  app_assert(err.Code == RTOS_ERR_NONE,
+             "Application semaphore creation failed.");
+
+  //If the start task is reused, there is no need to start another application task
+  if (sl_main_start_task_should_continue()) {
+    return;
+  }
+
   // Allocate stack for the task
   size_t stack_size = APP_TASK_STACK_SIZE;
   stack_size -= (stack_size % CPU_CFG_STK_ALIGN_BYTES);
@@ -77,10 +90,17 @@ void app_init_runtime(void)
                &err);
   app_assert(err.Code == RTOS_ERR_NONE,
              "Application task creation failed.");
-  // Create the semaphore
-  OSSemCreate(&app_semaphore_handle, "Application semaphore", 0, &err);
-  app_assert(err.Code == RTOS_ERR_NONE,
-             "Application semaphore creation failed.");
+}
+
+// Application Runtime Init.
+void app_init_runtime(void)
+{
+  app_log("BT Mesh NLC Dimming Control initialized" APP_LOG_NL);
+  // Ensure right init order in case of shared pin for enabling buttons
+  app_change_buttons_to_leds();
+  // Change LEDs to buttons in case of shared pin
+  app_change_leds_to_buttons();
+  app_handle_reset_conditions();
 }
 
 /******************************************************************************
@@ -89,12 +109,6 @@ void app_init_runtime(void)
 static void app_task(void *p_arg)
 {
   (void)p_arg;
-  app_log("BT Mesh NLC Dimming Control initialized" APP_LOG_NL);
-  // Ensure right init order in case of shared pin for enabling buttons
-  app_change_buttons_to_leds();
-  // Change LEDs to buttons in case of shared pin
-  app_change_leds_to_buttons();
-  app_handle_reset_conditions();
   while (1) {
     app_process_action();
   }

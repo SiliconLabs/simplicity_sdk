@@ -19,12 +19,10 @@ filter:
 
 component:
   - id: bluetooth_stack
-  - id: gatt_service_device_information
-  - id: bootloader_interface
+  - id: gatt_service_device_information_override
   - id: board_control
   - id: mpu
   - id: in_place_ota_dfu
-  - id: sl_memory
   - id: simple_led
     instance:
       - led1
@@ -38,19 +36,12 @@ component:
   - id: simple_button
     instance:
       - btn0
-  - id: sl_system
+  - id: sl_main
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
-
-include:
-  - path: .
-    file_list:
-      - path: app.h
 
 config_file:
   - override:
@@ -163,7 +154,7 @@ configuration:
 
 post_build:
   - profile: bt_esl
-    condition: [device_series_2]
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:device:flash:512

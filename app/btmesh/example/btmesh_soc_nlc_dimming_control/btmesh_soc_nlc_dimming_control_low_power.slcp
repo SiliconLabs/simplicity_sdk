@@ -31,22 +31,22 @@ component:
   - id: btmesh_provisionee
   - id: btmesh_provisioning_decorator
   - id: btmesh_proxy
+  - id: btmesh_remote_provisioning_server
   - id: btmesh_stack_gatt_prov_bearer
   - id: btmesh_target_node
   - id: clock_manager
   - id: device_init
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: mpu
   - id: rail_util_pti
   - id: simple_button_recommended_instance
   - id: simple_led_recommended_instance
-  - id: sl_system
+  - id: sl_main
   - id: udelay
 
 source:
   - path: app.c
   - path: app_bm.c
-  - path: main.c
 
 include:
   - path: .
@@ -80,6 +80,8 @@ other_file:
   - path: ../../documentation/example/btmesh_soc_nlc_dimming_control/readme_img10.png
 
 configuration:
+  - name: EMDRV_DMADRV_DMA_CH_COUNT
+    value: 2
   - name: SL_BTMESH_LPN_POLL_TIMEOUT_CFG_VAL
     value: 120000
   - name: NVM3_DEFAULT_NVM_SIZE
@@ -115,6 +117,10 @@ configuration:
     value: "1"
   - name: SL_STACK_SIZE
     value: "0x1200"
+
+post_build:
+  - profile: btmesh_common
+    condition: [device_series_2, bootloader_app_properties]
 
 tag:
   - hardware:board_only

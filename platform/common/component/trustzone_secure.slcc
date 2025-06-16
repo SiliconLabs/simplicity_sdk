@@ -1,13 +1,13 @@
 id: trustzone_secure
-label: "TrustZone Secure"
+label: TrustZone Secure
 description: >
-   Set up application configuration to create TrustZone Secure application.
-package: platform
+    Set up application configuration to create TrustZone Secure application.
+package: platform_core
 category: Platform|TrustZone
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 define:
   - name: SL_TRUSTZONE_SECURE

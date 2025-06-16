@@ -29,7 +29,7 @@ include:
     file_list:
     - "path": "sl_wisun_trace_util.h" # a common header that put together different tools can be used by the components
     - "path": "sl_wisun_ip6string.h"
-  - path: "./nanostack/nanostack-libservice/mbed-client-libservice"
+  - path: "nanostack/nanostack-libservice/mbed-client-libservice"
     file_list:
     - "path": "common_functions.h"
     - "path": "common_inlined_functions.h"

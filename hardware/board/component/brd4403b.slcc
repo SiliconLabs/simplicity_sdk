@@ -1,7 +1,7 @@
 !!omap
 - id: brd4403b
 - label: BRD4403B
-- package: platform
+- package: boards
 - description: Board support for BRD4403B.
 - category: Platform|Board|Radio Board
 - quality: production

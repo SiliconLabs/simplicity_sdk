@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<api device_id="5" device_name="btmesh" version="9.1.0">
+<api device_id="5" device_name="btmesh" version="10.0.0">
     <datatypes>
         <datatype base="uint16" name="errorcode" length="2"/>
         <datatype base="int16" name="int16" length="2"/>
@@ -426,6 +426,16 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
+        <command index="59" name="compare_dcd" >
+            <params>
+                <param datatype="uint8" name="page_number" type="uint8"/>
+                <param datatype="uint8array" name="page_data" type="uint8array"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+                <param datatype="uint32" name="diff" type="uint32"/>
+            </returns>
+        </command>
         <event index="0" name="initialized">
             <params>
                 <param datatype="uint8" name="provisioned" type="uint8"/>
@@ -639,6 +649,21 @@
             <enum name="relay" value="0x8023"/>
             <enum name="identity" value="0x8042"/>
             <enum name="nettx" value="0x8024"/>
+        </enums>
+        <enums name="dcd_comparison">
+            <enum name="composition_changed" value="0x1"/>
+            <enum name="cid_changed" value="0x2"/>
+            <enum name="pid_changed" value="0x4"/>
+            <enum name="vid_changed" value="0x8"/>
+            <enum name="crpl_changed" value="0x10"/>
+            <enum name="features_changed" value="0x20"/>
+            <enum name="element_loc_changed" value="0x40"/>
+            <enum name="sig_model_added" value="0x80"/>
+            <enum name="sig_model_removed" value="0x100"/>
+            <enum name="vendor_model_added" value="0x200"/>
+            <enum name="vendor_model_removed" value="0x400"/>
+            <enum name="element_added" value="0x800"/>
+            <enum name="element_removed" value="0x1000"/>
         </enums>
         <defines name="message_flags">
             <define name="message_flag_none" value="0x0"/>
@@ -969,17 +994,6 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="72" name="test_identity" >
-            <params>
-                <param datatype="uint16" name="address" type="uint16"/>
-                <param datatype="uint16" name="netkey_index" type="uint16"/>
-                <param datatype="uint8array" name="data" type="uint8array"/>
-            </params>
-            <returns>
-                <param datatype="errorcode" name="result" type="uint16"/>
-                <param datatype="uint8" name="match" type="uint8"/>
-            </returns>
-        </command>
         <command index="28" name="get_provisioning_records_list" >
             <params>
                 <param datatype="uuid_128" name="uuid" type="uuid_128"/>
@@ -1227,7 +1241,7 @@
         </command>
         <command index="6" name="send_solicitation" >
             <params>
-                <param datatype="uint8" name="enc_netkey_index" type="uint8"/>
+                <param datatype="uint16" name="enc_netkey_index" type="uint16"/>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
                 <param datatype="uint16" name="dst" type="uint16"/>
             </params>
@@ -2091,20 +2105,6 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
-        <command index="4" name="set_adv_scan_params" >
-            <params>
-                <param datatype="uint16" name="adv_interval_min" type="uint16"/>
-                <param datatype="uint16" name="adv_interval_max" type="uint16"/>
-                <param datatype="uint8" name="adv_repeat_packets" type="uint8"/>
-                <param datatype="uint8" name="adv_use_random_address" type="uint8"/>
-                <param datatype="uint8" name="adv_channel_map" type="uint8"/>
-                <param datatype="uint16" name="scan_interval" type="uint16"/>
-                <param datatype="uint16" name="scan_window" type="uint16"/>
-            </params>
-            <returns>
-                <param datatype="errorcode" name="result" type="uint16"/>
-            </returns>
-        </command>
         <command index="5" name="set_ivupdate_test_mode" >
             <params>
                 <param datatype="uint8" name="mode" type="uint8"/>
@@ -2118,14 +2118,6 @@
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
                 <param datatype="uint8" name="mode" type="uint8"/>
-            </returns>
-        </command>
-        <command index="7" name="set_segment_send_delay" >
-            <params>
-                <param datatype="uint8" name="delay" type="uint8"/>
-            </params>
-            <returns>
-                <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
         <command index="8" name="set_ivupdate_state" >
@@ -2336,19 +2328,6 @@
                 <param datatype="uint8" name="key_type" type="uint8"/>
                 <param datatype="aes_key_128" name="key" type="aes_key_128"/>
                 <param datatype="uint16" name="key_index" type="uint16"/>
-            </params>
-            <returns>
-                <param datatype="errorcode" name="result" type="uint16"/>
-            </returns>
-        </command>
-        <command index="29" name="set_sar_config" >
-            <params>
-                <param datatype="uint32" name="incomplete_timer_ms" type="uint32"/>
-                <param datatype="uint32" name="pending_ack_base_ms" type="uint32"/>
-                <param datatype="uint32" name="pending_ack_mul_ms" type="uint32"/>
-                <param datatype="uint32" name="wait_for_ack_base_ms" type="uint32"/>
-                <param datatype="uint32" name="wait_for_ack_mul_ms" type="uint32"/>
-                <param datatype="uint8" name="max_send_rounds" type="uint8"/>
             </params>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>
@@ -4916,6 +4895,14 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
+        <command index="6" name="deinit" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
         <event index="0" name="status">
             <params>
                 <param datatype="uint16" name="destination_address" type="uint16"/>
@@ -5011,6 +4998,14 @@
     </class>
     <class index="81" name="scene_setup_server">
         <command index="0" name="init" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="1" name="deinit" >
             <params>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
             </params>
@@ -6573,6 +6568,12 @@
             <enum name="link_state_outbound_packet_transfer" value="0x3"/>
             <enum name="link_state_closing" value="0x4"/>
         </enums>
+        <enums name="nppi_operation">
+            <enum name="nppi_device_key_update" value="0x0"/>
+            <enum name="nppi_address_update" value="0x1"/>
+            <enum name="nppi_dcd_update" value="0x2"/>
+            <enum name="remote_provisioning" value="0xff"/>
+        </enums>
     </class>
     <class index="49" name="remote_provisioning_server">
         <command index="0" name="init" >
@@ -7545,5 +7546,13 @@
                 <param datatype="uint8" name="reason" type="uint8"/>
             </params>
         </event>
+    </class>
+    <class index="110" name="model_migration">
+        <command index="1" name="migrate_models" >
+            <params/>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
     </class>
 </api>

@@ -2,15 +2,14 @@ id: "bluetooth_host_release_libraries"
 label: "Bluetooth Low Energy Host Library"
 ui_hints:
   visibility: never
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   BLE host libraries to be used by the Bluetooth stack
 category: Bluetooth|Bluetooth Host (Stack)
 quality: "production"
 root_path: "protocol/bluetooth"
 requires:
-  - name: "bluetooth_common_release"
-  - name: "bluetooth_controller_libraries"
+  - name: "bluetooth_common"
 provides:
   - name: "bluetooth_host_libraries"
   - name: "bluetooth_host_release_libraries"
@@ -51,6 +50,25 @@ library:
       - cortexm33
     unless:
       - bluetooth_feature_gatt_server
+  - path: build/gcc/cortex-m33/ble_host/ble_system/release/libble_system.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+  - path: build/gcc/cortex-m33/ble_host/connection_subrating/release/libble_host_connection_subrating.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+      - bluetooth_feature_connection_subrating
+  - path: build/gcc/cortex-m33/ble_host/connection_subrating/release/libble_host_connection_subrating_stub.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
+    unless:
+      - bluetooth_feature_connection_subrating
+  - path: build/gcc/cortex-m33/ble_host/core/release/libble_host_core.a
+    condition:
+      - toolchain_gcc
+      - cortexm33
   - path: build/gcc/cortex-m33/ble_host/hal/release/libble_host_hal_series2.a
     condition:
       - toolchain_gcc
@@ -65,7 +83,7 @@ library:
     condition:
       - toolchain_gcc
       - cortexm33
-  - path: build/gcc/cortex-m33/ble_host/system/release/libble_system.a
+  - path: build/gcc/cortex-m33/ble_host/system/release/libble_host_system.a
     condition:
       - toolchain_gcc
       - cortexm33
@@ -105,6 +123,25 @@ library:
       - cortexm33
     unless:
       - bluetooth_feature_gatt_server
+  - path: build/iar/cortex-m33/ble_host/ble_system/release/libble_system.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+  - path: build/iar/cortex-m33/ble_host/connection_subrating/release/libble_host_connection_subrating.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+      - bluetooth_feature_connection_subrating
+  - path: build/iar/cortex-m33/ble_host/connection_subrating/release/libble_host_connection_subrating_stub.a
+    condition:
+      - toolchain_iar
+      - cortexm33
+    unless:
+      - bluetooth_feature_connection_subrating
+  - path: build/iar/cortex-m33/ble_host/core/release/libble_host_core.a
+    condition:
+      - toolchain_iar
+      - cortexm33
   - path: build/iar/cortex-m33/ble_host/hal/release/libble_host_hal_series2.a
     condition:
       - toolchain_iar
@@ -119,7 +156,7 @@ library:
     condition:
       - toolchain_iar
       - cortexm33
-  - path: build/iar/cortex-m33/ble_host/system/release/libble_system.a
+  - path: build/iar/cortex-m33/ble_host/system/release/libble_host_system.a
     condition:
       - toolchain_iar
       - cortexm33

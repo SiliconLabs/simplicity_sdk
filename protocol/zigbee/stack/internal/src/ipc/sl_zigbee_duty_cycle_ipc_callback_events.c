@@ -35,7 +35,7 @@ void sli_zigbee_stack_duty_cycle_handler(uint8_t channelPage,
   cb_event->data.duty_cycle_handler.totalDevices = totalDevices;
 
   if (arrayOfDeviceDutyCycles != NULL) {
-    memmove(cb_event->data.duty_cycle_handler.arrayOfDeviceDutyCycles, arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * (totalDevices));
+    memmove(cb_event->data.duty_cycle_handler.arrayOfDeviceDutyCycles, arrayOfDeviceDutyCycles, sizeof(sl_zigbee_per_device_duty_cycle_t) * totalDevices);
   }
 
   cb_event->tag = SLI_ZIGBEE_STACK_DUTY_CYCLE_HANDLER_IPC_EVENT_TYPE;

@@ -1,6 +1,6 @@
 id: ot_sbom_tcplp
 label: TCPlp SBOM
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: production
 description: This component defines the upstream TCPlp SBOM metadata.
@@ -14,9 +14,9 @@ metadata:
     license: BSD-3-Clause
     upstream:
       name: TCPlp
-      version: "7f6723ffb"
+      version: "fb0446f53"
       supplier: Google
       originator: Sam Kumar, Michael P Andersen, Hyung-Sin Kim, and David E. Culler
       url: https://github.com/ucbrise/tcplp
-      package_url: pkg:github/openthread/openthread/third_party/tcplp@7f6723ffb
+      package_url: pkg:github/openthread/openthread/third_party/tcplp@fb0446f53
       comment: TCPlp is a full-scale TCP stack for low-power wireless networks and resource-constrained embedded systems.

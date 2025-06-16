@@ -1,6 +1,6 @@
 id: sli_protocol_crypto
 label: Accelerated Crypto Primitives (CRYPTO and RADIOAES)
-package: platform
+package: security_mbedtls
 description: >-
   This component provides accelerated cryptographic primitives using the CRYPTO
   (series-1) and RADIOAES (series-2) peripherals.

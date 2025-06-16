@@ -936,7 +936,7 @@ class NodeImpl:
         cmd = cmd.strip()
         while True:
             line = self.__readline()
-            if line == cmd:
+            if line.strip() == cmd:
                 break
 
             logging.warning("expecting echo %r, but read %r", cmd, line)
@@ -1264,17 +1264,8 @@ class NodeImpl:
                 return service
 
     def get_srp_server_port(self):
-        """Returns the SRP server UDP port by parsing
-           the SRP Server Data in Network Data.
-        """
-
-        for service in self.get_services():
-            # TODO: for now, we are using 0xfd as the SRP service data.
-            #       May use a dedicated bit flag for SRP server.
-            if int(service[1], 16) == 0x5d:
-                # The SRP server data contains IPv6 address (16 bytes)
-                # followed by UDP port number.
-                return int(service[2][2 * 16:], 16)
+        self.send_command('srp server port')
+        return int(self._expect_result(r'\d+'))
 
     def srp_client_start(self, server_address, server_port):
         self.send_command(f'srp client start {server_address} {server_port}')
@@ -1455,16 +1446,6 @@ class NodeImpl:
         cmd = 'trel port'
         self.send_command(cmd)
         return int(self._expect_command_output()[0])
-
-    def set_epskc(self, keystring: str, timeout=120000, port=0):
-        cmd = 'ba ephemeralkey set ' + keystring + ' ' + str(timeout) + ' ' + str(port)
-        self.send_command(cmd)
-        self._expect(r"(Done|Error .*)")
-
-    def clear_epskc(self):
-        cmd = 'ba ephemeralkey clear'
-        self.send_command(cmd)
-        self._expect_done()
 
     def get_border_agent_counters(self):
         cmd = 'ba counters'
@@ -1932,9 +1913,14 @@ class NodeImpl:
         self.send_command(cmd)
         self._expect_done()
 
+    def get_ba_state(self):
+        states = [r'Disabled', r'Inactive', r'Active']
+        self.send_command('ba state')
+        return self._expect_result(states)
+
     def get_ephemeral_key_state(self):
         cmd = 'ba ephemeralkey'
-        states = [r'inactive', r'active']
+        states = [r'Disabled', r'Stopped', r'Started', r'Connected', r'Accepted']
         self.send_command(cmd)
         return self._expect_result(states)
 
@@ -2515,16 +2501,16 @@ class NodeImpl:
         self.send_command('netdata register')
         self._expect_done()
 
-    def netdata_publish_dnssrp_anycast(self, seqnum):
-        self.send_command(f'netdata publish dnssrp anycast {seqnum}')
+    def netdata_publish_dnssrp_anycast(self, seqnum, version=0):
+        self.send_command(f'netdata publish dnssrp anycast {seqnum} {version}')
         self._expect_done()
 
-    def netdata_publish_dnssrp_unicast(self, address, port):
-        self.send_command(f'netdata publish dnssrp unicast {address} {port}')
+    def netdata_publish_dnssrp_unicast(self, address, port, version=0):
+        self.send_command(f'netdata publish dnssrp unicast {address} {port} {version}')
         self._expect_done()
 
-    def netdata_publish_dnssrp_unicast_mleid(self, port):
-        self.send_command(f'netdata publish dnssrp unicast {port}')
+    def netdata_publish_dnssrp_unicast_mleid(self, port, version=0):
+        self.send_command(f'netdata publish dnssrp unicast {port} {version}')
         self._expect_done()
 
     def netdata_unpublish_dnssrp(self):
@@ -3600,6 +3586,52 @@ class NodeImpl:
             index = index + (5 if result[ins] else 1)
         return result
 
+    def dns_query(self, rrtype, first_label, next_labels, server=None, port=53):
+        """
+        Send a DNS query for a given record type and name.
+
+        Output is an array of records (as dictionary) with string keys and values.
+        [
+           {'RecordType': '25',
+           'RecordLength': '78',
+           'TTL': '7105',
+           'Section': 'answer',
+           'Name': 'ins1._IPPS._TCP.DEFAULT.SERVICE.ARPA.',
+           'RecordData': '[001900010000a0610...d45d3]'
+           }
+        ]
+        """
+        cmd = f'dns query {rrtype} {first_label} {next_labels}'
+        if server is not None:
+            cmd += f' {server} {port}'
+
+        self.send_command(cmd)
+        self.simulator.go(10)
+        output = self._expect_command_output()
+
+        # Example output:
+        # DNS query response for ins1._IPPS._TCP.DEFAULT.SERVICE.ARPA.
+        # 0)
+        #   RecordType:25, RecordLength:78, TTL:7105, Section:answer
+        #   Name:ins1._IPPS._TCP.DEFAULT.SERVICE.ARPA.
+        #   RecordData:[00190001000...cdb]
+        # Done
+
+        result = []
+        index = 1  # Skip first line
+        while (index < len(output)):
+            if (index > len(output) - 4):
+                break
+            record = {}
+            for line in output[index + 1:index + 4]:
+                for item in line.strip().split(','):
+                    k, v = item.split(':')
+                    record[k.strip()] = v.strip()
+            result.append(record)
+            index += 4
+
+        return result
+
     def set_mliid(self, mliid: str):
         cmd = f'mliid {mliid}'
         self.send_command(cmd)
@@ -4050,6 +4082,8 @@ class LinuxHost():
         for line in self.bash(f'cat {host_name_file}', encoding='raw_unicode_escape'):
             elements = line.split()
             fullname = f'{host_name}.local.'
+            if 'No Such Record' in line:
+                continue
             if fullname not in elements:
                 continue
             if 'Add' not in elements:
@@ -4092,6 +4126,15 @@ class LinuxHost():
                 service['addresses'] = addresses
         return service or None
 
+    def _start_radvd_and_verify(self):
+        self.bash('service radvd start')
+
+        output = self.bash('service radvd status')
+        for line in output:
+            if "running" in line:
+                return
+        raise Exception("Failed to start radvd service")
+
     def start_radvd_service(self, prefix, slaac):
         self.bash("""cat >/etc/radvd.conf <<EOF
 interface eth0
@@ -4116,8 +4159,7 @@ interface eth0
 };
 EOF
 """ % (prefix, 'on' if slaac else 'off'))
-        self.bash('service radvd start')
-        self.bash('service radvd status')  # Make sure radvd service is running
+        self._start_radvd_and_verify()
 
     def start_pd_radvd_service(self, prefix):
         self.bash("""cat >/etc/radvd.conf <<EOF
@@ -4143,8 +4185,29 @@ interface wpan0
 };
 EOF
 """ % (prefix,))
-        self.bash('service radvd start')
-        self.bash('service radvd status')  # Make sure radvd service is running
+        self._start_radvd_and_verify()
+
+    def start_rdnss_radvd_service(self, dns_server_address):
+        self.bash(f"""cat >/etc/radvd.conf <<EOF
+interface eth0
+{{
+    AdvSendAdvert on;
+
+    AdvReachableTime 20;
+    AdvRetransTimer 20;
+    AdvDefaultLifetime 180;
+    MinRtrAdvInterval 120;
+    MaxRtrAdvInterval 180;
+    AdvDefaultPreference low;
+
+    RDNSS {dns_server_address}
+    {{
+        AdvRDNSSLifetime 1800;
+    }};
+}};
+EOF
+""")
+        self._start_radvd_and_verify()
 
     def stop_radvd_service(self):
         self.bash('service radvd stop')

@@ -87,6 +87,7 @@
 #define HDR_GET_LEN(hdr)         ((((hdr)[1] >> 4) & 0x0f) + ((hdr)[2] << 4))
 #define HDR_GET_CHECKSUM(hdr)    ((((hdr)[0] + (hdr)[1] + (hdr)[2] + (hdr)[3]) & 0xff) == 0xff)
 
+static bool initialized = false;
 static const uint8_t sync_req[] = { 0x01, 0x7e };
 static const uint8_t sync_rsp[] = { 0x02, 0x7d };
 static const uint8_t conf_req[] = { 0x03, 0xfc, CFG_FIELD };
@@ -746,6 +747,12 @@ uint32_t hci_common_transport_transmit(uint8_t *data, int16_t len)
 
 void hci_common_transport_init(void)
 {
+  if (initialized) {
+    return;
+  } else {
+    initialized = true;
+  }
+
   // Allocate dynamic buffers with initial size.
   // TODO: check for allocation error.
   (void)buffer_allocate(&hci_3wire.rx_buf, DEFAULT_ALLOC_SIZE_HCI);

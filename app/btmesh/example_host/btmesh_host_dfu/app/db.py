@@ -25,10 +25,11 @@ import json
 import operator
 from datetime import datetime
 from pathlib import Path
-from typing import ClassVar, Dict, Iterable, Mapping, Optional
+from typing import ClassVar, Dict, Iterable, Mapping, Optional, Union
 
 import btmesh.util
-from btmesh.db import FWID, BtmeshDatabase, ModelID
+import btmesh.db
+from btmesh.db import BtmeshDatabase, ElementRef, FWID, ModelID, DatabaseVersion
 from btmesh.event import LocalEvent
 from btmesh.statedict import StateDictObject
 from btmesh.util import BtmeshRetryParams
@@ -51,53 +52,56 @@ class BtmeshDfuAppDbClearedEvent(LocalEvent):
 
 class BtmeshDfuAppGroup(StateDictObject):
     @classmethod
-    def validate_addr(cls, addrs_dict, addr, addrs_name, shall_exist=None):
-        btmesh.util.validate_unicast_address(
-            addr, f"Invalid app group {addrs_name} address."
-        )
+    def validate_elem(
+        cls,
+        elems_dict,
+        elem: ElementRef,
+        elem_name: str,
+        shall_exist=None,
+    ):
         if shall_exist is not None:
-            if shall_exist and (addr not in addrs_dict):
+            if shall_exist and (elem not in elems_dict):
                 raise ValueError(
-                    f"App group {addrs_name} address 0x{addr:04X} does not exists."
+                    f"App group {elem_name} element {elem} does not exists."
                 )
-            elif (not shall_exist) and (addr in addrs_dict):
+            elif (not shall_exist) and (elem in elems_dict):
                 raise ValueError(
-                    f"App group {addrs_name} address 0x{addr:04X} already exists."
+                    f"App group {elem_name} element {elem} already exists."
                 )
 
     @classmethod
-    def add_addr(cls, addrs_dict, addr, addrs_name):
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=False)
-        addrs_dict[addr] = set()
+    def add_elem(cls, elems_dict, elem: ElementRef, elems_name: str):
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=False)
+        elems_dict[elem] = set()
 
     @classmethod
-    def remove_addr(cls, addrs_dict, addr, addrs_name):
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=True)
-        return addrs_dict.pop(addr)
+    def remove_elem(cls, elems_dict, elem, elems_name):
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=True)
+        return elems_dict.pop(elem)
 
     @classmethod
-    def has_addr_mdl(cls, addrs_dict, addr, mdl, addrs_name):
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=True)
-        return mdl in addrs_dict[addr]
+    def has_elem_mdl(cls, elems_dict, elem, mdl, elems_name):
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=True)
+        return mdl in elems_dict[elem]
 
     @classmethod
-    def add_addr_mdl(cls, addrs_dict, addr, mdl, addrs_name):
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=None)
-        if addr not in addrs_dict:
-            cls.add_addr(addrs_dict, addr, addrs_name)
-        addrs_dict[addr].add(mdl)
+    def add_elem_mdl(cls, elems_dict, elem, mdl, elems_name):
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=None)
+        if elem not in elems_dict:
+            cls.add_elem(elems_dict, elem, elems_name)
+        elems_dict[elem].add(mdl)
 
     @classmethod
-    def remove_addr_mdl(cls, addrs_dict, addr, mdl, addrs_name):
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=True)
-        addrs_dict[addr].remove(mdl)
-        if not len(addrs_dict[addr]):
-            del addrs_dict[addr]
+    def remove_elem_mdl(cls, elems_dict, elem, mdl, elems_name):
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=True)
+        elems_dict[elem].remove(mdl)
+        if not len(elems_dict[elem]):
+            del elems_dict[elem]
 
     @classmethod
-    def gen_addr_mdls(cls, addrs_dict, addr, addrs_name) -> Iterable[ModelID]:
-        cls.validate_addr(addrs_dict, addr, addrs_name, shall_exist=True)
-        return (mdl for mdl in addrs_dict.get(addr, set()))
+    def gen_elem_mdls(cls, elems_dict, elem, elems_name) -> Iterable[ModelID]:
+        cls.validate_elem(elems_dict, elem, elems_name, shall_exist=True)
+        return (mdl for mdl in elems_dict.get(elem, set()))
 
     def create_mdl(self, attr_name, raw_mdl):
         if isinstance(raw_mdl, Mapping):
@@ -118,9 +122,9 @@ class BtmeshDfuAppGroup(StateDictObject):
         pub_period_ms=0,
         pub_retransmit_count=0,
         pub_retransmit_interval_ms=0,
-        pub_addrs={},
-        sub_addrs={},
-        bind_addrs={},
+        pub_elems={},
+        sub_elems={},
+        bind_elems={},
     ) -> None:
         super().__init__()
         self.name = name
@@ -131,33 +135,33 @@ class BtmeshDfuAppGroup(StateDictObject):
         self.pub_period_ms = pub_period_ms
         self.pub_retransmit_count = pub_retransmit_count
         self.pub_retransmit_interval_ms = pub_retransmit_interval_ms
-        self._pub_addrs = {}
-        self._sub_addrs = {}
-        self._bind_addrs = {}
-        pub_addrs = {
-            btmesh.util.addr_to_int(addr): mdls for addr, mdls in pub_addrs.items()
+        self._pub_elems = {}
+        self._sub_elems = {}
+        self._bind_elems = {}
+        pub_elems = {
+            ElementRef.create_from_dict(elem): mdls for elem, mdls in pub_elems.items()
         }
-        sub_addrs = {
-            btmesh.util.addr_to_int(addr): mdls for addr, mdls in sub_addrs.items()
+        sub_elems = {
+            ElementRef.create_from_dict(elem): mdls for elem, mdls in sub_elems.items()
         }
-        bind_addrs = {
-            btmesh.util.addr_to_int(addr): mdls for addr, mdls in bind_addrs.items()
+        bind_elems = {
+            ElementRef.create_from_dict(elem): mdls for elem, mdls in bind_elems.items()
         }
-        for addr in pub_addrs:
-            self.add_pub_addr(addr)
-            for raw_mdl in pub_addrs[addr]:
-                mdl = self.create_mdl(f"pub_addrs[0x{addr:04X}] mdl", raw_mdl)
-                self.add_pub_addr_mdl(addr, mdl)
-        for addr in sub_addrs:
-            self.add_sub_addr(addr)
-            for raw_mdl in sub_addrs[addr]:
-                mdl = self.create_mdl(f"sub_addrs[0x{addr:04X}] mdl", raw_mdl)
-                self.add_sub_addr_mdl(addr, mdl)
-        for addr in bind_addrs:
-            self.add_bind_addr(addr)
-            for raw_mdl in bind_addrs[addr]:
-                mdl = self.create_mdl(f"bind_addrs[0x{addr:04X}] mdl", raw_mdl)
-                self.add_bind_addr_mdl(addr, mdl)
+        for elem in pub_elems:
+            self.add_pub_elem(elem)
+            for raw_mdl in pub_elems[elem]:
+                mdl = self.create_mdl(f"pub_elems[{elem}] mdl", raw_mdl)
+                self.add_pub_elem_mdl(elem, mdl)
+        for elem in sub_elems:
+            self.add_sub_elem(elem)
+            for raw_mdl in sub_elems[elem]:
+                mdl = self.create_mdl(f"sub_elems[{elem}] mdl", raw_mdl)
+                self.add_sub_elem_mdl(elem, mdl)
+        for elem in bind_elems:
+            self.add_bind_elem(elem)
+            for raw_mdl in bind_elems[elem]:
+                mdl = self.create_mdl(f"bind_elems[{elem}] mdl", raw_mdl)
+                self.add_bind_elem_mdl(elem, mdl)
 
     @property
     def name(self):
@@ -245,95 +249,107 @@ class BtmeshDfuAppGroup(StateDictObject):
 
     # Publication element address methods
     @property
-    def pub_addrs(self):
-        return (addr for addr in self._pub_addrs)
+    def pub_elems(self):
+        return (elem for elem in self._pub_elems)
 
-    def has_pub_addr(self, addr):
-        return addr in self._pub_addrs
+    def has_pub_elem(self, elem: ElementRef):
+        return elem in self._pub_elems
 
-    def add_pub_addr(self, addr):
-        self.add_addr(self._pub_addrs, addr, "pub")
+    def add_pub_elem(self, elem: ElementRef):
+        self.add_elem(self._pub_elems, elem, "pub")
 
-    def remove_pub_addr(self, addr):
-        self.remove_addr(self._pub_addrs, addr, "pub")
+    def remove_pub_elem(self, elem: ElementRef):
+        self.remove_elem(self._pub_elems, elem, "pub")
 
-    def has_pub_addr_mdl(self, addr, mdl):
-        return self.has_addr_mdl(self._pub_addrs, addr, mdl, "pub")
+    def has_pub_elem_mdl(self, elem: ElementRef, mdl):
+        return self.has_elem_mdl(self._pub_elems, elem, mdl, "pub")
 
-    def add_pub_addr_mdl(self, addr, mdl):
-        self.add_addr_mdl(self._pub_addrs, addr, mdl, "pub")
+    def add_pub_elem_mdl(self, elem: ElementRef, mdl):
+        self.add_elem_mdl(self._pub_elems, elem, mdl, "pub")
 
-    def remove_pub_addr_mdl(self, addr, mdl):
-        self.remove_addr_mdl(self._pub_addrs, addr, mdl, "pub")
+    def remove_pub_elem_mdl(self, elem: ElementRef, mdl):
+        self.remove_elem_mdl(self._pub_elems, elem, mdl, "pub")
 
-    def gen_pub_addr_mdls(self, addr) -> Iterable[ModelID]:
-        return self.gen_addr_mdls(self._pub_addrs, addr, "pub")
+    def gen_pub_elem_mdls(self, elem: ElementRef) -> Iterable[ModelID]:
+        return self.gen_elem_mdls(self._pub_elems, elem, "pub")
 
     # Subscription element address methods
     @property
-    def sub_addrs(self):
-        return (addr for addr in self._sub_addrs)
+    def sub_elems(self):
+        return (elem for elem in self._sub_elems)
 
-    def has_sub_addr(self, addr):
-        return addr in self._sub_addrs
+    def has_sub_elem(self, elem: ElementRef):
+        return elem in self._sub_elems
 
-    def add_sub_addr(self, addr):
-        self.add_addr(self._sub_addrs, addr, "sub")
+    def add_sub_elem(self, elem: ElementRef):
+        self.add_elem(self._sub_elems, elem, "sub")
 
-    def remove_sub_addr(self, addr):
-        self.remove_addr(self._sub_addrs, addr, "sub")
+    def remove_sub_elem(self, elem: ElementRef):
+        self.remove_elem(self._sub_elems, elem, "sub")
 
-    def has_sub_addr_mdl(self, addr, mdl):
-        return self.has_addr_mdl(self._sub_addrs, addr, mdl, "sub")
+    def has_sub_elem_mdl(self, elem: ElementRef, mdl):
+        return self.has_elem_mdl(self._sub_elems, elem, mdl, "sub")
 
-    def add_sub_addr_mdl(self, addr, mdl):
-        self.add_addr_mdl(self._sub_addrs, addr, mdl, "sub")
+    def add_sub_elem_mdl(self, elem: ElementRef, mdl):
+        self.add_elem_mdl(self._sub_elems, elem, mdl, "sub")
 
-    def remove_sub_addr_mdl(self, addr, mdl):
-        self.remove_addr_mdl(self._sub_addrs, addr, mdl, "sub")
+    def remove_sub_elem_mdl(self, elem: ElementRef, mdl):
+        self.remove_elem_mdl(self._sub_elems, elem, mdl, "sub")
 
-    def gen_sub_addr_mdls(self, addr) -> Iterable[ModelID]:
-        return self.gen_addr_mdls(self._sub_addrs, addr, "sub")
-
-    # Binding element address methods
-    @property
-    def bind_addrs(self):
-        return (addr for addr in self._bind_addrs)
-
-    def has_bind_addr(self, addr):
-        return addr in self._bind_addrs
-
-    def add_bind_addr(self, addr):
-        self.add_addr(self._bind_addrs, addr, "bind")
-
-    def remove_bind_addr(self, addr):
-        self.remove_addr(self._bind_addrs, addr, "bind")
-
-    def has_bind_addr_mdl(self, addr, mdl):
-        return self.has_addr_mdl(self._bind_addrs, addr, mdl, "bind")
-
-    def add_bind_addr_mdl(self, addr, mdl):
-        self.add_addr_mdl(self._bind_addrs, addr, mdl, "bind")
-
-    def remove_bind_addr_mdl(self, addr, mdl):
-        self.remove_addr_mdl(self._bind_addrs, addr, mdl, "bind")
-
-    def gen_bind_addr_mdls(self, addr) -> Iterable[ModelID]:
-        return self.gen_addr_mdls(self._bind_addrs, addr, "bind")
+    def gen_sub_elem_mdls(self, elem: ElementRef) -> Iterable[ModelID]:
+        return self.gen_elem_mdls(self._sub_elems, elem, "sub")
 
     # Binding element address methods
     @property
-    def addrs(self):
+    def bind_elems(self):
+        return (elem for elem in self._bind_elems)
+
+    def has_bind_elem(self, elem: ElementRef):
+        return elem in self._bind_elems
+
+    def add_bind_elem(self, elem: ElementRef):
+        self.add_elem(self._bind_elems, elem, "bind")
+
+    def remove_bind_elem(self, elem: ElementRef):
+        self.remove_elem(self._bind_elems, elem, "bind")
+
+    def has_bind_elem_mdl(self, elem, mdl):
+        return self.has_elem_mdl(self._bind_elems, elem, mdl, "bind")
+
+    def add_bind_elem_mdl(self, elem: ElementRef, mdl):
+        self.add_elem_mdl(self._bind_elems, elem, mdl, "bind")
+
+    def remove_bind_elem_mdl(self, elem: ElementRef, mdl):
+        self.remove_elem_mdl(self._bind_elems, elem, mdl, "bind")
+
+    def gen_bind_elem_mdls(self, elem) -> Iterable[ModelID]:
+        return self.gen_elem_mdls(self._bind_elems, elem, "bind")
+
+    # Binding element address methods
+    @property
+    def elems(self):
         # Remove duplicate values because an address might be in publication,
         # subscription and bind addresses as well
-        addrs_set = set(self.pub_addrs)
-        addrs_set.update(self.sub_addrs)
-        addrs_set.update(self.bind_addrs)
+        addrs_set = set(self.pub_elems)
+        addrs_set.update(self.sub_elems)
+        addrs_set.update(self.bind_elems)
         yield from addrs_set
 
 
 class BtmeshDfuAppDatabase(StateDictObject):
-    def __init__(self, btmesh_db=None, app_groups={}, fwid_metadata_cache={}):
+    VERSION = DatabaseVersion(2, 0)
+
+    def __init__(
+        self,
+        btmesh_db=None,
+        app_groups={},
+        fwid_metadata_cache={},
+        version: Optional[Union[DatabaseVersion, Dict]] = None,
+    ):
+        if version is None:
+            self.version = DatabaseVersion(1, 0)
+        else:
+            self.version = DatabaseVersion.create_from_dict(version)
         if isinstance(btmesh_db, BtmeshDatabase):
             self.btmesh_db = btmesh_db
         elif isinstance(btmesh_db, Mapping):
@@ -355,6 +371,7 @@ class BtmeshDfuAppDatabase(StateDictObject):
             self.fwid_metadata_cache[fwid_bytes] = metadata
 
     def clear(self):
+        self.version = self.VERSION
         self.btmesh_db.clear()
         self.app_groups.clear()
         self.fwid_metadata_cache.clear()
@@ -387,6 +404,11 @@ class BtmeshDfuAppDatabase(StateDictObject):
                 json_text = json_file.read()
                 try:
                     json_dict = json.loads(json_text)
+                    db_changed = BtmeshDfuAppDatabaseMigration.migrate(
+                        json_dict, self.VERSION, json_path
+                    )
+                    if db_changed:
+                        self.save()
                     self.from_dict(json_dict)
                 except (json.JSONDecodeError, ValueError, TypeError) as e:
                     if app_cfg.persistence.default_on_failed_load:
@@ -448,7 +470,7 @@ class BtmeshDfuAppDatabase(StateDictObject):
         else:
             return list(app_group_gen)
 
-    def get_app_group_by_name(self, name):
+    def get_app_group_by_name(self, name) -> BtmeshDfuAppGroup:
         if name not in self.app_groups:
             raise ValueError(f'App group with "{name}" does not exist.')
         return self.app_groups[name]
@@ -456,7 +478,7 @@ class BtmeshDfuAppDatabase(StateDictObject):
     def gen_app_group_nodes(self, app_group_name):
         app_group = self.get_app_group_by_name(app_group_name)
         node_dict = dict.fromkeys(
-            (self.btmesh_db.get_node_by_elem_addr(addr) for addr in app_group.addrs)
+            (self.btmesh_db.get_node_by_elem_ref(elem) for elem in app_group.elems)
         )
         yield from node_dict.keys()
 
@@ -502,6 +524,84 @@ class BtmeshDfuAppDatabase(StateDictObject):
 
     def clear_fwid_metadata_cache(self) -> None:
         self.fwid_metadata_cache.clear()
+
+
+class BtmeshDfuAppDatabaseMigration:
+    def create_migration_backup(
+        cls, db: Dict, date: datetime, db_path: Optional[Path] = None
+    ):
+        if app_cfg.persistence.backup_on_migration:
+            if db_path is None:
+                db_path = app_cfg.persistence.path
+            temp_folder_path = db_path.parent / "temp"
+            temp_folder_path.mkdir(exist_ok=True)
+            migration_folder_path = temp_folder_path / "migration"
+            migration_folder_path.mkdir(exist_ok=True)
+            date_str = f"{date:%Y%m%d_%H%M%S}"
+            major_version = db["version"]["major"]
+            backup_file_name = (
+                f"{db_path.stem}_{date_str}_v{major_version}{db_path.suffix}.bak"
+            )
+            backup_path = migration_folder_path / backup_file_name
+            with backup_path.open("w") as backup_file:
+                json_text = json.dumps(db, indent=4)
+                backup_file.write(json_text)
+
+    @classmethod
+    def migrate(
+        cls, db: Dict, target_version: DatabaseVersion, db_path: Optional[Path] = None
+    ) -> bool:
+        db_changed = False
+        date = datetime.now()
+        if "version" not in db:
+            db["version"] = {"major": 1, "minor": 0}
+        orig_version = DatabaseVersion.create_from_dict(db["version"])
+        cls.create_migration_backup(cls, db, date, db_path)
+        migrations = btmesh.db.collect_migrations(cls)
+        for major in range(orig_version.major + 1, target_version.major + 1):
+            if major in migrations:
+                migrations[major](db)
+                db["version"]["major"] = major
+                cls.create_migration_backup(cls, db, date, db_path)
+                db_changed = True
+        return db_changed
+
+    @classmethod
+    def db_v1_get_elem_ref_from_addr(cls, db: Dict, elem_addr: str) -> str:
+        elem_addr = int(elem_addr, 10)
+        for node in db["btmesh_db"]["nodes"]:
+            if node["prim_addr"] <= elem_addr < node["prim_addr"] + node["elem_count"]:
+                uuid = node["uuid"]
+                elem_idx = elem_addr - node["prim_addr"]
+                elem_ref = f"{uuid}[{elem_idx}]"
+                return elem_ref
+
+    @classmethod
+    def migrate_to_v2(cls, db: Dict) -> Dict:
+        for _, app_group in db["app_groups"].items():
+            pub_elems = {}
+            sub_elems = {}
+            bind_elems = {}
+            for elem_addr, mdls in app_group["pub_addrs"].items():
+                elem_ref = cls.db_v1_get_elem_ref_from_addr(db, elem_addr)
+                pub_elems[elem_ref] = mdls
+            for elem_addr, mdls in app_group["sub_addrs"].items():
+                elem_ref = cls.db_v1_get_elem_ref_from_addr(db, elem_addr)
+                sub_elems[elem_ref] = mdls
+            for elem_addr, mdls in app_group["bind_addrs"].items():
+                elem_ref = cls.db_v1_get_elem_ref_from_addr(db, elem_addr)
+                bind_elems[elem_ref] = mdls
+            app_group["pub_elems"] = pub_elems
+            app_group["sub_elems"] = sub_elems
+            app_group["bind_elems"] = bind_elems
+            del app_group["pub_addrs"]
+            del app_group["sub_addrs"]
+            del app_group["bind_addrs"]
+        if "version" not in db:
+            db["version"] = {}
+        db["version"]["major"] = 2
+        db["version"]["minor"] = 0
+        return db
 
 
 app_db = BtmeshDfuAppDatabase()

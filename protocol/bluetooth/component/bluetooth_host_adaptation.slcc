@@ -1,6 +1,6 @@
 id: "bluetooth_host_adaptation"
 label: "System adaptation layer used by the Bluetooth host stack"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   Provides the system adaptation layer that is used internally by the Bluetooth
   host stack. This component is automatically included when required and should

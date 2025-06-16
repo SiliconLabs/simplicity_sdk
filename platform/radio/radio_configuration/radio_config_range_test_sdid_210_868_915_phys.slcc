@@ -1,6 +1,6 @@
 id: radio_config_range_test_sdid_210_868_915_phys
 label: Custom Radio Configuration for Range Test Dualband Ocelot
-package: platform
+package: platform_default_radio_confs
 description: Triggers Radio Configurator UI for setting a proper (Application - Die
   - RF Band) Custom Radio Configurator
 category: Platform|Radio Configuration

@@ -10,8 +10,7 @@
 #include <SwTimerLiaison.h>
 #include <ZW_system_startup_api.h>
 #include <zpal_retention_register.h>
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 
 #include <assert.h>
 #include <FreeRTOS.h>
@@ -61,22 +60,20 @@ extern bool g_deepSleepTimersLoaded;
 /* This function will be called in the correct task context */
 void AppTimerDeepSleepCallbackWrapper(SSwTimer* pTimer)
 {
-  DPRINTF("AppTimerDeepSleepCallbackWrapper timerId=%d\n", pTimer->Id);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepCallbackWrapper timerId=%d\n", pTimer->Id);
   AppTimerDeepSleepPersistentSaveAll();
 
   assert(g_AppTimer.DeepSleepPersistent[pTimer->Id] && g_AppTimer.pDeepSleepCallback[pTimer->Id]);
 
-  if (g_AppTimer.pDeepSleepCallback[pTimer->Id])
-  {
-    DPRINTF("Calling g_AppTimer.pDeepSleepCallback[%d] = %p\n", pTimer->Id, g_AppTimer.pDeepSleepCallback[pTimer->Id]);
+  if (g_AppTimer.pDeepSleepCallback[pTimer->Id]) {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Calling g_AppTimer.pDeepSleepCallback[%d] = %p\n", pTimer->Id, g_AppTimer.pDeepSleepCallback[pTimer->Id]);
     (g_AppTimer.pDeepSleepCallback[pTimer->Id])(pTimer);
   }
 }
 
-
 bool AppTimerDeepSleepPersistentRegister(SSwTimer* pTimer,
-                                   bool bAutoReload,
-                                   void(*pCallback)(SSwTimer* pTimer))
+                                         bool bAutoReload,
+                                         void(*pCallback)(SSwTimer* pTimer))
 {
   /* We don't support auto reload of Deep Sleep persistent timers (at least it has
    * not been tested - it might actually work now) */
@@ -84,17 +81,14 @@ bool AppTimerDeepSleepPersistentRegister(SSwTimer* pTimer,
 
   /* Check that we have a retention register available for this new persistent timer */
   uint32_t count = 0;
-  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++)
-  {
-    if (true == g_AppTimer.DeepSleepPersistent[timerId])
-    {
+  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++) {
+    if (true == g_AppTimer.DeepSleepPersistent[timerId]) {
       count++;
     }
   }
-  if (count >= MAX_NUM_PERSISTENT_APP_TIMERS)
-  {
+  if (count >= MAX_NUM_PERSISTENT_APP_TIMERS) {
     /* All timer retention registers are taken */
-    DPRINTF("AppTimerDeepSleepPersistentRegister: Max number of registrations exceeded (%d)\n", MAX_NUM_PERSISTENT_APP_TIMERS);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentRegister: Max number of registrations exceeded (%d)\n", MAX_NUM_PERSISTENT_APP_TIMERS);
     return false;
   }
 
@@ -107,9 +101,8 @@ bool AppTimerDeepSleepPersistentRegister(SSwTimer* pTimer,
                                                       bAutoReload,
                                                       AppTimerDeepSleepCallbackWrapper);
 
-  DPRINTF("AppTimerDeepSleepPersistentRegister() id=%d pCallback=%p\n", pTimer->Id, pCallback);
-  if (status == ESWTIMERLIAISON_STATUS_SUCCESS)
-  {
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentRegister() id=%d pCallback=%p\n", pTimer->Id, pCallback);
+  if (status == ESWTIMERLIAISON_STATUS_SUCCESS) {
     g_AppTimer.DeepSleepPersistent[pTimer->Id] = true;
     g_AppTimer.pDeepSleepCallback[pTimer->Id]  = pCallback;
     return true;
@@ -118,33 +111,29 @@ bool AppTimerDeepSleepPersistentRegister(SSwTimer* pTimer,
   return false;
 }
 
-
 ESwTimerStatus AppTimerDeepSleepPersistentStart(SSwTimer* pTimer, uint32_t iTimeout)
 {
-  DPRINTF("AppTimerDeepSleepPersistentStart() id=%d, timeout=%u\n", pTimer->Id, iTimeout);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentStart() id=%d, timeout=%u\n", pTimer->Id, iTimeout);
   ESwTimerStatus status = TimerStart(pTimer, iTimeout);
   AppTimerDeepSleepPersistentSaveAll();
   return status;
 }
 
-
 ESwTimerStatus AppTimerDeepSleepPersistentRestart(SSwTimer* pTimer)
 {
-  DPRINTF("AppTimerDeepSleepPersistentRestart() id=%d\n", pTimer->Id);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentRestart() id=%d\n", pTimer->Id);
   ESwTimerStatus status = TimerRestart(pTimer);
   AppTimerDeepSleepPersistentSaveAll();
   return status;
 }
 
-
 ESwTimerStatus AppTimerDeepSleepPersistentStop(SSwTimer* pTimer)
 {
-  DPRINTF("AppTimerDeepSleepPersistentStop() id=%d\n", pTimer->Id);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentStop() id=%d\n", pTimer->Id);
   ESwTimerStatus status = TimerStop(pTimer);
   AppTimerDeepSleepPersistentSaveAll();
   return status;
 }
-
 
 /*
  * How the Deep Sleep persistent application timers are saved to RTCC retention registers
@@ -183,39 +172,34 @@ ESwTimerStatus AppTimerDeepSleepPersistentStop(SSwTimer* pTimer)
  * timer has expired or what value should be used to start it again to have
  * it time out at the right moment relative to its original start time.
  */
-
-
 void AppTimerDeepSleepPersistentSaveAll(void)
 {
   uint32_t reg = TIMER_VALUES_BEGIN_RETENTION_REGISTER;
 
   // Don't touch the retention registers until they are loaded
-  if(false == g_deepSleepTimersLoaded) {
+  if (false == g_deepSleepTimersLoaded) {
     return;
   }
 
   uint32_t taskTickCount = xTaskGetTickCount();
   zpal_retention_register_write(TASKTICK_AT_SAVETIMERS_RETENTION_REGISTER, taskTickCount);
 
-  DPRINTF("AppTimerDeepSleepPersistentSaveAll tick: %u\n", taskTickCount);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "AppTimerDeepSleepPersistentSaveAll tick: %u\n", taskTickCount);
 
-  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++)
-  {
-    if (true == g_AppTimer.DeepSleepPersistent[timerId])
-    {
+  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++) {
+    if (true == g_AppTimer.DeepSleepPersistent[timerId]) {
       SSwTimer *pTimer        = g_AppTimer.aTimerPointerArray[timerId];
       uint32_t  timerValue_ms = UINT32_MAX;
 
       TimerGetMsUntilTimeout(pTimer, taskTickCount, &timerValue_ms);
 
-      DPRINTF("Saving value for timer %d: %u (0x%x) ms\n", timerId, timerValue_ms, timerValue_ms);
+      ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Saving value for timer %d: %u (0x%x) ms\n", timerId, timerValue_ms, timerValue_ms);
 
       zpal_retention_register_write(reg, timerValue_ms);
       reg++;
     }
   }
 }
-
 
 void AppTimerDeepSleepPersistentLoadAll(zpal_reset_reason_t resetReason)
 {
@@ -230,39 +214,33 @@ void AppTimerDeepSleepPersistentLoadAll(zpal_reset_reason_t resetReason)
   g_deepSleepTimersLoaded = true;
 
   /* Do nothing if we did not wake up from Deep Sleep */
-  if (ZPAL_RESET_REASON_DEEP_SLEEP_EXT_INT != resetReason && ZPAL_RESET_REASON_DEEP_SLEEP_WUT != resetReason)
-  {
+  if (ZPAL_RESET_REASON_DEEP_SLEEP_EXT_INT != resetReason && ZPAL_RESET_REASON_DEEP_SLEEP_WUT != resetReason) {
     // It is safe to persist the registers now
     AppTimerDeepSleepPersistentSaveAll();
     return;
   }
 
-  if (true == IsWakeupCausedByRtccTimeout())
-  {
-    DPRINT("\nRTCC wakeup!\n");
+  if (true == IsWakeupCausedByRtccTimeout()) {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "\nRTCC wakeup!\n");
   }
 
   /* Read the task tick values saved before sleeping in Deep Sleep */
   zpal_retention_register_read(TASKTICK_AT_POWERDOWN_RETENTION_REGISTER, &tickValueAtPowerDown);
-  DPRINTF("Loaded tickValueAtPowerDown: %u\n", tickValueAtPowerDown);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Loaded tickValueAtPowerDown: %u\n", tickValueAtPowerDown);
 
   zpal_retention_register_read(TASKTICK_AT_SAVETIMERS_RETENTION_REGISTER, &tickValueAtSaveTimers);
-  DPRINTF("Loaded tickValueAtSaveTimers: %u\n", tickValueAtSaveTimers);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Loaded tickValueAtSaveTimers: %u\n", tickValueAtSaveTimers);
 
-  if ((0 == tickValueAtPowerDown) || (0 == tickValueAtSaveTimers))
-  {
+  if ((0 == tickValueAtPowerDown) || (0 == tickValueAtSaveTimers)) {
     /* Retention registers are still at initial value - nothing to process now */
     return;
   }
 
   /* How many ms before power-down were the timer values saved to
    * retention registers? (NB: one tick = one millisecond) */
-  if (tickValueAtPowerDown >= tickValueAtSaveTimers)
-  {
+  if (tickValueAtPowerDown >= tickValueAtSaveTimers) {
     elapsedMsFromSaveTimerValuesToSleep = tickValueAtPowerDown - tickValueAtSaveTimers;
-  }
-  else
-  {
+  } else {
     /* The 32-bit task tick has wrapped around
      * (VERY unlikely for a sleeping node) */
     elapsedMsFromSaveTimerValuesToSleep = (UINT32_MAX - tickValueAtSaveTimers) + tickValueAtPowerDown;
@@ -270,38 +248,32 @@ void AppTimerDeepSleepPersistentLoadAll(zpal_reset_reason_t resetReason)
 
   /* How many ms since the timer values were saved, including the
    * time spent sleeping */
-  elapsedMsFromTimerValueSave = elapsedMsFromSaveTimerValuesToSleep +
-                                GetCompletedSleepDurationMs();
+  elapsedMsFromTimerValueSave = elapsedMsFromSaveTimerValuesToSleep
+                                + GetCompletedSleepDurationMs();
 
-  DPRINTF("elapsedMsFromTimerValueSave=%u\n", elapsedMsFromTimerValueSave);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "elapsedMsFromTimerValueSave=%u\n", elapsedMsFromTimerValueSave);
 
   /* Read saved timer values from retention registers into array
    * while looking for smallest value larger than savedBeforePowerdownMs */
-  for (uint8_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++)
-  {
-    if (true == g_AppTimer.DeepSleepPersistent[timerId])
-    {
-      if (ZPAL_STATUS_OK == zpal_retention_register_read(TIMER_VALUES_BEGIN_RETENTION_REGISTER + valIdx, &savedTimerValue))
-      {
+  for (uint8_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++) {
+    if (true == g_AppTimer.DeepSleepPersistent[timerId]) {
+      if (ZPAL_STATUS_OK == zpal_retention_register_read(TIMER_VALUES_BEGIN_RETENTION_REGISTER + valIdx, &savedTimerValue)) {
         SSwTimer *pTimer = g_AppTimer.aTimerPointerArray[timerId];
 
-        DPRINTF("Loaded value for timer %d: %u ms\n", timerId, savedTimerValue);
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Loaded value for timer %d: %u ms\n", timerId, savedTimerValue);
 
         /* We don't expect any timer to expire before power down without being restarted */
         assert(savedTimerValue > elapsedMsFromSaveTimerValuesToSleep);
 
         /* How close is the timer to its expire time? */
-        if (savedTimerValue > elapsedMsFromTimerValueSave)
-        {
+        if (savedTimerValue > elapsedMsFromTimerValueSave) {
           durationDiffMs = savedTimerValue - elapsedMsFromTimerValueSave;
-        }
-        else
-        {
+        } else {
           //Time is past expiration. Make sure the callback is called.
           durationDiffMs = 0;
         }
 
-        DPRINTF("durationDiffMs=%u\n", durationDiffMs);
+        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "durationDiffMs=%u\n", durationDiffMs);
 
         /* If the timer timeout is within APP_TIMER_TRIGGER_DELTA_MS milliseconds
          * of the wakeup time - no matter if the wakeup was caused by an RTCC
@@ -312,26 +284,22 @@ void AppTimerDeepSleepPersistentLoadAll(zpal_reset_reason_t resetReason)
          * never get here anyway since we only enter Deep Sleep hibernate if we are
          * expected to sleep for at least 4000 ms (see enterPowerDown())
          */
-        if (durationDiffMs < APP_TIMER_TRIGGER_DELTA_MS)
-        {
-          DPRINTF("Timer %d has expired. Activating callback.\n", timerId);
+        if (durationDiffMs < APP_TIMER_TRIGGER_DELTA_MS) {
+          ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Timer %d has expired. Activating callback.\n", timerId);
 
           /* Activate the callback for the expired timer (for Deep Sleep persistent timer
            * this will call the wrapper AppTimerDeepSleepCallcackWrapper that will call
            * AppTimerDeepSleepPersistentSaveAll and the actual callback)
            */
           TimerLiaisonExpiredTimerCallback(pTimer);
-        }
-        else
-        {
+        } else {
           /* Reduce all saved timer values (for active timers that have not yet expired) by
            * number of milliseconds elapsed since it was last saved. Then start the timer
            * with this new value.
            */
-          if ((UINT32_MAX != savedTimerValue) && (elapsedMsFromTimerValueSave < savedTimerValue))
-          {
+          if ((UINT32_MAX != savedTimerValue) && (elapsedMsFromTimerValueSave < savedTimerValue)) {
             uint32_t newTimerValue = savedTimerValue - elapsedMsFromTimerValueSave;
-            DPRINTF("Setting timer %d to %u ms\n", timerId, newTimerValue);
+            ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Setting timer %d to %u ms\n", timerId, newTimerValue);
             /* We call TimerStart() here instead of AppTimerDeepSleepPersistentStart()
              * to avoid AppTimerDeepSleepPersistentSaveAll() being called multiple
              * times. Instead we call AppTimerDeepSleepPersistentSaveAll() once for
@@ -357,27 +325,23 @@ uint32_t AppTimerDeepSleepGetFirstRetentionRegister(void)
 uint32_t AppTimerDeepSleepGetLastRetentionRegister(void)
 {
   uint32_t count = 0;
-  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++)
-  {
-    if (true == g_AppTimer.DeepSleepPersistent[timerId])
-    {
+  for (uint32_t timerId = 0; timerId < MAX_NUM_APP_TIMERS; timerId++) {
+    if (true == g_AppTimer.DeepSleepPersistent[timerId]) {
       count++;
     }
   }
   return TIMER_VALUES_BEGIN_RETENTION_REGISTER + count - 1;
 }
 
-
 void AppTimerDeepSleepPersistentResetStorage(void)
 {
   uint32_t first       = AppTimerDeepSleepGetFirstRetentionRegister();
   uint32_t last        = AppTimerDeepSleepGetLastRetentionRegister();
 
-  DPRINTF("\nResetDeepSleepPersistentAppTimerStorage first=%u, last=%ux\n", first, last);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "\nResetDeepSleepPersistentAppTimerStorage first=%u, last=%ux\n", first, last);
 
   assert(first < last);
-  for (uint32_t reg = first; reg <= last; reg++)
-  {
+  for (uint32_t reg = first; reg <= last; reg++) {
     zpal_retention_register_write(reg, 0);
   }
 }
@@ -391,8 +355,8 @@ void ZW_AppPowerDownCallBack(void)
   /* Called while the scheduler is disabled just before being forced into
    * Deep Sleep hibernate. If printing to serial line we need to delay the function
    * return to allow for the serial buffer content to be flushed */
-#ifdef DEBUGPRINT
-  DPRINTF("Saving task tick: %u\n", taskTickCount);
+#if defined(ZPAL_LOG_ZAF_APP_TIMER)
+  ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_APP_TIMER, "Saving task tick: %u\n", taskTickCount);
   for (int i = 0; i < 2000; i++) {
     __asm__ ("nop");                          // Allow the serial line to flush before sleeping
   }

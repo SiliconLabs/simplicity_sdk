@@ -2,7 +2,7 @@ project_name: "wisun_soc_coap_collector"
 label: "Wi-SUN - SoC CoAP Collector"
 description: "The Wi-SUN CoAP Collector sample application demonstrates the use of the CoAP (Constrained Application Protocol) to emulate a metering-like application.
 The CoAP Collector purpose is to retrieve measurements from the devices running the Wi-SUN CoAP Meter application in the same Wi-SUN network."
-package: "wisun"
+package: "wisun_sample_applications"
 category: "Wi-SUN Examples"
 quality: "production"
 
@@ -12,7 +12,7 @@ component:
   - id: "wisun_stack"
   - id: "wisun_stack_ffn"
   - id: "wisun_stack_debug"
-  - id: "sl_system"
+  - id: "sl_main"
   - id: clock_manager
   - id: device_init
   - id: board_control
@@ -45,28 +45,27 @@ source:
   - path: "app.c"
   - path: "app_init.c"
   - path: "app_custom_callback.c"
-  - path: "main.c"
 include:
   - path: "."
     file_list:
     - path: "app.h"
-    - path: "app_init.h"
     - path: "app_custom_callback.h"
 define:
   - name: "DEBUG_EFM"
 
-# note: here is the cli configuration but the cli components required in the app_cli.
 configuration:
+  - name: "SL_MAIN_START_TASK_STACK_SIZE_BYTES"
+    value: "2048"
   - name: "SL_BOARD_ENABLE_VCOM"
     value: "1"
   - name: "SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE"
-    value: "usartHwFlowControlNone"
+    value: "usartHwFlowControlCtsAndRts"
   - name: "SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF"
     value: "1"
   - name: SL_CLI_LOCAL_ECHO
     value: "(1)"
   - name: "SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE"
-    value: "eusartHwFlowControlNone"
+    value: "SL_IOSTREAM_EUSART_UART_FLOW_CTRL_CTS_RTS"
   - name: "SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF"
     value: "1"
   - name: "SL_IOSTREAM_USART_VCOM_RX_BUFFER_SIZE"
@@ -125,7 +124,7 @@ configuration:
   - name: APP_PROJECT_INFO_APP_VERSION_MAJOR
     value: 2
   - name: APP_PROJECT_INFO_APP_VERSION_MINOR
-    value: 0
+    value: 1
   - name: APP_PROJECT_INFO_APP_VERSION_PATCH
     value: 0
 

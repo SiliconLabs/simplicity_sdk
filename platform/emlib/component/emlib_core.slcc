@@ -1,32 +1,26 @@
 id: emlib_core
 label: CORE
-package: platform
+package: platform_core
 description: >
-  API for critical and atomic sections
-category: Platform|Peripheral
+  API for critical and atomic sections.
+category: Platform|Peripheral|EMLIB
 quality: production
 metadata:
-  sbom:
-    license: Zlib
-component_root_path: "platform/emlib"
-source:
-  - path: "src/em_core.c"
-    unless: [device_host]
+    sbom:
+        license: Zlib
+component_root_path: platform/emlib
 include:
-  - path: "inc"
+  - path: inc
     file_list:
-    - path: "em_core.h"
-    - path: "em_core_generic.h"
+      - path: em_core.h
+      - path: em_core_generic.h
     unless: [device_host]
-  - path: "host/inc"
+  - path: host/inc
     condition: [device_host]
     file_list:
-    - path: "em_core.h"
-    - path: "em_core_generic.h"
-      condition: [device_host]
-config_file:
-  - path: "config/emlib_core_debug_config.h"
-    file_id: emlib_core_debug_config
+      - path: em_core.h
+      - path: em_core_generic.h
+        condition: [device_host]
 provides:
   - name: emlib_core
 requires:
@@ -42,24 +36,3 @@ conflicts:
 template_contribution:
   - name: component_catalog
     value: emlib_core
-  - name: component_catalog
-    value: emlib_core_debug_config
-documentation:
-  docset: gecko-platform
-  document:
-    - page: platform-emlib-efr32xg21/core
-      condition: [device_sdid_200]
-    - page: platform-emlib-efr32xg22/core
-      condition: [device_sdid_205]
-    - page: platform-emlib-efr32xg23/core
-      condition: [device_sdid_210]
-    - page: platform-emlib-efr32xg24/core
-      condition: [device_sdid_215]
-    - page: platform-emlib-efr32xg25/core
-      condition: [device_sdid_220]
-    - page: platform-emlib-efr32xg26/core
-      condition: [device_sdid_225]
-    - page: platform-emlib-efr32xg27/core
-      condition: [device_sdid_230]
-    - page: platform-emlib-efr32xg28/core
-      condition: [device_sdid_235]

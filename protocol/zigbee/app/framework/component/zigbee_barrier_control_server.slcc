@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Barrier Control server cluster.
 id: zigbee_barrier_control_server
 label: Barrier Control Server Cluster

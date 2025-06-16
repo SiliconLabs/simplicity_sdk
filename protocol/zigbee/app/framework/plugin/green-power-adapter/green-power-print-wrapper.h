@@ -49,18 +49,23 @@
 ***************************************************************************/
 
 #ifndef SL_ZIGBEE_TEST
+#define SL_ZIGBEE_AF_PRINT_CORE 0x0001
+
 void sl_zigbee_af_print_wrapper(uint16_t area, const char * formatString, ...);
 void sl_zigbee_af_print_big_endian_eui64_wrapper(uint8_t * eui, ...);
 void sl_zigbee_af_print_buffer_wrapper(uint16_t area, const uint8_t *buffer, uint16_t bufferLen, bool withSpace);
 void sl_zigbee_af_core_print_wrapper(const char * formatString, ...);
 void sl_zigbee_af_core_println_wrapper(const char * formatString, ...);
 void sl_zigbee_af_app_println_wrapper(const char * formatString, ...);
+void sl_zigbee_af_app_print_wrapper(const char * formatString, ...);
 void sl_zigbee_af_debug_print_wrapper(const char * formatString, ...);
 void sl_zigbee_af_debug_println_wrapper(const char * formatString, ...);
 void sl_zigbee_af_green_power_cluster_print_wrapper(const char * formatString, ...);
 void sl_zigbee_af_green_power_cluster_println_wrapper(const char * formatString, ...);
 void sl_zigbee_af_green_power_cluster_print_buffer_wrapper(const uint8_t *buffer, uint16_t bufferLen, bool withSpace);
 void sl_zigbee_af_green_power_cluster_print_string_wrapper(const uint8_t *buffer);
+void sl_zigbee_af_debug_flush_wrapper(void);
+void sl_zigbee_af_println_wrapper(uint16_t area, const char * formatString, ...);
 
 #ifdef sl_zigbee_af_core_print
 #undef sl_zigbee_af_core_print
@@ -107,6 +112,21 @@ void sl_zigbee_af_green_power_cluster_print_string_wrapper(const uint8_t *buffer
 #endif //sl_zigbee_af_debug_println
 #define sl_zigbee_af_debug_println(...) sl_zigbee_af_debug_println_wrapper(__VA_ARGS__)
 
+#ifdef sl_zigbee_af_zdo_print
+#undef sl_zigbee_af_zdo_print
+#endif // sl_zigbee_af_zdo_print
+#define sl_zigbee_af_zdo_print(...) sl_zigbee_af_print(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_attributes_print
+#undef sl_zigbee_af_attributes_print
+#endif // sl_zigbee_af_attributes_print
+#define sl_zigbee_af_attributes_print(...) sl_zigbee_af_print(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_service_discovery_print
+#undef sl_zigbee_af_service_discovery_print
+#endif // sl_zigbee_af_service_discovery_print
+#define sl_zigbee_af_service_discovery_print(...) sl_zigbee_af_print(0x00, __VA_ARGS__)
+
 #ifdef sl_zigbee_af_print
 #undef sl_zigbee_af_print
 #endif //sl_zigbee_af_print
@@ -117,10 +137,82 @@ void sl_zigbee_af_green_power_cluster_print_string_wrapper(const uint8_t *buffer
 #endif //sl_zigbee_af_app_println
 #define sl_zigbee_af_app_println(...) sl_zigbee_af_app_println_wrapper(__VA_ARGS__)
 
+#ifdef sl_zigbee_af_app_print
+#undef sl_zigbee_af_app_print
+#endif //sl_zigbee_af_app_print
+#define sl_zigbee_af_app_print(...) sl_zigbee_af_app_print_wrapper(__VA_ARGS__)
+
+#ifdef sl_zigbee_af_attributes_print_buffer
+#undef sl_zigbee_af_attributes_print_buffer
+#endif //sl_zigbee_af_attributes_print_buffer
+#define sl_zigbee_af_attributes_print_buffer(buffer, len, withSpace) sl_zigbee_af_print_buffer(0x00, (buffer), (len), (withSpace))
+
+#ifdef sl_zigbee_af_app_print_buffer
+#undef sl_zigbee_af_app_print_buffer
+#endif //sl_zigbee_af_app_print_buffer
+#define sl_zigbee_af_app_print_buffer(buffer, len, withSpace)   sl_zigbee_af_print_buffer(0x00, (buffer), (len), (withSpace))
+
+#ifdef sl_zigbee_af_debug_print_buffer
+#undef sl_zigbee_af_debug_print_buffer
+#endif //sl_zigbee_af_debug_print_buffer
+#define sl_zigbee_af_debug_print_buffer(buffer, len, withSpace) sl_zigbee_af_print_buffer(0x00, (buffer), (len), (withSpace))
+
 #ifdef sl_zigbee_af_print_buffer
 #undef sl_zigbee_af_print_buffer
 #endif //sl_zigbee_af_print_buffer
 #define sl_zigbee_af_print_buffer(...) sl_zigbee_af_print_buffer_wrapper(__VA_ARGS__)
+
+#ifdef sl_zigbee_af_debug_flush
+#undef sl_zigbee_af_debug_flush
+#endif // sl_zigbee_af_debug_flush
+#define sl_zigbee_af_debug_flush()
+
+#ifdef sl_zigbee_af_attributes_println
+#undef sl_zigbee_af_attributes_println
+#endif // sl_zigbee_af_attributes_println
+#define sl_zigbee_af_attributes_println(...) sl_zigbee_af_println(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_app_flush
+#undef sl_zigbee_af_app_flush
+#endif // sl_zigbee_af_app_flush
+#define sl_zigbee_af_app_flush()
+
+#ifdef sl_zigbee_af_ota_bootload_cluster_println
+#undef sl_zigbee_af_ota_bootload_cluster_println
+#endif // sl_zigbee_af_ota_bootload_cluster_println
+#define sl_zigbee_af_ota_bootload_cluster_println(...) sl_zigbee_af_println(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_zdo_println
+#undef sl_zigbee_af_zdo_println
+#endif // sl_zigbee_af_zdo_println
+#define sl_zigbee_af_zdo_println(...) sl_zigbee_af_println(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_service_discovery_println
+#undef sl_zigbee_af_service_discovery_println
+#endif // sl_zigbee_af_service_discovery_println
+#define sl_zigbee_af_service_discovery_println(...) sl_zigbee_af_println(0x00, __VA_ARGS__)
+
+#ifdef sl_zigbee_af_println
+#undef sl_zigbee_af_println
+#endif // sl_zigbee_af_println
+#define sl_zigbee_af_println(...) sl_zigbee_af_println_wrapper(__VA_ARGS__)
+
+#ifdef sl_zigbee_af_core_flush
+#undef sl_zigbee_af_core_flush
+#endif // sl_zigbee_af_core_flush
+#define sl_zigbee_af_core_flush()
+
+#ifdef sl_zigbee_af_attributes_flush
+#undef sl_zigbee_af_attributes_flush
+#endif // sl_zigbee_af_attributes_flush
+#define sl_zigbee_af_attributes_flush()
+
+#ifdef sl_zigbee_af_app_debug_exec
+#undef sl_zigbee_af_app_debug_exec
+#endif // sl_zigbee_af_app_debug_exec
+#define sl_zigbee_af_app_debug_exec(x) if ( true ) { x; }
+
+extern uint16_t sl_zigbee_af_print_active_area;
 
 #endif // !SL_ZIGBEE_TEST
 

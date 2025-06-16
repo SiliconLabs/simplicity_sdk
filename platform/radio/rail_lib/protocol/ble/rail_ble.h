@@ -50,7 +50,7 @@ extern "C" {
 /// operation and provide additional helper routines necessary for
 /// normal BLE send/receive that aren't available directly in RAIL.
 /// RAIL APIs should be used to set up the application. However,
-/// \ref RAIL_ConfigChannels() and \ref RAIL_ConfigRadio() should not be called to set up
+/// \ref RAIL_ConfigChannels() should not be called to set up
 /// the PHY. Instead, RAIL_BLE_Config* APIs should be used to set up the
 /// 1 Mbps, 2 Mbps, or Coded PHY configurations needed by the application. These
 /// APIs will configure the hardware and also configure the set of valid BLE
@@ -137,24 +137,24 @@ RAIL_ENUM(RAIL_BLE_Coding_t) {
  * @brief The variant of the BLE PHY.
  */
 RAIL_ENUM(RAIL_BLE_Phy_t) {
-  /** Use the standard BLE 1 Mbps PHY. */
+  /** BLE 1 Mbps PHY. */
   RAIL_BLE_1Mbps = 0U,
-  /** Use the high data rate BLE 2 Mbps PHY. */
+  /** BLE 2 Mbps PHY. */
   RAIL_BLE_2Mbps = 1U,
-  /** Enables the 125 kbps variant of the BLE Coded PHY. */
+  /** BLE 125 kbps coded PHY. */
   RAIL_BLE_Coded125kbps = 2U,
-  /** Enables the 500 kbps variant of the BLE Coded PHY. */
+  /** BLE 500 kbps coded PHY. */
   RAIL_BLE_Coded500kbps = 3U,
-  /** Use the BLE Simulscan PHY. */
+  /** BLE Simulscan PHY. */
   RAIL_BLE_Simulscan = 4U,
-  /** Use the 1 Mbps variant of the BLE CS PHY. */
-  RAIL_BLE_CS1Mbps = 5U,
-  /** Use the 2 Mbps variant of the BLE CS PHY. */
-  RAIL_BLE_CS2Mbps = 6U,
-  /** Use the BLE 2 Mbps AOX PHY. */
-  RAIL_BLE_AOX2Mbps = 7U,
-  /** Use the BLE 1 Mbps Quuppa PHY. */
-  RAIL_BLE_Quuppa1Mbps = 8U,
+  /** BLE 2 Mbps PHY with AoX functionality. */
+  RAIL_BLE_AOX2mbps = 5U,
+  /** BLE 1 Mbps Quuppa PHY. */
+  RAIL_BLE_Quuppa1Mbps = 6U,
+  /** BLE 1 Mbps PHY with CS. */
+  RAIL_BLE_CS1Mbps = 7U,
+  /** BLE 2 Mbps PHY with CS. */
+  RAIL_BLE_CS2Mbps = 8U,
 };
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -164,10 +164,10 @@ RAIL_ENUM(RAIL_BLE_Phy_t) {
 #define RAIL_BLE_Coded125kbps ((RAIL_BLE_Phy_t) RAIL_BLE_Coded125kbps)
 #define RAIL_BLE_Coded500kbps ((RAIL_BLE_Phy_t) RAIL_BLE_Coded500kbps)
 #define RAIL_BLE_Simulscan    ((RAIL_BLE_Phy_t) RAIL_BLE_Simulscan)
-#define RAIL_BLE_CS1Mbps      ((RAIL_BLE_Phy_t) RAIL_BLE_CS1Mbps)
-#define RAIL_BLE_CS2Mbps      ((RAIL_BLE_Phy_t) RAIL_BLE_CS2Mbps)
 #define RAIL_BLE_AOX2Mbps     ((RAIL_BLE_Phy_t) RAIL_BLE_AOX2Mbps)
 #define RAIL_BLE_Quuppa1Mbps  ((RAIL_BLE_Phy_t) RAIL_BLE_Quuppa1Mbps)
+#define RAIL_BLE_CS1Mbps      ((RAIL_BLE_Phy_t) RAIL_BLE_CS1Mbps)
+#define RAIL_BLE_CS2Mbps      ((RAIL_BLE_Phy_t) RAIL_BLE_CS2Mbps)
 #endif //DOXYGEN_SHOULD_SKIP_THIS
 
 /// @addtogroup BLE_PHY BLE Radio Configurations
@@ -206,7 +206,7 @@ extern const RAIL_ChannelConfig_t *const RAIL_BLE_Phy1MbpsViterbi;
  */
 extern const RAIL_ChannelConfig_t *const RAIL_BLE_Phy2MbpsViterbi;
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Default PHY to use for BLE 1M Viterbi CS. Will be NULL if
  * \ref RAIL_BLE_SUPPORTS_CS is 0. On EFR32xG24, this will also
@@ -220,7 +220,7 @@ extern const RAIL_ChannelConfig_t *const RAIL_BLE_Phy1MbpsViterbiCs;
  * be NULL for non 40MHz HFXO frequencies.
  */
 extern const RAIL_ChannelConfig_t *const RAIL_BLE_Phy2MbpsViterbiCs;
-#endif
+#endif//DOXYGEN_UNDOCUMENTED
 
 /**
  * PHY to use for BLE 2 Mbps with AoX functionality. Will be NULL if either
@@ -286,7 +286,7 @@ RAIL_ENUM(RAIL_BLE_SignalIdentifierMode_t) {
 #define RAIL_BLE_SIGNAL_IDENTIFIER_MODE_DISABLE ((RAIL_BLE_SignalIdentifierMode_t) RAIL_BLE_SIGNAL_IDENTIFIER_MODE_DISABLE)
 #define RAIL_BLE_SIGNAL_IDENTIFIER_MODE_1MBPS   ((RAIL_BLE_SignalIdentifierMode_t) RAIL_BLE_SIGNAL_IDENTIFIER_MODE_1MBPS)
 #define RAIL_BLE_SIGNAL_IDENTIFIER_MODE_2MBPS   ((RAIL_BLE_SignalIdentifierMode_t) RAIL_BLE_SIGNAL_IDENTIFIER_MODE_2MBPS)
-#endif
+#endif//DOXYGEN_SHOULD_SKIP_THIS
 
 /**
  * @struct RAIL_BLE_State_t
@@ -307,6 +307,8 @@ typedef struct RAIL_BLE_State {
   /** Reserved for future use; specify 0. */
   uint16_t whiteInit;
 } RAIL_BLE_State_t;
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Configure RAIL to run in BLE mode.
@@ -375,6 +377,8 @@ RAIL_Status_t RAIL_BLE_ConfigPhyQuuppa(RAIL_Handle_t railHandle);
  */
 RAIL_Status_t RAIL_BLE_ConfigPhy1MbpsViterbi(RAIL_Handle_t railHandle);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /**
  * Switch to the legacy non-Viterbi 1 Mbps BLE PHY.
  *
@@ -389,6 +393,8 @@ RAIL_Status_t RAIL_BLE_ConfigPhy1MbpsViterbi(RAIL_Handle_t railHandle);
  */
 RAIL_Status_t RAIL_BLE_ConfigPhy1Mbps(RAIL_Handle_t railHandle);
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Switch to the Viterbi 2 Mbps BLE PHY.
  *
@@ -400,6 +406,8 @@ RAIL_Status_t RAIL_BLE_ConfigPhy1Mbps(RAIL_Handle_t railHandle);
  * and while the radio is idle.
  */
 RAIL_Status_t RAIL_BLE_ConfigPhy2MbpsViterbi(RAIL_Handle_t railHandle);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Switch to the legacy non-Viterbi 2 Mbps BLE PHY.
@@ -414,6 +422,8 @@ RAIL_Status_t RAIL_BLE_ConfigPhy2MbpsViterbi(RAIL_Handle_t railHandle);
  * @deprecated BLE non-Viterbi PHYs are no longer supported.
  */
 RAIL_Status_t RAIL_BLE_ConfigPhy2Mbps(RAIL_Handle_t railHandle);
+
+#ifndef SLI_LIBRAIL_ALIAS
 
 /**
  * Switch to the BLE Coded PHY.
@@ -452,7 +462,7 @@ RAIL_Status_t RAIL_BLE_ConfigPhyCoded(RAIL_Handle_t railHandle,
  */
 RAIL_Status_t RAIL_BLE_ConfigPhySimulscan(RAIL_Handle_t railHandle);
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#ifndef DOXYGEN_UNDOCUMENTED
 /**
  * Switch to the 1 Mbps BLE PHY for CS.
  *
@@ -480,7 +490,9 @@ RAIL_Status_t RAIL_BLE_ConfigPhy1MbpsCs(RAIL_Handle_t railHandle);
  * @note This PHY is only supported when \ref RAIL_BLE_SUPPORTS_CS is not 0.
  */
 RAIL_Status_t RAIL_BLE_ConfigPhy2MbpsCs(RAIL_Handle_t railHandle);
-#endif //DOXYGEN_SHOULD_SKIP_THIS
+#endif //DOXYGEN_UNDOCUMENTED
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /**
  * Change BLE radio parameters.
@@ -542,6 +554,8 @@ RAIL_Status_t RAIL_BLE_PhySwitchToRx(RAIL_Handle_t railHandle,
                                      uint16_t logicalChannel,
                                      bool disableWhitening);
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Configure and enable signal identifier for BLE signal detection.
  *
@@ -589,6 +603,8 @@ RAIL_Status_t RAIL_BLE_EnableSignalDetection(RAIL_Handle_t railHandle,
  *   RAIL_BLE_EnableSignalDetection API.
  */
 #define RAIL_BLE_EnableSignalIdentifier RAIL_BLE_EnableSignalDetection
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /******************************************************************************
  * Angle of Arrival/Departure (AoX)
@@ -738,6 +754,8 @@ typedef struct RAIL_BLE_AoxAntennaConfig {
   uint8_t antCount;
 } RAIL_BLE_AoxAntennaConfig_t;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Lock/unlock the CTE buffer from the application's perspective. The radio
  * will write to the buffer only if the bit is NOT set at the beginning of the
@@ -828,18 +846,32 @@ RAIL_Status_t RAIL_BLE_InitCte(RAIL_Handle_t railHandle);
  * will occur on the first antenna specified by the antenna pattern or
  * on the default antenna if no antenna pattern is provided.
  *
+ * @note This function must only be called while channel sounding is disabled.
+ *   If channel sounding has been enabled \ref RAIL_STATUS_INVALID_STATE will
+ *   be returned.
+ *
  * @param[in] railHandle A RAIL instance handle.
  * @param[in] antennaConfig A pointer to the antenna configuration
  *   structure to hold the set of GPIO ports and pins for AoX antenna
  *   switching.
  * @return Status code indicating success of the function call.
+ *
+ * @note Use the compile time symbol \ref RAIL_BLE_SUPPORTS_ANTENNA_SWITCHING
+ *   or the runtime call \ref RAIL_BLE_SupportsAntennaSwitching() to check
+ *   whether the platform supports this feature.
+ *
+ * @warning As this function relies on GPIO access and RAIL is meant to run in
+ *   TrustZone non-secure world, it is not supported if GPIO is configured as
+ *   secure peripheral and it will return \ref RAIL_STATUS_INVALID_CALL.
  */
 RAIL_Status_t RAIL_BLE_ConfigAoxAntenna(RAIL_Handle_t railHandle,
                                         RAIL_BLE_AoxAntennaConfig_t *antennaConfig);
 
 /** @} */  // end of group AoX
 
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#endif//SLI_LIBRAIL_ALIAS
+
+#ifndef DOXYGEN_UNDOCUMENTED
 /******************************************************************************
  * Channel Sounding (CS)
  *****************************************************************************/
@@ -942,7 +974,7 @@ typedef struct RAIL_BLE_CsConfig {
   uint16_t t_ip2;
   /** Phase measurement time (in us). */
   uint16_t t_pm;
-  /**< Antenna switching time (in us). */
+  /** Antenna switching time (in us). */
   uint16_t t_sw;
   /**
    * Pointer to buffer where IQ data will be written. Buffer must be 32-bit
@@ -1003,17 +1035,17 @@ typedef struct RAIL_BLE_CsConfig {
 RAIL_ENUM(RAIL_BLE_CsStepState_t) {
   /** CS step state idle. */
   RAIL_BLE_CS_STATE_IDLE = 0,
-  /** CS step state initiator initiator transmit mode 0. */
+  /** CS step state initiator transmit mode 0. */
   RAIL_BLE_CS_STATE_I_TX_MODE0 = 1,
-  /** CS step state initiator reflector transmit mode 0. */
+  /** CS step state reflector transmit mode 0. */
   RAIL_BLE_CS_STATE_R_TX_MODE0 = 2,
-  /** CS step state initiator initiator transmit mode 1. */
+  /** CS step state initiator transmit mode 1. */
   RAIL_BLE_CS_STATE_I_TX_MODE1 = 3,
-  /** CS step state initiator reflector transmit mode 1. */
+  /** CS step state reflector transmit mode 1. */
   RAIL_BLE_CS_STATE_R_TX_MODE1 = 4,
-  /** CS step state initiator initiator transmit mode 2. */
+  /** CS step state reflector transmit mode 2. */
   RAIL_BLE_CS_STATE_R_TX_MODE2 = 6,
-  /** CS step state initiator reflector transmit mode 2. */
+  /** CS step state initiator transmit mode 2. */
   RAIL_BLE_CS_STATE_I_TX_MODE2 = 7,
 };
 
@@ -1263,8 +1295,6 @@ typedef struct RAIL_BLE_CsMode0DebugResults {
   uint16_t ucStartIndex;
   /** End index IQ sample index of unmodulated carrier. */
   uint16_t ucEndIndex;
-  /** Reserved. */
-  uint32_t reserved[2];
   /**
    * FFO of the Mode 0 step with the highest recorded RSSI
    * up to and including the current Mode 0 step.
@@ -1272,10 +1302,12 @@ typedef struct RAIL_BLE_CsMode0DebugResults {
   int16_t csFfoPp100m;
   /** Highest recorded RSSI up to and including the current mode 0 step, in dBm. */
   int8_t highestRssiDbm;
+  /** Tx timestamp. */
+  uint8_t txTimeStampPre;
+  /** Tx timestamp. */
+  uint32_t txTimeStamp;
   /** Reserved. */
-  uint8_t reserved1;
-  /** Reserved. */
-  uint32_t reserved2[3];
+  uint32_t reserved[4];
 } RAIL_BLE_CsMode0DebugResults_t;
 
 /**
@@ -1299,8 +1331,16 @@ typedef struct RAIL_BLE_CsMode1DebugResults {
   uint32_t csstatus4;
   /** Internal CS status register. */
   uint32_t csstatus5;
+  /** Tx timestamp. */
+  uint32_t txTimeStamp;
+  /** Tx timestamp. */
+  uint8_t txTimeStampPre;
   /** Reserved. */
-  uint32_t reserved[3];
+  uint8_t reserved;
+  /** Reserved. */
+  uint16_t reserved1;
+  /** Reserved. */
+  uint32_t reserved2;
 } RAIL_BLE_CsMode1DebugResults_t;
 
 /**
@@ -1349,25 +1389,7 @@ typedef struct RAIL_BLE_CsMode2DebugResults {
  */
 typedef struct RAIL_BLE_CsStepDebugResults {
   /** Reserved. */
-  uint32_t reserved;
-  /** Reserved. */
-  uint32_t reserved1;
-  /** Reserved. */
-  uint32_t reserved2;
-  /** Reserved. */
-  uint32_t reserved3;
-  /** Reserved. */
-  uint32_t reserved4;
-  /** Reserved. */
-  uint32_t reserved5;
-  /** Reserved. */
-  uint32_t reserved6;
-  /** Reserved. */
-  uint32_t reserved7;
-  /** Reserved. */
-  uint32_t reserved8;
-  /** Reserved. */
-  uint32_t reserved9;
+  uint32_t reserved[10];
 } RAIL_BLE_CsStepDebugResults_t;
 
 /**
@@ -1486,6 +1508,8 @@ typedef struct RAIL_BLE_CsGdCompTables {
   uint8_t length;
 } RAIL_BLE_CsGdCompTables_t;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Configure Channel Sounding (CS) functionality.
  *
@@ -1494,6 +1518,11 @@ typedef struct RAIL_BLE_CsGdCompTables {
  * @return Status code indicating success of the function call.
  *
  * @warning This API is not safe to use in a multiprotocol app.
+ *
+ * @warning As this function relies on GPIO access when more than one antenna
+ *   is configured by \ref RAIL_BLE_ConfigCsAntenna and RAIL is meant to run in
+ *   TrustZone non-secure world, it is not supported if GPIO is configured as
+ *   secure peripheral and it will return \ref RAIL_STATUS_INVALID_CALL.
  */
 RAIL_Status_t RAIL_BLE_ConfigCs(RAIL_Handle_t railHandle,
                                 const RAIL_BLE_CsConfig_t *csConfig);
@@ -1506,6 +1535,11 @@ RAIL_Status_t RAIL_BLE_ConfigCs(RAIL_Handle_t railHandle,
  * @return Status code indicating success of the function call.
  *
  * @warning This API is not safe to use in a multiprotocol app.
+ *
+ * @note While CS is enabled, the PA ramp time is cached and overridden to 5us.
+ *   Upon disabling CS, the original PA ramp time is restored. While CS is
+ *   enabled, calls to \ref RAIL_ConfigTxPower() should be avoided as they may
+ *   corrupt the ramp time and result in incorrect CS event timing.
  */
 RAIL_Status_t RAIL_BLE_EnableCs(RAIL_Handle_t railHandle,
                                 bool enable);
@@ -1535,12 +1569,11 @@ RAIL_Status_t RAIL_BLE_SetNextCsStep(RAIL_Handle_t railHandle,
 /**
  * Configure antennas for CS event.
  *
- * @note The \ref RAIL_BLE_CsAntennaConfig_t::antennaCount of the
- *   \ref pAntennaConfig parameter must be a value greater than 0
- *   and less than or equal to \ref RAIL_BLE_CS_MAX_ANTENNAS.
- *
  * @param[in] railHandle A RAIL instance handle.
- * @param[in] pAntennaConfig A pointer to the antenna config
+ * @param[in] pAntennaConfig A pointer to the antenna config.
+ *   The \ref RAIL_BLE_CsAntennaConfig_t::antennaCount of this
+ *   parameter must be a value greater than 0
+ *   and less than or equal to \ref RAIL_BLE_CS_MAX_ANTENNAS.
  * @return Status code indicating success of the function call.
  */
 RAIL_Status_t RAIL_BLE_ConfigCsAntenna(RAIL_Handle_t railHandle,
@@ -1586,8 +1619,10 @@ RAIL_Status_t RAIL_BLE_LoadCsCompTables(RAIL_Handle_t railHandle,
  */
 RAIL_Status_t RAILCb_BLE_CsGdCompTableLoad(void);
 
+#endif//SLI_LIBRAIL_ALIAS
+
 /** @} */  // end of group CS
-#endif//DOXYGEN_SHOULD_SKIP_THIS
+#endif//DOXYGEN_UNDOCUMENTED
 
 /// @addtogroup BLETX2TX BLE TX Channel Hopping
 /// @{
@@ -1746,6 +1781,8 @@ typedef struct RAIL_BLE_TxRepeatConfig {
   } delayOrHop;
 } RAIL_BLE_TxRepeatConfig_t;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Set up automatic repeated transmits after the next transmit.
  *
@@ -1818,6 +1855,8 @@ RAIL_Status_t RAIL_BLE_CalibrateIr(RAIL_Handle_t railHandle,
                                    uint32_t *imageRejection);
 
 /// @} // End of group Calibration
+
+#endif//SLI_LIBRAIL_ALIAS
 
 #ifdef __cplusplus
 }

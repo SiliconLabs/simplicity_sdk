@@ -33,9 +33,9 @@
 // <h>Connect Stack Common configuration
 
 // <o EMBER_HEAP_SIZE> Minimum Heap Size in bytes<250-10000:2>
-// <i> Default: 4000
+// <i> Default: 5000
 // <i> The minimum size in bytes of the memory heap.
-#define EMBER_HEAP_SIZE             (4000)
+#define EMBER_HEAP_SIZE             (5000)
 
 // <o EMBER_RADIO_CCA_THRESHOLD> MAC CCA Threshold in dBm
 // <i> Default: -65

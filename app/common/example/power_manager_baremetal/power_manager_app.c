@@ -33,9 +33,7 @@
                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM1 \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM1  \
                             | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2  \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 \
-                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3)
+                            | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2)
 
 #ifndef BUTTON_INSTANCE_0
 #define BUTTON_INSTANCE_0   sl_button_btn0
@@ -120,8 +118,7 @@ static void timer_callback(sl_sleeptimer_timer_handle_t *handle,
   ok_to_sleep = false;
   isr_ok_to_sleep = SL_POWER_MANAGER_WAKEUP;
   // Clear requirements
-  if (em_mode == SL_POWER_MANAGER_EM1
-      || em_mode == SL_POWER_MANAGER_EM2) {
+  if (em_mode == SL_POWER_MANAGER_EM1) {
     sl_power_manager_remove_em_requirement(em_mode);
   }
 }
@@ -227,8 +224,6 @@ void power_manager_app_process_action(void)
         // interrupt
         isr_ok_to_sleep = SL_POWER_MANAGER_SLEEP;
         em_mode = SL_POWER_MANAGER_EM2;
-        // Ensure app stays in selected energy mode
-        sl_power_manager_add_em_requirement(em_mode);
         // Sleep timer functions in EM2
         sl_sleeptimer_start_timer_ms(&my_timer,
                                      5000,

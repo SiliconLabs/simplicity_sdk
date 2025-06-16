@@ -81,7 +81,8 @@ __STATIC_INLINE bool pageHdrErased(nvm3_PageHdr_t *pageHdr)
 
 __STATIC_INLINE bool pageHdrMagicAndVersion(nvm3_PageHdr_t *pageHdr)
 {
-  uint16_t magic, version;
+  uint16_t magic;
+  uint16_t version;
 
   magic = (uint16_t)(pageHdr->data[0] >> H1_MAGIC_SHIFT);
   version = (uint16_t)pageHdr->data[0];
@@ -173,7 +174,7 @@ sl_status_t nvm3_pageHeaderWrite(const nvm3_HalHandle_t *hal, nvm3_HalPtr_t page
   pageHdr.data[1] = pageHdrCounterMake(eraseCnt, eraseCntNormal);
   pageHdr.data[2] = pageHdrCounterMake(eraseCnt, eraseCntInverted);
   pageHdr.data[3] = 0xffffffffU;
-  pageHdr.data[4] = (formatInfo << 16) | (devInfo);
+  pageHdr.data[4] = (formatInfo << 16) | devInfo;
   //printf("-> hdrWr: adr=%p, cnt=%u, 1=0x%08x, 2=0x%08x\n", pageAdr, eraseCnt, pageHdr.data[1], pageHdr.data[2]);
 
   // Write header in the following order: H5 -> H3 -> H2 -> H1
@@ -241,7 +242,7 @@ sl_status_t nvm3_pageSetEip(const nvm3_HalHandle_t *hal, nvm3_HalPtr_t pageAdr)
   nvm3_HalPtr_t adr;
   sl_status_t sta = SL_STATUS_OK;
 
-  nvm3_tracePrint(NVM3_TRACE_LEVEL_LOW, "  nvm3_pageSetEip, pageAdr=0x%p.\n", pageAdr);
+  nvm3_tracePrint(NVM3_TRACE_LEVEL_LOW, "nvm3_pageSetEip, pageAdr=0x%p.\n", pageAdr);
 
   adr = (nvm3_HalPtr_t)((size_t)pageAdr + NVM3_PAGE_H4_OFFSET);
   nvm3_halReadWords(hal, adr, &h4Rd, 1);
@@ -328,7 +329,7 @@ sl_status_t nvm3_pageErase(const nvm3_HalHandle_t *hal, nvm3_HalPtr_t pageAdr, u
 {
   sl_status_t sta;
 
-  nvm3_tracePrint(NVM3_TRACE_LEVEL_LOW, "  nvm3_pageErase: adr=0x%p, eraseCnt=%u.\n", pageAdr, eraseCnt);
+  nvm3_tracePrint(NVM3_TRACE_LEVEL_LOW, "nvm3_pageErase: adr=0x%p, eraseCnt=%lu.\n", pageAdr, eraseCnt);
 
   // Erase
   sta = nvm3_halPageErase(hal, pageAdr);
@@ -340,16 +341,15 @@ sl_status_t nvm3_pageErase(const nvm3_HalHandle_t *hal, nvm3_HalPtr_t pageAdr, u
     sta = nvm3_pageHeaderWrite(hal, pageAdr, eraseCnt, halInfo);
 #endif
     if (sta != SL_STATUS_OK) {
-      nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "  erasePage: adr=0x%p, Write hdr ERROR, mark page as BAD.\n", pageAdr);
+      nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "erasePage: adr=0x%p, Write hdr ERROR, mark page as BAD.\n", pageAdr);
       nvm3_pageSetBad(hal, pageAdr);
     }
   } else {
     // Erasure failed, mark page as BAD
-    nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "  erasePage: adr=0x%p, Erase ERROR, page is marked as BAD.\n", pageAdr);
+    nvm3_tracePrint(NVM3_TRACE_LEVEL_WARNING, "erasePage: adr=0x%p, Erase ERROR, page is marked as BAD.\n", pageAdr);
     nvm3_pageSetBad(hal, pageAdr);
   }
 
-  //nvm3_tracePrint("  erasePage: sta=%u.\n", sta);
   return sta;
 }
 

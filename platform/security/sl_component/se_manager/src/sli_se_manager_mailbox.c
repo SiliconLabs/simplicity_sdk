@@ -221,6 +221,7 @@ void sli_se_mailbox_command_add_input(sli_se_mailbox_command_t *command, sli_se_
  * @brief
  *   Add output data to a mailbox command
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 void sli_se_mailbox_command_add_output(sli_se_mailbox_command_t *command, sli_se_datatransfer_t *data)
 {
   if (command->data_out == NULL) {

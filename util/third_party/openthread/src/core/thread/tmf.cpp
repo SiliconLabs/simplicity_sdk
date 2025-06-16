@@ -41,18 +41,18 @@ namespace Tmf {
 //----------------------------------------------------------------------------------------------------------------------
 // MessageInfo
 
-void MessageInfo::SetSockAddrToRloc(void) { SetSockAddr(Get<Mle::MleRouter>().GetMeshLocalRloc()); }
+void MessageInfo::SetSockAddrToRloc(void) { SetSockAddr(Get<Mle::Mle>().GetMeshLocalRloc()); }
 
 void MessageInfo::SetSockAddrToRlocPeerAddrToLeaderAloc(void)
 {
     SetSockAddrToRloc();
-    Get<Mle::MleRouter>().GetLeaderAloc(GetPeerAddr());
+    Get<Mle::Mle>().GetLeaderAloc(GetPeerAddr());
 }
 
 void MessageInfo::SetSockAddrToRlocPeerAddrToLeaderRloc(void)
 {
     SetSockAddrToRloc();
-    Get<Mle::MleRouter>().GetLeaderRloc(GetPeerAddr());
+    Get<Mle::Mle>().GetLeaderRloc(GetPeerAddr());
 }
 
 void MessageInfo::SetSockAddrToRlocPeerAddrToRealmLocalAllRoutersMulticast(void)
@@ -83,7 +83,7 @@ Agent::Agent(Instance &aInstance)
     SetResourceHandler(&HandleResource);
 }
 
-Error Agent::Start(void) { return Coap::Start(kUdpPort, Ip6::kNetifThread); }
+Error Agent::Start(void) { return Coap::Start(kUdpPort, Ip6::kNetifThreadInternal); }
 
 template <> void Agent::HandleTmf<kUriRelayRx>(Message &aMessage, const Ip6::MessageInfo &aMessageInfo)
 {
@@ -127,8 +127,8 @@ bool Agent::HandleResource(const char *aUriPath, Message &aMessage, const Ip6::M
 #if OPENTHREAD_FTD
         Case(kUriAddressQuery, AddressResolver);
         Case(kUriAddressNotify, AddressResolver);
-        Case(kUriAddressSolicit, Mle::MleRouter);
-        Case(kUriAddressRelease, Mle::MleRouter);
+        Case(kUriAddressSolicit, Mle::Mle);
+        Case(kUriAddressRelease, Mle::Mle);
         Case(kUriActiveSet, MeshCoP::ActiveDatasetManager);
         Case(kUriActiveReplace, MeshCoP::ActiveDatasetManager);
         Case(kUriPendingSet, MeshCoP::PendingDatasetManager);
@@ -273,10 +273,29 @@ Message::Priority Agent::DscpToPriority(uint8_t aDscp)
 #if OPENTHREAD_CONFIG_SECURE_TRANSPORT_ENABLE
 
 SecureAgent::SecureAgent(Instance &aInstance)
-    : Coap::CoapSecureBase(aInstance, kNoLinkSecurity)
+    : Coap::Dtls::Transport(aInstance, kNoLinkSecurity)
+    , Coap::SecureSession(aInstance, static_cast<Coap::Dtls::Transport &>(*this))
 {
+    SetAcceptCallback(&HandleDtlsAccept, this);
+
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
     SetResourceHandler(&HandleResource);
+#endif
 }
+
+MeshCoP::SecureSession *SecureAgent::HandleDtlsAccept(void *aContext, const Ip6::MessageInfo &aMessageInfo)
+{
+    OT_UNUSED_VARIABLE(aMessageInfo);
+
+    return static_cast<SecureAgent *>(aContext)->HandleDtlsAccept();
+}
+
+Coap::SecureSession *SecureAgent::HandleDtlsAccept(void)
+{
+    return IsSessionInUse() ? nullptr : static_cast<Coap::SecureSession *>(this);
+}
+
+#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
 
 bool SecureAgent::HandleResource(CoapBase               &aCoapBase,
                                  const char             *aUriPath,
@@ -288,42 +307,19 @@ bool SecureAgent::HandleResource(CoapBase               &aCoapBase,
 
 bool SecureAgent::HandleResource(const char *aUriPath, Message &aMessage, const Ip6::MessageInfo &aMessageInfo)
 {
-    OT_UNUSED_VARIABLE(aMessage);
-    OT_UNUSED_VARIABLE(aMessageInfo);
-
-    bool didHandle = true;
+    bool didHandle = false;
     Uri  uri       = UriFromPath(aUriPath);
 
-#define Case(kUri, Type)                                     \
-    case kUri:                                               \
-        Get<Type>().HandleTmf<kUri>(aMessage, aMessageInfo); \
-        break
-
-    switch (uri)
+    if (uri == kUriJoinerFinalize)
     {
-#if OPENTHREAD_FTD && OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
-        Case(kUriJoinerFinalize, MeshCoP::Commissioner);
-#endif
-
-#if OPENTHREAD_CONFIG_BORDER_AGENT_ENABLE
-        Case(kUriCommissionerPetition, MeshCoP::BorderAgent);
-        Case(kUriCommissionerKeepAlive, MeshCoP::BorderAgent);
-        Case(kUriRelayTx, MeshCoP::BorderAgent);
-        Case(kUriCommissionerGet, MeshCoP::BorderAgent);
-        Case(kUriActiveGet, MeshCoP::BorderAgent);
-        Case(kUriPendingGet, MeshCoP::BorderAgent);
-        Case(kUriProxyTx, MeshCoP::BorderAgent);
-#endif
-
-    default:
-        didHandle = false;
-        break;
+        Get<MeshCoP::Commissioner>().HandleTmf<kUriJoinerFinalize>(aMessage, aMessageInfo);
+        didHandle = true;
     }
-
-#undef Case
 
     return didHandle;
 }
+
+#endif // OPENTHREAD_FTD && OPENTHREAD_CONFIG_COMMISSIONER_ENABLE
 
 #endif // OPENTHREAD_CONFIG_SECURE_TRANSPORT_ENABLE
 

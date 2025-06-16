@@ -63,22 +63,20 @@ WEAK(uint8_t sli_zigbee_gp_proxy_table_find_or_allocate_entry_wrapper(sl_zigbee_
 }
 WEAK(void sli_zigbee_gp_proxy_table_add_sink_wrapper(uint8_t index,
                                                      uint8_t commMode,
-                                                     sl_802154_long_addr_t sinkIeeeAddress,
+                                                     const uint8_t* sinkIeeeAddress,
                                                      sl_802154_short_addr_t sinkNwkAddress,
                                                      uint16_t sinkGroupId,
-                                                     uint16_t assignedAlias))
+                                                     uint16_t assignedAlias
+                                                     ))
 {
 }
-WEAK(void sli_zigbee_gp_proxy_table_remove_sink_wrapper(uint8_t index,
-                                                        sl_802154_long_addr_t sinkIeeeAddress,
-                                                        uint16_t sinkGroupId,
-                                                        uint16_t assignedAlias))
+WEAK(void sli_zigbee_gp_proxy_table_remove_sink_wrapper(uint8_t index, const uint8_t* sinkIeeeAddress, uint16_t sinkGroupId, uint16_t assignedAlias))
 {
 }
-WEAK(void sli_zigbee_gp_proxy_table_remove_entry_wrapper(uint8_t index))
+WEAK(void sl_zigbee_gp_proxy_table_remove_entry_wrapper(uint8_t index))
 {
 }
-WEAK(void sli_zigbee_gp_proxy_table_set_key_wrapper(uint8_t index, uint8_t * gpdKey, sl_zigbee_gp_key_type_t securityKeyType))
+WEAK(void sli_zigbee_gp_proxy_table_set_key_wrapper(uint8_t index, const uint8_t * gpdKey, sl_zigbee_gp_key_type_t securityKeyType))
 {
 }
 WEAK(void sli_zigbee_gp_proxy_table_get_key_wrapper(uint8_t index, sl_zigbee_key_data_t *key))
@@ -142,6 +140,11 @@ WEAK(void sl_zigbee_gp_sink_table_set_security_frame_counter_wrapper(uint8_t ind
 WEAK(uint8_t sl_zigbee_gp_sink_table_get_number_of_active_entries_wrapper(void))
 {
   return 0;
+}
+
+WEAK(void sl_zigbee_gp_clear_proxy_table_wrapper(void))
+{
+  // Stub function.
 }
 
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_GP_STACK == 1)

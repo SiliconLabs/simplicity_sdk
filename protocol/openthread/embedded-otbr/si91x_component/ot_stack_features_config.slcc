@@ -1,6 +1,6 @@
 id: ot_stack_features_config
 label: Stack Features Config
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: experimental
 description: This component provides the OpenThread stack features configuration

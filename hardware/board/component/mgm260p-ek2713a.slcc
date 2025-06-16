@@ -1,7 +1,7 @@
 !!omap
 - id: mgm260p_ek2713a
 - label: MGM260P-EK2713A
-- package: platform
+- package: boards
 - description: Kit BSP support for the MGM260P Module Explorer Kit.
 - category: Platform|Board|Kit|Explorer Kit
 - quality: production

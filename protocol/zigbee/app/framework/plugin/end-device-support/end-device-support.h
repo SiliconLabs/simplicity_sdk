@@ -67,6 +67,16 @@ extern sli_zigbee_af_polling_state sli_zigbee_af_polling_states[];
  * @{
  */
 
+/** @brief End Device Support Move Network Event Handler.
+ *
+ * This API handles the stack logic when there is a Move Network Event Scheduled.
+ * This handler will attempt to call: sl_zigbee_find_and_rejoin_network to move networks.
+ * This handler will either be completed upon a successful move or
+ * upon failure will reschedule a new move network event until a maximum number of retry events.
+ *
+ * @param[in] event a type sl_zigbee_af_event_t
+ *
+ */
 void sl_zigbee_af_end_device_support_move_network_event_handler(sl_zigbee_af_event_t * event);
 
 /** @} */ // end of name Handlers
@@ -93,7 +103,7 @@ void sl_zigbee_af_end_device_support_move_network_event_handler(sl_zigbee_af_eve
  * This function is called by the End Device Support plugin after a poll is
  * completed.
  *
- * @param status Return status of a completed poll operation Ver.: always
+ * @param[out] status Return status of a completed poll operation Ver.: always
  */
 void sl_zigbee_af_end_device_support_poll_completed_cb(sl_status_t status);
 
@@ -105,10 +115,11 @@ void sl_zigbee_af_end_device_support_poll_completed_cb(sl_status_t status);
  * - When the network state of the device is SL_ZIGBEE_JOINED_NETWORK_NO_PARENT.
  * - If there are 3 or more data poll transaction failures for an end device.
  *
- * If this callback returns false, the End Device Support plugin code will
- * proceed with issuing a Trust Center rejoin. Otherwise, if this function
- * returns true, the End Device Support plugin will not issue a Trust Center
- * rejoin.
+ * Users can consume this callback and return either true or false depending on desired behavior.
+ *
+ * @return Type boolean value:
+ * - True: End Device Support Plugin will Not Send Trust Center Rejoin
+ * - False: End Device Support Plugin will send Trust Center Rejoin
  */
 bool sl_zigbee_af_end_device_support_lost_parent_connectivity_cb(void);
 
@@ -124,6 +135,10 @@ bool sl_zigbee_af_end_device_support_lost_parent_connectivity_cb(void);
  * gives the application a chance to implement its own rejoin logic. If this
  * callback returns false, the End Device Support plugin will issue network
  * rejoins as usual.
+ *
+ * @return Type boolean value:
+ * - True: Prevent the End Device Support Plugin to issue Rejoin Request
+ * - False: Allow End Device Support Plugin to issue Rejoin Request
  */
 bool sl_zigbee_af_end_device_support_pre_network_move_cb(void);
 /** @} */ // end of end_device_support_cb

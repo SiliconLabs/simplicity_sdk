@@ -3,7 +3,7 @@
  * @brief stubbed definitions of internal implementations for zigbee_direct_stack_interface
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -24,6 +24,7 @@ SL_WEAK void sli_zigbee_stack_direct_send_commissioning_response(uint8_t status,
                                                                  sl_802154_short_addr_t dst,
                                                                  sl_802154_long_addr_t longDest)
 {
+  // NOTE stub definition
   (void) status;
   (void) dst;
   (void) longDest;
@@ -36,6 +37,7 @@ SL_WEAK bool sli_zigbee_stack_direct_send_ephemeral_key(sl_802154_short_addr_t d
                                                         const sl_zigbee_key_data_t *keyData,
                                                         uint8_t options)
 {
+  // NOTE stub definition
   (void) destinationShortId;
   (void) destinationLongId;
   (void) sourceOrPartnerLongId;
@@ -47,11 +49,14 @@ SL_WEAK bool sli_zigbee_stack_direct_send_ephemeral_key(sl_802154_short_addr_t d
 
 SL_WEAK uint8_t sli_zigbee_stack_get_nwk_update_id(void)
 {
+  // NOTE stub definition
+
   return 0;
 }
 
 SL_WEAK sl_status_t sli_zigbee_stack_transient_device_mgmt_finish(const sl_zigbee_address_info *device_ids)
 {
+  // NOTE stub definition
   (void) device_ids;
   return SL_STATUS_NOT_AVAILABLE;
 }

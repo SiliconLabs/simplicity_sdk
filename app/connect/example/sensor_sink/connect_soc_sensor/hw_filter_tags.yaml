@@ -4,18 +4,16 @@ tag:
   - hardware:
       device:
         memory:
-          flash: 253
-          ram: 32
+          flash: 256
+          ram: 33
       board:
         rf_bands:
           - any
         communication:
           - vcom
           - pti
-        sensor:
-          - si7021
         io:
           allow_shared: false
           led: 1+
           button: 1+
-  
+

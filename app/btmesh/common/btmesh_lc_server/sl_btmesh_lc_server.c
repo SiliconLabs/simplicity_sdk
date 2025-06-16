@@ -58,11 +58,6 @@
 // header file in order to provide the component specific logging macro.
 #include "app_btmesh_util.h"
 
-/***************************************************************************//**
- * @addtogroup LC_Server
- * @{
- ******************************************************************************/
-
 #define FRACTION(num) (uint16_t)(((num) > 0                \
                                   ? (num) - (int32_t)(num) \
                                   : (int32_t)(num) - (num)) * 1000)
@@ -210,13 +205,13 @@ static void lc_onoff_transition_complete(void);
 
 static void delayed_lc_onoff_request(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
  ******************************************************************************/
 static void init_models(void);
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light controller state from Persistent Storage
  * and copies the data in the global variable lc_state.
  * If PS key with ID 0x4005 does not exist or loading failed,
@@ -260,7 +255,7 @@ static sl_status_t lc_state_load(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function saves the current light controller state in Persistent Storage
  * so that the data is preserved over reboots and power cycles.
  * The light controller state is hold in a global variable lc_state.
@@ -280,7 +275,7 @@ static int lc_state_store(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the light controller state in RAM
  * is changed. It sets up a soft timer that will save the state in flash after
  * small delay. The purpose is to reduce amount of unnecessary flash writes.
@@ -370,7 +365,7 @@ void lc_onpowerup_update(uint16_t element, uint8_t onpowerup)
   lc_state_changed();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function loads the saved light controller property state from Persistent
  * Storage and copies the data in the global variable lc_property_state.
  * If PS key with ID 0x4006 does not exist or loading failed,
@@ -438,7 +433,7 @@ static sl_status_t lc_property_state_load(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function saves the current light controller property state in Persistent
  * Storage so that the data is preserved over reboots and power cycles.
  * The light controller property state is hold in a global variable
@@ -461,7 +456,7 @@ static int lc_property_state_store(void)
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called each time the light controller property state in RAM
  * is changed. It sets up a soft timer that will save the state in flash after
  * small delay. The purpose is to reduce amount of unnecessary flash writes.
@@ -476,7 +471,7 @@ static void lc_property_state_changed(void)
   app_assert_status_f(sc, "Failed to start LC Property Save timer");
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update property in stack based on property data.
  *
  * @param[in] element        Index of the element.
@@ -488,7 +483,7 @@ static void lc_property_state_changed(void)
 static void update_property(uint16_t element, const uint8_t *property_data)
 {
   uint16_t property_id = (uint16_t)property_data[0]
-                         | ((uint16_t)property_data[1] << 8);
+                         | ((uint16_t)(property_data[1] << 8));
   sl_status_t sc =
     sl_btmesh_lc_setup_server_update_property(element,
                                               property_id,
@@ -502,7 +497,7 @@ static void update_property(uint16_t element, const uint8_t *property_data)
                       property_id);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Occupancy Delay property in stack.
  *
  * @param[in] element  Index of the element.
@@ -517,7 +512,7 @@ static void lc_time_occupancy_delay_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Fade On property in stack.
  *
  * @param[in] element  Index of the element.
@@ -532,7 +527,7 @@ static void lc_time_fade_on_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Run On property in stack.
  *
  * @param[in] element  Index of the element.
@@ -547,7 +542,7 @@ static void lc_time_run_on_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Fade property in stack.
  *
  * @param[in] element  Index of the element.
@@ -562,7 +557,7 @@ static void lc_time_fade_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Prolong property in stack.
  *
  * @param[in] element  Index of the element.
@@ -577,7 +572,7 @@ static void lc_time_prolong_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Fade Standby Auto property in stack.
  *
  * @param[in] element  Index of the element.
@@ -592,7 +587,7 @@ static void lc_time_fade_standby_auto_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Time Fade Standby Manual property in stack.
  *
  * @param[in] element  Index of the element.
@@ -607,7 +602,7 @@ static void lc_time_fade_standby_manual_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Lightness On property in stack.
  *
  * @param[in] element  Index of the element.
@@ -621,7 +616,7 @@ static void lc_lightness_on_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Lightness Prolong property in stack.
  *
  * @param[in] element  Index of the element.
@@ -635,7 +630,7 @@ static void lc_lightness_prolong_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Lightness Standby property in stack.
  *
  * @param[in] element  Index of the element.
@@ -649,7 +644,7 @@ static void lc_lightness_standby_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Ambient LuxLevel On property in stack.
  *
  * @param[in] element  Index of the element.
@@ -664,7 +659,7 @@ static void lc_ambient_luxlevel_on_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Ambient LuxLevel Prolong property in stack.
  *
  * @param[in] element  Index of the element.
@@ -679,7 +674,7 @@ static void lc_ambient_luxlevel_prolong_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Ambient LuxLevel Standby property in stack.
  *
  * @param[in] element  Index of the element.
@@ -694,7 +689,7 @@ static void lc_ambient_luxlevel_standby_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Regulator Kiu property in stack.
  *
  * @param[in] element  Index of the element.
@@ -708,7 +703,7 @@ static void lc_regulator_kiu_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Regulator Kid property in stack.
  *
  * @param[in] element  Index of the element.
@@ -722,7 +717,7 @@ static void lc_regulator_kid_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Regulator Kpu property in stack.
  *
  * @param[in] element  Index of the element.
@@ -736,7 +731,7 @@ static void lc_regulator_kpu_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Regulator Kpd property in stack.
  *
  * @param[in] element  Index of the element.
@@ -750,7 +745,7 @@ static void lc_regulator_kpd_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update Light LC Regulator Accuracy property in stack.
  *
  * @param[in] element  Index of the element.
@@ -764,7 +759,7 @@ static void lc_regulator_accuracy_update(uint16_t element)
   update_property(element, property_data);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function update all light controller properties in stack.
  *
  * @param[in] element  Index of the element.
@@ -838,7 +833,7 @@ sl_status_t sl_btmesh_lc_init(void)
   return result;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of lc server mode updated event.
  *
  * @param[in] evt  Pointer to lc server mode updated event.
@@ -850,7 +845,7 @@ static void handle_lc_server_mode_updated_event(
   lc_state_changed();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of lc server occupancy mode updated event.
  *
  * @param[in] evt  Pointer to lc server occupancy mode updated event.
@@ -863,7 +858,7 @@ static void handle_lc_server_om_updated_event(
   lc_state_changed();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of lc server light onoff updated event.
  *
  * @param[in] evt  Pointer to lc server light onoff updated event.
@@ -875,7 +870,7 @@ static void handle_lc_server_light_onoff_updated_event(
   lc_state_changed();
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of lc server linear output updated event.
  *
  * @param[in] evt  Pointer to lc server linear output updated event.
@@ -884,20 +879,20 @@ static void handle_lc_server_linear_output_updated_event(
   sl_btmesh_evt_lc_server_linear_output_updated_t *evt)
 {
   // Convert from linear to actual lightness value
-  uint32_t lightness = (uint32_t)sqrt(65535
+  uint16_t lightness = (uint16_t)sqrt(65535
                                       * (uint32_t)(evt->linear_output_value));
   // Update LED
   sl_btmesh_lighting_set_level(lightness, IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Printing the float number using integers.
  *
  * @param[in] number  Number to print.
  ******************************************************************************/
 static void print_float(float number)
 {
-  if (number > INT32_MAX) {
+  if (number > (float)INT32_MAX) {
     log_append_info("> %ld", INT32_MAX);
   } else if (number < INT32_MIN) {
     log_append_info("< %ld", INT32_MIN);
@@ -906,7 +901,7 @@ static void print_float(float number)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Handling of lc setup server set property event.
  *
  * @param[in] evt  Pointer to lc setup server set property event.
@@ -1117,6 +1112,11 @@ static void handle_lc_setup_server_set_property(
  ******************************************************************************/
 void sl_btmesh_lc_server_on_event(sl_btmesh_msg_t *evt)
 {
+  #ifdef TEST
+  bool booted = false;
+  #else
+  static volatile bool booted = false;
+  #endif
   switch (SL_BT_MSG_ID(evt->header)) {
     case sl_btmesh_evt_lc_server_mode_updated_id:
       handle_lc_server_mode_updated_event(
@@ -1144,13 +1144,18 @@ void sl_btmesh_lc_server_on_event(sl_btmesh_msg_t *evt)
       break;
 
     case sl_btmesh_evt_prov_initialized_id:
-    case sl_btmesh_evt_node_provisioned_id:
-      sl_btmesh_lc_init();
+    case sl_btmesh_evt_node_provisioned_id: {
+      if (!booted) {
+        sl_btmesh_lc_init();
+        booted = true;
+      }
       break;
+    }
 
     case sl_btmesh_evt_node_initialized_id:
       if (evt->data.evt_node_initialized.provisioned) {
         sl_btmesh_lc_init();
+        booted = true;
       }
       break;
 
@@ -1174,12 +1179,7 @@ void sl_btmesh_lc_server_on_node_reset(void)
   app_btmesh_nvm_erase(SL_BTMESH_LC_SERVER_PROPERTY_PS_KEY_CFG_VAL);
 }
 
-/***************************************************************************//**
- * @addtogroup LC_GenericOnOff
- * @{
- ******************************************************************************/
-
-/***************************************************************************//**
+/*******************************************************************************
  * Response to LC generic on/off request.
  *
  * @param[in] element_index  Server model element index.
@@ -1223,7 +1223,7 @@ static sl_status_t lc_onoff_response(uint16_t element_index,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update LC generic on/off state.
  *
  * @param[in] element_index  Server model element index.
@@ -1259,7 +1259,7 @@ static sl_status_t lc_onoff_update(uint16_t element_index,
   return sc;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Update LC generic on/off state and publish model state to the network.
  *
  * @param[in] element_index  Server model element index.
@@ -1462,7 +1462,7 @@ static void lc_onoff_recall(uint16_t model_id,
   lc_onoff_update_and_publish(element_index, transition_ms);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when a LC on/off request
  * with non-zero transition time has completed.
  ******************************************************************************/
@@ -1479,7 +1479,7 @@ static void lc_onoff_transition_complete(void)
                               IMMEDIATE);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * This function is called when delay for LC on/off request has completed.
  ******************************************************************************/
 static void delayed_lc_onoff_request(void)
@@ -1512,7 +1512,7 @@ static void delayed_lc_onoff_request(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
  ******************************************************************************/
@@ -1524,10 +1524,13 @@ static void init_models(void)
                                                 lc_onoff_request,
                                                 lc_onoff_change,
                                                 lc_onoff_recall);
-  app_assert_status_f(sc,
-                      "LC server failed to register handlers (mdl=0x%04x,elem=%d)",
-                      MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,
-                      BTMESH_LC_SERVER_LIGHT_LC);
+  // Does not exist mean DCD Page 0, which is usually due to a firmware update.
+  // Allow continuing, the error shall disappear after DCD update.
+  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    app_assert_status_f(sc, "LC server failed to register handlers (mdl=0x%04x,elem=%d)",
+                        MESH_GENERIC_ON_OFF_SERVER_MODEL_ID,
+                        BTMESH_LC_SERVER_LIGHT_LC);
+  }
 }
 
 /**************************************************************************//**
@@ -1568,4 +1571,3 @@ static void lc_delayed_onoff_timer_cb(app_timer_t *handle,
   // delay for lc on/off request has passed, now process the request
   delayed_lc_onoff_request();
 }
-/** @} (end addtogroup LC_Server) */

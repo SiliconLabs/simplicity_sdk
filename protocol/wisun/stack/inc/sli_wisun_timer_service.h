@@ -181,13 +181,13 @@ void sli_wisun_timer_stop(sli_wisun_timer_t *timer);
 uint32_t sli_wisun_timer_get_current_time32_us(void);
 uint64_t sli_wisun_timer_get_current_time_us(void);
 uint64_t sli_wisun_timer_get_current_time_ms(void);
-uint64_t sli_wisun_timer_get_current_time_s(void);
+uint32_t sli_wisun_timer_get_current_time_s(void);
 
 bool sli_wisun_timer_is_running(const sli_wisun_timer_t *timer);
 
 uint64_t sli_wisun_timer_get_remaining_us(const sli_wisun_timer_t *timer);
 uint64_t sli_wisun_timer_get_remaining_ms(const sli_wisun_timer_t *timer);
-uint64_t sli_wisun_timer_get_remaining_s(const sli_wisun_timer_t *timer);
+uint32_t sli_wisun_timer_get_remaining_s(const sli_wisun_timer_t *timer);
 
 bool sli_wisun_timer_is_infinite(const sli_wisun_timer_t *timer);
 

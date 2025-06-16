@@ -23,6 +23,7 @@
 
 void sli_zigbee_debug_receive_tick(void)
 {
+  // stub function
 }
 
 void sl_zigbee_debug_binary_printf(const char * formatString, ...)
@@ -56,6 +57,7 @@ void sli_util_debug_send_vuart_message(uint8_t *buff, uint8_t len)
 
 void sli_zigbee_debug_reset_info(void)
 {
+  // stub function
 }
 
 void sli_zigbee_debug_process_incoming(uint16_t debugType, uint8_t *data, uint8_t length)

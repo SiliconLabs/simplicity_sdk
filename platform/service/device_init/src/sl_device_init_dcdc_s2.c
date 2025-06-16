@@ -41,7 +41,7 @@ sl_status_t sl_device_init_dcdc(void)
   dcdcInit.mode = emuDcdcMode_Bypass;
 #endif
   EMU_DCDCInit(&dcdcInit);
-#if SL_DEVICE_INIT_DCDC_PFMX_IPKVAL_OVERRIDE
+#if defined(SL_DEVICE_INIT_DCDC_PFMX_IPKVAL_OVERRIDE) && (SL_DEVICE_INIT_DCDC_PFMX_IPKVAL_OVERRIDE == 1)
   EMU_DCDCSetPFMXModePeakCurrent(SL_DEVICE_INIT_DCDC_PFMX_IPKVAL);
 #endif
 #else // SL_DEVICE_INIT_DCDC_ENABLE

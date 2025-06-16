@@ -1,6 +1,6 @@
 id: stack_protection_iar
 label: IAR stack protection
-package: platform
+package: zigbee
 category: Platform|Utilities
 quality: production
 

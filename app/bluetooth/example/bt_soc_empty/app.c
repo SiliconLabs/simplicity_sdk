@@ -27,8 +27,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
 #include "sl_bt_api.h"
+#include "sl_main_init.h"
 #include "app_assert.h"
 #include "app.h"
 
@@ -36,7 +36,7 @@
 static uint8_t advertising_set_handle = 0xff;
 
 // Application Init.
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -45,7 +45,7 @@ SL_WEAK void app_init(void)
 }
 
 // Application Process Action.
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
   if (app_is_process_required()) {
     /////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ SL_WEAK void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/

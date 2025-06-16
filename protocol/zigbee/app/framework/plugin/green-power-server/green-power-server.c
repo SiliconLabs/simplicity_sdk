@@ -55,7 +55,7 @@
 #warn "SL_ZIGBEE_GP_SINK_TABLE_SIZE must be configured on the NCP using the zigbee_gp component. The user-supplied SL_ZIGBEE_GP_SINK_TABLE_SIZE value is being ignored."
 #endif // SL_ZIGBEE_GP_SINK_TABLE_SIZE
 static uint8_t gpSinkTableSize = 0;
-  #define SL_ZIGBEE_GP_SINK_TABLE_SIZE gpSinkTableSize
+#define SL_ZIGBEE_GP_SINK_TABLE_SIZE gpSinkTableSize
 #endif
 
 #if defined(SL_ZIGBEE_AF_NCP) && defined(SL_CATALOG_ZIGBEE_AF_SUPPORT_PRESENT)
@@ -2961,16 +2961,48 @@ sl_zigbee_af_zcl_request_status_t sl_zigbee_af_green_power_cluster_gp_pairing_co
           if (cmd_data.groupListCount == 0 || cmd_data.groupList == NULL) {
             return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
           }
-          for (uint8_t index = 0, pos = 1;
-               index < GP_SINK_LIST_ENTRIES && pos < ((cmd_data.groupList[0] * sizeof(sl_zigbee_gp_sink_group_t)) + 1);
-               index++) {
+
+          bool found = false;
+
+          for (uint8_t i = 0; i < cmd_data.groupListCount; i++) {
             sl_zigbee_gp_sink_group_t gpPairingConfigGroupID = { 0 };
-            memcpy(&gpPairingConfigGroupID, &(cmd_data.groupList[pos]), sizeof(sl_zigbee_gp_sink_group_t));
-            pos += sizeof(sl_zigbee_gp_sink_group_t);
-            if (entry.sinkList[index].target.groupcast.groupID != gpPairingConfigGroupID.groupID) {
-              return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+            memcpy(&gpPairingConfigGroupID, &(cmd_data.groupList[i * sizeof(sl_zigbee_gp_sink_group_t)]), sizeof(sl_zigbee_gp_sink_group_t));
+            for (uint8_t j = 0; j < GP_SINK_LIST_ENTRIES; j++) {
+              if (entry.sinkList[j].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST
+                  && entry.sinkList[j].target.groupcast.groupID == gpPairingConfigGroupID.groupID) {
+                // Remove paring if group id match
+                sl_zigbee_af_green_power_cluster_println("Remove GPD group ID: 0x%04X", gpPairingConfigGroupID.groupID);
+                sl_zigbee_gp_sink_table_remove_group(sinkEntryIndex, gpPairingConfigGroupID.groupID, gpPairingConfigGroupID.alias);
+                found = true;
+                break;
+              }
             }
           }
+
+          if (!found) {
+            sl_zigbee_af_green_power_cluster_println("Group ID mismatch found");
+            return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+          }
+
+          // Check if all group ID removed, processing decommission GPD
+          if (sl_zigbee_gp_sink_table_get_entry(sinkEntryIndex, &entry) != SL_STATUS_OK) {
+            // return if entry not found
+            sl_zigbee_af_green_power_cluster_println("ERR: entry not found");
+            return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+          }
+          bool isRemoved = true;
+          for (uint8_t i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
+            if (entry.sinkList[i].type != SL_ZIGBEE_GP_SINK_TYPE_UNUSED
+                || entry.sinkList[i].target.groupcast.groupID != 0
+                || entry.sinkList[i].target.groupcast.alias != 0) {
+              isRemoved = false;
+            }
+          }
+          if (isRemoved) {
+            sl_zigbee_af_green_power_cluster_println("decommission GPD!");
+            decommissionGpd(0, 0, &gpdAddr, false, cmd_data.actions & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_ACTIONS_SEND_GP_PAIRING);
+          }
+          return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
         }
       }
       decommissionGpd(0, 0, &gpdAddr, false, cmd_data.actions & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_ACTIONS_SEND_GP_PAIRING);
@@ -3479,16 +3511,37 @@ sl_zigbee_af_status_t sl_zigbee_af_green_power_server_derive_shared_key_from_sin
   return SL_ZIGBEE_ZCL_STATUS_FAILURE;
 }
 
-void sl_zigbee_af_green_power_cluster_gp_sink_commissioning_window_extend(uint16_t commissioningWindow)
+// The following internal function is designed to either extend or close an ongoing
+// commissioning session on a green power sink (has green power server in it) also
+// ensures it sends out a commissioning mode messages with action exit commissioning
+// if there are proxies involved at the start of the commissioning process.
+// When the commissioningWindow value is non zero, it extends the window and
+// if the value is 0, it checks if there is any GPD still under commissioning,
+// if there any GPD still commissioning, then it has no effect and returns false,
+// if there si no GPD instance presently commissioning, it closes the commissioning.
+static bool commissioning_window_extend_or_close(uint16_t commissioningWindow)
 {
   if (!(commissioningState.inCommissioningMode)) {
-    return; // If not in commissioning mode no action.
+    return true; // If not in commissioning mode no action.
   }
-  sl_zigbee_af_event_set_delay_ms(commissioningWindowTimeout,
-                                  commissioningWindow * MILLISECOND_TICKS_PER_SECOND);
-
-  uint8_t proxyOptions = SL_ZIGBEE_AF_GP_PROXY_COMMISSIONING_MODE_OPTION_ACTION \
-                         | SL_ZIGBEE_AF_GP_PROXY_COMMISSIONING_MODE_EXIT_MODE_ON_COMMISSIONING_WINDOW_EXPIRATION;
+  if (commissioningWindow) {
+    // Extend the commissioning window timeout on local sink.
+    sl_zigbee_af_event_set_delay_ms(commissioningWindowTimeout,
+                                    commissioningWindow * MILLISECOND_TICKS_PER_SECOND);
+  } else {
+    // Ensure to close any commissioning session in progress - only if there is no commissioning
+    // in progress of any GPD intsnaces
+    for (uint8_t gpdIndex = 0; gpdIndex < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_COMMISSIONING_GPD_INSTANCES; gpdIndex++) {
+      if (gpdCommDataSaved[gpdIndex].commissionState != GP_SINK_COMM_STATE_IDLE) {
+        // At least one of the GPD instances is still commissioning, stop here.
+        return false;
+      }
+    }
+    sl_zigbee_af_green_power_server_commissioning_window_timeout_event_handler(commissioningWindowTimeout);
+  }
+  // Set the proxy options - either extend the commissioning window or exit based on the commissioningWindow value.
+  uint8_t proxyOptions = (commissioningWindow) ? (SL_ZIGBEE_AF_GP_PROXY_COMMISSIONING_MODE_OPTION_ACTION \
+                                                  | SL_ZIGBEE_AF_GP_PROXY_COMMISSIONING_MODE_EXIT_MODE_ON_COMMISSIONING_WINDOW_EXPIRATION) : 0;
 
   if (commissioningState.unicastCommunication) { //  based on the commission mode as decided by sink
     proxyOptions |= SL_ZIGBEE_AF_GP_PROXY_COMMISSIONING_MODE_OPTION_UNICAST_COMMUNICATION;
@@ -3496,36 +3549,37 @@ void sl_zigbee_af_green_power_cluster_gp_sink_commissioning_window_extend(uint16
   if (sl_zigbee_af_fill_command_green_power_cluster_gp_proxy_commissioning_mode_smart(proxyOptions,
                                                                                       commissioningWindow,
                                                                                       0) == 0) {
-    return;
+    // This indicates an error in the outgoing message preparation.
+    return false;
   }
-
+  sl_status_t status;
   sl_zigbee_aps_frame_t *apsFrame;
   apsFrame = sl_zigbee_af_get_command_aps_frame();
   apsFrame->sourceEndpoint = SL_ZIGBEE_GP_ENDPOINT;
   apsFrame->destinationEndpoint = SL_ZIGBEE_GP_ENDPOINT;
   if (commissioningState.proxiesInvolved) {
-    sl_status_t status = sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS, SL_ZIGBEE_NULL_NODE_ID, 0);
+    status = sl_zigbee_af_send_command_broadcast(SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS, SL_ZIGBEE_NULL_NODE_ID, 0);
     // Callback to inform the status of message submission to network
     sl_zigbee_af_green_power_cluster_commissioning_message_status_notification_cb(&commissioningState,
                                                                                   apsFrame,
                                                                                   SL_ZIGBEE_OUTGOING_BROADCAST,
                                                                                   SL_ZIGBEE_RX_ON_WHEN_IDLE_BROADCAST_ADDRESS,
                                                                                   status);
-    sl_zigbee_af_green_power_cluster_println("Extended Commissioning Status = %d", status);
   } else {
     #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_CLIENT_PRESENT
     // Put the proxy instance on this node commissioning mode so that it can accept a pairing from itself.
     // This is to ensure the node will be able to handle gpdf commands after pairig.
-    sl_status_t status = sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT, sl_zigbee_af_get_node_id());
+    status = sl_zigbee_af_send_command_unicast(SL_ZIGBEE_OUTGOING_DIRECT, sl_zigbee_af_get_node_id());
     // Callback to inform the status of message submission to network
     sl_zigbee_af_green_power_cluster_commissioning_message_status_notification_cb(&commissioningState,
                                                                                   apsFrame,
                                                                                   SL_ZIGBEE_OUTGOING_DIRECT,
                                                                                   sl_zigbee_af_get_node_id(),
                                                                                   status);
-    sl_zigbee_af_green_power_cluster_println("Extended Commissioning Status = %d", status);
     #endif // SL_CATALOG_ZIGBEE_GREEN_POWER_CLIENT_PRESENT
   }
+  sl_zigbee_af_green_power_cluster_println("%s Commissioning Status = %d", (commissioningWindow) ? "Extended" : "Closed", status);
+  return (status == SL_STATUS_OK) ? true : false;
 }
 
 // Returns the commissioning state of the sink.
@@ -3614,4 +3668,14 @@ void sl_zigbee_af_green_power_client_gpdf_sink_table_based_forward_cb(sl_zigbee_
       }
     }
   }
+}
+
+void sl_zigbee_af_green_power_cluster_gp_sink_commissioning_window_extend(uint16_t commissioningWindow)
+{
+  (void)commissioning_window_extend_or_close(commissioningWindow);
+}
+
+bool sl_zigbee_af_green_power_cluster_gp_sink_close_commissioning_window(void)
+{
+  return commissioning_window_extend_or_close(0);
 }

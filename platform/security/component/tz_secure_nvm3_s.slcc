@@ -1,5 +1,5 @@
 id: tz_secure_nvm3_s
-package: platform
+package: security_trustzone
 label: Internal NVM3 support for TrustZone secure library
 description: >-
   This component includes the NVM3 support needed internally by the TrustZone secure library when configured with ITS support.

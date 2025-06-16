@@ -174,6 +174,8 @@ typedef struct RAIL_MFM_PingPongBufferConfig {
   uint32_t bufferSizeWords;
 } RAIL_MFM_PingPongBufferConfig_t;
 
+#ifndef SLI_LIBRAIL_ALIAS
+
 /**
  * Set MFM ping-pong buffer.
  *
@@ -183,6 +185,8 @@ typedef struct RAIL_MFM_PingPongBufferConfig {
  */
 RAIL_Status_t RAIL_SetMfmPingPongFifo(RAIL_Handle_t railHandle,
                                       const RAIL_MFM_PingPongBufferConfig_t *config);
+
+#endif//SLI_LIBRAIL_ALIAS
 
 /** @} */ // end of MFM
 

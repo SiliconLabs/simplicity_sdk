@@ -7,10 +7,12 @@
 #include "cc_notification_io.h"
 #include "ZW_typedefs.h"
 
-ZW_WEAK bool cc_notification_write (void) {
+ZW_WEAK bool cc_notification_write(void)
+{
   return true;
 }
 
-ZW_WEAK bool cc_notification_read (void) {
+ZW_WEAK bool cc_notification_read(void)
+{
   return false;
 }

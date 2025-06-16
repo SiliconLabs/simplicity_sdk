@@ -28,14 +28,13 @@
  *
  ******************************************************************************/
 
-#include "app.h"
-#include "sl_common.h"
 #include "csr_generator.h"
+#include "sl_main_init.h"
 
 /**************************************************************************//**
  * Application Init.
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   csr_generate();
 }

@@ -1,6 +1,6 @@
 id: dmd_memlcd
 label: GLIB driver for Memory LCD
-package: platform
+package: glib
 description: >
   This component is the GLIB dot matrix display driver that support memory
   LCD displays. This component supports both monochrome and

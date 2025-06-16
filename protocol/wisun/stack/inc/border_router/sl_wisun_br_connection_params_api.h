@@ -38,7 +38,7 @@
 #include "sl_wisun_connection_params_api.h"
 
 /// API version used to check compatibility (do not edit when using this header)
-#define SL_WISUN_BR_PARAMS_API_VERSION 4
+#define SL_WISUN_BR_PARAMS_API_VERSION 5
 
 /**************************************************************************//**
  * @addtogroup SL_WISUN_TYPES
@@ -76,11 +76,11 @@ SL_PACK_START(1)
 struct sl_wisun_br_params_eapol_s {
   /// Security key lifetimes
   sl_wisun_key_lifetimes_params_t key_lifetimes;
-  /// Security protocol trickle timer
+  /// Deprecated
   sl_wisun_trickle_params_t sec_prot_trickle; // k is ignored/forced
-  /// Temporary neighbor link minimum timeout (seconds)
+  /// Deprecated
   uint16_t temp_min_timeout_s;
-  /// Security protocol trickle max expirations
+  /// Deprecated
   uint8_t sec_prot_trickle_expirations;
   /// Reserved, set to zero
   uint8_t reserved;
@@ -183,6 +183,20 @@ typedef struct sl_wisun_br_params_misc_s sl_wisun_br_params_misc;
 /// Misc parameter set
 typedef struct sl_wisun_br_params_misc_s sl_wisun_br_params_misc_t;
 
+/// Traffic parameter set
+SL_PACK_START(1)
+typedef struct sl_wisun_br_params_traffic_s {
+  /// Maximum Transmission Unit (MTU) for 6LoWPAN packets in bytes. A larger packet will be fragmented using 6LoWPAN fragmentation.
+  uint16_t lowpan_mtu;
+  /// Maximum Receive Unit (MRU) for fragmented IPv6 packets in bytes. A larger packet will be silently discarded.
+  uint16_t ipv6_mru;
+  /// Maximum number of 6LoWPAN/IPv6 fragments to send in a single EDFE transaction (0 to 10). 0 disables EDFE for fragmented packets.
+  uint8_t max_edfe_fragment_count;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
+} SL_ATTRIBUTE_PACKED sl_wisun_br_params_traffic_t;
+SL_PACK_END()
+
 /// BR parameter set
 SL_PACK_START(1)
 typedef struct {
@@ -209,6 +223,8 @@ typedef struct {
   sl_wisun_br_params_lfn_parent_t lfn_parent;
   /// Misc parameter set
   sl_wisun_br_params_misc_t misc;
+  /// Traffic parameter set
+  sl_wisun_br_params_traffic_t traffic;
   /// Maximum number of nodes supported by border router at once
   uint32_t pan_capacity;
   /// Enable authentication of FAN 1.0 routers
@@ -237,14 +253,14 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_TEST = {
     .trickle_pa = {
       .imin_s = 5,
       .imax_s = 60,
-      .k = 0
+      .k = 3
     }
   },
   .configuration = {
     .trickle_pc = {
       .imin_s = 5,
       .imax_s = 60,
-      .k = 0
+      .k = 3
     }
   },
   .eapol = {
@@ -263,12 +279,12 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_TEST = {
       .lfn_revocation_lifetime_reduction = 30,
     },
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0
     },
-    .temp_min_timeout_s = 330,
-    .sec_prot_trickle_expirations = 4,
+    .temp_min_timeout_s = 0,
+    .sec_prot_trickle_expirations = 0,
   },
   .dhcp = {
     .dhcp_address_lifetime_s = HOUR_TO_SEC(12)
@@ -297,6 +313,11 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_TEST = {
   .misc = {
     .temp_link_min_timeout_s = 260,
   },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
+  },
   .pan_capacity = 100,
   .enable_ffn10 = false
 };
@@ -308,14 +329,14 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_SMALL = 
     .trickle_pa = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 0
+      .k = 1
     }
   },
   .configuration = {
     .trickle_pc = {
       .imin_s = 15,
       .imax_s = 60,
-      .k = 0
+      .k = 1
     }
   },
   .eapol = {
@@ -334,12 +355,12 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_SMALL = 
       .lfn_revocation_lifetime_reduction = 30,
     },
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0
     },
-    .temp_min_timeout_s = 330,
-    .sec_prot_trickle_expirations = 4,
+    .temp_min_timeout_s = 0,
+    .sec_prot_trickle_expirations = 0,
   },
   .dhcp = {
     .dhcp_address_lifetime_s = HOUR_TO_SEC(12)
@@ -368,6 +389,11 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_SMALL = 
   .misc = {
     .temp_link_min_timeout_s = 260,
   },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
+  },
   .pan_capacity = 100,
   .enable_ffn10 = false
 };
@@ -379,14 +405,14 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_MEDIUM =
     .trickle_pa = {
       .imin_s = 60,
       .imax_s = 960,
-      .k = 0
+      .k = 1
     }
   },
   .configuration = {
     .trickle_pc = {
       .imin_s = 60,
       .imax_s = 960,
-      .k = 0
+      .k = 1
     }
   },
   .eapol = {
@@ -405,12 +431,12 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_MEDIUM =
       .lfn_revocation_lifetime_reduction = 30,
     },
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 120,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0
     },
-    .temp_min_timeout_s = 330,
-    .sec_prot_trickle_expirations = 4,
+    .temp_min_timeout_s = 0,
+    .sec_prot_trickle_expirations = 0,
   },
   .dhcp = {
     .dhcp_address_lifetime_s = DAY_TO_SEC(7)
@@ -439,6 +465,11 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_MEDIUM =
   .misc = {
     .temp_link_min_timeout_s = 260,
   },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
+  },
   .pan_capacity = 1000,
   .enable_ffn10 = false
 };
@@ -450,14 +481,14 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_LARGE = 
     .trickle_pa = {
       .imin_s = 120,
       .imax_s = 1536,
-      .k = 0
+      .k = 1
     }
   },
   .configuration = {
     .trickle_pc = {
       .imin_s = 120,
       .imax_s = 1536,
-      .k = 0
+      .k = 1
     }
   },
   .eapol = {
@@ -476,12 +507,12 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_LARGE = 
       .lfn_revocation_lifetime_reduction = 30,
     },
     .sec_prot_trickle = {
-      .imin_s = 60,
-      .imax_s = 240,
+      .imin_s = 0,
+      .imax_s = 0,
       .k = 0
     },
-    .temp_min_timeout_s = 750,
-    .sec_prot_trickle_expirations = 4,
+    .temp_min_timeout_s = 0,
+    .sec_prot_trickle_expirations = 0,
   },
   .dhcp = {
     .dhcp_address_lifetime_s = DAY_TO_SEC(30)
@@ -509,6 +540,11 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_LARGE = 
   },
   .misc = {
     .temp_link_min_timeout_s = 520,
+  },
+  .traffic = {
+    .lowpan_mtu = 1576,
+    .ipv6_mru = 1504,
+    .max_edfe_fragment_count = 5,
   },
   .pan_capacity = 10000,
   .enable_ffn10 = false

@@ -34,10 +34,11 @@
 #include <stdint.h>
 #include "printf.h"
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "app_process.h"
 #include "sl_simple_button_instances.h"
 #include "sl_rail_sdk_simple_assistance.h"
+#include "sl_rail_util_init.h"
 #include "demo-ui.h"
 #include "em_device.h"
 #if defined _SILICON_LABS_32B_SERIES_2
@@ -50,12 +51,12 @@
 #include "sl_rail_sdk_packet_assistant.h"
 #include "sl_rail_sdk_fifo_size_config.h"
 #include "sl_rail_sdk_channel_selector.h"
+#include "sl_code_classification.h"
 
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
 #endif
 
-#include "rail_types.h"
 #include "cmsis_compiler.h"
 
 // -----------------------------------------------------------------------------
@@ -104,7 +105,7 @@ static inline void set_light_state(uint8_t * payload, bool state);
 static inline void display_all_information(void);
 
 /**************************************************************************//**
- * Callback function for the RAIL_SetTimer API, restart the RAIL timer
+ * Callback function for the sl_rail_set_timer API, restart the RAIL timer
  *****************************************************************************/
 static inline void broadcast_timer_expired();
 
@@ -123,21 +124,21 @@ static void cli_light_side_light_bulb_toggle(void);
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void handle_advertise_state(RAIL_Handle_t rail_handle);
+static void handle_advertise_state(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * The READY state's function in the state machine
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void handle_ready_state(RAIL_Handle_t rail_handle);
+static void handle_ready_state(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Receive the wireless packet, and save it in a buffer
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void save_received_packet(RAIL_Handle_t rail_handle);
+static void save_received_packet(sl_rail_handle_t rail_handle);
 
 /**************************************************************************//**
  * Set the actual state in the transmit buffer
@@ -149,7 +150,7 @@ static void set_light_state_in_payload(void);
  *
  * @param[in] rail_handle
  *****************************************************************************/
-static void transmit_packet(RAIL_Handle_t rail_handle);
+static void transmit_packet(sl_rail_handle_t rail_handle);
 /**************************************************************************//**
  * Copy the Light's address to the RX FIFO
  *****************************************************************************/
@@ -180,10 +181,6 @@ static volatile bool light_state_broadcast = false;
 /// Contains the last RAIL Rx/Tx error events
 static volatile uint64_t current_rail_err = 0;
 
-/// Receive and Send FIFO
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t rx_fifo[SL_RAIL_SDK_RX_FIFO_SIZE];
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[SL_RAIL_SDK_TX_FIFO_SIZE];
-
 /// Transmit packet
 static uint8_t out_packet[TX_PAYLOAD_LENGTH] = {
   0x0F, 0x16, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66,
@@ -209,35 +206,28 @@ static bool light_bulb_toggle_required = false;
 // State change in the State machine required from PB1 button push
 static bool state_change_required = false;
 // Hold information about the incoming message
-static RAIL_RxPacketInfo_t packet_info;
+static sl_rail_rx_packet_info_t packet_info;
 // Status indicator of the RAIL API calls
-static RAIL_Status_t rail_status;
+static sl_rail_status_t rail_status;
 // Received message payload
 static uint8_t payload = 0;
 // Start of received payload
 static uint8_t *start_of_packet = 0;
+
+static uint8_t rx_buffer[SL_RAIL_SDK_RX_FIFO_SIZE];
+
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
-/******************************************************************************
- * Set up the rail TX fifo for later usage
- * @param[in] rail_handle Which rail handler should be updated
- *****************************************************************************/
-void set_up_tx_fifo(RAIL_Handle_t rail_handle)
-{
-  uint16_t allocated_tx_fifo_size = 0;
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle, tx_fifo, 0, SL_RAIL_SDK_TX_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == SL_RAIL_SDK_TX_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             SL_RAIL_SDK_TX_FIFO_SIZE);
-}
 
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
   if (current_rail_err != 0) {
     app_log_error("RAIL Error occurred\nEvents: %lld\n", current_rail_err);
     current_rail_err = 0;
@@ -256,26 +246,26 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   // Handle Rx events
-  if ( events & RAIL_EVENTS_RX_COMPLETION ) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if ( events & SL_RAIL_EVENTS_RX_COMPLETION ) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer, download it later at the state machine
-      RAIL_HoldRxPacket(rail_handle);
+      sl_rail_hold_rx_packet(rail_handle);
       CORE_ATOMIC_SECTION(
         packet_received++;
         )
     } else {
       // Handle Rx error
-      current_rail_err |= (events & RAIL_EVENTS_RX_COMPLETION);
+      current_rail_err |= (events & SL_RAIL_EVENTS_RX_COMPLETION);
     }
   }
   // Handle Tx events
-  if ( events & RAIL_EVENTS_TX_COMPLETION) {
-    if (!(events & RAIL_EVENT_TX_PACKET_SENT)) {
+  if ( events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (!(events & SL_RAIL_EVENT_TX_PACKET_SENT)) {
       // Handle Tx error
-      current_rail_err |= (events & RAIL_EVENTS_TX_COMPLETION);
+      current_rail_err |= (events & SL_RAIL_EVENTS_TX_COMPLETION);
     }
   }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -286,7 +276,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 /******************************************************************************
  * Button callback, called if any button is pressed or released.
  *****************************************************************************/
-void sl_button_on_change(const sl_button_t *handle)
+SL_CODE_RAM void sl_button_on_change(const sl_button_t *handle)
 {
   // Check if any button was pressed
   if (sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED) {
@@ -302,7 +292,7 @@ void sl_button_on_change(const sl_button_t *handle)
 #endif
 }
 
-void handle_advertise_state(RAIL_Handle_t rail_handle)
+void handle_advertise_state(sl_rail_handle_t rail_handle)
 {
   // Enter actual state, code just run once
   if (state_changed) {
@@ -322,10 +312,10 @@ void handle_advertise_state(RAIL_Handle_t rail_handle)
   // Send broadcast message
   if (schedule_broadcast) {
     schedule_broadcast = false;
-    RAIL_SetTimer(rail_handle,
-                  DEMO_LIGHT_STATUS_BROADCAST_INTERVAL,
-                  RAIL_TIME_DELAY,
-                  &broadcast_timer_expired);
+    sl_rail_set_timer(rail_handle,
+                      DEMO_LIGHT_STATUS_BROADCAST_INTERVAL,
+                      SL_RAIL_TIME_DELAY,
+                      &broadcast_timer_expired);
     // Send broadcast message
     transmit_packet(rail_handle);
   }
@@ -347,7 +337,7 @@ void handle_advertise_state(RAIL_Handle_t rail_handle)
   }
 }
 
-void handle_ready_state(RAIL_Handle_t rail_handle)
+void handle_ready_state(sl_rail_handle_t rail_handle)
 {
   // Enter actual state, code just runs once
   if (state_changed) {
@@ -373,10 +363,10 @@ void handle_ready_state(RAIL_Handle_t rail_handle)
   // Send broadcast message
   if (schedule_broadcast) {
     schedule_broadcast = false;
-    RAIL_SetTimer(rail_handle,
-                  DEMO_LIGHT_STATUS_BROADCAST_INTERVAL,
-                  RAIL_TIME_DELAY,
-                  &broadcast_timer_expired);
+    sl_rail_set_timer(rail_handle,
+                      DEMO_LIGHT_STATUS_BROADCAST_INTERVAL,
+                      SL_RAIL_TIME_DELAY,
+                      &broadcast_timer_expired);
     // Send broadcast message
     transmit_packet(rail_handle);
   }
@@ -432,7 +422,7 @@ void copy_light_addr_to_payload(void)
 /******************************************************************************
  * Send a wireless pocket
  *****************************************************************************/
-void transmit_packet(RAIL_Handle_t rail_handle)
+void transmit_packet(sl_rail_handle_t rail_handle)
 {
   copy_light_addr_to_payload();
   // Set current light state.
@@ -446,9 +436,9 @@ void transmit_packet(RAIL_Handle_t rail_handle)
   }
   set_light_state_in_payload();
   prepare_packet(rail_handle, out_packet, sizeof(out_packet));
-  rail_status = RAIL_StartTx(rail_handle, get_selected_channel(), RAIL_TX_OPTIONS_DEFAULT, NULL);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_StartTx() result: %lu ", rail_status);
+  rail_status = sl_rail_start_tx(rail_handle, get_selected_channel(), SL_RAIL_TX_OPTIONS_DEFAULT, NULL);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_start_tx() result: %lu ", rail_status);
   }
 }
 
@@ -514,20 +504,22 @@ static void cli_switch_side_light_bulb_toggle(void)
 /******************************************************************************
  * Receive the wireless packet, and save it in a buffer
  *****************************************************************************/
-static void save_received_packet(RAIL_Handle_t rail_handle)
+static void save_received_packet(sl_rail_handle_t rail_handle)
 {
-  RAIL_RxPacketHandle_t rx_packet_handle;
-  rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
-  if (rx_packet_handle == RAIL_RX_PACKET_HANDLE_INVALID) {
-    app_log_error("RAIL_GetRxPacketInfo() error: RAIL_RX_PACKET_HANDLE_INVALID\n");
+  sl_rail_rx_packet_handle_t rx_packet_handle;
+  rx_packet_handle = sl_rail_get_rx_packet_info(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE, &packet_info);
+  if (rx_packet_handle == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    app_log_error("sl_rail_get_rx_packet_info() error: SL_RAIL_RX_PACKET_HANDLE_INVALID\n");
   }
-  uint16_t packet_size = unpack_packet(rx_fifo, &packet_info, &start_of_packet);
-  if (packet_size == 0) {
-    app_log_warning("Received packet size is :%d", packet_size);
+  if (packet_info.packet_bytes <= SL_RAIL_SDK_RX_FIFO_SIZE) {
+    uint16_t packet_size = unpack_packet(rail_handle, rx_buffer, &packet_info, &start_of_packet);
+    if (packet_size == 0) {
+      app_log_warning("Received packet size is :%d", packet_size);
+    }
   }
-  rail_status = RAIL_ReleaseRxPacket(rail_handle, RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_ReleaseRxPacket() result: %lu", rail_status);
+  rail_status = sl_rail_release_rx_packet(rail_handle, SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_release_rx_packet() result: %lu", rail_status);
   }
 }
 
@@ -575,7 +567,7 @@ static void display_all_information(void)
 }
 
 /******************************************************************************
- * Callback function for the RAIL_SetTimer API
+ * Callback function for the sl_rail_set_timer API
  *****************************************************************************/
 static inline void broadcast_timer_expired()
 {

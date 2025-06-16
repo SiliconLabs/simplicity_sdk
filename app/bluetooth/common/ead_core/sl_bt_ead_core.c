@@ -384,7 +384,7 @@ sl_status_t sl_bt_ead_unpack_decrypt(sl_bt_ead_key_material_p key_material,
                                      uint8_t                  *length)
 {
   sl_status_t result = SL_STATUS_INVALID_TYPE;
-  uint32_t data_length;
+  uint8_t data_length;
 
   if (key_material == NULL
       || data == NULL
@@ -395,7 +395,7 @@ sl_status_t sl_bt_ead_unpack_decrypt(sl_bt_ead_key_material_p key_material,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  data_length = (uint32_t)(*data)[0];
+  data_length = (*data)[0];
   // Check if the encrypted data has the minimum expected size
   if (data_length < SL_BT_EAD_PACKET_OVERHEAD) {
     result = SL_STATUS_INVALID_COUNT;
@@ -414,10 +414,10 @@ sl_status_t sl_bt_ead_unpack_decrypt(sl_bt_ead_key_material_p key_material,
     data_length -= SL_BT_EAD_PACKET_REDUCED_OVERHEAD;
 
     if (result == SL_STATUS_OK) {
-      uint32_t start_index = SL_BT_EAD_HEADER_SIZE + SL_BT_EAD_RANDOMIZER_SIZE;
-      uint32_t mic_index = start_index + data_length;
+      uint16_t start_index = SL_BT_EAD_HEADER_SIZE + SL_BT_EAD_RANDOMIZER_SIZE;
+      uint16_t mic_index = start_index + data_length;
 
-      *length = (uint8_t)data_length;
+      *length = data_length;
       result = sl_bt_ead_decrypt(key_material,
                                  &nonce,
                                  *data + mic_index,
@@ -444,7 +444,7 @@ sl_status_t sl_bt_ead_pack_ad_data(sl_bt_ead_ad_structure_p ad_info,
                                    uint8_t         *pack_buf)
 {
   sl_status_t result = SL_STATUS_WOULD_OVERFLOW;
-  uint32_t    data_index;
+  uint8_t     data_index;
 
   // Check for invalid parameters
   if (ad_info == NULL
@@ -500,7 +500,7 @@ sl_status_t sl_bt_ead_unpack_ad_data(uint8_t                  *packed_data,
                                      sl_bt_ead_ad_structure_p ad_info)
 {
   sl_status_t result = SL_STATUS_INVALID_TYPE;
-  uint32_t data_length;
+  uint8_t data_length;
 
   // Check for invalid parameters
   if (ad_info == NULL
@@ -515,7 +515,7 @@ sl_status_t sl_bt_ead_unpack_ad_data(uint8_t                  *packed_data,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  data_length = (uint32_t)packed_data[0];
+  data_length = packed_data[0];
   ad_info->ad_type = packed_data[1];
 
   // Check if the encrypted data has the minimum expected size

@@ -68,6 +68,8 @@ uint8_t sl_zigbee_gp_proxy_table_lookup(sl_zigbee_gp_address_t *addr);
  * @param forwardingRadius forwarding radius
  *
  * @return true on success and false for failure.
+ * @internal SL_ZIGBEE_IPC_ARGS
+ * {# sinkIeeeAddress | length: EUI64_SIZE | max: EUI64_SIZE #}
  */
 bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
                                                  sl_zigbee_gp_address_t* addr,
@@ -79,6 +81,28 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
                                                  sl_zigbee_key_data_t *gpdKey,
                                                  uint32_t gpdSecurityFrameCounter,
                                                  uint8_t forwardingRadius);
+
+/** @brief Clear proxy table.
+ *
+ * This function clears all entries in the proxy table.
+ *
+ * @returns Nothing
+ *
+ */
+void sl_zigbee_gp_clear_proxy_table(void);
+
+/** @brief Remove an entry in proxy table.
+ *
+ * This function sets status of an entry at a supplied index in the proxy table to
+ * unused. If index is out of range it is ignored. A valid index is always less than
+ * proxy table size.
+ *
+ * @param index Proxy table index of the entry to be removed.
+ *
+ * @returns Nothing.
+ *
+ */
+void sl_zigbee_gp_proxy_table_remove_entry(uint8_t index);
 
 /** @} END addtogroup */
 

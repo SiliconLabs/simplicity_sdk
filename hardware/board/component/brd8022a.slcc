@@ -1,7 +1,7 @@
 !!omap
 - id: brd8022a
 - label: BRD8022A
-- package: platform
+- package: boards
 - description: Board support for BRD8022A.
 - category: Platform|Board|Expansion Board
 - quality: production

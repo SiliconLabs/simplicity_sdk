@@ -35,11 +35,7 @@
 #include "sl_btmesh_provisioner_config.h"
 
 /***************************************************************************//**
- * @defgroup provisioner
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup provisioner
+ * @addtogroup btmesh_provisioner
  * @{
  ******************************************************************************/
 
@@ -63,6 +59,6 @@ void sl_btmesh_provisioner_on_init(sl_status_t result);
  ******************************************************************************/
 void sl_bt_provisioner_on_event(sl_bt_msg_t* evt);
 
-/** @} (end addtogroup provisioner) */
+/** @} (end addtogroup btmesh_provisioner) */
 
 #endif /* SL_BTMESH_PROVISIONEE_H */

@@ -176,31 +176,31 @@ void cli_send_packet(sl_cli_command_arg_t *arguments)
 void cli_receive_packet(sl_cli_command_arg_t *arguments)
 {
   uint8_t rxForward = sl_cli_get_argument_uint8(arguments, 0);
-  RAIL_Handle_t rail_handle = sl_rail_sdk_util_get_handle();
+  sl_rail_handle_t rail_handle = sl_rail_sdk_util_get_handle();
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
 
   const char* str_rx_fw = "";
   if (rxForward == 0) {
     rx_requested = false;
     str_rx_fw = OFF;
-    rail_status = RAIL_Idle(rail_handle, RAIL_IDLE, true);
+    rail_status = sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
     app_log_info("Received packets: %s\n", str_rx_fw);
   } else if (rxForward == 1) {
     rx_requested = true;
     str_rx_fw = ON;
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
-    rail_status = RAIL_StartRx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
+    rail_status = sl_rail_start_rx(rail_handle, sl_rail_sdk_ieee802154_get_channel(), NULL);
 #elif defined SL_CATALOG_RAIL_SDK_BLE_SUPPORT_PRESENT
-    rail_status = RAIL_StartRx(rail_handle, BLE_CHANNEL, NULL);
+    rail_status = sl_rail_start_rx(rail_handle, BLE_CHANNEL, NULL);
 #else
 #endif
     app_log_info("Received packets: %s\n", str_rx_fw);
   } else {
     app_log_info("Wrong parameter\n");
   }
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_StartRx() or RAIL_Idle() result: %lu\n",
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_start_rx() or sl_rail_idle result: %lu\n",
                     rail_status);
   }
 #if defined(SL_CATALOG_KERNEL_PRESENT)
@@ -412,8 +412,8 @@ void cli_cfg_dw(sl_cli_command_arg_t *arguments)
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
 
   if (sl_rail_sdk_ieee802154_get_std() != SL_RAIL_SDK_IEEE802154_STD_IEEE802154_2P4GHZ) {
-#if RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX \
-    && RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX
+#if SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_RX \
+    && SL_RAIL_IEEE802154_SUPPORTS_G_UNWHITENED_TX
     uint8_t arg_dw = sl_cli_get_argument_uint8(arguments, 0);
 
     if ((arg_dw == 1) || (arg_dw == 0)) {
@@ -456,7 +456,7 @@ void cli_cfg_crc(sl_cli_command_arg_t *arguments)
 #ifdef SL_CATALOG_RAIL_SDK_IEEE802154_SUPPORT_PRESENT
 
   if (sl_rail_sdk_ieee802154_get_std() != SL_RAIL_SDK_IEEE802154_STD_IEEE802154_2P4GHZ) {
-#if RAIL_FEAT_IEEE802154_G_4BYTE_CRC_SUPPORTED
+#if SL_RAIL_IEEE802154_SUPPORTS_G_4_BYTE_CRC
     uint8_t arg_crc = sl_cli_get_argument_uint8(arguments, 0);
 
     if ((arg_crc == 2) || (arg_crc == 4)) {

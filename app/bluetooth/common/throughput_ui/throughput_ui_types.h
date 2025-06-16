@@ -69,7 +69,7 @@ typedef enum {
 #define THROUGHPUT_UI_STATE_UNINITIALIZED_TEXT   "ST: Uninited"
 #define THROUGHPUT_UI_STATE_UNINITIALIZING_TEXT  "ST: Uninit"
 
-#define THROUGHPUT_UI_TX_POWER_FORMAT    "TX: %+4d dBm"
+#define THROUGHPUT_UI_TX_POWER_FORMAT            "TX: %+4d dBm"
 #define THROUGHPUT_UI_RSSI_FORMAT                "RSSI: %+4d dBm"
 #define THROUGHPUT_UI_INTERVAL_FORMAT            "INTERVAL: %04d"
 #define THROUGHPUT_UI_LATENCY_FORMAT             "LATENCY: %04d"

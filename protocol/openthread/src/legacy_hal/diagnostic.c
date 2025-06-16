@@ -623,7 +623,9 @@ void halInternalAssertFailed(const char * filename, int linenumber)
   sl_iostream_printf(SL_IOSTREAM_STDOUT, "\r\n[ASSERT:%s:%d]\r\n", filename, linenumber);
 #endif // SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT
 
+#if defined(SL_CATALOG_LEGACY_HAL_WDOG_PRESENT)
   halResetWatchdog();              // In case we're close to running out.
+#endif // SL_CATALOG_LEGACY_HAL_WDOG_PRESENT
   INTERRUPTS_OFF();
 
 #if defined (__ICCARM__) || defined (__GNUC__)

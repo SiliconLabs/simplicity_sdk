@@ -33,6 +33,7 @@
 
 #include "sl_enum.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,57 +88,72 @@ typedef struct {
   uint16_t family;      ///< Device family number. (0xFFFF if unavailable)
 } sl_hal_system_chip_revision_t;
 
-/// ADC Calibration DEVINFO Structures.
+/// ADC calibration DEVINFO structure.
 typedef struct sl_hal_system_devinfo_adc_cal_data_t {
-  uint8_t trim_vros0;
-  uint8_t trim_vros1;
-  uint8_t trim_gain_4x;
-  uint8_t trim_gain_0x3_int;
+  uint8_t trim_vros0;        ///< Trim VROS0.
+  uint8_t trim_vros1;        ///< Trim VROS1.
+  uint8_t trim_gain_4x;      ///< Trim gain 4x.
+  uint8_t trim_gain_0x3_int; ///< Trim gain 0.325x internal.
 } sl_hal_system_devinfo_adc_cal_data_t;
 
+/// ADC offset DEVINFO structure.
 typedef struct sl_hal_system_devinfo_adc_offset_t {
-  uint8_t trim_off_1x;
-  uint8_t trim_off_2x;
-  uint8_t trim_off_4x;
-  uint8_t dummy_byte;
+  uint8_t trim_off_1x; ///< Trim offset 1x.
+  uint8_t trim_off_2x; ///< Trim offset 2x.
+  uint8_t trim_off_4x; ///< Trim offset 4x.
+  uint8_t dummy_byte;  ///< Dummy byte.
 } sl_hal_system_devinfo_adc_offset_t;
 
+/// ADC DEVINFO structure.
 typedef struct sl_hal_system_devinfo_adc_t {
-  sl_hal_system_devinfo_adc_cal_data_t cal_data;
-  sl_hal_system_devinfo_adc_offset_t   offset;
+  sl_hal_system_devinfo_adc_cal_data_t cal_data; ///< DEVINFO calibration data.
+  sl_hal_system_devinfo_adc_offset_t   offset;   ///< DEVINFO offset data.
 } sl_hal_system_devinfo_adc_t;
 
 /// Temperature DEVINFO Structure.
 typedef struct sl_hal_system_devinfo_temperature_t {
-  uint16_t emu_temp_room;
-  uint16_t cal_temp;
+  uint16_t emu_temp_room; ///< Temperature value.
+  uint16_t cal_temp;      ///< Temperature calibration.
 } sl_hal_system_devinfo_temperature_t;
 
 /// Chip features Structure.
 typedef struct sl_hal_system_features {
-  char feature1;
-  char feature2;
-  char feature3;
+  char feature1; ///< Chip feature 1.
+  char feature2; ///< Chip feature 2.
+  char feature3; ///< Chip feature 3.
 } sl_hal_system_features_t;
 
 /*******************************************************************************
  **************************   GLOBAL CONSTANTS   *******************************
  ******************************************************************************/
-
+/// DEVINFO ADC reset values.
 extern const sl_hal_system_devinfo_adc_t SL_HAL_SYSTEM_DEVINFO_ADC_RESET_VALUES;
-
+/// DEVINFO temperature reset values.
 extern const sl_hal_system_devinfo_temperature_t SL_HAL_SYSTEM_DEVINFO_TEMPERATURE_RESET_VALUES;
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
 
+/**************************************************************************//**
+ * @brief
+ *   Chip initialization routine for revision errata workarounds.
+ *
+ * @note
+ *   This function must be called immediately in main().
+ *
+ * This initialization function configures the device to a state
+ * as similar to later revisions as possible to improve software compatibility
+ * with newer parts. See the device-specific errata for details.
+ *****************************************************************************/
+void sl_hal_system_init(void);
+
 /*******************************************************************************
  * @brief
  *   Get the chip revision.
  *
- * @param [out]
- *   rev Pointer to return the chip revision to.
+ * @param[out] rev
+ *   Pointer to return the chip revision to.
  *
  * @warning
  *   The chip revision structure may be returned with either the partnumber or
@@ -191,7 +207,7 @@ uint32_t sl_hal_system_get_hfrcodpll_band_calibration(uint32_t frequency);
  * @brief
  *    Get a factory calibration value for HFRCOEM23 oscillator.
  *
- * @param [in]
+ * @param[in] frequency
  *    HFRCOEM23 frequency for which to retrieve calibration.
  *
  * @return
@@ -322,7 +338,7 @@ void sl_hal_system_get_temperature_info(sl_hal_system_devinfo_temperature_t *inf
  * @brief
  *   Set floating point co-processor (FPU) access mode.
  *
- * @param[in] accessMode
+ * @param[in] access_mode
  *   Floating point co-processor access mode.
  ******************************************************************************/
 void sl_hal_system_fpu_set_access_mode(sl_hal_system_fpu_access_t access_mode);
@@ -335,10 +351,64 @@ void sl_hal_system_fpu_set_access_mode(sl_hal_system_fpu_access_t access_mode);
  ******************************************************************************/
 void sl_hal_system_get_adc_calibration_info(sl_hal_system_devinfo_adc_t *info);
 
+/***************************************************************************//**
+ * @brief
+ *   Check if a debugger is connected (and debug session activated).
+ *
+ * @details
+ *   Used to make run-time decisions depending on whether or not a debug session
+ *   has been active since last reset, i.e., using a debug probe or similar. In
+ *   some cases, special handling is required in that scenario.
+ *
+ * @return
+ *   True if a debug session is active since last reset, otherwise false.
+ ******************************************************************************/
+bool sl_hal_system_is_debugger_connected(void);
+
 /** @} (end addtogroup system) */
 
 #ifdef __cplusplus
 }
 #endif
+
+/* *INDENT-OFF* */
+/****************************************************************************//**
+ * @addtogroup system SYSTEM - System Utils
+ * @{
+ *
+ * @n @section system_example Example
+ *
+ *  @code{.c}
+ *  {
+ *    // Get chip revision information
+ *    sl_hal_system_chip_revision_t rev;
+ *    sl_hal_system_get_chip_revision(&rev);
+ *
+ *    // Print chip revision info
+ *    printf("Chip revision: %d.%d, Part number: 0x%04X, Family: 0x%04X\n",
+ *           rev.major, rev.minor, rev.part_number, rev.family);
+ *
+ *    // Get unique device identifier
+ *    uint64_t unique_id = sl_hal_system_get_unique();
+ *
+ *    // Get production revision
+ *    uint8_t prod_rev = sl_hal_system_get_prod_rev();
+ *
+ *    // Get memory sizes
+ *    uint16_t flash_size_kb = sl_hal_system_get_flash_size();
+ *    uint16_t sram_size_kb = sl_hal_system_get_sram_size();
+ *    uint32_t sram_base = sl_hal_system_get_sram_base_address();
+ *
+ *    // Get security capability
+ *    sl_hal_system_security_capability_t sec_cap = sl_hal_system_get_security_capability();
+ *
+ *    // The system must be initialized at the beginning of main()
+ *    sl_hal_system_init();
+ *  }
+ *  @endcode
+ *
+ * @} (end addtogroup system)
+ *******************************************************************************/
+/* *INDENT-ON* */
 
 #endif /* #ifndef _SL_HAL_SYSTEM_GENERIC_H */

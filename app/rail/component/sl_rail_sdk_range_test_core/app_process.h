@@ -34,7 +34,6 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -63,10 +62,8 @@ typedef enum {
 /*******************************************************************************
  * The function is used for Application logic.
  * @brief Application state machine, called infinitely
- *
- * @param[in] pointer Null pointer to keep style with other sample apps
  ******************************************************************************/
-void app_process_action(RAIL_Handle_t pointer);
+void app_process_action(void);
 
 /*******************************************************************************
  * State set for other part of the application.

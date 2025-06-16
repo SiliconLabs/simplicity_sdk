@@ -5,7 +5,7 @@
  * Reference implementation of a CS host with initiator and reflector support.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -51,6 +51,7 @@
 #include "cs_reflector.h"
 #include "cs_reflector_config.h"
 #include "cs_acp.h"
+#include "cs_result.h"
 #include "cs_initiator_client.h"
 #include "cs_antenna.h"
 #include "extended_result.h"
@@ -60,7 +61,7 @@
 #define MAX_CONNECTIONS                             4u
 // MAX_INITIATOR_INSTANCES should be less or equal to the CS_INITIATOR_MAX_CONNECTIONS in the CS NCP example.
 #define MAX_INITIATOR_INSTANCES                     MAX_CONNECTIONS
-// MAX_REFLECTOR_INSTANCES should be less or equal to the CS_REFLECTOR_MAX_CONNECTIONS in the CS NCP example.
+// MAX_REFLECTOR_INSTANCES should be less or equal to the SL_BT_CONFIG_MAX_CONNECTIONS in the CS NCP example.
 #define MAX_REFLECTOR_INSTANCES                     MAX_CONNECTIONS
 
 // Extended result format, used by tooling.
@@ -83,55 +84,65 @@
 #define CREATE_INITATOR_MSG_LEN (sizeof(cs_acp_cmd_id_t) + sizeof(cs_acp_create_initiator_cmd_data_t))
 #define INITATOR_ACTION_MSG_LEN (sizeof(cs_acp_cmd_id_t) + sizeof(cs_acp_initiator_action_cmd_data_t))
 
-static uuid_128 ras_service_uuid = {
-  .data = { 0xf3, 0x20, 0x18, 0xc7, 0x32, 0x2d, 0xc7, 0xab, 0xcf, 0x46, 0xf7, 0xff, 0x70, 0x9e, 0xb9, 0xbb }
-};
-
 // Optstring argument for getopt
-#define OPTSTRING NCP_HOST_OPTSTRING APP_LOG_OPTSTRING "m:R:I:F:wo:p:a:q:TPh"
+#define OPTSTRING NCP_HOST_OPTSTRING APP_LOG_OPTSTRING "m:R:I:F:wo:p:a:q:s:TPhM:"
 
 // Usage info
-#define USAGE APP_LOG_NL "%s " NCP_HOST_USAGE APP_LOG_USAGE                                                      \
-  "\n[-m <cs_mode>] [-R <max_reflector_instances>] [-I <max_initiator_instances>] [-F <reflector_ble_address>] " \
-  "[-w] [-o] [-p <channel_map_preset>] [-a <cs_tone_antenna_config_idx_req>] [-q <cs_sync_antenna_req>] [-T] [-P] [-h]" APP_LOG_NL
+#define USAGE APP_LOG_NL "%s " NCP_HOST_USAGE APP_LOG_USAGE                                                \
+  "\n[-m <cs_main_mode>] [-M <cs_sub_mode>] [-R <max_reflector_instances>] [-I <max_initiator_instances>]" \
+  "[-F <reflector_ble_address>] [-w] [-o] [-p <channel_map_preset>] [-a <cs_tone_antenna_config_idx_req>]" \
+  "[-q <cs_sync_antenna_req>] [-s <cs_procedure_scheduling>] [-T] [-P] [-h]" APP_LOG_NL
 
 // Detailed argument list
-#define CS_HOST_OPTIONS                                                      \
-  "    -m  CS mode.\n"                                                       \
-  "        <mode>         Integer representing CS mode, default: 2, PBR.\n"  \
-  "        1 : RTT\n"                                                        \
-  "        2 : PBR\n"                                                        \
-  "    -R  Maximum number of reflector instances, default: 1\n"              \
-  "        <max_reflector_instances>\n"                                      \
-  "    -I  Maximum number of initiator instances, default: 1\n"              \
-  "        <max_initiator_instances>\n"                                      \
-  "    -F  Enable reflector BLE address filtering in format:\n"              \
-  "        AA:BB:CC:DD:EE:FF or aabbccddeeff\n"                              \
-  "        <reflector_ble_address>\n"                                        \
-  "    -w  Use wired antenna offset\n"                                       \
-  "    -o  Object tracking mode, default: 0\n"                               \
-  "        0 : moving object tracking (up to 5 km/h) (REAL_TIME_BASIC)\n"    \
-  "        1 : stationary object tracking (STATIC_HIGH_ACCURACY)\n"          \
-  "    -p  Pre-set parameters for channel map selection, default: 2\n"       \
-  "        0 : low (channel spacing: 1, number of channels: 20)\n"           \
-  "        1 : medium (channel spacing: 2, number of channels: 38)\n"        \
-  "        2 : high (channel spacing: 1, number of channels: 72)\n"          \
-  "        3 : load custom from configuration macro CS_CUSTOM_CHANNEL_MAP\n" \
-  "    -a  Antenna configuration index for antenna switching, default: 7\n"  \
-  "        0 : Single antennas on both sides\n"                              \
-  "        1 : Dual antenna initiator & single antenna reflector\n"          \
-  "        4 : Single antenna initiator & dual antenna reflector\n"          \
-  "        7 : Dual antennas on both sides\n"                                \
-  "        Note: considered only with CS mode: PBR!\n"                       \
-  "    -q  Antenna usage for CS SYNC packets, default: 0xFE\n"               \
-  "        1 : use antenna ID1 only\n"                                       \
-  "        2 : use antenna ID2 only\n"                                       \
-  "        0xFE : Switching between antennas for each channel\n"             \
-  "        Note: considered only with CS mode: RTT!\n"                       \
-  "    -T  Enable RTT trace including BGAPI messages and RTL log.\n"         \
-  "        Note that the RTT blocks the target if no client is connected.\n" \
-  "    -P  Use 1M connection PHY\n"                                          \
-  "        Note: Default is 2M"
+#define CS_HOST_OPTIONS                                                            \
+  "    -m  CS main mode.\n"                                                        \
+  "        <cs_main_mode> Integer representing CS main mode, default: 2, PBR.\n"   \
+  "        1 : RTT\n"                                                              \
+  "        2 : PBR\n"                                                              \
+  "        Note: see -M\n"                                                         \
+  "    -M  CS sub mode\n"                                                          \
+  "        <cs_sub_mode> Integer representing CS sub mode, default: No sub mode\n" \
+  "        1: RTT\n"                                                               \
+  "        255: no sub mode\n"                                                     \
+  "        Note: Only main mode = PBR, sub mode = RTT supported now\n"             \
+  "        see -m\n"                                                               \
+  "    -R  Maximum number of reflector instances, default: 1\n"                    \
+  "        <max_reflector_instances>\n"                                            \
+  "    -I  Maximum number of initiator instances, default: 1\n"                    \
+  "        <max_initiator_instances>\n"                                            \
+  "    -F  Enable reflector BLE address filtering in format:\n"                    \
+  "        AA:BB:CC:DD:EE:FF or aabbccddeeff\n"                                    \
+  "        <reflector_ble_address>\n"                                              \
+  "    -w  Use wired antenna offset\n"                                             \
+  "    -o  Object tracking mode, default: 2\n"                                     \
+  "        0 : moving object tracking (REAL_TIME_BASIC)\n"                         \
+  "        1 : stationary object tracking (STATIC_HIGH_ACCURACY)\n"                \
+  "        2 : moving object tracking fast (REAL_TIME_FAST)\n"                     \
+  "    -p  Pre-set parameters for channel map selection, default: 2\n"             \
+  "        0 : low (channel spacing: 1, number of channels: 20)\n"                 \
+  "        1 : medium (channel spacing: 2, number of channels: 38)\n"              \
+  "        2 : high (channel spacing: 1, number of channels: 72)\n"                \
+  "        3 : load custom from configuration macro CS_CUSTOM_CHANNEL_MAP\n"       \
+  "    -a  Antenna configuration index for antenna switching, default: 7\n"        \
+  "        0 : Single antennas on both sides\n"                                    \
+  "        1 : Dual antenna initiator & single antenna reflector\n"                \
+  "        4 : Single antenna initiator & dual antenna reflector\n"                \
+  "        7 : Dual antennas on both sides\n"                                      \
+  "        Note: considered only with CS main mode: PBR!\n"                        \
+  "    -q  Antenna usage for CS SYNC packets, default: 0xFE\n"                     \
+  "        1 : use antenna ID1 only\n"                                             \
+  "        2 : use antenna ID2 only\n"                                             \
+  "        0xFE : Switching between antennas for each channel\n"                   \
+  "        Note: considered only with CS main mode: RTT!\n"                        \
+  "    -s  Optimized procedure scheduling\n"                                       \
+  "        0 : Optimized for frequency update\n"                                   \
+  "        1 : Optimized for energy consumption\n"                                 \
+  "        2 : Custom\n"                                                           \
+  "        Note: Default is frequency optimized procedure scheduling\n"            \
+  "    -T  Enable RTT trace including BGAPI messages and RTL log.\n"               \
+  "        Note that the RTT blocks the target if no client is connected.\n"       \
+  "    -P  Use 1M connection PHY\n"                                                \
+  "        Note: Default is 2M\n"
 
 // Options info
 #define OPTIONS    \
@@ -177,6 +188,8 @@ cs_host_state_t cs_host_state = {
   .trace = false
 };
 
+uint16_t service_uuid = 0x185B; // CS RAS Service UUID
+
 static rtl_config_t rtl_config = RTL_CONFIG_DEFAULT;
 static cs_reflector_config_t reflector_config = REFLECTOR_CONFIG_DEFAULT;
 static cs_initiator_config_t initiator_config = INITIATOR_CONFIG_DEFAULT;
@@ -184,10 +197,13 @@ static cs_initiator_config_t initiator_config = INITIATOR_CONFIG_DEFAULT;
 static bool initiator_cs_tone_antenna_config_index_set = false;
 static bool initiator_cs_sync_antenna_req_set = false;
 
-static char *antenna_usage_to_str(const cs_initiator_config_t *config);
+static const char *antenna_usage_to_str(const cs_initiator_config_t *config);
+static const char *algo_mode_to_str(uint8_t algo_mode);
 static void enable_trace(void);
 static void disable_trace(void);
-static void cs_on_result(const cs_acp_result_evt_t *result, uint8_t connection);
+static void cs_on_result(const uint8_t conn_handle,
+                         const uint8_t *result,
+                         uint8_t result_len);
 static void cs_on_intermediate_result(const cs_acp_intermediate_result_evt_t *intermediate_result,
                                       uint8_t connection);
 static void cs_on_error(uint8_t conn_handle,
@@ -195,8 +211,10 @@ static void cs_on_error(uint8_t conn_handle,
                         sl_status_t sc);
 static void on_connection_opened_with_initiator(uint8_t conn_handle);
 static void on_connection_opened_with_reflector(uint8_t conn_handle);
+static void create_initiator(uint8_t conn_handle);
 static void on_connection_closed(uint8_t conn_handle);
 static void stop_procedure(void);
+static void get_target_config(void);
 
 /******************************************************************************
  * Application initialization
@@ -205,7 +223,8 @@ void app_init(int argc, char *argv[])
 {
   sl_status_t sc;
   int cli_opt;
-  int cs_mode = sl_bt_cs_mode_pbr;
+  int cs_main_mode = sl_bt_cs_mode_pbr;
+  int cs_sub_mode = sl_bt_cs_submode_disabled;
   bool max_initiator_instances_set = false;
   bool max_reflector_instances_set = false;
   unsigned int arg_data;
@@ -232,7 +251,7 @@ void app_init(int argc, char *argv[])
         // Mode.
         // 1 - RTT
         // 2 - Phase based
-        cs_mode = atoi(optarg);
+        cs_main_mode = atoi(optarg);
         break;
 
       case 'R':
@@ -299,7 +318,8 @@ void app_init(int argc, char *argv[])
         int object_tracking_mode = atoi(optarg);
 
         if (object_tracking_mode != SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC
-            && object_tracking_mode != SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY) {
+            && object_tracking_mode != SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
+            && object_tracking_mode != SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST) {
           app_log_info(APP_PREFIX "Invalid object tracking mode (%d) provided!" APP_LOG_NL, object_tracking_mode);
           exit(EXIT_FAILURE);
         } else {
@@ -318,7 +338,7 @@ void app_init(int argc, char *argv[])
           app_log_error(APP_PREFIX "Unsupported preset (%d) provided!" APP_LOG_NL, preset);
           exit(EXIT_FAILURE);
         }
-        rtl_config.channel_map_preset = preset;
+        initiator_config.channel_map_preset = preset;
         app_log_info(APP_PREFIX "Preset (%d) provided!" APP_LOG_NL, preset);
       }
       break;
@@ -362,6 +382,24 @@ void app_init(int argc, char *argv[])
 
       case 'T':
         cs_host_config.trace = true;
+        break;
+
+      case 's':
+      {
+        int procedure_scheduling = atoi(optarg);
+        if (procedure_scheduling !=  CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY
+            && procedure_scheduling != CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_ENERGY
+            && procedure_scheduling != CS_PROCEDURE_SCHEDULING_CUSTOM) {
+          app_log_error(APP_PREFIX "Unsupported procedure scheduling (%d) provided!" APP_LOG_NL,
+                        procedure_scheduling);
+          exit(EXIT_FAILURE);
+        }
+        initiator_config.procedure_scheduling = procedure_scheduling;
+      }
+      break;
+
+      case 'M':
+        cs_sub_mode = atoi(optarg);
         break;
 
       default:
@@ -420,29 +458,55 @@ void app_init(int argc, char *argv[])
   }
 
   if (cs_host_config.max_initiator_instances > 0) {
-    if (cs_mode == (int)sl_bt_cs_mode_rtt) {
-      initiator_config.cs_mode = sl_bt_cs_mode_rtt;
-    } else if (cs_mode == (int)sl_bt_cs_mode_pbr) {
-      initiator_config.cs_mode = sl_bt_cs_mode_pbr;
-    } else {
-      app_log_error(APP_PREFIX "Invalid CS mode argument (%d) provided" APP_LOG_NL, cs_mode);
+    initiator_config.cs_main_mode = cs_main_mode;
+    initiator_config.cs_sub_mode = cs_sub_mode;
+    if (cs_main_mode == (int)sl_bt_cs_mode_pbr && cs_sub_mode == (int)sl_bt_cs_mode_rtt) {
+      // Set mode and submode. Currently, only main mode = pbr and submode = rtt is supported
+      initiator_config.min_main_mode_steps = CS_INITIATOR_MIXED_MODE_MAIN_MODE_STEPS;
+      initiator_config.max_main_mode_steps = CS_INITIATOR_MIXED_MODE_MAIN_MODE_STEPS;
+      initiator_config.channel_map_preset = CS_CHANNEL_MAP_PRESET_HIGH;
+      app_log_info(APP_PREFIX "Channel map preset set to high" APP_LOG_NL);
+    }
+
+    if (!((cs_main_mode == (int)sl_bt_cs_mode_pbr
+           && cs_sub_mode == (int)sl_bt_cs_mode_rtt)
+          || cs_sub_mode == sl_bt_cs_submode_disabled)) {
+      app_log_error(APP_PREFIX "Invalid CS mode/submode (%d/%d) provided" APP_LOG_NL,
+                    cs_main_mode,
+                    cs_sub_mode);
       exit(EXIT_FAILURE);
     }
   } else {
     app_log_info(APP_PREFIX "Only reflector instances - CS mode will be configured by the initiator" APP_LOG_NL);
-    initiator_config.cs_mode = cs_mode;
+    initiator_config.cs_main_mode = cs_main_mode;
   }
 
-  if (initiator_cs_tone_antenna_config_index_set && initiator_config.cs_mode == sl_bt_cs_mode_rtt) {
+  if (initiator_cs_tone_antenna_config_index_set && initiator_config.cs_main_mode == sl_bt_cs_mode_rtt) {
     app_log_warning(APP_PREFIX "PBR antenna configuration is omitted in RTT mode!" APP_LOG_NL);
   }
-  if (initiator_cs_sync_antenna_req_set && initiator_config.cs_mode == sl_bt_cs_mode_pbr) {
+  if (initiator_cs_sync_antenna_req_set && initiator_config.cs_main_mode == sl_bt_cs_mode_pbr) {
     app_log_warning(APP_PREFIX "RTT antenna configuration is omitted in PBR mode!" APP_LOG_NL);
   }
 
-  if (initiator_config.cs_mode == sl_bt_cs_mode_rtt && rtl_config.channel_map_preset != CS_CHANNEL_MAP_PRESET_HIGH) {
+  if (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt && initiator_config.channel_map_preset != CS_CHANNEL_MAP_PRESET_HIGH) {
     app_log_error(APP_PREFIX "Only preset HIGH is supported with RTT mode!" APP_LOG_NL);
     exit(EXIT_FAILURE);
+  }
+
+  // Log procedure scheduling
+  if (initiator_config.procedure_scheduling == CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY) {
+    app_log_info(APP_PREFIX "Using frequency optimized procedure scheduling." APP_LOG_NL);
+  } else if (initiator_config.procedure_scheduling == CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_ENERGY) {
+    app_log_info(APP_PREFIX "Using energy optimized procedure scheduling." APP_LOG_NL);
+  } else {
+    app_log_info(APP_PREFIX "Using custom procedure scheduling." APP_LOG_NL);
+  }
+
+  // Log mode based on max_procedure_count
+  if (initiator_config.max_procedure_count == 1) {
+    app_log_info(APP_PREFIX "Start new procedure after one finished." APP_LOG_NL);
+  } else {
+    app_log_info(APP_PREFIX "Free running." APP_LOG_NL);
   }
 
   // Log configuration parameters
@@ -457,23 +521,35 @@ void app_init(int argc, char *argv[])
                cs_host_config.max_reflector_instances);
   app_log_info(APP_PREFIX "Maximum number of initiator instances: %u" APP_LOG_NL,
                cs_host_config.max_initiator_instances);
-  app_log_info(APP_PREFIX "CS mode: %s (%u)" APP_LOG_NL,
-               (initiator_config.cs_mode  == sl_bt_cs_mode_pbr) ? "PBR" : "RTT",
-               (unsigned int)initiator_config.cs_mode);
-  if ((initiator_config.cs_mode == sl_bt_cs_mode_pbr && initiator_cs_tone_antenna_config_index_set)
-      || (initiator_config.cs_mode == sl_bt_cs_mode_rtt && initiator_cs_sync_antenna_req_set)) {
+  app_log_info(APP_PREFIX "CS main mode: %s (%u)" APP_LOG_NL,
+               (initiator_config.cs_main_mode  == sl_bt_cs_mode_pbr) ? "PBR" : "RTT",
+               (unsigned int)initiator_config.cs_main_mode);
+  app_log_info(APP_PREFIX "CS sub mode: %s (%u)" APP_LOG_NL,
+               (initiator_config.cs_sub_mode == sl_bt_cs_submode_disabled) ? "Disabled" : "RTT",
+               (unsigned int)initiator_config.cs_sub_mode);
+  if ((initiator_config.cs_main_mode == sl_bt_cs_mode_pbr && initiator_cs_tone_antenna_config_index_set)
+      || (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt && initiator_cs_sync_antenna_req_set)) {
     app_log_info(APP_PREFIX "Requested antenna usage: %s" APP_LOG_NL,
                  antenna_usage_to_str(&initiator_config));
   } else {
     app_log_info(APP_PREFIX "Default antenna usage: %s" APP_LOG_NL,
                  antenna_usage_to_str(&initiator_config));
   }
-  app_log_info(APP_PREFIX "CS channel map preset: %d" APP_LOG_NL, rtl_config.channel_map_preset);
+  app_log_info(APP_PREFIX "CS channel map preset: %d" APP_LOG_NL, initiator_config.channel_map_preset);
   app_log_info(APP_PREFIX "Object tracking mode: %s" APP_LOG_NL,
-               rtl_config.algo_mode == SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY
-               ? "stationary object tracking"
-               : "moving object tracking (up to 5 km/h)");
-
+               algo_mode_to_str(rtl_config.algo_mode));
+  if (initiator_config.max_procedure_count == 1
+      && rtl_config.algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST) {
+    app_log_error(APP_PREFIX "Real-time fast mode is not supported "
+                             "with CS_INITIATOR_DEFAULT_MAX_PROCEDURE_COUNT == 1!" APP_LOG_NL);
+    exit(EXIT_FAILURE);
+  }
+  if (rtl_config.algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST
+      && (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt || initiator_config.cs_sub_mode == sl_bt_cs_mode_rtt)) {
+    app_log_error(APP_PREFIX "Real-time fast mode is not supported with %s mode RTT!" APP_LOG_NL,
+                  (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt) ? "main" : "sub");
+    exit(EXIT_FAILURE);
+  }
   app_log_info(APP_PREFIX "RSSI reference TX power @ 1m: %d dBm" APP_LOG_NL,
                (int)initiator_config.rssi_ref_tx_power);
   app_log_info("+-------------------------------------------------------+" APP_LOG_NL);
@@ -502,7 +578,7 @@ void app_init(int argc, char *argv[])
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
   sl_status_t sc;
-  const char *device_name = INITIATOR_DEVICE_NAME;
+  const char *device_name = REFLECTOR_DEVICE_NAME;
   switch (SL_BT_MSG_ID(evt->header)) {
     // --------------------------------
     case sl_bt_evt_system_boot_id:
@@ -557,7 +633,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       app_assert_status(sc);
 
       // Filter for advertised service UUID (RAS)
-      sc = ble_peer_manager_set_filter_service_uuid128(&ras_service_uuid);
+      sc = ble_peer_manager_set_filter_service_uuid16((sl_bt_uuid_16_t *)&service_uuid);
       app_assert_status(sc);
 
       // Filter for BLE address if enabled
@@ -592,8 +668,97 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       sc = cs_antenna_configure(cs_host_config.use_antenna_wired_offset);
       app_assert_status(sc);
 
+      get_target_config();
+
       break;
     }
+    case sl_bt_evt_connection_parameters_id:
+      for (uint32_t i = 0u; i < cs_host_config.max_initiator_instances; i++) {
+        if (cs_host_state.reflector_conn_handles[i] == evt->data.evt_connection_parameters.connection) {
+          if (evt->data.evt_connection_parameters.security_mode != sl_bt_connection_mode1_level1) {
+            sc = sl_bt_cs_read_remote_supported_capabilities(evt->data.evt_connection_parameters.connection);
+            app_assert_status(sc);
+          } else {
+            sc = sl_bt_sm_increase_security(evt->data.evt_connection_parameters.connection);
+            app_assert_status(sc);
+          }
+          break;
+        }
+      }
+      break;
+    case sl_bt_evt_cs_read_remote_supported_capabilities_complete_id:
+    {
+      uint16_t proc_interval;
+      uint16_t conn_interval;
+      uint8_t cs_tone_antenna_config_index_temp = initiator_config.cs_tone_antenna_config_idx;
+      for (uint32_t i = 0u; i < cs_host_config.max_initiator_instances; i++) {
+        if (cs_host_state.reflector_conn_handles[i] == evt->data.evt_cs_read_remote_supported_capabilities_complete.connection) {
+          sc = sl_bt_cs_read_local_supported_capabilities(NULL,
+                                                          NULL,
+                                                          &initiator_config.num_antennas,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL,
+                                                          NULL);
+          app_assert_status(sc);
+          if (initiator_config.max_procedure_count == 0) {
+            app_log_info(APP_PREFIX "Optimizing parameters" APP_LOG_NL);
+            sc = cs_initiator_get_intervals(initiator_config.cs_main_mode,
+                                            initiator_config.cs_sub_mode,
+                                            initiator_config.procedure_scheduling,
+                                            initiator_config.channel_map_preset,
+                                            rtl_config.algo_mode,
+                                            initiator_config.cs_tone_antenna_config_idx,
+                                            initiator_config.use_real_time_ras_mode,
+                                            &conn_interval,
+                                            &proc_interval);
+            if (sc == SL_STATUS_NOT_SUPPORTED) {
+              app_log_info(APP_PREFIX "Parameter optimization is not supported with the given input parameters" APP_LOG_NL);
+            } else if (sc == SL_STATUS_IDLE) {
+              app_log_info(APP_PREFIX "No optimization - using custom procedure scheduling" APP_LOG_NL);
+            } else if (sc == SL_STATUS_OK) {
+              initiator_config.max_connection_interval = initiator_config.min_connection_interval = conn_interval;
+              initiator_config.max_procedure_interval = initiator_config.min_procedure_interval = proc_interval;
+              app_log_info(APP_PREFIX "Optimized parameters for connection interval and procedure interval." APP_LOG_NL);
+            } else {
+              app_log_error(APP_PREFIX "Invalid input, cannot optimize parameters: %d." APP_LOG_NL, sc);
+            }
+            float period_ms = initiator_config.max_connection_interval * 1.25f * initiator_config.max_procedure_interval;
+            app_log_info(APP_PREFIX "Connection interval: %u  Procedure interval: %u  Period: %d ms  Frequency: %2.3f Hz" APP_LOG_NL,
+                         initiator_config.max_connection_interval,
+                         initiator_config.max_procedure_interval,
+                         (int)period_ms,
+                         (1000.0f / period_ms));
+            // put remote antenna num into cs_tone_antenna_config_idx
+            initiator_config.cs_tone_antenna_config_idx = evt->data.evt_cs_read_remote_supported_capabilities_complete.num_antennas;
+          }
+          create_initiator(evt->data.evt_cs_read_remote_supported_capabilities_complete.connection);
+          // set cs_tone_antenna_config_idx to default
+          initiator_config.cs_tone_antenna_config_idx = cs_tone_antenna_config_index_temp;
+          break;
+        }
+      }
+    }
+    break;
+
+    // --------------------------------
+    case sl_bt_evt_gatt_mtu_exchanged_id:
+    {
+      initiator_config.mtu = evt->data.evt_gatt_mtu_exchanged.mtu;
+      app_log_info(APP_PREFIX "MTU exchanged: %d" APP_LOG_NL, initiator_config.mtu);
+    }
+    break;
 
     // --------------------------------
     case sl_bt_evt_user_cs_service_message_to_host_id:
@@ -601,15 +766,21 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       cs_acp_event_t *cs_evt = (cs_acp_event_t *)evt->data.evt_user_cs_service_message_to_host.message.data;
       switch (cs_evt->acp_evt_id) {
         case CS_ACP_EVT_RESULT_ID:
-          cs_on_result(&cs_evt->data.result, cs_evt->connection_id);
+          // Only the result content required
+          cs_on_result(cs_evt->connection_id,
+                       cs_evt->data.result.type_value_list,
+                       (evt->data.evt_user_cs_service_message_to_host.message.len - sizeof(cs_acp_event_id_t) - sizeof(uint8_t)));
           break;
 
         case CS_ACP_EVT_EXTENDED_RESULT_ID:
           on_extended_result_event(&cs_evt->data.ext_result, cs_evt->connection_id);
           if (cs_evt->data.ext_result.fragments_left & CS_ACP_FIRST_FRAGMENT_MASK
-              && cs_evt->data.ext_result.fragment.len >= sizeof(cs_acp_result_evt_t)) {
+              && cs_evt->data.ext_result.fragment.len >= (sizeof(cs_acp_result_evt_t))) {
             // The first element in the serialized extended result data is the result event.
-            cs_on_result((cs_acp_result_evt_t *)cs_evt->data.ext_result.fragment.data, cs_evt->connection_id);
+            // The first byte in it is the result size, and from the second byte on, the result data.
+            cs_on_result(cs_evt->connection_id,
+                         cs_evt->data.ext_result.fragment.data + 1,
+                         cs_evt->data.ext_result.fragment.data[0]);
           }
           break;
 
@@ -654,9 +825,9 @@ void app_deinit(void)
   /////////////////////////////////////////////////////////////////////////////
 }
 
-static char *antenna_usage_to_str(const cs_initiator_config_t *config)
+static const char *antenna_usage_to_str(const cs_initiator_config_t *config)
 {
-  if (config->cs_mode == sl_bt_cs_mode_rtt) {
+  if (config->cs_main_mode == sl_bt_cs_mode_rtt) {
     switch (config->cs_sync_antenna_req) {
       case CS_SYNC_ANTENNA_1:
         return "antenna ID 1";
@@ -683,6 +854,23 @@ static char *antenna_usage_to_str(const cs_initiator_config_t *config)
   }
 }
 
+/******************************************************************************
+ * Get algo mode as string
+ *****************************************************************************/
+static const char *algo_mode_to_str(uint8_t algo_mode)
+{
+  switch (algo_mode) {
+    case SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC:
+      return "real time basic (moving)";
+    case SL_RTL_CS_ALGO_MODE_STATIC_HIGH_ACCURACY:
+      return "stationary object tracking";
+    case SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST:
+      return "real time fast (moving)";
+    default:
+      return "unknown";
+  }
+}
+
 static void enable_trace(void)
 {
   if (cs_host_state.trace) {
@@ -703,6 +891,31 @@ static void enable_trace(void)
     cs_host_state.trace = true;
   } else {
     app_log_status_error_f(sc, APP_PREFIX "Failed to enable trace" APP_LOG_NL);
+  }
+}
+
+static void get_target_config(void)
+{
+  sl_status_t sc;
+  cs_acp_cmd_t cmd;
+  uint8_t rsp[sizeof(cs_acp_get_target_config_rsp_t)];
+  size_t rsp_len = 0;
+  cmd.cmd_id = CS_ACP_CMD_GET_TARGET_CONFIG;
+
+  sc = sl_bt_user_cs_service_message_to_target(sizeof(cmd.cmd_id),
+                                               (const uint8_t *)&cmd,
+                                               sizeof(rsp),
+                                               &rsp_len,
+                                               rsp);
+  app_log_status_error_f(sc, APP_PREFIX "Failed to get target configuration" APP_LOG_NL);
+  if (rsp_len == sizeof(cs_acp_get_target_config_rsp_t)) {
+    cs_acp_get_target_config_rsp_t *cs_target_config_data = (cs_acp_get_target_config_rsp_t *)rsp;
+    app_log_info(APP_PREFIX "Target configuration received" APP_LOG_NL);
+    if (0 < (cs_target_config_data->target_config_bitfield & (1 << CS_ACP_TARGET_CONFIG_RAS_MODE_BIT_POS))) {
+      app_log_info(APP_PREFIX "RAS On demand mode" APP_LOG_NL);
+    } else {
+      app_log_info(APP_PREFIX "RAS Real time mode" APP_LOG_NL);
+    }
   }
 }
 
@@ -757,15 +970,19 @@ static void on_connection_opened_with_reflector(uint8_t conn_handle)
     app_log_error(APP_PREFIX "Failed to store reflector connection handle" APP_LOG_NL);
     return;
   }
+}
 
+static void create_initiator(uint8_t conn_handle)
+{
   // Call the ACP API to create a new initiator instance for the connection handle
+  sl_status_t sc;
   cs_acp_cmd_t cmd;
   cmd.cmd_id = CS_ACP_CMD_CREATE_INITIATOR;
   cmd.data.initiator_cmd_data.connection_id = conn_handle;
   cmd.data.initiator_cmd_data.extended_result = EXTENDED_RESULT;
   memcpy(&cmd.data.initiator_cmd_data.initiator_config, &initiator_config, sizeof(cmd.data.initiator_cmd_data.initiator_config));
   memcpy(&cmd.data.initiator_cmd_data.rtl_config, &rtl_config, sizeof(cmd.data.initiator_cmd_data.rtl_config));
-  cs_initiator_apply_channel_map_preset(cmd.data.initiator_cmd_data.rtl_config.channel_map_preset, cmd.data.initiator_cmd_data.rtl_config.cs_parameters.channel_map);
+  cs_initiator_apply_channel_map_preset(cmd.data.initiator_cmd_data.initiator_config.channel_map_preset, cmd.data.initiator_cmd_data.initiator_config.channel_map.data);
   uint8_t rsp[1];
   size_t rsp_len = 0;
   uint8_t instance_id = 0;
@@ -777,6 +994,7 @@ static void on_connection_opened_with_reflector(uint8_t conn_handle)
                                                rsp);
   if (sc != SL_STATUS_OK) {
     app_log_status_error_f(sc, APP_PREFIX "Failed to create initiator instance" APP_LOG_NL);
+    sl_bt_connection_close(conn_handle);
     return;
   }
   if (rsp_len > 0) {
@@ -863,8 +1081,12 @@ static void on_connection_closed(uint8_t conn_handle)
                                                    0,
                                                    NULL,
                                                    NULL);
-      app_assert_status(sc);
-      app_log_info(APP_INSTANCE_PREFIX "Initiator instance removed" APP_LOG_NL, conn_handle);
+      if ((sc == SL_STATUS_NOT_FOUND) || (sc == SL_STATUS_INVALID_HANDLE)) {
+        app_log_warning(APP_INSTANCE_PREFIX "Initiator instance not found" APP_LOG_NL, conn_handle);
+      } else {
+        app_assert_status(sc);
+        app_log_info(APP_INSTANCE_PREFIX "Initiator instance removed" APP_LOG_NL, conn_handle);
+      }
 
       // Restart scanning for new reflector connections
       (void)ble_peer_manager_central_create_connection();
@@ -896,8 +1118,12 @@ static void on_connection_closed(uint8_t conn_handle)
                                                    0,
                                                    NULL,
                                                    NULL);
-      app_assert_status(sc);
-      app_log_info(APP_INSTANCE_PREFIX "Reflector instance removed" APP_LOG_NL, conn_handle);
+      if (sc == SL_STATUS_NOT_FOUND) {
+        app_log_warning(APP_INSTANCE_PREFIX "Reflector instance not found" APP_LOG_NL, conn_handle);
+      } else {
+        app_assert_status(sc);
+        app_log_info(APP_INSTANCE_PREFIX "Reflector instance removed" APP_LOG_NL, conn_handle);
+      }
 
       // Restart advertising for new initiator connections if we were at the limit
       if (cs_host_state.num_initiator_connections == cs_host_config.max_reflector_instances) {
@@ -969,22 +1195,173 @@ void ble_peer_manager_on_event(ble_peer_manager_evt_type_t *event)
 /******************************************************************************
  * Extract and display measurement results
  *****************************************************************************/
-static void cs_on_result(const cs_acp_result_evt_t *result, uint8_t connection)
+static void cs_on_result(const uint8_t conn_handle,
+                         const uint8_t *result,
+                         uint8_t result_len)
 {
+  sl_status_t sc = SL_STATUS_OK;
+  float value = .0f;
+  cs_result_session_data_t result_data;
+  const bd_addr *bt_address = ble_peer_manager_get_bt_address(conn_handle);
   app_log_info("---" APP_LOG_NL);
-  app_log_info(APP_INSTANCE_PREFIX "Measurement result: %u mm" APP_LOG_NL,
-               connection,
-               (uint32_t)(result->distance * 1000.f));
-  app_log_info(APP_INSTANCE_PREFIX "Measurement likeliness: %f" APP_LOG_NL,
-               connection,
-               result->likeliness);
-  app_log_info(APP_INSTANCE_PREFIX "RSSI distance: %u mm" APP_LOG_NL,
-               connection,
-               (uint32_t)(result->rssi_distance * 1000.f));
-  if (!isnan(result->bit_error_rate)) {
-    app_log_info(APP_INSTANCE_PREFIX "CS bit error rate: %f" APP_LOG_NL,
-                 connection,
-                 result->bit_error_rate);
+  app_log_info(APP_INSTANCE_PREFIX "BT Address: %02X:%02X:%02X:%02X:%02X:%02X" APP_LOG_NL,
+               conn_handle,
+               bt_address->addr[5],
+               bt_address->addr[4],
+               bt_address->addr[3],
+               bt_address->addr[2],
+               bt_address->addr[1],
+               bt_address->addr[0]);
+
+  memset(&result_data, 0, sizeof(cs_result_session_data_t));
+  sc = cs_result_create_session_data((uint8_t *)result, result_len, &result_data);
+  if (sc != SL_STATUS_OK) {
+    app_log_error(APP_INSTANCE_PREFIX "Failed to create result metadata!" APP_LOG_NL,
+                  conn_handle);
+    return;
+  }
+
+  // --------------------------------
+  // Get distance
+  sc = cs_result_extract_field(&result_data,
+                               CS_RESULT_FIELD_DISTANCE_MAINMODE,
+                               (uint8_t *)result,
+                               (uint8_t *)&value);
+  if (sc != SL_STATUS_OK) {
+    app_log_error(APP_INSTANCE_PREFIX "Failed to extract distance value!" APP_LOG_NL,
+                  conn_handle);
+  } else {
+    app_log_info(APP_INSTANCE_PREFIX "Measurement main mode result: %u mm" APP_LOG_NL,
+                 conn_handle,
+                 (uint32_t)(value * 1000.f));
+  }
+
+  if (initiator_config.cs_sub_mode != sl_bt_cs_submode_disabled) {
+    sc = cs_result_extract_field(&result_data,
+                                 CS_RESULT_FIELD_DISTANCE_SUBMODE,
+                                 (uint8_t *)result,
+                                 (uint8_t *)&value);
+    if (sc != SL_STATUS_OK) {
+      app_log_error(APP_INSTANCE_PREFIX "Failed to extract distance value for sub mode!" APP_LOG_NL,
+                    conn_handle);
+    } else {
+      app_log_info(APP_INSTANCE_PREFIX "Measurement sub mode result: %u mm" APP_LOG_NL,
+                   conn_handle,
+                   (uint32_t)(value * 1000.f));
+    }
+  }
+
+  // --------------------------------
+  // Get RAW distance
+  sc = cs_result_extract_field(&result_data,
+                               CS_RESULT_FIELD_DISTANCE_RAW_MAINMODE,
+                               (uint8_t *)result,
+                               (uint8_t *)&value);
+  if (sc != SL_STATUS_OK) {
+    app_log_error(APP_INSTANCE_PREFIX "Failed to extract RAW distance value!" APP_LOG_NL,
+                  conn_handle);
+  } else {
+    app_log_info(APP_INSTANCE_PREFIX "Raw main mode distance: %u mm" APP_LOG_NL,
+                 conn_handle,
+                 (uint32_t)(value * 1000.f));
+  }
+
+  if (initiator_config.cs_sub_mode != sl_bt_cs_submode_disabled) {
+    sc = cs_result_extract_field(&result_data,
+                                 CS_RESULT_FIELD_DISTANCE_RAW_SUBMODE,
+                                 (uint8_t *)result,
+                                 (uint8_t *)&value);
+    if (sc != SL_STATUS_OK) {
+      app_log_error(APP_INSTANCE_PREFIX "Failed to extract sub mode RAW distance value!" APP_LOG_NL,
+                    conn_handle);
+    } else {
+      app_log_info(APP_INSTANCE_PREFIX "Raw sub mode distance: %u mm" APP_LOG_NL,
+                   conn_handle,
+                   (uint32_t)(value * 1000.f));
+    }
+  }
+
+  // --------------------------------
+  // Get likeliness
+  sc = cs_result_extract_field(&result_data,
+                               CS_RESULT_FIELD_LIKELINESS_MAINMODE,
+                               (uint8_t *)result,
+                               (uint8_t *)&value);
+  if (sc != SL_STATUS_OK) {
+    app_log_error(APP_INSTANCE_PREFIX "Failed to extract likeliness value!" APP_LOG_NL,
+                  conn_handle);
+  } else {
+    app_log_info(APP_INSTANCE_PREFIX "Measurement main mode likeliness: %f" APP_LOG_NL,
+                 conn_handle,
+                 value);
+  }
+
+  if (initiator_config.cs_sub_mode != sl_bt_cs_submode_disabled) {
+    sc = cs_result_extract_field(&result_data,
+                                 CS_RESULT_FIELD_LIKELINESS_SUBMODE,
+                                 (uint8_t *)result,
+                                 (uint8_t *)&value);
+    if (sc != SL_STATUS_OK) {
+      app_log_error(APP_INSTANCE_PREFIX "Failed to extract sub mode likeliness value!" APP_LOG_NL,
+                    conn_handle);
+    } else {
+      app_log_info(APP_INSTANCE_PREFIX "Measurement sub mode likeliness: %f" APP_LOG_NL,
+                   conn_handle,
+                   value);
+    }
+  }
+
+  // --------------------------------
+  // Get RSSI distance
+  sc = cs_result_extract_field(&result_data,
+                               CS_RESULT_FIELD_DISTANCE_RSSI,
+                               (uint8_t *)result,
+                               (uint8_t *)&value);
+  if (sc != SL_STATUS_OK) {
+    app_log_error(APP_INSTANCE_PREFIX "Failed to extract RSSI distance value!" APP_LOG_NL,
+                  conn_handle);
+  } else {
+    app_log_info(APP_INSTANCE_PREFIX "RSSI distance: %u mm" APP_LOG_NL,
+                 conn_handle,
+                 (uint32_t)(value * 1000.f));
+  }
+
+  // --------------------------------
+  // Get velocity
+  if (rtl_config.algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST
+      && initiator_config.cs_main_mode == sl_bt_cs_mode_pbr
+      && (initiator_config.channel_map_preset == CS_CHANNEL_MAP_PRESET_HIGH
+          || initiator_config.channel_map_preset == CS_CHANNEL_MAP_PRESET_MEDIUM)) {
+    sc = cs_result_extract_field(&result_data,
+                                 CS_RESULT_FIELD_VELOCITY_MAINMODE,
+                                 (uint8_t *)result,
+                                 (uint8_t *)&value);
+    if (sc != SL_STATUS_OK) {
+      app_log_error(APP_INSTANCE_PREFIX "Failed to extract velocity value!" APP_LOG_NL,
+                    conn_handle);
+    } else {
+      app_log_info(APP_INSTANCE_PREFIX "Velocity: %f m/s" APP_LOG_NL,
+                   conn_handle,
+                   value);
+    }
+  }
+
+  // --------------------------------
+  // Get BER (only for RTT)
+  if (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt) {
+    sc = cs_result_extract_field(&result_data,
+                                 CS_RESULT_FIELD_BIT_ERROR_RATE,
+                                 (uint8_t *)result,
+                                 (uint8_t *)&value);
+    if (sc != SL_STATUS_OK) {
+      app_log_error(APP_INSTANCE_PREFIX "Failed to extract BER!" APP_LOG_NL,
+                    conn_handle);
+    }
+    if (!isnan(value)) {
+      app_log_info(APP_INSTANCE_PREFIX "CS bit error rate: %f" APP_LOG_NL,
+                   conn_handle,
+                   value);
+    }
   }
 }
 
@@ -1034,6 +1411,13 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
     // Discard
     case CS_ERROR_EVENT_RTL_PROCESS_ERROR:
       app_log_error(APP_INSTANCE_PREFIX "RTL processing error happened!"
+                                        "[E: 0x%x sc: 0x%x]" APP_LOG_NL,
+                    conn_handle,
+                    err_evt,
+                    sc);
+      break;
+    case CS_ERROR_EVENT_INITIATOR_FAILED_TO_SET_INTERVALS:
+      app_log_error(APP_INSTANCE_PREFIX "Failed to set CS procedure scheduling!"
                                         "[E: 0x%x sc: 0x%x]" APP_LOG_NL,
                     conn_handle,
                     err_evt,
@@ -1117,9 +1501,12 @@ static void stop_procedure(void)
                                                    0,
                                                    NULL,
                                                    NULL);
-      app_assert_status(sc);
-      app_log_info(APP_INSTANCE_PREFIX "Initiator instance removed" APP_LOG_NL, conn_handle);
-
+      if ((sc == SL_STATUS_NOT_FOUND) || (sc == SL_STATUS_INVALID_HANDLE)) {
+        app_log_warning(APP_INSTANCE_PREFIX "Initiator instance not found" APP_LOG_NL, conn_handle);
+      } else {
+        app_assert_status(sc);
+        app_log_info(APP_INSTANCE_PREFIX "Initiator instance removed" APP_LOG_NL, conn_handle);
+      }
       sc = ble_peer_manager_central_close_connection(conn_handle);
       app_assert_status(sc);
       app_log_info(APP_INSTANCE_PREFIX "Reflector connection closed" APP_LOG_NL, conn_handle);
@@ -1146,8 +1533,12 @@ static void stop_procedure(void)
                                                    0,
                                                    NULL,
                                                    NULL);
-      app_assert_status(sc);
-      app_log_info(APP_INSTANCE_PREFIX "Reflector instance removed" APP_LOG_NL, conn_handle);
+      if (sc == SL_STATUS_NOT_FOUND) {
+        app_log_warning(APP_INSTANCE_PREFIX "Reflector instance not found" APP_LOG_NL, conn_handle);
+      } else {
+        app_assert_status(sc);
+        app_log_info(APP_INSTANCE_PREFIX "Reflector instance removed" APP_LOG_NL, conn_handle);
+      }
 
       sc = ble_peer_manager_peripheral_close_connection(conn_handle);
       app_assert_status(sc);

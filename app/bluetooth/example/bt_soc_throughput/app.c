@@ -1,9 +1,9 @@
 /***************************************************************************//**
  * @file
- * @brief Core application logic.
+ * @brief BLE throughput example
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -27,10 +27,10 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
-#include "sl_common.h"
 #include "app_assert.h"
 #include "app_log.h"
 #include "sl_bluetooth.h"
+#include "sl_main_init.h"
 #include "app.h"
 #include "sl_component_catalog.h"
 #include "throughput_ui.h"
@@ -88,8 +88,8 @@ uint8_t button_change = 0;
 /// Timer for button press handling
 app_timer_t button_timer;
 
-/// Timer rised for short press
-bool button_timer_rised = false;
+/// Timer for short press
+bool button_timer_elapsed = false;
 
 #endif //SL_SIMPLE_BUTTON_COUNT
 
@@ -194,6 +194,7 @@ void sl_button_on_change(const sl_button_t *handle)
   (void) handle;
   // Check states
   button_current = app_check_buttons();
+  app_proceed();
 }
 
 /**************************************************************************//**
@@ -229,7 +230,7 @@ void app_test(bool start)
     if (role == THROUGHPUT_ROLE_PERIPHERAL) {
       sc = throughput_peripheral_start(type);
       if (sc != SL_STATUS_OK) {
-        app_log_warning("Failed to start test." APP_LOG_NL);
+        app_log_warning("Failed to start test; sc=0x%02lx" APP_LOG_NL, sc);
         if (sc == SL_STATUS_INVALID_STATE) {
           app_log_warning("Not in subscribed state!" APP_LOG_NL);
         }
@@ -277,8 +278,9 @@ void app_button_timer_callback(app_timer_t *timer, void *data)
 {
   (void) data;
   (void) timer;
-  button_timer_rised = true;
+  button_timer_elapsed = true;
   app_test(true);
+  app_proceed();
 }
 #endif //SL_SIMPLE_BUTTON_COUNT
 
@@ -292,7 +294,7 @@ void app_handle_button_press()
   app_test(button_current);
 #elif SL_SIMPLE_BUTTON_COUNT == 1
   if (button_current) {
-    button_timer_rised = false;
+    button_timer_elapsed = false;
     app_timer_start(&button_timer,
                     BUTTON_TIMEOUT,
                     app_button_timer_callback,
@@ -300,7 +302,7 @@ void app_handle_button_press()
                     false);
   } else {
     app_timer_stop(&button_timer);
-    if (button_timer_rised) {
+    if (button_timer_elapsed) {
       app_test(false);
     } else {
       if (type == sl_bt_gatt_notification) {
@@ -315,9 +317,9 @@ void app_handle_button_press()
 }
 
 /**************************************************************************//**
- * Application Init.
+ * Application initialization
  *****************************************************************************/
-SL_WEAK void app_init(void)
+void app_init(void)
 {
   /////////////////////////////////////////////////////////////////////////////
   // Put your additional application init code here!                         //
@@ -326,10 +328,14 @@ SL_WEAK void app_init(void)
 }
 
 /**************************************************************************//**
- * Application Process Action.
+ * Application process action
  *****************************************************************************/
-SL_WEAK void app_process_action(void)
+void app_process_action(void)
 {
+  if (!app_is_process_required()) {
+    return;
+  }
+
   // Mask first button release
   if (mask_release && button_change && !button_current) {
     button_change = 0;
@@ -357,7 +363,7 @@ SL_WEAK void app_process_action(void)
 
 /**************************************************************************//**
  * Bluetooth stack event handler.
- * This overrides the dummy weak implementation.
+ * This overrides the default weak implementation.
  *
  * @param[in] evt Event coming from the Bluetooth stack.
  *****************************************************************************/
@@ -430,7 +436,7 @@ void cli_switch_to_peripheral(void)
  ******************************************************************************/
 
 /**************************************************************************//**
- * Callback to handle transmission start event.
+ * Callback to handle transmission start event
  *****************************************************************************/
 void throughput_peripheral_on_start(void)
 {
@@ -439,7 +445,7 @@ void throughput_peripheral_on_start(void)
 }
 
 /**************************************************************************//**
- * Callback to handle transmission finished event.
+ * Callback to handle transmission finished event
  * @param[in] throughput throughput value in bits/second (bps)
  * @param[in] count data volume transmitted, in bytes
  *****************************************************************************/
@@ -456,7 +462,7 @@ void throughput_peripheral_on_finish(throughput_value_t throughput,
 }
 
 /**************************************************************************//**
- * Callback to handle transmission start event.
+ * Callback to handle transmission start event
  *****************************************************************************/
 void throughput_central_on_start(void)
 {
@@ -465,7 +471,7 @@ void throughput_central_on_start(void)
 }
 
 /**************************************************************************//**
- * Callback to handle transmission finished event.
+ * Callback to handle transmission finished event
  * @param[in] throughput throughput value in bits/second (bps)
  * @param[in] count data volume transmitted, in bytes
  * @param[in] lost number of packets lost
@@ -495,7 +501,7 @@ void throughput_central_on_finish(throughput_value_t throughput,
 }
 
 /**************************************************************************//**
- * Callback to handle state change.
+ * Callback to handle state change
  * @param[in] state current state
  *****************************************************************************/
 void throughput_central_on_state_change(throughput_state_t state)
@@ -509,7 +515,7 @@ void throughput_central_on_state_change(throughput_state_t state)
 }
 
 /**************************************************************************//**
- * Callback to handle state change.
+ * Callback to handle state change
  * @param[in] state current state
  *****************************************************************************/
 void throughput_peripheral_on_state_change(throughput_state_t state)

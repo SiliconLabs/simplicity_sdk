@@ -100,8 +100,8 @@ static sl_status_t send_connection_status(esl_lib_connection_t *conn,
                                           esl_lib_bool_t       status,
                                           sl_status_t          reason);
 static sl_status_t send_cp_notification_event(esl_lib_connection_t *conn,
-                                              uint8_t              len,
-                                              uint8_t              *data);
+                                              size_t               len,
+                                              void                 *data);
 static sl_status_t send_bonding_data(esl_lib_connection_t *conn,
                                      uint8_t              *data);
 static sl_status_t send_bonding_finished(esl_lib_connection_t *conn);
@@ -204,12 +204,12 @@ esl_lib_connection_mode_t esl_lib_get_connection_mode_and_status(esl_lib_core_st
                                                                  uint8_t *connections,
                                                                  bool *initiator_busy)
 {
-  esl_lib_core_state_t core_state_dummy;
+  esl_lib_core_state_t core_state_mock;
   uint8_t handle_count = 0;
 
   if (core_state == NULL) {
-    (void)core_state_dummy;         // Suppress unused variable warning...
-    core_state = &core_state_dummy; // ...yet allow NULL input parameter for sore_state
+    (void)core_state_mock;         // Suppress unused variable warning...
+    core_state = &core_state_mock; // ...yet allow NULL input parameter for core_state
   }
 
   *core_state = ESL_LIB_CORE_STATE_IDLE;
@@ -486,9 +486,10 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
                              conn,
                              false);
         if (sc != SL_STATUS_OK) {
-          esl_lib_log_connection_error("Connection timeout reinit failed, handle = %u as 0x%p. Closing." APP_LOG_NL,
+          esl_lib_log_connection_error("Connection timeout reinit failed, handle = %u as 0x%p, sc = 0x%04x. Closing." APP_LOG_NL,
                                        conn->connection_handle,
-                                       conn);
+                                       conn,
+                                       sc);
           (void)close_connection(conn);
         }
       }
@@ -497,7 +498,7 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
                     || sc == SL_STATUS_BT_CTRL_MEMORY_CAPACITY_EXCEEDED)    // filter accept list full result
                    ? ESL_LIB_LOG_LEVEL_WARNING : ESL_LIB_LOG_LEVEL_ERROR),
                   ESL_LIB_LOG_MODULE_CONNECTION,
-                  "Connection request failed to " ESL_LIB_LOG_ADDR_FORMAT ", sc = 0x%02x" APP_LOG_NL,
+                  "Connection request failed to " ESL_LIB_LOG_ADDR_FORMAT ", sc = 0x%04x" APP_LOG_NL,
                   ESL_LIB_LOG_ADDR(*address),
                   sc);
       if (conn != NULL) {
@@ -696,9 +697,10 @@ void esl_lib_connection_step(void)
       // Move and execute next command.
       cmd = esl_lib_command_list_get(&conn->command_list);
       if (cmd != NULL) {
-        esl_lib_log_connection_debug(CONN_FMT "Running next command = %d" APP_LOG_NL,
+        esl_lib_log_connection_debug(CONN_FMT "Running next command: %d, id = %#04" PRIx32 APP_LOG_NL,
                                      ESL_LIB_LOG_PTR(conn),
-                                     cmd->cmd_code);
+                                     cmd->cmd_code,
+                                     cmd->id);
         conn->command = cmd;
         conn->command_complete = false;
         run_command(conn->command);
@@ -739,7 +741,13 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
     case sl_bt_evt_connection_opened_id:
       // Filter for central role
       if (evt->data.evt_connection_opened.role == CENTRAL_ROLE) {
-        esl_lib_log_connection_debug("Connection opened in central role, connection handle = %u" APP_LOG_NL,
+        uint64_t peripheral_address_u64 = 0;
+
+        memcpy(&peripheral_address_u64,
+               evt->data.evt_connection_opened.address.addr,
+               sizeof(evt->data.evt_connection_opened.address.addr));
+        esl_lib_log_connection_debug("Connection to %012" PRIx64 " opened in central role, connection handle = %u" APP_LOG_NL,
+                                     peripheral_address_u64,
                                      evt->data.evt_connection_opened.connection);
         sc = esl_lib_connection_find(evt->data.evt_connection_opened.connection,
                                      &conn);
@@ -859,7 +867,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
       if (sc == SL_STATUS_OK && !conn->established) {
         esl_lib_connection_t *reuseable_handle = ESL_LIB_INVALID_HANDLE;
         conn->established = true;
-        esl_lib_log_connection_debug(CONN_FMT "Connection established, connection handle = %u, features: %#018" PRIx64 APP_LOG_NL,
+        esl_lib_log_connection_debug(CONN_FMT "Connection established, connection handle = %u, features: %014" PRIx64 APP_LOG_NL,
                                      ESL_LIB_LOG_PTR(conn),
                                      conn->connection_handle,
                                      // Following parameter is 8 bytes in LE order according to in Bluetooth Core Vol 6, Part B, 4.6.
@@ -1072,7 +1080,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             }
           } else if (conn->state == ESL_LIB_CONNECTION_STATE_PAST_INIT) {
             (void)app_timer_stop(&conn->timer);
-            esl_lib_log_connection_debug(CONN_FMT "PAST init, handle = %u" APP_LOG_NL,
+            esl_lib_log_connection_debug(CONN_FMT "PAST init, connection handle = %u" APP_LOG_NL,
                                          ESL_LIB_LOG_PTR(conn),
                                          conn->connection_handle);
             pawr = (esl_lib_pawr_t *)conn->command->data.cmd_init_past.pawr_handle;
@@ -1101,10 +1109,10 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             }
 
             if (sc != SL_STATUS_OK) {
-              esl_lib_log_connection_warning(CONN_FMT "PAST init unsuccesful, connection handle = %u, PAwR = [0x%p] sc = 0x%04x" APP_LOG_NL,
+              esl_lib_log_connection_warning(CONN_FMT "PAST init unsuccesful, connection handle = %u, PAwR = " ESL_LIB_LOG_HANDLE_FORMAT " sc = 0x%04x" APP_LOG_NL,
                                              ESL_LIB_LOG_PTR(conn),
                                              conn->connection_handle,
-                                             conn->command->data.cmd_init_past.pawr_handle,
+                                             ESL_LIB_LOG_PTR(conn->command->data.cmd_init_past.pawr_handle),
                                              sc);
               addr = close_broken_connection(&conn, &addr_backup);
             } else if (pawr->config.advertise == ESL_LIB_TRUE && pawr->state == ESL_LIB_PAWR_STATE_RUNNING) {
@@ -1402,7 +1410,8 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
           if (conn->state == ESL_LIB_CONNECTION_STATE_GET_TAG_INFO) {
             lib_status = ESL_LIB_STATUS_CONN_READ_FAILED;
             sc = esl_lib_storage_append(conn->tag_info_data,
-                                        &evt->data.evt_gatt_characteristic_value.value);
+                                        evt->data.evt_gatt_characteristic_value.value.len,
+                                        evt->data.evt_gatt_characteristic_value.value.data);
             if (sc == SL_STATUS_OK) {
               lib_status = ESL_LIB_STATUS_NO_ERROR;
             }
@@ -1773,9 +1782,9 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
         if (conn->ots_handle != ESL_LIB_INVALID_HANDLE) {
           conn->tag_info_type = ESL_LIB_DATA_TYPE_GATT_OTS_FEATURE;
           // Allocate an array
-          uint8_t data[sizeof(uint8array) + sizeof(esl_lib_ots_features_t)];
-          // Refer to the data as an uint8 array
-          uint8array *data_send = (uint8array*)&data;
+          uint8_t data[sizeof(byte_array) + sizeof(esl_lib_ots_features_t)];
+          // Refer to the data as an byte array
+          byte_array *data_send = (byte_array*)&data;
           // Set pointer to data part of the array as OTS features
           esl_lib_ots_features_t *features = (esl_lib_ots_features_t *)&data_send->data;
           // Set size of the data
@@ -1787,7 +1796,7 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
             sc = esl_lib_storage_create(&conn->tag_info_data);
             if (sc == SL_STATUS_OK) {
               // Append data
-              sc = esl_lib_storage_append(conn->tag_info_data, data_send);
+              sc = esl_lib_storage_append(conn->tag_info_data, data_send->len, data_send->data);
               if (sc == SL_STATUS_OK) {
                 // Save data to the list
                 sc = save_tag_info(conn);
@@ -2006,8 +2015,8 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
 }
 
 static sl_status_t send_cp_notification_event(esl_lib_connection_t *conn,
-                                              uint8_t              len,
-                                              uint8_t              *data)
+                                              size_t               len,
+                                              void                 *data)
 {
   sl_status_t   sc;
   esl_lib_evt_t *lib_evt;
@@ -3271,9 +3280,10 @@ static sl_status_t esl_lib_initiate_auto_connection(esl_lib_connection_t *handle
                            conn,
                            false);
       if (sc != SL_STATUS_OK) {
-        esl_lib_log_connection_error(CONN_FMT "Connection timeout reinit failed, handle = %u. Closing." APP_LOG_NL,
+        esl_lib_log_connection_error(CONN_FMT "Connection timeout reinit failed, handle = %u, sc = 0x%04x. Closing." APP_LOG_NL,
                                      ESL_LIB_LOG_PTR(conn),
-                                     conn->connection_handle);
+                                     conn->connection_handle,
+                                     sc);
         (void)close_connection(conn);
         return sc; // Skip the list operations below for this kind of error
       }

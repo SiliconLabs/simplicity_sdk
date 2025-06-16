@@ -12,12 +12,12 @@ description: >
   The entire firmware upgrade session is manageable over CoAP, with the service
   offering remote host connection settings, firmware file selection, notification, and
   status request capabilities.
-  Configuration of the connection to the TFTP remote host can be accomplished 
+  Configuration of the connection to the TFTP remote host can be accomplished
   within the component configuration file.
   To use this component, a bootloader must be flashed onto the device. The
   component relies on functions that reside within the bootloader. To choose
   the appropriate bootloader, consider factors such as flash location
-  (internal or external) and size. 
+  (internal or external) and size.
   To save on download time, we recommend applying compression on both the bootloader and device projects.
 
 category: "Wi-SUN|Wi-SUN Services"

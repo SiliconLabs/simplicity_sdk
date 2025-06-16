@@ -58,7 +58,7 @@
 
 #include "platform-band.h"
 #include "platform-efr32.h"
-#include "rail_ieee802154.h"
+#include "sl_rail_ieee802154.h"
 
 #include "sl_status.h"
 
@@ -211,49 +211,45 @@ bool otPlatDiagModeGet()
     return sDiagMode;
 }
 
-static RAIL_Status_t startTxStream(RAIL_StreamMode_t aMode)
+static sl_rail_status_t startTxStream(sl_rail_stream_mode_t aMode)
 {
-    uint16_t      txChannel;
-    RAIL_Status_t status;
+    uint16_t         txChannel;
+    sl_rail_status_t status;
 
-    SuccessOrExit(status = RAIL_GetChannel(gRailHandle, &txChannel));
+    SuccessOrExit(status = sl_rail_get_channel(gRailHandle, &txChannel));
+    sl_rail_tx_options_t txOptions = SL_RAIL_TX_OPTIONS_DEFAULT;
 
 #ifdef SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
-    RAIL_TxOptions_t txOptions = RAIL_TX_OPTIONS_DEFAULT;
     // Translate Tx antenna diversity mode into RAIL Tx Antenna options:
     // If enabled, use the currently-selected antenna, otherwise leave
     // both options 0 so Tx antenna tracks Rx antenna.
     if (sl_rail_util_ant_div_get_tx_antenna_mode() != SL_RAIL_UTIL_ANTENNA_MODE_DISABLED)
     {
         txOptions |= ((sl_rail_util_ant_div_get_tx_antenna_selected() == SL_RAIL_UTIL_ANTENNA_SELECT_ANTENNA1)
-                          ? RAIL_TX_OPTION_ANTENNA0
-                          : RAIL_TX_OPTION_ANTENNA1);
+                          ? SL_RAIL_TX_OPTION_ANTENNA_0
+                          : SL_RAIL_TX_OPTION_ANTENNA_1);
     }
-
-    status = RAIL_StartTxStreamAlt(gRailHandle, txChannel, aMode, txOptions);
-#else  // !SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
-    status = RAIL_StartTxStream(gRailHandle, txChannel, aMode);
-#endif // SL_CATALOG_RAIL_UTIL_ANT_DIV_PRESENT
-
+#endif
+    status = sl_rail_start_tx_stream(gRailHandle, txChannel, aMode, txOptions);
 exit:
     return status;
 }
 
-static RAIL_Status_t stopTxStream(void)
+static sl_rail_status_t stopTxStream(void)
 {
-    RAIL_Status_t        status;
-    uint16_t             currentChannel;
-    RAIL_SchedulerInfo_t rxSchedulerInfo = {
+    sl_rail_status_t         status;
+    uint16_t                 currentChannel;
+    sl_rail_scheduler_info_t rxSchedulerInfo = {
         .priority = SL_802154_RADIO_PRIO_BACKGROUND_RX_VALUE,
     };
 
-    SuccessOrExit(status = RAIL_StopTxStream(gRailHandle));
+    SuccessOrExit(status = sl_rail_stop_tx_stream(gRailHandle));
     // Since start transmit stream turn off the radio state,
-    // call the RAIL_StartRx to turn on radio
-    IgnoreError(RAIL_GetChannel(gRailHandle, &currentChannel));
+    // call the sl_rail_start_rx to turn on radio
+    IgnoreError(sl_rail_get_channel(gRailHandle, &currentChannel));
 
-    status = RAIL_StartRx(gRailHandle, currentChannel, &rxSchedulerInfo);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_start_rx(gRailHandle, currentChannel, &rxSchedulerInfo);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 exit:
     return status;
@@ -263,65 +259,65 @@ otError otPlatDiagRadioTransmitCarrier(otInstance *aInstance, bool aEnable)
 {
     OT_UNUSED_VARIABLE(aInstance);
 
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
     if (aEnable)
     {
         otLogInfoPlat("Diag CARRIER-WAVE/Tone start");
-        status = startTxStream(RAIL_STREAM_CARRIER_WAVE);
+        status = startTxStream(SL_RAIL_STREAM_CARRIER_WAVE);
     }
     else
     {
         otLogInfoPlat("Diag CARRIER-WAVE/Tone stop");
         status = stopTxStream();
     }
-    return (status != RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
+    return (status != SL_RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
 }
 
 otError otPlatDiagRadioTransmitStream(otInstance *aInstance, bool aEnable)
 {
     OT_UNUSED_VARIABLE(aInstance);
 
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
     if (aEnable)
     {
         otLogInfoPlat("Diag Stream PN9 start");
-        status = startTxStream(RAIL_STREAM_PN9_STREAM);
+        status = startTxStream(SL_RAIL_STREAM_PN9_STREAM);
     }
     else
     {
         otLogInfoPlat("Diag Stream stop");
         status = stopTxStream();
     }
-    return (status != RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
+    return (status != SL_RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
 }
 
 otError otPlatDiagRadioAddressMatch(bool aEnable)
 {
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
     otLogInfoPlat("Diag address-match %s", aEnable ? "enable" : "disable");
 
-    status = RAIL_IEEE802154_SetPromiscuousMode(gRailHandle, !aEnable);
-    return (status != RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
+    status = sl_rail_ieee802154_set_promiscuous_mode(gRailHandle, !aEnable);
+    return (status != SL_RAIL_STATUS_NO_ERROR ? OT_ERROR_FAILED : OT_ERROR_NONE);
 }
 
 otError otPlatDiagRadioAutoAck(bool aAutoAckEnabled)
 {
     otLogInfoPlat("Diag auto-ack %s", aAutoAckEnabled ? "enable" : "disable");
 
-    RAIL_PauseRxAutoAck(gRailHandle, !aAutoAckEnabled);
+    sl_rail_pause_rx_auto_ack(gRailHandle, !aAutoAckEnabled);
 
     return OT_ERROR_NONE;
 }
 
 void otPlatDiagChannelSet(uint8_t aChannel)
 {
-    otError       error = OT_ERROR_NONE;
-    RAIL_Status_t status;
+    otError          error = OT_ERROR_NONE;
+    sl_rail_status_t status;
 
-    RAIL_SchedulerInfo_t bgRxSchedulerInfo = {
+    sl_rail_scheduler_info_t bgRxSchedulerInfo = {
         .priority = SL_802154_RADIO_PRIO_BACKGROUND_RX_VALUE,
         // sliptime/transaction time is not used for bg rx
     };
@@ -329,18 +325,18 @@ void otPlatDiagChannelSet(uint8_t aChannel)
     error = efr32RadioLoadChannelConfig(aChannel, sTxPower);
     OT_ASSERT(error == OT_ERROR_NONE);
 
-    status = RAIL_StartRx(gRailHandle, aChannel, &bgRxSchedulerInfo);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_start_rx(gRailHandle, aChannel, &bgRxSchedulerInfo);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 }
 
 void otPlatDiagTxPowerSet(int8_t aTxPower)
 {
-    RAIL_Status_t status;
+    sl_rail_status_t status;
 
-    // RAIL_SetTxPowerDbm() takes power in units of deci-dBm (0.1dBm)
+    // sl_rail_set_tx_power_dbm() takes power in units of deci-dBm (0.1dBm)
     // Multiply by 10 because aPower is supposed be in units dBm
-    status = RAIL_SetTxPowerDbm(gRailHandle, ((RAIL_TxPower_t)aTxPower) * 10);
-    OT_ASSERT(status == RAIL_STATUS_NO_ERROR);
+    status = sl_rail_set_tx_power_dbm(gRailHandle, ((sl_rail_tx_power_t)aTxPower) * 10);
+    OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
     sTxPower = aTxPower;
 }
 

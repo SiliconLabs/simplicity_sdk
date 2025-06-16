@@ -215,9 +215,9 @@ void getChannelConfigEntry(sl_cli_command_arg_t *args)
  *****************************************************************************/
 // Override weak function called by callback sli_rail_util_on_channel_config_change.
 void sl_rail_util_on_channel_config_change(RAIL_Handle_t railHandle,
-                                           const RAIL_ChannelConfigEntry_t *entry)
+                                           const RAIL_ChannelConfigEntry_t *p_entry)
 {
-  (void)entry;
+  (void)p_entry;
   // Now that the radio config changed, verify the new data contents.
   RAIL_ConfigVerification(railHandle, &configVerify, NULL, NULL);
   if (verifyConfigEnabled && RAIL_Verify(&configVerify, RAIL_VERIFY_DURATION_MAX, true)

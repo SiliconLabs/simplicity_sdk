@@ -28,28 +28,41 @@
  *
  ******************************************************************************/
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_ble.h"
 #include "rail_ble.h"
+
+#if SL_RAIL_BLE_SUPPORTS_CS
+
+#include "sl_rail_util_cs_gdcomp_config.h"
 #include "sl_rail_util_cs_gdcomp_tables.h"
 
 #if (!SL_RAIL_UTIL_CS_GDCOMP_RUNTIME_PA_TABLE_SELECTION \
      && (defined(SL_RAIL_UTIL_CS_GDCOMP_LP_PA_DBM)      \
   || defined(SL_RAIL_UTIL_CS_GDCOMP_HP_PA_DBM)))
+
+#if     SLI_RAIL_3_API
+sl_rail_status_t sl_railcb_ble_cs_gd_comp_table_load(void)
+#else//!SLI_RAIL_3_API
 RAIL_Status_t RAILCb_BLE_CsGdCompTableLoad(void)
+#endif//SLI_RAIL_3_API
 {
-  RAIL_Status_t status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t status = SL_RAIL_STATUS_NO_ERROR;
 #ifdef SL_RAIL_UTIL_CS_GDCOMP_LP_PA_DBM
-  status = RAIL_BLE_LoadCsCompTables(RAIL_EFR32_HANDLE,
-                                     &sl_rail_util_cs_gdcomp_tables_lp_pa,
-                                     RAIL_TX_POWER_MODE_2P4GIG_LP);
+  status = sl_rail_ble_load_cs_comp_tables(SL_RAIL_EFR32_HANDLE,
+                                           &sl_rail_util_cs_gdcomp_tables_lp_pa,
+                                           SL_RAIL_BLE_CS_PA_INDEX_LP);
 #endif
 #ifdef SL_RAIL_UTIL_CS_GDCOMP_HP_PA_DBM
-  if (status == RAIL_STATUS_NO_ERROR) {
-    status = RAIL_BLE_LoadCsCompTables(RAIL_EFR32_HANDLE,
-                                       &sl_rail_util_cs_gdcomp_tables_hp_pa,
-                                       RAIL_TX_POWER_MODE_2P4GIG_HP);
+  if (status == SL_RAIL_STATUS_NO_ERROR) {
+    status = sl_rail_ble_load_cs_comp_tables(SL_RAIL_EFR32_HANDLE,
+                                             &sl_rail_util_cs_gdcomp_tables_hp_pa,
+                                             SL_RAIL_BLE_CS_PA_INDEX_HP);
   }
 #endif
   return status;
 }
-#endif
+
+#endif//(!SL_RAIL_UTIL_CS_GDCOMP_RUNTIME_PA_TABLE_SELECTION  ...)
+
+#endif // SL_RAIL_BLE_SUPPORTS_CS

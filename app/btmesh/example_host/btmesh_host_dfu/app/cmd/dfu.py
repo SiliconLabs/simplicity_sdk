@@ -1,4 +1,4 @@
-# Copyright 2023 Silicon Laboratories Inc. www.silabs.com
+# Copyright 2025 Silicon Laboratories Inc. www.silabs.com
 #
 # SPDX-License-Identifier: Zlib
 #
@@ -25,15 +25,23 @@ from typing import List, Optional, Tuple, Union
 
 import btmesh.util
 from bgapix.bglibx import BGLibExtSyncSignalException
-from btmesh.dfu import (FwReceiver, FwReceiverPhase, FwUpdateProgressEvent,
-                        FwUpdateStatus, FwUpdateStep)
+from btmesh.dfu import (
+    FwReceiver,
+    FwReceiverPhase,
+    FwUpdateProgressEvent,
+    FwUpdateStatus,
+    FwUpdateAdditionalInfo,
+    FwUpdateStep,
+)
 from btmesh.mbt import BlobTransferMode
 
+from .cmd import BtmeshCmd, FWParams
 from ..btmesh import app_btmesh
 from ..cfg import app_cfg
+from ..db import app_db
+from ..term import app_term
 from ..ui import AppUIColumnInfo, app_ui
 from ..util.argparsex import ArgumentParserExt
-from .cmd import BtmeshCmd
 
 
 class BtmeshDfuCmd(BtmeshCmd):
@@ -216,6 +224,7 @@ class BtmeshDfuCmd(BtmeshCmd):
             self.dfu_info_parser,
             add_elem_arg=True,
             add_elem_addrs_arg=True,
+            add_group_addr_arg=True,
             elem_default=0,
             group_addr_help=(
                 f"Group address used for the FW Information Query procedure. "
@@ -285,13 +294,35 @@ class BtmeshDfuCmd(BtmeshCmd):
             exit_on_error_ext=False,
         )
         self.dfu_start_parser.set_defaults(dfu_subcmd=self.dfu_start_cmd)
-        self.dfu_start_parser.add_argument(
-            "fw_image_path",
-            type=Path,
-            help="Path of FW image file which shall be used for FW update.",
+
+        # Create mutually exclusive group for firmware sources
+        fw_source_group = self.dfu_start_parser.add_mutually_exclusive_group(
+            required=True
         )
-        self.add_fwid_arg(self.dfu_start_parser)
-        self.add_metadata_arg(self.dfu_start_parser)
+
+        # Regular firmware image path
+        fw_source_group.add_argument(
+            "--fw-image",
+            dest="fw_image_path",
+            type=Path,
+            help="Path of FW image file (.gbl) which shall be used for FW update.",
+        )
+
+        # Firmware archive option
+        fw_source_group.add_argument(
+            "--firmware-archive",
+            "-z",
+            dest="firmware_archive_path",
+            type=Path,
+            help=(
+                "Path to a .gz archive containing firmware files including a .gbl firmware "
+                "image, manifest.json, and metadata.bin."
+            ),
+        )
+
+        # Make fwid and metadata optional since they can be derived from the firmware archive
+        self.add_fwid_arg(self.dfu_start_parser, required=False)
+        self.add_metadata_arg(self.dfu_start_parser, required=False)
         self.dfu_start_parser.add_argument(
             "--timeout-base",
             "-T",
@@ -379,6 +410,7 @@ class BtmeshDfuCmd(BtmeshCmd):
             self.dfu_start_parser,
             add_elem_arg=True,
             add_elem_addrs_arg=True,
+            add_group_addr_arg=True,
             elem_default=0,
             group_addr_help=(
                 f"Group address used for the Firmware Update procedure. "
@@ -424,6 +456,9 @@ class BtmeshDfuCmd(BtmeshCmd):
                 f"If {self.ELEM_ADDRS_OPTS} is used then {self.NODES_OPTS} and "
                 f"{self.GROUP_OPTS} and {self.ELEM_OPTS} shall not be used."
             ),
+        )
+        self.add_auto_new_term_args(
+            self.dfu_start_parser, app_cfg.dfu_clt.dfu_auto_new_term
         )
         return SUBPARSER_NAME, self.dfu_start_parser
 
@@ -483,15 +518,49 @@ class BtmeshDfuCmd(BtmeshCmd):
     def dfu_start_cmd(self, pargs):
         self.last_progress = -1
         self.last_dfu_state = FwUpdateStep.UNKNOWN_VALUE
-        if not pargs.fw_image_path.exists():
-            self.current_parser.error(
-                f'The FW image file does not exists on "{pargs.fw_image_path}" path.'
+
+        # Handle either firmware image file or firmware archive
+        if hasattr(pargs, "firmware_archive_path") and pargs.firmware_archive_path:
+            # Process firmware archive (.gz file)
+            if not pargs.firmware_archive_path.exists():
+                self.current_parser.error(
+                    f'The firmware archive file does not exist at "{pargs.firmware_archive_path}" path.'
+                )
+
+            # Extract and process the archive contents
+            fw_params = self.process_firmware_archive(pargs.firmware_archive_path)
+
+        elif hasattr(pargs, "fw_image_path") and pargs.fw_image_path:
+            # Process regular firmware image file (.gbl file)
+            fw_image_path: Path = pargs.fw_image_path
+            if not fw_image_path.exists():
+                self.current_parser.error(
+                    f'The FW image file does not exist at "{fw_image_path}" path.'
+                )
+
+            with open(fw_image_path, "rb") as content_file:
+                fw_data = content_file.read()
+            app_ui.info(
+                f"FW data ({len(fw_data)} bytes) is loaded from {fw_image_path}."
             )
-        with open(pargs.fw_image_path, "rb") as content_file:
-            fw_data = content_file.read()
-        app_ui.info(
-            f"FW data ({len(fw_data)} bytes) is loaded from " f"{pargs.fw_image_path}."
-        )
+
+            # Ensure FWID and metadata are provided when using regular firmware image
+            if not pargs.fwid:
+                self.current_parser.error(
+                    "When using --fw-image, you must specify fwid"
+                )
+
+            fw_params = FWParams(
+                fw_data=fw_data, fwid=pargs.fwid, metadata=pargs.metadata
+            )
+            if not fw_params:
+                self.current_parser.error("FWParams object is None")
+
+        else:
+            self.current_parser.error(
+                "Either --fw-image or --firmware-archive must be provided"
+            )
+
         group_addr, nodes, elem_addrs = self.process_group_nodes_args(
             pargs,
             nodes_order_property="name",
@@ -509,24 +578,26 @@ class BtmeshDfuCmd(BtmeshCmd):
             transfer_mode = BlobTransferMode.PUSH
         else:
             transfer_mode = BlobTransferMode.PULL
-        fwid = pargs.fwid
-        metadata = pargs.metadata
+
         timeout_base = pargs.timeout_base
         appkey_index = pargs.appkey_idx
         ttl = pargs.ttl
         chunk_size_pref = pargs.chunk_size
+        auto_new_term = self.process_auto_new_term_args(
+            pargs, default=app_cfg.dfu_clt.dfu_auto_new_term
+        )
         app_btmesh.core.subscribe(
             "btmesh_levt_dfu_fw_update_progress",
             self.handle_fw_update_progress,
         )
         try:
-            dfu_state, receivers_info = app_btmesh.dfu_clt.fw_update(
+            dfu_state, receivers_result = app_btmesh.dfu_clt.fw_update(
                 elem_index=app_cfg.dfu_clt.elem_index,
                 group_addr=group_addr,
                 receivers=receivers,
-                fwid=fwid,
-                metadata=metadata,
-                fw_data=fw_data,
+                fwid=fw_params.fwid,
+                metadata=fw_params.metadata,
+                fw_data=fw_params.fw_data,
                 timeout_base=timeout_base,
                 transfer_mode=transfer_mode,
                 chunk_size_pref=chunk_size_pref,
@@ -535,7 +606,7 @@ class BtmeshDfuCmd(BtmeshCmd):
                 ttl=ttl,
                 retry_params=retry_params,
             )
-            fwid_str = app_ui.fwid_str(fwid)
+            fwid_str = app_ui.fwid_str(fw_params.fwid)
             if dfu_state == FwUpdateStep.IDLE:
                 app_ui.info(
                     f"The FW Update procedure with {fwid_str} FWID is cancelled "
@@ -547,16 +618,28 @@ class BtmeshDfuCmd(BtmeshCmd):
                     f"{dfu_state.pretty_name} on the Initiator."
                 )
                 rows = []
-                for rec_info in receivers_info:
-                    rec_info_dict = {
-                        "Address": f"0x{rec_info.server_addr:04X}",
-                        "FW Idx": f"{rec_info.fw_index}",
-                        "Phase": rec_info.phase.pretty_name,
-                        "BLOB status": rec_info.mbt_status.pretty_name,
-                        "DFU status": rec_info.dfu_status.pretty_name,
+                for rec_result in receivers_result:
+                    rec_result_dict = {
+                        "Address": f"0x{rec_result.server_addr:04X}",
+                        "FW Idx": f"{rec_result.fw_index}",
+                        "Phase": rec_result.phase.pretty_name,
+                        "BLOB status": rec_result.mbt_status.pretty_name,
+                        "DFU status": rec_result.dfu_status.pretty_name,
                     }
-                    rows.append(rec_info_dict)
+                    rows.append(rec_result_dict)
                 app_ui.table_info(rows)
+                if auto_new_term:
+                    nodes_updated_cd_changed = [
+                        app_db.btmesh_db.get_node_by_elem_addr(rec_result.server_addr)
+                        for rec_result in receivers_result
+                        if rec_result.phase == FwReceiverPhase.APPLY_SUCCESS
+                        if rec_result.additional_info
+                        == FwUpdateAdditionalInfo.CD_CHANGED_RPR_SUPPORTED
+                    ]
+                    app_term.start_new_terms(
+                        nodes_updated_cd_changed,
+                        sync_dcd=True,
+                    )
         except BGLibExtSyncSignalException:
             # If an target node does not respond then the cancellation might
             # be as long as the FW update client timeout.
@@ -577,7 +660,7 @@ class BtmeshDfuCmd(BtmeshCmd):
                 ttl=ttl,
                 retry_params=retry_params,
             )
-            fwid_str = app_ui.fwid_str(fwid)
+            fwid_str = app_ui.fwid_str(fw_params.fwid)
             app_ui.info(
                 f"The FW Update procedure with {fwid_str} FWID is cancelled "
                 f"on the Initiator."
@@ -603,9 +686,9 @@ class BtmeshDfuCmd(BtmeshCmd):
             FwUpdateStep.UNKNOWN_VALUE,
         ):
             active_receivers_progress = [
-                r.progress
-                for r in event.receivers_info
-                if r.phase == FwReceiverPhase.TRANSFER_IN_PROGRESS
+                receiver_info.progress
+                for receiver_info in event.receivers_info
+                if receiver_info.phase == FwReceiverPhase.TRANSFER_IN_PROGRESS
             ]
             if active_receivers_progress:
                 progress = min(active_receivers_progress)

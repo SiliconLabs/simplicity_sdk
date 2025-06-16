@@ -1,6 +1,6 @@
 id: ot_cert_libs
 label: OpenThread Certification Libraries
-package: OpenThread
+package: openthread
 category: OpenThread
 quality: production
 description: >
@@ -112,6 +112,38 @@ library:
     condition:
       - toolchain_gcc
       - device_sdid_225
+    unless:
+      - ot_stack_tcp_stubs
+  - path: protocol/openthread/libs/libsl_ot_stack_ftd_simg301_gcc.a
+    condition:
+      - toolchain_gcc
+      - device_generic_family_sixx301
+      - ot_stack_ftd
+    unless:
+      - ot_coap_cert_libs
+  - path: protocol/openthread/libs/libsl_ot_stack_mtd_simg301_gcc.a
+    condition:
+      - toolchain_gcc
+      - device_generic_family_sixx301
+      - ot_stack_mtd
+    unless:
+      - ot_coap_cert_libs
+  - path: protocol/openthread/libs/libsl_ot_stack_ftd_coap_simg301_gcc.a
+    condition:
+      - toolchain_gcc
+      - device_generic_family_sixx301
+      - ot_stack_ftd
+      - ot_coap_cert_libs
+  - path: protocol/openthread/libs/libsl_ot_stack_mtd_coap_simg301_gcc.a
+    condition:
+      - toolchain_gcc
+      - device_generic_family_sixx301
+      - ot_stack_mtd
+      - ot_coap_cert_libs
+  - path: protocol/openthread/libs/libsl_ot_stack_tcp_simg301_gcc.a
+    condition:
+      - toolchain_gcc
+      - device_generic_family_sixx301
     unless:
       - ot_stack_tcp_stubs
 metadata:

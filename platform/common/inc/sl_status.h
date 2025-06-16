@@ -213,17 +213,16 @@
 #define SL_STATUS_NVM3_RESIZE_NOT_ENOUGH_SPACE       ((sl_status_t)0x0066)  ///< Not enough NVM to complete resize
 #define SL_STATUS_NVM3_ERASE_COUNT_ERROR             ((sl_status_t)0x0067)  ///< Erase counts are not valid
 #define SL_STATUS_NVM3_NVM_ACCESS                    ((sl_status_t)0x0068)  ///< A NVM function call was failing
-#define SL_STATUS_NVM3_CRYPTO_INIT_FAILED            ((sl_status_t)0x0069)  ///< Crypto initialization failed
-#define SL_STATUS_NVM3_ENCRYPTION_KEY_ERROR          ((sl_status_t)0x006A)  ///< Error in obtaining encryption key
-#define SL_STATUS_NVM3_RANDOM_NUM_GENERATION_FAILED  ((sl_status_t)0x006B)  ///< Error in obtaining random number
-#define SL_STATUS_NVM3_ENCRYPTION_FAILED             ((sl_status_t)0x006C)  ///< Encryption failed
 #define SL_STATUS_NVM3_WRITE_TO_NOT_ERASED           ((sl_status_t)0x006D)  ///< Write to memory that is not erased
 #define SL_STATUS_NVM3_INVALID_ADDR                  ((sl_status_t)0x006E)  ///< Invalid NVM address
 #define SL_STATUS_NVM3_KEY_MISMATCH                  ((sl_status_t)0x006F)  ///< Key validation failure
 #define SL_STATUS_NVM3_SIZE_ERROR                    ((sl_status_t)0x0070)  ///< Size mismatch error
 #define SL_STATUS_NVM3_EMULATOR                      ((sl_status_t)0x0071)  ///< Emulator error
-#define SL_STATUS_NVM3_SECURITY_INIT_FAILED          ((sl_status_t)0x0072)  ///< Security init failed
-#define SL_STATUS_NVM3_GET_REGION_LOCATION_FAILED    ((sl_status_t)0x0073)  ///< Get data region location failed
+
+// Security status codes
+#define SL_STATUS_SECURITY_ENCRYPT_ERROR             ((sl_status_t)0x0072)  ///< Encryption failed
+#define SL_STATUS_SECURITY_KEY_ERROR                 ((sl_status_t)0x0073)  ///< Error in obtaining crypto key
+#define SL_STATUS_SECURITY_RANDOM_NUM_GEN_ERROR      ((sl_status_t)0x0074)  ///< Error in obtaining random number
 
 // Bluetooth status codes
 #define SL_STATUS_BT_OUT_OF_BONDS                                                                        ((sl_status_t)0x0402)        ///< Bonding procedure can't be started because device has no space left for bond.
@@ -462,6 +461,16 @@
 #define SL_STATUS_ZIGBEE_NO_LINK_KEY_RECEIVED                  ((sl_status_t)0x0C1C)  ///< After a device joined a Secured Network, a Link Key was requested (::EMBER_GET_LINK_KEY_WHEN_JOINING) but no response was ever received.
 #define SL_STATUS_ZIGBEE_PRECONFIGURED_KEY_REQUIRED            ((sl_status_t)0x0C1D)  ///< An attempt was made to join a Secured Network without a pre-configured key, but the Trust Center sent encrypted data using a pre-configured key.
 #define SL_STATUS_ZIGBEE_EZSP_ERROR                            ((sl_status_t)0x0C1E)  ///< A Zigbee EZSP error has occured. Track the origin and corresponding EzspStatus for more info.
+#define SL_STATUS_ZIGBEE_ID_DISCOVERY_FAILED                   ((sl_status_t)0x0C1F)  ///< Node ID discovery failed.
+#define SL_STATUS_ZIGBEE_NO_APS_ACK                            ((sl_status_t)0x0C20)  ///< Message was sent but no APS ACK received.
+#define SL_STATUS_ZIGBEE_APS_MESSAGE_CANCELED                  ((sl_status_t)0x0C21)  ///< APS message was canceled.
+#define SL_STATUS_ZIGBEE_ID_DISCOVERY_NOT_ENABLED              ((sl_status_t)0x0C22)  ///< Node ID discovery not enabled.
+#define SL_STATUS_ZIGBEE_ID_DISCOVERY_UNDERWAY                 ((sl_status_t)0x0C23)  ///< Message was not sent, Node ID discovery is underway.
+#define SL_STATUS_ZIGBEE_SEND_UNICAST_ROUTE_DISCOVERY_UNDERWAY ((sl_status_t)0x0C24)  ///< The message was not sent because a route discovery is currently underway. There is no route to the target until the route discovery completes.
+#define SL_STATUS_ZIGBEE_SEND_UNICAST_FAILURE                  ((sl_status_t)0x0C25)  ///< Radius is 0 or message has been dropped because route request failed or failed to submit message to tx queue.
+#define SL_STATUS_ZIGBEE_SEND_UNICAST_NO_ROUTE                 ((sl_status_t)0x0C26)  ///< No active route to the destination.
+#define SL_STATUS_ZIGBEE_BROADCAST_TO_SLEEPY_CHILDREN_TIMEOUT  ((sl_status_t)0x0C27)  ///< Broadcast message timeout while waiting for sleepy children to poll.
+#define SL_STATUS_ZIGBEE_BROADCAST_RELAY_FAILED                ((sl_status_t)0x0C28)  ///< Expected a neighbor to relay the message, but none did.
 
 // -----------------------------------------------------------------------------
 // Data Types

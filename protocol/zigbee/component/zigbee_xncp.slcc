@@ -1,6 +1,6 @@
 id: zigbee_xncp
 label: XNCP
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 description: Provides the functionality for an NCP device to communicate custom EZSP frames with a host.

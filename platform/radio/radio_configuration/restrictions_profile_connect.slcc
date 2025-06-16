@@ -1,6 +1,6 @@
 id: restrictions_profile_connect
 label: Restrictions - Connect Profile
-package: platform
+package: platform_default_radio_confs
 description: Component provides profile_connect.restriction configuration files by logic
 category: Platform|Radio Configuration
 quality: production

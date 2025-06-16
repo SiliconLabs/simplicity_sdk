@@ -1,7 +1,7 @@
 !!omap
 - id: brd4204d
 - label: BRD4204D
-- package: platform
+- package: boards
 - description: Board support for BRD4204D.
 - category: Platform|Board|Radio Board
 - quality: production

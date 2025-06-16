@@ -1,5 +1,5 @@
 id: tz_service_attestation
-package: platform
+package: security_trustzone
 label: PSA Attestation Service for TrustZone Secure Key Library
 description: >-
   This component includes the attestation support for TrustZone secure library.

@@ -8,7 +8,7 @@ description: >
   Data is stored in the memory management implementation component that can be static or dynamic.
   The component enables pausing and resuming the execution. It also uses Power Manager to prevent
   sleep when there is a triggered task to be executed.
-package: platform
+package: platform_common_apps
 quality: production
 metadata:
   sbom:

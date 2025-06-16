@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #
-# Generated Thu Feb 23 14:49:58 2023 by generateDS.py version 2.12d.
+# Generated Fri Apr  4 14:53:10 2025 by generateDS.py version 2.12d.
 #
 # Command line options:
 #   ('-o', '../Bindings.py')
@@ -18,7 +18,7 @@
 #   ./multi_phy_configuration_model.xsd
 #
 # Command line:
-#   C:\validation\host_py_radio_config\Package\pylib_multi_phy_model\multi_phy_configuration_model\xsd\generateDS_custom.py -o "../Bindings.py" --super="Bindings" -s "../Template.py" --subclass-suffix --member-specs="list" --external-encoding="ascii" -m -f --silence ./multi_phy_configuration_model.xsd
+#   C:\validation\users\tiwee\efx_rf_workspace_2024_10_9421_char_tag_debug\libraries\host_py_radio_config\Package\pylib_multi_phy_model\multi_phy_configuration_model\xsd\generateDS_custom.py -o "../Bindings.py" --super="Bindings" -s "../Template.py" --subclass-suffix --member-specs="list" --external-encoding="ascii" -m -f --silence ./multi_phy_configuration_model.xsd
 #
 # Current working directory (os.getcwd()):
 #   xsd
@@ -109,8 +109,8 @@ supermod.base_channel_configurationsType.subclass = base_channel_configurationsT
 
 
 class base_channel_configurationType(supermod.base_channel_configurationType):
-    def __init__(self, name=None, profile=None, force_empty_phy_config_delta_subtract=True, base_channel_reference=None, profile_inputs=None, phy=None, profile_output_overrides=None, metadata=None, channel_config_entries=None, phy_config_base=None, phy_config_delta_subtract=None, link_layer_config=None, optional_arguments=None):
-        super(base_channel_configurationType, self).__init__(name, profile, force_empty_phy_config_delta_subtract, base_channel_reference, profile_inputs, phy, profile_output_overrides, metadata, channel_config_entries, phy_config_base, phy_config_delta_subtract, link_layer_config, optional_arguments, )
+    def __init__(self, name=None, profile=None, force_empty_phy_config_delta_subtract=True, apply_dontcares_across_deltas=True, prune_aliases_in_deltas=True, base_channel_reference=None, profile_inputs=None, phy=None, profile_output_overrides=None, metadata=None, channel_config_entries=None, phy_config_base=None, phy_config_delta_subtract=None, link_layer_config=None, optional_arguments=None):
+        super(base_channel_configurationType, self).__init__(name, profile, force_empty_phy_config_delta_subtract, apply_dontcares_across_deltas, prune_aliases_in_deltas, base_channel_reference, profile_inputs, phy, profile_output_overrides, metadata, channel_config_entries, phy_config_base, phy_config_delta_subtract, link_layer_config, optional_arguments, )
 supermod.base_channel_configurationType.subclass = base_channel_configurationType
 # end class base_channel_configurationType
 
@@ -172,8 +172,8 @@ supermod.channel_config_entriesType.subclass = channel_config_entriesType
 
 
 class channel_config_entryType(supermod.channel_config_entryType):
-    def __init__(self, name=None, base_frequency=None, channel_spacing=None, physical_channel_offset=None, channel_number_start=None, channel_number_end=None, max_power=None, profile_input_overrides=None, profile_output_overrides=None, phy_name_override=None, phy_config_delta_add=None, radio_configurator_output_model=None, full_register_model=None, optional_arguments=None, metadata=None, alternate_phy=None):
-        super(channel_config_entryType, self).__init__(name, base_frequency, channel_spacing, physical_channel_offset, channel_number_start, channel_number_end, max_power, profile_input_overrides, profile_output_overrides, phy_name_override, phy_config_delta_add, radio_configurator_output_model, full_register_model, optional_arguments, metadata, alternate_phy, )
+    def __init__(self, name=None, base_frequency=None, channel_spacing=None, physical_channel_offset=None, channel_number_start=None, channel_number_end=None, max_power=None, profile_input_overrides=None, profile_output_overrides=None, phy_name_override=None, phy_config_delta_add=None, phy_config_dont_care_bitmasks=None, phy_config_chosen_aliases=None, radio_configurator_output_model=None, full_register_model=None, optional_arguments=None, metadata=None, alternate_phy=None, register_groups=None):
+        super(channel_config_entryType, self).__init__(name, base_frequency, channel_spacing, physical_channel_offset, channel_number_start, channel_number_end, max_power, profile_input_overrides, profile_output_overrides, phy_name_override, phy_config_delta_add, phy_config_dont_care_bitmasks, phy_config_chosen_aliases, radio_configurator_output_model, full_register_model, optional_arguments, metadata, alternate_phy, register_groups, )
 supermod.channel_config_entryType.subclass = channel_config_entryType
 # end class channel_config_entryType
 
@@ -220,6 +220,34 @@ supermod.registerType.subclass = registerType
 # end class registerType
 
 
+class phy_config_dont_care_bitmasksType(supermod.phy_config_dont_care_bitmasksType):
+    def __init__(self, register_mask=None):
+        super(phy_config_dont_care_bitmasksType, self).__init__(register_mask, )
+supermod.phy_config_dont_care_bitmasksType.subclass = phy_config_dont_care_bitmasksType
+# end class phy_config_dont_care_bitmasksType
+
+
+class register_maskType(supermod.register_maskType):
+    def __init__(self, key=None, value=None):
+        super(register_maskType, self).__init__(key, value, )
+supermod.register_maskType.subclass = register_maskType
+# end class register_maskType
+
+
+class phy_config_chosen_aliasesType(supermod.phy_config_chosen_aliasesType):
+    def __init__(self, address=None):
+        super(phy_config_chosen_aliasesType, self).__init__(address, )
+supermod.phy_config_chosen_aliasesType.subclass = phy_config_chosen_aliasesType
+# end class phy_config_chosen_aliasesType
+
+
+class addressType(supermod.addressType):
+    def __init__(self, key=None, value=None):
+        super(addressType, self).__init__(key, value, )
+supermod.addressType.subclass = addressType
+# end class addressType
+
+
 class optional_argumentsType(supermod.optional_argumentsType):
     def __init__(self, argument=None):
         super(optional_argumentsType, self).__init__(argument, )
@@ -241,11 +269,25 @@ supermod.alternate_phyType.subclass = alternate_phyType
 # end class alternate_phyType
 
 
-class phy_config_baseType(supermod.phy_config_baseType):
+class register_groupsType(supermod.register_groupsType):
+    def __init__(self, register_group=None):
+        super(register_groupsType, self).__init__(register_group, )
+supermod.register_groupsType.subclass = register_groupsType
+# end class register_groupsType
+
+
+class register_groupType(supermod.register_groupType):
+    def __init__(self, name=None, phy_config_delta_grouped_add=None):
+        super(register_groupType, self).__init__(name, phy_config_delta_grouped_add, )
+supermod.register_groupType.subclass = register_groupType
+# end class register_groupType
+
+
+class phy_config_delta_grouped_addType(supermod.phy_config_delta_grouped_addType):
     def __init__(self, register=None):
-        super(phy_config_baseType, self).__init__(register, )
-supermod.phy_config_baseType.subclass = phy_config_baseType
-# end class phy_config_baseType
+        super(phy_config_delta_grouped_addType, self).__init__(register, )
+supermod.phy_config_delta_grouped_addType.subclass = phy_config_delta_grouped_addType
+# end class phy_config_delta_grouped_addType
 
 
 class registerType6(supermod.registerType6):
@@ -255,11 +297,11 @@ supermod.registerType6.subclass = registerType6
 # end class registerType6
 
 
-class phy_config_delta_subtractType(supermod.phy_config_delta_subtractType):
+class phy_config_baseType(supermod.phy_config_baseType):
     def __init__(self, register=None):
-        super(phy_config_delta_subtractType, self).__init__(register, )
-supermod.phy_config_delta_subtractType.subclass = phy_config_delta_subtractType
-# end class phy_config_delta_subtractType
+        super(phy_config_baseType, self).__init__(register, )
+supermod.phy_config_baseType.subclass = phy_config_baseType
+# end class phy_config_baseType
 
 
 class registerType7(supermod.registerType7):
@@ -267,6 +309,20 @@ class registerType7(supermod.registerType7):
         super(registerType7, self).__init__(name, value, baseAddress, addressOffset, fullname, access, description, resetValue, resetMask, )
 supermod.registerType7.subclass = registerType7
 # end class registerType7
+
+
+class phy_config_delta_subtractType(supermod.phy_config_delta_subtractType):
+    def __init__(self, register=None):
+        super(phy_config_delta_subtractType, self).__init__(register, )
+supermod.phy_config_delta_subtractType.subclass = phy_config_delta_subtractType
+# end class phy_config_delta_subtractType
+
+
+class registerType8(supermod.registerType8):
+    def __init__(self, name=None, value=None, baseAddress=None, addressOffset=None, fullname=None, access=None, description=None, resetValue=None, resetMask=None):
+        super(registerType8, self).__init__(name, value, baseAddress, addressOffset, fullname, access, description, resetValue, resetMask, )
+supermod.registerType8.subclass = registerType8
+# end class registerType8
 
 
 class link_layer_configType(supermod.link_layer_configType):
@@ -283,18 +339,18 @@ supermod.inputsType.subclass = inputsType
 # end class inputsType
 
 
-class inputType8(supermod.inputType8):
+class inputType9(supermod.inputType9):
     def __init__(self, key=None, value=None):
-        super(inputType8, self).__init__(key, value, )
-supermod.inputType8.subclass = inputType8
-# end class inputType8
+        super(inputType9, self).__init__(key, value, )
+supermod.inputType9.subclass = inputType9
+# end class inputType9
 
 
-class phyType9(supermod.phyType9):
+class phyType10(supermod.phyType10):
     def __init__(self, name=None, overrides=None):
-        super(phyType9, self).__init__(name, overrides, )
-supermod.phyType9.subclass = phyType9
-# end class phyType9
+        super(phyType10, self).__init__(name, overrides, )
+supermod.phyType10.subclass = phyType10
+# end class phyType10
 
 
 class overridesType(supermod.overridesType):
@@ -304,25 +360,25 @@ supermod.overridesType.subclass = overridesType
 # end class overridesType
 
 
-class overrideType10(supermod.overrideType10):
+class overrideType11(supermod.overrideType11):
     def __init__(self, key=None, value=None):
-        super(overrideType10, self).__init__(key, value, )
-supermod.overrideType10.subclass = overrideType10
-# end class overrideType10
+        super(overrideType11, self).__init__(key, value, )
+supermod.overrideType11.subclass = overrideType11
+# end class overrideType11
 
 
-class optional_argumentsType11(supermod.optional_argumentsType11):
+class optional_argumentsType12(supermod.optional_argumentsType12):
     def __init__(self, argument=None):
-        super(optional_argumentsType11, self).__init__(argument, )
-supermod.optional_argumentsType11.subclass = optional_argumentsType11
-# end class optional_argumentsType11
+        super(optional_argumentsType12, self).__init__(argument, )
+supermod.optional_argumentsType12.subclass = optional_argumentsType12
+# end class optional_argumentsType12
 
 
-class argumentType12(supermod.argumentType12):
+class argumentType13(supermod.argumentType13):
     def __init__(self, key=None, value=None):
-        super(argumentType12, self).__init__(key, value, )
-supermod.argumentType12.subclass = argumentType12
-# end class argumentType12
+        super(argumentType13, self).__init__(key, value, )
+supermod.argumentType13.subclass = argumentType13
+# end class argumentType13
 
 
 class output_filesType(supermod.output_filesType):

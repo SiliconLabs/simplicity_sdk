@@ -11,7 +11,7 @@
  *
  ******************************************************************************/
 /* LzmaDec.h -- LZMA Decoder
-2017-04-03 : Igor Pavlov : Public domain */
+   2017-04-03 : Igor Pavlov : Public domain */
 
 #ifndef __LZMA_DEC_H
 #define __LZMA_DEC_H
@@ -30,25 +30,24 @@ EXTERN_C_BEGIN
 #define CLzmaProb UInt16
 #endif
 
-
 /* ---------- LZMA Properties ---------- */
 
 #define LZMA_PROPS_SIZE 5
 
-typedef struct _CLzmaProps
-{
-  unsigned lc, lp, pb;
+typedef struct _CLzmaProps{
+  unsigned lc;
+  unsigned lp;
+  unsigned pb;
   UInt32 dicSize;
 } CLzmaProps;
 
 /* LzmaProps_Decode - decodes properties
-Returns:
-  SZ_OK
-  SZ_ERROR_UNSUPPORTED - Unsupported properties
-*/
+   Returns:
+   SZ_OK
+   SZ_ERROR_UNSUPPORTED - Unsupported properties
+ */
 
 SRes LzmaProps_Decode(CLzmaProps *p, const Byte *data, unsigned size);
-
 
 /* ---------- LZMA Decoder state ---------- */
 
@@ -57,13 +56,13 @@ SRes LzmaProps_Decode(CLzmaProps *p, const Byte *data, unsigned size);
 
 #define LZMA_REQUIRED_INPUT_MAX 20
 
-typedef struct
-{
+typedef struct {
   CLzmaProps prop;
   CLzmaProb *probs;
   Byte *dic;
   const Byte *buf;
-  UInt32 range, code;
+  UInt32 range;
+  UInt32 code;
   SizeT dicPos;
   SizeT dicBufSize;
   UInt32 processedPos;
@@ -86,8 +85,7 @@ void LzmaDec_Init(CLzmaDec *p);
      0) Stream with end mark. That end mark adds about 6 bytes to compressed size.
      1) Stream without end mark. You must know exact uncompressed size to decompress such stream. */
 
-typedef enum
-{
+typedef enum {
   LZMA_FINISH_ANY,   /* finish at any point */
   LZMA_FINISH_END    /* block must be finished at the end */
 } ELzmaFinishMode;
@@ -107,8 +105,7 @@ typedef enum
      3) Check that output(srcLen) = compressedSize, if you know real compressedSize.
         You must use correct finish mode in that case. */
 
-typedef enum
-{
+typedef enum {
   LZMA_STATUS_NOT_SPECIFIED,               /* use main error code instead */
   LZMA_STATUS_FINISHED_WITH_MARK,          /* stream was finished with end mark. */
   LZMA_STATUS_NOT_FINISHED,                /* stream was not finished */
@@ -117,7 +114,6 @@ typedef enum
 } ELzmaStatus;
 
 /* ELzmaStatus is used only as output value for function call */
-
 
 /* ---------- Interfaces ---------- */
 
@@ -128,19 +124,18 @@ typedef enum
    You can select any of these interfaces, but don't mix functions from different
    groups for same object. */
 
-
 /* There are two variants to allocate state for Dictionary Interface:
      1) LzmaDec_Allocate / LzmaDec_Free
      2) LzmaDec_AllocateProbs / LzmaDec_FreeProbs
    You can use variant 2, if you set dictionary buffer manually.
    For Buffer Interface you must always use variant 1.
 
-LzmaDec_Allocate* can return:
-  SZ_OK
-  SZ_ERROR_MEM         - Memory allocation error
-  SZ_ERROR_UNSUPPORTED - Unsupported properties
-*/
-   
+   LzmaDec_Allocate* can return:
+   SZ_OK
+   SZ_ERROR_MEM         - Memory allocation error
+   SZ_ERROR_UNSUPPORTED - Unsupported properties
+ */
+
 SRes LzmaDec_AllocateProbs(CLzmaDec *p, const Byte *props, unsigned propsSize, ISzAllocPtr alloc);
 void LzmaDec_FreeProbs(CLzmaDec *p, ISzAllocPtr alloc);
 
@@ -166,31 +161,30 @@ void LzmaDec_Free(CLzmaDec *state, ISzAllocPtr alloc);
        }
      }
      LzmaDec_Free()
-*/
+ */
 
 /* LzmaDec_DecodeToDic
-   
+
    The decoding to internal dictionary buffer (CLzmaDec::dic).
    You must manually update CLzmaDec::dicPos, if it reaches CLzmaDec::dicBufSize !!!
 
-finishMode:
-  It has meaning only if the decoding reaches output limit (dicLimit).
-  LZMA_FINISH_ANY - Decode just dicLimit bytes.
-  LZMA_FINISH_END - Stream must be finished after dicLimit.
+   finishMode:
+   It has meaning only if the decoding reaches output limit (dicLimit).
+   LZMA_FINISH_ANY - Decode just dicLimit bytes.
+   LZMA_FINISH_END - Stream must be finished after dicLimit.
 
-Returns:
-  SZ_OK
+   Returns:
+   SZ_OK
     status:
       LZMA_STATUS_FINISHED_WITH_MARK
       LZMA_STATUS_NOT_FINISHED
       LZMA_STATUS_NEEDS_MORE_INPUT
       LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK
-  SZ_ERROR_DATA - Data error
-*/
+   SZ_ERROR_DATA - Data error
+ */
 
 SRes LzmaDec_DecodeToDic(CLzmaDec *p, SizeT dicLimit,
-    const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode, ELzmaStatus *status);
-
+                         const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode, ELzmaStatus *status);
 
 /* ---------- Buffer Interface ---------- */
 
@@ -199,40 +193,39 @@ SRes LzmaDec_DecodeToDic(CLzmaDec *p, SizeT dicLimit,
    but you must use LzmaDec_DecodeToBuf instead of LzmaDec_DecodeToDic and you don't need
    to work with CLzmaDec variables manually.
 
-finishMode:
-  It has meaning only if the decoding reaches output limit (*destLen).
-  LZMA_FINISH_ANY - Decode just destLen bytes.
-  LZMA_FINISH_END - Stream must be finished after (*destLen).
-*/
+   finishMode:
+   It has meaning only if the decoding reaches output limit (*destLen).
+   LZMA_FINISH_ANY - Decode just destLen bytes.
+   LZMA_FINISH_END - Stream must be finished after (*destLen).
+ */
 
 SRes LzmaDec_DecodeToBuf(CLzmaDec *p, Byte *dest, SizeT *destLen,
-    const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode, ELzmaStatus *status);
-
+                         const Byte *src, SizeT *srcLen, ELzmaFinishMode finishMode, ELzmaStatus *status);
 
 /* ---------- One Call Interface ---------- */
 
 /* LzmaDecode
 
-finishMode:
-  It has meaning only if the decoding reaches output limit (*destLen).
-  LZMA_FINISH_ANY - Decode just destLen bytes.
-  LZMA_FINISH_END - Stream must be finished after (*destLen).
+   finishMode:
+   It has meaning only if the decoding reaches output limit (*destLen).
+   LZMA_FINISH_ANY - Decode just destLen bytes.
+   LZMA_FINISH_END - Stream must be finished after (*destLen).
 
-Returns:
-  SZ_OK
+   Returns:
+   SZ_OK
     status:
       LZMA_STATUS_FINISHED_WITH_MARK
       LZMA_STATUS_NOT_FINISHED
       LZMA_STATUS_MAYBE_FINISHED_WITHOUT_MARK
-  SZ_ERROR_DATA - Data error
-  SZ_ERROR_MEM  - Memory allocation error
-  SZ_ERROR_UNSUPPORTED - Unsupported properties
-  SZ_ERROR_INPUT_EOF - It needs more bytes in input buffer (src).
-*/
+   SZ_ERROR_DATA - Data error
+   SZ_ERROR_MEM  - Memory allocation error
+   SZ_ERROR_UNSUPPORTED - Unsupported properties
+   SZ_ERROR_INPUT_EOF - It needs more bytes in input buffer (src).
+ */
 
 SRes LzmaDecode(Byte *dest, SizeT *destLen, const Byte *src, SizeT *srcLen,
-    const Byte *propData, unsigned propSize, ELzmaFinishMode finishMode,
-    ELzmaStatus *status, ISzAllocPtr alloc);
+                const Byte *propData, unsigned propSize, ELzmaFinishMode finishMode,
+                ELzmaStatus *status, ISzAllocPtr alloc);
 
 EXTERN_C_END
 

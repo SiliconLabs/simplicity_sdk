@@ -28,7 +28,6 @@
  *
  ******************************************************************************/
 
-#include "sli_clock_manager.h"
 #include "sl_clock_manager.h"
 #include "sli_clock_manager.h"
 #include "sli_clock_manager_hal.h"
@@ -191,6 +190,17 @@ sl_status_t slx_clock_manager_hfxo_calibrate_ctune(uint32_t ctune)
 }
 
 /***************************************************************************//**
+ * Gets the HFXO's average startup time.
+ ******************************************************************************/
+sl_status_t sli_clock_manager_get_hfxo_average_startup_time(uint32_t *val)
+{
+  if (val == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+  return sli_clock_manager_hal_get_hfxo_average_startup_time(val);
+}
+
+/***************************************************************************//**
  * Sets the LFXO frequency tuning control.
  ******************************************************************************/
 sl_status_t sl_clock_manager_set_lfxo_calibration(uint32_t val)
@@ -259,21 +269,21 @@ sl_status_t sl_clock_manager_get_rco_calibration_count(uint32_t *count)
 /***************************************************************************//**
  * Sets SYSCLK clock source.
  ******************************************************************************/
-sl_status_t sli_clock_manager_set_sysclk_source(sl_oscillator_t source)
+sl_status_t slx_clock_manager_set_sysclk_source(sl_oscillator_t oscillator)
 {
-  return sli_clock_manager_hal_set_sysclk_source(source);
+  return sli_clock_manager_hal_set_sysclk_source(oscillator);
 }
 
 /***************************************************************************//**
  * Gets SYSCLK clock source.
  ******************************************************************************/
-sl_status_t sli_clock_manager_get_sysclk_source(sl_oscillator_t *source)
+sl_status_t sl_clock_manager_get_sysclk_source(sl_oscillator_t *oscillator)
 {
-  if (source == NULL) {
+  if (oscillator == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
 
-  return sli_clock_manager_hal_get_sysclk_source(source);
+  return sli_clock_manager_hal_get_sysclk_source(oscillator);
 }
 
 /***************************************************************************//**

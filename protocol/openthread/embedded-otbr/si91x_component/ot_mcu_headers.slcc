@@ -1,6 +1,6 @@
 id: ot_mcu_headers
 label: OpenThread headers
-package: OpenThread
+package: openthread_stack
 category: OpenThread
 quality: experimental
 description: This component provides the OpenThread header files for host MCU.

@@ -20,8 +20,7 @@
  * application files. An example could be a peripheral driver that enqueues an event when something
  * specific happens.
  */
-typedef enum EVENT_APP_LED_BULB
-{
+typedef enum EVENT_APP_LED_BULB{
   EVENT_EMPTY = DEFINE_EVENT_APP_NBR,
 }
 EVENT_APP;

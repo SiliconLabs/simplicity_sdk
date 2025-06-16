@@ -10,6 +10,9 @@ category: Platform|Bootloader|Drivers
 quality: production
 source:
   - path: platform/bootloader/driver/btl_driver_euart.c
+    condition: [device_series_2]
+  - path: platform/bootloader/series3/driver/btl_driver_euart.c
+    condition: [device_series_3]
 include:
   - path: platform/bootloader/driver
     file_list:

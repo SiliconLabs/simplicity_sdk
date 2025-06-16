@@ -18,5 +18,3 @@ zw_plus_info_config_icons_t * cc_zwave_plus_info_config_get_root_icons(void)
 {
   return &root_icons;
 }
-
-

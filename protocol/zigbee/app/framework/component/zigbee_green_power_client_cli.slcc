@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: A component implementing the client-side CLI functionality of the Green Power cluster.
 label: Green Power Client CLI
 quality: production

@@ -102,11 +102,6 @@ void *threaded_tick(void *ptr)
       fprintf(stderr, "[T]");
 #endif // PRINT_THREADED_TICK_ACTIVITY
 
-      if (threaded_tick_cli_handle->req_prompt) {
-        threaded_tick_cli_handle->req_prompt = false;
-        sli_cli_io_printf("%s", threaded_tick_cli_handle->prompt_string);
-        fflush(stdout);
-      }
 #if defined(SL_CLI_ACTIVE_FLAG_EN)
       threaded_tick_cli_handle->active = false;
 #endif
@@ -137,6 +132,10 @@ void *threaded_tick(void *ptr)
       } while ((c != EOF) && (!newline));
 
       if (newline) {
+#if defined(SL_CLI_ACTIVE_FLAG_EN)
+        threaded_tick_cli_handle->req_prompt = true;
+        threaded_tick_cli_handle->active = true;
+#endif
         // Write a new line to the pipe to wake up the host app
         assert(SL_CLI_THREADED_HOST_PIPE_DATA_LENGTH
                == write(PIPE_DATA_WRITER, &newLineChars, SL_CLI_THREADED_HOST_PIPE_DATA_LENGTH));
@@ -147,10 +146,6 @@ void *threaded_tick(void *ptr)
         // This is the point where we used to call sli_cli_handle_input_and_history().
         // That function should not be invoked from a thread.
         sema_post(&thread_event);
-#if defined(SL_CLI_ACTIVE_FLAG_EN)
-        threaded_tick_cli_handle->req_prompt = true;
-        threaded_tick_cli_handle->active = true;
-#endif
       }
       threaded_tick_cli_handle->tick_in_progress = false;
     }
@@ -194,6 +189,7 @@ void sli_cli_threaded_host_init(void)
 
 bool sli_cli_tick(sl_cli_handle_t handle)
 {
+  bool ret_val = false;
   if (threaded_tick_cli_handle == 0) {
     threaded_tick_cli_handle = handle;
   }
@@ -211,11 +207,15 @@ bool sli_cli_tick(sl_cli_handle_t handle)
     tick_handle_input = false;
 
     // Valid input was found.
-    return true;
+    ret_val = true;
   }
 
-  // No valid input.
-  return false;
+  if (threaded_tick_cli_handle != NULL && threaded_tick_cli_handle->req_prompt) {
+    threaded_tick_cli_handle->req_prompt = false;
+    sli_cli_io_printf("%s", threaded_tick_cli_handle->prompt_string);
+  }
+
+  return ret_val;
 }
 
 #else

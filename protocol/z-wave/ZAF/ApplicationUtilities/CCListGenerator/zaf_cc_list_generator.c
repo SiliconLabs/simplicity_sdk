@@ -11,9 +11,6 @@
 #include <FreeRTOS.h>
 #include <zaf_config_api.h>
 
-//#define DEBUGPRINT
-#include "DebugPrint.h"
-
 typedef struct zaf_endpoint_cc_lists {
   zaf_cc_list_t unsecure_included_ccs;
   zaf_cc_list_t secure_included_unsecure_ccs;

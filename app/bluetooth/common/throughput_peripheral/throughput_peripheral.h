@@ -77,7 +77,7 @@ sl_status_t throughput_peripheral_disable(void);
 /**************************************************************************//**
  * Sets the the transmission mode.
  * @param[in] mode the transmission mode is either of:
- *          - THROUGHPUT_MODE_CONTINOUS: transfer until stop
+ *          - THROUGHPUT_MODE_CONTINUOUS: transfer until stop
  *          - THROUGHPUT_MODE_FIXED_TIME: transfer data for a fixed time
  *          - THROUGHPUT_MODE_FIXED_DATA: a fixed amount of data to transfer
  * @param[in] amount the time in ms or data in bytes to transfer

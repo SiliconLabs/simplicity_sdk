@@ -13,7 +13,7 @@
 #include "CC_UserCode.h"
 #include "cc_user_code_io.h"
 #include "cc_user_code_config.h"
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "assert.h"
 #include <string.h>
 
@@ -36,6 +36,11 @@ CC_UserCode_getId_handler(
   __attribute__((unused)) bool status;
   SUserCode userCode = { 0 };
 
+  if (identifier == 0) {
+    *pId = USER_ID_AVAILABLE;
+    return true;
+  }
+
   status = CC_UserCode_Read(identifier, &userCode);
   assert(status);
 
@@ -53,6 +58,12 @@ CC_UserCode_Report_handler(
   __attribute__((unused)) bool status;
   SUserCode userCode = { 0 };
 
+  if (identifier == 0) {
+    *pLen = 4;
+    memset(pUserCode, 0x00, *pLen);
+    return true;
+  }
+
   status = CC_UserCode_Read(identifier, &userCode);
   assert(status);
 
@@ -60,11 +71,11 @@ CC_UserCode_Report_handler(
   if (USERCODE_MAX_LEN >= *pLen) {
     memcpy(pUserCode, userCode.userCode, *pLen);
 
-    DPRINT("hCmdUC_Report = ");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_USER_CODE, "hCmdUC_Report = ");
     for (size_t i = 0; i < *pLen; i++) {
-      DPRINTF("%d", *(pUserCode + i));
+      ZPAL_LOG_DEBUG(ZPAL_LOG_CC_USER_CODE, "%d", *(pUserCode + i));
     }
-    DPRINT("\r\n");
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_USER_CODE, "\r\n");
     return true;
   }
   return false;
@@ -83,21 +94,18 @@ CC_UserCode_Set_handler(
   SUserCode userCode = { 0 };
 
   // Make sure identifier is valid
+  // Avoid type-limits warning.
+  #if CC_USER_CODE_MAX_IDS < UINT8_MAX
   if (identifier > CC_USER_CODE_MAX_IDS) {
     return E_CMD_HANDLER_RETURN_CODE_HANDLED;
   }
+  #endif
 
   // it is possible to remove all user codes at once when identifier == 0
   if (identifier == 0) {
     if (id == USER_ID_AVAILABLE) {
-      userCode.user_id_status = id;
-      memset(userCode.userCode, 0xFF, len);
-      userCode.userCodeLen = len;
-
-      for (i = 0; i < CC_USER_CODE_MAX_IDS; i++) {
-        status = CC_UserCode_Write(i + 1, &userCode);
-        assert(status);
-      }
+      status = CC_UserCode_EraseAllUserCodes();
+      assert(status);
     }
   } else {
     userCode.user_id_status = id;
@@ -109,9 +117,9 @@ CC_UserCode_Set_handler(
   }
 
   for (i = 0; i < len; i++) {
-    DPRINTF("%d", *(pUserCode + i));
+    ZPAL_LOG_DEBUG(ZPAL_LOG_CC_USER_CODE, "%d", *(pUserCode + i));
   }
-  DPRINT("\r\n");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_USER_CODE, "\r\n");
   return E_CMD_HANDLER_RETURN_CODE_HANDLED;
 }
 
@@ -127,18 +135,13 @@ CC_UserCode_reset_data(void)
   };
   memcpy(userCodeDefaultData.userCode, defaultUserCode, userCodeDefaultData.userCodeLen);
 
+  if (CC_USER_CODE_MAX_IDS > 1) {
+    status = CC_UserCode_EraseAllUserCodes();
+    assert(status);
+  }
+
   status = CC_UserCode_Write(1, &userCodeDefaultData);
   assert(status);
-
-  if (CC_USER_CODE_MAX_IDS > 1) {
-    for (uint8_t i = 1; i < CC_USER_CODE_MAX_IDS; i++) {
-      userCodeDefaultData.user_id_status = USER_ID_AVAILABLE;
-      userCodeDefaultData.userCodeLen = sizeof(defaultUserCode);
-      memset(userCodeDefaultData.userCode, 0xFF, userCodeDefaultData.userCodeLen);
-      status = CC_UserCode_Write(i + 1, &userCodeDefaultData);
-      assert(status);
-    }
-  }
 }
 
 ZW_WEAK bool

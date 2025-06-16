@@ -31,37 +31,29 @@
 #include "em_device.h"
 #include "sl_gpio.h"
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "rail_types.h" // Support RAIL 2.x PTI modes
 #include "sl_rail_util_pti.h"
 #include "sl_rail_util_pti_config.h"
 
 void sl_rail_util_pti_init(void)
 {
-  RAIL_PtiConfig_t railPtiConfig = {
+  sl_rail_pti_config_t rail_pti_config = {
     .mode = SL_RAIL_UTIL_PTI_MODE,
     .baud = SL_RAIL_UTIL_PTI_BAUD_RATE_HZ,
 #if defined(SL_RAIL_UTIL_PTI_DOUT_PORT) && defined(SL_RAIL_UTIL_PTI_DOUT_PIN)
-    .doutPort = (uint8_t)SL_RAIL_UTIL_PTI_DOUT_PORT,
-    .doutPin = SL_RAIL_UTIL_PTI_DOUT_PIN,
-  #ifdef SL_RAIL_UTIL_PTI_DOUT_LOC
-    .doutLoc = SL_RAIL_UTIL_PTI_DOUT_LOC,
-  #endif // SL_RAIL_UTIL_PTI_DOUT_LOC
+    .dout_port = (uint8_t)SL_RAIL_UTIL_PTI_DOUT_PORT,
+    .dout_pin = SL_RAIL_UTIL_PTI_DOUT_PIN,
 #endif // dout support
 #if defined(SL_RAIL_UTIL_PTI_DCLK_PORT) && defined(SL_RAIL_UTIL_PTI_DCLK_PIN)
-    .dclkPort = (uint8_t)SL_RAIL_UTIL_PTI_DCLK_PORT,
-    .dclkPin = SL_RAIL_UTIL_PTI_DCLK_PIN,
-  #ifdef SL_RAIL_UTIL_PTI_DCLK_LOC
-    .dclkLoc = SL_RAIL_UTIL_PTI_DCLK_LOC,
-  #endif // SL_RAIL_UTIL_PTI_DCLK_LOC
+    .dclk_port = (uint8_t)SL_RAIL_UTIL_PTI_DCLK_PORT,
+    .dclk_pin = SL_RAIL_UTIL_PTI_DCLK_PIN,
 #endif // dclk support
 #if defined(SL_RAIL_UTIL_PTI_DFRAME_PORT) && defined(SL_RAIL_UTIL_PTI_DFRAME_PIN)
-    .dframePort = (uint8_t)SL_RAIL_UTIL_PTI_DFRAME_PORT,
-    .dframePin = SL_RAIL_UTIL_PTI_DFRAME_PIN,
-  #ifdef SL_RAIL_UTIL_PTI_DFRAME_LOC
-    .dframeLoc = SL_RAIL_UTIL_PTI_DFRAME_LOC,
-  #endif // SL_RAIL_UTIL_PTI_DFRAME_LOC
+    .dframe_port = (uint8_t)SL_RAIL_UTIL_PTI_DFRAME_PORT,
+    .dframe_pin = SL_RAIL_UTIL_PTI_DFRAME_PIN,
 #endif // dframe support
   };
 
-  RAIL_ConfigPti(RAIL_EFR32_HANDLE, &railPtiConfig);
+  (void) sl_rail_config_pti(SL_RAIL_EFR32_HANDLE, &rail_pti_config);
 }

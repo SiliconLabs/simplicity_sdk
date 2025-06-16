@@ -19,13 +19,12 @@
 #define NODEMASK_NODES_PER_BYTE   8
 
 /// Max length of a node mask
-#define MAX_NODEMASK_LENGTH       (ZW_MAX_NODES/NODEMASK_NODES_PER_BYTE)
+#define MAX_NODEMASK_LENGTH       (ZW_MAX_NODES / NODEMASK_NODES_PER_BYTE)
 /// Max length of Long Range node mask
-#define MAX_LR_NODEMASK_LENGTH    (ZW_MAX_NODES_LR/NODEMASK_NODES_PER_BYTE)
+#define MAX_LR_NODEMASK_LENGTH    (ZW_MAX_NODES_LR / NODEMASK_NODES_PER_BYTE)
 
 typedef uint8_t NODE_MASK_TYPE[MAX_NODEMASK_LENGTH];
 typedef uint8_t LR_NODE_MASK_TYPE[MAX_LR_NODEMASK_LENGTH];
-
 
 /***
  * Set the node bit in a node bitmask
@@ -34,8 +33,8 @@ typedef uint8_t LR_NODE_MASK_TYPE[MAX_LR_NODEMASK_LENGTH];
  */
 extern void
 ZW_NodeMaskSetBit(
-uint8_t* pMask,
-node_id_t bNodeID);
+  uint8_t* pMask,
+  node_id_t bNodeID);
 
 /**
  * Clear the node bit in a node bitmask
@@ -44,8 +43,8 @@ node_id_t bNodeID);
  */
 extern void
 ZW_NodeMaskClearBit(
-uint8_t* pMask,
-node_id_t bNodeID);
+  uint8_t* pMask,
+  node_id_t bNodeID);
 
 /**
  * Clear all bits in a nodemask
@@ -54,9 +53,8 @@ node_id_t bNodeID);
  */
 extern void
 ZW_NodeMaskClear(
-uint8_t* pMask,
-uint8_t bLength);
-
+  uint8_t* pMask,
+  uint8_t bLength);
 
 /**
  * Check and count number of bit that is set in a nodemask
@@ -66,8 +64,8 @@ uint8_t bLength);
  */
 extern uint8_t
 ZW_NodeMaskBitsIn(
-const uint8_t* pMask,
-uint8_t bLength);
+  const uint8_t* pMask,
+  uint8_t bLength);
 
 /**
  * Check if a node is in a nodemask
@@ -77,8 +75,8 @@ uint8_t bLength);
  */
 extern uint8_t
 ZW_NodeMaskNodeIn(
-const uint8_t* pMask,
-node_id_t bNode);
+  const uint8_t* pMask,
+  node_id_t bNode);
 
 /**
  * Find the next NodeIndex that is set in a nodemask
@@ -93,7 +91,7 @@ ZW_NodeMaskGetNextNodeIndex(
   uint8_t* pMask);
 
 /**
-* @} // addtogroup NodeMask
-* @} // addtogroup Components
-*/
+ * @} // addtogroup NodeMask
+ * @} // addtogroup Components
+ */
 #endif /* _ZW_NODEMASK_API_H_ */

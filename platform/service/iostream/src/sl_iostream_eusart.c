@@ -127,7 +127,7 @@ static void on_power_manager_event(sl_power_manager_em_t from,
 
 static sl_power_manager_em_transition_event_info_t on_power_manager_event_info =
 {
-  .event_mask = (SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2 | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3),
+  .event_mask = SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2 | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2,
   .on_event = on_power_manager_event,
 };
 
@@ -138,9 +138,9 @@ sl_slist_node_t *eusart_stream_list = NULL;
 /*******************************************************************************
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
+static sl_status_t eusart_tx(void *context, char c);
 
-static sl_status_t eusart_tx(void *context,
-                             char c);
+static sl_status_t eusart_rx(void *context, char *c);
 
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
 static void eusart_tx_completed(void *context, bool enable);
@@ -358,12 +358,11 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
                                     sl_iostream_eusart_context_t *eusart_context)
 {
   sl_status_t status;
-  uint8_t em_req = 1;
   EUSART_TypeDef* eusart_periph = sl_device_peripheral_eusart_get_base_addr(eusart_config->eusart);
 
   // Configure EUSART in UART
 #if defined(_SILICON_LABS_32B_SERIES_3)
-  sl_hal_eusart_uart_config_t eusart_init = eusart_config->enable_high_frequency
+  sl_hal_eusart_uart_config_t eusart_init = uart_config->enable_high_frequency
                                             ? (sl_hal_eusart_uart_config_t)SL_HAL_EUSART_UART_INIT_DEFAULT_HF
                                             : (sl_hal_eusart_uart_config_t)SL_HAL_EUSART_UART_INIT_DEFAULT_LF;
   // Advanced Init structure
@@ -386,7 +385,7 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
   eusart_init.advanced_config->hw_flow_control_mode = iostream_to_hal_flow_control(eusart_config->flow_control);
   #else
   EUSART_UartInit_TypeDef eusart_init;
-  if (eusart_config->enable_high_frequency) {
+  if (uart_config->enable_high_frequency) {
     eusart_init = (EUSART_UartInit_TypeDef)EUSART_UART_INIT_DEFAULT_HF;
 
     #if !defined(SL_CATALOG_CLOCK_MANAGER_PRESENT)
@@ -411,24 +410,19 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
   eusart_init.advancedSettings->hwFlowControl = iostream_to_hal_flow_control(eusart_config->flow_control);
   #endif // _SILICON_LABS_32B_SERIES >= 3
 
-  if (eusart_config->enable_high_frequency) {
-    em_req = 1;
-  } else {
-    em_req = 2;
-  }
+  uart_config->uart_periph->rx = eusart_rx;
+  uart_config->uart_periph->tx = eusart_tx;
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
+  uart_config->uart_periph->tx_completed = eusart_tx_completed;
+#else
+  uart_config->uart_periph->tx_completed = NULL;
+
+#endif
+  uart_config->uart_periph->deinit = eusart_deinit;
 
   status = sli_iostream_uart_context_init(iostream_uart,
                                           &eusart_context->context,
-                                          uart_config,
-                                          eusart_tx,
-#if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
-                                          eusart_tx_completed,
-#else
-                                          NULL,
-#endif
-                                          eusart_deinit,
-                                          em_req,
-                                          em_req);
+                                          uart_config);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -467,7 +461,7 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
   // Configure EUSART peripheral clock
   sl_clock_manager_enable_bus_clock(eusart_config->bus_clock);
 
-  if (eusart_config->enable_high_frequency) {
+  if (uart_config->enable_high_frequency) {
     EUSART_UART_INIT_HF(eusart_periph, &eusart_init);
     eusart_context->flags |= SLI_IOSTREAM_UART_FLAG_HIGH_FREQUENCY;
   } else {
@@ -543,12 +537,6 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
 #endif
   }
 
-  // Clear the Interrupt Flag Register
-  EUSART_INT_CLEAR(eusart_periph, _EUSART_IF_MASK);
-
-  // Finally, enable EUSART peripheral
-  EUSART_ENABLE(eusart_periph);
-
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
   // Subscribe to notification to re-enable eusart after deepsleep.
   if (eusart_stream_list == NULL) {
@@ -556,6 +544,12 @@ sl_status_t sl_iostream_eusart_init(sl_iostream_uart_t *iostream_uart,
   }
   sl_slist_push(&eusart_stream_list, &eusart_context->node);
 #endif
+
+  // Clear the Interrupt Flag Register
+  EUSART_INT_CLEAR(eusart_periph, _EUSART_IF_MASK);
+
+  // Finally, enable EUSART peripheral
+  EUSART_ENABLE(eusart_periph);
 
   return SL_STATUS_OK;
 }
@@ -602,6 +596,25 @@ static sl_status_t eusart_tx(void *context,
   while (!(EUSART_STATUS_GET(eusart_periph) & EUSART_STATUS_TXC)) ;
 #endif
 
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************//**
+ * Internal stream direct read implementation.
+ *
+ * @note This should only be called when the RX DMA is inactive.
+ ******************************************************************************/
+static sl_status_t eusart_rx(void *context, char *c)
+{
+  const sl_iostream_eusart_context_t *eusart_context = (sl_iostream_eusart_context_t *)context;
+  const EUSART_TypeDef* eusart_periph = sl_device_peripheral_eusart_get_base_addr(eusart_context->eusart);
+  bool rx_data_avail = eusart_periph->STATUS & EUSART_STATUS_RXFL;
+
+  if (!rx_data_avail) {
+    return SL_STATUS_EMPTY;
+  }
+
+  *c = (uint8_t)eusart_periph->RXDATA;
   return SL_STATUS_OK;
 }
 
@@ -683,15 +696,27 @@ static void on_power_manager_event(sl_power_manager_em_t from,
                                    sl_power_manager_em_t to)
 {
   (void)from;
+  sl_iostream_eusart_context_t *eusart_context;
 
-  if (to == SL_POWER_MANAGER_EM1
-      || to == SL_POWER_MANAGER_EM0) {
-    sl_iostream_eusart_context_t *eusart_context;
+  switch (to) {
+    case SL_POWER_MANAGER_EM0:
+    case SL_POWER_MANAGER_EM1:
+      SL_SLIST_FOR_EACH_ENTRY(eusart_stream_list, eusart_context, sl_iostream_eusart_context_t, node) {
+        sl_clock_manager_enable_bus_clock(eusart_context->bus_clock);
+      }
+      break;
 
-    SL_SLIST_FOR_EACH_ENTRY(eusart_stream_list, eusart_context, sl_iostream_eusart_context_t, node) {
-      EUSART_TypeDef* eusart_periph = sl_device_peripheral_eusart_get_base_addr(eusart_context->eusart);
-      EUSART_ENABLE(eusart_periph);
-    }
+    case SL_POWER_MANAGER_EM2:
+
+      SL_SLIST_FOR_EACH_ENTRY(eusart_stream_list, eusart_context, sl_iostream_eusart_context_t, node) {
+        if (!eusart_context->context.rx_enable && !eusart_context->context.tx_idle) {
+          sl_clock_manager_disable_bus_clock(eusart_context->bus_clock);
+        }
+      }
+      break;
+
+    default:
+      break;
   }
 }
 #endif

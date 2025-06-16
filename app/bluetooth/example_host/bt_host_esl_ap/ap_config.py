@@ -48,7 +48,7 @@ ESL_CMD_MAX_RETRY_COUNT = 3
 ESL_CMD_MAX_PENDING_CONNECTION_REQUEST_COUNT = 4096 # Best if aligned with elw.ESL_LIB_SKIPLIST_MAX_LEVEL_LIB macro value
 
 # Tags in a group in automated mode addressing
-ESL_MAX_TAGS_IN_AUTO_GROUP = 46 # enough for 1196 nodes with current PAwR defaults
+ESL_MAX_TAGS_IN_AUTO_GROUP = 23 # enough for 1265 nodes with current PAwR defaults
 
 # Default RSSI threshold in dBm
 RSSI_THRESHOLD = -80

@@ -1,7 +1,7 @@
 !!omap
 - id: brd2713a
 - label: BRD2713A
-- package: platform
+- package: boards
 - description: Board support for BRD2713A.
 - category: Platform|Board|Thunderboard
 - quality: production

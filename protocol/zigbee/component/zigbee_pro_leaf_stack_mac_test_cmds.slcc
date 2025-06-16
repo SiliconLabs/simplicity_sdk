@@ -1,6 +1,6 @@
 id: zigbee_pro_leaf_stack_mac_test_cmds
 label: Pro Leaf Stack with Mac test commands
-package: Zigbee
+package: zigbee
 category: Zigbee|Stack|Pro Core
 quality: production
 description: The Zigbee PRO Stack support for end devices. It includes stubs for parent and routing code, since end devices do not need this functionality.

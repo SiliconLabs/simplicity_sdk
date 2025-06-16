@@ -95,7 +95,7 @@ typedef struct {
 typedef struct {
   uint16_t charId; /**< ID of the Characteristic. */
   /**< Handler function. */
-  void (*fctn)(uint8_t connection, uint8array * writeValue);
+  void (*fctn)(uint8_t connection, byte_array * writeValue);
 } sli_zigbee_app_cfg_gatt_server_user_write_request_t;
 
 static const sli_zigbee_app_cfg_gatt_server_user_read_request_t appCfgGattServerUserReadRequest[] =
@@ -368,7 +368,7 @@ void zb_ble_dmp_read_source_address(uint8_t connection)
   }
 }
 
-void zb_ble_dmp_write_light_state(uint8_t connection, uint8array *writeValue)
+void zb_ble_dmp_write_light_state(uint8_t connection, byte_array *writeValue)
 {
   sl_zigbee_app_debug_println("Light state write; %d\r\n", writeValue->data[0]);
 
@@ -638,7 +638,11 @@ void enableBleAdvertisements(void)
  * This function is called from the BLE stack to notify the application of a
  * stack event.
  */
+#ifdef SL_CATALOG_MATTER_BLE_DMP_TEST_PRESENT
+void zigbee_bt_on_event(sl_bt_msg_t* evt)
+#else
 void sl_bt_on_event(sl_bt_msg_t* evt)
+#endif
 {
   switch (SL_BT_MSG_ID(evt->header)) {
     /* This event indicates that a remote GATT client is attempting to read a value of an

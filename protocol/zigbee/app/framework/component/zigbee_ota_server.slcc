@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: Silicon Labs implementation of the Zigbee Over-the-air Bootload Server Cluster (a multi-hop, application bootloader). This implementation serves up a file from an OTA storage device and sends the data to clients. It also controls when they can upgrade to the downloaded file.
 label: OTA Bootload Cluster Server
 quality: production

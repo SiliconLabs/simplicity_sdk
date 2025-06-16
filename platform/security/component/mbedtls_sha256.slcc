@@ -1,5 +1,5 @@
 id: mbedtls_sha256
-package: platform
+package: security_mbedtls
 label: SHA-224 and SHA-256
 description: >-
   This component provides support for SHA-224 and SHA-256 hash functions using Mbed TLS.

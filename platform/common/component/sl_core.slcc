@@ -1,13 +1,13 @@
 id: sl_core
 label: core
-package: platform
+package: platform_core
 description: >
-  Core peripheral API
+    Core peripheral API
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 source:
   - path: src/sl_core_cortexm.c
@@ -17,9 +17,9 @@ source:
 include:
   - path: inc
     file_list:
-    - path: sl_core.h
+      - path: sl_core.h
 config_file:
-  - path: "config/sl_core_config.h"
+  - path: config/sl_core_config.h
     file_id: sl_core_config
 provides:
   - name: sl_core

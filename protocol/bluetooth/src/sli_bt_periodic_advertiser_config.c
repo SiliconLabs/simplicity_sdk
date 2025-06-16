@@ -21,7 +21,7 @@
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_PERIODIC_ADVERTISER_PRESENT)
 #include "sl_bt_periodic_advertiser_config.h"
 
-SLI_BT_DEFINE_FEATURE_CONFIG(bt, periodic_advertiser, sli_bt_periodic_advertiser_config_t) = {
+const sli_bt_periodic_advertiser_config_t sli_bt_periodic_advertiser_config = {
   .max_periodic_advertisers = SL_BT_CONFIG_MAX_PERIODIC_ADVERTISERS
 };
 

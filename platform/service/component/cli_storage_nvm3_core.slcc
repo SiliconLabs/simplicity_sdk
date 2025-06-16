@@ -1,14 +1,14 @@
 id: cli_storage_nvm3_core
-label: "CLI: Storage in NVM3 Core"
-package: platform
+label: 'CLI: Storage in NVM3 Core'
+package: platform_core
 description: CLI Storage in NVM3 Core
 category: Services|Command Line Interface|Extensions
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never  #loaded by dependance
+    visibility: never #loaded by dependance
 root_path: platform/service/cli_storage
 include:
   - path: inc
@@ -35,4 +35,4 @@ template_contribution:
       event: service_init
       include: sl_cli_storage_nvm3_instances.h
       handler: sl_cli_storage_nvm3_instances_init
-    priority: 6
+    priority: 9901

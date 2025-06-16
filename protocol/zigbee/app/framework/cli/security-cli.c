@@ -239,7 +239,7 @@ void optionSecuritySetKeyRequestPolicy(sl_cli_command_arg_t *arguments)
 
 void changeKeyCommand(sl_cli_command_arg_t *arguments)
 {
-  if (SL_ZIGBEE_NO_NETWORK != sl_zigbee_network_state()) {
+  if (SL_ZIGBEE_NO_NETWORK != sl_zigbee_af_network_state()) {
     sl_zigbee_af_core_println("%sstack must be down.", "ERROR: ");
   } else {
     uint8_t position = sl_cli_get_command_count(arguments) - 1;

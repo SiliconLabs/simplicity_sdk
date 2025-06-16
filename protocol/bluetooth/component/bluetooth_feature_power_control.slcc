@@ -1,6 +1,6 @@
 id: "bluetooth_feature_power_control"
 label:  "LE Power Control"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   In Bluetooth LE Power Control feature, the controller adjusts a connected peer
   device’s transmit power level based on the received signal level.
@@ -17,11 +17,6 @@ quality: "production"
 root_path: "protocol/bluetooth"
 config_file:
   - path: "config/sl_bt_power_control_config.h"
-source:
-  # This init file is only used in the controller-only case
-  - path: "src/sl_bt_power_control_init.c"
-    unless:
-      - "bluetooth_stack"
 requires:
   - name: "bluetooth_feature_connection"
 conflicts:
@@ -31,11 +26,6 @@ provides:
 template_contribution:
   - name: component_catalog
     value: bluetooth_feature_power_control
-  - name: bluetooth_controller_init
-    value:
-      include: sl_bt_power_control_config.h
-      function: "sl_bt_init_power_control()"
-    priority: 10
 documentation:
   docset: bluetooth
   document: bluetooth-stack-api/sl-bt-connection

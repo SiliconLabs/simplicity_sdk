@@ -31,6 +31,11 @@
 #define SL_BTMESH_HSL_SIGNAL_TRANSITION_H
 
 /***************************************************************************//**
+ * @addtogroup btmesh_hsl_server
+ * @{
+ ******************************************************************************/
+
+/***************************************************************************//**
  * Function for retrieving current hue.
  *
  * @return Current hue level.
@@ -101,5 +106,7 @@ void sl_btmesh_hsl_hue_on_ui_update(uint16_t hue);
  * @param[in] saturation     Saturation value.
  ******************************************************************************/
 void sl_btmesh_hsl_saturation_on_ui_update(uint16_t saturation);
+
+/** @} (end addtogroup btmesh_hsl_server) */
 
 #endif // SL_BTMESH_HSL_SIGNAL_TRANSITION_H

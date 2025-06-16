@@ -51,12 +51,12 @@
  *
  * A call to this function will commence the initiator finding and
  * binding operations. Specifically, the initiator will attempt to start
- * searching for potential bindings that can be made with identifying
- * targets.
+ * searching for potential bindings by broadcasting Identify Query commands,
+ * collecting responses from targets, and attempting to create bindings for matching clusters.
  *
- * @param endpoint The endpoint on which to begin initiator operations.
+ * @param[in] endpoint The endpoint on which to begin initiator operations.
  *
- * @returns An ::sl_status_t value describing the success of the
+ * @return An ::sl_status_t value describing the success of the
  * commencement of the initiator operations.
  */
 sl_status_t sl_zigbee_af_find_and_bind_initiator_start(uint8_t endpoint);
@@ -80,7 +80,7 @@ sl_status_t sl_zigbee_af_find_and_bind_initiator_start(uint8_t endpoint);
  * @{
  */
 
-/** @brief Bind Target
+/** @brief Callback fired when a potential bind target has been found.
  *
  * This callback with enable the user to programmatically decide if they want
  * to bind with a potential target. The plugin will try to bind with this
@@ -88,10 +88,11 @@ sl_status_t sl_zigbee_af_find_and_bind_initiator_start(uint8_t endpoint);
  * tells the plugin to try to bind with the target. If the binding type is
  * changed to ::SL_ZIGBEE_MULTICAST_BINDING, a multicast binding will be created.
  *
- * @param nodeId short ID of the potential target Ver.: always
- * @param bindingEntry The binding entry for that target. Ver.: always
- * @param groupName The name of the group if a multicast binding is created.
+ * @param[out] nodeId short ID of the potential target Ver.: always
+ * @param[out] bindingEntry The binding entry for that target. Ver.: always
+ * @param[out] groupName The name of the group if a multicast binding is created.
  * Ver.: always
+ * @return Whether or not to bind to target. Defaults to true.
  */
 bool sl_zigbee_af_find_and_bind_initiator_bind_target_cb(sl_802154_short_addr_t nodeId,
                                                          sl_zigbee_binding_table_entry_t *bindingEntry,
@@ -102,7 +103,7 @@ bool sl_zigbee_af_find_and_bind_initiator_bind_target_cb(sl_802154_short_addr_t 
  * This callback is fired by the initiator when the Find and Bind process is
  * complete.
  *
- * @param status Status code describing the completion of the find and bind
+ * @param[out] status Status code describing the completion of the find and bind
  * process Ver.: always
  */
 void sl_zigbee_af_find_and_bind_initiator_complete_cb(sl_status_t status);

@@ -46,7 +46,8 @@ extern "C" {
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-#if !defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+#if !defined(SL_CATALOG_POWER_MANAGER_PRESENT) \
+  || defined(SL_CATALOG_WISUN_BLE_DMP_ADVERTISE_CONTROLLER_PRESENT)
 
 /// LED ID enum typedef
 typedef enum sl_wisun_led_id {
@@ -59,7 +60,10 @@ typedef enum sl_wisun_led_id {
 } sl_wisun_led_id_t;
 
 /// Continuous signal id for period setting
-#define SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL      (-1)
+#define SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL      (-1)
+
+// Due to SW migration
+#define SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL
 
 /// LED signal typedef
 typedef struct sl_wisun_led_signal {
@@ -70,7 +74,7 @@ typedef struct sl_wisun_led_signal {
   /// Low state time in millisec
   uint32_t low_ms;
   /// Period count, how many times will be repeated the H and L state.
-  /// 'SL_WISUN_LED_PERIOD_CONTINOUS_SIGNAL' continuous repeat
+  /// 'SL_WISUN_LED_PERIOD_CONTINUOUS_SIGNAL' continuous repeat
   int32_t period;
 } sl_wisun_led_signal_t;
 

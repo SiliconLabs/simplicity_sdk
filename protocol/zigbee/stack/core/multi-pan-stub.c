@@ -59,6 +59,7 @@ void sli_zigbee_network_pan_info_data_init(uint8_t nwkIndex, sl_zigbee_network_i
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_ZIGBEE_STACK, SL_CODE_CLASS_TIME_CRITICAL)
 void sli_zigbee_set_child_table_for_current_network(void)
 {
+  // stub function
 }
 
 void sli_zigbee_get_child_token_for_current_network(void *data,
@@ -108,6 +109,8 @@ sli_zigbee_event_t* sli_zigbee_get_forked_event(sli_zigbee_event_t *list)
 uint8_t sli_zigbee_get_network_index_from_event(sli_zigbee_event_t *event,
                                                 sli_zigbee_event_t *list)
 {
+  (void)event;
+  (void)list;
   return SL_ZIGBEE_NULL_NETWORK_INDEX;
 }
 
@@ -118,6 +121,7 @@ uint8_t sli_zigbee_get_network_index_for_forked_global(void)
 
 bool sli_zigbee_is_pan_id_in_use(sl_802154_pan_id_t panId)
 {
+  (void)panId;
   return false;
 }
 

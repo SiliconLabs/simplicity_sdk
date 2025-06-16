@@ -1,7 +1,7 @@
 !!omap
 - id: brd4184a_a01
 - label: BRD4184A rev A01
-- package: platform
+- package: boards
 - description: Board support for BRD4184A.
 - category: Platform|Board|Thunderboard
 - quality: production

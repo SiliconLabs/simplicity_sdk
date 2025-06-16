@@ -46,10 +46,12 @@ void sl_zigbee_debug_error(sl_status_t code)
 
 void sli_zigbee_debug_clear_stats(void)
 {
+  // stub function
 }
 
 void sli_zigbee_debug_print_stats(void)
 {
+  // stub function
 }
 
 void sli_zigbee_debug_stats(uint8_t index)

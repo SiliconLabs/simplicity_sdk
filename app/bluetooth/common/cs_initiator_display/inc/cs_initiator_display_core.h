@@ -78,18 +78,20 @@ extern "C"
 
 /// Display rows
 typedef enum {
-  ROW_SYSTEM,
-  ROW_ROLE,
   ROW_MODE,
+  ROW_INSTANCE_NUM,
+  ROW_STATUS_TEXT,
+  ROW_STATUS_VALUE,
   ROW_DISTANCE_TEXT,
   ROW_DISTANCE_VALUE,
+  ROW_RAW_DISTANCE_TEXT,
+  ROW_RAW_DISTANCE_VALUE,
   ROW_LIKELINESS_TEXT,
   ROW_LIKELINESS_VALUE,
   ROW_RSSI_DISTANCE_TEXT,
   ROW_RSSI_DISTANCE_VALUE,
   ROW_BIT_ERROR_RATE_TEXT,
-  ROW_BIT_ERROR_RATE_VALUE,
-  ROW_STATE
+  ROW_BIT_ERROR_RATE_VALUE
 } cs_initiator_display_row_t;
 
 /// UI alignment
@@ -108,24 +110,43 @@ typedef enum {
 sl_status_t cs_initiator_display_init(void);
 
 /**************************************************************************//**
- * Update the display.
- *****************************************************************************/
-void cs_initiator_display_update(void);
-
-/**************************************************************************//**
  * Set the display text alignment.
- *
  * @param[in] alignment text alignment to use
  *****************************************************************************/
 void cs_initiator_display_set_alignment(cs_initiator_display_alignment_t align);
 
 /**************************************************************************//**
  * Write text on the LCD.
- *
  * @param[in] str pointer to the text to print
  * @param[in] row row to print the text on
+ * @param[in] instance instance number
  *****************************************************************************/
-void cs_initiator_display_write_text(char *str, uint8_t row);
+void cs_initiator_display_write_text_to_instance(char *str, uint8_t row, uint8_t instance);
+
+/**************************************************************************//**
+ * Write float value on the LCD.
+ * @param[in] value float value to print
+ * @param[in] row row to print the value on
+ * @param[in] instance instance number
+ *****************************************************************************/
+void cs_initiator_display_write_float_to_instance(float value, uint8_t row, uint8_t instance);
+
+/**************************************************************************//**
+ * Clear instance values on the display.
+ * @param[in] instance instance number
+ *****************************************************************************/
+void cs_initiator_display_clear_instance(uint8_t instance);
+
+/**************************************************************************//**
+ * Clear a specified row on the display.
+ * @param[in] row row to clear
+ *****************************************************************************/
+void cs_initiator_display_clear_row(uint8_t row);
+
+/**************************************************************************//**
+ * Update the display.
+ *****************************************************************************/
+void cs_initiator_display_update(void);
 
 // -----------------------------------------------------------------------------
 // Event / callback declarations

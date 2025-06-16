@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Oct 13 17:05:21 2020 by generateDS.py version 2.12d.
+# Generated Mon Aug 12 15:50:53 2024 by generateDS.py version 2.12d.
 #
 # Command line options:
 #   ('-o', '..\\..\\model_type\\base\\Bindings.py')
@@ -1288,6 +1288,7 @@ class featureType(GeneratedsSuper):
 
 
 class physType(GeneratedsSuper):
+    """All available phys in this model."""
     subclass = None
     superclass = None
     def __init__(self, phy=None):
@@ -1381,15 +1382,17 @@ class physType(GeneratedsSuper):
 
 
 class phyType(GeneratedsSuper):
-    """The phy name. The name to display in the GUI.A plain text
-    description of the phy.The name used to collect a group of
-    similar phys.The profile name to pass the phy input values.The
-    Boolean expression of feature_NAME variables with logical AND
-    (double ampersands), OR (double pipes), and/or NOT (exclamation)
-    operators. Use parenthesis to group. An empty string defaults to
-    true.User definable hastagsWhether this is a precaclaulted PHY,
-    and thus not neededin to run calcaultions againUnique ID used as
-    an alternative to phy name."""
+    """A phy is a collection of preconfigured values for direct use by the
+    user. Internally maps to a profile name.The phy name. The name
+    to display in the GUI.A plain text description of the phy.The
+    name used to collect a group of similar phys.The profile name to
+    pass the phy input values.The Boolean expression of feature_NAME
+    variables with logical AND (double ampersands), OR (double
+    pipes), and/or NOT (exclamation) operators. Use parenthesis to
+    group. An empty string defaults to true.User definable
+    hastagsWhether this is a precaclaulted PHY, and thus not
+    neededin to run calcaultions againUnique ID used as an
+    alternative to phy name."""
     subclass = None
     superclass = None
     def __init__(self, name=None, readable_name=None, desc=None, group_name=None, profile_name=None, act_logic=None, tags=None, locked=False, guid=None, profile_inputs=None, profile_outputs=None):
@@ -1633,6 +1636,8 @@ class phyType(GeneratedsSuper):
 
 
 class profile_inputsType(GeneratedsSuper):
+    """The collection of input variables. Specify the name and the value.
+    These inputs are NOT exposed to user for modification."""
     subclass = None
     superclass = None
     def __init__(self, profile_input=None):
@@ -1726,7 +1731,9 @@ class profile_inputsType(GeneratedsSuper):
 
 
 class profile_inputType(GeneratedsSuper):
-    """Specifies if this input has array of data."""
+    """An input variable name, where the variable must have an forced
+    value. This phy may map to a profile without inputs.Specifies if
+    this input has array of data."""
     subclass = None
     superclass = None
     def __init__(self, is_array=None, readable_name=None, var_name=None, category=None, values=None):
@@ -1871,6 +1878,9 @@ class profile_inputType(GeneratedsSuper):
 
 
 class profile_outputsType(GeneratedsSuper):
+    """The collection of profile output override values. Specify the name
+    and override value. The override inputs are NOT exposed to the
+    user for modification."""
     subclass = None
     superclass = None
     def __init__(self, profile_output=None):
@@ -1964,16 +1974,19 @@ class profile_outputsType(GeneratedsSuper):
 
 
 class profile_outputType(GeneratedsSuper):
-    """Specifies if this output has array of data."""
+    """An output variable name, where the calculated output value is
+    overridden. This can be viewed as an input to the
+    calculatorSpecifies if this output has array of data."""
     subclass = None
     superclass = None
-    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None):
+    def __init__(self, is_array=None, readable_name=None, category=None, var_name=None, overrides=None, groups=None):
         self.original_tagname_ = None
         self.is_array = _cast(bool, is_array)
         self.readable_name = readable_name
         self.category = category
         self.var_name = var_name
         self.overrides = overrides
+        self.groups = groups
     def factory(*args_, **kwargs_):
         if profile_outputType.subclass:
             return profile_outputType.subclass(*args_, **kwargs_)
@@ -1992,6 +2005,9 @@ class profile_outputType(GeneratedsSuper):
     def get_overrides(self): return self.overrides
     def set_overrides(self, overrides): self.overrides = overrides
     overridesProp = property(get_overrides, set_overrides)
+    def get_groups(self): return self.groups
+    def set_groups(self, groups): self.groups = groups
+    groupsProp = property(get_groups, set_groups)
     def get_is_array(self): return self.is_array
     def set_is_array(self, is_array): self.is_array = is_array
     is_arrayProp = property(get_is_array, set_is_array)
@@ -2000,7 +2016,8 @@ class profile_outputType(GeneratedsSuper):
             self.readable_name is not None or
             self.category is not None or
             self.var_name is not None or
-            self.overrides is not None
+            self.overrides is not None or
+            self.groups is not None
         ):
             return True
         else:
@@ -2043,6 +2060,9 @@ class profile_outputType(GeneratedsSuper):
             outfile.write('<%svar_name>%s</%svar_name>%s' % (namespace_, self.gds_format_string(quote_xml(self.var_name), input_name='var_name'), namespace_, eol_))
         if self.overrides is not None:
             self.overrides.export(outfile, level, namespace_, name_='overrides', pretty_print=pretty_print)
+        if self.groups is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sgroups>%s</%sgroups>%s' % (namespace_, self.gds_format_string(quote_xml(self.groups), input_name='groups'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='profile_outputType'):
         level += 1
         already_processed = set()
@@ -2070,6 +2090,9 @@ class profile_outputType(GeneratedsSuper):
             self.overrides.exportLiteral(outfile, level)
             showIndent(outfile, level)
             outfile.write('),\n')
+        if self.groups is not None:
+            showIndent(outfile, level)
+            outfile.write('groups=%s,\n' % quote_python(self.groups))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -2105,10 +2128,15 @@ class profile_outputType(GeneratedsSuper):
             obj_.build(child_)
             self.overrides = obj_
             obj_.original_tagname_ = 'overrides'
+        elif nodeName_ == 'groups':
+            groups_ = child_.text
+            groups_ = self.gds_validate_string(groups_, node, 'groups')
+            self.groups = groups_
 # end class profile_outputType
 
 
 class profilesType(GeneratedsSuper):
+    """A collection of profiles."""
     subclass = None
     superclass = None
     def __init__(self, profile=None):
@@ -2202,14 +2230,17 @@ class profilesType(GeneratedsSuper):
 
 
 class profileType(GeneratedsSuper):
-    """The name of the calculation or configuration represented by this
-    profile.The name to display in the GUI.Used to organize profiles
-    for display.A plain text description of the profile. Explain
-    what happens here. What is computed.Indicates this is the
-    default profile to display to the user.The Boolean expression of
-    feature_NAME variables with logical AND (double ampersands), OR
-    (double pipes), and/or NOT (exclamation) operators. Use
-    parenthesis to group. An empty string defaults to true."""
+    """A profile defines one or more input variables with defaults, any
+    internal variables to be forced, and the corresponding
+    calculated output variables.The name of the calculation or
+    configuration represented by this profile.The name to display in
+    the GUI.Used to organize profiles for display.A plain text
+    description of the profile. Explain what happens here. What is
+    computed.Indicates this is the default profile to display to the
+    user.The Boolean expression of feature_NAME variables with
+    logical AND (double ampersands), OR (double pipes), and/or NOT
+    (exclamation) operators. Use parenthesis to group. An empty
+    string defaults to true."""
     subclass = None
     superclass = None
     def __init__(self, name=None, readable_name=None, category=None, desc=None, default=None, act_logic=None, inputs=None, forces=None, outputs=None, default_phys=None):
@@ -2442,6 +2473,8 @@ class profileType(GeneratedsSuper):
 
 
 class inputsType(GeneratedsSuper):
+    """The collection of input variables. Specify the name and the default
+    value. Exposed to user for modification."""
     subclass = None
     superclass = None
     def __init__(self, input=None):
@@ -2535,11 +2568,12 @@ class inputsType(GeneratedsSuper):
 
 
 class inputType1(GeneratedsSuper):
-    """Specifies if this input has array of data.Describes the purpose of
-    this input variable.An optional minimum value, inclusive.An
-    optional maximum value, inclusive.Specifies the number of
-    fractional digits to display for a float or fixed point
-    value.Boolean that defines this input as deprecatedType of
+    """An input variable name, where the variable must have an forced
+    value.Specifies if this input has array of data.Describes the
+    purpose of this input variable.An optional minimum value,
+    inclusive.An optional maximum value, inclusive.Specifies the
+    number of fractional digits to display for a float or fixed
+    point value.Boolean that defines this input as deprecatedType of
     visibility applicable to a GUIDefine the units multiplier when
     shown on the GUI."""
     subclass = None
@@ -2809,6 +2843,8 @@ class inputType1(GeneratedsSuper):
 
 
 class forcesType(GeneratedsSuper):
+    """A collection of internal variables to be forced to a default. These
+    variables are not exposed to the user."""
     subclass = None
     superclass = None
     def __init__(self, force=None):
@@ -2902,7 +2938,9 @@ class forcesType(GeneratedsSuper):
 
 
 class forceType(GeneratedsSuper):
-    """Specifies if this force has array of data."""
+    """An internal variable that is NOT exposed to the user can be forced
+    to a default value that overrides the calculated value.Specifies
+    if this force has array of data."""
     subclass = None
     superclass = None
     def __init__(self, is_array=None, var_name=None, values=None):
@@ -3017,6 +3055,8 @@ class forceType(GeneratedsSuper):
 
 
 class outputsType(GeneratedsSuper):
+    """The collection of output variables. These variables will be assigned
+    values during execution of this profile."""
     subclass = None
     superclass = None
     def __init__(self, output=None):
@@ -3110,13 +3150,16 @@ class outputsType(GeneratedsSuper):
 
 
 class outputType2(GeneratedsSuper):
-    """Specifies if this output has array of data.Describes the purpose of
-    this output variable.An optional minimum value, inclusive.An
-    optional maximum value, inclusive.Specifies the number of
-    fractional digits to display for a float or fixed point value."""
+    """An output variable name, where the variable will receive an updated
+    value_calc. The variable may contain a svd_mapping attribute to
+    allow register assignment.Specifies if this output has array of
+    data.Describes the purpose of this output variable.An optional
+    minimum value, inclusive.An optional maximum value,
+    inclusive.Specifies the number of fractional digits to display
+    for a float or fixed point value."""
     subclass = None
     superclass = None
-    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None):
+    def __init__(self, is_array=None, output_type=None, value_limit_min=None, value_limit_max=None, fractional_digits=None, readable_name=None, category=None, var_name=None, groups=None):
         self.original_tagname_ = None
         self.is_array = _cast(bool, is_array)
         self.output_type = _cast(None, output_type)
@@ -3126,6 +3169,7 @@ class outputType2(GeneratedsSuper):
         self.readable_name = readable_name
         self.category = category
         self.var_name = var_name
+        self.groups = groups
     def factory(*args_, **kwargs_):
         if outputType2.subclass:
             return outputType2.subclass(*args_, **kwargs_)
@@ -3141,6 +3185,9 @@ class outputType2(GeneratedsSuper):
     def get_var_name(self): return self.var_name
     def set_var_name(self, var_name): self.var_name = var_name
     var_nameProp = property(get_var_name, set_var_name)
+    def get_groups(self): return self.groups
+    def set_groups(self, groups): self.groups = groups
+    groupsProp = property(get_groups, set_groups)
     def get_is_array(self): return self.is_array
     def set_is_array(self, is_array): self.is_array = is_array
     is_arrayProp = property(get_is_array, set_is_array)
@@ -3163,7 +3210,8 @@ class outputType2(GeneratedsSuper):
         if (
             self.readable_name is not None or
             self.category is not None or
-            self.var_name is not None
+            self.var_name is not None or
+            self.groups is not None
         ):
             return True
         else:
@@ -3216,6 +3264,9 @@ class outputType2(GeneratedsSuper):
         if self.var_name is not None:
             showIndent(outfile, level, pretty_print)
             outfile.write('<%svar_name>%s</%svar_name>%s' % (namespace_, self.gds_format_string(quote_xml(self.var_name), input_name='var_name'), namespace_, eol_))
+        if self.groups is not None:
+            showIndent(outfile, level, pretty_print)
+            outfile.write('<%sgroups>%s</%sgroups>%s' % (namespace_, self.gds_format_string(quote_xml(self.groups), input_name='groups'), namespace_, eol_))
     def exportLiteral(self, outfile, level, name_='outputType2'):
         level += 1
         already_processed = set()
@@ -3253,6 +3304,9 @@ class outputType2(GeneratedsSuper):
         if self.var_name is not None:
             showIndent(outfile, level)
             outfile.write('var_name=%s,\n' % quote_python(self.var_name))
+        if self.groups is not None:
+            showIndent(outfile, level)
+            outfile.write('groups=%s,\n' % quote_python(self.groups))
     def build(self, node):
         already_processed = set()
         self.buildAttributes(node, node.attrib, already_processed)
@@ -3305,10 +3359,15 @@ class outputType2(GeneratedsSuper):
             var_name_ = child_.text
             var_name_ = self.gds_validate_string(var_name_, node, 'var_name')
             self.var_name = var_name_
+        elif nodeName_ == 'groups':
+            groups_ = child_.text
+            groups_ = self.gds_validate_string(groups_, node, 'groups')
+            self.groups = groups_
 # end class outputType2
 
 
 class default_physType(GeneratedsSuper):
+    """Contains at least one default phy."""
     subclass = None
     superclass = None
     def __init__(self, default_phy=None):
@@ -3402,7 +3461,9 @@ class default_physType(GeneratedsSuper):
 
 
 class default_phyType(GeneratedsSuper):
-    """The phy name."""
+    """The default phy to use for this profile. Use the phy's act_logic
+    attribute to ensure that the proper default is selected based on
+    the feature variable values.The phy name."""
     subclass = None
     superclass = None
     def __init__(self, phy_name=None):
@@ -3482,6 +3543,9 @@ class default_phyType(GeneratedsSuper):
 
 
 class variablesType(GeneratedsSuper):
+    """Collection of all variables in the model. These variables serve as
+    direct inputs and outputs to defined profiles. Some variables
+    may only be used internally in intermediate stages."""
     subclass = None
     superclass = None
     def __init__(self, variable=None):
@@ -3575,10 +3639,12 @@ class variablesType(GeneratedsSuper):
 
 
 class variableType(GeneratedsSuper):
-    """The variable name. If a variable is referenced in a profile, then
-    this name will match the var_name in the profile section.The
-    variable type.Specifies if this variable has array of
-    data.Specify how to display the variable value.A plain text
+    """A working variable that represents an initial input, an intermediate
+    value used in one of the calculation stages, or a final
+    output.The variable name. If a variable is referenced in a
+    profile, then this name will match the var_name in the profile
+    section.The variable type.Specifies if this variable has array
+    of data.Specify how to display the variable value.A plain text
     description of the variable.Denotes that this variable can be
     forced. Defaults to true. As the value_actual usage is
     deprecated, this attribute will be set to false for actual
@@ -3634,8 +3700,8 @@ class variableType(GeneratedsSuper):
     def validate_nameType(self, value):
         # Validate type nameType, a restriction on xs:string.
         pass
-    def validate_varType(self, value):
-        # Validate type varType, a restriction on xs:string.
+    def validate_typeType(self, value):
+        # Validate type typeType, a restriction on varType.
         pass
     def validate_formatType(self, value):
         # Validate type formatType, a restriction on xs:string.
@@ -3763,7 +3829,7 @@ class variableType(GeneratedsSuper):
         if value is not None and 'type' not in already_processed:
             already_processed.add('type')
             self.type_ = value
-            self.validate_varType(self.type_)    # validate type varType
+            self.validate_typeType(self.type_)    # validate type typeType
         value = find_attr_value_('is_array', node)
         if value is not None and 'is_array' not in already_processed:
             already_processed.add('is_array')
@@ -3810,7 +3876,8 @@ class variableType(GeneratedsSuper):
 
 
 class enumType(GeneratedsSuper):
-    """The name of the enum.A plain text description of the enum."""
+    """Defines an enum class name and members.The name of the enum.A plain
+    text description of the enum."""
     subclass = None
     superclass = None
     def __init__(self, name=None, desc=None, members=None):
@@ -3924,6 +3991,7 @@ class enumType(GeneratedsSuper):
 
 
 class membersType(GeneratedsSuper):
+    """A collection of members."""
     subclass = None
     superclass = None
     def __init__(self, member=None):

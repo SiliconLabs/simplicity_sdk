@@ -4,7 +4,7 @@
  *   allowing access to the thread stack in a multi-threaded environment.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -46,27 +46,33 @@
 #error Unsupported compiler
 #endif
 
-extern const char *OT_API_REAL_NAME(otThreadGetVendorAppUrl)(otInstance *aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorModel)(otInstance *aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorName)(otInstance *aInstance);
-extern const char *OT_API_REAL_NAME(otThreadGetVendorSwVersion)(otInstance *aInstance);
-extern otError     OT_API_REAL_NAME(otThreadGetNextDiagnosticTlv)(const otMessage       *aMessage,
+extern const char   *OT_API_REAL_NAME(otThreadGetVendorAppUrl)(otInstance *aInstance);
+extern const char   *OT_API_REAL_NAME(otThreadGetVendorModel)(otInstance *aInstance);
+extern const char   *OT_API_REAL_NAME(otThreadGetVendorName)(otInstance *aInstance);
+extern const char   *OT_API_REAL_NAME(otThreadGetVendorSwVersion)(otInstance *aInstance);
+extern otChannelMask OT_API_REAL_NAME(otThreadGetNonPreferredChannels)(otInstance *aInstance);
+extern otError       OT_API_REAL_NAME(otThreadGetNextDiagnosticTlv)(const otMessage       *aMessage,
                                                               otNetworkDiagIterator *aIterator,
                                                               otNetworkDiagTlv      *aNetworkDiagTlv);
-extern otError     OT_API_REAL_NAME(otThreadSendDiagnosticGet)(otInstance                    *aInstance,
+extern otError       OT_API_REAL_NAME(otThreadSendDiagnosticGet)(otInstance                    *aInstance,
                                                            const otIp6Address            *aDestination,
                                                            const uint8_t                  aTlvTypes[],
                                                            uint8_t                        aCount,
                                                            otReceiveDiagnosticGetCallback aCallback,
                                                            void                          *aCallbackContext);
-extern otError     OT_API_REAL_NAME(otThreadSendDiagnosticReset)(otInstance         *aInstance,
+extern otError       OT_API_REAL_NAME(otThreadSendDiagnosticReset)(otInstance         *aInstance,
                                                              const otIp6Address *aDestination,
                                                              const uint8_t       aTlvTypes[],
                                                              uint8_t             aCount);
-extern otError     OT_API_REAL_NAME(otThreadSetVendorAppUrl)(otInstance *aInstance, const char *aVendorAppUrl);
-extern otError     OT_API_REAL_NAME(otThreadSetVendorModel)(otInstance *aInstance, const char *aVendorModel);
-extern otError     OT_API_REAL_NAME(otThreadSetVendorName)(otInstance *aInstance, const char *aVendorName);
-extern otError     OT_API_REAL_NAME(otThreadSetVendorSwVersion)(otInstance *aInstance, const char *aVendorSwVersion);
+extern otError       OT_API_REAL_NAME(otThreadSetVendorAppUrl)(otInstance *aInstance, const char *aVendorAppUrl);
+extern otError       OT_API_REAL_NAME(otThreadSetVendorModel)(otInstance *aInstance, const char *aVendorModel);
+extern otError       OT_API_REAL_NAME(otThreadSetVendorName)(otInstance *aInstance, const char *aVendorName);
+extern otError       OT_API_REAL_NAME(otThreadSetVendorSwVersion)(otInstance *aInstance, const char *aVendorSwVersion);
+extern void OT_API_REAL_NAME(otThreadSetNonPreferredChannels)(otInstance *aInstance, otChannelMask aChannelMask);
+extern void OT_API_REAL_NAME(otThreadSetNonPreferredChannelsResetCallback)(
+    otInstance                               *aInstance,
+    otThreadNonPreferredChannelsResetCallback aCallback,
+    void                                     *aContext);
 
 const char *OT_API_WRAPPER_NAME(otThreadGetVendorAppUrl)(otInstance *aInstance)
 {
@@ -96,6 +102,14 @@ const char *OT_API_WRAPPER_NAME(otThreadGetVendorSwVersion)(otInstance *aInstanc
 {
     sl_ot_rtos_acquire_stack_mutex();
     const char *ret = OT_API_REAL_NAME(otThreadGetVendorSwVersion)(aInstance);
+    sl_ot_rtos_release_stack_mutex();
+    return ret;
+}
+
+otChannelMask OT_API_WRAPPER_NAME(otThreadGetNonPreferredChannels)(otInstance *aInstance)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    otChannelMask ret = OT_API_REAL_NAME(otThreadGetNonPreferredChannels)(aInstance);
     sl_ot_rtos_release_stack_mutex();
     return ret;
 }
@@ -165,4 +179,21 @@ otError OT_API_WRAPPER_NAME(otThreadSetVendorSwVersion)(otInstance *aInstance, c
     otError ret = OT_API_REAL_NAME(otThreadSetVendorSwVersion)(aInstance, aVendorSwVersion);
     sl_ot_rtos_release_stack_mutex();
     return ret;
+}
+
+void OT_API_WRAPPER_NAME(otThreadSetNonPreferredChannels)(otInstance *aInstance, otChannelMask aChannelMask)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    OT_API_REAL_NAME(otThreadSetNonPreferredChannels)(aInstance, aChannelMask);
+    sl_ot_rtos_release_stack_mutex();
+}
+
+void OT_API_WRAPPER_NAME(otThreadSetNonPreferredChannelsResetCallback)(
+    otInstance                               *aInstance,
+    otThreadNonPreferredChannelsResetCallback aCallback,
+    void                                     *aContext)
+{
+    sl_ot_rtos_acquire_stack_mutex();
+    OT_API_REAL_NAME(otThreadSetNonPreferredChannelsResetCallback)(aInstance, aCallback, aContext);
+    sl_ot_rtos_release_stack_mutex();
 }

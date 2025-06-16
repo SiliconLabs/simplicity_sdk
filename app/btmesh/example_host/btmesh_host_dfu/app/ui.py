@@ -406,28 +406,29 @@ class BtmeshDfuAppUI:
         )
         for node in app_group_nodes:
             self.info(f"  - {node.name} node:")
-            for idx, elem_addr in enumerate(node.elem_addrs):
-                if elem_addr in app_group.pub_addrs:
+            for idx, elem in enumerate(node.elem_refs):
+                if elem in app_group.pub_elems:
                     pub_mdl_names = sorted(
                         mdl.pretty_name()
-                        for mdl in app_group.gen_pub_addr_mdls(elem_addr)
+                        for mdl in app_group.gen_pub_elem_mdls(elem)
                     )
                 else:
                     pub_mdl_names = []
-                if elem_addr in app_group.sub_addrs:
+                if elem in app_group.sub_elems:
                     sub_mdl_names = sorted(
                         mdl.pretty_name()
-                        for mdl in app_group.gen_sub_addr_mdls(elem_addr)
+                        for mdl in app_group.gen_sub_elem_mdls(elem)
                     )
                 else:
                     sub_mdl_names = []
-                if elem_addr in app_group.bind_addrs:
+                if elem in app_group.bind_elems:
                     bind_mdl_names = sorted(
                         mdl.pretty_name()
-                        for mdl in app_group.gen_bind_addr_mdls(elem_addr)
+                        for mdl in app_group.gen_bind_elem_mdls(elem)
                     )
                 else:
                     bind_mdl_names = []
+                elem_addr = node.get_elem_addr(elem.elem_index)
                 if pub_mdl_names or sub_mdl_names or bind_mdl_names:
                     self.info(f"    - Element {idx}: (0x{elem_addr:04X})")
                     if pub_mdl_names:

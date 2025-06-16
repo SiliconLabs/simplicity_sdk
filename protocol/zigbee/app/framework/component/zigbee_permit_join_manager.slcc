@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This component unicasts a permit joins message to joining devices.
 label: Permit Join Manager
 quality: production

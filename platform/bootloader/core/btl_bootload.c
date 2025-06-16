@@ -103,7 +103,6 @@ static uint32_t getHighestApplicationVersionSeen(void);
 // Defines
 
 #if defined(BOOTLOADER_ROLLBACK_PROTECTION) && (BOOTLOADER_ROLLBACK_PROTECTION == 1)
-#define SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY 6UL
 #define SL_GBL_APPLICATION_VERSION_MAX_MAGIC        0x1234DCBAUL
 #define SL_GBL_APPLICATION_VERSION_RESET_MAGIC      0x5839FBACUL
 #define SL_GBL_UINT32_MAX_NUMBER                    0xFFFFFFFFUL
@@ -115,7 +114,7 @@ static uint32_t getHighestApplicationVersionSeen(void);
 #if defined(BOOTLOADER_ROLLBACK_PROTECTION) && (BOOTLOADER_ROLLBACK_PROTECTION == 1)
 static bool checkMaxVersionMagic(void)
 {
-  uint32_t *versionMaxMagicPtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY);
+  uint32_t *versionMaxMagicPtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY);
   if (*versionMaxMagicPtr == SL_GBL_APPLICATION_VERSION_MAX_MAGIC) {
     return true;
   }
@@ -124,7 +123,7 @@ static bool checkMaxVersionMagic(void)
 
 static bool checkResetMagic(void)
 {
-  uint32_t *versionResetMagicPtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY + 1UL);
+  uint32_t *versionResetMagicPtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY + 1UL);
   if (*versionResetMagicPtr == SL_GBL_APPLICATION_VERSION_RESET_MAGIC) {
     return true;
   }
@@ -133,12 +132,12 @@ static bool checkResetMagic(void)
 
 static uint32_t getHighestApplicationVersionSeen(void)
 {
-  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY);
+  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY);
   if (checkMaxVersionMagic()) {
     return SL_GBL_UINT32_MAX_NUMBER;
   }
 
-  for (uint32_t i = 0UL; i < SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY; i++) {
+  for (uint32_t i = 0UL; i < BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY; i++) {
     ++appVersionStoragePtr;
     if (*appVersionStoragePtr != SL_GBL_UINT32_MAX_NUMBER) {
       return *appVersionStoragePtr;
@@ -198,7 +197,7 @@ static bool getSignatureX(ApplicationProperties_t *appProperties, uint32_t *appS
 
 static bool bootload_verifySecureBoot(uint32_t startAddress)
 {
-  volatile int32_t retVal = BOOTLOADER_ERROR_SECURITY_REJECTED;
+  int32_t retVal = BOOTLOADER_ERROR_SECURITY_REJECTED;
   Sha256Context_t shaState;
 
   BareBootTable_t *appStart = (BareBootTable_t *)startAddress;
@@ -362,7 +361,7 @@ SL_WEAK void bootload_bootloaderCallback(uint32_t offset,
 #else
   const uint32_t max_address = FLASH_BASE + FLASH_SIZE - FLASH_PAGE_SIZE;
 #endif
-  volatile uint32_t address = BTL_UPGRADE_LOCATION + offset;
+  uint32_t address = BTL_UPGRADE_LOCATION + offset;
 
   // OOB checks
   // i) if NOT (BTL_UPGRADE_LOCATION <= address < max_address),
@@ -534,7 +533,7 @@ bool bootload_verifyApplication(uint32_t startAddress)
 uint32_t bootload_getApplicationVersionStorageCapacity(void)
 {
 #if defined(BOOTLOADER_ROLLBACK_PROTECTION) && (BOOTLOADER_ROLLBACK_PROTECTION == 1)
-  return SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY;
+  return BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY;
 #else
   return 0UL;
 #endif
@@ -560,7 +559,7 @@ bool bootload_storeApplicationVersion(uint32_t startAddress)
   uint32_t appVersion = appProperties->app.version;
   uint32_t emptySlots = bootload_remainingApplicationUpgrades();
   uint32_t highestVersionSeen = getHighestApplicationVersionSeen();
-  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY);
+  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY);
 
   if (!bootload_checkApplicationPropertiesMagic(appProperties)) {
     return false;
@@ -597,7 +596,7 @@ bool bootload_storeApplicationVersion(uint32_t startAddress)
     return false;
   }
 
-  appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY - emptySlots);
+  appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY - emptySlots);
   (void)flash_writeBuffer_dma((uint32_t)appVersionStoragePtr, &appVersion, 4UL, SL_GBL_MSC_LDMA_CHANNEL);
   return true;
 #else
@@ -641,15 +640,15 @@ bool bootload_verifyApplicationVersion(uint32_t appVersion, bool checkRemainingA
 uint32_t bootload_remainingApplicationUpgrades(void)
 {
 #if defined(BOOTLOADER_ROLLBACK_PROTECTION) && (BOOTLOADER_ROLLBACK_PROTECTION == 1)
-  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY);
+  uint32_t *appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY);
   if (checkMaxVersionMagic()) {
     return 0UL;
   }
 
-  for (uint32_t i = 0UL; i < SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY; i++) {
+  for (uint32_t i = 0UL; i < BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY; i++) {
     appVersionStoragePtr = bootload_getApplicationVersionStoragePtr(i);
     if (*appVersionStoragePtr == SL_GBL_UINT32_MAX_NUMBER) {
-      return (SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY - i);
+      return (BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY - i);
     }
   }
 
@@ -673,8 +672,8 @@ void bootload_storeApplicationVersionResetMagic(void)
 void bootload_removeStoredApplicationVersions(void)
 {
 #if defined(BOOTLOADER_ROLLBACK_PROTECTION) && (BOOTLOADER_ROLLBACK_PROTECTION == 1)
-  uint32_t *appVersionResetPtr = bootload_getApplicationVersionStoragePtr(SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY + 1UL);
-  if ((bootload_remainingApplicationUpgrades() < SL_GBL_APPLICATION_VERSION_STORAGE_CAPACITY)
+  uint32_t *appVersionResetPtr = bootload_getApplicationVersionStoragePtr(BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY + 1UL);
+  if ((bootload_remainingApplicationUpgrades() < BOOTLOADER_APPLICATION_VERSION_STORAGE_CAPACITY)
       && checkResetMagic()) {
     // Not empty and reset requested.
     uint32_t versionStorageAddr = ((uint32_t)appVersionResetPtr / FLASH_PAGE_SIZE) * FLASH_PAGE_SIZE;

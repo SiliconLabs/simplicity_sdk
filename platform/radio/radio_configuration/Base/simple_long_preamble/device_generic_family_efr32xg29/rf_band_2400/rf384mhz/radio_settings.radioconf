@@ -11,10 +11,6 @@
           <metadata>{"selectedPhy":"PHY_Datasheet_2450M_2GFSK_1Mbps_500K"}</metadata>
           <profile_input_overrides>
             <override>
-              <key>preamble_length</key>
-              <value>3000</value>
-            </override>
-            <override>
               <key>xtal_frequency_hz</key>
               <value>38400000</value>
             </override>

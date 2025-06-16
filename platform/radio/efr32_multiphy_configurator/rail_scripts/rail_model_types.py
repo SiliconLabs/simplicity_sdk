@@ -382,7 +382,7 @@ class RAILModelStruct(RAILModelElement):
 
     def addField(self, name, dataType, is_ptr=False, is_array=False, desc=None):
         field = StructField(name, dataType, is_ptr, is_array, desc)
-        self._fields.append(newField)
+        self._fields.append(field)
         setattr(self, field.name, field)
 
     def getField(self, name):

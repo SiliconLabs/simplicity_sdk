@@ -13,6 +13,9 @@ provides:
   - name: a_radio_config
 
 config_file:
+  - path: rail/device_sdid_210/radio_settings_full.radioconf
+    directory: rail
+    condition: [device_sdid_210]
   - path: rail/device_sdid_220/915/radio_settings_full.radioconf
     directory: rail
     condition: [device_sdid_220, hardware_board_supports_rf_band_915]
@@ -24,14 +27,11 @@ config_file:
     condition: [device_sdid_220, hardware_board_supports_rf_band_470]
   - path: rail/device_sdid_235/radio_settings_full.radioconf
     directory: rail
-    condition:
-    - device_sdid_235
+    condition: [device_sdid_235]
   - path: rail/device_sdid_220/915/radio_settings_full.radioconf
     directory: rail
-    condition:
-    - device_sdid_220
-    unless:
-    - hardware_board
+    condition: [device_sdid_220]
+    unless: [hardware_board]
 
 template_contribution:
   - name: component_catalog

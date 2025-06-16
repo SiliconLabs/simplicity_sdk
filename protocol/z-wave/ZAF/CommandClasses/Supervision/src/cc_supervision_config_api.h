@@ -20,7 +20,7 @@
 /**
  * @brief Returns whether transmission of status updates is enabled or disabled by default.
  * Used by the Supervion Command Class initialization
- * 
+ *
  * @return true if enabled, false if disabled
  */
 bool cc_supervision_get_default_status_updates_enabled();
@@ -28,6 +28,6 @@ bool cc_supervision_get_default_status_updates_enabled();
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_SUPERVISION_CONFIG_API_H */

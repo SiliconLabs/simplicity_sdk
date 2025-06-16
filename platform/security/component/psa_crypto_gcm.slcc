@@ -1,5 +1,5 @@
 id: psa_crypto_gcm
-package: platform
+package: security_mbedtls
 label: GCM
 description:
   "This component provides support for the GCM authenticated encryption \

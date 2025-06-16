@@ -1,16 +1,16 @@
 id: flash_storage
-label: "Flash Storage Support"
-package: platform
+label: Flash Storage Support
+package: bootloader
 description: >
-  Flash storage allocation support used for features like bootloader storage.
-  This component is used to configure a bootloader storage space from the
-  view of the application. This way the application can reserve an area in the
-  flash which cannot be used by code.
+    Flash storage allocation support used for features like bootloader storage.
+    This component is used to configure a bootloader storage space from the
+    view of the application. This way the application can reserve an area in the
+    flash which cannot be used by code.
 category: Platform|Utilities
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: platform/common
 provides:
   - name: flash_storage
@@ -23,9 +23,8 @@ include:
   - path: toolchain/inc
     file_list:
       - path: sl_storage.h
-      - path: sl_memory_region.h
 requires:
   - name: memory_manager
 documentation:
-  docset: gecko-platform
-  document: platform-common/linker
+    docset: gecko-platform
+    document: platform-common/linker

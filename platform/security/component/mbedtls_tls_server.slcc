@@ -1,5 +1,5 @@
 id: mbedtls_tls_server
-package: platform
+package: security_mbedtls
 label: TLS Server
 description: >-
   This component provides support for using TLS (as a server) in Mbed TLS.

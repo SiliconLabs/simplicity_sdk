@@ -26,8 +26,7 @@ import dataclasses
 import enum
 import logging
 import os
-from typing import (Callable, ClassVar, Dict, Iterable, List, Optional, Tuple,
-                    Union)
+from typing import Callable, ClassVar, Dict, Iterable, List, Optional, Tuple, Union
 
 from bgapi.bglib import BGEvent, CommandFailedError
 from bgapix.bglibx import BGLibExtRetryParams, BGLibExtWaitEventError
@@ -35,13 +34,17 @@ from bgapix.slstatus import SlStatus
 
 from . import util
 from .conf import Configurator
-from .core import (BtmeshAddressList, BtmeshBaseStatus, BtmeshComponent,
-                   BtmeshCore, BtmeshStatusErrorClass)
+from .core import (
+    BtmeshAddressList,
+    BtmeshBaseStatus,
+    BtmeshComponent,
+    BtmeshCore,
+    BtmeshStatusErrorClass,
+)
 from .db import FWID, BtmeshDatabase
 from .errors import BtmeshError, BtmeshErrorCode
 from .event import LocalEvent
-from .mbt import (Blob, BlobTransferClient, BlobTransferMode, MBTProgressEvent,
-                  MBTStatus)
+from .mbt import Blob, BlobTransferClient, BlobTransferMode, MBTProgressEvent, MBTStatus
 from .util import BtmeshMulticastRetryParams, BtmeshRetryParams
 
 logger = logging.getLogger(__name__)
@@ -116,8 +119,8 @@ class FwUpdateStep(util.BtmeshIntEnum):
 @enum.unique
 class FwUpdateAdditionalInfo(util.BtmeshIntEnum):
     CD_UNCHANGED = 0
-    CD_UNCHANGED_RPR_UNSUPPORTED = 1
-    CD_UNCHANGED_RPR_SUPPORTED = 2
+    CD_CHANGED_RPR_UNSUPPORTED = 1
+    CD_CHANGED_RPR_SUPPORTED = 2
     DEVICE_UNPROVISIONED = 3
     UNKNOWN_VALUE = util.ENUM_UNKNOWN_VALUE
 
@@ -130,18 +133,6 @@ class FwReceiver:
     def __post_init__(self):
         util.validate_unicast_address(self.server_addr, "Invalid receiver address.")
         util.validate_fw_index(self.fw_index)
-
-
-@dataclasses.dataclass
-class FwReceiverInfo:
-    index: int
-    receiver_count: int
-    server_addr: int
-    fw_index: int
-    phase: FwReceiverPhase
-    dfu_status: FwUpdateStatus
-    mbt_status: MBTStatus
-    progress: int
 
 
 @dataclasses.dataclass
@@ -254,6 +245,58 @@ class FwUpdateMetadataStatus(FwUpdateBaseStatus):
             ),
             fw_index=event.fw_index,
         )
+
+
+@dataclasses.dataclass
+class FwReceiverInfo:
+    index: int
+    receiver_count: int
+    server_addr: int
+    fw_index: int
+    phase: FwReceiverPhase
+    dfu_status: FwUpdateStatus
+    mbt_status: MBTStatus
+    progress: int
+
+
+@dataclasses.dataclass
+class FwReceiverResult:
+    server_addr: int
+    fw_index: int
+    phase: FwReceiverPhase
+    dfu_status: FwUpdateStatus
+    mbt_status: MBTStatus
+    progress: int
+    additional_info: Optional[FwUpdateAdditionalInfo]
+
+    @classmethod
+    def create_from_fw_receiver_info(
+        cls, info: FwReceiverInfo, additional_info: FwUpdateAdditionalInfo
+    ) -> "FwReceiverResult":
+        return cls(
+            server_addr=info.server_addr,
+            fw_index=info.fw_index,
+            phase=info.phase,
+            dfu_status=info.dfu_status,
+            mbt_status=info.mbt_status,
+            progress=info.progress,
+            additional_info=additional_info,
+        )
+
+    @classmethod
+    def create_fw_receivers_result(
+        cls,
+        receivers_info: Iterable[FwReceiverInfo],
+        metadata_status_dict: Dict[int, FwUpdateMetadataStatus],
+    ) -> List["FwReceiverResult"]:
+        receiver_result_list = []
+        for receiver_info in receivers_info:
+            metadata_status = metadata_status_dict.get(receiver_info.server_addr)
+            fw_receiver_result = cls.create_from_fw_receiver_info(
+                receiver_info, metadata_status.additional_info
+            )
+            receiver_result_list.append(fw_receiver_result)
+        return receiver_result_list
 
 
 @dataclasses.dataclass
@@ -396,7 +439,7 @@ class FwUpdateClient(BtmeshComponent):
         appkey_index: int = 0,
         ttl: int = 5,
         retry_params: BtmeshMulticastRetryParams = None,
-    ) ->  Dict[int, FwUpdateMetadataStatus]:
+    ) -> Dict[int, FwUpdateMetadataStatus]:
         return self.dfu_procedure(
             self.lib.btmesh.fw_update_client.check_metadata,
             elem_index,
@@ -687,7 +730,7 @@ class FwUpdateClient(BtmeshComponent):
         ttl: int = 5,
         retry_params: Optional[BtmeshMulticastRetryParams] = None,
         on_bg_event: Optional[Callable] = None,
-    ) -> Tuple[FwUpdateStep, List[FwReceiverInfo]]:
+    ) -> Tuple[FwUpdateStep, List[FwReceiverResult]]:
         if not util.is_iterable(receivers):
             receivers: Iterable[FwReceiver] = [receivers]
         util.validate_ttl(ttl)
@@ -741,7 +784,11 @@ class FwUpdateClient(BtmeshComponent):
             # All receivers failed during the metadata check
             state = FwUpdateStep.FAILED
             receivers_info = failed_receivers_info
-            return state, receivers_info
+            receivers_result = FwReceiverResult.create_fw_receivers_result(
+                receivers_info=receivers_info,
+                metadata_status_dict=metadata_status_dict,
+            )
+            return state, receivers_result
         self.lib.subscribe(
             self.DFU_STATE_CHANGED_EVENT, self.on_fw_update_state_changed
         )
@@ -785,7 +832,11 @@ class FwUpdateClient(BtmeshComponent):
             ):
                 node = self.db.get_node_by_elem_addr(addr)
                 self.conf.reset_node(node=node, local=True)
-        return state, receivers_info
+        receivers_result = FwReceiverResult.create_fw_receivers_result(
+            receivers_info=receivers_info,
+            metadata_status_dict=metadata_status_dict,
+        )
+        return state, receivers_result
 
     def on_fw_update_state_changed(self, event: BGEvent):
         state = self._get_fw_standalone_updater_state(event.elem_index)

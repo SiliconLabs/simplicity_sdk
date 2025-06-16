@@ -1,6 +1,6 @@
 id: in_place_ota_dfu
 label: In-Place OTA DFU
-package: Bluetooth
+package: bluetooth_le_middleware
 description: >
   Component that provides in-place over-the-air (OTA) device firmware
   update (DFU) functionality. In this solution, the application flash area is

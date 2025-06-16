@@ -436,7 +436,7 @@ const uint32_t sl_rail_ble_phy_1Mbps_viterbi_cs_40MHz_modemConfigBase[] = {
   /*    4110 */ 0x000041FFUL,
   /*    4114 */ 0x00000000UL,
   0x1001C024UL, 0x000000FFUL,
-  0x3001C024UL, 0x00001200UL,
+  0x3001C024UL, 0x00001100UL,
   0x0008C028UL, 0x03B380ECUL,
   /*    C02C */ 0x51407543UL,
   /*    C030 */ 0xF8000FA0UL,

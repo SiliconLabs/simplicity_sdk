@@ -9,9 +9,11 @@ root_path: "protocol/wisun/stack"
 
 requires:
   - name: "device_supports_wisun"
-  - name: "rail_lib_singleprotocol"
+  - name: "rail_lib"
+  - name: "rail_lib_multiprotocol"
+    condition: [bluetooth_stack]
   - name: "rail_util_pa"
-  - name: "rail_util_pti"
+  - name: "sl_rail_util_pti"
   - name: "cmsis_rtos2"
   - name: "nvm3"
   - name: "slist"
@@ -23,6 +25,7 @@ requires:
 
 recommends:
   - id: "wisun_br_common_library"
+  - id: "rail_lib_singleprotocol"
 
 provides:
   - name: "wisun_br_stack"
@@ -66,22 +69,20 @@ include:
     file_list:
     - path: "sli_wisun_certificate.h"
     - path: "sl_wisun_msg_api.h"
-    - path: "common/bits.h"
-    - path: "common/endian.h"
-    - path: "common/int24.h"
-    - path: "common/iobuf.h"
-    - path: "common/pktbuf.h"
-    - path: "common/ns_list.h"
-    - path: "common/ns_types.h"
-    - path: "common/string_extra.h"
+  - path: "src/common/"
+    file_list:
+    - path: "bits.h"
+    - path: "endian.h"
+    - path: "int24.h"
+    - path: "iobuf.h"
+    - path: "math_utils.h"
+    - path: "pktbuf.h"
+    - path: "ns_list.h"
+    - path: "ns_types.h"
+    - path: "string_extra.h"
   - path: "src/border_router/"
     file_list:
     - path: "sl_wisun_br_msg_api.h"
-  - path: "nanostack-stack/source/"
-    file_list:
-    - path: "security/protocols/sec_prot_certs.h"
-    - path: "security/protocols/sec_prot_keys.h"
-    - path: "security/eapol/kde_helper.h"
 
 metadata:
   sbom:

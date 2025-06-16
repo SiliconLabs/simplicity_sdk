@@ -1,13 +1,13 @@
 id: pressure_driver_bmp280
-package: platform
+package: board_drivers
 label: Pressure device driver for BMP280
 description: >
-  Pressure sensor driver for BMP280
+    Pressure sensor driver for BMP280
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/pressure
 provides:
   - name: pressure_device_driver
@@ -17,7 +17,7 @@ requires:
 include:
   - path: inc
     file_list:
-    - path: sl_pressure.h
+      - path: sl_pressure.h
 source:
   - path: src/sl_pressure_bmp280.c
 documentation:

@@ -1,5 +1,5 @@
 id: platform_security_all
-package: platform
+package: security_mbedtls
 label: Platform Security All
 description: Helper including all components and all relevant configs.
 category: Platform|Security|Internal

@@ -1,17 +1,17 @@
 id: imu_driver_core
-package: platform
+package: board_drivers
 label: IMU - Inertial Measurement Unit Core
 description: >
-  Intertial Measurement Unit driver core
+    Intertial Measurement Unit driver core
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 ui_hints:
-  visibility: never
+    visibility: never
 root_path: hardware/driver/imu
-provides: 
+provides:
   - name: imu_driver_core
 requires:
   - name: sleeptimer

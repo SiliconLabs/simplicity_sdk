@@ -1,6 +1,6 @@
 id: zigbee_ncp_uart_hardware
 label: NCP UART Hardware Flow Control
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 description: Provides the functionality for an NCP application to communicate with a host over a UART using hardware flow control.

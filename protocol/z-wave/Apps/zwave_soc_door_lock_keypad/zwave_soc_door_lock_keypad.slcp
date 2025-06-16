@@ -45,8 +45,7 @@ component:
   - id: zw_cc_version
   - id: zw_cc_zwaveplusinfo
   - id: zw_appshw
-  - id: sl_system
-  - id: sl_system_kernel
+  - id: sl_main
   - id: device_init
   - id: mpu # disable execution from RAM
   - id: ZW_MIGRATION_TO_7_19
@@ -57,22 +56,22 @@ component:
   - id: simple_led
     instance: [led0, led1]
   - id: zw_cli_common
-    condition: [zw_production]
+    condition: [zw_stack_release_libraries]
+  - id: clock_manager
 
 source:
   - path: app.c
   - path: app_cc_event_handlers.c
   - path: app_credentials.c
     condition: [zw_cc_user_credential]
-  - path: main.c
   - path: app_cli.c
     condition: [zw_cli_common]
   - path: app_cli_cc_user_credential.c
     condition: [zw_cli_common, zw_cc_user_credential]
   - path: app_btn_handler.c
     condition: [simple_button]
-  - path: app_cc_battery_callbacks.c
   - path: app_cc_door_lock_callbacks.c
+  - path: ../../platform/SiliconLabs/AppsHw/src/common/app_cc_battery_callbacks.c
 
 include:
   - path: .
@@ -113,14 +112,6 @@ configuration:
     value: 1
   - name: SL_DEVICE_INIT_EMU_EM4_PIN_RETENTION_MODE
     value: emuPinRetentionLatch
-  - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
-    value: 1
-  - name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
-    value: 0    # UART RX shouldn't prevent EM2
-  - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
-    value: 1
-  - name: SL_IOSTREAM_EUSART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
-    value: 0    # UART RX shouldn't prevent EM2
   - name: configUSE_IDLE_HOOK
     value: 1
   - name: configTIMER_TASK_PRIORITY
@@ -158,12 +149,30 @@ configuration:
     value: 1
   - name: ZAF_APP_NAME
     value: '"door_lock_keypad"'
-  - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
-    value: 0
   - name: U3C_BUFFER_SIZE_CREDENTIAL_DATA
     value: 32
   - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
     value: 0
+  # USART configuration
+  - name: SL_IOSTREAM_USART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: 1
+  - name: SL_IOSTREAM_USART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: 0    # UART RX shouldn't prevent EM2
+  # EUSART configuration
+  - name: SL_IOSTREAM_EUSART_VCOM_CONVERT_BY_DEFAULT_LF_TO_CRLF
+    value: 1
+  - name: SL_IOSTREAM_EUSART_VCOM_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: 0    # EUSART RX shouldn't prevent EM2
+  - name: SL_IOSTREAM_EUSART_INSTANCE_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION
+    value: 0
+  - name: SL_IOSTREAM_EUSART_VCOM_BAUDRATE
+    value: 9600 # In EM2 the eusart is working only with 9600 baud
+  - name: SL_IOSTREAM_EUSART_VCOM_ENABLE_HIGH_FREQUENCY # Disable high frequency mode for EUSART to work in EM2
+    value: 0
+  - name: SL_CLOCK_MANAGER_WDOG0CLK_SOURCE
+    value: CMU_WDOG0CLKCTRL_CLKSEL_LFRCO
+  - name: SL_CLOCK_MANAGER_EUSART0CLK_SOURCE
+    value: CMU_EUSART0CLKCTRL_CLKSEL_LFRCO
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -182,6 +191,10 @@ config_file:
     directory: sample_keys
   - path: ../../platform/SiliconLabs/PAL/BootLoader/sample-keys/sample_sign.key
     directory: sample_keys
+
+provides:
+  - name: zwave_sample_application
+  - name: zwave_soc_door_lock_keypad
 
 template_contribution:
 #------------------ CLI commands ---------------------
@@ -219,7 +232,7 @@ template_contribution:
       help: "Set door handle state to locked (1) or unlocked (0)"
       argument:
       - type: string
-        help: "activate or deactivate" 
+        help: "activate or deactivate"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:

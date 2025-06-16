@@ -20,15 +20,14 @@ filter:
 component:
   - id: bluetooth_stack
   - id: gatt_configuration
-  - id: gatt_service_device_information
+  - id: gatt_service_device_information_override
   - id: bluetooth_feature_legacy_advertiser
-  - id: bluetooth_feature_connection
+  - id: bluetooth_feature_connection_role_peripheral
   - id: bluetooth_feature_gatt_server
   - id: bluetooth_feature_sm
   - id: bluetooth_feature_system
   - id: bluetooth_feature_power_control
   - id: in_place_ota_dfu
-  - id: bootloader_interface
   - id: rail_util_pti
   - id: cli
     instance:
@@ -46,13 +45,12 @@ component:
     instance:
       - btn0
   - id: mpu
-  - id: sl_system
+  - id: sl_main
+  - id: app_os_helper
   - id: clock_manager
   - id: device_init
-  - id: sl_common
 
 source:
-  - path: main.c
   - path: app.c
 
 include:

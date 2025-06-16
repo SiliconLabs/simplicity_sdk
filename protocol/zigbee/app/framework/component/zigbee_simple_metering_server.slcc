@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is a test implementation of the simple metering server. This component should only be used for testing but is helpful to test devices that require inter-operation with a working meter. It supports the required current summation delivered attribute (0x0000), but optionally the following attributes as well, if they are selected in the project - current tier 1 summation delivered (0x0100), battery life remaining (0x0201), hours in operation (0x0202), and instantaneous demand (0x0400).
 label: Simple Metering Server
 quality: production

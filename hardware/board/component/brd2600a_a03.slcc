@@ -1,7 +1,7 @@
 !!omap
 - id: brd2600a_a03
 - label: BRD2600A rev A03
-- package: platform
+- package: boards
 - description: Board support for BRD2600A.
 - category: Platform|Board|Starter Kit
 - quality: production

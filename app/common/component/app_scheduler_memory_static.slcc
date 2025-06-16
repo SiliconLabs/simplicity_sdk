@@ -4,7 +4,7 @@ label: Static memory management implementation for the Scheduler
 description: >
   This component provides a static memory management implementation for the
   Scheduler component. It provides APIs for allocating and freeing memory.
-package: platform
+package: platform_common_apps
 quality: production
 metadata:
   sbom:

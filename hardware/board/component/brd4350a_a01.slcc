@@ -1,7 +1,7 @@
 !!omap
 - id: brd4350a_a01
 - label: BRD4350A rev A01
-- package: platform
+- package: boards
 - description: Board support for BRD4350A.
 - category: Platform|Board|Radio Board
 - quality: production

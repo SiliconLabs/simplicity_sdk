@@ -1,18 +1,18 @@
 id: cslib
-label: "Capacitive Sensing Core"
-package: platform
-description: "CSLIB Core"
+label: Capacitive Sensing Core
+package: cslib
+description: CSLIB Core
 category: Platform|Middleware
 ui_hints:
-  visibility: never
+    visibility: never
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 include:
   - path: platform/middleware/cslib/inc
     file_list:
-    - path: cslib.h
+      - path: cslib.h
 requires:
   - name: cslib_lib
   - name: cmsis_core

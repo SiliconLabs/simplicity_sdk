@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is a Trust Center component that handles updating the Network Key by BROADCASTING the key to all devices in the network. This is the method used by HA and networks that are not running Smart Energy. The new network key is randomly generated.
 id: zigbee_trust_center_nwk_key_update_broadcast
 label: Trust Center Network Key Update Broadcast

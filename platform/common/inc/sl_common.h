@@ -72,19 +72,29 @@ extern "C" {
  * @{
  ******************************************************************************/
 
-/** @brief Macros to concatenate. */
-#define _CONCAT_2(first, second)                          first ## second
-#define SL_CONCAT_PASTER_2(first, second)                 _CONCAT_2(first, second)                ///< sl concat paster 2.
-#define _CONCAT_3(first, second, third)                   first ## second ## third
-#define SL_CONCAT_PASTER_3(first, second, third)          _CONCAT_3(first, second, third)         ///< sl concat paster 3.
-#define _CONCAT_4(first, second, third, fourth)           first ## second ## third ## fourth
-#define SL_CONCAT_PASTER_4(first, second, third, fourth)  _CONCAT_4(first, second, third, fourth) ///< sl concat paster 4.
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+#define _SL_CONCAT_2(first, second)                       first ## second
+#define _SL_CONCAT_3(first, second, third)                first ## second ## third
+#define _SL_CONCAT_4(first, second, third, fourth)        first ## second ## third ## fourth
+/** @endcond */
+
+/** @brief Concatenate 2 arguments. */
+#define SL_CONCAT_PASTER_2(first, second)                 _SL_CONCAT_2(first, second)
+
+/** @brief Concatenate 3 arguments. */
+#define SL_CONCAT_PASTER_3(first, second, third)          _SL_CONCAT_3(first, second, third)
+
+/** @brief Concatenate 4 arguments. */
+#define SL_CONCAT_PASTER_4(first, second, third, fourth)  _SL_CONCAT_4(first, second, third, fourth)
 
 /** @brief Round n up to closest interval of i. */
 #define SL_CEILING(n, i)   ((((n) + (i) - 1U) / (i)) * (i))
 
 /** @brief Round n down to closest interval of i. */
 #define SL_FLOOR(n, i) ((n / i) * i)
+
+/** @brief Divide x by y and round up to the closest integer. */
+#define SL_DIV_ROUND_UP(x, y) (((x) + (y) - 1) / (y))
 
 /** @brief Stringify X */
 #define STRINGIZE(X) #X
@@ -282,6 +292,12 @@ extern "C" {
 #define SL_DEPRECATED_API_SDK_2024_6
 #else
 #define SL_DEPRECATED_API_SDK_2024_6 __attribute__ ((deprecated))
+#endif
+
+#ifdef SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2025_6
+#define SL_DEPRECATED_API_SDK_2025_6
+#else
+#define SL_DEPRECATED_API_SDK_2025_6 __attribute__ ((deprecated))
 #endif
 /** @endcond */
 

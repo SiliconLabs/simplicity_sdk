@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -27,12 +27,12 @@ class cc_base():
     This class is responsible for rendering a template file
     """
 
-    def __init__(self, component: str, templates: List[str], variable: str) -> None:
+    def __init__(self, component: str, templates: list[str], variable: str) -> None:
         """Constructor
 
         Args:
             component (str): The component name
-            templates (List[str]): A list of templates, jinja files
+            templates (list[str]): A list of templates, jinja files
             variable (str): The variable name used as key for the configuration
         """
         self.component = component
@@ -60,15 +60,15 @@ class cc_base():
 
         return cc_data(c_file, config_data)
 
-    def render(self, configuration: Dict[str, Dict[str, Any]], templates_dir: str) -> List[cc_data]:
+    def render(self, configuration: dict[str, dict[str, Any]], templates_dir: str) -> list[cc_data]:
         """Render all templates into files
 
         Args:
-            configuration (Dict[str, Dict[str, Any]]): The cc_config content
+            configuration (dict[str, dict[str, Any]]): The cc_config content
             templates_dir (str): The directory in which the templates are located
 
         Returns:
-            List[cc_data]: A list of Command Class data
+            list[cc_data]: A list of Command Class data
         """
         ret = []
         for template in self.templates:
@@ -90,28 +90,28 @@ class cc_validate(cc_base, ABC):
     validations to it
     """
     @abstractmethod
-    def _validate(self, configuration: Dict[str, Dict[str, Any]]) -> None:
+    def _validate(self, configuration: dict[str, dict[str, Any]]) -> None:
         """Abstract method
 
         It must be implemented by the child class else an exception is thrown
 
         Args:
-            configuration (Dict[str, Dict[str, Any]]): The cc_config content
+            configuration (dict[str, dict[str, Any]]): The cc_config content
 
         Raises:
             NotImplementedError: Throws it when not implemented
         """
         raise NotImplementedError()
 
-    def render(self, configuration: Dict[str, Dict[str, Any]], templates_dir: str) -> List[cc_data]:
+    def render(self, configuration: dict[str, dict[str, Any]], templates_dir: str) -> list[cc_data]:
         """Render all templates into files
 
         Args:
-            configuration (Dict[str, Dict[str, Any]]): The cc_config content
+            configuration (dict[str, dict[str, Any]]): The cc_config content
             templates_dir (str): The directory in which the templates are located
 
         Returns:
-            List[cc_data]: A list of Command Class data
+            list[cc_data]: A list of Command Class data
         """
         self._validate(configuration)
         return super().render(configuration, templates_dir)

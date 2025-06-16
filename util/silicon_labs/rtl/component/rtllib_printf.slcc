@@ -1,6 +1,6 @@
 id: rtllib_printf
 label: Printf SBOM
-package: rtl
+package: realtime_locationing
 category: Bluetooth|Direction Finding
 quality: production
 description: This component defines upstream Printf SBOM metadata.

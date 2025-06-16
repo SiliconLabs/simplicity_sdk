@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is a simple Over-the-air bootload cluster storage module that stores only ONE file in the storage device (for use by the client or server component). It requires a storage driver. Silicon Labs provides two, an EEPROM version and a RAM version.
 label: OTA Simple Storage Module
 quality: production

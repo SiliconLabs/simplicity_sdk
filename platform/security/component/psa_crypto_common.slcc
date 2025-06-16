@@ -1,5 +1,5 @@
 id: psa_crypto_common
-package: platform
+package: security_mbedtls
 label: Common
 description: >-
   This component provides a set of common header files required for the 'PSA

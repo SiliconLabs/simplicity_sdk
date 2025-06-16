@@ -117,7 +117,7 @@ static void bcn_setup_adv_beaconing(void)
     // Set as 1025 and converted to correct format.
     { UINT16_TO_BYTE1(1025), UINT16_TO_BYTE0(1025) },
 
-    // A dummy value which will be eventually overwritten
+    // A placeholder value which will be eventually overwritten
     0
     };
 

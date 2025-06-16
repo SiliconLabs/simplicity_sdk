@@ -42,12 +42,6 @@ extern "C"
 #endif
 
 /***************************************************************************//**
- * @defgroup app_btmesh_rta Bluetooth Mesh Runtime Adaptor (RTA)
- * @brief This component implements a central resource
- * guarding service for Bluetooth Mesh SDK App components.
- ******************************************************************************/
-
-/***************************************************************************//**
  * @addtogroup app_btmesh_rta
  * @{
  * @details
@@ -81,6 +75,8 @@ extern "C"
  * @note If no implementation is provided in the application,
  *       then the default weak implementation only handles the failed
  *       runtime initialization by an assertion
+ * @param[in] error   error code
+ * @param[in] result  result code
  ******************************************************************************/
 void app_btmesh_rta_on_runtime_error(app_rta_error_t error,
                                      sl_status_t     result);

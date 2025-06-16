@@ -1,6 +1,6 @@
 id: "segger_rtt_printf"
 label: "SEGGER RTT printf"
-package: "platform"
+package: "segger"
 description: "SEGGER RTT with printf feature"
 category: "Third Party|Segger|RTT"
 quality: "production"

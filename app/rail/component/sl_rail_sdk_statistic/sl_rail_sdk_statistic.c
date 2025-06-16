@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail_types.h"
+#include "sl_rail_types.h"
 #include "sl_rail_sdk_statistic.h"
 #if defined(SL_CATALOG_APP_LOG_PRESENT)
 #include "app_log.h"
@@ -149,49 +149,49 @@ void print_statistic(void)
  * @param[in] rail_handle: not used
  * @param[in] events: the events what happened
  ******************************************************************************/
-void sl_rail_sdk_statistic_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_sdk_statistic_event(sl_rail_handle_t rail_handle, sl_rail_events_t events)
 {
   (void)rail_handle;
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.rssi_average_done.value, events, RAIL_EVENT_RSSI_AVERAGE_DONE_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.ack_timeout.value, events, RAIL_EVENT_RX_ACK_TIMEOUT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_almost_full.value, events, RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.packet_received.value, events, RAIL_EVENT_RX_PACKET_RECEIVED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.preamble_lost.value, events, RAIL_EVENT_RX_PREAMBLE_LOST_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.preamble_detect.value, events, RAIL_EVENT_RX_PREAMBLE_DETECT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.sync1_detect.value, events, RAIL_EVENT_RX_SYNC1_DETECT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.sync2_detect.value, events, RAIL_EVENT_RX_SYNC2_DETECT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.frame_error.value, events, RAIL_EVENT_RX_FRAME_ERROR_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_full.value, events, RAIL_EVENT_RX_FIFO_FULL_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_overflow.value, events, RAIL_EVENT_RX_FIFO_OVERFLOW_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.address_filtered.value, events, RAIL_EVENT_RX_ADDRESS_FILTERED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.timeout.value, events, RAIL_EVENT_RX_TIMEOUT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.scheduled_rx_end.value, events, RAIL_EVENT_RX_SCHEDULED_RX_END_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.scheduled_rx_missed.value, events, RAIL_EVENT_RX_SCHEDULED_RX_MISSED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.packet_aborted.value, events, RAIL_EVENT_RX_PACKET_ABORTED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.filter_passed.value, events, RAIL_EVENT_RX_FILTER_PASSED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.timing_lost.value, events, RAIL_EVENT_RX_TIMING_LOST_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.timing_detect.value, events, RAIL_EVENT_RX_TIMING_DETECT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.channel_hopping_complete.value, events, RAIL_EVENT_RX_CHANNEL_HOPPING_COMPLETE_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.rx.duty_cycle_rx_end.value, events, RAIL_EVENT_RX_DUTY_CYCLE_RX_END_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.protocol_spec.ieee802154_data_request_command.value, events, RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.protocol_spec.zwave_beam.value, events, RAIL_EVENT_ZWAVE_BEAM_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.fifo_almost_empty.value, events, RAIL_EVENT_TX_FIFO_ALMOST_EMPTY_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.packet_sent.value, events, RAIL_EVENT_TX_PACKET_SENT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_packet_sent.value, events, RAIL_EVENT_TXACK_PACKET_SENT_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.aborted.value, events, RAIL_EVENT_TX_ABORTED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_aborted.value, events, RAIL_EVENT_TXACK_ABORTED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.blocked.value, events, RAIL_EVENT_TX_BLOCKED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_blocked.value, events, RAIL_EVENT_TXACK_BLOCKED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.underflow.value, events, RAIL_EVENT_TX_UNDERFLOW_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_underflow.value, events, RAIL_EVENT_TXACK_UNDERFLOW_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.channel_clear.value, events, RAIL_EVENT_TX_CHANNEL_CLEAR_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.channel_busy.value, events, RAIL_EVENT_TX_CHANNEL_BUSY_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.cca_retry.value, events, RAIL_EVENT_TX_CCA_RETRY_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.start_cca.value, events, RAIL_EVENT_TX_START_CCA_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.started.value, events, RAIL_EVENT_TX_STARTED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.tx.scheduled_tx_missed.value, events, RAIL_EVENT_TX_SCHEDULED_TX_MISSED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.unscheduled.value, events, RAIL_EVENT_CONFIG_UNSCHEDULED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.scheduled.value, events, RAIL_EVENT_CONFIG_SCHEDULED_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.scheduler_status.value, events, RAIL_EVENT_SCHEDULER_STATUS_SHIFT);
-  SHIFT_AND_ADD(rail_event_statistic.event.maintenance.cal_needed.value, events, RAIL_EVENT_CAL_NEEDED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.rssi_average_done.value, events, SL_RAIL_EVENT_RSSI_AVERAGE_DONE_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.ack_timeout.value, events, SL_RAIL_EVENT_RX_ACK_TIMEOUT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_almost_full.value, events, SL_RAIL_EVENT_RX_FIFO_ALMOST_FULL_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.packet_received.value, events, SL_RAIL_EVENT_RX_PACKET_RECEIVED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.preamble_lost.value, events, SL_RAIL_EVENT_RX_PREAMBLE_LOST_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.preamble_detect.value, events, SL_RAIL_EVENT_RX_PREAMBLE_DETECT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.sync1_detect.value, events, SL_RAIL_EVENT_RX_SYNC_0_DETECT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.sync2_detect.value, events, SL_RAIL_EVENT_RX_SYNC_1_DETECT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.frame_error.value, events, SL_RAIL_EVENT_RX_FRAME_ERROR_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_full.value, events, SL_RAIL_EVENT_RX_FIFO_FULL_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.fifo_overflow.value, events, SL_RAIL_EVENT_RX_FIFO_OVERFLOW_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.address_filtered.value, events, SL_RAIL_EVENT_RX_ADDRESS_FILTERED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.timeout.value, events, SL_RAIL_EVENT_RX_TIMEOUT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.scheduled_rx_end.value, events, SL_RAIL_EVENT_RX_SCHEDULED_RX_END_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.scheduled_rx_missed.value, events, SL_RAIL_EVENT_RX_SCHEDULED_RX_MISSED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.packet_aborted.value, events, SL_RAIL_EVENT_RX_PACKET_ABORTED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.filter_passed.value, events, SL_RAIL_EVENT_RX_FILTER_PASSED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.timing_lost.value, events, SL_RAIL_EVENT_RX_TIMING_LOST_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.timing_detect.value, events, SL_RAIL_EVENT_RX_TIMING_DETECT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.channel_hopping_complete.value, events, SL_RAIL_EVENT_RX_CHANNEL_HOPPING_COMPLETE_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.rx.duty_cycle_rx_end.value, events, SL_RAIL_EVENT_RX_DUTY_CYCLE_RX_END_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.protocol_spec.ieee802154_data_request_command.value, events, SL_RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.protocol_spec.zwave_beam.value, events, SL_RAIL_EVENT_ZWAVE_BEAM_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.fifo_almost_empty.value, events, SL_RAIL_EVENT_TX_FIFO_ALMOST_EMPTY_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.packet_sent.value, events, SL_RAIL_EVENT_TX_PACKET_SENT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_packet_sent.value, events, SL_RAIL_EVENT_TXACK_PACKET_SENT_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.aborted.value, events, SL_RAIL_EVENT_TX_ABORTED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_aborted.value, events, SL_RAIL_EVENT_TXACK_ABORTED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.blocked.value, events, SL_RAIL_EVENT_TX_BLOCKED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_blocked.value, events, SL_RAIL_EVENT_TXACK_BLOCKED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.underflow.value, events, SL_RAIL_EVENT_TX_UNDERFLOW_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.ack_underflow.value, events, SL_RAIL_EVENT_TXACK_UNDERFLOW_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.channel_clear.value, events, SL_RAIL_EVENT_TX_CHANNEL_CLEAR_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.channel_busy.value, events, SL_RAIL_EVENT_TX_CHANNEL_BUSY_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.cca_retry.value, events, SL_RAIL_EVENT_TX_CCA_RETRY_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.start_cca.value, events, SL_RAIL_EVENT_TX_START_CCA_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.started.value, events, SL_RAIL_EVENT_TX_STARTED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.tx.scheduled_tx_missed.value, events, SL_RAIL_EVENT_TX_SCHEDULED_TX_MISSED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.unscheduled.value, events, SL_RAIL_EVENT_CONFIG_UNSCHEDULED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.scheduled.value, events, SL_RAIL_EVENT_CONFIG_SCHEDULED_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.multi_protocol.scheduler_status.value, events, SL_RAIL_EVENT_SCHEDULER_STATUS_SHIFT);
+  SHIFT_AND_ADD(rail_event_statistic.event.maintenance.cal_needed.value, events, SL_RAIL_EVENT_CAL_NEEDED_SHIFT);
 }

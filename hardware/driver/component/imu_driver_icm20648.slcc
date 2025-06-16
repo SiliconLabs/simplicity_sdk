@@ -1,13 +1,13 @@
 id: imu_driver_icm20648
-package: platform
+package: board_drivers
 label: IMU - Device driver for InvenSense ICM-20648
 description: >
-  Intertial Measurement Unit driver for InvenSense ICM-20648
+    Intertial Measurement Unit driver for InvenSense ICM-20648
 category: Platform|Board Drivers
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 root_path: hardware/driver/imu
 provides:
   - name: imu_device_driver

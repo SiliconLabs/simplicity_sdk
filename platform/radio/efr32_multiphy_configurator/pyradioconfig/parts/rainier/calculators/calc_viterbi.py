@@ -67,6 +67,7 @@ class CalcViterbiRainier(Calc_Viterbi_Bobcat):
 
         afc1shot_en = model.vars.MODEM_AFC_AFCONESHOT.value
         aox_en = model.vars.aox_enable.value == model.vars.aox_enable.var_enum.ENABLED
+        enhanced_en = model.vars.demod_select.value == model.vars.demod_select.var_enum.ENHANCED_DSSS
         # ksi3swen is do not care if afc1shot_en is False - MCUW_RADIO_CFG-1901
         ksi3swen_donotccare = not afc1shot_en
 
@@ -74,7 +75,7 @@ class CalcViterbiRainier(Calc_Viterbi_Bobcat):
             # both AFC oneshot and AoX cannot be simultaneously enabled as they both use the second CHF coefficient set
             LogMgr.Error('both AFC oneshot and AoX cannot be simultaneously enabled')
 
-        swcoeffen = 1 if afc1shot_en or aox_en else 0 # affects the channel filter switching only
+        swcoeffen = 1 if (afc1shot_en or aox_en or enhanced_en) else 0 # affects the channel filter switching only
         ksi3swenable = afc1shot_en
         # don't switch for aox, as KSI3 switch mechanism is based on dsa/preamble, but the aox channel switch is based on the CTE
         # Don't care about the demodulated data during CTE, so just leave it on the KSI3

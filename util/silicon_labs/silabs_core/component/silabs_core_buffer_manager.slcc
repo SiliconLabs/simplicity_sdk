@@ -1,5 +1,5 @@
 id: silabs_core_buffer_manager
-package: platform
+package: common_15_4
 label: Buffer Manager
 description: |-
   Silicon Labs core utility providing a buffer management solution.

@@ -1,6 +1,6 @@
 id: "bluetooth_feature_l2cap"
 label: "L2CAP"
-package: "Bluetooth"
+package: bluetooth_le_host
 description: >
   This component provides the L2CAP Connection Oriented Channel feature.
 category: Bluetooth|Bluetooth Host (Stack)|Features with Commands and Events

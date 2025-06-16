@@ -96,8 +96,7 @@ static const block_t trng_fifo_block = {
 #if SL_VSE_BUFFER_TRNG_DATA_DURING_SLEEP
 
 static const sl_power_manager_em_transition_event_info_t buffer_trng_data_event = {
-  .event_mask = SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2
-                | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3,
+  .event_mask = SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2,
   .on_event = store_trng_fifo_data,
 };
 

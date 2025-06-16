@@ -1,6 +1,6 @@
 id: zigbee_ncp_framework
 label: NCP Framework
-package: Zigbee
+package: zigbee
 category: Zigbee|NCP
 quality: production
 ui_hints:
@@ -17,6 +17,7 @@ requires:
     condition:
       - device_cortexm
   - name: zigbee_zdo_cluster_filter
+  - name: zigbee_device_config
 
 include:
   - path: protocol/zigbee/app/em260
@@ -52,6 +53,16 @@ include:
   - path: protocol/zigbee/stack/internal/inc
     file_list:
       - path: security_internal_def.h
+      - path: sl_zigbee_memory_usage_internal_def.h
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: sl_zigbee_memory_usage.h
+
+  - path: protocol/zigbee/stack/internal/src/ipc
+    file_list:
+      - path: sl_zigbee_memory_usage_ipc_command_messages.h
+    condition:
+      - zigbee_use_ipc
 source:
   - path: protocol/zigbee/app/em260/em260-common.c
   - path: protocol/zigbee/app/em260/serial-interface-uart.c
@@ -62,6 +73,9 @@ source:
   - path: protocol/zigbee/app/xncp/xncp-stubs.c
     unless:
       - zigbee_xncp
+  - path: protocol/zigbee/stack/internal/src/stubs/sl_zigbee_memory_usage_internal_weak_stubs.c
+    unless:
+      - zigbee_memory_usage_api
 
   - path: protocol/zigbee/stack/internal/src/ipc/security_ipc_callback_events.c
     condition:
@@ -81,6 +95,13 @@ source:
     condition:
       - zigbee_use_ipc
   - path: protocol/zigbee/stack/internal/src/ipc/zigbee_ipc_callback_events.c
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/src/baremetal/sl_zigbee_memory_usage_baremetal_wrapper.c
+    unless:
+      - zigbee_use_ipc
+      - native_host
+  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_memory_usage_ipc_command_messages.c
     condition:
       - zigbee_use_ipc
 define:

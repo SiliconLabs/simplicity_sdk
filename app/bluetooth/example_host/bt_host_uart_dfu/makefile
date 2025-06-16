@@ -5,6 +5,7 @@
 PROJECTNAME = bt_host_uart_dfu
 PROJ_DIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SDK_DIR := $(realpath $(PROJ_DIR)/../../../..)
+override CFLAGS += -DWAIT_FOR_SYSTEM_BOOT=0
 
 
 ################################################################################
@@ -18,7 +19,8 @@ include $(SDK_DIR)/app/bluetooth/component_host/toolchain.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_log.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_assert.mk
 include $(SDK_DIR)/app/bluetooth/component_host/app_signal.mk
-include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_nothread.mk
+include ${SDK_DIR}/app/bluetooth/component_host/app_timer.mk
+include $(SDK_DIR)/app/bluetooth/component_host/ncp_host_bt.mk
 include $(SDK_DIR)/app/bluetooth/component_host/uart_dfu.mk
 
 
@@ -29,7 +31,8 @@ include $(SDK_DIR)/app/bluetooth/component_host/uart_dfu.mk
 override INCLUDEPATHS += $(PROJ_DIR) \
 $(SDK_DIR)/app/bluetooth/common_host/system \
 $(SDK_DIR)/platform/common/inc \
-$(SDK_DIR)/protocol/bluetooth/inc
+$(SDK_DIR)/protocol/bluetooth/inc \
+$(SDK_DIR)/protocol/bluetooth/config
 
 
 ################################################################################

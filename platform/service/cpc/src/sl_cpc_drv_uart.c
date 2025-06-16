@@ -371,6 +371,12 @@ sli_cpc_drv_t uart_driver = {
 };
 
 /*******************************************************************************
+ ***************************   WEAK FUNCTIONS   ********************************
+ ******************************************************************************/
+void sli_cpc_drv_wake_gpio_init(void);
+void sli_cpc_drv_wake_host_gpio(bool active);
+
+/*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
@@ -406,6 +412,7 @@ static sl_status_t uart_drv_hw_init(sli_cpc_drv_t *drv)
     cpc_gpio_set_pin_mode(SL_CPC_DRV_UART_RTS_PORT, SL_CPC_DRV_UART_RTS_PIN, CPC_GPIO_MODE_PUSH_PULL, 0);
   #endif
   }
+  sli_cpc_drv_wake_gpio_init();
 
   // init the UART peripheral
   {
@@ -771,6 +778,7 @@ static sl_status_t uart_drv_transmit_data(sli_cpc_drv_t *drv,
   SLI_CPC_ASSERT(buffer_handle->hdlc_header != NULL);
 
   sli_cpc_push_back_driver_buffer_handle(&tx_submitted_list_head, buffer_handle);
+  sli_cpc_drv_wake_host_gpio(true);
 
   status = prepare_next_tx();
   MCU_EXIT_ATOMIC();
@@ -824,24 +832,24 @@ static void init_clocks(void)
 #if !defined(SL_CATALOG_CLOCK_MANAGER_PRESENT)
   // Missing CLOCK_MANAGER. Manually route clock branches with em_cmu
   #if defined(SL_CPC_DRV_PERIPH_IS_EUSART)
-  #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7)
-    #if defined(EUART_PRESENT)
+    #if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
+      #if defined(EUART_PRESENT)
   if (SL_CPC_DRV_UART_PERIPHERAL_NO == 0) {
     CMU_CLOCK_SELECT_SET(EUART0CLK, EM01GRPACLK);
   }
-    #elif defined(EUSART_PRESENT)
+      #elif defined(EUSART_PRESENT)
   if (SL_CPC_DRV_UART_PERIPHERAL_NO == 0) {
     CMU_CLOCK_SELECT_SET(EUSART0CLK, EM01GRPACLK);
   }
-    #endif
-  #elif (_SILICON_LABS_32B_SERIES_2_CONFIG >= 3)
+      #endif
+    #elif (_SILICON_LABS_32B_SERIES_2_CONFIG >= 3)
   CMU_CLOCK_SELECT_SET(EM01GRPCCLK, HFRCODPLL);
   if (SL_CPC_DRV_UART_PERIPHERAL_NO == 0) {
     CMU_CLOCK_SELECT_SET(EUSART0CLK, EM01GRPCCLK);
   }
-  #else
-  #error Unsupported Series 2 board configuration.
-  #endif
+    #else
+      #error Unsupported Series 2 board configuration.
+    #endif
   #endif // SL_CPC_DRV_PERIPH_IS_EUSART
 #endif // SL_CATALOG_CLOCK_MANAGER_PRESENT
 
@@ -1130,6 +1138,8 @@ void CPC_UART_ISR_TX_HANDLER(SL_CPC_DRV_UART_PERIPHERAL_NO)(void)
 
     if (tx_submitted_list_head) {
       prepare_next_tx();
+    } else {
+      sli_cpc_drv_wake_host_gpio(false);
     }
   }
 }
@@ -1961,6 +1971,10 @@ static bool rx_dma_complete_no_hwfc(unsigned int channel,
   completed_desc = rx_descriptor_head;
   SLI_CPC_ASSERT(completed_desc != NULL);
 
+  // Restore descriptor transfer count to its maximum value
+  completed_desc->xfer.CPC_LDMA_DESCRIPTOR_XFER_CNT = SL_MIN(SLI_CPC_DRV_UART_RX_FRAME_MAX_LENGTH,
+                                                             CPC_LDMA_DESCRIPTOR_MAX_XFER_SIZE) - 1;
+
   active_rx_buffer = (uint8_t *)(completed_desc->xfer.CPC_LDMA_DESCRIPTOR_DST_ADDR);
   rx_data = active_rx_buffer;
 
@@ -2378,9 +2392,6 @@ static void restart_dma(void)
                                            0);
   SLI_CPC_ASSERT(ecode == ECODE_OK);
 
-  // Restore xferCnt
-  rx_descriptor_head->xfer.CPC_LDMA_DESCRIPTOR_XFER_CNT = SL_MIN(SLI_CPC_DRV_UART_RX_FRAME_MAX_LENGTH, CPC_LDMA_DESCRIPTOR_MAX_XFER_SIZE) - 1;
-
 #if (SL_CPC_DRV_UART_FLOW_CONTROL_TYPE == WITHOUT_HWFC)
   LDMA_PERIPH->CH[read_channel].LINK |= LDMA_CH_LINK_LINK;
 
@@ -2397,4 +2408,26 @@ static void restart_dma(void)
 
   SL_CPC_JOURNAL_RECORD_DEBUG("[DRV] Restarted DMA", __LINE__);
   MCU_EXIT_ATOMIC();
+}
+
+/***************************************************************************//**
+ * @brief Initializes the GPIO wake pin used to wake up the host/primary device.
+ *
+ ******************************************************************************/
+SL_WEAK void sli_cpc_drv_wake_gpio_init(void)
+{
+  // User implementation for initializing the GPIO wake pin.
+}
+
+/***************************************************************************//**
+ * @brief Sets the GPIO wake pin to the specified active state.
+ *
+ * @note This function is called during an IRQ context.
+ *
+ * @param[in] active  If true, sets the GPIO pin to active state;
+ *                    otherwise, sets it to inactive state.
+ ******************************************************************************/
+SL_WEAK void sli_cpc_drv_wake_host_gpio(bool active)
+{
+  (void)active;
 }

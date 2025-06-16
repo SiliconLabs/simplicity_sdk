@@ -164,9 +164,7 @@ static void em_transition(sl_power_manager_em_t from, sl_power_manager_em_t to)
 static sl_power_manager_em_transition_event_handle_t em_event_handle;
 static const sl_power_manager_em_transition_event_info_t em_event_info = {
   .event_mask = (SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2
-                | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2
-                | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3
-                | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3),
+                | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2),
   .on_event = em_transition,
 };
 

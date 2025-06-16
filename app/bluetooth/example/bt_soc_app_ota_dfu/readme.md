@@ -47,14 +47,14 @@ This is a minimal example with the application OTA service that allows it to do 
 6. Observe that a GBL (Gecko Bootloader) file is generated automatically along with the build artifacts. The filename is something similar to *bt_soc_app_ota_dfu.gbl* but may vary based on the project variant. Copy this file to your smartphone.
 7. Open a terminal program and connect to your radio board via the JLink adapter to see the debug messages.
 8. Download the **Simplicity Connect** smartphone application available on [iOS](https://apps.apple.com/us/app/simplicity-connect/id1030932759) and [Android](https://play.google.com/store/apps/details?id=com.siliconlabs.bledemo&hl=en&gl=US).
-9. Open the app and choose the [Scan] option.  
+9. Open the app and choose the [Scan] option.
    ![Simplicity Connect start scanning](image/readme_img2.png)
-10. Now you should find your device advertising as "Application OTA". Tap **Connect**.  
+10. Now you should find your device advertising as "Application OTA". Tap **Connect**.
    ![Scan results](image/readme_img3.png)
 11. The connection is opened, and the GATT database is automatically discovered. Find the device name characteristic under Generic Access service and try to read out the device name.
-12. Select **OTA Firmware** option.  
+12. Select **OTA Firmware** option.
    ![GATT database of the device](image/readme_img4.png)
-13. Use the Partial OTA tab (default)  
+13. Use the Partial OTA tab (default)
    ![OTA DFU popup](image/readme_img5.png)
 14. Select the *bt_soc_app_ota_dfu.gbl* file and tap **Upload** to start the OTA transfer.
 15. Once its done tap **END** to finalize the process.

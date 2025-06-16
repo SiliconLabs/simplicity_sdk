@@ -1,7 +1,7 @@
 !!omap
 - id: slwstk6023a
 - label: SLWSTK6023A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32xG21 Bluetooth Starter Kit.
 - category: Platform|Board|Kit|Wireless Starter Kit
 - quality: production

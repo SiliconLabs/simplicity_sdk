@@ -1,7 +1,7 @@
 !!omap
 - id: brd2703a
 - label: BRD2703A
-- package: platform
+- package: boards
 - description: Board support for BRD2703A.
 - category: Platform|Board|Thunderboard
 - quality: production

@@ -1,4 +1,4 @@
-package: Zigbee
+package: zigbee
 description: This is the SPI implementation of EZSP.
 label: EZSP SPI
 quality: production

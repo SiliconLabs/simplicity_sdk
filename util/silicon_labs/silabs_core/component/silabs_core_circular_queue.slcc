@@ -1,5 +1,5 @@
 id: silabs_core_circular_queue
-package: platform
+package: platform_core
 label: Circular Queue
 description: Silicon Labs core utility providing a circular queue.
 category: Platform|Utilities

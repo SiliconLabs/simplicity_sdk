@@ -252,6 +252,26 @@ EmberStatus emberGetCounter(EmberCounterType counterType,
   return status;
 }
 
+// SetRadioRxFifo
+EmberStatus emberSetRadioRxFifo(uint16_t rxFifoSize)
+{
+  acquireCommandMutex();
+  uint8_t *apiCommandBuffer = getApiCommandPointer();
+  formatResponseCommand(apiCommandBuffer,
+                        MAX_STACK_API_COMMAND_SIZE,
+                        EMBER_SET_RADIO_RX_FIFO_IPC_COMMAND_ID,
+                        "v",
+                        rxFifoSize);
+  uint8_t *apiCommandData = sendBlockingCommand(apiCommandBuffer);
+
+  EmberStatus status;
+  fetchApiParams(apiCommandData,
+                 "u",
+                 &status);
+  releaseCommandMutex();
+  return status;
+}
+
 // setRadioChannelExtended
 EmberStatus emberSetRadioChannelExtended(uint16_t channel,
                                          bool persistent)

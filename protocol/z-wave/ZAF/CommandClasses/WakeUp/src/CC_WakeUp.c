@@ -23,9 +23,8 @@
 #include <ZAF_nvm_app.h>
 #include <ZAF_nvm.h>
 #include <ZW_system_startup_api.h>
-
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zw_power_manager_ids.h"
+#include "zpal_log.h"
 
 /****************************************************************************/
 /*                      PRIVATE TYPES and DEFINITIONS                       */
@@ -41,7 +40,6 @@
 /*                              PRIVATE DATA                                */
 /****************************************************************************/
 
-static zpal_pm_handle_t wake_up_cc_power_lock;
 static bool wakeUpIsActive              = false;
 static bool autoStayAwakeAfterInclusion = false;
 static bool firstNotificationSent       = false;
@@ -50,7 +48,6 @@ static void (*ZCB_WakeUpTxCallback)(uint8_t txStatus, TX_STATUS_TYPE* pExtendedT
 static SWakeupCcData gWakeupCcData;
 
 static SSwTimer WakeUpTimer;
-
 
 /****************************************************************************/
 /*                              EXPORTED DATA                               */
@@ -79,7 +76,7 @@ static void TimerCallback(__attribute__((unused)) SSwTimer *pTimer)
    * hibernate.
    */
 
-  DPRINTF("CC_WakeUp TimerCallback() pTimer->Id=%d\n", pTimer->Id);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_WAKE_UP, "CC_WakeUp TimerCallback() pTimer->Id=%d\n", pTimer->Id);
 
   CC_WakeUp_notification_tx(NULL);
 }
@@ -89,18 +86,17 @@ static void LoadData(void)
   ZAF_nvm_read(ZAF_FILE_ID_WAKEUPCCDATA, &gWakeupCcData, sizeof(SWakeupCcData));
 }
 
-static void 
+static void
 send_first_notification(void)
 {
   zpal_reset_reason_t resetReason = GetResetReason();
 
-  if (!firstNotificationSent &&
-      ((ZPAL_RESET_REASON_POWER_ON == resetReason) ||
-      (ZPAL_RESET_REASON_BROWNOUT == resetReason) ||
-      (ZPAL_RESET_REASON_PIN == resetReason) ||
-      (ZPAL_RESET_REASON_SOFTWARE == resetReason) ||
-      (ZPAL_RESET_REASON_WATCHDOG == resetReason)))
-  {
+  if (!firstNotificationSent
+      && ((ZPAL_RESET_REASON_POWER_ON == resetReason)
+          || (ZPAL_RESET_REASON_BROWNOUT == resetReason)
+          || (ZPAL_RESET_REASON_PIN == resetReason)
+          || (ZPAL_RESET_REASON_SOFTWARE == resetReason)
+          || (ZPAL_RESET_REASON_WATCHDOG == resetReason))) {
     CC_WakeUp_notification_tx(NULL);
   }
 
@@ -110,15 +106,14 @@ send_first_notification(void)
 /**
  * Resets the saved node ID in NVM.
  */
-static void 
+static void
 CC_WakeUp_notificationMemorySetDefault(void)
 {
-  DPRINT("\r\nCCWdef");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_WAKE_UP, "\r\nCCWdef");
 
   wakeUpIsActive = false;
 
-  if (WakeUpTimer.pLiaison) // Has the timer been initialized?
-  {
+  if (WakeUpTimer.pLiaison) { // Has the timer been initialized?
     // Ensure the wakeup timer is not running (OK to stop even if not running)
     AppTimerDeepSleepPersistentStop(&WakeUpTimer);
   }
@@ -131,22 +126,18 @@ CC_WakeUp_notificationMemorySetDefault(void)
 /**
  * Initialize the WakeUp Command class with a file ID for the Wake Up Command Class data.
  */
-static void 
+static void
 init(void)
 {
   wakeUpIsActive = false;
 
   AppTimerDeepSleepPersistentRegister(&WakeUpTimer, false, TimerCallback);
-  if (NULL == wake_up_cc_power_lock) {
-    wake_up_cc_power_lock = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-  }
 
   //Verify that a WAKEUPCCDATA file exists
   size_t   dataLen;
   const zpal_status_t status = ZAF_nvm_get_object_size(ZAF_FILE_ID_WAKEUPCCDATA, &dataLen);
   //If there is no file or there is size mismatch write a default file
-  if ((ZPAL_STATUS_OK != status) || (ZAF_FILE_SIZE_WAKEUPCCDATA != dataLen))
-  {
+  if ((ZPAL_STATUS_OK != status) || (ZAF_FILE_SIZE_WAKEUPCCDATA != dataLen)) {
     CC_WakeUp_notificationMemorySetDefault();
   }
 
@@ -157,7 +148,7 @@ init(void)
   send_first_notification();
 }
 
-static void 
+static void
 reset(void)
 {
   CC_WakeUp_notificationMemorySetDefault();
@@ -172,12 +163,11 @@ reset(void)
  * CC_WakeUp_notification_tx if tx queue is full.
  */
 void
-ZCB_WakeUpNotificationCallback( uint8_t txStatus, TX_STATUS_TYPE* pExtendedTxStatus )
+ZCB_WakeUpNotificationCallback(uint8_t txStatus, TX_STATUS_TYPE* pExtendedTxStatus)
 {
-  DPRINTF("\nWakeUpNotificationCallback() txStatus: %u", txStatus);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_WAKE_UP, "\nWakeUpNotificationCallback() txStatus: %u", txStatus);
 
-  if (NULL != ZCB_WakeUpTxCallback)
-  {
+  if (NULL != ZCB_WakeUpTxCallback) {
     ZCB_WakeUpTxCallback(txStatus, pExtendedTxStatus);
   }
 }
@@ -193,10 +183,8 @@ void CC_WakeUp_notification_tx(void (*pCallback)(uint8_t txStatus, TX_STATUS_TYP
 
   /* Only send wakeup notifiers when sensor is node in a network */
   /* and a recovery operation is not in progress */
-  if (0 == pAppHandle->pNetworkInfo->NodeId)
-  {
-    if (NULL != pCallback)
-    {
+  if (0 == pAppHandle->pNetworkInfo->NodeId) {
+    if (NULL != pCallback) {
       TX_STATUS_TYPE extendedTxStatus = { 0 };
       pCallback(TRANSMIT_COMPLETE_FAIL, &extendedTxStatus);
     }
@@ -207,8 +195,7 @@ void CC_WakeUp_notification_tx(void (*pCallback)(uint8_t txStatus, TX_STATUS_TYP
   wakeUpIsActive = true;
   CC_WakeUp_stayAwakeIfActive();
 
-  if (true != CmdClassWakeupNotification(ZCB_WakeUpNotificationCallback))
-  {
+  if (true != CmdClassWakeupNotification(ZCB_WakeUpNotificationCallback)) {
     TX_STATUS_TYPE extendedTxStatus = { 0 };
     ZCB_WakeUpNotificationCallback(TRANSMIT_COMPLETE_FAIL, &extendedTxStatus);
   }
@@ -219,11 +206,11 @@ static bool CmdClassWakeupNotification(void (*pCallback)(uint8_t txStatus, TX_ST
   SApplicationHandles *pAppHandle;
   pAppHandle = ZAF_getAppHandle();
 
-  DPRINTF("\r\nN%d", gWakeupCcData.MasterNodeId);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_WAKE_UP, "\r\nN%d", gWakeupCcData.MasterNodeId);
 
   uint8_t WakeUpNotificationFrame[] = {
-                                       COMMAND_CLASS_WAKE_UP,
-                                       WAKE_UP_NOTIFICATION_V2
+    COMMAND_CLASS_WAKE_UP,
+    WAKE_UP_NOTIFICATION_V2
   };
 
   SZwaveTransmitPackage FramePackage = {
@@ -237,12 +224,9 @@ static bool CmdClassWakeupNotification(void (*pCallback)(uint8_t txStatus, TX_ST
     .eTransmitType = EZWAVETRANSMITTYPE_EX
   };
 
-  if ((0x00 < gWakeupCcData.MasterNodeId) && (ZW_MAX_NODES >= gWakeupCcData.MasterNodeId))
-  {
+  if ((0x00 < gWakeupCcData.MasterNodeId) && (ZW_MAX_NODES >= gWakeupCcData.MasterNodeId)) {
     FramePackage.uTransmitParams.SendDataEx.DestNodeId = gWakeupCcData.MasterNodeId;
-  }
-  else // CC:0084.01.00.32.003
-  {
+  } else { // CC:0084.01.00.32.003
     FramePackage.uTransmitParams.SendDataEx.DestNodeId = 1;
   }
   memcpy(FramePackage.uTransmitParams.SendDataEx.FrameConfig.aFrame,
@@ -250,11 +234,10 @@ static bool CmdClassWakeupNotification(void (*pCallback)(uint8_t txStatus, TX_ST
          sizeof(WakeUpNotificationFrame));
 
   // Put the package on queue (and dont wait for it)
-  DPRINT("\r\nQNSTB");
+  ZPAL_LOG_DEBUG(ZPAL_LOG_CC_WAKE_UP, "\r\nQNSTB");
   if (EQUEUENOTIFYING_STATUS_SUCCESS != QueueNotifyingSendToBack(pAppHandle->pZwTxQueue,
                                                                  (uint8_t*)&FramePackage,
-                                                                 0))
-  {
+                                                                 0)) {
     return false;
   }
   return true;
@@ -263,7 +246,6 @@ static bool CmdClassWakeupNotification(void (*pCallback)(uint8_t txStatus, TX_ST
 void TimerCallbackDummy(void)
 {
   // Do nothing for now
-
 }
 
 /**
@@ -276,12 +258,9 @@ void TimerCallbackDummy(void)
 static void
 CC_WakeUp_startWakeUpNotificationTimer(void)
 {
-  if (gWakeupCcData.SleepPeriod > 0)
-  {
+  if (gWakeupCcData.SleepPeriod > 0) {
     AppTimerDeepSleepPersistentStart(&WakeUpTimer, gWakeupCcData.SleepPeriod * 1000);
-  }
-  else
-  {
+  } else {
     AppTimerDeepSleepPersistentStop(&WakeUpTimer);
   }
 }
@@ -294,86 +273,72 @@ CC_WakeUp_handler(
   ZW_APPLICATION_TX_BUFFER *pFrameOut,
   uint8_t * pFrameOutLength)
 {
-  switch(pCmd->ZW_Common.cmd)
-  {
+  switch (pCmd->ZW_Common.cmd) {
     case  WAKE_UP_INTERVAL_SET_V2:
-      {
-        uint32_t requestedSleepPeriod = 0;
-        uint32_t setSleepPeriod = 0;
+    {
+      uint32_t requestedSleepPeriod = 0;
+      uint32_t setSleepPeriod = 0;
 
-        // Always AND with FF the right place... Then we don't care whether 1's are shifted in.
-        requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds1) << 16) & 0x00FF0000;
-        requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds2) << 8)  & 0x0000FF00;
-        requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds3) << 0)  & 0x000000FF;
+      // Always AND with FF the right place... Then we don't care whether 1's are shifted in.
+      requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds1) << 16) & 0x00FF0000;
+      requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds2) << 8)  & 0x0000FF00;
+      requestedSleepPeriod |= (((uint32_t)pCmd->ZW_WakeUpIntervalSetV2Frame.seconds3) << 0)  & 0x000000FF;
 
-        /* Calculate correct sleep-period dependent of step resolution */
-        if (requestedSleepPeriod > 0)
-        {
-          if (requestedSleepPeriod < cc_wake_up_config_get_minimum_sleep_time_sec())
-          {
+      /* Calculate correct sleep-period dependent of step resolution */
+      if (requestedSleepPeriod > 0) {
+        if (requestedSleepPeriod < cc_wake_up_config_get_minimum_sleep_time_sec()) {
+          setSleepPeriod = cc_wake_up_config_get_minimum_sleep_time_sec();
+        } else if (requestedSleepPeriod > cc_wake_up_config_get_maximum_sleep_time_sec()) {
+          setSleepPeriod = cc_wake_up_config_get_maximum_sleep_time_sec();
+        } else if (0 == cc_wake_up_config_get_sleep_step_time_sec()) {
+          /* If STEP is 0 then only MIN or MAX is allowed.
+           * Choose the one closest to the requested sleepPeriod value.
+           * (the validations above ensures that sleepPeriod is not outside [MIN; MAX]
+           */
+          if ( (requestedSleepPeriod - cc_wake_up_config_get_minimum_sleep_time_sec())
+               < (cc_wake_up_config_get_maximum_sleep_time_sec() - requestedSleepPeriod) ) {
             setSleepPeriod = cc_wake_up_config_get_minimum_sleep_time_sec();
-          }
-          else if (requestedSleepPeriod > cc_wake_up_config_get_maximum_sleep_time_sec())
-          {
+          } else {
             setSleepPeriod = cc_wake_up_config_get_maximum_sleep_time_sec();
           }
-          else if (0 == cc_wake_up_config_get_sleep_step_time_sec())
-          {
-            /* If STEP is 0 then only MIN or MAX is allowed.
-             * Choose the one closest to the requested sleepPeriod value.
-             * (the validations above ensures that sleepPeriod is not outside [MIN; MAX]
-             */
-            if ( (requestedSleepPeriod - cc_wake_up_config_get_minimum_sleep_time_sec()) <
-                 (cc_wake_up_config_get_maximum_sleep_time_sec() - requestedSleepPeriod) )
-            {
-              setSleepPeriod = cc_wake_up_config_get_minimum_sleep_time_sec();
-            }
-            else
-            {
-              setSleepPeriod = cc_wake_up_config_get_maximum_sleep_time_sec();
-            }
-          }
-          else
-          {
-            /**
-             * The following formula ensures that the sleep period will always match a valid step
-             * value.
-             *
-             *                       input - min
-             * sleep_period = min + ------------- * step
-             *                           step
-             */
-            setSleepPeriod = cc_wake_up_config_get_minimum_sleep_time_sec() +
-                ((requestedSleepPeriod - cc_wake_up_config_get_minimum_sleep_time_sec()) / cc_wake_up_config_get_sleep_step_time_sec()) * cc_wake_up_config_get_sleep_step_time_sec();
-          }
-        }
-
-        /*
-         * Save master node ID and sleep period
-         *
-         * Since we're changing both variables in the struct, we do not need to read the file
-         * before changing it. Inserting static assert to make sure changes in the struct size are
-         * caught.
-         */
-        _Static_assert(sizeof(SWakeupCcData) == 8, "STATIC_ASSERT_FAILED_wake_up_cc_struct_wrong_size");
-        gWakeupCcData.MasterNodeId = pCmd->ZW_WakeUpIntervalSetV2Frame.nodeid;
-        gWakeupCcData.SleepPeriod = setSleepPeriod;
-
-        ZAF_nvm_write(ZAF_FILE_ID_WAKEUPCCDATA, &gWakeupCcData, sizeof(SWakeupCcData));
-
-        CC_WakeUp_startWakeUpNotificationTimer();
-
-        //Return failure in case requested sleep period could not be set.
-        if(requestedSleepPeriod != setSleepPeriod)
-        {
-          return RECEIVED_FRAME_STATUS_FAIL;
+        } else {
+          /**
+           * The following formula ensures that the sleep period will always match a valid step
+           * value.
+           *
+           *                       input - min
+           * sleep_period = min + ------------- * step
+           *                           step
+           */
+          setSleepPeriod = cc_wake_up_config_get_minimum_sleep_time_sec()
+                           + ((requestedSleepPeriod - cc_wake_up_config_get_minimum_sleep_time_sec()) / cc_wake_up_config_get_sleep_step_time_sec()) * cc_wake_up_config_get_sleep_step_time_sec();
         }
       }
+
+      /*
+       * Save master node ID and sleep period
+       *
+       * Since we're changing both variables in the struct, we do not need to read the file
+       * before changing it. Inserting static assert to make sure changes in the struct size are
+       * caught.
+       */
+      _Static_assert(sizeof(SWakeupCcData) == 8, "STATIC_ASSERT_FAILED_wake_up_cc_struct_wrong_size");
+      gWakeupCcData.MasterNodeId = pCmd->ZW_WakeUpIntervalSetV2Frame.nodeid;
+      gWakeupCcData.SleepPeriod = setSleepPeriod;
+
+      ZAF_nvm_write(ZAF_FILE_ID_WAKEUPCCDATA, &gWakeupCcData, sizeof(SWakeupCcData));
+
+      CC_WakeUp_startWakeUpNotificationTimer();
+
+      //Return failure in case requested sleep period could not be set.
+      if (requestedSleepPeriod != setSleepPeriod) {
+        return RECEIVED_FRAME_STATUS_FAIL;
+      }
+    }
       return RECEIVED_FRAME_STATUS_SUCCESS;
       break;
     case WAKE_UP_INTERVAL_GET_V2:
-      if(true == Check_not_legal_response_job(rxOpt))
-      {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         // The Wake Up CC does not support endpoint bit addressing.
         return RECEIVED_FRAME_STATUS_FAIL;
       }
@@ -399,7 +364,7 @@ CC_WakeUp_handler(
        * From the WakeUp CC perspective we're ready sleep immediately.
        * We signal that to the PM module by releasing our PM lock.
        */
-      zpal_pm_cancel(wake_up_cc_power_lock);
+      zw_power_manager_lock_cancel(ZPAL_PM_TYPE_USE_RADIO, ZPAL_PM_APP_RADIO_ZAF_CC_WAKEUP_ID);
       wakeUpIsActive = false;
 
       autoStayAwakeAfterInclusion = false;
@@ -408,8 +373,7 @@ CC_WakeUp_handler(
       break;
 
     case WAKE_UP_INTERVAL_CAPABILITIES_GET_V2:
-      if(true == Check_not_legal_response_job(rxOpt))
-      {
+      if (true == Check_not_legal_response_job(rxOpt)) {
         // The Wake Up CC does not support endpoint bit addressing.
         return RECEIVED_FRAME_STATUS_FAIL;
       }
@@ -451,7 +415,8 @@ static void
 CC_WakeUp_stayAwake10s(void)
 {
   /* Don't sleep the next 10 seconds */
-  zpal_pm_stay_awake(wake_up_cc_power_lock, POST_INCLUSION_STAY_AWAKE_TIME);
+  // note: use relock to extend the stay awake time by 10 sec if already locked
+  zw_power_manager_relock(ZPAL_PM_TYPE_USE_RADIO, POST_INCLUSION_STAY_AWAKE_TIME, ZPAL_PM_APP_RADIO_ZAF_CC_WAKEUP_ID);
 }
 
 /**
@@ -465,12 +430,10 @@ CC_WakeUp_stayAwake10s(void)
  */
 static void CC_WakeUp_stayAwakeIfActive(void)
 {
-  if ((true == wakeUpIsActive) || (true == autoStayAwakeAfterInclusion))
-  {
+  if ((true == wakeUpIsActive) || (true == autoStayAwakeAfterInclusion)) {
     CC_WakeUp_stayAwake10s();
   }
-  if (true == wakeUpIsActive)
-  {
+  if (true == wakeUpIsActive) {
     CC_WakeUp_startWakeUpNotificationTimer();
   }
 }
@@ -504,9 +467,9 @@ zaf_learn_mode_finished(void)
   CC_WakeUp_stayAwake10s();
 
   /* Also tell application to automatically extend the stay awake period by 10
-    * seconds on message activities - even though we did not get here by a proper
-    * wakeup from Deep Sleep
-    */
+   * seconds on message activities - even though we did not get here by a proper
+   * wakeup from Deep Sleep
+   */
   CC_WakeUp_AutoStayAwakeAfterInclusion();
 
   // Start the wakeup timer if the learn mode operation finished in Included state
@@ -515,4 +478,4 @@ zaf_learn_mode_finished(void)
   }
 }
 
-REGISTER_CC_V4(COMMAND_CLASS_WAKE_UP, WAKE_UP_VERSION_V2, CC_WakeUp_handler, NULL, NULL, NULL, 0, init, reset );
+REGISTER_CC_V4(COMMAND_CLASS_WAKE_UP, WAKE_UP_VERSION_V2, CC_WakeUp_handler, NULL, NULL, NULL, 0, init, reset);

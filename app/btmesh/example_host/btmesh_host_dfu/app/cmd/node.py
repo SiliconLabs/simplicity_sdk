@@ -29,6 +29,8 @@ from ..ui import app_ui
 from ..util.argparsex import ArgumentParserExt
 from .cmd import BtmeshCmd
 
+import btmesh.util
+
 
 class BtmeshNodeCmd(BtmeshCmd):
     @property
@@ -110,6 +112,14 @@ class BtmeshNodeCmd(BtmeshCmd):
             action="store_true",
             help="Force DCD read from nodes to avoid using cached DCD.",
         )
+        self.node_info_parser.add_argument(
+            "--page",
+            "-p",
+            type=int,
+            choices=[btmesh.util.DCD_PAGE_0, btmesh.util.DCD_PAGE_128],
+            default=btmesh.util.DCD_PAGE_0,
+            help=("Selects DCD page. " "Choices: %(choices)s. Default: %(default)s"),
+        )
         self.add_btmesh_basic_retry_args(
             self.node_info_parser,
             retry_max_default=app_cfg.conf.conf_retry_max_default,
@@ -180,16 +190,26 @@ class BtmeshNodeCmd(BtmeshCmd):
 
     def node_info_cmd(self, pargs):
         nodes = app_db.btmesh_db.get_node_list(order_property="name")
+        page = pargs.page
         selected_nodes = self.parse_nodespecs(pargs.nodespec, nodes)
         retry_params_default = app_cfg.common.btmesh_retry_params_default
         retry_params = self.process_btmesh_retry_params(pargs, retry_params_default)
         for node in selected_nodes:
             if pargs.force:
                 dcd = app_btmesh.conf.get_dcd(
-                    node, update_db=True, retry_params=retry_params
+                    node, page=page, update_db=True, retry_params=retry_params
                 )
             else:
-                dcd = app_btmesh.conf.get_dcd_cached(node, retry_params=retry_params)
+                dcd = app_btmesh.conf.get_dcd_cached(
+                    node, page=page, retry_params=retry_params
+                )
+            # Composition Data Page 128 is not mandatory
+            if dcd is None:
+                app_ui.info(f"{node.name} node:")
+                app_ui.info(f"  - Primary Address: 0x{node.prim_addr:04X}")
+                app_ui.info(f"  - UUID: {node.uuid.hex()}")
+                app_ui.info(f"Composition Data Page {page} isn't available.")
+                return
 
             relay_str = "Yes" if dcd.relay else "No"
             proxy_str = "Yes" if dcd.proxy else "No"

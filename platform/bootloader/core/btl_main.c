@@ -244,7 +244,7 @@ int main(void)
 
     // Wait a short while (approx. 500 ms) before continuing.
     // This allows other operations to complete before the reset.
-    for (volatile int i = 800000; i > 0; i--) {
+    for (int i = 800000; i > 0; i--) {
       // Do nothing
     }
   }

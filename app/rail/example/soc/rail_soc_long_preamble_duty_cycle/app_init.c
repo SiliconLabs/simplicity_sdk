@@ -33,9 +33,8 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "em_device.h"
-#include "rail_types.h"
 #include "rail_config.h"
 #include "sl_rail_util_init.h"
 #include "app_init.h"
@@ -66,10 +65,9 @@
 //                                Global Variables
 // -----------------------------------------------------------------------------
 /// Config for the correct timing of the dutycycle API
-RAIL_RxDutyCycleConfig_t duty_cycle_config = {
-  .delay = ((uint32_t) DUTY_CYCLE_OFF_TIME),
-  .delayMode = RAIL_RX_CHANNEL_HOPPING_DELAY_MODE_STATIC,
-  .mode = RAIL_RX_CHANNEL_HOPPING_MODE_PREAMBLE_SENSE,
+sl_rail_rx_duty_cycle_config_t duty_cycle_config = {
+  .delay_us = ((uint32_t) DUTY_CYCLE_OFF_TIME),
+  .mode = SL_RAIL_RX_CHANNEL_HOPPING_MODE_PREAMBLE_SENSE,
   .parameter = ((uint32_t) DUTY_CYCLE_ON_TIME)
 };
 
@@ -92,47 +90,45 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   // For handling error codes
-  RAIL_Status_t rail_status = RAIL_STATUS_NO_ERROR;
+  sl_rail_status_t rail_status = SL_RAIL_STATUS_NO_ERROR;
 
   // To calculate proper preamble
   uint32_t bit_rate = 0;
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
   // Set to IDLE (channel select automatically start RX)
-  rail_status = RAIL_Idle(rail_handle, RAIL_IDLE, true);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
+  rail_status = sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_warning("Couldn't enter into IDLE, error code %lu\n", rail_status);
   }
 
-  set_up_tx_fifo(rail_handle);
-
   // Get current bitrate
-  bit_rate = RAIL_GetBitRate(rail_handle);
+  bit_rate = sl_rail_get_bit_rate(rail_handle);
 
   // From EFR32xG23 chips support the new RadioConfigurator Fast Preamble Settings
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2)
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
   uint16_t preamble_bit_length = 0;
 
   // Calculate preamble length from bitrate and time
   rail_status = calculate_preamble_bit_length_from_time(bit_rate,
                                                         &duty_cycle_config,
                                                         &preamble_bit_length);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_error("Invalid preamble length parameters\n");
   }
-  rail_status = RAIL_SetTxAltPreambleLength(rail_handle, preamble_bit_length);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_SetTxAltPreambleLength failed with %d \n", rail_status);
+  rail_status = sl_rail_set_tx_alt_preamble_length(rail_handle, preamble_bit_length);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_set_tx_alt_preamble_length failed with %d \n", rail_status);
   }
 #else
-  rail_status = RAIL_GetDefaultRxDutyCycleConfig(rail_handle, &duty_cycle_config);
+  rail_status = sl_rail_get_default_rx_duty_cycle_config(rail_handle, &duty_cycle_config);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_GetDefaultRxDutyCycleConfig failed with %lu \n", rail_status);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_get_default_rx_duty_cycle_config failed with %lu \n", rail_status);
   }
 #endif
 
@@ -147,35 +143,42 @@ RAIL_Handle_t app_init(void)
 
   // CLI info message
   print_sample_app_name("Long Preamble Duty Cycle");
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2)
+#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_1) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_2) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_7) || defined(_SILICON_LABS_32B_SERIES_2_CONFIG_9)
   app_log_info("Preamble length %d for bitrate %lu b/s with %lu us off time\n",
                preamble_bit_length,
                bit_rate,
-               duty_cycle_config.delay);
+               duty_cycle_config.delay_us);
 #else
   app_log_info("Bitrate %lu b/s with %lu us off time. Duty cycling with signal qualifier.\n",
                bit_rate,
-               duty_cycle_config.delay);
+               duty_cycle_config.delay_us);
 #endif
 
   // Allow state machine to run without interrupt
   set_first_run(true);
 
   // Config DutyCycle API
-  RAIL_ConfigRxDutyCycle(rail_handle, &duty_cycle_config);
+  sl_rail_config_rx_duty_cycle(rail_handle, &duty_cycle_config);
 
   // Enable duty cycle mode
-  RAIL_EnableRxDutyCycle(rail_handle, true);
+  sl_rail_enable_rx_duty_cycle(rail_handle, true);
 
   // Start RX
-  RAIL_StartRx(rail_handle, get_selected_channel(), NULL);
+  sl_rail_start_rx(rail_handle, get_selected_channel(), NULL);
 
 #if DUTY_CYCLE_ALLOW_EM2 == 1
   // EM2 sleep level
   sl_power_manager_remove_em_requirement(SL_POWER_MANAGER_EM1);
 #endif
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

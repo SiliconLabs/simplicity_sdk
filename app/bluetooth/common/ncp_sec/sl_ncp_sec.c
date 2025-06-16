@@ -215,7 +215,7 @@ static int get_random_data(void *ctx, uint8_t *rand, size_t len)
   (void)ctx;
   size_t i = 0;
   uint8_t data[16];
-  size_t out_len;
+  size_t out_len = 0;
   while (len > 0) {
     if (len > 16) {
       sl_bt_system_get_random_data(16, 16, &out_len, data);

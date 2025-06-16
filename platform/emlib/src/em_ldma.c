@@ -39,7 +39,7 @@
 #include "em_core.h"
 
 /***************************************************************************//**
- * @addtogroup ldma
+ * @addtogroup ldma LDMA - Linked DMA
  * @{
  ******************************************************************************/
 
@@ -268,11 +268,19 @@ void LDMA_StartTransfer(int ch,
   BUS_RegMaskedSet(&LDMA->IEN, chMask);
 
   if (transfer->ldmaReqDis) {
+    #if defined (LDMA_HAS_SET_CLEAR)
+    LDMA->REQDIS_SET = chMask;
+    #else
     LDMA->REQDIS |= chMask;
+    #endif
   }
 
   if (transfer->ldmaDbgHalt) {
+    #if defined (LDMA_HAS_SET_CLEAR)
+    LDMA->DBGHALT_SET = chMask;
+    #else
     LDMA->DBGHALT |= chMask;
+    #endif
   }
 
 #if defined (_LDMA_SYNCHWEN_SYNCCLREN_SHIFT) && defined (_LDMA_SYNCHWEN_SYNCSETEN_SHIFT)

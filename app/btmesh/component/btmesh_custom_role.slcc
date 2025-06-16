@@ -1,6 +1,6 @@
 id: "btmesh_custom_role"
 label: "Btmesh Custom Role"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   This component makes it possible to initialize a mesh device as a provisionee
   or provisioner based on application logic.
@@ -48,3 +48,7 @@ template_contribution:
       function: "sl_bt_custom_role_on_event"
   - name: "component_catalog"
     value: "btmesh_custom_role"
+
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-custom-role

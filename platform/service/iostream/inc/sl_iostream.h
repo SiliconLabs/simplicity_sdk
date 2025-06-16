@@ -35,6 +35,7 @@
 #include "sl_component_catalog.h"
 #endif
 #include "sl_enum.h"
+#include "sl_slist.h"
 #include "sl_status.h"
 
 #include <stdarg.h>
@@ -106,11 +107,14 @@ extern "C" {
 
 // -----------------------------------------------------------------------------
 // Data Types
+struct sli_iostream_write_async_op;
+typedef struct sli_iostream_write_async_op sli_iostream_write_async_op_t;
 
 /// @brief Struct representing iostream operations.
 typedef struct {
   void *context;                                                                                ///< context
   sl_status_t (*write)(void *context, const void *buffer, size_t buffer_length);                ///< write
+  sl_status_t (*write_async)(void *context, sli_iostream_write_async_op_t *write_async_op);     ///< write Async
   sl_status_t (*read)(void *context, void *buffer, size_t buffer_length, size_t *bytes_read);   ///< read
 } sl_iostream_t;
 
@@ -192,7 +196,7 @@ sl_status_t sl_iostream_write(sl_iostream_t *stream,
  * Get data from a stream.
  *
  * @param[in]  stream          I/O Stream to be used.
- *                               SL_IOSTREAM_STDOUT;           Default output stream will be used.
+ *                               SL_IOSTREAM_STDIN;            Default input stream will be used.
  *                               Pointer to specific stream;   Specific stream will be used.
  *
  * @param[out] buffer          Buffer that contains the data to output.
@@ -254,10 +258,11 @@ sl_status_t sl_iostream_getchar(sl_iostream_t *stream,
 sl_status_t sl_iostream_vprintf(sl_iostream_t *stream,
                                 const char *format,
                                 va_list argp);
-
+/// @cond
 #if defined(__GNUC__)
 __attribute__((format(printf, 2, 3)))
 #endif
+/// @endcond
 
 /***************************************************************************//**
  * Print a formated string on stream.

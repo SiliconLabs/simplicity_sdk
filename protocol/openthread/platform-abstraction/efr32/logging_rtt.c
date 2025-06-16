@@ -37,6 +37,12 @@
 #include <openthread/platform/alarm-milli.h>
 #include <openthread/platform/logging.h>
 
+#ifdef SL_COMPONENT_CATALOG_PRESENT
+#include "sl_component_catalog.h"
+#endif // SL_COMPONENT_CATALOG_PRESENT
+
+#ifdef SL_CATALOG_OT_RTT_LOG_PRESENT
+
 #include <utils/logging_rtt.h>
 
 #if (OPENTHREAD_CONFIG_LOG_OUTPUT == OPENTHREAD_CONFIG_LOG_OUTPUT_PLATFORM_DEFINED)
@@ -50,7 +56,7 @@ void efr32LogDeinit(void)
     utilsLogRttDeinit();
 }
 
-OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...)
+void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const char *aFormat, ...)
 {
     va_list ap;
 
@@ -61,3 +67,5 @@ OT_TOOL_WEAK void otPlatLog(otLogLevel aLogLevel, otLogRegion aLogRegion, const 
     va_end(ap);
 }
 #endif
+
+#endif // SL_CATALOG_OT_RTT_LOG_PRESENT

@@ -32,7 +32,7 @@
 #include "sl_device_init_dcdc.h"
 #endif
 #endif
-#include "pa_conversions_efr32.h"
+#include "sl_rail_util_pa_conversions_efr32.h"
 
 #if defined(BOOTLOADER_NONSECURE)
 // NS headers

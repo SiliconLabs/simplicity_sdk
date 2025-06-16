@@ -20,12 +20,6 @@ template_contribution:
       event: stack_init
       include: ZW_basis_api.h
       handler: sl_zwave_protocol_startup
-  - name: event_handler
-    priority: 999 # Ensure this is the one before the last platform item. Should be called before the power_manager
-    value:
-      event: platform_init
-      include: ZW_basis_api.h
-      handler: sl_zwave_platform_startup
   - name: application_type
     value: "APPLICATION_TYPE_ZWAVE"
   - name: rodata_sections # Ensure memory section define by Z-Wave stack are placed in the rodata section
@@ -38,11 +32,14 @@ template_contribution:
     value: ZW_CORE
 requires:
   # Z-Wave
-  - name: zw_build_mode
-  - name: zw_quality_mode
   - name: zw_versions
   - name: zaf_protocol_config
   - name: sleeptimer
+  - name: zw_power_manager
+  - name: zw_toolchain_settings
+  - name: zw_stack_libraries
+  - name: zw_build_mode
+  - name: zw_log
   # Platform
   - name: power_manager
   - name: freertos
@@ -53,9 +50,11 @@ requires:
   - name: rail_lib
   - name: rail_util_pa
   - name: component_catalog
+  - name: zw_pm_transition_event
+    condition: [zw_role_type_sleeping]
 recommends:
-  - id: zw_production
   - id: zw_release
+  - id: zw_stack_release_libraries
 include:
   - path: "protocol/z-wave/dist/include/zwave"
     file_list:
@@ -74,9 +73,12 @@ include:
       - path: "zpal_status.h"
       - path: "zpal_entropy.h"
       - path: "zpal_init.h"
+      - path: "zpal_log.h"
+      - path: "zpal_log_internal.h"
       - path: "zpal_misc.h"
       - path: "zpal_nvm.h"
       - path: "zpal_power_manager.h"
+      - path: "zpal_power_manager_ids.h"
       - path: "zpal_radio.h"
       - path: "zpal_radio_utils.h"
       - path: "zpal_retention_register.h"
@@ -95,10 +97,6 @@ include:
   - path: "protocol/z-wave/Components/NodeMask"
     file_list:
       - path: "NodeMask.h"
-  - path: "protocol/z-wave/Components/DebugPrint"
-    file_list:
-      - path: "DebugPrint.h"
-      - path: "DebugPrintConfig.h"
   - path: "protocol/z-wave/platform/SiliconLabs/PAL/inc"
     file_list:
       - path: "system_startup.h"
@@ -106,12 +104,6 @@ include:
   - path: "protocol/z-wave/platform/SiliconLabs/PAL/inc/application_properties"
     file_list:
       - path: "application_properties_config.h"
-  - path: "protocol/z-wave/platform/SiliconLabs/PAL/inc/hal-config"
-    file_list:
-      - path: "hal-config.h"
-  - path: "platform/halconfig/inc/hal-config"
-    file_list:
-      - path: "hal-config-types.h"
   - path: "protocol/z-wave/ZAF/ApplicationUtilities/TrueStatusEngine"
     file_list:
       - path: "ZAF_TSE.h"
@@ -140,50 +132,13 @@ include:
 define:
   - name: EFR32ZG
     value: 1
-  # TODO: Integration hooks needed in FreeRTOS wrapper to register functions for pre/post sleep hooks
   - name: configPRE_SLEEP_PROCESSING
-    value: enterPowerDown
+    value: "extern void enterPowerDown(uint32_t millis); \ enterPowerDown"
   - name: configPOST_SLEEP_PROCESSING
-    value: exitPowerDown
+    value: "extern void exitPowerDown(uint32_t millis); \ exitPowerDown"
   - name: SL_IOSTREAM_UART_FLUSH_TX_BUFFER
   - name: CONFIG_MBEDTLS_USE_FREERTOS_PVCALLOC
   - name: _GNU_SOURCE
-
-toolchain_settings:
-  - option: gcc_compiler_option
-    value: "-s"
-  - option: optimize
-    value: debug
-    condition: [zw_debug]
-  - option: optimize
-    value: size
-    condition: [zw_release]
-  - option: gcc_compiler_option
-    value: "-fmerge-all-constants"
-  - option: gcc_compiler_option
-    value: "-Wall"
-  - option: gcc_compiler_option
-    value: "-Werror"
-    condition: [zw_release]
-  - option: gcc_compiler_option
-    value: "-Werror=vla"
-  - option: gcc_compiler_option
-    value: "-Werror=unused-parameter"
-  # Platform code is not strict ISO C compliant
-  # - option: gcc_compiler_option
-  #   value: "-Wpedantic"
-  # Platform code contains implicit conversions that may alter a value
-  # - option: gcc_compiler_option
-  #   value: "-Wconversion"
-  - option: gcc_compiler_option
-    value: "-Wextra"
-  # Allow implicit function declaration until freertos has an integration hook
-  - option: gcc_compiler_option
-    value: "-Wno-implicit-function-declaration"
-    condition: [zw_release]
-  # Linker flags
-  - option: gcc_linker_option
-    value: "-Wl,--start-group -lgcc -lc -Wl,--end-group"
 
 provides:
   - name: zw_core

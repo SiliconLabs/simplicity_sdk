@@ -27,7 +27,7 @@
 #include "sl_wisun_keychain.h"
 #include "sl_wisun_api.h"
 #include "sl_wisun_trace_api.h"
-#include "rail_features.h"
+#include "sl_rail_features.h"
 
 #ifdef SL_CATALOG_WISUN_FAN_CERTIFICATION_PRESENT
 
@@ -143,10 +143,17 @@
 #define APP_SETTINGS_WISUN_DEFAULT_CRC_TYPE SL_WISUN_4_BYTES_CRC
 #define APP_SETTINGS_WISUN_DEFAULT_STF_LENGTH 4
 #define APP_SETTINGS_WISUN_DEFAULT_PREAMBLE_LENGTH 56
-#define APP_SETTINGS_WISUN_NEIGHBOR_TABLE_SIZE 22
+#define APP_SETTINGS_WISUN_MAX_NEIGHBOR_COUNT 32
+#define APP_SETTINGS_WISUN_MAX_CHILD_COUNT 22
+#define APP_SETTINGS_WISUN_MAX_SECURITY_NEIGHBOR_COUNT 300
 #define APP_SETTINGS_WISUN_DEFAULT_PREFERRED_PAN_ID 0xFFFF
 #define APP_SETTINGS_WISUN_DEFAULT_KEYCHAIN SL_WISUN_KEYCHAIN_AUTOMATIC
 #define APP_SETTINGS_WISUN_DEFAULT_KEYCHAIN_INDEX 0
+#define APP_SETTINGS_WISUN_DEFAULT_MAX_HOP_COUNT 24
+#define APP_SETTINGS_WISUN_DEFAULT_LOWPAN_MTU 1576
+#define APP_SETTINGS_WISUN_DEFAULT_IPV6_MRU 1504
+#define APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT 5
+#define APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE 2048
 
 #ifndef APP_SETTINGS_APP_DEFAULT_AUTOCONNECT
   #define APP_SETTINGS_APP_DEFAULT_AUTOCONNECT  0
@@ -233,12 +240,19 @@ static const app_settings_wisun_t app_settings_wisun_default = {
   .crc_type = APP_SETTINGS_WISUN_DEFAULT_CRC_TYPE,
   .stf_length = APP_SETTINGS_WISUN_DEFAULT_STF_LENGTH,
   .preamble_length = APP_SETTINGS_WISUN_DEFAULT_PREAMBLE_LENGTH,
-  .neighbor_table_size = APP_SETTINGS_WISUN_NEIGHBOR_TABLE_SIZE,
+  .max_neighbor_count = APP_SETTINGS_WISUN_MAX_NEIGHBOR_COUNT,
+  .max_child_count = APP_SETTINGS_WISUN_MAX_CHILD_COUNT,
+  .max_security_neighbor_count = APP_SETTINGS_WISUN_MAX_SECURITY_NEIGHBOR_COUNT,
   .preferred_pan_id = APP_SETTINGS_WISUN_DEFAULT_PREFERRED_PAN_ID,
   .keychain = APP_SETTINGS_WISUN_DEFAULT_KEYCHAIN,
   .keychain_index = APP_SETTINGS_WISUN_DEFAULT_KEYCHAIN_INDEX,
   .direct_connect_pmk = { 0x34, 0xba, 0x32, 0x26, 0xa0, 0xb2, 0xad, 0x66, 0x7c, 0x9f, 0x66, 0x02, 0xe5, 0xdb, 0x75, 0x77,
                           0xdd, 0xbd, 0x5d, 0x2b, 0x34, 0x3a, 0x93, 0x06, 0x2b, 0x90, 0xc0, 0x7b, 0xe2, 0x8e, 0x4e, 0x54 },
+  .max_hop_count = APP_SETTINGS_WISUN_DEFAULT_MAX_HOP_COUNT,
+  .lowpan_mtu = APP_SETTINGS_WISUN_DEFAULT_LOWPAN_MTU,
+  .ipv6_mru = APP_SETTINGS_WISUN_DEFAULT_IPV6_MRU,
+  .max_edfe_fragment_count = APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT,
+  .socket_rx_buffer_size = APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE,
 };
 
 static const app_settings_ping_t app_settings_ping_default = {
@@ -516,7 +530,7 @@ static sl_status_t app_settings_set_regulation_alert_threshold(const char *value
                                                                const char *key_str,
                                                                const app_settings_entry_t *entry);
 
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
 static sl_status_t app_settings_set_rx_mdr_capable(const char *value_str,
                                                    const char *key_str,
                                                    const app_settings_entry_t *entry);
@@ -1008,7 +1022,7 @@ const app_settings_entry_t app_settings_entries[] =
     .get_handler = app_settings_get_integer,
     .description = "Device type [uint8]"
   },
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
   {
     .key = "rx_mdr_capable",
     .domain = app_settings_domain_wisun,
@@ -1247,17 +1261,43 @@ const app_settings_entry_t app_settings_entries[] =
     .description = "Wi-SUN RPL information"
   },
   {
-    .key = "neighbor_table_size",
+    .key = "max_neighbor_count",
     .domain = app_settings_domain_wisun,
     .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
     .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
     .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
-    .value = &app_settings_wisun.neighbor_table_size,
+    .value = &app_settings_wisun.max_neighbor_count,
     .input_enum_list = NULL,
     .output_enum_list = NULL,
     .set_handler = app_settings_set_integer,
     .get_handler = app_settings_get_integer,
     .description = "Neighbor table size [uint8]"
+  },
+  {
+    .key = "max_child_count",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.max_child_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum number of RPL children [uint8]"
+  },
+  {
+    .key = "max_security_neighbor_count",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.max_security_neighbor_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum number of neighbor in security table [uint16]"
   },
   {
     .key = "preferred_pan_id",
@@ -1375,6 +1415,71 @@ const app_settings_entry_t app_settings_entries[] =
     .set_handler = app_settings_set_direct_connect_pmk,
     .get_handler = app_settings_get_direct_connect_pmk,
     .description = "Set Direct Connect PMK [string]"
+  },
+  {
+    .key = "max_hop_count",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.max_hop_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum hop count requested in PAN [uint8]"
+  },
+  {
+    .key = "lowpan_mtu",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.lowpan_mtu,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "6Lowpan MTU in bytes [uint16]"
+  },
+  {
+    .key = "ipv6_mru",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.ipv6_mru,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "IPv6 MRU in bytes [uint16]"
+  },
+  {
+    .key = "max_edfe_fragment_count",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.max_edfe_fragment_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum EDFE fragment count [uint16]"
+  },
+  {
+    .key = "socket_rx_buffer_size",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.socket_rx_buffer_size,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Socket receiver buffer size in bytes [uint16]"
   },
   {
     .key = NULL,
@@ -2218,6 +2323,71 @@ static const app_settings_entry_t app_statistics_entries[] =
     .description = "Adapt layer tx queue peak"
   },
   {
+    .key = "mpl_new_messages_count",
+    .domain = app_statistics_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.network.mpl_new_messages_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "MPL new messages count (first RX of messages)"
+  },
+  {
+    .key = "mpl_rx_count",
+    .domain = app_statistics_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.network.mpl_rx_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "MPL total RX count"
+  },
+  {
+    .key = "mpl_forwarded_messages_count",
+    .domain = app_statistics_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.network.mpl_forwarded_messages_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "MPL forwarded messages count"
+  },
+  {
+    .key = "mpl_freed_messages_count",
+    .domain = app_statistics_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.network.mpl_freed_messages_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "MPL freed messages count (when MPL memory is full)"
+  },
+  {
+    .key = "mpl_not_tx_count",
+    .domain = app_statistics_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.network.mpl_not_tx_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Number of MPL messages that are deleted and never transmitted"
+  },
+  {
     .key = "tx_duration_ms",
     .domain = app_statistics_domain_regulation,
     .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
@@ -2257,6 +2427,71 @@ static const app_settings_entry_t app_statistics_entries[] =
     .description = "Current heap usage"
   },
   {
+    .key = "free",
+    .domain = app_statistics_domain_heap,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.heap.free,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Current free heap"
+  },
+  {
+    .key = "total",
+    .domain = app_statistics_domain_heap,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.heap.total,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Total available heap"
+  },
+  {
+    .key = "idle_duration_s",
+    .domain = app_statistics_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.mac.idle_duration_s,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Total duration of radio idle state since MAC started"
+  },
+  {
+    .key = "rx_availability_percentage",
+    .domain = app_statistics_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.mac.rx_availability_percentage,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Device RX availability percentage"
+  },
+  {
+    .key = "tx_duration_ms",
+    .domain = app_statistics_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.mac.radio_tx_duration_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Total transmission duration since boot"
+  },
+  {
     .key = NULL,
     .domain = 0,
     .value_size = APP_SETTINGS_VALUE_SIZE_NONE,
@@ -2285,6 +2520,19 @@ static const app_settings_entry_t app_info_entries[] =
     .set_handler = NULL,
     .get_handler = app_settings_get_integer,
     .description = "PAN ID"
+  },
+  {
+    .key = "hop_count",
+    .domain = app_info_domain_network,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_network_info.hop_count,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Hop count"
   },
   {
     .key = NULL,
@@ -3100,7 +3348,7 @@ static sl_status_t app_settings_set_regulation_alert_threshold(const char *value
   return ret;
 }
 
-#if RAIL_IEEE802154_SUPPORTS_G_MODESWITCH
+#if SL_RAIL_IEEE802154_SUPPORTS_G_MODE_SWITCH
 static sl_status_t app_settings_set_rx_mdr_capable(const char *value_str,
                                                    const char *key_str,
                                                    const app_settings_entry_t *entry)

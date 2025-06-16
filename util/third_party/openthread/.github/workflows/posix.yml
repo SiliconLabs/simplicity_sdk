@@ -52,18 +52,19 @@ jobs:
       CXXFLAGS: -DCLI_COAP_SECURE_USE_COAP_DEFAULT_HANDLER=1 -DOPENTHREAD_CONFIG_MLE_MAX_CHILDREN=15
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-    - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+    - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
       with:
         python-version: '3.12'
         cache: pip
     - name: Bootstrap
       run: |
-        sudo apt-get --no-install-recommends install -y expect ninja-build lcov socat
+        sudo apt-get --no-install-recommends install -y expect ninja-build lcov
+        sudo bash script/install_socat
         pip install bleak 'cryptography==43.0.0'
     - name: Run RCP Mode
       run: |
@@ -80,7 +81,7 @@ jobs:
           CRASHED=$(./script/test check_crash | tail -1)
           [[ $CRASHED -eq "1" ]] && echo "Crashed!" || echo "Not crashed."
           echo "CRASHED_RCP=$CRASHED" >> $GITHUB_ENV
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       if: ${{ failure() && env.CRASHED_RCP == '1' }}
       with:
         name: core-expect-rcp
@@ -89,7 +90,7 @@ jobs:
     - name: Generate Coverage
       run: |
         ./script/test generate_coverage gcc
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       with:
         name: cov-expects-linux-1
         path: tmp/coverage.info
@@ -98,7 +99,8 @@ jobs:
       run: |
         sudo apt-get update
         echo 0 | sudo tee /proc/sys/net/ipv6/conf/all/disable_ipv6
-        sudo apt-get install --no-install-recommends -y bind9-host ntp socat
+        sudo apt-get install --no-install-recommends -y bind9-host ntp
+        sudo bash script/install_socat
         sudo systemctl restart ntp
         sudo socat 'UDP6-LISTEN:53,fork,reuseaddr,bind=[::1]' UDP:127.0.0.53:53 &
         socat 'TCP6-LISTEN:2000,fork,reuseaddr' TCP:127.0.0.53:53 &
@@ -113,13 +115,13 @@ jobs:
           CRASHED=$(./script/test check_crash | tail -1)
           [[ $CRASHED -eq "1" ]] && echo "Crashed!" || echo "Not crashed."
           echo "CRASHED_TUN=$CRASHED" >> $GITHUB_ENV
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       if: ${{ failure() && env.CRASHED_TUN == '1' }}
       with:
         name: core-expect-linux
         path: |
           ./ot-core-dump/*
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       if: ${{ failure() }}
       with:
         name: syslog-expect-linux
@@ -127,7 +129,7 @@ jobs:
     - name: Generate Coverage
       run: |
         ./script/test generate_coverage gcc
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       with:
         name: cov-expects-linux-2
         path: tmp/coverage.info
@@ -142,14 +144,14 @@ jobs:
       VIRTUAL_TIME: 1
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         submodules: true
-    - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
+    - uses: actions/setup-python@8d9ed9ac5c53483de85588cdf95a591a75ab9f55 # v5.5.0
       with:
         python-version: '3.12'
         cache: pip
@@ -164,7 +166,7 @@ jobs:
     - name: Run
       run: |
         MAX_JOBS=$(getconf _NPROCESSORS_ONLN) ./script/test cert_suite ./tests/scripts/thread-cert/Cert_*.py ./tests/scripts/thread-cert/test_*.py
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       if: ${{ failure() }}
       with:
         name: thread-cert
@@ -172,7 +174,7 @@ jobs:
     - name: Generate Coverage
       run: |
         ./script/test generate_coverage gcc
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       with:
         name: cov-thread-cert
         path: tmp/coverage.info
@@ -190,7 +192,7 @@ jobs:
       OT_READLINE: 'readline'
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
@@ -198,7 +200,8 @@ jobs:
     - name: Bootstrap
       run: |
         sudo apt-get update
-        sudo apt-get --no-install-recommends install -y socat expect lcov libreadline-dev net-tools ninja-build
+        sudo apt-get --no-install-recommends install -y expect lcov libreadline-dev net-tools ninja-build
+        sudo bash script/install_socat
         cd /tmp
         wget https://github.com/obgm/libcoap/archive/bsd-licensed.tar.gz
         tar xvf bsd-licensed.tar.gz
@@ -222,7 +225,7 @@ jobs:
     - name: Generate Coverage
       run: |
         ./script/test generate_coverage gcc
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       with:
         name: cov-pty-linux-${{ matrix.OT_DAEMON }}
         path: tmp/coverage.info
@@ -240,7 +243,7 @@ jobs:
       OT_READLINE: 'off'
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
@@ -258,7 +261,8 @@ jobs:
         rm -f /usr/local/bin/python3-config
         rm -f /usr/local/bin/python3.11-config
         brew update
-        brew install ninja socat
+        brew install ninja
+        sudo bash script/install_socat
     - name: Build
       run: |
         script/check-posix-pty build
@@ -270,7 +274,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
@@ -279,7 +283,8 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       run: |
-        sudo apt-get --no-install-recommends install -y expect ninja-build lcov socat
+        sudo apt-get --no-install-recommends install -y expect ninja-build lcov
+        sudo bash script/install_socat
         sudo python3 -m pip install git+https://github.com/openthread/pyspinel
     - name: Build
       run: |
@@ -290,7 +295,7 @@ jobs:
     - name: Generate Coverage
       run: |
         ./script/test generate_coverage gcc
-    - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+    - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
       with:
         name: cov-rcp-stack-reset
         path: tmp/coverage.info
@@ -304,7 +309,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+      uses: step-security/harden-runner@0634a2670c59f64b4a01f0f96f84700a4088b9f0 # v2.12.0
       with:
         egress-policy: audit # TODO: change to 'egress-policy: block' after couple of runs
 
@@ -314,7 +319,7 @@ jobs:
     - name: Bootstrap
       run: |
         sudo apt-get --no-install-recommends install -y lcov
-    - uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # v4.1.7
+    - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
       with:
         path: coverage/
         pattern: cov-*
@@ -323,7 +328,7 @@ jobs:
       run: |
         script/test combine_coverage
     - name: Upload Coverage
-      uses: codecov/codecov-action@e28ff129e5465c2c0dcc6f003fc735cb6ae0c673 # v4.5.0
+      uses: codecov/codecov-action@ad3126e916f78f00edff4ed0317cf185271ccc2d # v5.4.2
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       with:

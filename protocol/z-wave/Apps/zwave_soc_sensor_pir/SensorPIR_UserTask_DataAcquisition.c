@@ -10,9 +10,8 @@
 #include "events.h"
 #include <SizeOf.h>
 #include <zpal_power_manager.h>
-
-//#define DEBUGPRINT
-#include <DebugPrint.h>
+#include "zw_power_manager_ids.h"
+#include "zpal_log.h"
 
 /****************************************************************
  * CONFIGURATIONS OF THIS MODULE
@@ -39,7 +38,7 @@
 /****************************************************************
  * STATIC VARIABLES
  ***************************************************************/
-static zpal_pm_handle_t task_power_lock;
+
 /****************************************************************
  * EXTERNAL VARIABLES (none preferred)
  ***************************************************************/
@@ -53,16 +52,16 @@ static zpal_pm_handle_t task_power_lock;
  */
 NO_RETURN static void executeThread(void)
 {
-  for (;;)
-  {
-    zpal_pm_stay_awake(task_power_lock, 0);
+  for (;;) {
+    // force acquisition of the lock with relock
+    zw_power_manager_relock(ZPAL_PM_TYPE_DEEP_SLEEP, 0, ZPAL_PM_APP_DEEP_SLEEP_APPLICATION_ID);
 
     ////////////////////////////////////
     //Do something user specific
     ////////////////////////////////////
 
     zaf_event_distributor_enqueue_app_event(EVENT_APP_USERTASK_DATA_ACQUISITION_FINISHED);  // An event to be send to the main app.
-    zpal_pm_cancel(task_power_lock);
+    zw_power_manager_lock_cancel(ZPAL_PM_TYPE_DEEP_SLEEP, ZPAL_PM_APP_DEEP_SLEEP_APPLICATION_ID);
 
     vTaskDelay(pdMS_TO_TICKS(USER_TASK_WAKEUP_PERIOD));
   }
@@ -87,14 +86,11 @@ NO_RETURN static void executeThread(void)
 NO_RETURN void
 SensorPIR_DataAcquisitionTask(__attribute__((unused)) void* pUserTaskParam)
 {
-  DPRINT("\r\nSensorPIR Data Acquisition UserTask started!");
-
-  task_power_lock = zpal_pm_register(ZPAL_PM_TYPE_DEEP_SLEEP);
+  ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nSensorPIR Data Acquisition UserTask started!");
 
   // Generate event that says the Data acquisition UserTask has started!
-  if (zaf_event_distributor_enqueue_app_event(EVENT_APP_USERTASK_DATA_ACQUISITION_READY))
-  {
-    DPRINT("\r\nDataAcquisitionTask: Ready event is send to main app!\r\n");
+  if (zaf_event_distributor_enqueue_app_event(EVENT_APP_USERTASK_DATA_ACQUISITION_READY)) {
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "\r\nDataAcquisitionTask: Ready event is send to main app!\r\n");
   }
 
   executeThread();

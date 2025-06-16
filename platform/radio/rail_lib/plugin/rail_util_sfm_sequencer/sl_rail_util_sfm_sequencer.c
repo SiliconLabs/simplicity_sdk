@@ -27,21 +27,22 @@
  * 3. This notice may not be removed or altered from any source distribution.
  *
  ******************************************************************************/
+#include "sl_rail.h"
 #include "sl_rail_util_sfm_sequencer_config.h"
-#include "rail.h"
 
 #ifdef SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION
-RAIL_Status_t RAILCb_LoadSfmSequencer(void)
+sl_rail_status_t sl_railcb_load_sfm_sequencer(sl_rail_handle_t radio_handle)
 {
 #if ((SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION == SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_DEPRECATED) \
   || (SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION == SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM_OQPSK))
-  return RAIL_LoadSfmSunOfdmOqpsk(RAIL_EFR32_HANDLE);
+  return sl_rail_load_sfm_sun_ofdm_oqpsk(radio_handle);
 #elif (SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION == SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM)
-  return RAIL_LoadSfmSunOfdm(RAIL_EFR32_HANDLE);
+  return sl_rail_load_sfm_sun_ofdm(radio_handle);
 #elif (SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION == SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_EMPTY)
-  return RAIL_LoadSfmEmpty(RAIL_EFR32_HANDLE);
+  return sl_rail_load_sfm_empty(radio_handle);
 #else
-  return RAIL_STATUS_INVALID_CALL;
+  (void) radio_handle;
+  return SL_RAIL_STATUS_INVALID_CALL;
 #endif
 }
 #endif

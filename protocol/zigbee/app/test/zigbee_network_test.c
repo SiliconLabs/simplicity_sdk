@@ -39,12 +39,6 @@
   #include "fragmentation.h"
 #endif
 
-#ifdef SL_CATALOG_MEMORY_MANAGER_PRESENT
-#include "sl_memory_manager.h"
-#else
-#include "sl_malloc.h"
-#endif // SL_CATALOG_MEMORY_MANAGER_PRESENT
-
 //------------------------------------------------------------------------------
 // Defines and variables.
 #define MAX_ZIGBEE_TX_TEST_MESSAGE_LENGTH   70
@@ -179,9 +173,9 @@ void sli_zigbee_network_test_message_sent_callback(sl_status_t status,
       test_in_progress = false;
       print_zigbee_tx_test_stats();
     }
-  } else if (aps_frame->clusterId == 0x0043 && ping_send_time_ms) { // ping
+  } else if (aps_frame->clusterId == 0x0043 && data_ptr != NULL) { // ping
     // Free the allocated memory, safe to be called on NULL
-    sl_free(data_ptr);
+    free(data_ptr);
     data_ptr = NULL;
   }
 }
@@ -246,7 +240,7 @@ void zigbee_tx_test_start_random(sl_cli_command_arg_t *arguments)
 
   uint16_t count = 0;
   for (uint8_t j = 0; j < (zigbee_tx_test_info.message_length + 255) / 256; j++) {
-    uint8_t limit = (j == (zigbee_tx_test_info.message_length / 256)) ? (zigbee_tx_test_info.message_length % 256) : 256;
+    uint8_t limit = (j == (zigbee_tx_test_info.message_length / 256)) ? (zigbee_tx_test_info.message_length % 256) : 255;
     for (uint8_t i = 6; i < limit; i++) {
       zigbee_tx_test_info.message_payload[count] = i;
       count++;
@@ -521,14 +515,14 @@ void zigbee_frag_raw_tx_command(sl_cli_command_arg_t *arguments)
     return;
   }
   // Allocate memory for data_ptr
-  data_ptr = (uint8_t *)sl_malloc(length * sizeof(uint8_t));
+  data_ptr = (uint8_t *)malloc(length * sizeof(uint8_t));
   if (data_ptr == NULL) {
     sl_zigbee_app_debug_println("Error: Memory allocation failed");
     return;
   }
   uint16_t count = 0;
   for (uint8_t j = 0; j < (length + 255) / 256; j++) {
-    uint8_t limit = (j == (length / 256)) ? (length % 256) : 256;
+    uint8_t limit = (j == (length / 256)) ? (length % 256) : 255;
     for (uint8_t i = 0; i < limit; i++) {
       data_ptr[count] = i;
       count++;

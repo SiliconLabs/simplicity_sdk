@@ -17,7 +17,6 @@ filter:
     value: ["Beginner"]
 source:
   - path: app.c
-  - path: main.c
   - path: sleeptimer_app.c
 include:
   - path: .
@@ -29,7 +28,7 @@ readme:
 ui_hints:
   highlight: readme.md
 component:
-  - id: sl_system
+  - id: sl_main
   - id: device_init
   - id: clock_manager
   - id: sleeptimer

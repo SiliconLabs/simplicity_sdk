@@ -30,12 +30,12 @@
 /**
  * Credential metadata object for storage in NVM.
  */
-typedef struct credential_metadata_nvm_ {
+typedef struct credential_metadata_nvm_t_ {
   uint16_t uuid;
   uint16_t modifier_node_id;
   uint8_t length;
   u3c_modifier_type modifier_type;
-} credential_metadata_nvm;
+} credential_metadata_nvm_t;
 
 /**
  * The User descriptor table is an array of associations between User Unique IDs
@@ -44,10 +44,10 @@ typedef struct credential_metadata_nvm_ {
  * ZAF_FILE_ID_CC_USER_CREDENTIAL_CREDENTIAL_BASE + n_users - 1 are to be
  * considered valid.
  */
-typedef struct u3c_user_descriptor_ {
+typedef struct user_descriptor_t_ {
   uint16_t unique_identifier;
   uint16_t object_offset;
-} u3c_user_descriptor;
+} user_descriptor_t;
 
 /**
  * The Credential descriptor table is an array of associations between unique
@@ -57,17 +57,17 @@ typedef struct u3c_user_descriptor_ {
  * ZAF_FILE_ID_CC_USER_CREDENTIAL_USER_BASE + n_credentials - 1 are to be
  * considered valid.
  */
-typedef struct u3c_credential_descriptor_ {
+typedef struct credential_descriptor_t_ {
   uint16_t user_unique_identifier;
   uint16_t credential_slot;
   uint16_t object_offset;
   u3c_credential_type credential_type;
-} u3c_credential_descriptor;
+} credential_descriptor_t;
 
 /**
  * @brief Metadata to track current admin code information
  */
-typedef struct admin_pin_code_metadata_nvm_ {
+typedef struct admin_pin_code_metadata_nvm_t_ {
   uint8_t code_length; // Admin Code functionality disabled if 0
   uint8_t code[CC_USER_CREDENTIAL_MAX_DATA_LENGTH_PIN_CODE];
 } admin_pin_code_metadata_nvm_t;

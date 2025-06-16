@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2024 Silicon Laboratories Inc. www.silabs.com
+# Copyright 2025 Silicon Laboratories Inc. www.silabs.com
 #
 # SPDX-License-Identifier: Zlib
 #
@@ -27,7 +27,7 @@
 Handles signing Certificate Signing Requests for connected embedded devices.
 
 Prerequisites:
-Python 3.
+Python 3.9 or higher.
 Python packages contained in `requirements.txt`.
   Run `pip install -r requirements.txt` to install all requirements for the application.
 Simplicity Commander added to path.
@@ -37,7 +37,7 @@ A connected device with the prepared certificate signing request with the
 '''
 # Metadata
 __author__ = 'Silicon Laboratories, Inc'
-__copyright__ = 'Copyright 2024, Silicon Laboratories, Inc.'
+__copyright__ = 'Copyright 2025, Silicon Laboratories, Inc.'
 
 import os
 import sys
@@ -65,7 +65,7 @@ STATIC_AUTH_DATA_BIT      = 2
 
 MAX_ITERATIONS            = 10
 
-def main(level, validity, serial, ip, protocol):
+def main(level, validity, serial, ip, device, protocol):
     # Check the presence of Simplicity Commander.
     try:
         subprocess.run(['commander', '-v'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT) # Supress output
@@ -203,7 +203,7 @@ def sign_csr(authority_key, authority_cert, path_auth_database, csr, validity):
 
     # Check the validity of the higher authority.
     # Note: if there is a revocation list, it should be also checked if the certificate is revoked or not.
-    now = datetime.datetime.now(datetime.UTC)
+    now = datetime.datetime.now(datetime.timezone.utc)
     if now < authority_cert.not_valid_before_utc or authority_cert.not_valid_after_utc < now:
         raise Exception('The validity period of the CA has expired.')
 
@@ -471,14 +471,19 @@ def subprocess_call(command):
 def device_argument():
     '''Returns the device argument of a Simplicity Commander command.
     '''
+    arg = ''
+
     if args.serial is not None and args.ip is not None:
         raise Exception('At most one of [J-Link serial number] or [IP address] shall be defined.')
     elif args.serial is not None:
-        return '--serialno ' + args.serial
+        arg += '--serialno ' + args.serial
     elif args.ip is not None:
-        return '--ip ' + args.ip
-    else:
-        return ''
+        arg += '--ip ' + args.ip
+
+    if args.device is not None:
+        arg += ' --device ' + args.device
+
+    return arg
 
 class CustomFormatter(argparse.ArgumentDefaultsHelpFormatter, argparse.RawDescriptionHelpFormatter):
     pass
@@ -503,11 +508,11 @@ def load_args():
                         help='The valid period of the certificate in days starting '\
                              'from the moment of signing.')
     parser.add_argument('-s', '--serial',
-                        type=str,
                         help='J-Link serial number. Should not be given together with the IP address.')
     parser.add_argument('-i', '--ip',
-                        type=str,
                         help='IP Address. Should not be given together with the J-Link serial number.')
+    parser.add_argument('-d', '--device',
+                        help='The device, device family or platform to target. Only needed for custom hardware.')
     parser.add_argument('-p', '--protocol',
                         default='btmesh',
                         type=str.lower,
@@ -519,4 +524,4 @@ def load_args():
 
 if __name__ == '__main__':
     args = load_args()
-    main(args.level, args.validity, args.serial, args.ip, args.protocol)
+    main(args.level, args.validity, args.serial, args.ip, args.device, args.protocol)

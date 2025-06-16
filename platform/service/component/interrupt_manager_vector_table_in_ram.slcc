@@ -1,13 +1,13 @@
 id: interrupt_manager_vector_table_in_ram
-label: "interrupt Manager: Set interrupt vector in RAM."
-package: platform
+label: 'Interrupt Manager: Interrupt Vector Table in RAM'
+package: platform_core
 description: |
-  Specify that Interrupt Manager copy the interrupt vector in flash to RAM during initialization
+    Specify that the Interrupt Manager copies the interrupt vector table from FLASH to RAM during initialization.
 category: Services|Interrupt Manager
 quality: production
 metadata:
-  sbom:
-    license: Zlib
+    sbom:
+        license: Zlib
 provides:
   - name: interrupt_manager_vector_table_in_ram
 requires:

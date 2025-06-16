@@ -1,7 +1,7 @@
 id: "spinel_host_interface_cpc"
-label: "Implements host CPC interface to CPC daemon"
-package: platform
-category: Radio|Mac
+label: "Spinel Host Interface - CPC"
+package: multiprotocol
+category: 802.15.4|Mac
 quality: "production"
 description: "Implements the socket interface needed to connect host apps to CPC daemon. This layer is parallel to HDLC and SPI interfaces provided by Openthread. Designed for use with zigbeed."
 provides:

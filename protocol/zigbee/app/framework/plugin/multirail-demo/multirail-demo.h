@@ -18,8 +18,8 @@
 #ifndef MULTIRAIL_DEMO_H
 #define MULTIRAIL_DEMO_H
 
-#include "rail.h"
-#include "rail_types.h"
+#include "sl_rail.h"
+#include "sl_rail_types.h"
 
 /**
  * @defgroup multirail-demo  Multi Rail Demo
@@ -59,20 +59,20 @@
  *
  * @return New RAIL handle, NULL if not successfully initialized.
  */
-RAIL_Handle_t sl_zigbee_af_multirail_demo_init(RAIL_Config_t *railCfg,
-                                               RAIL_TxPowerConfig_t *txPowerConfig,
-                                               bool paAutoMode,
-                                               RAIL_TxPower_t defaultTxPower,
-                                               uint8_t *txFifo,
-                                               uint16_t txFifoSize,
-                                               uint16_t panId,
-                                               const uint8_t *ieeeAddr);
+sl_rail_handle_t sl_zigbee_af_multirail_demo_init(sl_rail_config_t *railCfg,
+                                                  sl_rail_tx_power_config_t *txPowerConfig,
+                                                  bool paAutoMode,
+                                                  sl_rail_tx_power_t defaultTxPower,
+                                                  uint8_t *txFifo,
+                                                  uint16_t txFifoSize,
+                                                  uint16_t panId,
+                                                  const uint8_t *ieeeAddr);
 
 /** @brief Return the second RAIL handle.
  *
  * @return The second RAIL handle. Null if not initialized.
  */
-RAIL_Handle_t sl_zigbee_af_multirail_demo_get_handle(void);
+sl_rail_handle_t sl_zigbee_af_multirail_demo_get_handle(void);
 
 /** @brief Send a packet using the second RAIL instance.
  *
@@ -84,11 +84,11 @@ RAIL_Handle_t sl_zigbee_af_multirail_demo_get_handle(void);
  *
  * @return RAIL status.
  */
-RAIL_Status_t sl_zigbee_af_multirail_demo_send(const uint8_t *buff,
-                                               uint32_t size,
-                                               uint8_t channel,
-                                               RAIL_ScheduleTxConfig_t *scheduledTxConfig,
-                                               RAIL_SchedulerInfo_t *schedulerInfo);
+sl_rail_status_t sl_zigbee_af_multirail_demo_send(const uint8_t *buff,
+                                                  uint32_t size,
+                                                  uint8_t channel,
+                                                  sl_rail_scheduled_tx_config_t *scheduledTxConfig,
+                                                  sl_rail_scheduler_info_t *schedulerInfo);
 
 /** @} */ // end of name API
 
@@ -114,8 +114,8 @@ RAIL_Status_t sl_zigbee_af_multirail_demo_send(const uint8_t *buff,
  * @param[in] handle A handle for a RAIL instance.
  * @param[in] events A bit mask of RAIL events (full list in rail_types.h)
  */
-void sl_zigbee_af_multirail_demo_rail_event_cb(RAIL_Handle_t handle,
-                                               RAIL_Events_t events);
+void sl_zigbee_af_multirail_demo_rail_event_cb(sl_rail_handle_t handle,
+                                               sl_rail_events_t events);
 
 /** @brief A callback called to initialize the green power TX queue.
  *

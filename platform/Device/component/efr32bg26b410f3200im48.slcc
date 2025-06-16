@@ -1,6 +1,6 @@
 !!omap
 - id: EFR32BG26B410F3200IM48
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for EFR32BG26B410F3200IM48.
 - category: Platform|Device|EFR32BG26
 - quality: production

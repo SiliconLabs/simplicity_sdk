@@ -1,18 +1,18 @@
 /**
  * @file
  * Handler for Command Class Indicator V3
- * 
+ *
  * @addtogroup CC
  * @{
  * @addtogroup Indicator
  * @{
- * 
- * Indicator CC is mandatory since Z-Wave+ V2. It can be used to identify a device in the network, by 
+ *
+ * Indicator CC is mandatory since Z-Wave+ V2. It can be used to identify a device in the network, by
  * sending command that will, for example, set the LED indicator to ON over a certain period.
- * 
+ *
  * @}
  * @}
- * 
+ *
  * @copyright 2019 Silicon Laboratories Inc.
  */
 
@@ -37,8 +37,7 @@
  *
  * @attention Receive options MUST be the first element as TSE relies on the receive options.
  */
-typedef struct s_CC_indicator_data_t_
-{
+typedef struct s_CC_indicator_data_t_{
   RECEIVE_OPTIONS_TYPE_EX rxOptions; /**< rxOptions */
   uint8_t indicatorId; /**< Indicator Id */
 } s_CC_indicator_data_t;
@@ -64,7 +63,7 @@ void CC_Indicator_RefreshIndicatorProperties(void);
  *
  * Even though on/off time parameters are given in milliseconds, the
  * resolution is 1/10'th of a second.
- * 
+ *
  * @param on_time_ms  ON duration (in milliseconds) for a single blink cycle.
  *                    If on_time_ms is zero the indicator should be turned off.
  *
@@ -73,12 +72,12 @@ void CC_Indicator_RefreshIndicatorProperties(void);
  * @param num_cycles  Number of blink cycles. If num_cycles is zero the indicator
  *                    LED should blink "forever" or until the next time this
  *                    function is called.
-*/
+ */
 void cc_indicator_handler(uint32_t on_time_ms, uint32_t off_time_ms, uint32_t num_cycles);
 
 /**
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_INDICATOR_H_ */

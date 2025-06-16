@@ -25,8 +25,7 @@ typedef uint8_t notification_event_state;
 /**
  * Notification status
  */
-typedef enum
-{
+typedef enum {
   NOTIFICATION_STATUS_UNSOLICIT_DEACTIVATED = 0x00,
   NOTIFICATION_STATUS_UNSOLICIT_ACTIVATED = 0xFF
 } NOTIFICATION_STATUS;
@@ -143,6 +142,6 @@ uint8_t cc_notification_config_get_number_of_events(uint8_t index);
  * @}
  * @}
  * @}
- */ 
+ */
 
 #endif /* CC_NOTIFICATION_CONFIG_API_H */

@@ -53,6 +53,7 @@ typedef enum IRQn{
   MemoryManagement_IRQn  = -12,             /*!< -12 Cortex-M Memory Management Interrupt */
   BusFault_IRQn          = -11,             /*!< -11 Cortex-M Bus Fault Interrupt         */
   UsageFault_IRQn        = -10,             /*!< -10 Cortex-M Usage Fault Interrupt       */
+  SecureFault_IRQn       = -9,              /*!< -9  Cortex-M Secure Fault Interrupt      */
   SVCall_IRQn            = -5,              /*!< -5  Cortex-M SV Call Interrupt           */
   DebugMonitor_IRQn      = -4,              /*!< -4  Cortex-M Debug Monitor Interrupt     */
   PendSV_IRQn            = -2,              /*!< -2  Cortex-M Pend SV Interrupt           */
@@ -1530,6 +1531,10 @@ typedef enum IRQn{
                                         : ((n) == 2) ? EUSART2_NOT_EM2_CAPABLE \
                                         : 0x0UL)
 
+/* Instance macros for GPCRC */
+#define GPCRC_NUM(ref)                 (((ref) == GPCRC) ? 0 \
+                                        : -1)
+
 /* Instance macros for I2C */
 #define I2C(n)                         (((n) == 0) ? I2C0   \
                                         : ((n) == 1) ? I2C1 \
@@ -1557,6 +1562,14 @@ typedef enum IRQn{
                                         : 0x0UL)
 #define IADC_ENTRIES(n)                (((n) == 0) ? IADC0_ENTRIES \
                                         : 0x0UL)
+
+/* Instance macros for LDMA */
+#define LDMA_NUM(ref)                  (((ref) == LDMA) ? 0 \
+                                        : -1)
+
+/* Instance macros for LDMAXBAR */
+#define LDMAXBAR_NUM(ref)              (((ref) == LDMAXBAR) ? 0 \
+                                        : -1)
 
 /* Instance macros for LETIMER */
 #define LETIMER(n)                     (((n) == 0) ? LETIMER0 \

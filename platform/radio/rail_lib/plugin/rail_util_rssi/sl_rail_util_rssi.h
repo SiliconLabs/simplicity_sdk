@@ -35,6 +35,14 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+#include "sl_status.h"
+
+// | Region | SubRegion            | NVM3 Key<19:16> | NVM3 Key<15:0>
+// | Common | Antenna Calibration  | 0x8             | 0x9800 - 0x98ff
+// where Platform owns 0x89800-0x8987f and RAIL owns 0x89880-0x898ff.
+#define SL_RAIL_UTIL_RSSI_NVM_DATA_TAG (0x89880UL)
+
 /**
  * Initialize the default RSSI.
  *
@@ -42,6 +50,29 @@ extern "C" {
  *        before \ref RAIL_Init has been called.
  */
 void sl_rail_util_rssi_init(void);
+
+/**
+ * Sets the user specified RSSI offset(in dB) into NVM3.
+ * @param rssiOffsetDb RSSI offset value(in dB) to be stored in NVM3.
+ * @return RAIL status indicating success of the function call.
+ *
+ * @note: This function should be called during application initialization
+ *        after NVM3 is initialized. This offset will be applied from next
+ *        boot.
+ */
+sl_status_t sl_rail_util_write_nvm_rssi(int8_t rssiOffsetDb);
+
+/**
+ * Gets RSSI offset(in dB) from NVM3.
+ * If there is no RSSI offset programmed into NVM3 then it provides the default
+ * value which is chip specific.
+ * @return RSSI offset(in dB) read from NVM3.
+ *
+ * @note: This function should be called during application initialization
+ *        after NVM3 is initialized and before \ref sl_rail_util_rssi_init
+ *        has been called.
+ */
+int8_t sl_rail_util_read_nvm_rssi(void);
 
 #ifdef __cplusplus
 }

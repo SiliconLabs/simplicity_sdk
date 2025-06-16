@@ -40,9 +40,13 @@
 #include "sl_wisun_api.h"
 #include "sl_wisun_event_mgr.h"
 #include "sl_wisun_trace_util.h"
+#include "sl_mempool.h"
+
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
+/// Max count of notification conditions
+#define APP_WISUN_EVT_MGR_MAX_CONDITIONS  10U
 
 /// Event index for lookup
 typedef enum {
@@ -85,6 +89,22 @@ typedef struct event_handler {
   /// Event notification
   app_wisun_trace_util_evt_notify_t evt_notify;
 } event_handler_t;
+
+/// Notify condition storage entry
+typedef struct app_wisun_em_notify_condition {
+  /// Event ID
+  sl_wisun_msg_ind_id_t id;
+  /// Event channel
+  uint8_t evt_ch;
+  /// Condition callback
+  wisun_event_notify_cond_callback_t condition;
+} app_wisun_em_notify_condition_t;
+
+/// Notifty condition storage
+static app_wisun_em_notify_condition_t _conditions[APP_WISUN_EVT_MGR_MAX_CONDITIONS] = { 0 };
+
+/// Notifty condition mempool
+static sl_mempool_t _cond_memp = { 0U };
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -251,6 +271,13 @@ void app_wisun_event_mgr_init(void)
   for (uint16_t i = 0; i < _wisun_event_size; ++i) {
     app_wisun_trace_util_evt_notify_init(&_wisun_events[i].evt_notify, osFlagsWaitAll);
   }
+
+  // Init condition mempool
+  assert(sl_mempool_create(&_cond_memp,
+                           APP_WISUN_EVT_MGR_MAX_CONDITIONS,
+                           sizeof(app_wisun_em_notify_condition_t),
+                           _conditions,
+                           sizeof(_conditions)) == SL_STATUS_OK);
 }
 
 /* Event Manager custom callback register */
@@ -314,6 +341,8 @@ sl_status_t app_wisun_em_custom_callback_remove(sl_wisun_msg_ind_id_t id)
 void sl_wisun_on_event(sl_wisun_evt_t *evt)
 {
   app_wisun_event_id_t idx = _decode_ind((sl_wisun_msg_ind_id_t) evt->header.id);
+  app_wisun_em_notify_condition_t *cond = NULL;
+  uint32_t tmp_chs = 0UL;
 
   app_wisun_event_mgr_mutex_lock();
 
@@ -325,9 +354,25 @@ void sl_wisun_on_event(sl_wisun_evt_t *evt)
       _wisun_events[idx].custom_callback(evt);
     }
 
-    if (_wisun_events[idx].evt_notify.evt_chs) {
-      app_wisun_trace_util_evt_notfiy_chs(&_wisun_events[idx].evt_notify);
+    // Store original channel mask
+    tmp_chs = _wisun_events[idx].evt_notify.evt_chs;
+
+    // Parse notify conditions
+    for (sl_mempool_block_hnd_t *block = _cond_memp.blocks; block != NULL; block = block->next) {
+      cond = (app_wisun_em_notify_condition_t *) block->start_addr;
+      if ((cond->id == evt->header.id) && (cond->condition != NULL)) {
+        if (!cond->condition(evt) && (tmp_chs & (1UL << cond->evt_ch))) {
+          _wisun_events[idx].evt_notify.evt_chs &= ~(1UL << cond->evt_ch);
+        }
+      }
     }
+
+    if (_wisun_events[idx].evt_notify.evt_chs) {
+      app_wisun_trace_util_evt_notify_chs(&_wisun_events[idx].evt_notify);
+    }
+
+    // Restore original channel mask
+    _wisun_events[idx].evt_notify.evt_chs = tmp_chs;
   }
 
   app_wisun_event_mgr_mutex_unlock();
@@ -399,6 +444,69 @@ sl_status_t app_wisun_em_wait_evt_notification(const sl_wisun_msg_ind_id_t id, c
   return ret;
 }
 
+sl_status_t app_wisun_em_wait_evt_notification_ext(const sl_wisun_msg_ind_id_t id,
+                                                   const uint8_t evt_ch,
+                                                   const uint32_t timeout)
+{
+  app_wisun_event_id_t idx = _decode_ind(id);
+  sl_status_t ret = SL_STATUS_FAIL;
+
+  if (EVENT_IDX_NOTVALID == idx) {
+    return ret;
+  }
+
+  ret = app_wisun_trace_util_evt_notify_wait(&_wisun_events[idx].evt_notify,
+                                             1U << evt_ch,
+                                             timeout);
+
+  return ret;
+}
+
+sl_status_t app_wisun_em_add_condition_evt_notification(const sl_wisun_msg_ind_id_t id,
+                                                        const uint8_t evt_ch,
+                                                        wisun_event_notify_cond_callback_t cond_cb)
+{
+  sl_mempool_block_hnd_t *block = NULL;
+  app_wisun_em_notify_condition_t *cond = NULL;
+
+  if (cond_cb == NULL) {
+    return SL_STATUS_FAIL;
+  }
+
+  for (block = _cond_memp.blocks; block != NULL; block = block->next) {
+    cond = (app_wisun_em_notify_condition_t *) block->start_addr;
+    if (cond->id == id && cond->evt_ch == evt_ch) {
+      return SL_STATUS_FAIL;
+    }
+  }
+
+  cond = sl_mempool_alloc(&_cond_memp);
+  if (cond == NULL) {
+    return SL_STATUS_FAIL;
+  }
+
+  cond->id = id;
+  cond->evt_ch = evt_ch;
+  cond->condition = cond_cb;
+  return SL_STATUS_OK;
+}
+
+sl_status_t app_wisun_em_rm_condition_evt_notification(const sl_wisun_msg_ind_id_t id,
+                                                       const uint8_t evt_ch)
+{
+  sl_mempool_block_hnd_t *block = NULL;
+  app_wisun_em_notify_condition_t *cond = NULL;
+
+  for (block = _cond_memp.blocks; block != NULL; block = block->next) {
+    cond = (app_wisun_em_notify_condition_t *) block->start_addr;
+    if (cond->id == id && cond->evt_ch == evt_ch) {
+      sl_mempool_free(&_cond_memp, cond);
+      return SL_STATUS_OK;
+    }
+  }
+  return SL_STATUS_FAIL;
+}
+
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
@@ -440,7 +548,6 @@ __STATIC_INLINE app_wisun_event_id_t _decode_ind(const sl_wisun_msg_ind_id_t ind
     case SL_WISUN_MSG_DIRECT_CONNECT_LINK_STATUS_IND_ID:    return EVENT_IDX_DIRECT_CONNECT_LINK_STATUS;
     case SL_WISUN_BR_MSG_STOPPED_IND_ID:                    return EVENT_IDX_BR_STOPPED;
     default:                                                return EVENT_IDX_NOTVALID;
-
   }
 }
 
@@ -479,7 +586,7 @@ SL_WEAK void sl_wisun_socket_data_event_hnd(sl_wisun_evt_t *evt)
 }
 
 /**************************************************************************//**
- * @brief Data avialable event handler
+ * @brief Data available event handler
  * @details
  * @param[in] evt event ptr
  *****************************************************************************/

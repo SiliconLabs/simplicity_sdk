@@ -24,8 +24,7 @@
 #include <stdbool.h>
 #include "sl_imu.h"
 #include "CC_MultilevelSensor_SensorHandlerTypes.h"
-//#define DEBUGPRINT
-#include "DebugPrint.h"
+#include "zpal_log.h"
 #include "ZW_typedefs.h"
 
 #define IMU_SAMPLE_RATE    10.0f // [Hz]
@@ -102,7 +101,7 @@ cc_multilevel_sensor_endpoint_0_motion_axis_x_read_value(sensor_read_result_t* o
 
     get_acceleration_axis_x(&ma_x_data);
     extract_sensor_data(o_result, ma_x_data);
-    DPRINTF("Motion x-axis: %d\n", ma_x_data);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Motion x-axis: %d\n", ma_x_data);
   }
 
   return true;
@@ -120,7 +119,7 @@ cc_multilevel_sensor_endpoint_0_motion_axis_y_read_value(sensor_read_result_t* o
 
     get_acceleration_axis_y(&ma_y_data);
     extract_sensor_data(o_result, ma_y_data);
-    DPRINTF("Motion y-axist: %d\n", ma_y_data);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Motion y-axis: %d\n", ma_y_data);
   }
 
   return true;
@@ -138,7 +137,7 @@ cc_multilevel_sensor_endpoint_0_motion_axis_z_read_value(sensor_read_result_t* o
 
     get_acceleration_axis_z(&ma_z_data);
     extract_sensor_data(o_result, ma_z_data);
-    DPRINTF("Motion z-axis: %d\n", ma_z_data);
+    ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "Motion z-axis: %d\n", ma_z_data);
   }
 
   return true;

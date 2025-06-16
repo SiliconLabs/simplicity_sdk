@@ -1,5 +1,5 @@
 id: esl_tag_wstk_lcd_driver
-package: Bluetooth
+package: bluetooth_le_middleware
 label: ESL Tag WSTK LCD driver
 description: >
   This component is an example of a low level driver implementation for the LCD
@@ -27,12 +27,23 @@ requires:
   - name: memlcd_screen
   - name: esl_tag_display
   - name: board_control
+  - name: power_manager
 template_contribution:
   - name: bluetooth_on_event
     value:
       include: esl_tag_wstk_lcd_driver.h
       function: esl_wstk_lcd_bt_on_event
     priority: -8999  # must be put before esl_core_bt_on_event!
+  - name: event_handler
+    value:
+      event: internal_app_process_action
+      include: esl_tag_wstk_lcd_driver.h
+      handler: esl_wstk_lcd_write_step
+  - name: power_manager_handler
+    value:
+      event: is_ok_to_sleep
+      include: esl_tag_wstk_lcd_driver.h
+      handler: esl_wstk_lcd_is_ok_to_sleep
 documentation:
   docset: bluetooth
   document: bluetooth-service-api/esl-tag-wstk-lcd-driver

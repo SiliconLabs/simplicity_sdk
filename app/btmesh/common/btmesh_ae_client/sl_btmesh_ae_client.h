@@ -36,7 +36,7 @@ extern "C" {
 #endif // __cplusplus
 
 /***************************************************************************//**
- * @addtogroup ae_client BT Mesh Advertisement Extension Client
+ * @addtogroup btmesh_ae_client
  * @{
  ******************************************************************************/
 
@@ -50,7 +50,7 @@ extern "C" {
  ******************************************************************************/
 void sl_btmesh_ae_client_on_event(const sl_btmesh_msg_t *const evt);
 
-/** @} end ae_client */
+/** @} end btmesh_ae_client */
 
 #ifdef __cplusplus
 }

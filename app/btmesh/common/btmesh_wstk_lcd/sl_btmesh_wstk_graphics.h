@@ -37,6 +37,11 @@ extern "C" {
 
 #include "sl_status.h"
 
+/***************************************************************************//**
+ * @addtogroup btmesh_wstk_lcd
+ * @{
+ ******************************************************************************/
+
 /// Enumeration of possible arrows to be drawn
 typedef enum {
   /// Left arrow
@@ -79,6 +84,7 @@ sl_status_t graphWriteString(char *string);
  * @retval SL_STATUS_FAIL In case of failure
  ******************************************************************************/
 sl_status_t graphDrawArrow(sl_btmesh_LCD_arrow arrow);
+/** @} (end addtogroup btmesh_wstk_lcd) */
 
 #ifdef __cplusplus
 }

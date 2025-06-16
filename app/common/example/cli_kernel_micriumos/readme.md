@@ -4,8 +4,8 @@ This example project demonstrates use of the command line interface component us
 
 You can use the command line interface over the VCOM serial port.
 The example provides three commands:
-* echo-str: Echoes the input arguments as strings.
-* echo-int: Parses the input arguments as integers before echoing them.
+* echo_str: Echoes the input arguments as strings.
+* echo_int: Parses the input arguments as integers before echoing them.
 * LED: Allows the user to turn on, turn off, or toggle the LEDs on the board.
 
 ## Requirements

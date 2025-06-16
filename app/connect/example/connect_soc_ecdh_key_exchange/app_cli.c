@@ -151,14 +151,14 @@ void cli_set_network_key(sl_cli_command_arg_t *arguments)
 {
   (void) arguments;
   size_t network_key_length;
-  uint8_t *netwok_key = sl_cli_get_argument_hex(arguments, 0, &network_key_length);
+  uint8_t *network_key = sl_cli_get_argument_hex(arguments, 0, &network_key_length);
 
   if (network_key_length != EMBER_ENCRYPTION_KEY_SIZE) {
     app_log_error("Connect: network key length must be %d bytes\n", EMBER_ENCRYPTION_KEY_SIZE);
     return;
   }
 
-  memcpy(connect_network_key.contents, netwok_key, EMBER_ENCRYPTION_KEY_SIZE);
+  memcpy(connect_network_key.contents, network_key, EMBER_ENCRYPTION_KEY_SIZE);
 
   app_log_hexdump_info(connect_network_key.contents, EMBER_ENCRYPTION_KEY_SIZE);
   app_log_append_info("\n");

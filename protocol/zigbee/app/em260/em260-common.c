@@ -43,9 +43,9 @@ void sli_zigbee_xncp_init(void)
 #endif  // SL_ZIGBEE_MULTI_NETWORK_STRIPPED
 
   sl_status_t status = sli_zigbee_stack_set_radio_ieee802154_cca_mode(SL_ZIGBEE_RADIO_802154_CCA_MODE);
-  sl_zigbee_debug_printf("Init: default CCA mode set to %d: 0x%02X",
+  sl_zigbee_debug_printf("Init: default CCA mode set to %d: 0x%08X",
                          SL_ZIGBEE_RADIO_802154_CCA_MODE,
-                         status);
+                         (unsigned int)status);
 #ifndef DEBUG_ROUTINES_PRESENT
   (void)status;
 #endif // DEBUG_ROUTINES_PRESENT

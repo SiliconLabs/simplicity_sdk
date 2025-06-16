@@ -34,6 +34,7 @@
 #define SL_IOSTREAM_USART_RX_IRQ_HANDLER(periph_nbr)    SL_IOSTREAM_USART_CONCAT_PASTER(USART, periph_nbr, {{ rx_irq_handler_suffix }})  {# Create IRQ Handler function name#}
 {% endif %}
 #define SL_IOSTREAM_USART_RX_DMA_SIGNAL(periph_nbr)     SL_IOSTREAM_USART_CONCAT_PASTER(dmadrvPeripheralSignal_USART, periph_nbr, _RXDATAV)  {# Create DMA RX Signal name#}
+#define SL_IOSTREAM_USART_TX_DMA_SIGNAL(periph_nbr)     SL_IOSTREAM_USART_CONCAT_PASTER(dmadrvPeripheralSignal_USART, periph_nbr, _TXBL)  {# Create DMA TX Signal name#}
 
 #define SL_IOSTREAM_USART_CLOCK_REF(periph_nbr)         SL_IOSTREAM_USART_CONCAT_PASTER(cmuClock_, USART, periph_nbr)       {# Create clock reference #}
 // EM Events
@@ -41,8 +42,6 @@
 #if defined(_SILICON_LABS_32B_SERIES_2)
 #define SLEEP_EM_EVENT_MASK      ( SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM2  \
                                   | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM2  \
-                                  | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM3 \
-                                  | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM3  \
                                   | SL_POWER_MANAGER_EVENT_TRANSITION_ENTERING_EM0 \
                                   | SL_POWER_MANAGER_EVENT_TRANSITION_LEAVING_EM0)
 #else 
@@ -70,6 +69,12 @@ sl_iostream_t *sl_iostream_{{ instance }}_handle = &sl_iostream_{{ instance }}.s
 sl_iostream_uart_t *sl_iostream_uart_{{ instance }}_handle = &sl_iostream_{{ instance }};
 static sl_iostream_usart_context_t  context_{{ instance }};
 static uint8_t  rx_buffer_{{ instance }}[SL_IOSTREAM_USART_{{ instance | upper }}_RX_BUFFER_SIZE];
+static sli_iostream_uart_periph_t uart_periph_{{ instance }} = {
+  .rx_irq_number = SL_IOSTREAM_USART_RX_IRQ_NUMBER(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO),
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+  .tx_irq_number = SL_IOSTREAM_USART_TX_IRQ_NUMBER(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO),
+#endif
+};
 sl_iostream_instance_info_t sl_iostream_instance_{{ instance }}_info = {
   .handle = &sl_iostream_{{ instance }}.stream,
   .name = "{{ instance }}",
@@ -123,19 +128,31 @@ sl_status_t sl_iostream_usart_init_{{ instance }}(void)
 #endif
   };
 
-  sl_iostream_dma_config_t dma_config_{{ instance }} = {.src = (uint8_t *)&SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL->RXDATA,
-                                                        .peripheral_signal = SL_IOSTREAM_USART_RX_DMA_SIGNAL(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO)};
+  sl_iostream_dma_config_t rx_dma_config_{{ instance }} = {.src = (uint8_t *)&SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL->RXDATA,
+                                                        .xfer_cfg = IOSTREAM_LDMA_TFER_CFG_PERIPH(SL_IOSTREAM_USART_RX_DMA_SIGNAL(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO))};
+
+  sl_iostream_dma_config_t tx_dma_config_{{ instance }} = {.dst = (uint8_t *)&SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL->TXDATA,
+                                                        .xfer_cfg = IOSTREAM_LDMA_TFER_CFG_PERIPH(SL_IOSTREAM_USART_TX_DMA_SIGNAL(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO))};
 
   sl_iostream_uart_config_t uart_config_{{ instance }} = {
-    .dma_cfg = dma_config_{{ instance }},
+    .rx_dma_cfg = rx_dma_config_{{ instance }},
+    .tx_dma_cfg = tx_dma_config_{{ instance }},
     .rx_buffer = rx_buffer_{{ instance }},
     .rx_buffer_length = SL_IOSTREAM_USART_{{ instance | upper}}_RX_BUFFER_SIZE,
-    .tx_irq_number = SL_IOSTREAM_USART_TX_IRQ_NUMBER(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO),
-    .rx_irq_number = SL_IOSTREAM_USART_RX_IRQ_NUMBER(SL_IOSTREAM_USART_{{ instance | upper }}_PERIPHERAL_NO),
     .lf_to_crlf = SL_IOSTREAM_USART_{{ instance | upper }}_CONVERT_BY_DEFAULT_LF_TO_CRLF,
+    .enable_high_frequency = true,
     .rx_when_sleeping = SL_IOSTREAM_USART_{{ instance | upper }}_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION,
+    .uart_periph = &uart_periph_{{ instance }}
   };
   uart_config_{{ instance }}.sw_flow_control = SL_IOSTREAM_USART_{{ instance | upper }}_FLOW_CONTROL_TYPE == uartFlowControlSoftware;
+
+
+#if defined(SL_IOSTREAM_USART_{{ instance | upper }}_ASYNC_TX)
+  uart_config_{{ instance }}.async_tx_enabled = SL_IOSTREAM_USART_{{ instance | upper }}_ASYNC_TX;
+#else
+  uart_config_{{ instance }}.async_tx_enabled = false;
+#endif
+
   // Instantiate usart instance {# Initialize usart instance #}
   status = sl_iostream_usart_init(&sl_iostream_{{ instance }},
                                   &uart_config_{{ instance }},

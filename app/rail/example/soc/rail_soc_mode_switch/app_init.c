@@ -33,7 +33,7 @@
 // -----------------------------------------------------------------------------
 #include <stdint.h>
 #include "sl_component_catalog.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_process.h"
 #include "app_init.h"
@@ -81,21 +81,27 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void rail_app_init(void)
 {
   validation_check();
   set_channel(channelConfigs[0]->configs[0].channelNumberStart);
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   init_mode_switch(rail_handle);
-  set_up_tx_fifo(rail_handle);
   clear_receive_led();
   clear_send_led();
   print_sample_app_name("Mode switch");
+}
 
-  return rail_handle;
+void app_init(void)
+{
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+  rail_app_init();
+#else
+  app_task_init();
+#endif
 }
 
 // -----------------------------------------------------------------------------

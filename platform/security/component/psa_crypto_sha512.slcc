@@ -1,5 +1,5 @@
 id: psa_crypto_sha512
-package: platform
+package: security_mbedtls
 label: SHA-512
 description: >-
   This component provides support for the SHA-512 hash algorithm in PSA Crypto.

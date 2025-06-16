@@ -59,6 +59,8 @@ class BtmeshErrorCode(enum.IntEnum):
     PROXY_NODE_CONN_DOES_NOT_EXIST = enum.auto()
     PROXY_NODE_CONN_ALREADY_EXISTS = enum.auto()
     BT_CONN_DOES_NOT_EXIST = enum.auto()
+    RPR_LINK_OPEN_FAILED = enum.auto()
+
 
 
 class BtmeshException(Exception):

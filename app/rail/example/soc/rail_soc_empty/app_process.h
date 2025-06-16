@@ -33,7 +33,6 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -49,11 +48,9 @@
 /**************************************************************************//**
  * The function is used for Application logic.
  *
- * @param[in] rail_handle RAIL handle
- *
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 #endif  // APP_PROCESS_H

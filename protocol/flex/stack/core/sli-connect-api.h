@@ -41,6 +41,8 @@ mbedtls_svc_key_id_t emApiGetKeyId(void);
 EmberStatus emApiGetCounter(EmberCounterType counterType,
                             uint32_t* count);
 
+EmberStatus emApiSetRadioRxFifo(uint16_t rxFifoSize);
+
 EmberStatus emApiSetRadioChannelExtended(uint16_t channel,
                                          bool persistent);
 

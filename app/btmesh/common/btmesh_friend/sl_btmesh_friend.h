@@ -34,13 +34,7 @@
 #include "sl_btmesh_api.h"
 
 /***************************************************************************//**
- * @defgroup friend Friend Component
- * @brief Friend feature Implementation
- * This component implements Friend feature.
- ******************************************************************************/
-
-/***************************************************************************//**
- * @addtogroup friend
+ * @addtogroup btmesh_friend
  * @{
  ******************************************************************************/
 
@@ -85,6 +79,6 @@ void sl_btmesh_friend_on_friendship_terminated(uint16_t netkey_index,
                                                uint16_t lpn_address,
                                                uint16_t reason);
 
-/** @} (end addtogroup friend) */
+/** @} (end addtogroup btmesh_friend) */
 
 #endif /* SL_BTMESH_FRIEND_H */

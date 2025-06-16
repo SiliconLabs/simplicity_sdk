@@ -1,6 +1,6 @@
 !!omap
 - id: BGM210LA22JIF
-- package: platform
+- package: devices
 - description: Silicon Labs CMSIS-Device part headers for BGM210LA22JIF.
 - category: Platform|Device|BGM21
 - quality: production

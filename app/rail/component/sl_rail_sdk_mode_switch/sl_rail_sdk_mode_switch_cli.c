@@ -161,7 +161,7 @@ void cli_set_channel(sl_cli_command_arg_t *arguments)
   ch_index = get_channel_index(new_channel);
 
   if (ch_index != CHANNEL_DOES_NOT_EXIST) {
-    RAIL_Handle_t rail_handle
+    sl_rail_handle_t rail_handle
       = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
     set_channel(new_channel);
     set_ms_state(MS_IDLE);

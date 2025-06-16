@@ -8,7 +8,6 @@
 
 #include <ZW_typedefs.h>
 
-
 /**
  * @addtogroup ZWaveAPI
  * @{
@@ -19,16 +18,14 @@
 /** The security key a frame was received with or should be sent with.
  *
  * Special values:
-*/
-typedef enum SECURITY_KEY
-{
+ */
+typedef enum SECURITY_KEY{
   SECURITY_KEY_NONE = 0x00,              //!< SECURITY_KEY_NONE
   SECURITY_KEY_S2_UNAUTHENTICATED = 0x01,//!< SECURITY_KEY_S2_UNAUTHENTICATED
   SECURITY_KEY_S2_AUTHENTICATED = 0x02,  //!< SECURITY_KEY_S2_AUTHENTICATED
   SECURITY_KEY_S2_ACCESS = 0x03,         //!< SECURITY_KEY_S2_ACCESS
   SECURITY_KEY_S0 = 0x04,                //!< SECURITY_KEY_S0
 } security_key_t;
-
 
 /**
  * @addtogroup SecKeyBitmask Security Keys Bitmask
@@ -51,32 +48,26 @@ typedef enum SECURITY_KEY
  */
 #define SECURITY_KEY_S2_PUBLIC_DSK_LENGTH     16
 
-
 /**
  * Security S2 Public CSA DSK Key length
  */
 #define SECURITY_KEY_S2_PUBLIC_CSA_DSK_LENGTH 4
 
-typedef struct _S_SECURITY_S2_INCLUSION_CSA_PUBLIC_DSK_
-{
+typedef struct _S_SECURITY_S2_INCLUSION_CSA_PUBLIC_DSK_{
   uint8_t aCSA_DSK[SECURITY_KEY_S2_PUBLIC_CSA_DSK_LENGTH];
 } s_SecurityS2InclusionCSAPublicDSK_t;
 
-
 /**
  * Definitions for Application bound Security events
- * Delivered from protocol to Application through the 
+ * Delivered from protocol to Application through the
  * SReceiveSecurityEvent notification being passed to application.
-  */
-typedef enum _E_APPLICATION_SECURITY_EVENT_
-{
+ */
+typedef enum _E_APPLICATION_SECURITY_EVENT_{
   E_APPLICATION_SECURITY_EVENT_S2_INCLUSION_REQUEST_DSK_CSA
 } e_application_security_event_t;
 
-
 /// Security Event Data
-typedef struct _S_APPLICATION_SECURITY_EVENT_DATA_
-{
+typedef struct _S_APPLICATION_SECURITY_EVENT_DATA_{
   e_application_security_event_t event;
   uint8_t eventDataLength;
   uint8_t *eventData;

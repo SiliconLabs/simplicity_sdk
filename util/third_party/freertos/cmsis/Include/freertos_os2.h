@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------------
- * Copyright (c) 2013-2020 Arm Limited. All rights reserved.
+ * Copyright (c) 2013-2024 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -33,7 +33,7 @@
 #include CMSIS_device_header
 
 /* Configuration and component setup check */
-#if defined(RTE_Compiler_EventRecorder)
+#if defined(RTE_Compiler_EventRecorder) || defined(RTE_CMSIS_View_EventRecorder)
   #if !defined(EVR_FREERTOS_DISABLE)
     #define USE_TRACE_EVENT_RECORDER
     /*
@@ -110,6 +110,12 @@
 #define configUSE_OS2_MUTEX                   configUSE_MUTEXES
 #endif
 
+/*
+  Option to exclude CMSIS-RTOS2 Processor Affinity API functions from the application image.
+*/
+#ifndef configUSE_OS2_CPU_AFFINITY
+#define configUSE_OS2_CPU_AFFINITY            configUSE_CORE_AFFINITY
+#endif
 
 /*
   CMSIS-RTOS2 FreeRTOS configuration check (FreeRTOSConfig.h).
@@ -133,13 +139,13 @@
   */
   #error "Definition INCLUDE_vTaskDelay must equal 1 to implement Generic Wait Functions API."
 #endif
-#if (INCLUDE_vTaskDelayUntil == 0)
+#if (INCLUDE_xTaskDelayUntil == 0)
   /*
-    CMSIS-RTOS2 function osDelayUntil uses FreeRTOS function vTaskDelayUntil. In case if
+    CMSIS-RTOS2 function osDelayUntil uses FreeRTOS function xTaskDelayUntil. In case if
     osDelayUntil is not used in the application image, compiler will optimize it away.
-    Set #define INCLUDE_vTaskDelayUntil 1 to fix this error.
+    Set #define INCLUDE_xTaskDelayUntil 1 to fix this error.
   */
-  #error "Definition INCLUDE_vTaskDelayUntil must equal 1 to implement Generic Wait Functions API."
+  #error "Definition INCLUDE_xTaskDelayUntil must equal 1 to implement Generic Wait Functions API."
 #endif
 #if (INCLUDE_vTaskDelete == 0)
   /*
@@ -266,6 +272,26 @@
     #error "Definition configUSE_MUTEXES must equal 1 to implement Mutex Management API."
   #endif
 #endif
+
+#if (configUSE_CORE_AFFINITY == 0)
+  /*
+    CMSIS-RTOS2 Processor Affinity API functions require FreeRTOS kernel support for
+    Symmetric Multiprocessing (SMP). In case if this functionality is not available
+    and the functions are not used in the application image, compiler will optimize
+    them away.
+    Set #define configUSE_CORE_AFFINITY 1 to fix this error.
+    Note: SMP is only available when #define configNUMBER_OF_CORES > 1
+
+    Alternatively, if the application does not use processor affinity functions they
+    can be excluded from the image code by setting:
+    #define configUSE_OS2_CPU_AFFINITY 0 (in FreeRTOSConfig.h)
+  */
+
+  #if (configUSE_OS2_CPU_AFFINITY == 1)
+    #error "Definitions configNUMBER_OF_CORES and configUSE_CORE_AFFINITY must equal 1 to implement Processor Affinity API."
+  #endif
+#endif
+
 
 #if (configUSE_COUNTING_SEMAPHORES == 0)
   /*

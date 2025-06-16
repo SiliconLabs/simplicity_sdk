@@ -68,13 +68,13 @@
 #define SL_MBEDTLS_ECP_ENABLE_COMPRESSED_CURVE_PARSING 0
 
 // <q SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS> Assume all buffers passed to PSA functions are owned exclusively by the PSA function.
-// <i> Default: 0
-// <i> This option may be enabled if all buffers passed to any PSA function reside
+// <i> Default: 1
+// <i> This option is enabled assuming all buffers passed to any PSA function reside
 // <i> in memory that is accessible only to the PSA function during its execution.
 // <i> This option MUST be disabled whenever buffer arguments are in memory shared
 // <i> with an untrusted party, for example where arguments to PSA calls are passed
 // <i> across a trust boundary.
-#define SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS 0
+#define SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS 1
 
 // </h>
 

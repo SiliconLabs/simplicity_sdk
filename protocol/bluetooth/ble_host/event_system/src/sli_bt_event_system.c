@@ -82,22 +82,26 @@ static void event_free_data_callback(void *data)
 // Implementation of the API declared in `sli_bt_event_system.h`
 
 /**************************************************************************//**
- * Initialize Bluetooth support for Event System IPC.
+ * Perform functional init for Bluetooth support for Event System IPC.
  *****************************************************************************/
-sl_status_t sli_bt_init_event_system(void)
+sl_status_t sli_bt_event_system_permanent_allocations(void)
+{
+  // Allocate the event we'll keep reusing
+  return sl_event_alloc(&preallocated_event);
+}
+
+/**************************************************************************//**
+ * Perform functional init for Bluetooth support for Event System IPC.
+ *****************************************************************************/
+sl_status_t sli_bt_event_system_functional_init(void)
 {
   // No event has been published yet
   published_event_data = NULL;
 
-  // Allocate the event we'll keep reusing
-  sl_status_t status = sl_event_alloc(&preallocated_event);
-
   // Register our event publishers
-  if (status == SL_STATUS_OK) {
-    status = sl_event_publisher_register(&bt_event_publisher,
-                                         SL_EVENT_CLASS_BLUETOOTH,
-                                         event_free_data_callback);
-  }
+  sl_status_t status = sl_event_publisher_register(&bt_event_publisher,
+                                                   SL_EVENT_CLASS_BLUETOOTH,
+                                                   event_free_data_callback);
 
 #if defined(SL_CATALOG_BTMESH_PRESENT)
   if (status == SL_STATUS_OK) {

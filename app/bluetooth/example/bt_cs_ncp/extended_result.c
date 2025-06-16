@@ -28,6 +28,9 @@
  *
  ******************************************************************************/
 
+// -----------------------------------------------------------------------------
+// Includes
+
 #include <stdint.h>
 #include <string.h>
 #include "sl_status.h"
@@ -36,35 +39,55 @@
 #include "sl_bt_api.h"
 #include "app_log.h"
 #include "cs_acp.h"
+#include "cs_result.h"
 #include "cs_initiator_config.h"
 #include "extended_result.h"
 
+// -----------------------------------------------------------------------------
+// Macros
+
 // This is not an exact calculation, but a good enough approximation that can
 // safely store the procedure data coming from the CS initiator component.
-// The factor of 2 stands for initiator + reflector.
-#define EVT_DATA_BUFFER_MAX_SIZE (                                             \
-    sizeof(cs_acp_result_evt_t)                                                \
-    + sizeof(sl_rtl_cs_config)                                                 \
-    + sizeof(sl_rtl_cs_subevent_data) * CS_INITIATOR_MAX_SUBEVENT_PER_PROC * 2 \
-    + CS_INITIATOR_MAX_STEP_DATA_LEN * 2                                       \
+// Including size of the header, step channel array and 2 RAS data arrays.
+#define EVT_DATA_BUFFER_MAX_SIZE (                                  \
+    sizeof(cs_acp_result_evt_t) + sizeof(uint8_t)                   \
+    + sizeof(uint8_t) + CS_MAX_STEP_COUNT                           \
+    + ((sizeof(uint32_t) + CS_INITIATOR_MAX_RANGING_DATA_SIZE) * 2) \
     )
 
 #define EVT_OVERHEAD             (sizeof(cs_acp_event_id_t) + 3)
 #define EVT_MAX_DATA             (UINT8_MAX - EVT_OVERHEAD)
+
+// -----------------------------------------------------------------------------
+// Static variables
 
 static uint8_t evt_data_buffer[EVT_DATA_BUFFER_MAX_SIZE];
 static size_t evt_data_buffer_len = 0;
 static uint8_t *evt_data_ptr;
 static uint8_t connection;
 
-static sl_status_t serialize_extended_result(const cs_result_t *result,
-                                             const sl_rtl_cs_procedure *cs_procedure,
+// -----------------------------------------------------------------------------
+// Static function declarations
+
+static sl_status_t serialize_extended_result(const uint16_t ranging_counter,
+                                             const uint8_t*result,
+                                             uint8_t result_size,
+                                             const cs_ranging_data_t *ranging_data,
                                              size_t max_data_size,
                                              size_t *data_len,
                                              uint8_t *data);
 
-void cs_on_extended_result(const cs_result_t *result,
-                           const sl_rtl_cs_procedure *cs_procedure,
+// -----------------------------------------------------------------------------
+// Public function definitions
+
+/******************************************************************************
+ * Add extended result data to the ACP event buffer.
+ *****************************************************************************/
+void cs_on_extended_result(const uint8_t conn_handle,
+                           const uint16_t ranging_counter,
+                           const uint8_t *result,
+                           const cs_result_session_data_t *result_metadata,
+                           const cs_ranging_data_t *ranging_data,
                            const void *user_data)
 {
   sl_status_t sc;
@@ -77,8 +100,10 @@ void cs_on_extended_result(const cs_result_t *result,
     return;
   }
 
-  sc = serialize_extended_result(result,
-                                 cs_procedure,
+  sc = serialize_extended_result(ranging_counter,
+                                 result,
+                                 result_metadata->size,
+                                 ranging_data,
                                  sizeof(evt_data_buffer),
                                  &data_len,
                                  evt_data_buffer);
@@ -87,13 +112,16 @@ void cs_on_extended_result(const cs_result_t *result,
     return;
   }
 
-  connection = result->connection;
+  connection = conn_handle;
   evt_data_buffer_len = data_len;
   evt_data_ptr = evt_data_buffer;
   // Keep the MCU awake until all fragments are sent.
   sl_power_manager_add_em_requirement(SL_POWER_MANAGER_EM1);
 }
 
+/******************************************************************************
+ * Extended result event serializer task.
+ *****************************************************************************/
 void extended_result_step(void)
 {
   if (evt_data_buffer_len == 0) {
@@ -123,56 +151,76 @@ void extended_result_step(void)
   }
 }
 
-static sl_status_t serialize_extended_result(const cs_result_t *result,
-                                             const sl_rtl_cs_procedure *cs_procedure,
+// -----------------------------------------------------------------------------
+// Internal function definitions
+
+/******************************************************************************
+ * Serialize extended result data.
+ *****************************************************************************/
+static sl_status_t serialize_extended_result(const uint16_t ranging_counter,
+                                             const uint8_t *result,
+                                             uint8_t result_size,
+                                             const cs_ranging_data_t *ranging_data,
                                              size_t max_data_size,
                                              size_t *data_len,
                                              uint8_t *data)
 {
-  // Size of the subevent data structure without the step data
-  const size_t subevent_data_size = sizeof(sl_rtl_cs_subevent_data) - sizeof(uint8_t*);
-  // Calculate serialized size of the CS result
-  *data_len = sizeof(cs_acp_result_evt_t);
-  // Calculate serialized size of the CS procedure
-  *data_len += sizeof(cs_procedure->cs_config);
-  *data_len += sizeof(cs_procedure->initiator_subevent_data_count);
-  for (uint8_t i = 0; i < cs_procedure->initiator_subevent_data_count; i++) {
-    *data_len += subevent_data_size;
-    *data_len += cs_procedure->initiator_subevent_data[i].step_data_count;
-  }
-  *data_len += sizeof(cs_procedure->reflector_subevent_data_count);
-  for (uint8_t i = 0; i < cs_procedure->reflector_subevent_data_count; i++) {
-    *data_len += subevent_data_size;
-    *data_len += cs_procedure->reflector_subevent_data[i].step_data_count;
-  }
-  if (*data_len > max_data_size) {
+  (void)ranging_counter;
+  size_t data_len_calculated
+    = sizeof(result_size)
+      + result_size
+      + sizeof(ranging_data->num_steps)
+      + ranging_data->num_steps
+      + sizeof(ranging_data->initiator.ranging_data_size)
+      + ranging_data->initiator.ranging_data_size
+      + sizeof(ranging_data->initiator.ranging_data_size)
+      + ranging_data->reflector.ranging_data_size;
+
+  if (data_len_calculated > max_data_size) {
     return SL_STATUS_WOULD_OVERFLOW;
   }
+
+  // Serialize result size
+  memcpy(data, &result_size, sizeof(result_size));
+  data += sizeof(result_size);
+
   // Serialize result
-  cs_acp_result_evt_t *result_evt = (cs_acp_result_evt_t *)data;
-  result_evt->distance = result->distance;
-  result_evt->rssi_distance = result->rssi_distance;
-  result_evt->likeliness = result->likeliness;
-  result_evt->bit_error_rate = result->bit_error_rate;
-  data += sizeof(cs_acp_result_evt_t);
-  // Serialize procedure data
-  memcpy(data, &cs_procedure->cs_config, sizeof(cs_procedure->cs_config));
-  data += sizeof(cs_procedure->cs_config);
-  memcpy(data, &cs_procedure->initiator_subevent_data_count, sizeof(cs_procedure->initiator_subevent_data_count));
-  data += sizeof(cs_procedure->initiator_subevent_data_count);
-  for (uint8_t i = 0; i < cs_procedure->initiator_subevent_data_count; i++) {
-    memcpy(data, &cs_procedure->initiator_subevent_data[i], subevent_data_size);
-    data += subevent_data_size;
-    memcpy(data, cs_procedure->initiator_subevent_data[i].step_data, cs_procedure->initiator_subevent_data[i].step_data_count);
-    data += cs_procedure->initiator_subevent_data[i].step_data_count;
-  }
-  memcpy(data, &cs_procedure->reflector_subevent_data_count, sizeof(cs_procedure->reflector_subevent_data_count));
-  data += sizeof(cs_procedure->reflector_subevent_data_count);
-  for (uint8_t i = 0; i < cs_procedure->reflector_subevent_data_count; i++) {
-    memcpy(data, &cs_procedure->reflector_subevent_data[i], subevent_data_size);
-    data += subevent_data_size;
-    memcpy(data, cs_procedure->reflector_subevent_data[i].step_data, cs_procedure->reflector_subevent_data[i].step_data_count);
-    data += cs_procedure->reflector_subevent_data[i].step_data_count;
-  }
+  memcpy(data, result, result_size);
+  data += result_size;
+
+  // Serialize num_steps
+  memcpy(data, &ranging_data->num_steps, sizeof(ranging_data->num_steps));
+  data += sizeof(ranging_data->num_steps);
+
+  // Serialize step channel data (1 octet per step_channel)
+  memcpy(data, ranging_data->step_channels, ranging_data->num_steps);
+  data += ranging_data->num_steps;
+
+  // Serialize ranging data size for initiator
+  memcpy(data,
+         &ranging_data->initiator.ranging_data_size,
+         sizeof(ranging_data->initiator.ranging_data_size));
+  data += sizeof(ranging_data->initiator.ranging_data_size);
+
+  // Serialize ranging data for initiator
+  memcpy(data,
+         ranging_data->initiator.ranging_data,
+         ranging_data->initiator.ranging_data_size);
+  data += ranging_data->initiator.ranging_data_size;
+
+  // Serialize ranging data size for reflector
+  memcpy(data,
+         &ranging_data->reflector.ranging_data_size,
+         sizeof(ranging_data->reflector.ranging_data_size));
+  data += sizeof(ranging_data->reflector.ranging_data_size);
+
+  // Serialize ranging data for reflector
+  memcpy(data,
+         ranging_data->reflector.ranging_data,
+         ranging_data->reflector.ranging_data_size);
+  data += ranging_data->reflector.ranging_data_size;
+
+  *data_len = data_len_calculated;
+
   return SL_STATUS_OK;
 }

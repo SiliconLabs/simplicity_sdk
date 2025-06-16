@@ -59,6 +59,7 @@ from ap_constants import (
     ADDRESS_TYPE_PUBLIC_ADDRESS,
     ADDRESS_TYPE_STATIC_ADDRESS,
     VALID_ESL_ID_NUMBER_REGEX,
+    VALID_GROUP_ID_NUMBER_REGEX,
     VALID_BD_ADDRESS_REGEX,
 )
 from PIL import Image
@@ -102,9 +103,15 @@ def address_type(arg_value):
 def esl_id_type(arg_value):
     pat = re.compile(r"(" + VALID_ESL_ID_NUMBER_REGEX + "|all)")
     if not pat.match(arg_value):
-        raise argparse.ArgumentTypeError("Invalid ESL ID type.")
+        raise argparse.ArgumentTypeError("Invalid ESL ID value. Please select from the allowed range of 0 to 254, or you may use 'all' as a substitute for 255 in some contexts.")
     return arg_value
 
+def esl_group_id_type(arg_value):
+    re_str = VALID_GROUP_ID_NUMBER_REGEX if not IOP_TEST else VALID_ESL_ID_NUMBER_REGEX # IOP_TEST mode allows full <u8> range for RFU bit tests 
+    pat = re.compile(r"(" + re_str + ")")
+    if not pat.match(arg_value):
+        raise argparse.ArgumentTypeError("Invalid ESL Group ID. Please select from the allowed range of 0 to 127!")
+    return arg_value
 
 def time_type(arg_value):
     try:
@@ -966,7 +973,7 @@ class CliProcessor(cmd.Cmd):
             "--group_id",
             "-g",
             metavar="<u7>",
-            type=int,
+            type=esl_group_id_type,
             help="ESL group ID (optional, default is group 0)",
         )
         parser_config.add_argument(
@@ -1012,7 +1019,7 @@ class CliProcessor(cmd.Cmd):
             if arg.esl_id is not None:
                 params["esl_addr"] = int(arg.esl_id)
             if arg.group_id is not None:
-                params["group_id"] = arg.group_id
+                params["group_id"] = int(arg.group_id)
             if arg.sync_key:
                 params["sync_key"] = True
             if arg.response_key:
@@ -1778,7 +1785,7 @@ class CliProcessor(cmd.Cmd):
         elif (response_slot_spacing < PA_RESPONSE_SLOT_SPACING_MIN) or (
             response_slot_spacing > PA_RESPONSE_SLOT_SPACING_MAX
         ):
-            self.log.error("The response slot spacing is out of bounds!")
+            self.log.error("The response slot spacing is out of reasonable bounds!")
         elif (response_slot_count < PA_RESPONSE_SLOT_NUMBERS_MIN) or (
             response_slot_count > PA_RESPONSE_SLOT_NUMBERS_MAX
         ):

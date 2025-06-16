@@ -54,9 +54,9 @@
 
 /**
  * @brief callback function pointer type for mfglibStart
- * @param packet pointer to packet data
- * @param linkQuality the calculated link quality measure
- * @param rssi the measured signal strength
+ * @param[out] packet pointer to packet data
+ * @param[out] linkQuality the calculated link quality measure
+ * @param[out] rssi the measured signal strength
  */
 typedef void (*MfglibRxCallback)(uint8_t *packet, uint8_t linkQuality, int8_t rssi);
 
@@ -70,12 +70,12 @@ typedef void (*MfglibRxCallback)(uint8_t *packet, uint8_t linkQuality, int8_t rs
  * All other functions will return an error until
  * mfglibStart() has been called.
  *
- * @appusage Use this function to enter test mode.
+ * @details Use this function to enter test mode.
  *
  * Note: This function should only be called shortly after
  *   initialization and prior to forming or joining a network.
  *
- * @param mfglibRxCallback A function pointer to callback routine that is
+ * @param[in] mfglibRxCallback A function pointer to callback routine that is
  * invoked whenever a valid packet is received. sl_zigbee_tick() must be called
  * routinely for this callback to function correctly.
  *
@@ -90,7 +90,7 @@ sl_status_t mfglibStart(MfglibRxCallback mfglibRxCallback);
  * This restores the hardware to the state it was in prior to mfglibStart() and
  * stops receiving packets started by mfglibStart() at the same time.
  *
- * @appusage Use this function to exit the mfg test mode.
+ * @details Use this function to exit the mfg test mode.
  *
  * Note: It may be desirable to also reboot after use of manufacturing
  *   mode to ensure all application state is properly re-initialized.
@@ -109,7 +109,7 @@ sl_status_t mfglibEnd(void);
  * allowing it the flexibility to determine its own criteria for tone
  * duration, such as time, event, and so on.
  *
- * @appusage Use this function to transmit a tone.
+ * @details Use this function to transmit a tone.
  *
  * @return One of the following:
  * - ::SL_STATUS_OK          if the transmit tone has started.
@@ -118,7 +118,7 @@ sl_status_t mfglibStartTone(void);
 
 /** @brief Stop transmitting a tone started by mfglibStartTone().
  *
- * @appusage Use this function to stop transmitting a tone.
+ * @details Use this function to stop transmitting a tone.
  *
  * @return One of the following:
  * - ::SL_STATUS_OK          if the transmit tone has stopped.
@@ -128,7 +128,7 @@ sl_status_t mfglibStopTone(void);
 /** @brief Start transmitting a random stream of characters to enable
  * the measurement of radio modulation.
  *
- * @appusage Enable the measurement of radio
+ * @details Enable the measurement of radio
  * modulation.
  *
  * @return One of the following:
@@ -139,7 +139,7 @@ sl_status_t mfglibStartStream(void);
 /** @brief Stop transmitting a random stream of characters started by
  * mfglibStartStream().
  *
- * @appusage Use this function to end the measurement of radio
+ * @details Use this function to end the measurement of radio
  * modulation.
  *
  * @return One of the following:
@@ -149,14 +149,14 @@ sl_status_t mfglibStopStream(void);
 
 /** @brief Send a single packet, (repeat + 1) times.
  *
- * @appusage Use this function to send raw data. Historically, the
+ * @details Use this function to send raw data. Historically, the
  * <em>packet</em> array needed to be 16-bit aligned, but recent
  * platforms now require 32-bit alignment (address a multiple of 4), such that
  * <em>((((uint16_t)packet) & 3) == 0)</em> holds true. (This is generally done
  * by either declaring <em>packet</em> as a local variable or putting it in a
  * global declaration immediately following the declaration of an uint32_t.)
  *
- * @param packet A packet to be sent.
+ * @param[in] packet A packet to be sent.
  * First byte of the packet is always the length byte, the value of which does
  * not include itself but does include the 16-bit CRC in the length calculation.
  * The CRC gets appended automatically by the radio as it transmits the packet,
@@ -166,7 +166,7 @@ sl_status_t mfglibStopStream(void);
  * Note that the packet array should not include the CRC, as this is appended
  * by the radio automatically.
  *
- * @param repeat The number of times to repeat sending the packet
+ * @param[in] repeat The number of times to repeat sending the packet
  * after having been sent once. A value of 0 means send once and don't repeat.
  *
  * @return One of the following:
@@ -184,9 +184,9 @@ sl_status_t mfglibSendPacket(uint8_t * packet,
  * Customers can set any valid channel they want.
  * Calibration occurs if this is the first time after power up.
  *
- * @appusage Use this function to change channels.
+ * @details Use this function to change channels.
  *
- * @param chan Valid values depend upon the radio used.
+ * @param[in] chan Valid values depend upon the radio used.
  *
  * @return One of the following:
  * - ::SL_STATUS_OK               if the channel has been set.
@@ -197,7 +197,7 @@ sl_status_t mfglibSetChannel(uint8_t chan);
 /** @brief Return the current radio channel, as previously
  * set via mfglibSetChannel().
  *
- * @appusage Use this function to get current channel.
+ * @details Use this function to get current channel.
  *
  * @return Current channel. */
 uint8_t mfglibGetChannel(void);
@@ -205,16 +205,16 @@ uint8_t mfglibGetChannel(void);
 /** @brief First select the transmit power mode, then
  * include a method for selecting the radio transmit power.
  *
- * Valid power settings depend upon the specific radio in use. Ember
+ * Valid power settings depend upon the specific radio in use. Silicon Labs
  * radios have discrete power settings, and then requested power is
  * rounded to a valid power setting. The actual power output is
  * available to the caller via mfglibGetPower().
  *
- * @appusage Use this function to adjust the transmit power.
+ * @details Use this function to adjust the transmit power.
  *
- * @param txPowerMode Boost mode or external PA.
+ * @param[in] txPowerMode Boost mode or external PA.
  *
- * @param power Power in units of dBm, which can be negative.
+ * @param[in] power Power in units of dBm, which can be negative.
  *
  * @return One of the following:
  * - ::SL_STATUS_OK               if the power has been set.
@@ -225,16 +225,16 @@ sl_status_t mfglibSetPower(uint16_t txPowerMode, int8_t power);
 /** @brief Return the current radio power setting as
  * previously set via mfglibSetPower().
  *
- * @appusage Use this function to get current power setting.
+ * @details Use this function to get current power setting.
  *
  * @return The current power setting. */
 int8_t mfglibGetPower(void);
 
 /** @brief Set manufacturing library options.
  *
- * @appusage Use this function to set manufacturing library options.
+ * @details Use this function to set manufacturing library options.
  *
- * @param options bitmask.  0 == non-CSMA transmits, 1 == CSMA transmits
+ * @param[in] options bitmask.  0 == non-CSMA transmits, 1 == CSMA transmits
  *
  * @return One of the following:
  * - ::SL_STATUS_OK                 if the options have been set.
@@ -245,7 +245,7 @@ sl_status_t mfglibSetOptions(uint8_t options);
 /** @brief Return the current manufacturing library options, as previously
  * set via mfglibSetOptions().
  *
- * @appusage Use this function to get library options.
+ * @details Use this function to get library options.
  *
  * @return Current options based on the current test mode. */
 uint8_t mfglibGetOptions(void);
@@ -260,12 +260,12 @@ uint8_t mfglibGetOptions(void);
  * permanent (and accessible to the bootloader), the TOKEN_MFG_SYNTH_FREQ_OFFSET
  * token must be written using the token API or Simplicity Commander.
  *
- * @appusage Use this function to compensate for tolerances in the crystal
+ * @details Use this function to compensate for tolerances in the crystal
  * oscillator or capacitors. This function does not effect a permanent change;
  * once a preferred offset is found, it must be written to a token using
  * the token API for it to be permanent.
  *
- * @param synOffset The number of steps to offset the carrier frequency
+ * @param[in] synOffset The number of steps to offset the carrier frequency
  * (may be negative).
  */
 void mfglibSetSynOffset(int8_t synOffset);
@@ -284,9 +284,9 @@ int8_t mfglibGetSynOffset(void);
  * then set the CTUNE value as desired. mfglib is then restarted
  * to take effect of this new change.
  *
- * @appusage Use this function to change CTUNE value.
+ * @details Use this function to change CTUNE value.
  *
- * @param ctune Valid range of a CTUNE values is between 0x0000 - 0x00FF.
+ * @param[in] ctune Valid range of a CTUNE values is between 0x0000 - 0x00FF.
  *
  * @return One of the following:
  * - ::SL_STATUS_OK                     if CTUNE value has been set.
@@ -298,7 +298,7 @@ sl_status_t mfglibSetCtune(uint16_t ctune);
 /** @brief Return the current CTUNE value, as previously
  * set via mfglibSetCtune().
  *
- * @appusage Use this function to get current CTUNE value.
+ * @details Use this function to get current CTUNE value.
  *
  * @return Current CTUNE value. If value is 0xFFFF, CTUNE is not available due to missing mfglib support.*/
 uint16_t mfglibGetCtune(void);

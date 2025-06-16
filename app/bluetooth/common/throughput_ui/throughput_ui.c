@@ -3,7 +3,7 @@
  * @brief User Interface core logic for throughput test UI.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -53,7 +53,7 @@
 #define ROW_OFFSET                  2
 #define ROW_SPACING                 9
 #define FONT_TYPE                   ((GLIB_Font_t *)&GLIB_FontNormal8x8)
-#define BUFFER_SIZE                 17
+#define BUFFER_SIZE                 (THROUGHPUT_UI_COLS + 1)
 
 /*******************************************************************************
  ***************************  LOCAL VARIABLES   ********************************
@@ -99,7 +99,7 @@ static void write_row(char * str, uint8_t row)
  ******************************************************************************/
 
 /**************************************************************************//**
- * Initilize the the UI.
+ * Initialize the the UI.
  *****************************************************************************/
 void throughput_ui_init(void)
 {
@@ -212,8 +212,13 @@ void throughput_ui_set_rssi(throughput_rssi_t rssi)
  *****************************************************************************/
 void throughput_ui_set_connection_interval(throughput_time_t interval)
 {
+  if (interval >= 8000) {
+    // Prevent the truncation of the output
+    app_log_error("Connection interval is out of range: %lu" APP_LOG_NL, interval);
+    return;
+  }
   char buffer[BUFFER_SIZE];
-  snprintf(buffer, BUFFER_SIZE, THROUGHPUT_UI_INTERVAL_FORMAT, (int)((float) interval * 1.25f) );
+  snprintf(buffer, BUFFER_SIZE, THROUGHPUT_UI_INTERVAL_FORMAT, (uint16_t)((float) interval * 1.25f) );
   clear_row(ROW_INTERVAL);
   write_row(buffer, ROW_INTERVAL);
   LOG(buffer);

@@ -55,9 +55,9 @@
 // <i> Default value 1234 (UDPv6 size without fragmentation)
 #define SL_IPERF_BUFFER_SIZE                       1232U ///< Server receiver buffer size
 
-// <o SL_IPERF_LOG_JSON_INDENT> Set json formated log indent in space count
+// <o SL_IPERF_LOG_JSON_INDENT> Set json formatted log indent in space count
 // <i> Default value: 2
-#define SL_IPERF_LOG_JSON_INDENT                   2U ///< Set json formated log indent in space count
+#define SL_IPERF_LOG_JSON_INDENT                   2U ///< Set json formatted log indent in space count
 
 // <q SL_IPERF_VERBOSE_MODE> Enable verbose prints
 // <i> Default value: 0
@@ -79,7 +79,7 @@
 // </h>
 
 // <h>iPerf Client configuration
-// <o SL_IPERF_SERVER_DEFAULT_PORT> Default sending time in millisec
+// <o SL_IPERF_CLIENT_DEFAULT_SEND_TIME_MS> Default sending time in millisec
 // <i> Default value: 10000
 #define SL_IPERF_CLIENT_DEFAULT_SEND_TIME_MS       10000U ///< Default sending time in millisec
 

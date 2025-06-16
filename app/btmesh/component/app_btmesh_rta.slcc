@@ -1,6 +1,6 @@
 id: "app_btmesh_rta"
 label: "Btmesh Runtime Adaptor (RTA)"
-package: "Btmesh"
+package: bluetooth_mesh_middleware
 description: >
   Bluetooth Mesh Application Runtime Adaptor (RTA) provides a central resource
   guarding service for Bluetooth Mesh SDK App components. Component guard

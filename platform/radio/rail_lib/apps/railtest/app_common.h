@@ -466,7 +466,14 @@ extern uint32_t continuousTransferPeriod;
 extern bool enableRandomTxDelay;
 extern int32_t txCount;
 extern int32_t txRepeatCount;
-#define RAIL_Idle txRepeatCount = 0, RAIL_Idle // Ensure explicit idles clear txRepeatCount
+// Remap railtest usage of RAIL_Idle() to clear txRepeatCount
+static inline RAIL_Status_t railtest_idle(RAIL_Handle_t railHandle, RAIL_IdleMode_t mode, bool wait)
+{
+  txRepeatCount = 0;
+  return RAIL_Idle(railHandle, mode, wait);
+}
+#undef  RAIL_Idle
+#define RAIL_Idle railtest_idle
 extern int32_t txRemainingCount;
 extern uint32_t txAfterRxDelay;
 extern int32_t txCancelDelay;

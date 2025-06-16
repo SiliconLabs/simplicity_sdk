@@ -1,5 +1,5 @@
 id: mbedtls_platform_dynamic_memory_allocation_config_default
-package: platform
+package: security_mbedtls
 label: Default dynamic memory allocation macros for mbedtls
 
 description: >-

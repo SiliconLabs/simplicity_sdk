@@ -91,7 +91,9 @@ constexpr uint8_t kMaxRouteCost = 16; ///< Maximum path cost
 #endif
 
 constexpr uint8_t kMeshLocalPrefixContextId = 0; ///< Reserved 6lowpan context ID for Mesh Local Prefix
-constexpr uint8_t kLinkAcceptTimeout        = 3; ///< Timeout in seconds to rx Link Accept after Link Request tx.
+
+constexpr uint8_t kLinkRequestAttempts = 3; ///< Number of Link Request attempts when re-establishing link.
+constexpr uint8_t kLinkAcceptTimeout   = 3; ///< Timeout in seconds to rx Link Accept after Link Request tx.
 
 /**
  * Specifies parent reselect timeout duration in seconds used on FTD child devices.
@@ -157,7 +159,9 @@ constexpr uint16_t kAloc16Leader                      = 0xfc00;
 constexpr uint16_t kAloc16DhcpAgentStart              = 0xfc01;
 constexpr uint16_t kAloc16DhcpAgentEnd                = 0xfc0f;
 constexpr uint16_t kAloc16ServiceStart                = 0xfc10;
-constexpr uint16_t kAloc16ServiceEnd                  = 0xfc2f;
+constexpr uint16_t kAloc16ServiceEnd                  = 0xfc1f;
+constexpr uint16_t kAloc16ReservedStart               = 0xfc20;
+constexpr uint16_t kAloc16ReservedEnd                 = 0xfc2f;
 constexpr uint16_t kAloc16CommissionerStart           = 0xfc30;
 constexpr uint16_t kAloc16CommissionerEnd             = 0xfc37;
 constexpr uint16_t kAloc16BackboneRouterPrimary       = 0xfc38;

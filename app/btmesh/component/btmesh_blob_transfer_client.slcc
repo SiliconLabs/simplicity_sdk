@@ -1,6 +1,6 @@
 id: btmesh_blob_transfer_client
 label: BLOB Transfer Client
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides BT Mesh BLOB (binary large object) Transfer Client functionality,
   defined in mesh specification.
@@ -50,3 +50,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-transfer-client

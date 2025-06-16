@@ -40,7 +40,7 @@ Just like in the Bluetooth Low Energy SDK, a Mesh application is event-driven. T
 
 ## Implementing Application Logic
 
-Additional application logic can be implemented in the `app_init()` and `app_process_action()` functions or by creating tasks in `app_init_runtime()`. Find the definitions of these functions in *main.c*. The `app_init()` and  `app_init_runtime()` functions are called once when the device is booted and the `app_process_action()` is called repeatedly in a `while(1)` loop from the application task. This waits for a semaphore using `app_is_process_required()` that can be triggered by calling `app_proceed()`, which can be used for example to process peripherals. Note that when creating a new task, its stack size must be set according to its resource needs.
+Additional application logic can be implemented in the 'app_init_early()' and 'app_process_action()' functions or by creating tasks in `app_init()`. Find the definitions of these functions in *main.c*. The 'app_init_early()' and  `app_init()` functions are called once when the device is booted and the 'app_process_action()' is called repeatedly in a `while(1)` loop from the application task. This waits for a semaphore using `app_is_process_required()` that can be triggered by calling `app_proceed()`, which can be used for example to process peripherals. Note that when creating a new task, its stack size must be set according to its resource needs.
 
 ## Features Already Added to Bluetooth Mesh - SoC Empty Application
 

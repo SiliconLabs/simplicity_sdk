@@ -34,6 +34,7 @@
  * @addtogroup esl_tag_wstk_lcd_driver
  * @{
  **************************************************************************************************/
+#include <stdbool.h>
 #include "esl_tag_core.h"
 
 /**************************************************************************//**
@@ -48,14 +49,14 @@
 sl_status_t esl_wstk_lcd_init(int param_count, ...);
 
 /**************************************************************************//**
- * ESL Tag display driver write function.
+ * ESL Tag display driver async write function.
  * @param[in] param_count Number of parameters following (mandatory, equals to
  *                        'ESL_DISPLAY_WRITE_FUNC_PARAMETERS_COUNT' defined by
  *                        esl_tag_display component.
  * @param[in] display_index uint8_t type of the display index
  * @param[in] image_index uint8_t type of the image index
  *****************************************************************************/
-sl_status_t esl_wstk_lcd_write(int param_count, ...);
+sl_status_t esl_wstk_lcd_write_async(int param_count, ...);
 
 /**************************************************************************//**
  * ESL WSTK LCD driver's bluetooth stack event handler.
@@ -81,6 +82,18 @@ bool esl_wstk_lcd_is_logo(void);
  * @note: Called by esl wstk display driver, used by esl demo
  *****************************************************************************/
 sl_status_t esl_tag_wstk_lcd_run_qrcode(void);
+
+/******************************************************************************
+ * ESL Tag WSTK LCD driver's step function for asynchronous display writes.
+ * @note: Called and used internally, please do not invoke this directly
+ *****************************************************************************/
+void esl_wstk_lcd_write_step(void);
+
+/******************************************************************************
+ * ESL Tag WSTK LCD driver's power manager sleep contributor function.
+ * @note: Called and used internally, please do not invoke this directly
+ *****************************************************************************/
+bool esl_wstk_lcd_is_ok_to_sleep(void);
 
 /** @} (end addtogroup esl_tag_wstk_lcd_driver) */
 #endif // ESL_TAG_WSTK_LCD_DRIVER_H

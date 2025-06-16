@@ -1,7 +1,7 @@
 !!omap
 - id: fg25_rb4270a
 - label: FG25-RB4270A
-- package: platform
+- package: boards
 - description: Kit BSP support for the EFR32FG25 902-928 MHz +14 dBm Radio Board.
 - category: Platform|Board|Kit|Radio Board
 - quality: production

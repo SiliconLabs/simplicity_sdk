@@ -1,6 +1,6 @@
 id: btmesh_blob_storage
 label: BLOB Storage
-package: Btmesh
+package: bluetooth_mesh_middleware
 description: >
   Provides an API for storing binary large objects (BLOB) via the bootloader.
   The number and size of the bootloader slots determines the number and maximum
@@ -57,3 +57,6 @@ template_contribution:
 
 validation_helper:
   - path: "../../script/validation/soc_ncp_compatibility.lua"
+documentation:
+  docset: btmesh
+  document: btmesh-service-api/btmesh-blob-storage

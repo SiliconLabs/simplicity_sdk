@@ -225,14 +225,14 @@ sl_status_t sl_zigbee_af_xncp_incoming_custom_frame_cb(uint8_t messageLength,
   switch (commandId) {
     case SL_ZIGBEE_CUSTOM_EZSP_COMMAND_INIT_APP_GP_TX_QUEUE: {
       sl_zigbee_gp_clear_tx_queue();
-      RAIL_Handle_t h =  sl_zigbee_af_multirail_demo_init(NULL,
-                                                          NULL,
-                                                          true,
-                                                          RAIL_GetTxPowerDbm(sl_zigbee_get_rail_handle()),
-                                                          NULL,
-                                                          0,
-                                                          0xFFFF,
-                                                          NULL);
+      sl_rail_handle_t h =  sl_zigbee_af_multirail_demo_init(NULL,
+                                                             NULL,
+                                                             true,
+                                                             sl_rail_get_tx_power_dbm(sl_zigbee_get_rail_handle()),
+                                                             NULL,
+                                                             0,
+                                                             0xFFFF,
+                                                             NULL);
       return ((h == NULL) ? SL_STATUS_FAIL : SL_STATUS_OK);
     }
     break;
@@ -352,21 +352,21 @@ sl_status_t sl_zigbee_af_xncp_incoming_custom_frame_cb(uint8_t messageLength,
       uint8_t delayInMsec = messagePayload[index++];
       uint8_t* buff = &messagePayload[index];
       uint8_t size = messageLength - index;
-      RAIL_ScheduleTxConfig_t scheduledTxConfig = {
-        .mode = RAIL_TIME_DELAY,
+      sl_rail_scheduled_tx_config_t scheduledTxConfig = {
+        .mode = SL_RAIL_TIME_DELAY,
         .when = (delayInMsec * 1000)
       };
-      RAIL_SchedulerInfo_t schedulerInfo = {
+      sl_rail_scheduler_info_t schedulerInfo = {
         .priority = 50,
-        .slipTime = 2000,
-        .transactionTime = 5000
+        .slip_time = 2000,
+        .transaction_time = 5000
       };
-      RAIL_Status_t s = sl_zigbee_af_multirail_demo_send(buff,
-                                                         size,
-                                                         ((channel == 0) ? sli_mac_lower_mac_get_radio_channel(0) : channel),
-                                                         ((delayInMsec == 0) ? NULL : &scheduledTxConfig),
-                                                         &schedulerInfo);
-      return ((s == RAIL_STATUS_NO_ERROR) ? SL_STATUS_OK : SL_STATUS_INVALID_STATE);
+      sl_rail_status_t s = sl_zigbee_af_multirail_demo_send(buff,
+                                                            size,
+                                                            ((channel == 0) ? sli_mac_lower_mac_get_radio_channel(0) : channel),
+                                                            ((delayInMsec == 0) ? NULL : &scheduledTxConfig),
+                                                            &schedulerInfo);
+      return ((s == SL_RAIL_STATUS_NO_ERROR) ? SL_STATUS_OK : SL_STATUS_INVALID_STATE);
     }
     break;
     default:
@@ -376,13 +376,16 @@ sl_status_t sl_zigbee_af_xncp_incoming_custom_frame_cb(uint8_t messageLength,
   return SL_STATUS_INVALID_STATE;
 }
 
-sl_zigbee_packet_action_t sli_zigbee_af_packet_handoff_incoming_callback(sl_zigbee_zigbee_packet_type_t packetType,
-                                                                         sli_buffer_manager_buffer_t packetBuffer,
-                                                                         uint8_t index,
-                                                                         void *data)
+sl_zigbee_packet_action_t sli_zigbee_dispatch_packet_handoff_incoming_callback(sl_zigbee_zigbee_packet_type_t packetType,
+                                                                               sli_buffer_manager_buffer_t packetBuffer,
+                                                                               uint8_t index,
+                                                                               void *data,
+                                                                               uint8_t data_len)
 {
   uint8_t size_p = sl_legacy_buffer_manager_message_buffer_length(packetBuffer) - index;
   uint8_t packetData[128];
+  UNUSED_VAR(data);
+  UNUSED_VAR(data_len);
   // Flat packet : [<-----MAC Frame----->|<--8 bytes Appended Info-->]
   sl_legacy_buffer_manager_copy_from_linked_buffers(packetBuffer,
                                                     index,
@@ -399,10 +402,10 @@ sl_zigbee_packet_action_t sli_zigbee_af_packet_handoff_incoming_callback(sl_zigb
  * @param[in] handle A handle for a RAIL instance.
  * @param[in] events A bit mask of RAIL events (full list in rail_types.h)
  */
-void sl_zigbee_af_multirail_demo_rail_event_cb(RAIL_Handle_t handle,
-                                               RAIL_Events_t events)
+void sl_zigbee_af_multirail_demo_rail_event_cb(sl_rail_handle_t handle,
+                                               sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
     sl_zigbee_af_event_set_delay_ms(&gp_transmit_complete_event, 0);
   }
   (void)handle; // unreferenced parameter
@@ -483,7 +486,7 @@ static sl_zigbee_gp_tx_queue_entry_t* get_gp_stub_tx_queue(sl_zigbee_gp_address_
   return NULL;
 }
 
-#define macToAppDelay(macTimeStamp) ((RAIL_GetTime() & 0x00FFFFFF) - (macTimeStamp))
+#define macToAppDelay(macTimeStamp) ((sl_rail_get_time(SL_RAIL_EFR32_HANDLE) & 0x00FFFFFF) - (macTimeStamp))
 
 static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
                                       int8u* packetData,
@@ -519,23 +522,23 @@ static void appGpScheduleOutgoingGpdf(sl_zigbee_zigbee_packet_type_t packetType,
       sl_zigbee_gp_tx_queue_entry_t* entry = get_gp_stub_tx_queue(&gpdAddr, &outPktLength, (uint8_t*)&outPkt);
       if (entry) {
         // Schedule sending the response.
-        RAIL_SchedulerInfo_t schedulerInfo = {
+        sl_rail_scheduler_info_t schedulerInfo = {
           .priority = 50,
-          .slipTime = 2000,
-          .transactionTime = 5000
+          .slip_time = 2000,
+          .transaction_time = 5000
         };
-        RAIL_ScheduleTxConfig_t scheduledTxConfig = {
-          .mode = RAIL_TIME_DELAY,
+        sl_rail_scheduled_tx_config_t scheduledTxConfig = {
+          .mode = SL_RAIL_TIME_DELAY,
           // We could reuse macToAppDelay here, but recalculating the delay
           // will give us the most up-to-date timings:
           .when = GP_RX_OFFSET_USEC - macToAppDelay(macTimeStamp)
         };
 
-        RAIL_Status_t UNUSED status = sl_zigbee_af_multirail_demo_send(outPkt,
-                                                                       outPktLength,
-                                                                       sli_mac_lower_mac_get_radio_channel(0),
-                                                                       &scheduledTxConfig,
-                                                                       &schedulerInfo);
+        sl_rail_status_t UNUSED status = sl_zigbee_af_multirail_demo_send(outPkt,
+                                                                          outPktLength,
+                                                                          sli_mac_lower_mac_get_radio_channel(0),
+                                                                          &scheduledTxConfig,
+                                                                          &schedulerInfo);
         sl_zigbee_gp_remove_from_tx_queue(entry);
       }
     }
@@ -549,7 +552,7 @@ void sl_zigbee_multirail_gp_tx_queue_init(void)
   sl_zigbee_af_multirail_demo_init(NULL,
                                    NULL,
                                    true,
-                                   RAIL_GetTxPowerDbm(sl_zigbee_get_rail_handle()),
+                                   sl_rail_get_tx_power_dbm(sl_zigbee_get_rail_handle()),
                                    NULL,
                                    0,
                                    0xFFFF,

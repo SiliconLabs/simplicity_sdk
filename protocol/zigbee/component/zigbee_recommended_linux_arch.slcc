@@ -1,7 +1,7 @@
 id: zigbee_recommended_linux_arch
 description: Recommended architecture for Zigbee Host application
 label: Recommended Linux architecture
-package: Zigbee
+package: zigbee
 category: Zigbee|Unix Host
 quality: production
 provides:

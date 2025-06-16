@@ -1,7 +1,7 @@
 !!omap
 - id: brd4205a
 - label: BRD4205A
-- package: platform
+- package: boards
 - description: Board support for BRD4205A.
 - category: Platform|Board|Radio Board
 - quality: production

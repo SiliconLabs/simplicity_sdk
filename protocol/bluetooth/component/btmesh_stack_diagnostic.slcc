@@ -1,6 +1,6 @@
 id: "btmesh_stack_diagnostic"
 label: "Diagnostic"
-package: "Btmesh"
+package: bluetooth_mesh
 description: "Provides Bluetooth mesh Diagnostic Utilities. It provides the functionality that assist with diagnosing problems."
 category: "Bluetooth Mesh|Stack"
 quality: "production"

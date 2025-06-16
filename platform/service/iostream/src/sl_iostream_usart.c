@@ -57,8 +57,9 @@
  *********************   LOCAL FUNCTION PROTOTYPES   ***************************
  ******************************************************************************/
 
-static sl_status_t usart_tx(void *context,
-                            char c);
+static sl_status_t usart_tx(void *context, char c);
+
+static sl_status_t usart_rx(void *context, char *c);
 
 #if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
 static void usart_tx_completed(void *context, bool enable);
@@ -85,18 +86,19 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
   bool rts = false;
 #endif
 
+  uart_config->uart_periph->rx = usart_rx;
+  uart_config->uart_periph->tx = usart_tx;
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
+  uart_config->uart_periph->tx_completed = usart_tx_completed;
+#else
+  uart_config->uart_periph->tx_completed = NULL;
+
+#endif
+  uart_config->uart_periph->deinit = usart_deinit;
+
   status = sli_iostream_uart_context_init(iostream_uart,
                                           &usart_context->context,
-                                          uart_config,
-                                          usart_tx,
-#if defined(SL_CATALOG_POWER_MANAGER_PRESENT) && !defined(SL_IOSTREAM_UART_FLUSH_TX_BUFFER)
-                                          usart_tx_completed,
-#else
-                                          NULL,
-#endif
-                                          usart_deinit,
-                                          1,
-                                          1);
+                                          uart_config);
   if (status != SL_STATUS_OK) {
     return status;
   }
@@ -180,8 +182,8 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
 
  #if defined(_USART_ROUTEPEN_RTSPEN_MASK) && defined(_USART_ROUTEPEN_CTSPEN_MASK)
     config->usart->ROUTELOC1 = (config->usart_cts_location << _USART_ROUTELOC1_CTSLOC_SHIFT);
-    config->usart->CTRLX    |= USART_CTRLX_CTSEN;
-    config->usart->ROUTEPEN |= USART_ROUTEPEN_CTSPEN;
+    config->usart->CTRLX_SET = USART_CTRLX_CTSEN;
+    config->usart->ROUTEPEN_SET = USART_ROUTEPEN_CTSPEN;
  #elif defined(_GPIO_USART_ROUTEEN_MASK)
     GPIO->USARTROUTE_SET[config->usart_index].CTSROUTE = (config->cts_port << _GPIO_USART_CTSROUTE_PORT_SHIFT)
                                                          | (config->cts_pin << _GPIO_USART_CTSROUTE_PIN_SHIFT);
@@ -191,8 +193,8 @@ sl_status_t sl_iostream_usart_init(sl_iostream_uart_t *iostream_uart,
   if (rts == true) {
     GPIO_PinModeSet(config->rts_port, config->rts_pin, gpioModePushPull, 0);
  #if defined(_USART_ROUTEPEN_RTSPEN_MASK) && defined(_USART_ROUTEPEN_CTSPEN_MASK)
-    config->usart->ROUTELOC1 |= (config->usart_rts_location << _USART_ROUTELOC1_RTSLOC_SHIFT);
-    config->usart->ROUTEPEN |= USART_ROUTEPEN_RTSPEN;
+    config->usart->ROUTELOC1_SET = (config->usart_rts_location << _USART_ROUTELOC1_RTSLOC_SHIFT);
+    config->usart->ROUTEPEN_SET = USART_ROUTEPEN_RTSPEN;
 
  #elif defined(_GPIO_USART_ROUTEEN_MASK)
     GPIO->USARTROUTE_SET[config->usart_index].ROUTEEN = GPIO_USART_ROUTEEN_RTSPEN;
@@ -261,6 +263,24 @@ static sl_status_t usart_tx(void *context,
   while (!(USART_StatusGet(usart_context->usart) & USART_STATUS_TXBL)) ;
 #endif
 
+  return SL_STATUS_OK;
+}
+
+/***************************************************************************//**
+ * Internal stream direct read implementation.
+ *
+ * @note This should only be called when the RX DMA is inactive.
+ ******************************************************************************/
+static sl_status_t usart_rx(void *context, char *c)
+{
+  const sl_iostream_usart_context_t *usart_context = (sl_iostream_usart_context_t *)context;
+  bool rx_data_avail = usart_context->usart->STATUS & USART_STATUS_RXDATAV;
+
+  if (!rx_data_avail) {
+    return SL_STATUS_EMPTY;
+  }
+
+  *c = (uint8_t)usart_context->usart->RXDATA;
   return SL_STATUS_OK;
 }
 
