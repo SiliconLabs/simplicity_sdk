@@ -153,7 +153,7 @@ sl_status_t sli_token_manager_get_static_data(uint32_t token,
  * been written since the last erase can be written. For areas of flash that
  * cannot be erased by user code, those static tokens are effectively write-once.
  *
- * Silicon Labs Series 3 (SixG3xx) devices: While static device tokens
+ * Silicon Labs Series 3 devices: While static device tokens
  * support overwriting, the write operation is limited to a maximum of 100 writes.
  * The static secure tokens are effectively write-once.
  *

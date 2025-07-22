@@ -183,7 +183,12 @@ typedef struct {
 
   /// Drain sense 1 gpio select.
   sl_hal_leddrv_gpio_select_t drain_sense1_gpio_select;
-} sl_hal_leddrv_config_t;
+} sl_hal_leddrv_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_leddrv_init_t sl_hal_leddrv_config_t;
+/** @endcond */
 
 /// Default configuration for LEDDRV port/pin structure.
 #define SL_HAL_LEDDRV_GPIO_SELECT_DEFAULT                     \
@@ -193,7 +198,7 @@ typedef struct {
   }
 
 /// Default configuration for LEDDRV initialization structure.
-#define SL_HAL_LEDDRV_CONFIG_DEFAULT                                                                     \
+#define SL_HAL_LEDDRV_INIT_DEFAULT                                                                       \
   {                                                                                                      \
     _LEDDRV_CTRL_ENADUALMODE_DEFAULT, /* Disable dual drive mode. */                                     \
     _LEDDRV_CTRL_ENDIRDRV_DEFAULT,   /* Disable direct drive mode. */                                    \
@@ -213,6 +218,11 @@ typedef struct {
     SL_HAL_LEDDRV_GPIO_SELECT_DEFAULT /* Default Drain sense 1 gpio select. */                           \
   }
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define SL_HAL_LEDDRV_CONFIG_DEFAULT SL_HAL_LEDDRV_INIT_DEFAULT
+/** @endcond */
+
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
@@ -229,7 +239,7 @@ typedef struct {
  *   A pointer to the LEDDRV initialization structure.
  ******************************************************************************/
 void sl_hal_leddrv_init(LEDDRV_TypeDef *leddrv,
-                        const sl_hal_leddrv_config_t *init);
+                        const sl_hal_leddrv_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -736,7 +746,7 @@ __INLINE uint32_t sl_hal_leddrv_get_enabled_pending_interrupts(LEDDRV_TypeDef *l
  *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
  *
  *   // Configure LEDDRV peripheral
- *   sl_hal_leddrv_config_t config = {
+ *   sl_hal_leddrv_init_t init = {
  *     .dual_drive_mode_enable = true,             // Enable dual drive mode
  *     .direct_drive_mode_enable = false,          // Disable direct drive mode
  *     .peak_current_foldback_enable = true,       // Enable peak current foldback
@@ -757,7 +767,7 @@ __INLINE uint32_t sl_hal_leddrv_get_enabled_pending_interrupts(LEDDRV_TypeDef *l
  *   };
  *
  *   // Initialize the LEDDRV with the configuration
- *   sl_hal_leddrv_init(LEDDRV0, &config);
+ *   sl_hal_leddrv_init(LEDDRV0, &init);
  *
  *   // Enable the LEDDRV peripheral
  *   sl_hal_leddrv_enable(LEDDRV0);

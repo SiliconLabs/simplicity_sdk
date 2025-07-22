@@ -13,7 +13,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/ncp-spi/ncp-spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -30,7 +30,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_cpc_spi/zigbee_ncp_cpc_spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -40,14 +40,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.ncp.zigbee_ncp_cpc_uart.zigbee_ncp_cpc_uart.slcp"/>
     <properties key="projectFilePaths" value="app/projects/ncp/zigbee_ncp_cpc_uart/zigbee_ncp_cpc_uart.slcp"/>
     <properties key="readmeFiles" value="app/projects/ncp/zigbee_ncp_cpc_uart/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_cpc_uart/zigbee_ncp_cpc_uart.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -64,7 +64,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_spi/zigbee_ncp_mp_spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -74,14 +74,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.ncp.zigbee_ncp_mp_uart_hw.zigbee_ncp_mp_uart_hw.slcp"/>
     <properties key="projectFilePaths" value="app/projects/ncp/zigbee_ncp_mp_uart_hw/zigbee_ncp_mp_uart_hw.slcp"/>
     <properties key="readmeFiles" value="app/projects/ncp/zigbee_ncp_mp_uart_hw/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_uart_hw/zigbee_ncp_mp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -91,14 +91,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.ncp.zigbee_ncp_uart_hw.zigbee_ncp_uart_hw.slcp"/>
     <properties key="projectFilePaths" value="app/projects/ncp/zigbee_ncp_uart_hw/zigbee_ncp_uart_hw.slcp"/>
     <properties key="readmeFiles" value="app/projects/ncp/zigbee_ncp_uart_hw/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw/zigbee_ncp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -108,14 +108,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.ncp.zigbee_ncp_uart_hw_gp_multi_rail.zigbee_ncp_uart_hw_gp_multi_rail.slcp"/>
     <properties key="projectFilePaths" value="app/projects/ncp/zigbee_ncp_uart_hw_gp_multi_rail/zigbee_ncp_uart_hw_gp_multi_rail.slcp"/>
     <properties key="readmeFiles" value="app/projects/ncp/zigbee_ncp_uart_hw_gp_multi_rail/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw_gp_multi_rail/zigbee_ncp_uart_hw_gp_multi_rail.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -125,14 +125,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.ncp.zigbee_ncp_xncp_led.zigbee_ncp_xncp_led.slcp"/>
     <properties key="projectFilePaths" value="app/projects/ncp/zigbee_ncp_xncp_led/zigbee_ncp_xncp_led.slcp"/>
     <properties key="readmeFiles" value="app/projects/ncp/zigbee_ncp_xncp_led/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_xncp_led/zigbee_ncp_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -149,7 +149,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_gateway_combo/zigbee_gp_z3_gateway_combo.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -159,14 +159,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.z3.zigbee_gp_z3_light_combo.zigbee_gp_z3_light_combo.slcp"/>
     <properties key="projectFilePaths" value="app/projects/z3/zigbee_gp_z3_light_combo/zigbee_gp_z3_light_combo.slcp"/>
     <properties key="readmeFiles" value="app/projects/z3/zigbee_gp_z3_light_combo/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_light_combo/zigbee_gp_z3_light_combo.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -183,7 +183,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_host_minimal/zigbee_host_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -193,14 +193,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.z3.zigbee_minimal.zigbee_minimal.slcp"/>
     <properties key="projectFilePaths" value="app/projects/z3/zigbee_minimal/zigbee_minimal.slcp"/>
     <properties key="readmeFiles" value="app/projects/z3/zigbee_minimal/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_minimal/zigbee_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -217,7 +217,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_unified_test_harness/zigbee_unified_test_harness.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -234,7 +234,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_gateway/zigbee_z3_gateway.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -244,14 +244,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.z3.zigbee_z3_light.zigbee_z3_light.slcp"/>
     <properties key="projectFilePaths" value="app/projects/z3/zigbee_z3_light/zigbee_z3_light.slcp"/>
     <properties key="readmeFiles" value="app/projects/z3/zigbee_z3_light/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_light/zigbee_z3_light.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -261,14 +261,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.z3.zigbee_z3_switch.zigbee_z3_switch.slcp"/>
     <properties key="projectFilePaths" value="app/projects/z3/zigbee_z3_switch/zigbee_z3_switch.slcp"/>
     <properties key="readmeFiles" value="app/projects/z3/zigbee_z3_switch/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_switch/zigbee_z3_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -285,7 +285,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -302,7 +302,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -319,7 +319,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -336,7 +336,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -353,7 +353,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_mp_z3_tc_custom_tc/zigbee_host_mp_z3_tc_custom_tc.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -370,7 +370,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_xncp_led/zigbee_host_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -380,14 +380,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.zigbee_minimal_rtos.zigbee_minimal_rtos.slcp"/>
     <properties key="projectFilePaths" value="app/projects/zigbee_minimal_rtos/zigbee_minimal_rtos.slcp"/>
     <properties key="readmeFiles" value="app/projects/zigbee_minimal_rtos/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[14679].* .*mgm2[1467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_minimal_rtos/zigbee_minimal_rtos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -397,14 +397,14 @@
     <properties key="solutionReferenceId" value="protocol.zigbee.app.projects.zigbee_standardized_rf_testing.zigbee_standardized_rf_testing.slcp"/>
     <properties key="projectFilePaths" value="app/projects/zigbee_standardized_rf_testing/zigbee_standardized_rf_testing.slcp"/>
     <properties key="readmeFiles" value="app/projects/zigbee_standardized_rf_testing/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2606a brd2608a brd2703a brd2704a brd2709a brd2710a brd2713a brd2719a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4308a brd4308b brd4308c brd4308d brd4309a brd4309b brd4311b brd4316a brd4317a brd4318a brd4319a brd4329a brd4337a brd4350a brd4351a brd4356a brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4415a com.silabs.board.none"/>
     <properties key="partCompatibility" value=".*efr32mg2[124679].* .*mgm2[12467].* .*rm21.* .*simg301.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc iar"/>
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_standardized_rf_testing/zigbee_standardized_rf_testing.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -421,7 +421,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbeed/zigbeed.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>

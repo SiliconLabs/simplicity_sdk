@@ -385,7 +385,7 @@ typedef struct {
 
   /// Set to enable EM4 wakeup when channel tamper detect is set.
   bool em4_wakeup_en;
-} sl_hal_etampdet_config_channel_t;
+} sl_hal_etampdet_channel_init_t;
 
 /// ETAMPDET configuration structure.
 typedef struct {
@@ -394,9 +394,15 @@ typedef struct {
 
   /// Lower clock prescaler value.
   sl_hal_etampdet_lower_clk_presc_t lower_clk_presc_val;
-} sl_hal_etampdet_config_t;
+} sl_hal_etampdet_init_t;
 
-#define ETAMPDET_CONFIG_CHANNEL_DEFAULT                                            \
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_etampdet_channel_init_t sl_hal_etampdet_config_channel_t;
+typedef sl_hal_etampdet_init_t sl_hal_etampdet_config_t;
+/** @endcond */
+
+#define ETAMPDET_CHANNEL_INIT_DEFAULT                                              \
   {                                                                                \
     0x13579BDF,                                 /* Set default seed value. */      \
     channel_0,                                  /* Choose channel 0.*/             \
@@ -408,13 +414,18 @@ typedef struct {
     false,                                      /* Enable EM4 wakeup. */           \
   }                                                                                \
 
-/** ETAMPDET default configuration. */
-#define ETAMPDET_CONFIG_DEFAULT                               \
+/// ETAMPDET default channel configuration.
+#define SL_HAL_ETAMPDET_INIT_DEFAULT                          \
   {                                                           \
     upper_clk_prescaler_bypass, /* Bypass upper prescaler. */ \
     lower_clk_prescaler_bypass, /* Bypass lower prescaler.*/  \
   }                                                           \
-/// ETAMPDET default channel configuration.
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro names used for backward compatibility purposes.
+#define ETAMPDET_CONFIG_CHANNEL_DEFAULT ETAMPDET_CHANNEL_INIT_DEFAULT
+#define ETAMPDET_CONFIG_DEFAULT SL_HAL_ETAMPDET_INIT_DEFAULT
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -424,7 +435,7 @@ typedef struct {
  * @brief
  *   Initialize ETAMPDET.
  *
- * @param[in] config
+ * @param[in] init
  *   The pointer to the initialization structure.
  *
  * @note
@@ -436,19 +447,19 @@ typedef struct {
  *   should be at the default values to ensure that other clients
  *   are not accidentally driving the GPIOs that ETAMPDET is using.
  ******************************************************************************/
-void sl_hal_etampdet_init(const sl_hal_etampdet_config_t *config);
+void sl_hal_etampdet_init(const sl_hal_etampdet_init_t *init);
 
 /***************************************************************************//**
  * @brief
  *   Initialize ETAMPDET channel.
  *
- * @param[in] config_channel
- *   The pointer to the  channel initialization structure.
+ * @param[in] init_channel
+ *   The pointer to the channel initialization structure.
  *
  * @note
  *   User should call @ref sl_hal_etampdet_init() for full initialization.
  ******************************************************************************/
-void sl_hal_etampdet_init_channel(const sl_hal_etampdet_config_channel_t *config_channel);
+void sl_hal_etampdet_init_channel(const sl_hal_etampdet_channel_init_t *init_channel);
 
 /***************************************************************************//**
  * @brief
@@ -744,7 +755,7 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_seed_value(sl_hal_etampdet_channel_
  *
  *   // Clear the interrupt
  *   sl_hal_etampdet_clear_interrupts(ETAMPDET_IF_TAMPDET0);
- *   sl_interrupt_manager_clear_pending_irq(ETAMPDET_IRQn);
+ *   sl_interrupt_manager_clear_irq_pending(ETAMPDET_IRQn);
  *
  *   // Set flag to indicate tamper was detected
  *   tamper_detected = true;
@@ -753,33 +764,33 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_seed_value(sl_hal_etampdet_channel_
  * void etampdet_example(void)
  * {
  *   // Initialize ETAMPDET with default configuration (bypass prescalers)
- *   sl_hal_etampdet_config_t etampdet_config = ETAMPDET_CONFIG_DEFAULT;
- *   sl_hal_etampdet_init(&etampdet_config);
+ *   sl_hal_etampdet_init_t etampdet_init = SL_HAL_ETAMPDET_INIT_DEFAULT;
+ *   sl_hal_etampdet_init(&etampdet_init);
  *
  *   // Configure ETAMPDET channel 0
- *   sl_hal_etampdet_config_channel_t channel_config = ETAMPDET_CONFIG_CHANNEL_DEFAULT;
+ *   sl_hal_etampdet_channel_init_t channel_init = ETAMPDET_CHANNEL_INIT_DEFAULT;
  *
  *   // Set a random seed value
- *   channel_config.channel_seed_val = 0x13579BDF;
+ *   channel_init.channel_seed_val = 0x13579BDF;
  *
  *   // Select channel 0
- *   channel_config.channel = channel_0;
+ *   channel_init.channel = channel_0;
  *
  *   // Enable tamper detection filtering to reduce false triggers
- *   channel_config.channel_tampdet_filt_en = true;
+ *   channel_init.channel_tampdet_filt_en = true;
  *
  *   // Set filter window size to 4 (detect when multiple checks fail)
- *   channel_config.channel_filt_win_size = detect_filt_win_size_4;
+ *   channel_init.channel_filt_win_size = detect_filt_win_size_4;
  *
  *   // Configure threshold to 3 (need 3 failures to trigger)
- *   channel_config.channel_cnt_mismatch = detect_filt_threshold_3;
+ *   channel_init.channel_cnt_mismatch = detect_filt_threshold_3;
  *
  *   // Initialize the channel with our configuration
- *   sl_hal_etampdet_init_channel(&channel_config);
+ *   sl_hal_etampdet_init_channel(&channel_init);
  *
  *   // Clear any pending interrupts
  *   sl_hal_etampdet_clear_interrupts(ETAMPDET_IF_TAMPDET0);
- *   sl_interrupt_manager_clear_pending_irq(ETAMPDET_IRQn);
+ *   sl_interrupt_manager_clear_irq_pending(ETAMPDET_IRQn);
  *
  *   // Enable tamper detection interrupt for channel 0
  *   sl_hal_etampdet_enable_interrupts(ETAMPDET_IEN_TAMPDET0);

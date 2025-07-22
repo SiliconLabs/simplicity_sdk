@@ -40,6 +40,7 @@
 
 #include "stack/include/sl_zigbee_types.h"
 #include "stack-info-internal-def.h"
+#include "sl_zigbee_token_internal_def.h"
 #include "network-formation-internal-def.h"
 #include "message_internal_def.h"
 #include "child_internal_def.h"
@@ -105,25 +106,6 @@
 
 #define sli_zigbee_stack_initialize_network_parameters(parameters) \
   (memset(parameters, 0, sizeof(sl_zigbee_network_parameters_t)))
-
-/** @name PHY Information
- * Bit masks for TOKEN_MFG_RADIO_BANDS_SUPPORTED.
- */
-//@{
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#define RADIO_BANDS_SUPPORTED_868   BIT(0)
-#define RADIO_BANDS_SUPPORTED_915   BIT(1)
-#define RADIO_BANDS_SUPPORTED_433   BIT(2)
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-/** @brief 2.4 GHz band */
-#define RADIO_BANDS_SUPPORTED_2400  BIT(3)
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#define RADIO_BANDS_SUPPORTED_408   BIT(4)
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-//@} //END PHY INFO
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 

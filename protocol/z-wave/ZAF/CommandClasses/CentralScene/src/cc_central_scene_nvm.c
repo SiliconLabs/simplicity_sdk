@@ -35,7 +35,6 @@ cc_central_scene_migrate(void)
 
   zpal_status_t status;
   central_scene_configuration_t application_data = { 0 };
-  central_scene_configuration_t central_scene_data = { 0 };
   // On initial implementation of CentralScene Command Class
   // This information belonged to the application
   // From SDK 7.19.0 this information was moved to the command class
@@ -47,11 +46,8 @@ cc_central_scene_migrate(void)
     return;
   }
 
-  cc_central_scene_read(&central_scene_data);
-
-  if (application_data.slowRefresh != central_scene_data.slowRefresh) {
-    return;
-  }
+  // Force slow refresh
+  application_data.slowRefresh = 1; // CC:005B.03.00.21.001 - Slow refresh must be enabled after inclusion
 
   ZAF_nvm_write(ZAF_FILE_ID_CENTRAL_SCENE_CONFIG, &application_data, sizeof(central_scene_configuration_t));
 

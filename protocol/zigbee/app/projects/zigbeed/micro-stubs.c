@@ -27,9 +27,9 @@ void halStackProcessBootCount(void)
   // Note:  We need to add the increment call in order to test the lighting
   // sample applications.
 
-#if defined(CREATOR_STACK_BOOT_COUNTER)
+#if defined(COMMON_TOKEN_STACK_BOOT_COUNTER)
 #ifndef SL_ZIGBEE_SCRIPTED_TEST
-  halCommonIncrementCounterToken(TOKEN_STACK_BOOT_COUNTER);
+  (void)sl_token_manager_increment_counter(COMMON_TOKEN_STACK_BOOT_COUNTER);
 #endif
 #endif
 }
@@ -73,14 +73,6 @@ void halStackSymbolDelayAIsr(void)
 // Stub in platform/base/hal/micro/generic/led-stub.c
 void halStackIndicateActivity(bool turnOn)
 {
-}
-
-// Needed by zigbee-stack.c but not needed by legacy_host/src/token.c
-// so it can be left empty. If there is a failure during token
-// initialization, unix/host/token.c will raise an assert
-sl_status_t halStackInitTokens()
-{
-  return SL_STATUS_OK;
 }
 
 void halResetWatchdog(void)

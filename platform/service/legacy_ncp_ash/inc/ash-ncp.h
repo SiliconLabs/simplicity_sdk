@@ -152,6 +152,9 @@ void ashPendingCallbacks(bool pending);
 
 #if defined(CORTEXM3)
 #ifdef USERDATA_BASE
+// EMZIGBEE-13500: if this code meant for series 3, then the header below needs update,
+// else, this comment can be removed
+  #include "sl_token_manufacturing_series_2.h"
   #define ashConfigAddr (USERDATA_BASE | (MFG_ASH_CONFIG_LOCATION & 0x0FFF))
   #define ashReadConfig(member) (((const AshNcpConfig *)ashConfigAddr)->member)
   #define ashReadConfigOrDefault(member, defVal) \

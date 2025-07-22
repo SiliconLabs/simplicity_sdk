@@ -483,7 +483,7 @@ typedef struct {
 
   /// Interrupt and status level of the Transmit FIFO.
   sl_hal_eusart_fifo_interrupt_watermark_t tx_fifo_watermark;
-} sl_hal_eusart_uart_advanced_config_t;
+} sl_hal_eusart_uart_advanced_init_t;
 
 /// UART initialization structure.
 typedef struct {
@@ -509,8 +509,14 @@ typedef struct {
   sl_hal_eusart_loopback_t loopback_enable;
 
   /// Advanced initialization structure. It can be NULL.
-  sl_hal_eusart_uart_advanced_config_t *advanced_config;
-} sl_hal_eusart_uart_config_t;
+  sl_hal_eusart_uart_advanced_init_t *advanced_config;
+} sl_hal_eusart_uart_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_eusart_uart_advanced_init_t sl_hal_eusart_uart_advanced_config_t;
+typedef sl_hal_eusart_uart_init_t sl_hal_eusart_uart_config_t;
+/** @endcond */
 
 /// IrDA Initialization structure.
 typedef struct {
@@ -525,8 +531,13 @@ typedef struct {
   sl_hal_eusart_irda_pulse_width_t pulse_width;
 
   /// General EUSART initialization structure.
-  sl_hal_eusart_uart_config_t eusart_init;
-} sl_hal_eusart_irda_config_t;
+  sl_hal_eusart_uart_init_t eusart_init;
+} sl_hal_eusart_irda_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_eusart_irda_init_t sl_hal_eusart_irda_config_t;
+/** @endcond */
 
 #if defined(EUSART_DALICFG_DALIEN)
 /// DALI Initialization structure.
@@ -541,9 +552,14 @@ typedef struct {
   sl_hal_eusart_dali_data_bits_t rx_data_bits;
 
   /// General EUSART initialization structure.
-  sl_hal_eusart_uart_config_t eusart_init;
-} sl_hal_eusart_dali_config_t;
-#endif
+  sl_hal_eusart_uart_init_t eusart_init;
+} sl_hal_eusart_dali_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_eusart_dali_init_t sl_hal_eusart_dali_config_t;
+/** @endcond */
+#endif /* defined(EUSART_DALICFG_DALIEN) */
 
 #if defined(_EUSART_CFG0_SYNC_MASK)
 /// SPI Advanced initialization structure.
@@ -606,7 +622,7 @@ typedef struct {
 
   /// Interrupt and status level of the Transmit FIFO.
   sl_hal_eusart_fifo_interrupt_watermark_t tx_fifo_watermark;
-} sl_hal_eusart_spi_advanced_config_t;
+} sl_hal_eusart_spi_advanced_init_t;
 
 /// SPI Initialization structure.
 typedef struct {
@@ -626,9 +642,16 @@ typedef struct {
   sl_hal_eusart_loopback_t loopback_enable;
 
   /// Advanced initialization structure. It can be NULL.
-  sl_hal_eusart_spi_advanced_config_t *advanced_config;
-} sl_hal_eusart_spi_config_t;
-#endif
+  sl_hal_eusart_spi_advanced_init_t *advanced_config;
+} sl_hal_eusart_spi_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_eusart_spi_advanced_init_t sl_hal_eusart_spi_advanced_config_t;
+typedef sl_hal_eusart_spi_init_t sl_hal_eusart_spi_config_t;
+/** @endcond */
+
+#endif /* defined(_EUSART_CFG0_SYNC_MASK) */
 
 /// Default configuration for EUSART initialization structure in UART mode with high-frequency clock.
 #define SL_HAL_EUSART_UART_INIT_DEFAULT_HF                                 \
@@ -854,11 +877,11 @@ typedef struct {
  * @param[in] eusart
  *   Pointer to the EUSART peripheral register block.
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure.
  ******************************************************************************/
 void sl_hal_eusart_init_uart_hf(EUSART_TypeDef *eusart,
-                                const sl_hal_eusart_uart_config_t *config);
+                                const sl_hal_eusart_uart_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -867,7 +890,7 @@ void sl_hal_eusart_init_uart_hf(EUSART_TypeDef *eusart,
  * @param[in] eusart
  *   Pointer to the EUSART peripheral register block.
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure.
  *
  * @note (1) When EUSART oversampling is set to SL_HAL_EUSART_OVS_0 (Disable),
@@ -878,7 +901,7 @@ void sl_hal_eusart_init_uart_hf(EUSART_TypeDef *eusart,
  * Vote must be disabled.
  ******************************************************************************/
 void sl_hal_eusart_init_uart_lf(EUSART_TypeDef *eusart,
-                                const sl_hal_eusart_uart_config_t *config);
+                                const sl_hal_eusart_uart_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -888,11 +911,11 @@ void sl_hal_eusart_init_uart_lf(EUSART_TypeDef *eusart,
  * @param[in] eusart
  *   Pointer to the EUSART peripheral register block.
  *
- * @param[in] irda_config
+ * @param[in] init
  *   A pointer to the initialization structure.
  ******************************************************************************/
 void sl_hal_eusart_init_irda(EUSART_TypeDef *eusart,
-                             const sl_hal_eusart_irda_config_t *irda_config);
+                             const sl_hal_eusart_irda_init_t *init);
 
 #if defined(EUSART_DALICFG_DALIEN)
 /***************************************************************************//**
@@ -903,7 +926,7 @@ void sl_hal_eusart_init_irda(EUSART_TypeDef *eusart,
  * @param[in] eusart
  *   Pointer to the EUSART peripheral register block.
  *
- * @param[in] dali_config
+ * @param[in] init
  *   A pointer to the initialization structure.
  *
  * @note
@@ -913,7 +936,7 @@ void sl_hal_eusart_init_irda(EUSART_TypeDef *eusart,
  *   (LFXO or LFRCO), thus 32768 / 3 ~ 9600 baudrate.
  ******************************************************************************/
 void sl_hal_eusart_init_dali(EUSART_TypeDef *eusart,
-                             const sl_hal_eusart_dali_config_t *dali_config);
+                             const sl_hal_eusart_dali_init_t *init);
 #endif
 
 #if defined(_EUSART_CFG0_SYNC_MASK)
@@ -924,11 +947,11 @@ void sl_hal_eusart_init_dali(EUSART_TypeDef *eusart,
  * @param[in] eusart
  *   Pointer to the EUSART peripheral register block.
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure.
  ******************************************************************************/
 void sl_hal_eusart_init_spi(EUSART_TypeDef *eusart,
-                            const sl_hal_eusart_spi_config_t *config);
+                            const sl_hal_eusart_spi_init_t *init);
 #endif
 
 /***************************************************************************//**
@@ -1738,7 +1761,7 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *  {
  *    #define GPIO_TX    PB0
  *
- *    sl_hal_eusart_uart_config_t config = SL_HAL_EUSART_UART_INIT_DEFAULT_HF;
+ *    sl_hal_eusart_uart_init_t init = SL_HAL_EUSART_UART_INIT_DEFAULT_HF;
  *
  *    // Configure the clocks.
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_EUSART0);
@@ -1749,7 +1772,7 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *    sl_clock_branch_t clock_branch = sl_device_peripheral_get_clock_branch(SL_PERIPHERAL_EUSART0);
  *    uint32_t freq;
  *    sl_clock_manager_get_clock_branch_frequency(clock_branch, &freq);
- *    config.clock_div = sl_hal_eusart_uart_calculate_clock_div(freq, baudrate, config.oversampling);
+ *    init.clock_div = sl_hal_eusart_uart_calculate_clock_div(freq, baudrate, init.oversampling);
  *
  *    // Configure the EUSART port.
  *    sl_gpio_set_pin_mode(GPIO_TX, SL_GPIO_MODE_PUSH_PULL, 0);
@@ -1758,7 +1781,7 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *    GPIO->EUSARTROUTE[EUSART_NUM(EUSART0)].ROUTEEN = GPIO_EUSART_ROUTEEN_TXPEN;
  *
  *    // Initialize the EUSART.
- *    sl_hal_eusart_init_uart_hf(EUSART0, &config);
+ *    sl_hal_eusart_init_uart_hf(EUSART0, &init);
  *    sl_hal_eusart_enable(EUSART0);
  *    sl_hal_eusart_enable_tx(EUSART0);
  *
@@ -1775,9 +1798,9 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *    #define GPIO_MISO    PC1
  *    #define GPIO_SCLK    PC2
  *
- *    sl_hal_eusart_spi_config_t config = SL_HAL_EUSART_SPI_MASTER_INIT_DEFAULT_HF;
+ *    sl_hal_eusart_spi_init_t init = SL_HAL_EUSART_SPI_MASTER_INIT_DEFAULT_HF;
  *    // Clock idle low, sample on falling edge.
- *    config.clock_mode = SL_HAL_EUSART_CLOCK_MODE_1;
+ *    init.clock_mode = SL_HAL_EUSART_CLOCK_MODE_1;
  *
  *    // Configure the clocks.
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_EUSART1);
@@ -1788,7 +1811,7 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *    sl_clock_branch_t clock_branch = sl_device_peripheral_get_clock_branch(SL_PERIPHERAL_EUSART1);
  *    uint32_t freq;
  *    sl_clock_manager_get_clock_branch_frequency(clock_branch, &freq);
- *    config.clock_div = sl_hal_eusart_spi_calculate_clock_div(freq, baudrate);
+ *    init.clock_div = sl_hal_eusart_spi_calculate_clock_div(freq, baudrate);
  *
  *    // Configure the SPI ports.
  *    sl_gpio_set_pin_mode(GPIO_MOSI, SL_GPIO_MODE_PUSH_PULL, 0);
@@ -1805,7 +1828,7 @@ __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  *    GPIO->EUSARTROUTE[EUSART_NUM(EUSART1)].ROUTEEN = GPIO_EUSART_ROUTEEN_TXPEN | GPIO_EUSART_ROUTEEN_RXPEN | GPIO_EUSART_ROUTEEN_SCLKPEN;
  *
  *    // Initialize the EUSART.
- *    sl_hal_eusart_init_spi(EUSART1, &config);
+ *    sl_hal_eusart_init_spi(EUSART1, &init);
  *    sl_hal_eusart_enable(EUSART1);
  *    sl_hal_eusart_enable_rx(EUSART1);
  *    sl_hal_eusart_enable_tx(EUSART1);

@@ -6,7 +6,7 @@ description: >
   tokens such as manufacturing ID, channel number, transmit power, and various pieces of information
   that the application needs, these token are usually programmed during manufacturing.
 category: Services|Token Manager
-quality: evaluation
+quality: production
 metadata:
   sbom:
     license: Zlib

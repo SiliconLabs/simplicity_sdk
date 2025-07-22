@@ -54,6 +54,10 @@ template_contribution:
       mfg_id: NOT_MFG_SPECIFIC
       side: SERVER
       service_function: sl_zigbee_af_scenes_cluster_server_command_parse
+  - name: zigbee_af_callback
+    value:
+      callback_type: local_data_init
+      function_name: sl_zigbee_af_scenes_init
 
 documentation:
   docset: zigbee

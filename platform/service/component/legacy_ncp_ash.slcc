@@ -15,6 +15,9 @@ requires:
   - name: legacy_common_ash
   - name: device
   - name: token_manager
+    condition: [ device_series_2 ]
+  - name: common_token_manager
+    condition: [ device_series_3 ]
   - name: zigbee_debug_basic
 source:
   - path: src/ash-ncp.c

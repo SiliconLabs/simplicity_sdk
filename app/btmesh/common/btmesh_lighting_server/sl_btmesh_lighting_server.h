@@ -3,7 +3,7 @@
  * @brief btmesh_lighting_server.h
  *******************************************************************************
  * # License
- * <b>Copyright 2023 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -141,6 +141,16 @@ void sl_btmesh_update_lightness(uint16_t lightness, uint32_t remaining_ms);
  * This function stops generic level move on primary element.
  ******************************************************************************/
 void pri_level_move_stop(void);
+
+/***************************************************************************//**
+ * Checks whether the provided lightness value is within the allowed range
+ * for the lighting server. If the value is out of range, it will be corrected to
+ * the nearest valid value
+ *
+ * @param lightness The input lightness value to validate and correct
+ * @return uint16_t The validated and possibly corrected lightness value
+ ******************************************************************************/
+uint16_t lightness_validate_and_correct(uint16_t);
 
 /** @} (end addtogroup btmesh_lighting_server) */
 

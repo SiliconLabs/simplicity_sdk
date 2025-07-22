@@ -79,7 +79,7 @@
 // <o BOOTLOADER_VERSION_MAIN_CUSTOMER> Bootloader Version Main Customer
 // <i> Default: 0
 // <i> Bootloader Version Main Customer
-#define BOOTLOADER_VERSION_MAIN_CUSTOMER                    0
+#define BOOTLOADER_VERSION_MAIN_CUSTOMER                    1
 
 // </h>
 

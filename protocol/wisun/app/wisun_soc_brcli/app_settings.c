@@ -157,6 +157,12 @@
 #define APP_SETTINGS_WISUN_DEFAULT_IPV6_PREFIX  "fd12:3456::/64"
 #define APP_SETTINGS_WISUN_DEFAULT_DHCPV6_SERVER  ""
 
+#define APP_SETTINGS_MAC_DEFAULT_MIN_BE 3
+#define APP_SETTINGS_MAC_DEFAULT_MAX_BE 5
+#define APP_SETTINGS_MAC_DEFAULT_BACKOFF_PERIOD_US 0
+#define APP_SETTINGS_MAC_DEFAULT_MAX_CCA_RETRIES 8
+#define APP_SETTINGS_MAC_DEFAULT_MAX_FRAME_RETRIES 19
+
 #ifndef APP_SETTINGS_APP_DEFAULT_AUTOSTART
   #define APP_SETTINGS_APP_DEFAULT_AUTOSTART  false
 #endif
@@ -173,6 +179,7 @@ typedef enum
   app_settings_domain_info        = 0x03,
   app_settings_domain_ping        = 0x04,
   app_settings_domain_wifi        = 0x05,
+  app_settings_domain_mac         = 0x06
 } app_settings_domain_t;
 
 const char *app_settings_domain_str[] =
@@ -183,6 +190,7 @@ const char *app_settings_domain_str[] =
   "info",
   "ping",
   "wifi",
+  "mac",
   NULL,
 };
 
@@ -253,6 +261,8 @@ static const app_settings_wisun_t app_settings_wisun_default = {
   .ipv6_prefix = APP_SETTINGS_WISUN_DEFAULT_IPV6_PREFIX,
   .dhcpv6_server = APP_SETTINGS_WISUN_DEFAULT_DHCPV6_SERVER,
   .regulation = APP_SETTINGS_WISUN_DEFAULT_REGULATION,
+  .regulation_warning_threshold = 50,
+  .regulation_alert_threshold = 90,
   .chan_plan_id = APP_SETTINGS_WISUN_DEFAULT_CHAN_PLAN_ID,
   .phy_mode_id = APP_SETTINGS_WISUN_DEFAULT_PHY_MODE_ID,
   .phy_config_type = APP_SETTINGS_WISUN_DEFAULT_PHY_CONFIG_TYPE,
@@ -296,10 +306,19 @@ static const app_settings_wifi_t app_settings_wifi_default = {
 #endif
 };
 
+static const app_settings_mac_t app_settings_mac_default = {
+  .min_be = APP_SETTINGS_MAC_DEFAULT_MIN_BE,
+  .max_be = APP_SETTINGS_MAC_DEFAULT_MAX_BE,
+  .backoff_period_us = APP_SETTINGS_MAC_DEFAULT_BACKOFF_PERIOD_US,
+  .max_cca_retries = APP_SETTINGS_MAC_DEFAULT_MAX_CCA_RETRIES,
+  .max_frame_retries = APP_SETTINGS_MAC_DEFAULT_MAX_FRAME_RETRIES
+};
+
 app_settings_wisun_t app_settings_wisun;
 app_settings_ping_t app_settings_ping;
 app_settings_app_t app_settings_app;
 app_settings_wifi_t app_settings_wifi;
+app_settings_mac_t app_settings_mac;
 
 //static sl_wisun_statistics_t app_statistics;
 
@@ -327,11 +346,18 @@ const app_saving_item_t app_saving_item_wifi = {
   .default_val = &app_settings_wifi_default
 };
 
+const app_saving_item_t app_saving_item_mac = {
+  .data = &app_settings_mac,
+  .data_size = sizeof(app_settings_mac),
+  .default_val = &app_settings_mac_default
+};
+
 const app_saving_item_t *saving_settings[] = {
   &app_saving_item_wisun,
   &app_saving_item_ping,
   &app_saving_item_app,
   &app_saving_item_wifi,
+  &app_saving_item_mac,
   NULL
 };
 
@@ -544,9 +570,6 @@ static sl_status_t app_settings_set_trace_filter(const char *value_str,
 static sl_status_t app_settings_get_trace_filter(char *value_str,
                                                  const char *key_str,
                                                  const app_settings_entry_t *entry);
-static sl_status_t app_settings_set_regulation(const char *value_str,
-                                               const char *key_str,
-                                               const app_settings_entry_t *entry);
 static sl_status_t app_settings_set_regulation_warning_threshold(const char *value_str,
                                                                  const char *key_str,
                                                                  const app_settings_entry_t *entry);
@@ -1220,7 +1243,7 @@ const app_settings_entry_t app_settings_entries[] =
     .value = &app_settings_wisun.regulation,
     .input_enum_list = app_settings_wisun_regulation_enum,
     .output_enum_list = app_settings_wisun_regulation_enum,
-    .set_handler = app_settings_set_regulation,
+    .set_handler = app_settings_set_integer,
     .get_handler = app_settings_get_integer,
     .description = "Regional regulation [uint8]"
   },
@@ -1763,6 +1786,71 @@ const app_settings_entry_t app_settings_entries[] =
     .description = "IPv6 address"
   },
 #endif
+  {
+    .key = "min_be",
+    .domain = app_settings_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_mac.min_be,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Minimum CSMA-CA backoff exponent [uint8]"
+  },
+  {
+    .key = "max_be",
+    .domain = app_settings_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_mac.max_be,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum CSMA-CA backoff exponent [uint8]"
+  },
+  {
+    .key = "backoff_period_us",
+    .domain = app_settings_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT16,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_mac.backoff_period_us,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Length of one backoff period in microseconds [uint16]"
+  },
+  {
+    .key = "max_cca_retries",
+    .domain = app_settings_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_mac.max_cca_retries,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum number of CCA retries [uint8]"
+  },
+  {
+    .key = "max_frame_retries",
+    .domain = app_settings_domain_mac,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_mac.max_frame_retries,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Maximum number of transmission retries [uint8]"
+  },
   {
     .key = NULL,
     .domain = 0,
@@ -2620,12 +2708,77 @@ static const app_settings_entry_t app_statistics_entries[] =
     .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
     .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
     .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
-    .value = &app_statistics.regulation.arib.tx_duration_ms,
-    .input_enum_list = (void *)SL_WISUN_REGULATION_ARIB,
+    .value = &app_statistics.regulation.tx_duration_ms,
+    .input_enum_list = NULL,
     .output_enum_list = NULL,
     .set_handler = NULL,
     .get_handler = app_settings_get_integer,
     .description = "Total transmission duration during last hour in milliseconds"
+  },
+  {
+    .key = "tx_duration_per_channel_ms",
+    .domain = app_statistics_domain_regulation,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.regulation.tx_duration_per_channel_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Total transmission duration per channel during last hour in milliseconds"
+  },
+  {
+    .key = "duty_cycle_warning_threshold_ms",
+    .domain = app_statistics_domain_regulation,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.regulation.duty_cycle_warning_threshold_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Duty cycle warning threshold in milliseconds"
+  },
+  {
+    .key = "duty_cycle_warning_threshold_per_channel_ms",
+    .domain = app_statistics_domain_regulation,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.regulation.duty_cycle_warning_threshold_per_channel_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Duty cycle warning threshold per channel in milliseconds"
+  },
+  {
+    .key = "duty_cycle_alert_threshold_ms",
+    .domain = app_statistics_domain_regulation,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.regulation.duty_cycle_alert_threshold_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Duty cycle alert threshold in milliseconds"
+  },
+  {
+    .key = "duty_cycle_alert_threshold_per_channel_ms",
+    .domain = app_statistics_domain_regulation,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT32,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_statistics.regulation.duty_cycle_alert_threshold_per_channel_ms,
+    .input_enum_list = NULL,
+    .output_enum_list = NULL,
+    .set_handler = NULL,
+    .get_handler = app_settings_get_integer,
+    .description = "Duty cycle alert threshold per channel in milliseconds"
   },
   {
     .key = "arena",
@@ -3408,14 +3561,11 @@ static sl_status_t app_settings_get_statistics_regulation(char *value_str,
   iter = app_statistics_entries;
   while (iter->key) {
     if (!strcmp(entry->key, app_statistics_domain_str[iter->domain])) {
-      // Associated regional regulation is coded in input_enum_list.
-      if ((uintptr_t)app_settings_wisun.regulation == (uintptr_t)iter->input_enum_list) {
-        if (!key_str || !strcmp(iter->key, key_str)) {
-          if (iter->get_handler) {
-            ret = iter->get_handler(value_str, NULL, iter);
-            if (ret == SL_STATUS_OK) {
-              printf("%s.%s.%s = %s\r\n", app_settings_domain_str[entry->domain], app_statistics_domain_str[iter->domain], iter->key, value_str);
-            }
+      if (!key_str || !strcmp(iter->key, key_str)) {
+        if (iter->get_handler) {
+          ret = iter->get_handler(value_str, NULL, iter);
+          if (ret == SL_STATUS_OK) {
+            printf("%s.%s.%s = %s\r\n", app_settings_domain_str[entry->domain], app_statistics_domain_str[iter->domain], iter->key, value_str);
           }
         }
       }
@@ -3596,25 +3746,6 @@ static sl_status_t app_settings_get_trace_filter(char *value_str,
   // Prevent parent from printing anything
   return SL_STATUS_FAIL;
 }
-
-static sl_status_t app_settings_set_regulation(const char *value_str,
-                                               const char *key_str,
-                                               const app_settings_entry_t *entry)
-{
-  sl_status_t ret;
-  sl_wisun_br_state_t state;
-
-  sl_wisun_br_get_state(&state);
-
-  if (state == SL_WISUN_BR_STATE_OPERATIONAL) {
-    return SL_STATUS_INVALID_STATE;
-  }
-
-  ret = app_settings_set_integer(value_str, key_str, entry);
-
-  return ret;
-}
-
 
 static sl_status_t app_settings_set_regulation_warning_threshold(const char *value_str,
                                                                  const char *key_str,

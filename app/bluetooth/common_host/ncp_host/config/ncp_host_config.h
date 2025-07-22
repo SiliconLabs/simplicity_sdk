@@ -74,6 +74,11 @@
 #define WAIT_FOR_SYSTEM_BOOT          1
 #endif
 
+// Accept DFU boot event after init - enable it for the UART DFU host application
+#ifndef ACCEPT_DFU_BOOT
+#define ACCEPT_DFU_BOOT               0
+#endif
+
 // </h> End Reboot Configuration
 
 // <<< end of configuration section >>>

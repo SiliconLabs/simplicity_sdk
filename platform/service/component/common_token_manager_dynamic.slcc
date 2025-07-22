@@ -6,7 +6,7 @@ description: >
   to store dynamic tokens that get created in the application. However, dynamic tokens are cleared when
   the device undergoes a mass erase.
 category: Services|Token Manager
-quality: evaluation
+quality: production
 metadata:
   sbom:
     license: Zlib

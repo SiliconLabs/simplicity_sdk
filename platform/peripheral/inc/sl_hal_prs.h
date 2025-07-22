@@ -115,14 +115,24 @@ typedef struct {
   sl_hal_prs_logic_t logic;                             ///< Lookup function for configurable logic.
   sl_hal_prs_async_producer_signal_t producer_signal;   ///< Peripheral signal.
   sl_hal_prs_consumer_event_t consumer_event;           ///< Peripheral consumer. Used to select which signal to listen to.
-} sl_hal_prs_async_channel_config_t;
+} sl_hal_prs_async_channel_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_prs_async_channel_init_t sl_hal_prs_async_channel_config_t;
+/** @endcond */
 
 /// PRS sync channel configuration structure.
 typedef struct {
   uint8_t channel;                                      ///< Channel number.
   sl_hal_prs_sync_producer_signal_t producer_signal;    ///< Peripheral signal.
   sl_hal_prs_consumer_event_t consumer_event;           ///< Peripheral consumer. Used to select which signal to listen to.
-} sl_hal_prs_sync_channel_config_t;
+} sl_hal_prs_sync_channel_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_prs_sync_channel_init_t sl_hal_prs_sync_channel_config_t;
+/** @endcond */
 
 #if defined(_PRS_ASYNC_CH_CTRL_AUXSEL_MASK)
 /// PRS async initializer (No channel combination).
@@ -160,19 +170,19 @@ typedef struct {
  * @brief
  *   Configure Async channel.
  *
- * @param[in] config
+ * @param[in] init
  *   Pointer to configuration structure.
  ******************************************************************************/
-void sl_hal_prs_async_init_channel(const sl_hal_prs_async_channel_config_t *config);
+void sl_hal_prs_async_init_channel(const sl_hal_prs_async_channel_init_t *init);
 
 /***************************************************************************//**
  * @brief
  *   Configure Sync channel.
  *
- * @param[in] config
+ * @param[in] init
  *   Pointer to configuration structure.
  ******************************************************************************/
-void sl_hal_prs_sync_init_channel(const sl_hal_prs_sync_channel_config_t *config);
+void sl_hal_prs_sync_init_channel(const sl_hal_prs_sync_channel_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -445,43 +455,45 @@ __INLINE void sl_hal_prs_async_combine_signals(uint8_t channel_a,
  *
  *@n @section prs_example Example
  *   This example demonstrates how to configure the Peripheral Reflex System (PRS)
- *   to connect a producer (timer overflow) directly to a consumer (GPIO pin toggle)
+ *   to connect a producer (TIMER0 overflow) directly to a consumer (GPIO pin toggle)
  *   without CPU intervention.
  *
  * @code
  * #include "sl_hal_prs.h"
  * #include "sl_hal_timer.h"
  * #include "sl_hal_gpio.h"
+ * #include "sl_clock_manager.h"
  *
  * void prs_example(void)
  * {
- *   // Initialize GPIO and timer peripherals (not shown)
- *   // ...
+ *   // Enable PRS and TIMER0 clocks
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_TIMER0);
  *
- *   // Configure PRS source (TIMER0 overflow as producer)
- *   sl_hal_prs_source_config_t sourceConfig = SL_HAL_PRS_SOURCE_CONFIG_DEFAULT;
- *   sourceConfig.source = SL_HAL_PRS_SOURCE_TIMER0_OF;
- *   sourceConfig.signal = SL_HAL_PRS_SIGNAL_TIMER_OF;
+ *   // Configure GPIO pin as output (e.g., Port D, Pin 1)
+ *   sl_gpio_t gpio;
+ *   gpio.port = SL_GPIO_PORT_D;
+ *   gpio.pin = 1;
+ *   sl_hal_gpio_set_pin_mode(&gpio, SL_GPIO_MODE_PUSH_PULL, 0);
  *
- *   // Configure PRS channel
- *   sl_hal_prs_channel_config_t channelConfig = SL_HAL_PRS_CHANNEL_CONFIG_DEFAULT;
- *   channelConfig.enable = true;
- *   channelConfig.async_mode = false; // Use synchronous PRS
+ *   // Configure TIMER0 (basic up-counting mode, overflow at 0xFFFF)
+ *   sl_hal_timer_init_t timer_init = {0};
+ *   timer_init.count_mode = SL_HAL_TIMER_MODE_UP;
+ *   timer_init.clock_select = SL_HAL_TIMER_CLKSEL_HFPERCLK;
+ *   timer_init.prescaler = SL_HAL_TIMER_PRESCALER_DIV1;
+ *   sl_hal_timer_init(TIMER0, &timer_init);
+ *   sl_hal_timer_enable(TIMER0);
+ *   sl_hal_timer_set_top(TIMER0, 0xFFFF);
+ *   sl_hal_timer_start(TIMER0);
  *
- *   // Initialize PRS channel 0 with TIMER0 overflow as source
- *   sl_hal_prs_init_channel(0, &channelConfig);
- *   sl_hal_prs_set_source(0, &sourceConfig);
+ *   // Configure PRS channel 0: TIMER0 overflow as async producer
+ *   uint8_t prs_channel = 0;
+ *   sl_hal_prs_async_connect_channel_producer(prs_channel, SL_HAL_PRS_ASYNC_TIMER0_OF);
  *
- *   // Route PRS channel to GPIO pin (configure GPIO port B pin 0 as output)
- *   sl_hal_gpio_pin_config_t gpioConfig = SL_HAL_GPIO_INIT_DEFAULT;
- *   gpioConfig.mode = SL_HAL_GPIO_MODE_PUSH_PULL;
- *   sl_hal_gpio_init_pin(SL_HAL_GPIO_PORT_B, 0, &gpioConfig);
+ *   // Route PRS output to GPIO pin (Port D, Pin 1)
+ *   sl_hal_prs_pin_output(prs_channel, SL_HAL_PRS_TYPE_ASYNC, SL_GPIO_PORT_D, 1);
  *
- *   // Connect PRS to GPIO
- *   sl_hal_prs_connect_gpio(0, SL_HAL_GPIO_PORT_B, 0, SL_HAL_PRS_GPIO_OUT_TOGGLE);
- *
- *   // Now, whenever TIMER0 overflows, it will automatically toggle GPIO PB0
- *   // without CPU intervention
+ *   // Now, whenever TIMER0 overflows, PRS will toggle the GPIO pin without CPU intervention
  * }
  * @endcode
  * @} (end addtogroup prs)

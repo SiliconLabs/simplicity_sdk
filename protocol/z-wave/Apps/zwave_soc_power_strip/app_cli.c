@@ -43,10 +43,12 @@
 #include "events.h"
 #include "CC_MultilevelSwitch_Support.h"
 #include "CC_BinarySwitch.h"
-#include <sl_pwm_instances.h>
 #ifdef SL_CATALOG_RGB_LED_PRESENT
-#include <sl_simple_rgb_pwm_led.h>
-#include <sl_simple_rgb_pwm_led_instances.h>
+#include "sl_simple_rgb_pwm_led.h"
+#include "sl_simple_rgb_pwm_led_instances.h"
+#endif
+#ifdef SL_CATALOG_PWM_PRESENT
+#include "sl_pwm_instances.h"
 #endif
 
 #define DIMMING_TRANSITION_PERIOD_SEC 1 //Time [s] required for transition between 2 values, 0 means instant transition
@@ -143,7 +145,9 @@ void cli_get_rgb_values(__attribute__((unused)) sl_cli_command_arg_t *arguments)
   uint16_t color_switch_red_value, color_switch_green_value, color_switch_blue_value;
   sl_led_get_rgb_color(&sl_simple_rgb_pwm_led_rgb_led0, &color_switch_red_value, &color_switch_green_value, &color_switch_blue_value);
   app_log_info("Red: %d, Green: %d, Blue: %d\r\n", color_switch_red_value, color_switch_green_value, color_switch_blue_value);
-#else
+#endif
+
+#ifdef SL_CATALOG_PWM_PRESENT
   uint8_t monochrome_percent =
     100 * cc_multilevel_switch_get_current_value(&cc_multilevel_switch_support_config_get_switches()[0])
     / cc_multilevel_switch_get_max_value();

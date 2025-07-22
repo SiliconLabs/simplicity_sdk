@@ -13539,7 +13539,7 @@
       ],
       responseArguments: [
         {
-          type: "uint8_t",
+          type: "uint32_t",
           name: "count",
           description: "Total number of tokens.",
         },

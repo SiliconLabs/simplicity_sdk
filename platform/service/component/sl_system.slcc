@@ -32,4 +32,4 @@ description: |-
     and is deprecated. Replace this component with sl_main by sisdk-2026.6.
 
     To migrate an RTOS application to sl_main. See:
-    https://docs.silabs.com/gecko-platform/latest/platform-service-sl_system-to-sl_main-migration-guide/
+    https://docs.silabs.com/gecko-platform/latest/platform-service-sl-system-to-sl-main-migration-guide/

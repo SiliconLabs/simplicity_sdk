@@ -213,11 +213,16 @@ typedef struct {
   /// When enabled, writes from CCB to CC registers must be performed using software commands.
   bool enable_update_mode;
 #endif
-} sl_hal_timer_config_t;
+} sl_hal_timer_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_timer_init_t sl_hal_timer_config_t;
+/** @endcond */
 
 /// Default configuration for TIMER initialization structure.
 #if defined(_TIMER_CFG_UPDATEMODE_MASK)
-#define SL_HAL_TIMER_CONFIG_DEFAULT                                                                                \
+#define SL_HAL_TIMER_INIT_DEFAULT                                                                                  \
   {                                                                                                                \
     (sl_hal_timer_mode_t)_TIMER_CFG_MODE_DEFAULT,            /* Up-counting. */                                    \
     (sl_hal_timer_clock_select_t)_TIMER_CFG_CLKSEL_DEFAULT,  /* Select HFPER / HFPERB clock. */                    \
@@ -237,7 +242,7 @@ typedef struct {
     (bool)_TIMER_CFG_UPDATEMODE_DEFAULT                  /* Automatic write from CCB to CC registers. */           \
   }
 #else
-#define SL_HAL_TIMER_CONFIG_DEFAULT                                                                                \
+#define SL_HAL_TIMER_INIT_DEFAULT                                                                                  \
   {                                                                                                                \
     (sl_hal_timer_mode_t)_TIMER_CFG_MODE_DEFAULT,            /* Up-counting. */                                    \
     (sl_hal_timer_clock_select_t)_TIMER_CFG_CLKSEL_DEFAULT,  /* Select HFPER / HFPERB clock. */                    \
@@ -314,11 +319,16 @@ typedef struct {
 
   /// Invert output from compare/capture channel.
   bool                             output_invert;
-} sl_hal_timer_channel_config_t;
+} sl_hal_timer_channel_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_timer_channel_init_t sl_hal_timer_channel_config_t;
+/** @endcond */
 
 #if defined(_TIMER_CC_PHASE_MASK) && defined(_TIMER_CC_DITHER_MASK)
 /// Default configuration for TIMER compare/capture initialization structure.
-#define SL_HAL_TIMER_CHANNEL_CONFIG_DEFAULT                                                                          \
+#define SL_HAL_TIMER_CHANNEL_INIT_DEFAULT                                                                            \
   {                                                                                                                  \
     (uint32_t)_TIMER_CC_PHASE_PHASE_DEFAULT,                         /* No phase value. */                           \
     (uint32_t)_TIMER_CC_DITHER_DITHER_DEFAULT,                       /* No dither value. */                          \
@@ -337,7 +347,7 @@ typedef struct {
   }
 
 /// PWM mode configuration for TIMER compare/capture initialization structure.
-#define SL_HAL_TIMER_CHANNEL_CONFIG_PWM                                                                               \
+#define SL_HAL_TIMER_CHANNEL_PWM_INIT_DEFAULT                                                                         \
   {                                                                                                                   \
     (uint32_t)_TIMER_CC_PHASE_PHASE_DEFAULT,                         /* No phase value. */                            \
     (uint32_t)_TIMER_CC_DITHER_DITHER_DEFAULT,                       /* No dither value. */                           \
@@ -356,7 +366,7 @@ typedef struct {
   }
 #else
 /// Default configuration for TIMER compare/capture initialization structure.
-#define SL_HAL_TIMER_CHANNEL_CONFIG_DEFAULT                                                                          \
+#define SL_HAL_TIMER_CHANNEL_INIT_DEFAULT                                                                            \
   {                                                                                                                  \
     (sl_hal_timer_channel_mode_t)_TIMER_CC_CFG_MODE_DEFAULT,             /* Disable compare/capture channel. */      \
     (sl_hal_timer_channel_input_type_t)_TIMER_CC_CFG_INSEL_DEFAULT,      /* Select PIN. */                           \
@@ -373,7 +383,7 @@ typedef struct {
   }
 
 /// PWM mode configuration for TIMER compare/capture initialization structure.
-#define SL_HAL_TIMER_CHANNEL_CONFIG_PWM                                                                               \
+#define SL_HAL_TIMER_CHANNEL_PWM_INIT_DEFAULT                                                                         \
   {                                                                                                                   \
     SL_HAL_TIMER_CHANNEL_MODE_PWM,                                       /* Set PWM mode. */                          \
     (sl_hal_timer_channel_input_type_t)_TIMER_CC_CFG_INSEL_DEFAULT,      /* Select PIN. */                            \
@@ -444,11 +454,16 @@ typedef struct {
 
   /// Fault Action */
   sl_hal_timer_dti_fault_action_t   fault_action;
-} sl_hal_timer_dti_config_t;
+} sl_hal_timer_dti_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_timer_dti_init_t sl_hal_timer_dti_config_t;
+/** @endcond */
 
 #if defined(_TIMER_DTFCFG_DTEM23FEN_MASK)
-/// Default configuration for TIMER DTI initialization structure.
-#define SL_HAL_TIMER_DTI_CONFIG_DEFAULT                                                                           \
+/// Default configuration for TIMER DTI initialization structure. TODO CM SL_HAL_TIMER_DTI_CONFIG_DEFAULT incorrect
+#define SL_HAL_TIMER_DTI_INIT_DEFAULT                                                                             \
   {                                                                                                               \
     (bool)_TIMER_DTCFG_DTDAS_DEFAULT,                        /* No auto restart when debugger exits. */           \
     (bool)_TIMER_DTCFG_DTAR_DEFAULT,                         /* Stop DTI output on channel 0 when timer stops. */ \
@@ -469,7 +484,7 @@ typedef struct {
   }
 #else
 /// Default configuration for TIMER DTI initialization structure.
-#define SL_HAL_TIMER_DTI_CONFIG_DEFAULT                                                                           \
+#define SL_HAL_TIMER_DTI_INIT_DEFAULT                                                                             \
   {                                                                                                               \
     (bool)_TIMER_DTCFG_DTDAS_DEFAULT,                        /* No auto restart when debugger exits. */           \
     (bool)_TIMER_DTCFG_DTAR_DEFAULT,                         /* Stop DTI output on channel 0 when timer stops. */ \
@@ -488,6 +503,14 @@ typedef struct {
     (sl_hal_timer_dti_fault_action_t)_TIMER_DTFCFG_DTFA_DEFAULT, /* No fault action. */                           \
   }
 #endif
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro names used for backward compatibility purposes.
+#define SL_HAL_TIMER_CONFIG_DEFAULT           SL_HAL_TIMER_INIT_DEFAULT
+#define SL_HAL_TIMER_CHANNEL_CONFIG_DEFAULT   SL_HAL_TIMER_CHANNEL_INIT_DEFAULT
+#define SL_HAL_TIMER_CHANNEL_CONFIG_PWM       SL_HAL_TIMER_CHANNEL_PWM_INIT_DEFAULT
+#define SL_HAL_TIMER_DTI_CONFIG_DEFAULT       SL_HAL_TIMER_DTI_INIT_DEFAULT
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -511,7 +534,7 @@ typedef struct {
  *   A pointer to the TIMER initialization structure used to configure TIMER.
  ******************************************************************************/
 void sl_hal_timer_init(TIMER_TypeDef *timer,
-                       const sl_hal_timer_config_t *init);
+                       const sl_hal_timer_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -532,7 +555,7 @@ void sl_hal_timer_init(TIMER_TypeDef *timer,
  ******************************************************************************/
 void sl_hal_timer_channel_init(TIMER_TypeDef *timer,
                                uint8_t channel,
-                               const sl_hal_timer_channel_config_t *init);
+                               const sl_hal_timer_channel_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -545,7 +568,7 @@ void sl_hal_timer_channel_init(TIMER_TypeDef *timer,
  *   A pointer to the TIMER DTI initialization structure.
  ******************************************************************************/
 void sl_hal_timer_dti_init(TIMER_TypeDef *timer,
-                           const sl_hal_timer_dti_config_t *init);
+                           const sl_hal_timer_dti_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -1587,7 +1610,7 @@ __INLINE void sl_hal_timer_set_interrupts(TIMER_TypeDef *timer,
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_TIMER0);
  *
  *    // Initialize a timer and enable it.
- *    sl_hal_timer_config_t init = SL_HAL_TIMER_CONFIG_DEFAULT;
+ *    sl_hal_timer_init_t init = SL_HAL_TIMER_INIT_DEFAULT;
  *    sl_hal_timer_init(TIMER0, &init);
  *    sl_hal_timer_enable(TIMER0);
  *
@@ -1634,7 +1657,7 @@ __INLINE void sl_hal_timer_set_interrupts(TIMER_TypeDef *timer,
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_TIMER0);
  *
  *    // Initialize a timer and enable it.
- *    sl_hal_timer_config_t init = SL_HAL_TIMER_CONFIG_DEFAULT;
+ *    sl_hal_timer_init_t init = SL_HAL_TIMER_INIT_DEFAULT;
  *    sl_hal_timer_init(TIMER0, &init);
  *    sl_hal_timer_enable(TIMER0);
  *
@@ -1664,11 +1687,11 @@ __INLINE void sl_hal_timer_set_interrupts(TIMER_TypeDef *timer,
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_TIMER0);
  *
  *    // Initialize timer with update mode enabled
- *    sl_hal_timer_config_t init = SL_HAL_TIMER_CONFIG_DEFAULT;
+ *    sl_hal_timer_init_t init = SL_HAL_TIMER_INIT_DEFAULT;
  *    init.enable_update_mode = true;  // Enable manual update mode
  *
  *    // Initialize a channel for PWM operation
- *    sl_hal_timer_channel_config_t channel_config = SL_HAL_TIMER_CHANNEL_CONFIG_PWM;
+ *    sl_hal_timer_channel_init_t channel_config = SL_HAL_TIMER_CHANNEL_PWM_INIT_DEFAULT;
  *
  *    // Configure timer and channel
  *    sl_hal_timer_init(TIMER0, &init);

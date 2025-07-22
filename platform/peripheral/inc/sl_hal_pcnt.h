@@ -158,10 +158,15 @@ typedef struct {
   /// by setting filter_enable to true. @n
   /// Filter length = (filter_lenght + 5) LFACLK cycles.
   uint8_t                   filter_lenght;
-} sl_hal_pcnt_config_t;
+} sl_hal_pcnt_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_pcnt_init_t sl_hal_pcnt_config_t;
+/** @endcond */
 
 /// Default configuration for PCNT initialization structure.
-#define SL_HAL_PCNT_CONFIG_DEFAULT(init_mode)           \
+#define SL_HAL_PCNT_INIT_DEFAULT(init_mode)             \
   {                                                     \
     .mode               = init_mode,                    \
     .main_count_event   = SL_HAL_PCNT_COUNT_EVENT_BOTH, \
@@ -177,6 +182,11 @@ typedef struct {
     .flutter_remove     = false,                        \
     .filter_lenght      = 0                             \
   }
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define SL_HAL_PCNT_CONFIG_DEFAULT(init_mode) SL_HAL_PCNT_INIT_DEFAULT(init_mode)
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -203,7 +213,7 @@ typedef struct {
  *   Pointer to the initialization structure.
  ******************************************************************************/
 void sl_hal_pcnt_init(PCNT_TypeDef *pcnt,
-                      const sl_hal_pcnt_config_t *init);
+                      const sl_hal_pcnt_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -772,10 +782,10 @@ __INLINE void sl_hal_pcnt_reset_counters(PCNT_TypeDef *pcnt)
  * void pcnt_basic_example(void)
  * {
  *   // Configure PCNT with default settings for single input oversampling mode
- *   sl_hal_pcnt_config_t config = SL_HAL_PCNT_CONFIG_DEFAULT(SL_HAL_PCNT_MODE_OVS_SINGLE);
+ *   sl_hal_pcnt_init_t init = SL_HAL_PCNT_INIT_DEFAULT(SL_HAL_PCNT_MODE_OVS_SINGLE);
  *
  *   // Initialize PCNT with our configuration
- *   sl_hal_pcnt_init(PCNT0, &config);
+ *   sl_hal_pcnt_init(PCNT0, &init);
  *
  *   // Enable the PCNT peripheral
  *   sl_hal_pcnt_enable(PCNT0);

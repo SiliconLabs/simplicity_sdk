@@ -43,10 +43,10 @@ void sli_zigbee_multi_pan_init(void);
   } while (0)
 #else // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
 void sli_zigbee_get_child_token_for_current_network(void *data,
-                                                    uint16_t tokenAddress,
+                                                    uint32_t tokenAddress,
                                                     uint8_t childIndex);
 
-void sli_zigbee_set_child_token_for_current_network(uint16_t tokenAddress,
+void sli_zigbee_set_child_token_for_current_network(uint32_t tokenAddress,
                                                     uint8_t childIndex,
                                                     void *data);
 

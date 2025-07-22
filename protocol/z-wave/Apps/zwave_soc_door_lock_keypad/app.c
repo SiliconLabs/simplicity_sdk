@@ -43,9 +43,7 @@
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
 
 /* Interval for checking and reporting battery status (in minutes) */
 #define PERIODIC_BATTERY_CHECKING_INTERVAL_MINUTES 5
@@ -124,9 +122,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 
   ZAF_PrintAppInfo();
 
-#if (!defined(UNIT_TEST))
   app_hw_init();
-#endif
 
   /* Timer for periodic battery level checking */
   AppTimerRegister(&BatteryCheckTimer, true, ZCB_BatteryCheckTimerCallback);

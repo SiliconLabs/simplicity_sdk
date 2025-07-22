@@ -29,6 +29,8 @@
  ******************************************************************************/
 
 #include "sl_event_system.h"
+#include "sl_event_system_config.h"
+#include "sl_component_catalog.h"
 #include "sl_assert.h"
 #include "sl_core.h"
 #include "sl_memory_manager.h"
@@ -38,8 +40,17 @@
 extern "C" {
 #endif
 
+// IRQ event notification (first bit).
+#define  SLI_EVENT_IRQ_NOTIFICATION  (1 << 0)
+
 static bool is_event_system_initialized = false;
 static sl_slist_node_t *publishers;
+// Publisher for IRQ events.
+static sl_event_publisher_t irq_event_publisher;
+
+#if defined(SL_CATALOG_EVENT_SYSTEM_SUPERVISOR_MODE_PRESENT)
+static sl_event_queue_t supervisor_queue;
+#endif
 
 static sl_status_t sli_event_publish(sl_event_publisher_t *publisher, uint32_t event_mask, uint8_t event_prio, sl_event_t* event, void *event_data);
 static sl_event_publisher_t* sli_event_find_publisher(sl_event_class_t event_class);
@@ -54,6 +65,10 @@ void sl_event_system_init(void)
 {
   sl_slist_init(&publishers);
   is_event_system_initialized = true;
+#if defined(SL_CATALOG_EVENT_SYSTEM_SUPERVISOR_MODE_PRESENT)
+  // Create supervisor queue.
+  sl_event_queue_create(SL_EVENT_SUPERVISOR_QUEUE_COUNT, &supervisor_queue);
+#endif
 }
 
 /*******************************************************************************
@@ -94,6 +109,10 @@ sl_status_t sl_event_publisher_register(sl_event_publisher_t *publisher,
   publisher->free_data_callback = free_data_callback;
   publisher->is_registered = true;
   sl_slist_push(&publishers, &publisher->node);
+
+#if defined(SL_CATALOG_EVENT_SYSTEM_SUPERVISOR_MODE_PRESENT)
+  sl_event_subscribe(event_class, 0xFFFFFFFFUL, supervisor_queue);
+#endif
 
   CORE_EXIT_ATOMIC();
   return SL_STATUS_OK;
@@ -552,6 +571,7 @@ static sl_status_t sli_event_publish(sl_event_publisher_t *publisher,
       }
 
       // Initialize event context
+      event->event_class = publisher->event_class;
       event->free_data_callback = publisher->free_data_callback;
       event->event_data = event_data;
       event->reference_count = publisher->subscriber_count;
@@ -648,6 +668,111 @@ sl_status_t sli_event_push_to_subscriber_queues(sl_event_publisher_t* publisher,
     }
   }
   return status;
+}
+
+#if defined(SL_CATALOG_EVENT_SYSTEM_SUPERVISOR_MODE_PRESENT)
+/*******************************************************************************
+ * @brief
+ *  Get an event from the supervisor event queue.
+ ******************************************************************************/
+sl_status_t sl_event_supervisor_queue_get(sl_event_t **event)
+{
+  return sl_event_queue_get(supervisor_queue, NULL, 0, event);
+}
+#endif
+
+/*******************************************************************************
+ * @brief
+ *  Free data callback for IRQ events.
+ *
+ * @param[in] data  Pointer to the event data to free.
+ ******************************************************************************/
+static void irq_event_free_data_cb(void *data)
+{
+  (void)data; // Suppress unused parameter warning
+}
+
+/*******************************************************************************
+ * @brief
+ *  Initialize the IRQ event system. This must be called after sl_event_system_init().
+ ******************************************************************************/
+sl_status_t sl_event_irq_publisher_init(void)
+{
+  sl_status_t status;
+  // Make sure the event system has been initialized
+  EFM_ASSERT(is_event_system_initialized == true);
+
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_ATOMIC();
+
+  // Initialize the IRQ event publisher
+  irq_event_publisher.subscriber_count = 0;
+  irq_event_publisher.is_registered = false;
+  sl_slist_init(&irq_event_publisher.subscribers);
+
+  // Register the ISR event publisher
+  status = sl_event_publisher_register(&irq_event_publisher,
+                                       SL_EVENT_CLASS_IRQ,
+                                       irq_event_free_data_cb);
+
+  CORE_EXIT_ATOMIC();
+
+  return status;
+}
+
+/*******************************************************************************
+ * @brief
+ *  De-initialize the IRQ event system.
+ ******************************************************************************/
+sl_status_t sl_event_irq_publisher_deinit(void)
+{
+  sl_status_t status;
+
+  // Unregister the IRQ event publisher
+  status = sl_event_publisher_unregister(&irq_event_publisher);
+  if (status != SL_STATUS_OK) {
+    return status;
+  }
+
+  return SL_STATUS_OK;
+}
+
+/*******************************************************************************
+ * @brief
+ *  Publish an event from an interrupt service routine (ISR).
+ *
+ * @description
+ *  This function should only be called from IRQ contexts to publish events to
+ *  subscribers of the IRQ event class. It's a simplified wrapper around
+ *  sl_event_publish designed for use in interrupt handlers.
+ *
+ * @param[in] irq_number    The IRQ number associated with the event
+ *
+ * @return
+ *    SL_STATUS_OK if successful, otherwise an error code is returned.
+ *
+ * @note
+ *    This function must only be called from IRQ contexts. For non-IRQ contexts,
+ *    use the standard event publishing mechanisms.
+ ******************************************************************************/
+sl_status_t sl_event_irq_publish(uint32_t irq_number)
+{
+  // Always use priority 0 for IRQ events.
+  return sl_event_publish(&irq_event_publisher, SLI_EVENT_IRQ_NOTIFICATION, 0, (void *)(uintptr_t)irq_number);
+}
+
+/*******************************************************************************
+ * @brief
+ *  Decode the IRQ event from a given event structure.
+ ******************************************************************************/
+uint32_t sl_event_irq_decode(sl_event_t *event)
+{
+  if (event == NULL || event->event_class != SL_EVENT_CLASS_IRQ) {
+    return 0xFFFFFFFF;
+  }
+
+  // Cast pointer to get irq number.
+  return (uint32_t)(uintptr_t)(event->event_data);
 }
 
 #ifdef __cplusplus

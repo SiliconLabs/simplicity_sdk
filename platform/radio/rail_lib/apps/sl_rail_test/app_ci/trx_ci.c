@@ -595,7 +595,7 @@ void sleep(sl_cli_command_arg_t *args)
   char* em4State = "";
   uint8_t emMode = (uint8_t)sl_cli_get_argument_string(args, 0)[0] - '0';
 #if defined(_SILICON_LABS_32B_SERIES_2)
-  void (*em4Function)(void) = &EMU_EnterEM4;
+  void (*em4Function)(void) = &sl_power_manager_enter_em4;
 #endif
 #if (SL_RAIL_SUPPORTS_RF_SENSE_ENERGY_DETECTION || SL_RAIL_SUPPORTS_RF_SENSE_SELECTIVE_OOK)
   RailRfSenseMode_t mode = RFSENSE_MODE_OFF;
@@ -673,10 +673,11 @@ void sleep(sl_cli_command_arg_t *args)
 
     // We cannot configure UART RxD for EM4 wakeup on our EFR32's so the
     // *only* wakeup possible out of EM4 is RF Sense (or reset).
+    responsePrint(sl_cli_get_command_string(args, 0), "EM:%u%s,SerialWakeup:%s,"
 #if defined(_SILICON_LABS_32B_SERIES_3)
-    responsePrint(sl_cli_get_command_string(args, 0), "EM:%u%s,SerialWakeup:%s,ButtonWakeup:%s",
+                  "ButtonWakeup:%s",
 #else // Series-2
-    responsePrint(sl_cli_get_command_string(args, 0), "EM:%u%s,SerialWakeup:%s,RfSense:%s,RfSensitivity:%s,ButtonWakeup:%s",
+                  "RfSense:%s,RfSensitivity:%s,ButtonWakeup:%s",
 #endif
                   emMode, em4State,
 #if defined(_SILICON_LABS_32B_SERIES_2) && defined (VCOM_TX_PORT)
@@ -929,12 +930,12 @@ void rfSense(sl_cli_command_arg_t *args)
   if (sl_cli_get_argument_count(args) >= 3) {
 #if SL_RAIL_SUPPORTS_RF_SENSE_SELECTIVE_OOK
     rfSenseSyncWordNumBytes = (sl_cli_get_argument_uint8(args, 0) > 4)
-                               ? 0 : sl_cli_get_argument_uint32(args, 0);
-                               rfSenseSyncWord = sl_cli_get_argument_uint32(args, 1);
-                               rfBand = ((sl_rail_rf_sense_band_t) sl_cli_get_argument_uint32(args, 2)
-                                         & SL_RAIL_RF_SENSE_ANY_LOW_SENSITIVITY); // mask off illegal values
-                               mode = ((rfBand != SL_RAIL_RF_SENSE_OFF) && (rfSenseSyncWordNumBytes > 0))
-                                      ? RFSENSE_MODE_SELECTIVE_OOK : RFSENSE_MODE_OFF;
+                              ? 0 : sl_cli_get_argument_uint32(args, 0);
+    rfSenseSyncWord = sl_cli_get_argument_uint32(args, 1);
+    rfBand = ((sl_rail_rf_sense_band_t) sl_cli_get_argument_uint32(args, 2)
+              & SL_RAIL_RF_SENSE_ANY_LOW_SENSITIVITY);                            // mask off illegal values
+    mode = ((rfBand != SL_RAIL_RF_SENSE_OFF) && (rfSenseSyncWordNumBytes > 0))
+           ? RFSENSE_MODE_SELECTIVE_OOK : RFSENSE_MODE_OFF;
 #else
     responsePrintError(sl_cli_get_command_string(args, 0), 0x15, "RF Sense Selective OOK Mode Unsupported");
     return;
@@ -958,15 +959,15 @@ void rfSense(sl_cli_command_arg_t *args)
 
   switch (mode) {
     case RFSENSE_MODE_SELECTIVE_OOK:
-      {
-        sl_rail_rf_sense_selective_ook_config_t config = {
-          .band = rfBand,
-          .sync_word_bytes = rfSenseSyncWordNumBytes,
-          .sync_word = rfSenseSyncWord,
-        };
-        (void) sl_rail_start_selective_ook_rf_sense(railHandle, &config);
-        break;
-      }
+    {
+      sl_rail_rf_sense_selective_ook_config_t config = {
+        .band = rfBand,
+        .sync_word_bytes = rfSenseSyncWordNumBytes,
+        .sync_word = rfSenseSyncWord,
+      };
+      (void) sl_rail_start_selective_ook_rf_sense(railHandle, &config);
+      break;
+    }
     case RFSENSE_MODE_ENERGY_DETECTION:
       rfUs = sl_rail_start_rf_sense(railHandle, rfBand, rfUs, NULL);
       if (rfUs != 0) {

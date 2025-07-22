@@ -36,6 +36,7 @@
 #include "sl_bt_ncp_transport.h"
 #include "sl_ncp.h"
 #include "sl_ncp_evt_filter.h"
+#include "sli_ncp_sync.h"
 #include "sl_component_catalog.h"
 #include "app_timer.h"
 #include "app_rta.h"
@@ -93,7 +94,7 @@ static SL_ALIGN(4) cmd_t cmd SL_ATTRIBUTE_ALIGN(4) =
 };
 static void *rsp_buf = NULL;
 static size_t rsp_buf_size = 0;
-static SL_ALIGN(4) evt_t evt SL_ATTRIBUTE_ALIGN(4) =
+static SL_ALIGN(4) evt_t event SL_ATTRIBUTE_ALIGN(4) =
 {
   0
 };
@@ -160,7 +161,7 @@ void sl_ncp_init(void)
 
   // Clear all buffers
   cmd_dequeue();
-  CORE_ATOMIC_SECTION(evt_dequeue(evt.len); ) // Ensures (evt.len == len)
+  CORE_ATOMIC_SECTION(evt_dequeue(event.len); ) // Ensures (event.len == len)
 
   busy = false;
   #if defined(SL_CATALOG_WAKE_LOCK_PRESENT)
@@ -375,20 +376,25 @@ static void handle_user_command(uint32_t hdr, void *data)
  *****************************************************************************/
 void sl_bt_on_event(sl_bt_msg_t *evt)
 {
-  // Acquire guard
-  sl_status_t sc = app_rta_acquire(ctx);
-  if (sc == SL_STATUS_OK) {
-    if (!sl_ncp_evt_filter_is_filtered(SL_BT_MSG_ID(evt->header))
-        && sl_ncp_local_common_evt_process(evt)) {
-      // Enqueue event
-      evt_enqueue(MSG_GET_LEN(evt),
-                  (uint8_t *)evt);
-      (void)app_rta_proceed(ctx);
+  if (!sl_ncp_evt_filter_is_filtered(SL_BT_MSG_ID(evt->header))
+      && sl_ncp_local_common_evt_process(evt)) {
+    // Check if there is enough space in the buffer
+    while (!sl_bt_can_process_event(MSG_GET_LEN(evt))) {
+      // Wait until an event is processed, and then re-check
+      sli_ncp_sync_wait();
     }
-    // Release guard
-    (void)app_rta_release(ctx);
-  } else {
-    on_runtime_error(APP_RTA_ERROR_ACQUIRE_FAILED, sc);
+
+    // Acquire guard
+    sl_status_t sc = app_rta_acquire(ctx);
+    if (sc == SL_STATUS_OK) {
+      // Enqueue event
+      evt_enqueue(MSG_GET_LEN(evt), (uint8_t *)evt);
+      (void)app_rta_proceed(ctx);
+      // Release guard
+      (void)app_rta_release(ctx);
+    } else {
+      on_runtime_error(APP_RTA_ERROR_ACQUIRE_FAILED, sc);
+    }
   }
 }
 
@@ -403,21 +409,25 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
  *****************************************************************************/
 void sl_btmesh_on_event(sl_btmesh_msg_t *evt)
 {
-  // Acquire guard
-  sl_status_t sc = app_rta_acquire(ctx);
-  if (sc == SL_STATUS_OK) {
-    if (!sl_ncp_evt_filter_is_filtered((uint32_t)SL_BT_MSG_ID(evt->header))) {
-      if (sl_ncp_local_common_btmesh_evt_process(evt)) {
-        // Enqueue event
-        evt_enqueue(MSG_GET_LEN(evt),
-                    (uint8_t *)evt);
-        (void)app_rta_proceed(ctx);
-      }
+  if (!sl_ncp_evt_filter_is_filtered((uint32_t)SL_BT_MSG_ID(evt->header))
+      && sl_ncp_local_common_btmesh_evt_process(evt)) {
+    // Check if there is enough space in the buffer
+    while (!sl_btmesh_can_process_event(MSG_GET_LEN(evt))) {
+      // Wait until an event is processed, and then re-check
+      sli_ncp_sync_wait();
     }
-    // Release guard
-    (void)app_rta_release(ctx);
-  } else {
-    on_runtime_error(APP_RTA_ERROR_ACQUIRE_FAILED, sc);
+
+    // Acquire guard
+    sl_status_t sc = app_rta_acquire(ctx);
+    if (sc == SL_STATUS_OK) {
+      // Enqueue event
+      evt_enqueue(MSG_GET_LEN(evt), (uint8_t *)evt);
+      (void)app_rta_proceed(ctx);
+      // Release guard
+      (void)app_rta_release(ctx);
+    } else {
+      on_runtime_error(APP_RTA_ERROR_ACQUIRE_FAILED, sc);
+    }
   }
 }
 #endif
@@ -439,7 +449,7 @@ static inline bool sl_ncp_can_process_event(uint32_t len)
     return ret;
   }
   // event fits into event buffer; otherwise don't pop it from queue
-  if ((len <= (uint32_t)(sizeof(evt.buf) - evt.len)) && !evt_is_available()
+  if ((len <= (uint32_t)(sizeof(event.buf) - event.len)) && !evt_is_available()
       && !cmd_is_available()) {
     ret = true;
   }
@@ -640,14 +650,14 @@ static void ncp_step(void)
     sl_wake_lock_set_remote_req();
     #endif // SL_CATALOG_WAKE_LOCK_PRESENT
 
-    uint8_t *data_ptr = evt.buf;
+    uint8_t *data_ptr = event.buf;
     uint16_t msg_len = MSG_GET_LEN((sl_bt_msg_t*)data_ptr);
 
     if (msg_len != 0) {
       uint32_t tx_len = msg_len;
       #if defined(SL_CATALOG_NCP_SEC_PRESENT)
       // encrypt the outgoing event
-      data_ptr = (uint8_t*)sl_ncp_sec_process_event((sl_bt_msg_t*)evt.buf);
+      data_ptr = (uint8_t*)sl_ncp_sec_process_event((sl_bt_msg_t*)event.buf);
       if (data_ptr == NULL) {
         sl_ncp_on_error(SL_NCP_ERROR_ENCRYPT, SL_STATUS_FAIL);
       }
@@ -661,9 +671,14 @@ static void ncp_step(void)
     }
     // Clear event buffer
     evt_dequeue(msg_len);
-  }
+    (void)app_rta_release(ctx);
 
-  (void)app_rta_release(ctx);
+    // Signal that event was processed. In case the event queue was full and the
+    // next event is waiting, it can be re-checked if it can be processed now.
+    sli_ncp_sync_signal();
+  } else {
+    (void)app_rta_release(ctx);
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -770,29 +785,16 @@ static void evt_enqueue(uint16_t len, uint8_t *data)
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_ATOMIC();
   // event fits into event buffer; otherwise discard it
-  if (len <= (sizeof(evt.buf) - evt.len)) {
-    memcpy((void *)&evt.buf[evt.len], (void *)data, len);
-    evt.len += len;
+  if (len <= (sizeof(event.buf) - event.len)) {
+    memcpy((void *)&event.buf[event.len], (void *)data, len);
+    event.len += len;
     evt_set_available();
     CORE_EXIT_ATOMIC();
   } else {
     CORE_EXIT_ATOMIC();
     // We could not fit an incoming event into the event queue
     // Increasing SL_NCP_EVT_BUF_SIZE may help if this ever happens
-
-    switch (SL_BT_MSG_ID(((sl_bt_msg_t *)data)->header)) {
-      case sl_bt_evt_scanner_legacy_advertisement_report_id:
-      case sl_bt_evt_scanner_extended_advertisement_report_id:
-        // The missed event is a scan response event.
-        // Since these type of events are not mandatory, and tend to be
-        // generated most densely, it can be ignored.
-        break;
-
-      default:
-        // Handle error otherwise
-        sl_ncp_on_error(SL_NCP_ERROR_EVT_ENQUE, SL_STATUS_WOULD_OVERFLOW);
-        break;
-    }
+    sl_ncp_on_error(SL_NCP_ERROR_EVT_ENQUE, SL_STATUS_WOULD_OVERFLOW);
   }
 }
 
@@ -804,15 +806,15 @@ static void evt_dequeue(uint16_t len)
   CORE_DECLARE_IRQ_STATE;
 
   CORE_ENTER_ATOMIC();
-  if (evt.len < len) {
+  if (event.len < len) {
     sl_ncp_on_error(SL_NCP_ERROR_EVT_DEQUE, SL_STATUS_INVALID_COUNT);
-  } else if (evt.len == len) {
-    evt.len = 0;
+  } else if (event.len == len) {
+    event.len = 0;
     evt_clr_available();
   } else {
-    uint16_t remaining = evt.len - len;
-    memmove(evt.buf, (void *)&evt.buf[len], remaining);
-    evt.len = remaining;
+    uint16_t remaining = event.len - len;
+    memmove(event.buf, (void *)&event.buf[len], remaining);
+    event.len = remaining;
   }
   CORE_EXIT_ATOMIC();
 }
@@ -909,7 +911,7 @@ static inline void cmd_clr_available(void)
  *****************************************************************************/
 static inline bool evt_is_available(void)
 {
-  return evt.available;
+  return event.available;
 }
 
 /**************************************************************************//**
@@ -917,7 +919,7 @@ static inline bool evt_is_available(void)
  *****************************************************************************/
 static inline void evt_set_available(void)
 {
-  evt.available = true;
+  event.available = true;
 }
 
 /**************************************************************************//**
@@ -925,7 +927,7 @@ static inline void evt_set_available(void)
  *****************************************************************************/
 static inline void evt_clr_available(void)
 {
-  evt.available = false;
+  event.available = false;
 }
 
 // Error callback

@@ -104,7 +104,7 @@ configuration:
     unless:
       - hardware_board
   - name: SL_STACK_SIZE
-    value: 3500
+    value: 3496
   - name: SL_BT_CONFIG_BUFFER_SIZE
     value: 22000
   - name: SL_BT_CONFIG_MAX_CS_PROCEDURES

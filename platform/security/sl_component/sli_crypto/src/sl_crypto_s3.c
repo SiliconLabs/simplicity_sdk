@@ -46,7 +46,7 @@
 #include "sxsymcrypt/keyref.h"
 #include "sxsymcrypt/statuscodes.h"
 
-#define MASKBITS 32
+#define MASKBITS 128
 typedef union _hostcrypto_seed {
   uint8_t  u8[MASKBITS / 8];
   uint32_t u32[MASKBITS / 32];
@@ -67,25 +67,24 @@ sl_status_t sli_crypto_countermeasure_reseed(sli_crypto_engine_t engine, sli_cry
     return SL_STATUS_INVALID_PARAMETER;
   }
 
-  sl_status_t rc = sli_sxsymcrypt_lock_cryptomaster_selection(engine, false);
-  if (rc != SL_STATUS_OK) {
-    return rc;
-  }
-
+  sl_status_t rc;
   struct sxcmmask ctx = { 0 };
   for (uint16_t i = 0; i < sizeof(seed->u32) / sizeof(seed->u32[0]); i++) {
+    rc = sli_sxsymcrypt_lock_cryptomaster_selection(engine, false);
+    if (rc != SL_STATUS_OK) {
+      break;
+    }
     if ((SX_OK != sx_cm_load_mask(&ctx, seed->u32[i]))) {
       rc =  SL_STATUS_FAIL;
       break;
     }
+
     if (SX_OK != sx_cm_load_mask_wait(&ctx)) {
       rc = SL_STATUS_FAIL;
       break;
     }
-    memset(&ctx, 0, sizeof(ctx));
+    sli_sxsymcrypt_unlock_cryptomaster_selection();
   }
-
-  sli_sxsymcrypt_unlock_cryptomaster_selection();
 
   return rc;
 }

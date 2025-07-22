@@ -96,6 +96,10 @@ configuration:
     condition: [micriumos_kernel]
   - name: SL_RAIL_UTIL_PTI_BAUD_RATE_HZ
     value: "3200000"
+  - name: SL_SLEEPTIMER_WALLCLOCK_CONFIG
+    value: "1"
+    condition:
+      - "sl_wisun_ota_dfu"
 
   # SDK components config specialization
   - name: "SL_WISUN_PING_MAX_PAYLOAD_LENGTH"

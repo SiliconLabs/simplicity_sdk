@@ -71,10 +71,21 @@ typedef struct {
     struct {
         #if defined(SLI_PSA_DRIVER_FEATURE_HASH_STATE_64)
       uint8_t hmac_result[64];
+        #if defined(_SILICON_LABS_32B_SERIES_3)
+      uint8_t buffer[128];
+        #endif // _SILICON_LABS_32B_SERIES_3
         #else
       uint8_t hmac_result[32];
+        #if defined(_SILICON_LABS_32B_SERIES_3)
+      uint8_t buffer[64];
+        #endif // _SILICON_LABS_32B_SERIES_3
         #endif // SLI_PSA_DRIVER_FEATURE_HASH_STATE_64
       size_t hmac_len;
+        #if defined(_SILICON_LABS_32B_SERIES_3)
+      unsigned char hmac_state_buffer[72u];
+      size_t processed_msg_len;
+      uint8_t buffer_length;
+        #endif // _SILICON_LABS_32B_SERIES_3
     } hmac;
     #endif // SLI_PSA_DRIVER_FEATURE_HMAC
   } ctx;

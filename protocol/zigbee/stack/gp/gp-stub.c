@@ -25,6 +25,11 @@ sl_status_t sli_zigbee_gp_init(void)
   return SL_STATUS_OK;
 }
 
+void sli_zigbee_gp_init_tokens(void)
+{
+  // stub function
+}
+
 void sli_zigbee_gp_proxy_table_init(void)
 {
   // stub function

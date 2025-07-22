@@ -19,6 +19,7 @@ recommends:
   - id: zigbee_xncp_library_internal
 
 include:
+  - path: platform/service/token_manager/inc
   - path: protocol/zigbee/app/xncp
     file_list:
       - path: xncp.h

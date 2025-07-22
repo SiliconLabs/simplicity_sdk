@@ -28,9 +28,7 @@
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
 
 static void ApplicationTask(SApplicationHandles* pAppHandles);
 
@@ -87,9 +85,7 @@ static void ApplicationTask(SApplicationHandles* pAppHandles)
 
   ZAF_PrintAppInfo();
 
-#if (!defined(UNIT_TEST))
   app_hw_init();
-#endif
 
   /* Enter SmartStart*/
   /* Protocol will commence SmartStart only if the node is NOT already included in the network */

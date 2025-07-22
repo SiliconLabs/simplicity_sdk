@@ -27,6 +27,12 @@
 #include "app/util/zigbee-framework/zigbee-device-library.h"
 #include "stack/include/source-route.h"
 #include "stack/config/sl_zigbee_configuration_defaults.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "stack/include/sl_zigbee_token.h"
+#include "stack/config/token-cache.h"
 
 #ifdef SL_CATALOG_ZIGBEE_FRAGMENTATION_PRESENT
 #include "fragmentation.h"
@@ -245,7 +251,7 @@ void sli_zigbee_af_fragmentation_message_sent_handler(sl_status_t status,
 
 void sl_zigbee_af_get_mfg_string(uint8_t* returnData)
 {
-  halCommonGetMfgToken(returnData, TOKEN_MFG_STRING);
+  (void)sl_token_manager_get_data(SL_TOKEN_GET_STATIC_DEVICE_TOKEN(TOKEN_MFG_STRING), (void *)returnData, sizeof(tokTypeMfgString));
 }
 
 uint8_t sl_zigbee_af_get_stack_profile(void)

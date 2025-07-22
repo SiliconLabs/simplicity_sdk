@@ -98,7 +98,7 @@ void app_button_press_btn_0_handler(uint8_t duration)
     case APP_BUTTON_PRESS_PRESSED_DOWN:
       // Short duration is the lower limit of middle press duration.
       // Usage of timer is necessary because short key press is handled differently
-      sl_sleeptimer_start_timer_ms(&my_sleeptimer_handle, SHORT_BUTTON_PRESS_DURATION, sleeptimer_cb, NULL, 0, 0);
+      sl_sleeptimer_start_timer_ms(&my_sleeptimer_handle, SHORT_BUTTON_PRESS_DURATION_MS, sleeptimer_cb, NULL, 0, 0);
       break;
     case APP_BUTTON_PRESS_DURATION_SHORT:
       app_event = EVENT_APP_KEY01_SHORT_PRESS;

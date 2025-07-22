@@ -21,19 +21,12 @@
 * Customer should define these in their own application code
 ***************************************************************************/
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_TOKEN_SYSTEM == 1)
-WEAK(void halCommonSetTokenWrapper(uint16_t token, void *data))
+WEAK(void sl_zigbee_gp_set_token_wrapper(uint32_t token, void *data, uint32_t length))
 {
 }
 
-WEAK(void halCommonGetTokenWrapper(void *data, uint16_t token))
+WEAK(void sl_zigbee_gp_get_token_wrapper(uint32_t token, void *data, uint32_t length))
 {
 }
 
-WEAK(void halCommonSetIndexedTokenWrapper(uint16_t token, uint8_t index, void *data))
-{
-}
-
-WEAK(void halCommonGetIndexedTokenWrapper(void *data, uint16_t token, uint8_t index))
-{
-}
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_TOKEN_SYSTEM == 1)

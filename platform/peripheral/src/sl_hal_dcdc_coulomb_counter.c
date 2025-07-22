@@ -51,7 +51,7 @@ static int prs_channel = -1;
 /***************************************************************************//**
  * Initializes DCDC_COULOMB_COUNTER module.
  ******************************************************************************/
-void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_config_t *p_config)
+void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_init_t *init)
 {
   if (DCDC->CCCTRL & _DCDC_CCCTRL_CCEN_MASK) {
     /* Disable COULOMB_COUNTER_INTERNAL module. */
@@ -61,8 +61,8 @@ void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_config_t
   /* Set configuration. */
   /* The counter thresholds can be used be used to establish a service  */
   /* interval for the coulomb counter hardware. */
-  DCDC->CCTHR = ((uint32_t)(p_config->counter_threshold_em0) << _DCDC_CCTHR_EM0CNT_SHIFT)
-                | ((uint32_t)(p_config->counter_threshold_em2) << _DCDC_CCTHR_EM2CNT_SHIFT);
+  DCDC->CCTHR = ((uint32_t)(init->counter_threshold_em0) << _DCDC_CCTHR_EM0CNT_SHIFT)
+                | ((uint32_t)(init->counter_threshold_em2) << _DCDC_CCTHR_EM2CNT_SHIFT);
 }
 
 /***************************************************************************//**
@@ -106,7 +106,7 @@ uint32_t sl_hal_dcdc_coulomb_counter_get_count(sl_hal_dcdc_coulomb_counter_emode
  * @note The coulomb counter should be calibrated to determine the
  * charge per pulse, both for EM0/1 and for EM2/3 settings of the DC-DC.
  ******************************************************************************/
-void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibration_config_t config)
+void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibration_init_t init)
 {
   CMU_ClockEnable(cmuClock_PRS, true);
 
@@ -128,11 +128,11 @@ void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibratio
   /* Setup the calibration circuit: */
   /*  - HFXO is clocking up-counter. */
   /*  - PRS CMU_CALDN consumer is clocking down-counter. */
-  CMU_CalibrateConfig(config.cal_count, cmuSelect_PRS, config.reference_clk);
+  CMU_CalibrateConfig(init.cal_count, cmuSelect_PRS, init.reference_clk);
   CMU_CalibrateCont(false);
 
   /* Enable the desired calibration load. */
-  sl_hal_dcdc_coulomb_counter_set_cal_load_level(config.cal_emode, config.cal_load_level);
+  sl_hal_dcdc_coulomb_counter_set_cal_load_level(init.cal_emode, init.cal_load_level);
   sl_hal_dcdc_coulomb_counter_enable_cal_load();
 
   /* Wait for at least one DC-DC pulse to settle DC-DC. */

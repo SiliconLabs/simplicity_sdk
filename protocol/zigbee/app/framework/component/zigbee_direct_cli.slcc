@@ -11,6 +11,11 @@ provides:
 requires:
   - name: zigbee_direct_zdd
 
+include:
+  - path: protocol/zigbee
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
+
 source:
   - path: protocol/zigbee/app/framework/plugin-soc/zigbee_direct_cli/zigbee_direct_cli.c
     condition:

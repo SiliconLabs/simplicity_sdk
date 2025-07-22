@@ -99,10 +99,19 @@ typedef struct {
   uint8_t security_type;
 } app_settings_wifi_t;
 
+typedef struct {
+  uint8_t min_be;
+  uint8_t max_be;
+  uint16_t backoff_period_us;
+  uint8_t max_cca_retries;
+  uint8_t max_frame_retries;
+} app_settings_mac_t;
+
 extern app_settings_wisun_t app_settings_wisun;
 extern app_settings_ping_t app_settings_ping;
 extern app_settings_app_t app_settings_app;
 extern app_settings_wifi_t app_settings_wifi;
+extern app_settings_mac_t app_settings_mac;
 
 #if SLI_WISUN_DISABLE_SECURITY
 extern uint32_t app_security_state;

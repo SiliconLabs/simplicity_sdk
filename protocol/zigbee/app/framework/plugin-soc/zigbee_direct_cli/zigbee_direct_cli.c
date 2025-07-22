@@ -25,6 +25,7 @@
 #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 #include "zigbee_direct_common.h"
 #include "app/framework/security/af-security.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 void sli_zigbee_direct_print_keys(sl_cli_command_arg_t *arguments)
 {
@@ -44,7 +45,7 @@ void sli_zigbee_direct_print_keys(sl_cli_command_arg_t *arguments)
   sl_zigbee_af_print_zigbee_key(admin_key);
   sl_zigbee_core_debug_println("");
 
-  halCommonGetMfgToken(&tok_install_code, TOKEN_MFG_INSTALLATION_CODE);
+  (void)sl_token_manager_get_data(SL_TOKEN_GET_STATIC_SECURE_TOKEN(TOKEN_MFG_INSTALLATION_CODE), (void *)&tok_install_code, sizeof(tokTypeMfgInstallationCode));
   sli_zigbee_af_install_code_to_key(tok_install_code.value, 18, &basic_key);
   sl_zigbee_core_debug_print("Install Code based Key:");
   sl_zigbee_af_print_zigbee_key(sl_zigbee_key_contents(&basic_key));
@@ -67,7 +68,9 @@ void sl_zigbee_direct_set_anonymous_join_timeout(sl_cli_command_arg_t *arguments
   }
 
   sl_zigbee_direct_anonymous_join_timeout_sec = timeout;
-  halCommonSetToken(TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT, &sl_zigbee_direct_anonymous_join_timeout_sec);
+  (void)sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT,
+                                  (void *)&sl_zigbee_direct_anonymous_join_timeout_sec,
+                                  sizeof(uint32_t));
   sl_zigbee_af_event_set_delay_ms(&sli_zigbee_direct_anonymous_join_event, sl_zigbee_direct_anonymous_join_timeout_sec * 1000);
   sl_zigbee_core_debug_println("sl_zigbee_direct_anonymous_join_timeout_sec was set to %d sec.", timeout);
 }

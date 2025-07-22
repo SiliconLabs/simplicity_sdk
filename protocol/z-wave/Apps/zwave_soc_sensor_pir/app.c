@@ -40,9 +40,7 @@
 #include "zw_cli_sleeping_config.h"
 #endif
 
-#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
 
 /*****************************************************
  * Set this macro to create a multi-threaded
@@ -193,9 +191,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 
   ZAF_PrintAppInfo();
 
-#if (!defined(UNIT_TEST))
   app_hw_init();
-#endif
 
   /* Make sure to call AppTimerDeepSleepPersistentRegister() _after_ ZAF_Init().
    * It will access the app handles */
@@ -221,11 +217,9 @@ ApplicationTask(SApplicationHandles* pAppHandles)
    */
   AppTimerDeepSleepPersistentLoadAll(resetReason);
 
-#if (!defined(UNIT_TEST))
   if (ZPAL_RESET_REASON_DEEP_SLEEP_EXT_INT == resetReason) {
     app_hw_deep_sleep_wakeup_handler();
   }
-#endif
 
   /**
    * Set the maximum inclusion request interval for SmartStart.

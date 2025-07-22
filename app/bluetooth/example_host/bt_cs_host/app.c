@@ -677,10 +677,24 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
         if (cs_host_state.reflector_conn_handles[i] == evt->data.evt_connection_parameters.connection) {
           if (evt->data.evt_connection_parameters.security_mode != sl_bt_connection_mode1_level1) {
             sc = sl_bt_cs_read_remote_supported_capabilities(evt->data.evt_connection_parameters.connection);
-            app_assert_status(sc);
+            if (sc == SL_STATUS_INVALID_PARAMETER) {
+              app_log_error(APP_PREFIX "Connection not found." APP_LOG_NL);
+              sc = ble_peer_manager_central_create_connection();
+              app_assert_status(sc);
+              app_log_info(APP_PREFIX "Scanning restarted for new reflector connections..." APP_LOG_NL);
+            } else {
+              app_assert_status(sc);
+            }
           } else {
             sc = sl_bt_sm_increase_security(evt->data.evt_connection_parameters.connection);
-            app_assert_status(sc);
+            if (sc == SL_STATUS_INVALID_PARAMETER) {
+              app_log_error(APP_PREFIX "Connection not found." APP_LOG_NL);
+              sc = ble_peer_manager_central_create_connection();
+              app_assert_status(sc);
+              app_log_info(APP_PREFIX "Scanning restarted for new reflector connections..." APP_LOG_NL);
+            } else {
+              app_assert_status(sc);
+            }
           }
           break;
         }

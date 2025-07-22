@@ -5302,11 +5302,23 @@ typedef void (*sl_rail_rf_sense_callback_t)(void);
 SLI_RAIL_ENUM(sl_rail_rf_sense_band_t) {
   /** RF Sense is disabled. */
   SL_RAIL_RF_SENSE_OFF = 0u,
-  /** RF Sense is in 2.4 GHz band. */
+  /**
+   * RF Sense is in 2.4 GHz band.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_high_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_2P4_GHZ = 1u,
-  /** RF Sense is in Sub-GHz band. */
+  /**
+   * RF Sense is in Sub-GHz band.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_high_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_SUB_GHZ = 2u,
-  /** RF Sense is in both bands. */
+  /**
+   * RF Sense is in both bands.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_high_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_ANY = 3u,
   /**
    * A count of the basic choices in this enumeration.
@@ -5314,11 +5326,23 @@ SLI_RAIL_ENUM(sl_rail_rf_sense_band_t) {
    */
   SL_RAIL_RF_SENSE_MAX,
 
-  /** RF Sense is in low sensitivity 2.4 GHz band */
+  /**
+   * RF Sense is in low sensitivity 2.4 GHz band.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_low_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_2P4_GHZ_LOW_SENSITIVITY = SL_RAIL_RF_SENSE_LOW_SENSITIVITY_OFFSET + SL_RAIL_RF_SENSE_2P4_GHZ,
-  /** RF Sense is in low sensitivity Sub-GHz band */
+  /**
+   * RF Sense is in low sensitivity Sub-GHz band.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_low_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_SUB_GHZ_LOW_SENSITIVITY = SL_RAIL_RF_SENSE_LOW_SENSITIVITY_OFFSET + SL_RAIL_RF_SENSE_SUB_GHZ,
-  /** RF Sense is in low sensitivity for both bands. */
+  /**
+   * RF Sense is in low sensitivity for both bands.
+   * The sensitivity level associated with this band is configurable
+   * via \ref sl_rail_rf_sense_low_sensitivity_value.
+   */
   SL_RAIL_RF_SENSE_ANY_LOW_SENSITIVITY = SL_RAIL_RF_SENSE_LOW_SENSITIVITY_OFFSET + SL_RAIL_RF_SENSE_ANY,
 };
 

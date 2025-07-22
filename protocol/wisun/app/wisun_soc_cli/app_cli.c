@@ -359,14 +359,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type);
 
 static void app_cli_task(void *argument)
 {
-  sl_status_t ret;
   (void)argument;
-
-  ret = sl_wisun_set_regulation_tx_thresholds(app_settings_wisun.regulation_warning_threshold,
-                                              app_settings_wisun.regulation_alert_threshold);
-  if (ret != SL_STATUS_OK) {
-    printf("[Failed: unable to set regulation TX thresholds: %lu]\r\n", ret);
-  }
 
   if (app_settings_app.autoconnect) {
     app_join((sl_wisun_phy_config_type_t)app_settings_wisun.phy_config_type);
@@ -1015,7 +1008,11 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     params.traffic.lowpan_mtu = app_settings_wisun.lowpan_mtu;
     params.traffic.ipv6_mru = app_settings_wisun.ipv6_mru;
     params.traffic.max_edfe_fragment_count = app_settings_wisun.max_edfe_fragment_count;
-
+    params.mac.min_be = app_settings_mac.min_be;
+    params.mac.max_be = app_settings_mac.max_be;
+    params.mac.backoff_period_us = app_settings_mac.backoff_period_us;
+    params.mac.max_cca_retries = app_settings_mac.max_cca_retries;
+    params.mac.max_frame_retries = app_settings_mac.max_frame_retries;
     ret = sl_wisun_set_connection_parameters(&params);
   }
 
@@ -1150,6 +1147,13 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
+  ret = sl_wisun_set_regulation_tx_thresholds(app_settings_wisun.regulation_warning_threshold,
+                                              app_settings_wisun.regulation_alert_threshold);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set regulation TX thresholds: %lu]\r\n", ret);
+  }
+
+
   ret = sl_wisun_set_pti_state(app_settings_app.pti_state);
   if (ret != SL_STATUS_OK) {
     printf("[Failed to set PTI state]\r\n");
@@ -1163,6 +1167,14 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 #endif
+
+  // As per RFC3748, "The Identity Response field MUST NOT be null terminated"
+  ret = sl_wisun_set_eap_identity(strlen(app_settings_wisun.eap_identity),
+                                  (const uint8_t *)app_settings_wisun.eap_identity);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed to set EAP identity]\r\n");
+    goto cleanup;
+  }
 
   ret = sl_wisun_join((const uint8_t *)app_settings_wisun.network_name, &phy_config);
   if (ret == SL_STATUS_OK) {
@@ -3003,7 +3015,27 @@ void app_set_phy_sensitivity(sl_cli_command_arg_t *arguments)
   app_wisun_cli_mutex_unlock();
 }
 
+void app_reset_duty_cycle(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+
+  app_wisun_cli_mutex_lock();
+
+  status = sl_wisun_reset_regulation_duty_cycle();
+  if (status != SL_STATUS_OK) {
+    printf("[Failed: unable to reset the duty cycle counters: %lu]\r\n", status);
+    goto cleanup;
+  }
+  printf("[Duty cycle counters reset]\r\n");
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
 #if defined (SL_CATALOG_WISUN_CLI_DMP_PRESENT)
+
 static sl_status_t app_ble_start_advertising()
 {
   sl_status_t status;
@@ -3255,4 +3287,5 @@ cleanup:
 
   app_wisun_cli_mutex_unlock();
 }
+
 #endif

@@ -797,7 +797,12 @@ typedef struct {
   uint8_t               num_fixed_priority; ///< Number of fixed priority channels.
   uint8_t               sync_prs_clr_en;    ///< PRS Synctrig clear enable.
   uint8_t               sync_prs_set_en;    ///< PRS Synctrig set enable.
-} sl_hal_ldma_config_t;
+} sl_hal_ldma_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_ldma_init_t sl_hal_ldma_config_t;
+/** @endcond */
 
 /***************************************************************************//**
  * @brief
@@ -822,7 +827,12 @@ typedef struct {
   sl_hal_ldma_cfg_src_bus_port_t    src_bus_port;                    ///< Source operation bus port.
   sl_hal_ldma_cfg_dst_bus_port_t    dst_bus_port;                    ///< Destination operation bus port.
 #endif
-} sl_hal_ldma_transfer_config_t;
+} sl_hal_ldma_transfer_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_ldma_transfer_init_t sl_hal_ldma_transfer_config_t;
+/** @endcond */
 
 /*******************************************************************************
  ********************************   DEFINES   **********************************
@@ -861,7 +871,7 @@ typedef struct {
 /// to a sl_hal_ldma_descriptor_t pointer.
 #define SL_HAL_LDMA_DESCRIPTOR_LINKABS_LINKADDR_TO_ADDR(link_addr) (sl_hal_ldma_descriptor_t *) (link_addr << _LDMA_CH_LINK_LINKADDR_SHIFT)
 
-/// Default value for BUS PORT for sl_hal_ldma_transfer_config_t struct initializer.
+/// Default value for BUS PORT for sl_hal_ldma_transfer_init_t struct initializer.
 #if defined(_LDMA_CH_CFG_STRUCTBUSPORT_MASK)
 #define SL_HAL_LDMA_CFG_BUS_PORT_DEFAULT \
   SL_HAL_LDMA_CFG_STRUCT_BUS_PORT_0,     \
@@ -2402,7 +2412,7 @@ typedef struct {
  *   This function will disable all the LDMA channels.
  *   This function will also set the LDMA IRQ priority to a user-configurable
  *   priority. The LDMA interrupt priority is configured using the
- *   @ref sl_hal_ldma_config_t structure.
+ *   @ref sl_hal_ldma__t structure.
  *
  * @param[in] ldma
  *   A LDMA peripheral module.
@@ -2411,7 +2421,7 @@ typedef struct {
  *   A pointer to the initialization structure used to configure the LDMA.
  ******************************************************************************/
 void sl_hal_ldma_init(LDMA_TypeDef *ldma,
-                      const sl_hal_ldma_config_t *config);
+                      const sl_hal_ldma_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -2431,7 +2441,7 @@ void sl_hal_ldma_init(LDMA_TypeDef *ldma,
  * @param[in] channel
  *   A LDMA channel to stop.
  *
- * @param[in] transfer_config
+ * @param[in] transfer_init
  *   The initialization structure used to configure the transfer.
  *
  * @param[in] descriptor
@@ -2441,7 +2451,7 @@ void sl_hal_ldma_init(LDMA_TypeDef *ldma,
  ******************************************************************************/
 void sl_hal_ldma_init_transfer(LDMA_TypeDef *ldma,
                                uint32_t channel,
-                               const sl_hal_ldma_transfer_config_t *transfer_config,
+                               const sl_hal_ldma_transfer_init_t *transfer_init,
                                const sl_hal_ldma_descriptor_t *descriptor);
 
 #if defined(_LDMA_CH_CTRL_EXTEND_MASK)
@@ -2455,7 +2465,7 @@ void sl_hal_ldma_init_transfer(LDMA_TypeDef *ldma,
  * @param[in] channel
  *   A LDMA channel to stop.
  *
- * @param[in] transfer_config
+ * @param[in] transfer_init
  *   The initialization structure used to configure the transfer.
  *
  * @param[in] descriptor_extend
@@ -2466,7 +2476,7 @@ void sl_hal_ldma_init_transfer(LDMA_TypeDef *ldma,
  ******************************************************************************/
 void sl_hal_ldma_init_transfer_extend(LDMA_TypeDef *ldma,
                                       uint32_t channel,
-                                      const sl_hal_ldma_transfer_config_t *transfer_config,
+                                      const sl_hal_ldma_transfer_init_t *transfer_init,
                                       const sl_hal_ldma_descriptor_extend_t *descriptor_extend);
 #endif
 
@@ -3064,7 +3074,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  * sl_hal_ldma_init() must have been executed once (normally during system initialization).
  *
  * LDMA transfers are initialized by a call to @ref sl_hal_ldma_init_transfer(),
- * transfer properties are controlled by the contents of @ref sl_hal_ldma_transfer_config_t
+ * transfer properties are controlled by the contents of @ref sl_hal_ldma_transfer_init_t
  * and @ref sl_hal_ldma_descriptor_t structure parameters. The LDMA transfers can then be initiated
  * by calling @ref sl_hal_ldma_start_transfer(). The @ref sl_hal_ldma_descriptor_t
  * structure parameter may be a pointer to an array of descriptors, descriptors in array should
@@ -3087,11 +3097,11 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *    static volatile uint32_t src[4];
  *    static volatile uint32_t dst[4];
  *
- *    static const sl_hal_ldma_transfer_config_t transferCfg = SL_HAL_LDMA_TRANSFER_CFG_MEMORY();
+ *    static const sl_hal_ldma_transfer_init_t transferCfg = SL_HAL_LDMA_TRANSFER_CFG_MEMORY();
  *    static const sl_hal_ldma_descriptor_t desc = SL_HAL_LDMA_DESCRIPTOR_SINGLE_M2M(SL_HAL_LDMA_CTRL_SIZE_WORD, src, dst, 4);
  *
  *    // Initialize the LDMA with default values.
- *    sl_hal_ldma_config_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
+ *    sl_hal_ldma_init_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
  *    sl_hal_ldma_init(LDMA0, &initCfg);
  *
  *    // Start the memory transfer.
@@ -3118,7 +3128,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *
  *    // A transfer consisting of 3 descriptors linked together and each descriptor
  *    // transfers 4 words from the source to the destination.
- *    static const sl_hal_ldma_transfer_config_t transferCfg = SL_HAL_LDMA_TRANSFER_CFG_MEMORY();
+ *    static const sl_hal_ldma_transfer_init_t transferCfg = SL_HAL_LDMA_TRANSFER_CFG_MEMORY();
  *    static const sl_hal_ldma_descriptor_t descList[] =
  *    {
  *      SL_HAL_LDMA_DESCRIPTOR_LINKREL_M2M(SL_HAL_LDMA_CTRL_SIZE_WORD, src, dst, 4, 1),
@@ -3127,7 +3137,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *    };
  *
  *    // Initialize the LDMA with default values.
- *    sl_hal_ldma_config_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
+ *    sl_hal_ldma_init_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
  *    sl_hal_ldma_init(LDMA0, &initCfg);
  *
  *    // Start the linked memory transfer.
@@ -3152,7 +3162,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *    static volatile uint8_t dst[4];
  *
  *    // The LDMA transfer should be triggered by the EUSART0 RX data available signal.
- *    static const sl_hal_ldma_transfer_config_t eusart0RxTransfer =
+ *    static const sl_hal_ldma_transfer_init_t eusart0RxTransfer =
  *    SL_HAL_LDMA_TRANSFER_CFG_PERIPHERAL(SL_HAL_LDMA_PERIPHERAL_SIGNAL_EUSART0_RXFL);
  *
  *    // Transfer 4 bytes from the EUSART0 RX FIFO to memory.
@@ -3163,7 +3173,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *                                    4);                            // Number of byte transfers
  *
  *    // Initialize the LDMA with default values.
- *    sl_hal_ldma_config_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
+ *    sl_hal_ldma_init_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
  *    sl_hal_ldma_init(LDMA0, &initCfg);
  *
  *    // Start the peripheral transfer which is triggered by the EUSART0
@@ -3190,7 +3200,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *    static volatile uint8_t buffer1[5];
  *
  *    // The LDMA transfer should be triggered by the EUSART0 RX data available signal.
- *    static const sl_hal_ldma_transfer_config_t eusart0RxTransfer =
+ *    static const sl_hal_ldma_transfer_init_t eusart0RxTransfer =
  *    SL_HAL_LDMA_TRANSFER_CFG_PERIPHERAL(SL_HAL_LDMA_PERIPHERAL_SIGNAL_EUSART0_RXFL);
  *
  *    // Both descriptors transfer 5 bytes from the EUSART0 RX data register into
@@ -3204,7 +3214,7 @@ __INLINE uint32_t sl_hal_ldma_get_enabled_pending_high_interrupts(LDMA_TypeDef *
  *    };
  *
  *    // Initialize the LDMA with default values.
- *    sl_hal_ldma_config_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
+ *    sl_hal_ldma_init_t initCfg = SL_HAL_LDMA_INIT_DEFAULT;
  *    sl_hal_ldma_init(LDMA0, &initCfg);
  *
  *    // Start the peripheral transfer which is triggered by the EUSART0

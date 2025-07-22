@@ -15,6 +15,8 @@
  *
  ******************************************************************************/
 
+#include "sl_token_manager_defines.h"
+
 // Noted: Our current multi-network feature is restricted to have 2 networks,
 // check the definition of SL_ZIGBEE_SUPPORTED_NETWORKS. So here we only define
 // one more set of tokens for child tables. In the future, if we supports more
@@ -29,8 +31,13 @@
 // MULTI-PAN KEYS
 // This key is used for an indexed token and the subsequent 0x7F keys are also reserved.
 #define NVM3KEY_MULTI_PAN_STACK_CHILD_TABLE                (NVM3KEY_DOMAIN_ZIGBEE | 0x0800)
+#define COMMON_TOKEN_MULTI_PAN_STACK_CHILD_TABLE           SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_ZIGBEE | 0x0800), 0)
 // This key is used for an indexed token and the subsequent 0x7F keys are also reserved.
 #define NVM3KEY_MULTI_PAN_STACK_ADDITIONAL_CHILD_DATA      (NVM3KEY_DOMAIN_ZIGBEE | 0x0880)
+#define COMMON_TOKEN_MULTI_PAN_STACK_ADDITIONAL_CHILD_DATA SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_ZIGBEE | 0x0880), 0)
+
+#define TOKEN_MULTI_PAN_STACK_CHILD_TABLE_DEFAULT { 0, }
+#define TOKEN_MULTI_PAN_STACK_ADDITIONAL_CHILD_DATA_DEFAULT { 0x0F, }
 
 // We only reserve token space for multi PAN child table
 // when multiple ZC and ZR devices devices are present.
@@ -44,9 +51,9 @@
 DEFINE_INDEXED_TOKEN(MULTI_PAN_STACK_CHILD_TABLE,
                      tokTypeStackChildTable,
                      SL_ZIGBEE_MULTI_PAN_CHILD_TABLE_TOKEN_SIZE,
-                     { 0, })
+                     TOKEN_MULTI_PAN_STACK_CHILD_TABLE_DEFAULT)
 DEFINE_INDEXED_TOKEN(MULTI_PAN_STACK_ADDITIONAL_CHILD_DATA,
                      tokTypeStackAdditionalChildData,
                      SL_ZIGBEE_MULTI_PAN_CHILD_TABLE_TOKEN_SIZE,
-                     { 0x0F, })
+                     TOKEN_MULTI_PAN_STACK_ADDITIONAL_CHILD_DATA_DEFAULT)
 #endif //DEFINETOKENS

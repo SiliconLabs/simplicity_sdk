@@ -2215,7 +2215,7 @@ otError otPlatRadioGetTransmitPower(otInstance *aInstance, int8_t *aPower)
     otEXPECT_ACTION(aPower != NULL, error = OT_ERROR_INVALID_ARGS);
     // sl_rail_get_tx_power_dbm() returns power in deci-dBm (0.1dBm)
     // Divide by 10 because aPower is supposed be in units dBm
-    *aPower = ((int8_t)sl_rail_get_tx_power_dbm(gRailHandle)) / 10;
+    *aPower = (int8_t)(sl_rail_get_tx_power_dbm(gRailHandle) / 10);
 
 exit:
     return error;

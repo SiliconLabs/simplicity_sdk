@@ -78,4 +78,10 @@ void sx_cmdma_release_hw(struct sx_regs *regs);
  * This function is called only if interrupts are enabled.
  */
 void sx_cmdma_wait(struct sx_regs *regs);
+
+/** Trigger a CPU hard fault.
+ *
+ */
+void sx_trigger_hardfault(void);
+
 #endif

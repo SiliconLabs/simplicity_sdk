@@ -40,9 +40,10 @@ component:
   - id: mpu # disable execution from RAM
   - id: simple_rgb_pwm_led
     instance: [rgb_led0]
-    condition: [hardware_board_has_rgb]
+    condition: [zw_board_has_rgb]
   - id: pwm
     instance: [led1]
+    condition: [zw_board_has_no_rgb]
   - id: ZW_MIGRATION_TO_7_19
   - id: zw_cli_common
     condition: [zw_stack_release_libraries]
@@ -71,9 +72,9 @@ include:
       - path: app_rgb_led.h
 
 configuration:
-  - name: SHORT_BUTTON_PRESS_DURATION
+  - name: SHORT_BUTTON_PRESS_DURATION_MS
     value: (400)
-  - name: MEDIUM_BUTTON_PRESS_DURATION
+  - name: MEDIUM_BUTTON_PRESS_DURATION_MS
     value: (1500)
   - name: ZAF_CONFIG_REQUEST_KEY_S0
     value: 1

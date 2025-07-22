@@ -921,14 +921,6 @@ sl_status_t slx_zigbee_routing_set_route_record_policy(sl_zigbee_route_record_po
 uint8_t slx_zigbee_routing_get_route_record_policy(void);
 
 /**
- * @brief Get the total count of the tokens configured.
- * @return The token count.
- *
- * Use this to get the number of tokens configured in a node.
- */
-uint8_t sl_zigbee_get_token_count(void);
-
-/**
  * @brief Get information of a token by providing the index.
  * @param index An index to configured token array that ranges from 0 to sl_zigbee_get_token_count() - 1;
  * @param tokenInfo A pointer to hold the information in a structure provided by the caller.

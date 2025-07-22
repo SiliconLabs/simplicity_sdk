@@ -3153,7 +3153,7 @@ uint8_t sl_zigbee_ezsp_gp_sink_table_get_number_of_active_entries(void);
 
 // Gets the total number of tokens.
 // Return: Total number of tokens.
-uint8_t sl_zigbee_ezsp_get_token_count(void);
+uint32_t sl_zigbee_ezsp_get_token_count(void);
 
 // Gets the token information for a single token at provided index
 // Return: An sl_status_t value indicating success or the reason for failure.

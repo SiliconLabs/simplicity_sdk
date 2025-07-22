@@ -25,8 +25,11 @@
 #include "app/framework/plugin/trust-center-backup/trust-center-backup.h"
 #include "stack/include/zigbee-security-manager.h"
 #include "stack/security/zigbee-security-manager-host.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
 #include "stack/config/token-stack.h"
-
+#include "sl_zigbee_token.h"
 #include "app/framework/util/af-main.h"
 
 #include <errno.h>
@@ -351,7 +354,7 @@ sl_status_t sl_zigbee_af_trust_center_backup_save_tokens_to_file(const char* fil
     return returnValue;
   }
   // ------- Token Data Saving to the provided File -----------
-  uint8_t numberOfTokens = sl_zigbee_get_token_count();
+  uint32_t numberOfTokens = sl_zigbee_get_token_count();
   if (numberOfTokens) {
     uint8_t secure_key_storage_present = 0;
     #if !defined(SL_ZIGBEE_SCRIPTED_TEST) && defined(EZSP_HOST)
@@ -362,7 +365,7 @@ sl_status_t sl_zigbee_af_trust_center_backup_save_tokens_to_file(const char* fil
     //if this is running on SoC with secure key storage
     secure_key_storage_present = 1;
     #endif
-    fwrite(&numberOfTokens, 1, 1, output);
+    fwrite(&numberOfTokens, 4, 1, output);
     for (uint8_t tokenIndex = 0; tokenIndex < numberOfTokens; tokenIndex++) {
       sl_zigbee_token_info_t tokenInfo;
       sl_status_t status = sl_zigbee_get_token_info(tokenIndex, &tokenInfo);
@@ -516,8 +519,8 @@ sl_status_t sl_zigbee_af_trust_center_backup_write_ncp_token_to_zigbeed_tokens(c
     return returnValue;
   }
   // -------------- Read Token Data from File and add set it to the token.
-  uint8_t numberOfTokens = 0;
-  fread(&numberOfTokens, 1, 1, input);
+  uint32_t numberOfTokens = 0;
+  fread(&numberOfTokens, 4, 1, input);
   //printf("numberOfTokens = %d\n", numberOfTokens);
   for (uint8_t i = 0; i < numberOfTokens; i++) {
     uint32_t token = 0;
@@ -564,8 +567,8 @@ sl_status_t sl_zigbee_af_trust_center_backup_restore_tokens_from_file(const char
     return returnValue;
   }
   // -------------- Read Token Data from File and add set it to the token.
-  uint8_t numberOfTokens = 0;
-  fread(&numberOfTokens, 1, 1, input);
+  uint32_t numberOfTokens = 0;
+  fread(&numberOfTokens, 4, 1, input);
   //printf("numberOfTokens = %d\n", numberOfTokens);
   uint8_t secure_key_storage_present = 0;
   #if !defined(SL_ZIGBEE_SCRIPTED_TEST) && defined(EZSP_HOST)

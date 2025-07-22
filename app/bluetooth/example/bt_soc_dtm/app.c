@@ -37,6 +37,7 @@
 #include "dtm.h"
 #include "app.h"
 #include "sl_main_init.h"
+#include "sl_component_catalog.h"
 
 enum signal{
   signal_testmode_command_ready = 1,
@@ -79,17 +80,21 @@ void app_process_action(void)
   // This is a blocking call. If you wish to add more application code,
   // - Make sure to use an RTOS
   // - And create a separate task
-  sc = sl_iostream_read(config.stream, config.rx_buf, sizeof(config.rx_buf), &bytes_read);
+  app_assert_s(config.rx_len <= sizeof(config.rx_buf));
+
+  sc = sl_iostream_read(config.stream, &config.rx_buf[config.rx_len], sizeof(config.rx_buf) - config.rx_len, &bytes_read);
   if (sc == SL_STATUS_OK) {
-    app_assert_s(bytes_read <= sizeof(config.rx_buf));
-    for (size_t i = 0; i < bytes_read; i++) {
-      testmode_process_command_byte(config.rx_buf[i]);
-    }
-  } else if (sc == SL_STATUS_EMPTY) {
-    // No reception.
-  } else {
+    config.rx_len += bytes_read;
+  } else if (sc != SL_STATUS_EMPTY) {
+    // Unhandled error.
     app_assert_status(sc);
   }
+
+  for (size_t i = 0; i < config.rx_len; i++) {
+    testmode_process_command_byte(config.rx_buf[i]);
+  }
+
+  config.rx_len = 0;
 }
 
 /**************************************************************************//**
@@ -102,3 +107,31 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
 {
   testmode_on_event(evt);
 }
+
+#if !defined(SL_CATALOG_KERNEL_PRESENT) && defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+/**************************************************************************//**
+ * Checks whether the application is ready to go to sleep.
+ *
+ * @return whether there are any pending RX bytes to be processed.
+ *****************************************************************************/
+bool app_is_ok_to_sleep(void)
+{
+  sl_status_t sc;
+  size_t bytes_read;
+
+  if (config.rx_len != 0) {
+    // Data pending to be processed, block sleep.
+    return false;
+  }
+
+  sc = sl_iostream_read(config.stream, config.rx_buf, sizeof(config.rx_buf), &bytes_read);
+  if (sc != SL_STATUS_OK) {
+    // No more data, ready to sleep.
+    return true;
+  }
+
+  config.rx_len += bytes_read;
+
+  return false;
+}
+#endif

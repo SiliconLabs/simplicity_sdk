@@ -19,6 +19,9 @@
 #include "coexistence/protocol/ieee802154_uc/coexistence-802154.h"
 #include "coexistence/protocol/ieee802154_uc/coexistence-common-802154.h"
 #include "sl_rail_ieee802154.h"
+#ifdef _SILICON_LABS_32B_SERIES_3
+#include "sl_common.h"
+#endif
 
 #ifdef RTOS
   #include "rtos/rtos.h"

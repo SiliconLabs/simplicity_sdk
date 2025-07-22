@@ -24,30 +24,18 @@
 * Customer should define these in their own application code
 ***************************************************************************/
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_TOKEN_SYSTEM == 1)
-void halCommonSetTokenWrapper(uint16_t token, void *data);
-void halCommonGetTokenWrapper(void *data, uint16_t token);
-void halCommonSetIndexedTokenWrapper(uint16_t token, uint8_t index, void *data);
-void halCommonGetIndexedTokenWrapper(void *data, uint16_t token, uint8_t index);
 
-#ifdef halCommonSetToken
-#undef halCommonSetToken
-#endif //halCommonSetToken
-#define halCommonSetToken(token, data) halCommonSetTokenWrapper(token, data)
+void sl_zigbee_gp_set_token_wrapper(uint32_t token, void *data, uint32_t length);
+void sl_zigbee_gp_get_token_wrapper(uint32_t token, void *data, uint32_t length);
 
-#ifdef halCommonGetToken
-#undef halCommonGetToken
-#endif //halCommonSetToken
-#define halCommonGetToken(data, token) halCommonGetTokenWrapper(data, token)
+#define sl_zigbee_gp_set_token(token, data, length) sl_zigbee_gp_set_token_wrapper(token, data, length)
+#define sl_zigbee_gp_get_token(token, data, length) sl_zigbee_gp_get_token_wrapper(token, data, length)
 
-#ifdef halCommonSetIndexedToken
-#undef halCommonSetIndexedToken
-#endif //halCommonSetIndexedToken
-#define halCommonSetIndexedToken(token, index, data) halCommonSetIndexedTokenWrapper(token, index, data)
+#else // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_TOKEN_SYSTEM == 1)
 
-#ifdef halCommonGetIndexedToken
-#undef halCommonGetIndexedToken
-#endif //halCommonGetIndexedToken
-#define halCommonGetIndexedToken(data, token, index) halCommonGetIndexedTokenWrapper(data, token, index)
+#define sl_zigbee_gp_set_token(token, data, length) (void)sl_token_manager_set_data(token, data, length)
+#define sl_zigbee_gp_get_token(token, data, length) (void)sl_token_manager_get_data(token, data, length)
+
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_ADAPTER_USE_CUSTOM_TOKEN_SYSTEM == 1)
 
 #endif //_SILABS_GREEN_POWER_TOKEN_WRAPPER_H_

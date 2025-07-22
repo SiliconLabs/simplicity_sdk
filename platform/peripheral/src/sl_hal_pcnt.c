@@ -83,7 +83,7 @@ extern __INLINE void sl_hal_pcnt_reset_counters(PCNT_TypeDef *pcnt);
  *   Initialize PCNT.
  ******************************************************************************/
 void sl_hal_pcnt_init(PCNT_TypeDef *pcnt,
-                      const sl_hal_pcnt_config_t *init)
+                      const sl_hal_pcnt_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_PCNT_REF_VALID(pcnt));

@@ -1400,6 +1400,8 @@ template_contribution:
             help: First radio channel
           - type: uint16
             help: Second radio channel
+          - type: uint8opt
+            help: Reset
 
   - name: cli_command
     value:

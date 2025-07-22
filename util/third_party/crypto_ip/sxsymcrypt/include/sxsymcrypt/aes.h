@@ -15,6 +15,7 @@ extern "C" {
 
 #include <stddef.h>
 #include "internal.h"
+#include "sl_code_classification.h"
 
 /** AES operation directions
  * To be used as value of dir parameter.
@@ -30,13 +31,13 @@ struct sxaesparams {
     uint32_t config;
 };
 
-/** Enable AES temporal redundancy in configuration to be passed to 
+/** Enable AES temporal redundancy in configuration to be passed to
  * sx_aead_create_aes_generic(), sx_blkcipher_create_aes_generic()
  * and sx_mac_create_aes_generic().
  */
 #define SX_AES_SET_TEMPO_REDUNDANCY(config) ((config) |= (1u))
 
-/** Disable AES temporal redundancy in configuration to be passed to 
+/** Disable AES temporal redundancy in configuration to be passed to
  * sx_aead_create_aes_generic(), sx_blkcipher_create_aes_generic()
  * and sx_mac_create_aes_generic().
  */
@@ -397,14 +398,14 @@ int sx_blkcipher_create_aesofb_dec(struct sxblkcipher *c,
  *
  * @pre - key reference provided by \p key must be initialized using
  *        sx_keyref_load_material() or sx_keyref_load_by_id()
- * @remark - \p key2 needs to be specified only for AES XTS mode, so it can be null 
+ * @remark - \p key2 needs to be specified only for AES XTS mode, so it can be null
  *           for other modes
- * @remark - \p params is always required. If no specific configuration is needed, 
+ * @remark - \p params is always required. If no specific configuration is needed,
  *            a default configuration set to 0 is passed.
  */
 int sx_blkcipher_create_aes_generic(struct sxblkcipher *c,
     const struct sxkeyref *key1, const struct sxkeyref *key2,
-    const char *iv, const char mode, const uint32_t dir, 
+    const char *iv, const char mode, const uint32_t dir,
     const struct sxaesparams *params);
 
 
@@ -509,6 +510,7 @@ int sx_aead_create_aesgcm_dec(struct sxaead *c, const struct sxkeyref *key,
  *           operation is completed.
  * @remark - CCM DOES NOT support AAD split in multiple chunks
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SLI_CRYPTO, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_create_aesccm_enc(struct sxaead *c, const struct sxkeyref *key,
     const char *nonce, size_t noncesz,
     size_t tagsz, size_t aadsz, size_t datasz);
@@ -555,16 +557,16 @@ int sx_aead_create_aesccm_dec(struct sxaead *c, const struct sxkeyref *key,
 /** Prepares an AES AEAD operation.
  *
  * This function initializes the user allocated object \p c with a new AEAD
- * operation context needed to run the AES GCM or CCM modes and reserves 
+ * operation context needed to run the AES GCM or CCM modes and reserves
  * the HW resource.
  *
  * After successful execution of this function, the context \p c can be passed
  * to any of the AEAD functions.
  *
  * @param[out] c AEAD operation context
- * @param[in] key key used for the AEAD operation, expected size 16, 24 or 
+ * @param[in] key key used for the AEAD operation, expected size 16, 24 or
  *            32 bytes
- * @param[in] nonce_or_iv initialization vector, size must be 12 bytes, 
+ * @param[in] nonce_or_iv initialization vector, size must be 12 bytes,
  * or nonce used for the AEAD operation, with size \p noncesz
  * @param[in] noncesz size, in bytes, of the nonce, between 7 and 13 bytes
  * @param[in] tagsz size, in bytes, of the tag used for the AEAD operation,
@@ -585,7 +587,7 @@ int sx_aead_create_aesccm_dec(struct sxaead *c, const struct sxkeyref *key,
  * @remark - all sx_aead_create_aes***() remarks are valid
  * @remark - \p noncesz, \p tagsz, \p aadsz, \p datasz and \p dir don't need to be specified for GCM,
  *           so they can be omitted
- * @remark - \p params is always required. If no specific configuration is needed, 
+ * @remark - \p params is always required. If no specific configuration is needed,
  *            a default configuration set to 0 is passed
  */
 int sx_aead_create_aes_generic(struct sxaead *c,
@@ -614,7 +616,7 @@ int sx_aead_create_aes_generic(struct sxaead *c,
   *
  * @pre - key reference provided by \p key must be initialized using
  *        sx_keyref_load_material() or sx_keyref_load_by_id()
- * @remark - \p params is always required. If no specific configuration is needed, 
+ * @remark - \p params is always required. If no specific configuration is needed,
  *            a default configuration set to 0 is passed
  */
 int sx_mac_create_aes_generic(struct sxmac *c, const struct sxkeyref *key,

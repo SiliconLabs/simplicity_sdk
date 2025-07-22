@@ -682,7 +682,7 @@ class PHYS_Bluetooth_LE_Bobcat(IPhy):
         phy.profile_outputs.FRC_FCD2_CALCCRC.override = 1
         phy.profile_outputs.FRC_FCD2_EXCLUDESUBFRAMEWCNT.override = 0
         phy.profile_outputs.FRC_FCD2_INCLUDECRC.override = 1
-        phy.profile_outputs.FRC_FCD2_WORDS.override = 255
+        phy.profile_outputs.FRC_FCD2_WORDS.override = 2 ** phy.profile_outputs.FRC_FCD2_WORDS.var.get_bit_width() - 1
         phy.profile_outputs.FRC_AUTOCG_AUTOCGEN.override = 7
         phy.profile_outputs.FRC_CONVGENERATOR_GENERATOR0.override = 13
         phy.profile_outputs.FRC_CONVGENERATOR_GENERATOR1.override = 15
@@ -836,7 +836,7 @@ class PHYS_Bluetooth_LE_Bobcat(IPhy):
         phy.profile_outputs.FRC_FCD0_CALCCRC.override = 1
         phy.profile_outputs.FRC_FCD0_EXCLUDESUBFRAMEWCNT.override = 0
         phy.profile_outputs.FRC_FCD0_INCLUDECRC.override = 1
-        phy.profile_outputs.FRC_FCD0_WORDS.override = 255
+        phy.profile_outputs.FRC_FCD0_WORDS.override = 2 ** phy.profile_outputs.FRC_FCD0_WORDS.var.get_bit_width() - 1
         phy.profile_outputs.FRC_TRAILTXDATACTRL_TRAILTXDATACNT.override = 0
         phy.profile_outputs.MODEM_CTRL1_SYNCDATA.override = 0
         phy.profile_outputs.MODEM_CTRL2_RATESELMODE.override = 0

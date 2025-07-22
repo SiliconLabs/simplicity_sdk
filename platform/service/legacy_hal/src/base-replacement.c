@@ -25,7 +25,6 @@
 #include "rail.h"
 #include "sl_status.h"
 #include "sl_component_catalog.h"
-#include "sl_token_api.h"
 
 #if defined(SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT)
 #include "sl_iostream.h"
@@ -175,8 +174,8 @@ void halStackIndicateActivity(bool turnOn)
 
 void halStackProcessBootCount(void)
 {
-#if defined(CREATOR_STACK_BOOT_COUNTER)
-  halCommonIncrementCounterToken(TOKEN_STACK_BOOT_COUNTER);
+#if defined(COMMON_TOKEN_STACK_BOOT_COUNTER)
+  (void)sl_token_manager_increment_counter(COMMON_TOKEN_STACK_BOOT_COUNTER);
 #endif
 }
 

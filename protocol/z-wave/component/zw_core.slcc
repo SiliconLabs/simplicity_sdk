@@ -40,6 +40,7 @@ requires:
   - name: zw_stack_libraries
   - name: zw_build_mode
   - name: zw_log
+  - name: zw_board_attributes
   # Platform
   - name: power_manager
   - name: freertos
@@ -132,10 +133,11 @@ include:
 define:
   - name: EFR32ZG
     value: 1
+  # TODO: Integration hooks needed in FreeRTOS wrapper to register functions for pre/post sleep hooks
   - name: configPRE_SLEEP_PROCESSING
-    value: "extern void enterPowerDown(uint32_t millis); \ enterPowerDown"
+    value: enterPowerDown
   - name: configPOST_SLEEP_PROCESSING
-    value: "extern void exitPowerDown(uint32_t millis); \ exitPowerDown"
+    value: exitPowerDown
   - name: SL_IOSTREAM_UART_FLUSH_TX_BUFFER
   - name: CONFIG_MBEDTLS_USE_FREERTOS_PVCALLOC
   - name: _GNU_SOURCE

@@ -27,8 +27,12 @@ extern void zb_sec_man_delete_all_keys(void);
 
 #if (defined(SL_CATALOG_TOKEN_MANAGER_PRESENT))
 
-#include "sl_token_api.h"
-#include "sl_token_manager.h"
+#include "stack/include/sl_zigbee_token.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
 
 // The following interfaces are wrapper on top of platform service token manager
 // APIs. The reason for providing an access to token get and set from a host is to
@@ -59,7 +63,7 @@ static bool is_token_excluded(bool exclude_outgoing_fc, bool exclude_boot_counte
 
 void sl_zigbee_token_factory_reset(bool exclude_outgoing_fc, bool exclude_boot_counter)
 {
-  uint8_t num_of_tokens = sl_zigbee_get_token_count();
+  uint32_t num_of_tokens = sl_zigbee_get_token_count();
   for (uint8_t token_idx = 0; token_idx < num_of_tokens; token_idx++) {
     sl_zigbee_token_info_t token_info;
     sl_status_t status = sl_zigbee_get_token_info(token_idx, &token_info);
@@ -85,7 +89,7 @@ void sl_zigbee_token_factory_reset(bool exclude_outgoing_fc, bool exclude_boot_c
 #endif // SL_CATALOG_ZIGBEE_SECURE_KEY_STORAGE_PRESENT
 }
 
-uint8_t sl_zigbee_get_token_count(void)
+uint32_t sl_zigbee_get_token_count(void)
 {
   return (TOKEN_COUNT);
 }
@@ -93,7 +97,8 @@ uint8_t sl_zigbee_get_token_count(void)
 sl_status_t sl_zigbee_get_token_info(uint8_t index,
                                      sl_zigbee_token_info_t *tokenInfo)
 {
-  if (index >= (TOKEN_COUNT)) {
+  uint32_t token_count = sl_zigbee_get_token_count();
+  if (index >= token_count) {
     return SL_STATUS_INVALID_INDEX;
   }
   tokenInfo->nvm3Key = tokenNvm3Keys[index];
@@ -111,13 +116,13 @@ sl_status_t sl_zigbee_get_token_data(uint32_t token,
 {
   // Look up the token size from the token key because
   // sl_token_get_data needs the size to be passed.
-  for (uint8_t i = 0; i < sl_zigbee_get_token_count(); i++) {
+  uint32_t token_count = sl_zigbee_get_token_count();
+  for (uint32_t i = 0; i < token_count; i++) {
     if (token == tokenNvm3Keys[i]) {
       tokenData->size = tokenSize[i];
-      return sl_token_get_data(token,
-                               index,
-                               tokenData->data,
-                               tokenData->size);
+      return sl_token_manager_get_data(token + index,
+                                       tokenData->data,
+                                       tokenData->size);
     }
   }
   tokenData->size = 0;
@@ -128,10 +133,9 @@ sl_status_t sl_zigbee_set_token_data(uint32_t token,
                                      uint32_t index,
                                      sl_zigbee_token_data_t *tokenData)
 {
-  sl_status_t status = sl_token_set_data(token,
-                                         index,
-                                         tokenData->data,
-                                         tokenData->size);
+  sl_status_t status = sl_token_manager_set_data(token + index,
+                                                 tokenData->data,
+                                                 tokenData->size);
   if (status != SL_STATUS_OK) {
     tokenData->size = 0;
   }

@@ -87,8 +87,6 @@ configuration:
     value: 1
   - name: SL_UARTDRV_USART_VCOM_FLOW_CONTROL_TYPE
     value: uartdrvFlowControlHwUart
-  - name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE
-    value: SL_IOSTREAM_EUSART_UART_FLOW_CTRL_SOFT
   - name: SL_PSA_KEY_USER_SLOT_COUNT
     value: "0"
     condition:

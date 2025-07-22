@@ -25,6 +25,7 @@
 #include "green-power-adapter.h"
 #endif //SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
 #include "green-power-server.h"
+#include "green-power-server-config.h"
 
 #include "stack/include/zigbee-security-manager.h"
 

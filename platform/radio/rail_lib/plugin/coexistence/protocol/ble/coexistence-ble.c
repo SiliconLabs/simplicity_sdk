@@ -17,17 +17,26 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "em_assert.h"
 #include "sl_core.h"
 #include "sl_gpio.h"
+
+#include "em_device.h"
+#ifdef _SILICON_LABS_32B_SERIES_3
+#include "sl_assert.h"
+#include "sl_common.h"
+#include "sl_hal_timer.h"
+#else
+#include "em_assert.h"
+#include "em_timer.h"
 #include "em_cmu.h"
-#include "sl_rail.h"
+#endif
 
 #include "coexistence-ble-ll.h"
 
 #include "coexistence-ble.h"
 #include "coexistence-hal.h"
 
+#include "sl_rail.h"
 #include "sl_rail_ble.h"
 
 #if !defined(SL_RAIL_UTIL_COEX_BLE_SIGNAL_IDENTIFIER_ENABLED)

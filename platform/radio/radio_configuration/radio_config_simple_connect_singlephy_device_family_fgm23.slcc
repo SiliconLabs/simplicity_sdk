@@ -24,5 +24,14 @@ config_file:
   condition:
   - hardware_board_default_rf_band_868
   - device_family_fgm23
+- path: platform/radio/radio_configuration/Connect/simple_connect_singlephy/device_generic_family_efr32xg23/rf_band_868/radio_settings.radioconf
+  file_id: radio_configuration_settings
+  directory: rail
+  condition:
+  - device_family_fgm23
+  unless:
+  - hardware_board_rb
+  - hardware_board_tb
+  - hardware_board_stk
 
 

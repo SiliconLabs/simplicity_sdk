@@ -63,10 +63,12 @@ The list of available commands is output on the console with the associated help
 | wisun trigger \<frame type> | Trigger a transmission of a periodic frame <br> - [string] pas: PAN Advertisement Solicit, pa: PAN Advertisement, pcs: PAN Configuration Solicit, pc: PAN Configuration, dis: DODAG Information Solicitation, dio: DODAG Information Object | > wisun trigger pas |
 | wisun getsockname \<socket> | Get local IP address of the socket | > wisun getsockname 3 |
 | wisun getpeername \<socket> | Get peer IP address of the socket | > wisun getpeername 3 |
+| wisun set_leaf \<is_leaf> | Set Leaf behavior <br> - [uint8] state: 0=disabled, 1=enabled <br> | > wisun set_leaf 1 |
 | wisun set_phy_sens \<phy_mode_id> \<sensitivy> | Set the sensitivity for the given PhyModeID <br> - [uint8] PhyModeID <br> - [int16] sensitivy in dBm | > wisun set_phy_sens 1 -70 |
 | wisun set_direct_connect_state \<state> | Set Direct Connect state <br> - [uint8] state: 0=disabled, 1=enabled <br> | wisun set_direct_connect_state 1 |
 | wisun accept_direct_connect_link \<remote address> | Accept a Direct Connect link request | wisun accept_direct_connect_link fe80::b6e3:f9ff:fec5:83df |
 | wisun concurrent_detection \<state> | Configure concurrent detection <br> - [uint8] state: 0=disabled, 1=enabled <br> | > wisun concurrent_detection 1 |
+| wisun reset_duty_cycle | Reset the duty cycle counters | > wisun reset_duty_cycle |
 
 ## Wi-SUN Settings
 

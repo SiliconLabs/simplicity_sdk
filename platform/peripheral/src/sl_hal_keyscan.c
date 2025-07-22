@@ -45,7 +45,7 @@
 /***************************************************************************//**
  * Initializes KEYSCAN module.
  ******************************************************************************/
-void sl_hal_keyscan_init(const sl_hal_keyscan_config_t *p_config)
+void sl_hal_keyscan_init(const sl_hal_keyscan_init_t *init)
 {
   // Wait to be ready
   sl_hal_keyscan_wait_ready();
@@ -59,23 +59,23 @@ void sl_hal_keyscan_init(const sl_hal_keyscan_config_t *p_config)
   }
 
   // A sanity check of configuration parameters.
-  EFM_ASSERT(p_config->clock_divider <= _KEYSCAN_CFG_CLKDIV_MASK);
-  EFM_ASSERT(p_config->column_number <= KEYSCAN_COLNUM);
-  EFM_ASSERT(p_config->row_number <= KEYSCAN_ROWNUM);
-  EFM_ASSERT(p_config->scan_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
-  EFM_ASSERT(p_config->debounce_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
-  EFM_ASSERT(p_config->stable_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
+  EFM_ASSERT(init->clock_divider <= _KEYSCAN_CFG_CLKDIV_MASK);
+  EFM_ASSERT(init->column_number <= KEYSCAN_COLNUM);
+  EFM_ASSERT(init->row_number <= KEYSCAN_ROWNUM);
+  EFM_ASSERT(init->scan_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
+  EFM_ASSERT(init->debounce_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
+  EFM_ASSERT(init->stable_delay <= SL_HAL_KEYSCAN_DELAY_32MS);
 
   // Set configuration
-  KEYSCAN->CFG = ((p_config->clock_divider) << _KEYSCAN_CFG_CLKDIV_SHIFT)
-                 | ((p_config->auto_start_enable) << _KEYSCAN_CFG_AUTOSTART_SHIFT)
-                 | ((p_config->single_press_enable) << _KEYSCAN_CFG_SINGLEPRESS_SHIFT)
-                 | ((p_config->column_number - 1) << _KEYSCAN_CFG_NUMCOLS_SHIFT)
-                 | ((p_config->row_number - 1) << _KEYSCAN_CFG_NUMROWS_SHIFT);
+  KEYSCAN->CFG = ((init->clock_divider) << _KEYSCAN_CFG_CLKDIV_SHIFT)
+                 | ((init->auto_start_enable) << _KEYSCAN_CFG_AUTOSTART_SHIFT)
+                 | ((init->single_press_enable) << _KEYSCAN_CFG_SINGLEPRESS_SHIFT)
+                 | ((init->column_number - 1) << _KEYSCAN_CFG_NUMCOLS_SHIFT)
+                 | ((init->row_number - 1) << _KEYSCAN_CFG_NUMROWS_SHIFT);
 
-  KEYSCAN->DELAY = ((p_config->scan_delay) << _KEYSCAN_DELAY_SCANDLY_SHIFT)
-                   | ((p_config->debounce_delay) << _KEYSCAN_DELAY_DEBDLY_SHIFT)
-                   | ((p_config->stable_delay) << _KEYSCAN_DELAY_STABDLY_SHIFT);
+  KEYSCAN->DELAY = ((init->scan_delay) << _KEYSCAN_DELAY_SCANDLY_SHIFT)
+                   | ((init->debounce_delay) << _KEYSCAN_DELAY_DEBDLY_SHIFT)
+                   | ((init->stable_delay) << _KEYSCAN_DELAY_STABDLY_SHIFT);
 }
 
 /***************************************************************************//**

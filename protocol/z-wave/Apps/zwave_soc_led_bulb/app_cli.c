@@ -41,10 +41,12 @@
 #include "app_log.h"
 #include "ev_man.h"
 #include "events.h"
-#include <sl_pwm_instances.h>
 #ifdef SL_CATALOG_RGB_LED_PRESENT
 #include <sl_simple_rgb_pwm_led.h>
 #include <sl_simple_rgb_pwm_led_instances.h>
+#endif
+#ifdef SL_CATALOG_PWM_PRESENT
+#include <sl_pwm_instances.h>
 #endif
 
 // -----------------------------------------------------------------------------
@@ -77,7 +79,8 @@ void cli_get_rgb_values(__attribute__((unused)) sl_cli_command_arg_t *arguments)
   uint16_t color_switch_red_value, color_switch_green_value, color_switch_blue_value;
   sl_led_get_rgb_color(&sl_simple_rgb_pwm_led_rgb_led0, &color_switch_red_value, &color_switch_green_value, &color_switch_blue_value);
   app_log_info("Red: %d, Green: %d, Blue: %d\r\n", color_switch_red_value, color_switch_green_value, color_switch_blue_value);
-#else
+#endif
+#ifdef SL_CATALOG_PWM_PRESENT
   uint8_t color_switch_monochrome_value = sl_pwm_get_duty_cycle(&sl_pwm_led1);
   app_log_info("Monochrome: %d%%\r\n", color_switch_monochrome_value);
 #endif

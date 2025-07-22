@@ -203,7 +203,12 @@ typedef struct {
 
   /// Hardware flow control mode.
   sl_hal_usart_hw_flow_control_t hw_flow_control;
-} sl_hal_usart_async_config_t;
+} sl_hal_usart_async_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_usart_async_init_t sl_hal_usart_async_config_t;
+/** @endcond */
 
 /// Default configuration for USART asynchronous initialization structure.
 #define SL_HAL_USART_INIT_ASYNC_DEFAULT                                                    \
@@ -262,7 +267,12 @@ typedef struct {
 
   /// Clock polarity/phase mode.
   sl_hal_usart_clock_mode_t clock_mode;
-} sl_hal_usart_sync_config_t;
+} sl_hal_usart_sync_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_usart_sync_init_t sl_hal_usart_sync_config_t;
+/** @endcond */
 
 /// Default configuration for USART sync initialization structure.
 #define SL_HAL_USART_INIT_SYNC_DEFAULT                                      \
@@ -294,8 +304,13 @@ typedef struct {
   sl_hal_usart_irda_pulse_width_t ir_pulse_width;
 
   /// General Asynchronous initialization structure.
-  sl_hal_usart_async_config_t async;
-} sl_hal_usart_irda_config_t;
+  sl_hal_usart_async_init_t async;
+} sl_hal_usart_irda_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_usart_irda_init_t sl_hal_usart_irda_config_t;
+/** @endcond */
 
 /// Default configuration for USART IRDA initialization structure.
 #define SL_HAL_USART_INIT_IRDA_DEFAULT                                                       \
@@ -340,8 +355,13 @@ typedef struct {
   sl_hal_usart_i2s_justify_t justify;
 
   /// General Synchronous initialization structure.
-  sl_hal_usart_sync_config_t sync;
-} sl_hal_usart_i2s_config_t;
+  sl_hal_usart_sync_init_t sync;
+} sl_hal_usart_i2s_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_usart_i2s_init_t sl_hal_usart_i2s_config_t;
+/** @endcond */
 
 /// Default USART Sync configuration for series 2 devices
 #define SL_HAL_USART_INIT_I2S_DEFAULT                                             \
@@ -391,12 +411,12 @@ typedef struct {
  * @param[in] usart
  *   A pointer to the USART/UART peripheral register block.
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure used to configure
  *   the basic async setup.
  ******************************************************************************/
 void sl_hal_usart_init_async(USART_TypeDef *usart,
-                             const sl_hal_usart_async_config_t *config);
+                             const sl_hal_usart_async_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -468,12 +488,12 @@ uint32_t sl_hal_usart_async_calculate_clock_div(uint32_t ref_freq,
  *   A pointer to the USART peripheral register block.
  *   (UART does not support this mode.)
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure used to configure
  *   basic async setup.
  ******************************************************************************/
 void sl_hal_usart_init_sync(USART_TypeDef *usart,
-                            const sl_hal_usart_sync_config_t *config);
+                            const sl_hal_usart_sync_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -534,7 +554,7 @@ uint32_t sl_hal_usart_sync_calculate_clock_div(uint32_t ref_freq, uint32_t baudr
  * @param[in] usart
  *   A pointer to the USART peripheral register block.
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure used to configure
  *   async IrDA setup.
  *
@@ -542,7 +562,7 @@ uint32_t sl_hal_usart_sync_calculate_clock_div(uint32_t ref_freq, uint32_t baudr
  *   Not all USART instances support IrDA.
  ******************************************************************************/
 void sl_hal_usart_init_irda(USART_TypeDef *usart,
-                            const sl_hal_usart_irda_config_t *config);
+                            const sl_hal_usart_irda_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -565,7 +585,7 @@ void sl_hal_usart_init_irda(USART_TypeDef *usart,
  *   A pointer to the USART peripheral register block.
  *   (UART does not support this mode.)
  *
- * @param[in] config
+ * @param[in] init
  *   A pointer to the initialization structure used to
  *   configure the basic I2S setup.
  *
@@ -573,7 +593,7 @@ void sl_hal_usart_init_irda(USART_TypeDef *usart,
  *   This function does not apply to all USART's.
  ******************************************************************************/
 void sl_hal_usart_init_i2s(USART_TypeDef *usart,
-                           sl_hal_usart_i2s_config_t *config);
+                           const sl_hal_usart_i2s_init_t *init);
 
 /***************************************************************************//**
  * Reset USART/UART to the same state that it was in after a hardware reset.
@@ -1467,7 +1487,7 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *  {
  *    #define GPIO_TX    PB0
  *
- *    sl_hal_usart_async_config_t config = SL_HAL_USART_INIT_ASYNC_DEFAULT;
+ *    sl_hal_usart_async_init_t init = SL_HAL_USART_INIT_ASYNC_DEFAULT;
  *
  *    // Configure the clocks.
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_USART0);
@@ -1478,7 +1498,7 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *    sl_clock_branch_t clock_branch = sl_device_peripheral_get_clock_branch(SL_PERIPHERAL_USART0);
  *    uint32_t freq;
  *    sl_clock_manager_get_clock_branch_frequency(clock_branch, &freq);
- *    config.clock_div = sl_hal_usart_async_calculate_clock_div(freq, baudrate, config.oversampling);
+ *    init.clock_div = sl_hal_usart_async_calculate_clock_div(freq, baudrate, init.oversampling);
  *
  *    // Configure the USART port.
  *    sl_gpio_set_pin_mode(GPIO_TX, SL_GPIO_MODE_PUSH_PULL, 0);
@@ -1487,7 +1507,7 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *    GPIO->USARTROUTE[USART_NUM(USART0)].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN;
  *
  *    // Initialize the USART.
- *    sl_hal_usart_init_async(USART0, &config);
+ *    sl_hal_usart_init_async(USART0, &init);
  *    sl_hal_usart_enable(USART0);
  *    sl_hal_usart_enable_tx(USART0);
  *
@@ -1504,11 +1524,11 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *    #define GPIO_MISO    PC1
  *    #define GPIO_SCLK    PC2
  *
- *    sl_hal_usart_sync_config_t config = SL_HAL_USART_INIT_SYNC_DEFAULT;
+ *    sl_hal_usart_sync_init_t init = SL_HAL_USART_INIT_SYNC_DEFAULT;
  *    // Operate as SPI master.
- *    config.master = true;
+ *    init.master = true;
  *    // Clock idle low, sample on falling edge.
- *    config.clock_mode = SL_HAL_USART_CLOCK_MODE_1;
+ *    init.clock_mode = SL_HAL_USART_CLOCK_MODE_1;
  *
  *    // Configure the clocks.
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_USART1);
@@ -1519,7 +1539,7 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *    sl_clock_branch_t clock_branch = sl_device_peripheral_get_clock_branch(SL_PERIPHERAL_USART1);
  *    uint32_t freq;
  *    sl_clock_manager_get_clock_branch_frequency(clock_branch, &freq);
- *    config.clock_div = sl_hal_usart_sync_calculate_clock_div(freq, baudrate);
+ *    init.clock_div = sl_hal_usart_sync_calculate_clock_div(freq, baudrate);
  *
  *    // Configure the SPI ports.
  *    sl_gpio_set_pin_mode(GPIO_MOSI, SL_GPIO_MODE_PUSH_PULL, 0);
@@ -1536,7 +1556,7 @@ __INLINE uint32_t sl_hal_usart_get_status(USART_TypeDef *usart)
  *    GPIO->USARTROUTE[USART_NUM(USART1)].ROUTEEN = GPIO_USART_ROUTEEN_TXPEN | GPIO_USART_ROUTEEN_RXPEN | GPIO_USART_ROUTEEN_CLKPEN;
  *
  *    // Initialize the USART.
- *    sl_hal_usart_init_sync(USART1, &config);
+ *    sl_hal_usart_init_sync(USART1, &init);
  *    sl_hal_usart_enable(USART1);
  *    sl_hal_usart_enable_rx(USART1);
  *    sl_hal_usart_enable_tx(USART1);

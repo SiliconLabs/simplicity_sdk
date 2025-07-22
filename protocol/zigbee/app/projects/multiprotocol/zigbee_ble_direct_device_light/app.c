@@ -34,6 +34,7 @@
 #include "zigbee_direct_common.h"
 #include "zigbee_direct_tlv.h"
 #include "sl_component_catalog.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 #ifdef SL_CATALOG_ZIGBEE_DISPLAY_PRESENT
 #include "sl_dmp_ui.h"
@@ -131,7 +132,6 @@ extern uint8_t sl_my_passcode[SL_ZIGBEE_ENCRYPTION_KEY_SIZE];
 void sl_zigbee_af_main_init_cb(void)
 {
   sl_status_t init_status;
-
   #if defined(SL_CATALOG_SIMPLE_BUTTON_PRESENT)
   sl_zigbee_af_isr_event_init(&button_event, button_event_handler);
   #endif // SL_CATALOG_SIMPLE_BUTTON_PRESENT
@@ -143,7 +143,9 @@ void sl_zigbee_af_main_init_cb(void)
 
   sl_zigbee_af_event_init(&sli_zigbee_direct_anonymous_join_event, sli_zigbee_direct_anonymous_join_event_handler);
 
-  halCommonGetToken(&sl_zigbee_direct_anonymous_join_timeout_sec, TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT);
+  (void)sl_token_manager_get_data(COMMON_TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT,
+                                  (void *)&sl_zigbee_direct_anonymous_join_timeout_sec,
+                                  sizeof(uint32_t));
 
   sl_zigbee_af_event_set_delay_ms(&sli_zigbee_direct_anonymous_join_event, sl_zigbee_direct_anonymous_join_timeout_sec * 1000);
 

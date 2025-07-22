@@ -122,27 +122,56 @@ sl_status_t sli_sxsymcrypt_init_locks(void)
   return ret;
 }
 
-sl_status_t sli_sxsymcrypt_lock_cryptomaster_selection(
-  unsigned int instance, bool yield)
+sl_status_t sli_sxsymcrypt_lock_cryptomaster_selection(unsigned int instance, bool yield)
 {
   sl_status_t ret = SL_STATUS_OK;
 
   if (instance >= SLI_CRYPTOMASTER_ENGINES) {
     return SL_STATUS_INVALID_PARAMETER;
   }
+
+  // Check if called from ISR
+  if ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) == 0U) {
+    // Not called from ISR
+#if defined(SLI_PSEC_THREADING)
+    ret = sli_psec_osal_take_lock(&cryptomaster_selection);
+    if (ret != SL_STATUS_OK) {
+      return ret;
+    }
+#endif
+    // Select engine if not in ISR
+    requested_cryptomaster_index = instance;
+
+#if defined(SLI_PSEC_THREADING)
+    ret = sli_psec_osal_take_lock(&cryptomaster_locks[requested_cryptomaster_index]);
+    if (ret != SL_STATUS_OK) {
+      return ret;
+    }
+#endif
+    if (requested_cryptomaster_index == SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO
+        && yield == true) {
+      // Enable SYMCRYPTO IRQ if yield is set
+      sl_interrupt_manager_enable_irq(SYMCRYPTO_IRQn);
+      cryptomaster_structs[SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO].yield = true;
+    }
+  }
+
   // Enabling clocks here as sx_cmdma_list_compatible() executes before
   // sx_cmdma_find_available() is called when creating operation object.
   if (instance == SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO) {
     EFM_ASSERT(sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_SYMCRYPTO)
                == SL_STATUS_OK);
-// PLATFORM_HYD-5152
+  // PLATFORM_HYD-5152
 #if !defined(_SILICON_LABS_32B_SERIES_3_CONFIG_353) && !defined(SIXG300XIWIFI74000XFULL_FPGA)
   } else if (instance == SLI_SXSYMCRYPT_CRYPTOMASTER_LPWAES) {
     EFM_ASSERT(sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_LPWAES)
                == SL_STATUS_OK);
 #endif // !defined(_SILICON_LABS_32B_SERIES_3_CONFIG_353) && !defined(SIXG300XIWIFI74000XFULL_FPGA)
   }
+
+  // Check if called from ISR
   if ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) != 0U) {
+    // Called from ISR
     // PLATFORM_HYD-5152
     #if !defined(_SILICON_LABS_32B_SERIES_3_CONFIG_353) && !defined(SIXG300XIWIFI74000XFULL_FPGA)
     if (instance == SLI_SXSYMCRYPT_CRYPTOMASTER_LPWAES) {
@@ -165,29 +194,7 @@ sl_status_t sli_sxsymcrypt_lock_cryptomaster_selection(
       return SL_STATUS_NOT_SUPPORTED;
     }
   }
-#if defined(SLI_PSEC_THREADING)
-  ret = sli_psec_osal_take_lock(&cryptomaster_selection);
-  if (ret != SL_STATUS_OK) {
-    return ret;
-  }
-#endif
 
-  if ((SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) == 0U) {
-    // Select engine if not in ISR
-    requested_cryptomaster_index = instance;
-  }
-#if defined(SLI_PSEC_THREADING)
-  ret = sli_psec_osal_take_lock(&cryptomaster_locks[requested_cryptomaster_index]);
-  if (ret != SL_STATUS_OK) {
-    return ret;
-  }
-#endif
-  if (requested_cryptomaster_index == SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO
-      && yield == true) {
-    // Enable SYMCRYPTO IRQ if yield is set
-    sl_interrupt_manager_enable_irq(SYMCRYPTO_IRQn);
-    cryptomaster_structs[SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO].yield = true;
-  }
   return ret;
 }
 

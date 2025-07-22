@@ -675,7 +675,7 @@ sl_btmesh_blob_transfer_client_calculate_block_size_log(uint32_t blob_size,
   //       because the same kind of target nodes are updated with the same
   //       firmware so their capabilities should match.
   for (block_size_log = block_size_log_max;
-       block_size_log_min <= block_size_log;
+       block_size_log_min < block_size_log;
        block_size_log--) {
     block_size = 1UL << block_size_log;
     if (block_size <= block_size_max_limit) {
@@ -970,9 +970,16 @@ static void sl_btmesh_blob_transfer_client_element_init(uint16_t elem_index)
                                  SL_BTMESH_BLOB_TRANSFER_CLIENT_MAX_CHUNKS_PER_BLOCK_CFG_VAL);
   // Does not exist mean DCD Page 0, which is usually due to a firmware update.
   // Allow continuing, the error shall disappear after DCD update.
-  if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
-    app_assert_status_f(sc, "Failed to init BLOB Transfer Client");
+  if (sc == SL_STATUS_BT_MESH_DOES_NOT_EXIST) {
+    return;
   }
+
+  app_assert_status_f(sc, "Failed to init BLOB Transfer Client");
+
+  sc = sl_btmesh_mbt_client_configure_throttle(elem_index,
+                                               SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_DELAY_MS_CFG_VAL,
+                                               SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_CONCURRENT_CFG_VAL);
+  app_assert_status_f(sc, "Failed to configure BLOB Transfer Client sender");
 
   state_transition(self, STATE_INACTIVE);
 }
@@ -1399,6 +1406,34 @@ static void handle_query_information_complete(blob_transfer_client_t *const self
   }
 }
 
+static void enforce_chunk_size_constraints(blob_transfer_client_t *const self)
+{
+  // Round the selected chunk size to the nearest multiple of the configured
+  // value. If there is no such chunk size that would be allowed by the other
+  // transfer parameters, the chunk size is not changed.
+  if (SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL > 1) {
+    const uint32_t block_size = 1 << self->block_size_log;
+    const uint16_t chunk_size_min =
+      (block_size + self->chunk.max_chunks_min - 1) / self->chunk.max_chunks_min;
+    const uint16_t chunk_size_floor =
+      self->current_block_chunk_size
+      / SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL
+      * SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL;
+    const uint16_t chunk_size_ceil =
+      chunk_size_floor
+      + SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL;
+
+    if (chunk_size_ceil <= self->chunk.max_chunk_size_min) {
+      self->current_block_chunk_size = chunk_size_ceil;
+    } else if (chunk_size_floor >= chunk_size_min) {
+      self->current_block_chunk_size = chunk_size_floor;
+    } else {
+      // No chunk size that is a multiple of the configured value is allowed by
+      // the other transfer parameters.
+    }
+  }
+}
+
 static void handle_start_transfer_complete(blob_transfer_client_t *const self,
                                            const sl_btmesh_evt_mbt_client_start_transfer_complete_t *const evt)
 {
@@ -1416,7 +1451,7 @@ static void handle_start_transfer_complete(blob_transfer_client_t *const self,
     sc_nw = sl_btmesh_silabs_config_server_get_network_pdu(&configured_nw_pdu_size);
     sc_mdl = sl_btmesh_silabs_config_server_get_model_enable(self->elem_index,
                                                              SIG_VENDOR_ID,
-                                                             MESH_MBT_SERVER_MODEL_ID,
+                                                             MESH_MBT_CLIENT_MODEL_ID,
                                                              &blob_transfer_client_ae_enabled);
     if (sc_nw == SL_STATUS_OK && sc_mdl == SL_STATUS_OK) {
       if (blob_transfer_client_ae_enabled) {
@@ -1442,6 +1477,7 @@ static void handle_start_transfer_complete(blob_transfer_client_t *const self,
                                                           self->chunk.max_chunk_size_min,
                                                           self->chunk.max_chunks_min,
                                                           nw_pdu_size);
+    enforce_chunk_size_constraints(self);
 
     // This is last event handler before the transfer of the blocks is started
     // therefore the progress notification with zero confirmed tx bytes shall

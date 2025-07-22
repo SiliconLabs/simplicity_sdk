@@ -20,7 +20,11 @@
 #include "stack/include/zigbee-security-manager.h"
 #include "hal.h" // for TOKEN_resolution
 #include "stack/include/security.h"
-#include "stack/config/token-stack.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
 #include "stack/platform/micro/aes.h"
 #include "stack/include/stack-info.h"
 #include "stack/include/aes-mmo.h"
@@ -43,7 +47,7 @@ extern bool removeTransientLinkKey(const sl_802154_long_addr_t eui64ToFind,
                                    sl_zigbee_key_struct_bitmask_t* bitmask);
 extern void sli_zigbee_stack_token_primitive(bool tokenRead,
                                              void* tokenStruct,
-                                             uint16_t tokenAddress,
+                                             uint32_t tokenAddress,
                                              uint8_t length);
 extern sl_status_t sli_zigbee_get_key_table_entry(uint8_t index, sl_zigbee_key_struct_t *result);
 extern uint8_t sli_zigbee_find_key_table_entry(sl_802154_long_addr_t address, bool linkKey, uint8_t bitmask);
@@ -105,13 +109,13 @@ sl_status_t zb_sec_man_store_nwk_key(sl_zigbee_sec_man_context_t* context,
 {
   tokTypeStackKeys tok;
   if (context->key_index == 1) {
-    sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+    sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
     memmove(tok.networkKey, plaintext_key->key, sizeof(plaintext_key->key));
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   } else {
-    sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+    sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
     memmove(tok.networkKey, plaintext_key->key, sizeof(plaintext_key->key));
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   }
 
   return SL_STATUS_OK;
@@ -122,9 +126,9 @@ sl_status_t zb_sec_man_fetch_nwk_key(sl_zigbee_sec_man_context_t* context,
 {
   tokTypeStackKeys tok;
   if (context->key_index == 1) {
-    sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+    sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   } else {
-    sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+    sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   }
   memmove(plaintext_key->key, tok.networkKey, sizeof(plaintext_key->key));
   return SL_STATUS_OK;
@@ -134,9 +138,9 @@ sl_status_t zb_sec_man_store_tc_link_key(sl_zigbee_sec_man_context_t* context,
                                          const sl_zigbee_sec_man_key_t* plaintext_key)
 {
   tokTypeStackTrustCenter tok;
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
   memmove(tok.key, plaintext_key->key, sizeof(plaintext_key->key));
-  sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+  sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
   return SL_STATUS_OK;
 }
 
@@ -155,7 +159,7 @@ sl_status_t zb_sec_man_fetch_tc_link_key(sl_zigbee_sec_man_context_t* context,
   }
 
   tokTypeStackTrustCenter tok;
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
   memmove(plaintext_key->key, tok.key, sizeof(plaintext_key->key));
 
   return SL_STATUS_OK;
@@ -240,7 +244,7 @@ sl_status_t zb_sec_man_fetch_zll_key(sl_zigbee_sec_man_context_t* context,
                                      sl_zigbee_sec_man_key_t* plaintext_key)
 {
   tokTypeStackZllSecurity zllSecurityToken;
-  halCommonGetToken(&zllSecurityToken, TOKEN_STACK_ZLL_SECURITY);
+  (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_ZLL_ENCRYPTION_KEY) {
     memmove(plaintext_key->key,
             zllSecurityToken.encryptionKey,
@@ -257,7 +261,8 @@ sl_status_t zb_sec_man_store_zll_key(sl_zigbee_sec_man_context_t* context,
                                      const sl_zigbee_sec_man_key_t* plaintext_key)
 {
   tokTypeStackZllSecurity zllSecurityToken;
-  halCommonGetToken(&zllSecurityToken, TOKEN_STACK_ZLL_SECURITY);
+  (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
+
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_ZLL_ENCRYPTION_KEY) {
     memmove(zllSecurityToken.encryptionKey,
             plaintext_key->key,
@@ -267,7 +272,9 @@ sl_status_t zb_sec_man_store_zll_key(sl_zigbee_sec_man_context_t* context,
             plaintext_key->key,
             SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
   }
-  halCommonSetToken(TOKEN_STACK_ZLL_SECURITY, &zllSecurityToken);
+  (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_ZLL_SECURITY,
+                                  (void *)&zllSecurityToken,
+                                  sizeof(tokTypeStackZllSecurity));
   return SL_STATUS_OK;
 }
 #endif // defined(SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT) || defined(SL_ZIGBEE_TEST)
@@ -277,13 +284,14 @@ sl_status_t zb_sec_man_fetch_gp_key(sl_zigbee_sec_man_context_t* context,
                                     sl_zigbee_sec_man_key_t* plaintext_key)
 {
   uint8_t index = context->key_index;
+
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_GREEN_POWER_PROXY_TABLE_KEY) {
     tokTypeStackGpProxyTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_PROXY_TABLE, index);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_PROXY_TABLE + index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     memmove(plaintext_key->key, tok.gpdKey, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
   } else {
     tokTypeStackGpSinkTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_SINK_TABLE, index);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_SINK_TABLE + index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     memmove(plaintext_key->key, tok.gpdKey, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
   }
   return SL_STATUS_OK;
@@ -295,14 +303,14 @@ sl_status_t zb_sec_man_store_gp_key(sl_zigbee_sec_man_context_t* context,
   uint8_t index = context->key_index;
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_GREEN_POWER_PROXY_TABLE_KEY) {
     tokTypeStackGpProxyTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_PROXY_TABLE, index);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_PROXY_TABLE + index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     memmove(tok.gpdKey, plaintext_key->key, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
-    halCommonSetIndexedToken(TOKEN_STACK_GP_PROXY_TABLE, index, &tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_GP_PROXY_TABLE +  index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
   } else {
     tokTypeStackGpSinkTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_SINK_TABLE, index);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_SINK_TABLE + index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     memmove(tok.gpdKey, plaintext_key->key, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
-    halCommonSetIndexedToken(TOKEN_STACK_GP_SINK_TABLE, index, &tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_GP_SINK_TABLE + index, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
   }
   return SL_STATUS_OK;
 }
@@ -904,11 +912,11 @@ sl_status_t sli_zigbee_stack_sec_man_get_network_key_info(sl_zigbee_sec_man_netw
 {
   tokTypeStackKeys tok;
   //Fetch Alternate nwk key info
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   network_key_info->alt_network_key_sequence_number = tok.activeKeySeqNum;
   network_key_info->alternate_network_key_set = !sli_zigbee_is_null_key((sl_zigbee_key_data_t*)tok.networkKey);
   //Fetch nwk key info
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   network_key_info->network_key_sequence_number = tok.activeKeySeqNum;
   network_key_info->network_key_set = !sli_zigbee_is_null_key((sl_zigbee_key_data_t*)tok.networkKey);
   // Fetch nwk key frame counter info

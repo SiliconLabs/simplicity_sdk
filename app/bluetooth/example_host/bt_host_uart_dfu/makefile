@@ -5,7 +5,7 @@
 PROJECTNAME = bt_host_uart_dfu
 PROJ_DIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SDK_DIR := $(realpath $(PROJ_DIR)/../../../..)
-override CFLAGS += -DWAIT_FOR_SYSTEM_BOOT=0
+override CFLAGS += -DACCEPT_DFU_BOOT=1
 
 
 ################################################################################

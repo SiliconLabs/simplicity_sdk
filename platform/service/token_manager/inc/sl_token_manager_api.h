@@ -29,20 +29,22 @@
  *
  ******************************************************************************/
 
-/***************************************************************************//**
- * @addtogroup token_manager Token Manager
- * @{
- ******************************************************************************/
-
 #ifndef SL_TOKEN_MANAGER_API_H
 #define SL_TOKEN_MANAGER_API_H
 
+#if !defined(SL_ZIGBEE_TEST)
 #include "sl_common.h"
+#endif
 #include "sl_status.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/***************************************************************************//**
+ * @addtogroup common_token_manager
+ * @{
+ ******************************************************************************/
 
 /***************************************************************************//**
  * Initialize the Token Manager.
@@ -78,10 +80,6 @@ sl_status_t sl_token_manager_get_data(uint32_t token,
  * Silicon Labs Series 2 (EFR) devices: Only static token values that have not
  * been written since the last erase can be written. For areas of flash that
  * cannot be erased by user code, those static tokens are effectively write-once.
- *
- * Silicon Labs Series 3 (SixG3xx) devices: While static device tokens
- * support overwriting, the write operation is limited to a maximum of 100 writes.
- * The static secure tokens are effectively write-once.
  *
  * @param[in] token    A 32-bit token identifier. Refer sl_token_manager_defines.h
  *                     on how to create a token.
@@ -181,26 +179,49 @@ void halInternalAssertFailed(const char * filename, int linenumber);
 // ******** THE REST OF THE FILE IS DOCUMENTATION ONLY !***********************
 /// @addtogroup common_token_manager Common Token Manager
 /// @{
-/// @brief Routines for working with tokens
+/// @brief Routines for working with tokens using the Common Token Manager.
 ///
 ///   @details
 ///
 ///
 /// @n @section common_token_manager Introduction
 ///
-/// The Common Token Manager provides a means to read and write manufacturing (static device and static secure) and
+/// The Common Token Manager (CTM) provides a means to read and write manufacturing (static device and static secure) and
 /// dynamic tokens such as manufacturing ID, channel number, transmit power, and various pieces of information
 /// that the application needs to be persistent between device power cycles.
 /// The token system is designed to abstract implementation details and simplify interacting with differing non-volatile systems.
 /// The majority of tokens are stored in NVM3 where they can be rewritten.
-/// By default the Common Token Manager pulls in the NVM3 component for storage.
+/// By default the CTM uses NVM3 component for storage.
 ///
-/// All the Static Device Tokens, Static Secure Tokens shall be stored as KLV object (KLV header + data) format in respective memory region.
-/// The static device tokens are stored in SE MTP region, which is inherently secure and rollback protected.
-/// The static secure tokens are stored in data region of flash and uses 128-bit AES-GCM mode to secure the data.
-/// The static secure region has 4k reserved space at the end of flash and is configurable. Any change
-/// to static secure region space will have impact on NVM3 start and end address.
+/// The CTM API is designed to be used across different platforms, providing a unified interface
+/// for token management. It supports both dynamic tokens and static tokens.
+/// - The dynamic tokens are stored in NVM3, which can be modified at runtime, allowing for read and write operations.
+/// - The static tokens are typically used for manufacturing data and are not intended to be modified after the initial write.
+///   The static tokens are further divided into
+///   - Static device tokens, which are stored in secure memory regions, has limited storage capacity, and are mass erase protected.
+///   - Static secure tokens, which are stored in a dedicated flash region, with additional security measures when flash is external (uses 128-bit AES-GCM mode to secure the data).
+///     The static secure region has a reserved 8k space at the end of flash. This space is used for storing larger size tokens.
 ///
-/// @} end token_manager ******************************************************/
+/// In CTM, tokens are identified by a 32-bit identifier that includes the token type, size, and a unique key.
+/// The token type can be one of the following:
+/// - SL_TOKEN_TYPE_NVM3: For dynamic tokens stored in NVM3.
+/// - SL_TOKEN_TYPE_NVM3_SECONDARY: For dynamic tokens stored in a secondary NVM3 instance.
+/// - SL_TOKEN_TYPE_STATIC_DEVICE: For static device tokens stored in secure memory.
+/// - SL_TOKEN_TYPE_STATIC_SECURE: For static secure tokens stored in a dedicated flash region.
+/// The token size is embedded in the identifier for only static tokens, allowing the CTM to manage tokens of varying sizes.
+///
+/// To create a 32-bit token identifier, the CTM provides helper macros such as:
+/// - SL_TOKEN_GET_STATIC_DEVICE_TOKEN(token): Creates a static device token.
+/// - SL_TOKEN_GET_STATIC_SECURE_TOKEN(token): Creates a static secure token.
+/// - SL_TOKEN_GET_DYNAMIC_TOKEN(token, IsCounterObj): Creates a dynamic token for default NVM3 instance.
+/// - SL_TOKEN_GET_DYNAMIC_SECONDARY_INSTANCE_TOKEN(token, IsCounterObj): Creates a dynamic token for a secondary NVM3 instance.
+/// - SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token): Creates a dynamic override token for static tokens.
+/// For more information refer to @ref `sl_token_manager_defines.h` file.
+///
+/// The CTM API provides functions to initialize the token manager, read and write token data,
+/// increment counter tokens, and manage token sizes. It also supports partial reads of token data,
+/// allowing applications to access specific portions of token data without needing to read the entire token.
+///
+/// @} end common_token_manager ******************************************************/
 
 #endif /* SL_TOKEN_MANAGER_API_H */

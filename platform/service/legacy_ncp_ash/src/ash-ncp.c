@@ -28,7 +28,7 @@
 #include "ash-common.h"
 #include "legacy_common_ash_config.h"
 #if !defined(ZIGBEE_STACK_ON_HOST) && !defined(SL_ZIGBEE_TEST)
-#include "sl_token_manufacturing_api.h"
+#include "sl_token_manufacturing_generic.h"
 #endif // !defined(ZIGBEE_STACK_ON_HOST) && !defined(SL_ZIGBEE_TEST)
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"

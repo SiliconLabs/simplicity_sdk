@@ -51,6 +51,7 @@ include:
     - path: "sl_wisun_ip6string.h"
     - path: "sl_wisun_lfn_params_api.h"
     - path: "sl_wisun_regdb.h"
+    - path: "sl_wisun_regulation_api.h"
     - path: "sl_wisun_stack.h"
     - path: "sl_wisun_types.h"
     - path: "sl_wisun_version.h"

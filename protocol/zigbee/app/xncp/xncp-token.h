@@ -15,8 +15,13 @@
  *
  ******************************************************************************/
 
+#include "sl_token_manager_defines.h"
+
 #define CREATOR_CUSTOM 0xE700
 #define NVM3KEY_CUSTOM (NVM3KEY_DOMAIN_ZIGBEE | 0xE700)
+#define COMMON_TOKEN_CUSTOM SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_ZIGBEE | 0xE700), 0)
+
+#define TOKEN_CUSTOM_DEFAULT { 0x00, 0x0000, 0x0000 }
 
 #ifdef DEFINETYPES
 typedef struct {
@@ -29,5 +34,5 @@ typedef struct {
 #ifdef DEFINETOKENS
 DEFINE_BASIC_TOKEN(CUSTOM,
                    tokTypeCustom,
-                   { 0x00, 0x0000, 0x0000 })
+                   TOKEN_CUSTOM_DEFAULT)
 #endif //DEFINETOKENS

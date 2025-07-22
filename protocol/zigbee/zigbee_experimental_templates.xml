@@ -13,7 +13,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.0&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_gateway_cpc/zigbee_z3_gateway_cpc.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>

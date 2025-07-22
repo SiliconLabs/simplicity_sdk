@@ -86,10 +86,15 @@ typedef struct {
   sl_hal_keyscan_delay_t  stable_delay;    ///< Stable delay.
   bool                single_press_enable; ///< Enable Single Press feature.
   bool                auto_start_enable;   ///< Enable auto-start feature.
-} sl_hal_keyscan_config_t;
+} sl_hal_keyscan_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_keyscan_init_t sl_hal_keyscan_config_t;
+/** @endcond */
 
 /// Suggested default values for KEYSCAN configuration structure.
-#define KEYSCAN_CONFIG_DEFAULT                                           \
+#define SL_HAL_KEYSCAN_INIT_DEFAULT                                      \
   {                                                                      \
     0x1387F,                  /* Clock divider default value = 79999. */ \
     3u,                       /* 3 columns by default. */                \
@@ -101,6 +106,11 @@ typedef struct {
     false,                    /* No auto-start by default. */            \
   }
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define KEYSCAN_CONFIG_DEFAULT SL_HAL_KEYSCAN_INIT_DEFAULT
+/** @endcond */
+
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
@@ -109,10 +119,10 @@ typedef struct {
  * @brief
  *   Initializes KEYSCAN module.
  *
- * @param[in] p_config
+ * @param[in] init
  *  A pointer to the KEYSCAN initialization structure variable.
  ******************************************************************************/
-void sl_hal_keyscan_init(const sl_hal_keyscan_config_t *p_config);
+void sl_hal_keyscan_init(const sl_hal_keyscan_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -354,17 +364,17 @@ __STATIC_INLINE void sl_hal_keyscan_set_interrupts(uint32_t flags)
  * void keyscan_example(void)
  * {
  *   // Configure KEYSCAN with custom settings
- *   sl_hal_keyscan_config_t keyscan_config = KEYSCAN_CONFIG_DEFAULT;
+ *   sl_hal_keyscan_init_t keyscan_init = SL_HAL_KEYSCAN_INIT_DEFAULT;
  *
  *   // Configure for a 3x4 keypad
- *   keyscan_config.column_number = 3;     // 3 columns
- *   keyscan_config.row_number = 4;        // 4 rows
+ *   keyscan_init.column_number = 3;
+ *   keyscan_init.row_number = 4;
  *
  *   // Increase debounce delay to 20ms for improved reliability
- *   keyscan_config.debounce_delay = SL_HAL_KEYSCAN_DELAY_20MS;
+ *   keyscan_init.debounce_delay = SL_HAL_KEYSCAN_DELAY_20MS;
  *
  *   // Initialize KEYSCAN with our configuration
- *   sl_hal_keyscan_init(&keyscan_config);
+ *   sl_hal_keyscan_init(&keyscan_init);
  *
  *   // Enable KEY interrupt
  *   sl_hal_keyscan_enable_interrupts(KEYSCAN_IEN_KEY);

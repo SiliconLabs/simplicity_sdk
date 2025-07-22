@@ -35,10 +35,10 @@ sl_status_t sl_zigbee_set_multicast_table_size(uint8_t size)
 
 uint8_t sl_zigbee_get_multicast_table_size(void)
 {
-  uint8_t multicast_table_size;
+  uint16_t multicast_table_size;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_MULTICAST_TABLE_SIZE,
                                                 (uint16_t*)&multicast_table_size);
-  return multicast_table_size;
+  return (uint8_t)multicast_table_size;
 }
 
 sl_zigbee_multicast_table_entry_t* sl_zigbee_get_multicast_table(sl_zigbee_multicast_table_entry_t* table)
@@ -86,9 +86,9 @@ sl_status_t sl_zigbee_set_binding_table_size(uint8_t size)
 
 uint8_t sl_zigbee_get_binding_table_size(void)
 {
-  uint8_t binding_table_size;
+  uint16_t binding_table_size;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_BINDING_TABLE_SIZE, (uint16_t*)&(binding_table_size));
-  return binding_table_size;
+  return (uint8_t)binding_table_size;
 }
 
 sl_status_t sl_zigbee_set_max_end_device_children(uint8_t max)
@@ -101,10 +101,10 @@ sl_status_t sl_zigbee_set_max_end_device_children(uint8_t max)
 
 uint8_t sl_zigbee_get_max_end_device_children(void)
 {
-  uint8_t max_end_device_children;
+  uint16_t max_end_device_children;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_MAX_END_DEVICE_CHILDREN,
                                                 (uint16_t*)&(max_end_device_children));
-  return max_end_device_children;
+  return (uint8_t)max_end_device_children;
 }
 
 sl_status_t sl_zigbee_set_transient_device_table_timeout_ms(uint16_t timeout)
@@ -185,10 +185,10 @@ uint16_t sl_zigbee_get_transient_key_timeout_ms(void)
 
 sl_zigbee_assume_trust_center_concentrator_type_t sl_zigbee_get_assumed_trust_center_concentrator_type(void)
 {
-  sl_zigbee_assume_trust_center_concentrator_type_t type = SL_ZIGBEE_ASSUME_TRUST_CENTER_IS_NOT_A_CONCENTRATOR;
+  uint16_t type = SL_ZIGBEE_ASSUME_TRUST_CENTER_IS_NOT_A_CONCENTRATOR;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_ASSUME_TC_CONCENTRATOR_TYPE,
                                                 (uint16_t*)&type);
-  return type;
+  return (sl_zigbee_assume_trust_center_concentrator_type_t)type;
 }
 
 void sl_zigbee_set_assumed_trust_center_concentrator_type(sl_zigbee_assume_trust_center_concentrator_type_t type)
@@ -238,10 +238,10 @@ void sl_zigbee_set_source_route_table_size(uint8_t size)
 
 uint8_t sl_zigbee_get_source_route_table_size(void)
 {
-  uint8_t source_route_table_size;
+  uint16_t source_route_table_size;
   (void) sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_SOURCE_ROUTE_TABLE_SIZE,
                                                 (uint16_t*)&source_route_table_size);
-  return source_route_table_size;
+  return (uint8_t)source_route_table_size;
 }
 
 void sl_zigbee_set_route_table_size(uint8_t size)
@@ -283,7 +283,7 @@ bool sl_zigbee_gp_sink_table_remove_group(uint8_t index,
                                           uint16_t sinkGroupId,
                                           uint16_t assignedAlias)
 {
-  uint8_t gpSinkTableSize = 0;
+  uint16_t gpSinkTableSize = 0;
   sl_zigbee_gp_sink_table_entry_t sinkEntry;
   if (SL_STATUS_OK != sl_zigbee_ezsp_gp_sink_table_get_entry(index, &sinkEntry)) {
     return false;
@@ -291,7 +291,7 @@ bool sl_zigbee_gp_sink_table_remove_group(uint8_t index,
   if (SL_STATUS_OK != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&gpSinkTableSize)) {
     return false;
   }
-  if ((index >= gpSinkTableSize) || (sinkEntry.status != SL_ZIGBEE_GP_SINK_TABLE_ENTRY_STATUS_ACTIVE)) {
+  if ((index >= (uint8_t)gpSinkTableSize) || (sinkEntry.status != SL_ZIGBEE_GP_SINK_TABLE_ENTRY_STATUS_ACTIVE)) {
     // Index is out of range or entry isn't active, so can't remove
     return false;
   }

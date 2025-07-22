@@ -16,7 +16,7 @@ description: >
   has 4k reserved space at the end of flash and is configurable.
   The dynamic tokens are stored in NVM3 region.
 category: Services|Token Manager
-quality: evaluation
+quality: production
 metadata:
   sbom:
     license: Zlib

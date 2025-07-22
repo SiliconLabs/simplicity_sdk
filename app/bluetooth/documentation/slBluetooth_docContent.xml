@@ -1,152 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="AN1086: Using the Gecko Bootloader with Silicon Labs Bluetooth Applications" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1086-gecko-bootloader-bluetooth.pdf" category="Application Notes" priority="15">
-    <description>Includes detailed information on using the Gecko Bootloader with Silicon Labs Bluetooth applications. It supplements the general Gecko Bootloader implementation information provided in UG489: Silicon Labs Gecko Bootloader  User's Guide. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1135-using-third-generation-nonvolatile-memory.pdf" category="Application Notes" priority="20">
-    <description>Explains how NVM3 can be used as non-volatile data storage in various protocol implementations. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="20"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1190:  Series 2 Secure Debug" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1190-efr32-secure-debug.pdf" category="Application Notes" priority="50">
-    <description>Describes how to lock and unlock the debug access of EFR32 Gecko Series 2  devices. Many aspects of the debug access, including the secure debug unlock are described. The Debug  Challenge Interface (DCI) and Secure Engine (SE) Mailbox Interface for locking and unlocking debug  access are also included. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1218: Series 2 Secure Boot with RTSL" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1218-secure-boot-with-rtsl.pdf" category="Application Notes" priority="15">
-    <description>Contains detailed information on configuring and using the Secure Boot with hardware Root of Trust and Secure Loader on  Series 2 devices, including how to provision the signing key. This is a companion document to UG489: Silicon Labs Gecko  Bootloader User's Guide. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
     <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1247:  Anti-Tamper Protection Configuration and Use" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1247-efr32-secure-vault-tamper.pdf" category="Application Notes" priority="50">
-    <description>How to program, provision, and configure the anti-tamper module on EFR32 Series 2 devices with  Secure Vault.          </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1268:  Authenticating Silicon Labs Devices using Device Certificates" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1268-efr32-secure-identity.pdf" category="Application Notes" priority="50">
-    <description>How to authenticate an EFR32 Series 2 device with Secure Vault, using secure device certificates  and signatures. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1271:  Secure Key Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1271-efr32-secure-key-storage.pdf" category="Application Notes" priority="50">
-    <description>How to securely &quot;wrap&quot; keys in EFR32 Series 2 devices with Secure Vault, so they can be stored in  non-volatile storage. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1296: Application Development with Silicon Labs' RTL Library" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1296-application-development-with-rtl-library.pdf" category="Application Notes" priority="40">
+  <contentItemData name="" label="AN1296: Application Development with Silicon Labs' RTL Library" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1296-application-development-with-rtl-library.pdf" category="Application Notes" priority="40">
     <description>Describes the sample applications provided to demonstrate the directing finding capabilities of Bluetooth 5.1. Angle of Arrival (AoA) estimation is demonstrated with the use of Silicon Labs' Real Time Locating (RTL) library.  These techniques are applicable to the EFR32MGx and EFR32BGx series.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1297: Custom Direction-Finding Solutions using Silicon Labs' Bluetooth Stack" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1297-custom-direction-finding-solutions-silicon-labs-bluetooth.pdf" category="Application Notes" priority="40">
+  <contentItemData name="" label="AN1297: Custom Direction-Finding Solutions using Silicon Labs' Bluetooth Stack" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1297-custom-direction-finding-solutions-silicon-labs-bluetooth.pdf" category="Application Notes" priority="40">
     <description>Bluetooth 5.1 makes it possible to send Constant Tone Extensions (CTEs) in Bluetooth packets on which phase measurements can be done. This guide is for those implementing custom applications that take advantage of phase measurement and antenna switching capabilites. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1302:  Bluetooth Low Energy Application Security Design Considerations in SDK v3.x and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1302-bluetooth-application-security-design-considerations.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1302:  Bluetooth Low Energy Application Security Design Considerations in SDK v3.x and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1302-bluetooth-application-security-design-considerations.pdf" category="Application Notes" priority="50">
     <description>Provides details on designing Bluetooth Low Energy applications with security and privacy in mind.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
     <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
     <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1317: Using Network Analyzer with Bluetooth Low Energy and Mesh" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1317-network-analyzer-with-bluetooth-mesh-le.pdf" category="Application Notes" priority="30">
-    <description>Describes using Simplicity Studio 5's Network Analyzer to debug Bluetooth Mesh and Low Energy  applications. It can be read jointly with AN958: Debugging and Programming Interfaces for Customer  Designs for more information on using Packet Trace Interface with custom hardware.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="30"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1326-gecko-bootloader-transitioning-guide.pdf" category="Application Notes" priority="15">
-    <description>Gecko Bootloader v2.x, introduced in GSDK 4.0, contains a number of changes compared to Gecko Bootloader v1.x. This document describes the differences between the versions, including how to configure the new Gecko Bootloader in Simplicity Studio 5.    </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread 32-bit\ MCU HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1328: Enabling a Radio Co-Processor using the Bluetooth Controller and HCI Functions" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1328-enabling-rcp-using-bt-hci.pdf" category="Application Notes" priority="12">
+  <contentItemData name="" label="AN1328: Enabling a Radio Co-Processor using the Bluetooth Controller and HCI Functions" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1328-enabling-rcp-using-bt-hci.pdf" category="Application Notes" priority="12">
     <description>Gives a short overview of the standard Host Controller Interface (HCI) and how to use  it with a Silicon Labs Bluetooth LE controller. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1374:  Series 2 TrustZone" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1374-trustzone.pdf" category="Application Notes" priority="50">
-    <description>Covers the basics of ARMv8-M TrustZone, describes how TrustZone is implemented on Series 2 devices, and provides application examples.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1396:  Certificate-Based Bluetooth Authentication and Pairing" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1396-bluetooth-certificates.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1396:  Certificate-Based Bluetooth Authentication and Pairing" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1396-bluetooth-certificates.pdf" category="Application Notes" priority="50">
     <description>Describes the theoretical background of certificate-based authentication and pairing, and demonstrates the usage of the related sample applications that can be found in the Silicon Labs Bluetooth SDK.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1425: Large Network Performance with Dynamic Multiprotocol Bluetooth LE and Zigbee System-on-Chips" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1425-large-network-testing-dmp-ble-zigbee-soc.pdf" category="Application Notes" priority="12">
+  <contentItemData name="" label="AN1425: Large Network Performance with Dynamic Multiprotocol Bluetooth LE and Zigbee System-on-Chips" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1425-large-network-testing-dmp-ble-zigbee-soc.pdf" category="Application Notes" priority="12">
     <description>This application note summarizes the results of Zigbee/BLE dynamic multiprotocol (DMP) large network performance tests using Zigbee unicast and broadcast packets to measure the reliability, latency, and loss of a variety of scenarios.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/slBluetooth-index.html" category="Application Notes" priority="9">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/slBluetooth-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
@@ -157,6 +77,14 @@
     <description>Summarizes Amazon FreeRTOS components and sample applications, and explains how to use the examples  to communicate with the Amazon Web Services (AWS) cloud with a smart phone app. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1268:  Authenticating Silicon Labs Devices using Device Certificates" itemURI="https://docs.silabs.com/bluetooth/latest/authenticating-devices-using-device-certificates/index.html" category="Application Notes" priority="50">
+    <description>How to authenticate an EFR32 Series 2 device with Secure Vault, using secure device certificates  and signatures. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -197,11 +125,35 @@
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="https://docs.silabs.com/bluetooth/latest/bootloader-transitioning-guide-gsdk-v40-and-higher/index.html" category="Application Notes" priority="15">
+    <description>Gecko Bootloader v2.x, introduced in GSDK 4.0, contains a number of changes compared to Gecko Bootloader v1.x. This document describes the differences between the versions, including how to configure the new Gecko Bootloader in Simplicity Studio 5.    </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="15"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread 32-bit\ MCU Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1267: Radio Frequency Physical Layer Evaluation in Bluetooth SDK v3.x and Higher" itemURI="https://docs.silabs.com/bluetooth/latest/bt-rf-phy-evaluation-using-dtm-sdk-v3x/index.html" category="Application Notes" priority="30">
     <description>Reviews performing radio frequency physical layer evaluation with EFR32BG SoCs and BGM modules using  the Direct Test Mode protocol in Bluetooth SDK v3.x.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="30"/>
     <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1271:  Secure Key Storage" itemURI="https://docs.silabs.com/bluetooth/latest/efr32-secure-key-storage/index.html" category="Application Notes" priority="50">
+    <description>How to securely &quot;wrap&quot; keys in EFR32 Series 2 devices with Secure Vault, so they can be stored in  non-volatile storage. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1247:  Anti-Tamper Protection Configuration and Use" itemURI="https://docs.silabs.com/bluetooth/latest/efr32-secure-vault-tamper/index.html" category="Application Notes" priority="50">
+    <description>How to program, provision, and configure the anti-tamper module on EFR32 Series 2 devices with  Secure Vault.          </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -227,91 +179,122 @@
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1255: Transitioning from the v2.x to the v3.x Bluetooth SDK" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/an1255-transitioning-from-bluetooth-sdk-v2-to-v3.pdf" category="Quick Start Guides" priority="1">
+  <contentItemData name="" label="AN1317: Using Network Analyzer with Bluetooth Low Energy and Mesh" itemURI="https://docs.silabs.com/bluetooth/latest/network-analyzer-with-ble-btmesh/index.html" category="Application Notes" priority="30">
+    <description>Describes using Simplicity Studio 5's Network Analyzer to debug Bluetooth Mesh and Low Energy  applications. It can be read jointly with AN958: Debugging and Programming Interfaces for Customer  Designs for more information on using Packet Trace Interface with custom hardware.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="30"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1218: Series 2 Secure Boot with RTSL" itemURI="https://docs.silabs.com/bluetooth/latest/series2-secure-boot-with-rtsl/index.html" category="Application Notes" priority="15">
+    <description>Contains detailed information on configuring and using the Secure Boot with hardware Root of Trust and Secure Loader on  Series 2 devices, including how to provision the signing key. This is a companion document to Silicon Labs Gecko  Bootloader User's Guide. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="15"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1190:  Series 2 Secure Debug" itemURI="https://docs.silabs.com/bluetooth/latest/series2-secure-debug/index.html" category="Application Notes" priority="50">
+    <description>Describes how to lock and unlock the debug access of EFR32 Gecko Series 2  devices. Many aspects of the debug access, including the secure debug unlock are described. The Debug  Challenge Interface (DCI) and Secure Engine (SE) Mailbox Interface for locking and unlocking debug  access are also included. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1374:  Series 2 TrustZone" itemURI="https://docs.silabs.com/bluetooth/latest/series2-trustzone/index.html" category="Application Notes" priority="50">
+    <description>Covers the basics of ARMv8-M TrustZone, describes how TrustZone is implemented on Series 2 devices, and provides application examples.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1086: Using the Gecko Bootloader with Silicon Labs Bluetooth Applications" itemURI="https://docs.silabs.com/bluetooth/latest/using-gecko-bootloader-with-bluetooth-apps/index.html" category="Application Notes" priority="15">
+    <description>Includes detailed information on using the Gecko Bootloader with Silicon Labs Bluetooth applications. It supplements the general Gecko Bootloader implementation information provided in Silicon Labs Gecko Bootloader  User's Guide. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="15"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage" itemURI="https://docs.silabs.com/bluetooth/latest/using-third-generation-nonvolatile-memory/index.html" category="Application Notes" priority="20">
+    <description>Explains how NVM3 can be used as non-volatile data storage in various protocol implementations. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="20"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1265: Dynamic Multiprotocol Development with Bluetooth and OpenThread in GSDK v3.x" itemURI="https://docs.silabs.com/openthread/latest/multiprotocol-dynamic-ble-ot-on-soc/index.html" category="Application Notes" priority="25">
+    <description>Provides details on developing Dynamic Multiprotocol applications using Bluetooth and OpenThread. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="25"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1255: Transitioning from the v2.x to the v3.x Bluetooth SDK" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/an1255-transitioning-from-bluetooth-sdk-v2-to-v3.pdf" category="Quick Start Guides" priority="1">
     <description>Describes the differences between using Bluetooth SDK v2.x in Simplicity Studio 4 and using  Bluetooth SDK v3.x in Simplicity Studio 5. Outlines the steps needed to migrate a v2.x project to v3.x.   </description>
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="QSG175: Silicon Labs' Direction Finding Solution Quick-Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/qsg175-direction-finding-solution-quick-start-guide.pdf" category="Quick Start Guides" priority="1">
+  <contentItemData name="" label="QSG175: Silicon Labs' Direction Finding Solution Quick Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/qsg175-direction-finding-solution-quick-start-guide.pdf" category="Quick Start Guides" priority="1">
     <description>Describes the software components provided by Silicon Labs to support Direction Finding (DF) and provides instructions on how to start developing your own application.  </description>
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Bluetooth RTL Library API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/API_BLUETOOTH_AOX_HTML/index.html" category="Reference Manuals" priority="40">
+  <contentItemData name="" label="Silicon Labs Bluetooth RTL Library API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/API_BLUETOOTH_AOX_HTML/index.html" category="Reference Manuals" priority="40">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs Bluetooth Real-Time Locating Library. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Bluetooth API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/API_BLUETOOTH_HTML/index.html" category="Reference Manuals" priority="10">
+  <contentItemData name="" label="Silicon Labs Bluetooth API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/API_BLUETOOTH_HTML/index.html" category="Reference Manuals" priority="10">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs Bluetooth stack. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="10"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Bluetooth Real-Time Locating Library Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.0/sisdk-bt-loc-svc-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Bluetooth Real-Time Locating Library Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-bt-loc-svc-release-notes/index.html" category="Release Notes" priority="1">
     <description>Discusses the latest changes to the The Real-Time Locating (RTL) library, including added/deleted/deprecated  APIs, and lists fixed and known issues. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Bluetooth Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.0/sisdk-bt-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Silicon Labs Bluetooth Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-bt-release-notes/index.html" category="Release Notes" priority="1">
     <description>Lists compatibility requirements and sources for all software components  in the development environment. Discusses the latest changes to the Silicon Labs Bluetooth SDK and associated utilities, including added/deleted/deprecated  features/API, and lists fixed and known issues. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.0/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
     <description>A detailed overview of the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform includes EMLIB, EMDRV, RAIL Library, NVM3, and the component-based infrastructure. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave 32-bit\ MCU HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave 32-bit\ MCU Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG103.18: Bluetooth Direction Finding Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/ug103-18-bluetooth-direction-finding-fundamentals.pdf" category="User's Guides" priority="40">
+  <contentItemData name="" label="UG103.18: Bluetooth Direction Finding Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/ug103-18-bluetooth-direction-finding-fundamentals.pdf" category="User's Guides" priority="40">
     <description>Explains the basics of Bluetooth Angle of Arrival (AoA) and Angle of Departure (AoD) direction finding technologies and provides the theory behind estimating angle of arrival.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG162: Simplicity Commander Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/ug162-simplicity-commander-reference-guide.pdf" category="User's Guides" priority="12">
-    <description>Describes how and when to use Simplicity Commander's Command-Line Interface.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="12"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG489: Silicon Labs Gecko Bootloader User's Guide for GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/ug489-gecko-bootloader-user-guide-gsdk-4.pdf" category="User's Guides" priority="15">
-    <description>Describes the high-level implementation of the Silicon Labs Gecko Bootloader for EFR32 SoCs and NCPs,  and provides information on how to get started using the Gecko Bootloader with Silicon Labs wireless protocol stacks in GSDK 4.0 and higher.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG514: Using the Bluetooth Direction Finding Tool Suite" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/documentation/ug514-using-bluetooth-direction-finding-tool-suite.pdf" category="User's Guides" priority="40">
+  <contentItemData name="" label="UG514: Using the Bluetooth Direction Finding Tool Suite" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/documentation/ug514-using-bluetooth-direction-finding-tool-suite.pdf" category="User's Guides" priority="40">
     <description>The Bluetooth Direction Finding Tool Suite is meant to ease development with the Silicon Labs' RTL library. It provides multiple tools to configure the system, and also helps the development with analyzer tools that calculate many output parameters from the observed IQ samples. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="40"/>
-    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG103.16: Multiprotocol Fundamentals" itemURI="https://docs.silabs.com/bluetooth/20225.6.0/multiprotocol-fundamentals/index.html" category="User's Guides" priority="25">
-    <description>Describes the four multiprotocol modes, discusses considerations when selecting protocols for  multiprotocol implementations, and reviews the Radio Scheduler, a required component of a  dynamic multiprotocol solution. </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="25"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread HomeKit"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -341,7 +324,15 @@
     <description>Introduces bootloading for Silicon Labs networking devices. Discusses the Gecko Bootloader as well  as legacy Ember and Bluetooth bootloaders, and describes the file formats used by each.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG489: Silicon Labs Gecko Bootloader User's Guide for GSDK 4.0 and Higher" itemURI="https://docs.silabs.com/bluetooth/latest/bootloader-user-guide-gsdk-4/index.html" category="User's Guides" priority="15">
+    <description>Describes the high-level implementation of the Silicon Labs Gecko Bootloader for EFR32 SoCs and NCPs,  and provides information on how to get started using the Gecko Bootloader with Silicon Labs wireless protocol stacks in GSDK 4.0 and higher.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="15"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -357,7 +348,7 @@
     <description>Introduces the security concepts that must be considered when implementing an Internet of Things (IoT)  system. Using the ioXt Alliance's eight security principles as a structure, it clearly delineates  the solutions Silicon Labs provides to support endpoint security and what you must do outside of  the Silicon Labs framework.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -365,7 +356,15 @@
     <description>Describes how to implement a dynamic multiprotocol solution.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="25"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG103.16: Multiprotocol Fundamentals" itemURI="https://docs.silabs.com/bluetooth/latest/multiprotocol-fundamentals/index.html" category="User's Guides" priority="25">
+    <description>Describes the four multiprotocol modes, discusses considerations when selecting protocols for  multiprotocol implementations, and reviews the Radio Scheduler, a required component of a  dynamic multiprotocol solution. </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="25"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -381,7 +380,15 @@
     <description>Introduces non-volatile data storage using flash and the three different storage implementations offered  for Silicon Labs microcontrollers and SoCs: PS Store and NVM3.   </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="20"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG162: Simplicity Commander Reference Guide" itemURI="https://docs.silabs.com/simplicity-commander/latest/simplicity-commander-start/index.html" category="User's Guides" priority="12">
+    <description>Describes how and when to use Simplicity Commander's Command-Line Interface.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="12"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bm]g(2[12467]).* .*efr32[fz]g28.* .*bgm(21|22|24|26|27).* .*mgm(21|22|24|26|27).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>

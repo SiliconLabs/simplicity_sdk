@@ -19,10 +19,18 @@
 #include "app/framework/util/af-main.h"
 #include "stack/include/mfglib.h"
 #include "app/framework/util/attribute-storage.h"
+#include "manufacturing-library-cli-tokens.h"
 #ifdef HAL_CONFIG
 #include "hal-config.h"
 #include "ember-hal-config.h"
 #endif
+#include "sl_zigbee_token.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
+
 // -----------------------------------------------------------------------------
 // Globals
 extern sl_status_t mfglibStart(void (*mfglibRxCallback)(uint8_t *packet, uint8_t linkQuality, int8_t rssi));
@@ -89,7 +97,8 @@ bool sl_zigbee_af_mfglib_enabled(void)
   uint8_t enabled;
 
 #ifndef SL_ZIGBEE_TEST
-  halCommonGetToken(&enabled, TOKEN_MFG_LIB_ENABLED);
+
+  (void)sl_token_manager_get_data(COMMON_TOKEN_MFG_LIB_ENABLED, (void *)&enabled, sizeof(uint8_t));
 #else
   return false;
 #endif
@@ -97,6 +106,12 @@ bool sl_zigbee_af_mfglib_enabled(void)
   sl_zigbee_core_debug_print("MFG_LIB Enabled %02X\r\n", enabled);
 
   return enabled;
+}
+
+sl_status_t sl_zigbee_af_manufacturing_library_cli_token_init(void)
+{
+  uint8_t tokMfgLibEnabledDefault = TOKEN_MFG_LIB_ENABLED_DEFAULT;
+  return sl_zigbee_initialize_basic_token(COMMON_TOKEN_MFG_LIB_ENABLED, &tokMfgLibEnabledDefault, sizeof(uint8_t));
 }
 
 // -----------------------------------------------------------------------------
@@ -107,6 +122,8 @@ void sli_zigbee_af_manufacturing_library_cli_init_callback(uint8_t init_level)
 
   sl_zigbee_af_event_init(checkReceiveCompleteEventControl,
                           sl_zigbee_af_manufacturing_library_cli_check_receive_complete_event_handler);
+
+  assert(SL_STATUS_OK == sl_zigbee_af_manufacturing_library_cli_token_init());
 }
 
 // This is unfortunate but there is no callback indicating when sending is complete
@@ -384,7 +401,9 @@ void sli_zigbee_af_mfglib_program_eui_command(sl_cli_command_arg_t *arguments)
 
 #ifndef SL_ZIGBEE_TEST
   // OK, we verified the customer OUI.  Let's program it here.
-  halInternalSetMfgTokenData(TOKEN_MFG_CUSTOM_EUI_64, (uint8_t *) &eui64, EUI64_SIZE);
+  (void)sl_token_manager_set_data(SL_TOKEN_GET_STATIC_DEVICE_TOKEN(TOKEN_MFG_CUSTOM_EUI_64),
+                                  (void *)&eui64,
+                                  sizeof(sl_802154_long_addr_t));
 #endif
 }
 
@@ -393,7 +412,7 @@ void sli_zigbee_af_mfglib_enable_mfglib(sl_cli_command_arg_t *arguments)
 #ifndef SL_ZIGBEE_TEST
   uint8_t enabled = sl_cli_get_argument_uint8(arguments, 0);
 
-  halCommonSetToken(TOKEN_MFG_LIB_ENABLED, &enabled);
+  (void)sl_token_manager_set_data(COMMON_TOKEN_MFG_LIB_ENABLED, (void *)&enabled, sizeof(uint8_t));
 #endif
 }
 

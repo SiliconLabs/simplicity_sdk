@@ -100,10 +100,15 @@ SL_ENUM(sl_hal_sysrtc_compare_match_out_action_t) {
 /// SYSRTC configuration structure.
 typedef struct {
   bool enable_debug_run;      ///< Counter shall keep running during debug halt.
-} sl_hal_sysrtc_config_t;
+} sl_hal_sysrtc_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_sysrtc_init_t sl_hal_sysrtc_config_t;
+/** @endcond */
 
 /// Suggested default values for SYSRTC configuration structure.
-#define SYSRTC_CONFIG_DEFAULT                        \
+#define SL_HAL_SYSRTC_INIT_DEFAULT                   \
   {                                                  \
     false, /* Disable updating during debug halt. */ \
   }
@@ -128,12 +133,17 @@ typedef struct {
   sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel1_config; ///< Pointer to compare channel 1 config.
   sl_hal_sysrtc_group_channel_compare_config_t const *p_compare_channel2_config; ///< Pointer to compare channel 2 config.
   sl_hal_sysrtc_group_channel_capture_config_t const *p_capture_channel0_config; ///< Pointer to capture channel 0 config.
-} sl_hal_sysrtc_group_config_t;
+} sl_hal_sysrtc_group_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_sysrtc_group_init_t sl_hal_sysrtc_group_config_t;
+/** @endcond */
 
 /// Suggested default values for compare channel configuration structure.
-#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_DEFAULT \
-  {                                                 \
-    SL_HAL_SYSRTC_COMPARE_MATCH_OUT_ACTION_PULSE    \
+#define SL_HAL_SYSRTC_GROUP_CHANNEL_COMPARE_INIT_DEFAULT \
+  {                                                      \
+    SL_HAL_SYSRTC_COMPARE_MATCH_OUT_ACTION_PULSE         \
   }
 
 /// Compare channel configuration for starting HFXO using PRS.
@@ -143,13 +153,13 @@ typedef struct {
   }
 
 /// Suggested default values for capture channel configuration structure.
-#define SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_DEFAULT \
-  {                                                 \
-    SL_HAL_SYSRTC_CAPTURE_EDGE_RISING               \
+#define SL_HAL_SYSRTC_GROUP_CHANNEL_CAPTURE_INIT_DEFAULT \
+  {                                                      \
+    SL_HAL_SYSRTC_CAPTURE_EDGE_RISING                    \
   }
 
 /// Suggested default values for SYSRTC group configuration structure.
-#define SYSRTC_GROUP_CONFIG_DEFAULT                                             \
+#define SL_HAL_SYSRTC_GROUP_INIT_DEFAULT                                        \
   {                                                                             \
     true,  /* Enable compare channel 0. */                                      \
     false, /* Disable compare channel 1. */                                     \
@@ -161,7 +171,15 @@ typedef struct {
     NULL   /* NULL Pointer to configuration structure for capture channel 0. */ \
   }
 
-#ifdef _SYSRTC_GRP0_PRETRIG_MASK
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro names used for backward compatibility purposes.
+#define SYSRTC_CONFIG_DEFAULT                         SL_HAL_SYSRTC_INIT_DEFAULT
+#define SYSRTC_GROUP_CHANNEL_COMPARE_CONFIG_DEFAULT   SL_HAL_SYSRTC_GROUP_CHANNEL_COMPARE_INIT_DEFAULT
+#define SYSRTC_GROUP_CHANNEL_CAPTURE_CONFIG_DEFAULT   SL_HAL_SYSRTC_GROUP_CHANNEL_CAPTURE_INIT_DEFAULT
+#define SYSRTC_GROUP_CONFIG_DEFAULT                   SL_HAL_SYSRTC_GROUP_INIT_DEFAULT
+/** @endcond */
+
+#if defined(_SYSRTC_GRP0_PRETRIG_MASK)
 /// Pre-trigger configuration structure.
 typedef struct {
   bool enable;   ///< Enable/Disable the pre-trigger.
@@ -176,20 +194,26 @@ typedef struct {
 } sl_hal_sysrtc_group_pretrigger_config_t;
 
 /// Suggested default values for pre-trigger configuration structure.
-#define SYSRTC_PRETRIGGER_CONFIG_DEFAULT                               \
+#define SL_HAL_SYSRTC_PRETRIGGER_INIT_DEFAULT                          \
   {                                                                    \
     false, /* Disable the pre-trigger. */                              \
     0,     /* The pre-trigger occurs 0 LF ticks before the compare. */ \
   }
 
 /// Suggested default values for group pre-trigger configuration structure.
-#define SYSRTC_GROUP_PRETRIGGER_CONFIG_DEFAULT                                                \
-  {                                                                                           \
-    SYSRTC_PRETRIGGER_CONFIG_DEFAULT, /* Default pre-trigger configuration to wake up EMU. */ \
-    SYSRTC_PRETRIGGER_CONFIG_DEFAULT, /* Default pre-trigger configuration to start HFXO. */  \
-    0                                 /* Compare channel used by the pre-triggers. */         \
+#define SL_HAL_SYSRTC_GROUP_PRETRIGGER_INIT_DEFAULT                                                \
+  {                                                                                                \
+    SL_HAL_SYSRTC_PRETRIGGER_INIT_DEFAULT, /* Default pre-trigger configuration to wake up EMU. */ \
+    SL_HAL_SYSRTC_PRETRIGGER_INIT_DEFAULT, /* Default pre-trigger configuration to start HFXO. */  \
+    0                                      /* Compare channel used by the pre-triggers. */         \
   }
-#endif
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define SYSRTC_PRETRIGGER_CONFIG_DEFAULT SL_HAL_SYSRTC_PRETRIGGER_INIT_DEFAULT
+#define SYSRTC_GROUP_PRETRIGGER_CONFIG_DEFAULT SL_HAL_SYSRTC_GROUP_PRETRIGGER_INIT_DEFAULT
+/** @endcond */
+#endif // defined(_SYSRTC_GRP0_PRETRIG_MASK)
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -205,11 +229,11 @@ typedef struct {
  * done prior to the use of this function if configuring the SYSRTC to start
  * when initialization is completed.
  *
- * @param[in] p_config
+ * @param[in] init
  *   A pointer to the SYSRTC initialization structure
  *   variable.
  ******************************************************************************/
-void sl_hal_sysrtc_init(const sl_hal_sysrtc_config_t *p_config);
+void sl_hal_sysrtc_init(const sl_hal_sysrtc_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -345,7 +369,7 @@ __INLINE void sl_hal_sysrtc_unlock(void)
   SYSRTC0->LOCK = SYSRTC_LOCK_LOCKKEY_UNLOCK;
 }
 
-#ifdef _SYSRTC_IF_MASK
+#if defined(_SYSRTC_IF_MASK)
 /***************************************************************************//**
  * @brief
  *   Enables one or more SYSRTC interrupts.
@@ -445,7 +469,7 @@ __INLINE void sl_hal_sysrtc_set_interrupts(uint32_t flags)
 {
   SYSRTC0->IF_SET = flags;
 }
-#endif
+#endif // defined(_SYSRTC_IF_MASK)
 
 /***************************************************************************//**
  * @brief
@@ -478,7 +502,7 @@ __INLINE void sl_hal_sysrtc_set_counter(uint32_t value)
   SYSRTC0->CNT = value;
 }
 
-#ifdef _SYSRTC_MSCNT_MASK
+#if defined(_SYSRTC_MSCNT_MASK)
 /***************************************************************************//**
  * @brief
  *   Starts the SYSRTC MS counter.
@@ -588,7 +612,7 @@ __INLINE uint32_t sl_hal_sysrtc_get_ms_compare_buffer(void)
 {
   return SYSRTC0->MSCMPBUF;
 }
-#endif
+#endif // defined(_SYSRTC_MSCNT_MASK)
 
 /***************************************************************************//**
  * @brief
@@ -608,11 +632,11 @@ void sl_hal_sysrtc_wait_sync_group(uint8_t group_number);
  * @param[in] group_number
  *   SYSRTC group number to use.
  *
- * @param[in] p_group_config
- *   Pointer to group configuration structure variable.
+ * @param[in] group_init
+ *   Pointer to group initialization structure variable.
  ******************************************************************************/
 void sl_hal_sysrtc_init_group(uint8_t group_number,
-                              sl_hal_sysrtc_group_config_t const *p_group_config);
+                              const sl_hal_sysrtc_group_init_t *group_init);
 
 /***************************************************************************//**
  * @brief
@@ -766,7 +790,7 @@ void sl_hal_sysrtc_set_group_compare_channel_value(uint8_t group_number,
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_HAL_SYSRTC, SL_CODE_CLASS_TIME_CRITICAL)
 uint32_t sl_hal_sysrtc_get_group_capture_channel_value(uint8_t group_number);
 
-#ifdef _SYSRTC_GRP0_PRETRIG_MASK
+#if defined(_SYSRTC_GRP0_PRETRIG_MASK)
 /***************************************************************************//**
  * @brief
  *   Sets the pre-triggers for a given group.
@@ -807,7 +831,7 @@ uint32_t sl_hal_sysrtc_get_group_pretrigger_status(uint8_t group_number);
  ******************************************************************************/
 void sl_hal_sysrtc_clear_group_pretrigger_status(uint8_t group_number,
                                                  uint32_t flags);
-#endif
+#endif // defined(_SYSRTC_GRP0_PRETRIG_MASK)
 
 /** @} (end addtogroup sysrtc) */
 
@@ -825,57 +849,54 @@ void sl_hal_sysrtc_clear_group_pretrigger_status(uint8_t group_number,
  *
  * @code
  * #include "sl_hal_sysrtc.h"
+ * #include "sl_clock_manager.h"
+ * #include "sl_interrupt_manager.h"
  *
- * // SYSRTC interrupt handler
- * void SYSRTC_IRQHandler(void)
+ * // SYSRTC group 0 compare 0 interrupt handler
+ * void SYSRTC_APP_IRQHandler(void)
  * {
- *   uint32_t flags = sl_hal_sysrtc_get_interrupt_flags();
- *
- *   if (flags & SL_HAL_SYSRTC_IF_COMP0) {
+ *   uint32_t flags = sl_hal_sysrtc_get_group_interrupts(0);
+ *   if (flags & SYSRTC_GRP0_IF_CMP0) {
  *     // Handle compare match 0 interrupt
- *     sl_hal_sysrtc_clear_interrupt_flags(SL_HAL_SYSRTC_IF_COMP0);
- *
- *     // Add your application code here
- *     // For example, toggle an LED
+ *     sl_hal_sysrtc_clear_group_interrupts(0, SYSRTC_GRP0_IF_CMP0);
+ *     // Add your application code here (e.g., toggle an LED)
  *   }
  * }
  *
  * void sysrtc_example(void)
  * {
- *   // Initialize SYSRTC configuration with default values
- *   sl_hal_sysrtc_config_t sysrtcConfig = SL_HAL_SYSRTC_CONFIG_DEFAULT;
+ *   // Enable SYSRTC clock
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_SYSRTC0);
  *
- *   // Customize configuration
- *   sysrtcConfig.enable = true;
- *   sysrtcConfig.debug_run = false;           // Stop counter during debug
- *   sysrtcConfig.prescaler = 0;               // No prescaling (32.768 kHz)
+ *   // Initialize SYSRTC with default config
+ *   sl_hal_sysrtc_init_t sysrtc_init = SL_HAL_SYSRTC_INIT_DEFAULT;
+ *   sl_hal_sysrtc_init(&sysrtc_init);
  *
- *   // Initialize SYSRTC
- *   sl_hal_sysrtc_init(&sysrtcConfig);
+ *   // Initialize group 0 and enable compare channel 0 with config
+ *   sl_hal_sysrtc_group_init_t group_init = SL_HAL_SYSRTC_GROUP_INIT_DEFAULT;
+ *   sl_hal_sysrtc_group_channel_compare_config_t compare0_config = SL_HAL_SYSRTC_GROUP_CHANNEL_COMPARE_INIT_DEFAULT;
+ *   group_init.compare_channel0_enable = true;
+ *   group_init.p_compare_channel0_config = &compare0_config;
+ *   sl_hal_sysrtc_init_group(0, &group_init);
  *
- *   // Configure compare channel 0
- *   sl_hal_sysrtc_compare_config_t compareConfig = SL_HAL_SYSRTC_COMPARE_CONFIG_DEFAULT;
- *   compareConfig.enable = true;
- *   compareConfig.comp_value = 32768;         // Compare after 1 second (32.768 kHz clock)
+ *   // Set compare value for group 0, channel 0
+ *   sl_hal_sysrtc_set_group_compare_channel_value(0, 0, 1000);
  *
- *   // Set up compare channel 0
- *   sl_hal_sysrtc_init_compare(0, &compareConfig);
- *
- *   // Enable compare interrupt
- *   sl_hal_sysrtc_enable_interrupts(SL_HAL_SYSRTC_IEN_COMP0);
+ *   // Enable group 0 compare 0 interrupt
+ *   sl_hal_sysrtc_enable_group_interrupts(0, SYSRTC_GRP0_IF_CMP0);
  *
  *   // Enable SYSRTC interrupt in NVIC
- *   sl_interrupt_manager_clear_pending_irq(SYSRTC_IRQn);
- *   sl_interrupt_manager_enable_irq(SYSRTC_IRQn);
+ *   sl_interrupt_manager_clear_irq_pending(SYSRTC_APP_IRQn);
+ *   sl_interrupt_manager_enable_irq(SYSRTC_APP_IRQn);
  *
  *   // Start SYSRTC
  *   sl_hal_sysrtc_enable();
+ *   sl_hal_sysrtc_wait_sync();
  *
  *   // Application main loop
  *   while (1) {
  *     // Read current counter value if needed
- *     uint32_t count = sl_hal_sysrtc_get_count();
- *
+ *     uint32_t count = sl_hal_sysrtc_get_counter();
  *     // Sleep or perform other tasks
  *   }
  * }

@@ -17,6 +17,7 @@
 
 #ifndef REPORTING_H
 #define REPORTING_H
+
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
 #endif
@@ -31,6 +32,7 @@
 #if (SL_ZIGBEE_AF_PLUGIN_REPORTING_ENABLE_GROUP_BOUND_REPORTS == 1)
 #define ENABLE_GROUP_BOUND_REPORTS
 #endif
+#include "app/framework/plugin/reporting/reporting-tokens.h"
 
 //TODO: Properly doxygenate this file
 
@@ -65,6 +67,7 @@
 #ifndef EZSP_HOST
   #include "nvm3.h"
   #define NVM3KEY_REPORTING_TABLE_EXPANDED (NVM3KEY_DOMAIN_ZIGBEE | 0x6000)
+  #define COMMON_TOKEN_REPORTING_TABLE_EXPANDED SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_ZIGBEE | 0x6000), 0)
 #endif //!EZSP_HOST
   #define REPORTING_TABLE_MAX_RANGE 0x400
   #define REPORTING_TABLE_PLUGIN_SIZE (SL_ZIGBEE_AF_PLUGIN_REPORTING_EXPANDED_TABLE_SIZE)

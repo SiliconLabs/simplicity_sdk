@@ -137,10 +137,15 @@ typedef struct {
   bool                                     output0_polarity;
   /// Idle value for output 1.
   bool                                     output1_polarity;
-} sl_hal_letimer_config_t;
+} sl_hal_letimer_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_letimer_init_t sl_hal_letimer_config_t;
+/** @endcond */
 
 /// Default configuration for LETIMER initialization structure.
-#define SL_HAL_LETIMER_CONFIG_DEFAULT                                        \
+#define SL_HAL_LETIMER_INIT_DEFAULT                                          \
   {                                                                          \
     .prescaler                = SL_HAL_LETIMER_PRESCALER_DIV1,               \
     .repeat_mode              = SL_HAL_LETIMER_REPEAT_MODE_FREE,             \
@@ -152,6 +157,11 @@ typedef struct {
     .output0_polarity         = false,                                       \
     .output1_polarity         = false                                        \
   }
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define SL_HAL_LETIMER_CONFIG_DEFAULT SL_HAL_LETIMER_INIT_DEFAULT
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -168,7 +178,7 @@ typedef struct {
  *   A pointer to the LETIMER initialization structure.
  ******************************************************************************/
 void sl_hal_letimer_init(LETIMER_TypeDef *letimer,
-                         const sl_hal_letimer_config_t *init);
+                         const sl_hal_letimer_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -743,22 +753,22 @@ __INLINE uint32_t sl_hal_letimer_get_top_buffer(LETIMER_TypeDef *letimer)
  * void letimer_pwm_example(void)
  * {
  *   // Initialize with custom configuration for PWM generation
- *   sl_hal_letimer_config_t config = SL_HAL_LETIMER_CONFIG_DEFAULT;
+ *   sl_hal_letimer_init_t init = SL_HAL_LETIMER_INIT_DEFAULT;
  *
  *   // Set prescaler to divide clock by 4
- *   config.prescaler = SL_HAL_LETIMER_PRESCALER_DIV4;
+ *   init.prescaler = SL_HAL_LETIMER_PRESCALER_DIV4;
  *
  *   // Free-running mode
- *   config.repeat_mode = SL_HAL_LETIMER_REPEAT_MODE_FREE;
+ *   init.repeat_mode = SL_HAL_LETIMER_REPEAT_MODE_FREE;
  *
  *   // Configure PWM on output 0
- *   config.underflow_output0_action = SL_HAL_LETIMER_UNDERFLOW_OUTPUT_ACTION_PWM;
+ *   init.underflow_output0_action = SL_HAL_LETIMER_UNDERFLOW_OUTPUT_ACTION_PWM;
  *
  *   // Reload TOP on underflow
- *   config.enable_top = true;
+ *   init.enable_top = true;
  *
  *   // Initialize LETIMER with our configuration
- *   sl_hal_letimer_init(LETIMER0, &config);
+ *   sl_hal_letimer_init(LETIMER0, &init);
  *
  *   // Enable LETIMER
  *   sl_hal_letimer_enable(LETIMER0);
@@ -782,7 +792,7 @@ __INLINE uint32_t sl_hal_letimer_get_top_buffer(LETIMER_TypeDef *letimer)
  *   sl_hal_letimer_enable_interrupts(LETIMER0, LETIMER_IEN_COMP0);
  *
  *   // Enable NVIC interrupt for LETIMER
- *   sl_interrupt_manager_clear_pending_irq(LETIMER0_IRQn);
+ *   sl_interrupt_manager_clear_irq_pending(LETIMER0_IRQn);
  *   sl_interrupt_manager_enable_irq(LETIMER0_IRQn);
  *
  *   // Reset the event flag

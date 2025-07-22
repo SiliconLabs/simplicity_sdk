@@ -31,6 +31,14 @@
 #include "em_device.h"
 #include <stdint.h>
 
+#if defined(SL_APP_PROPERTIES)
+#include "api/application_properties.h"
+#endif // SL_APP_PROPERTIES
+
+/*----------------------------------------------------------------------------
+ * Defines.
+ *----------------------------------------------------------------------------*/
+
 #define TOTAL_INTERNAL_INTERRUPTS         (16)
 
 #define SECURITY_LEVEL_BIT                  0x10000000
@@ -50,6 +58,10 @@
 #define __ATTRIBUTE_SECURE_FAULT_HANDLER     _Pragma("location =\"secure_fault_handler\"") __root
 #define __ATTRIBUTE_SECURE_VECTORS_COPY      _Pragma("location =\"secure_vectors_copy\"") __root
 #endif
+
+/*----------------------------------------------------------------------------
+ * Structures.
+ *----------------------------------------------------------------------------*/
 
 typedef struct secure_config_data {
   uint32_t *secure_vector_table;
@@ -90,6 +102,13 @@ __ATTRIBUTE_SECURE_CONFIG_DATA const secure_config_data_t sl_tz_secure_config_da
 #endif
 
 extern uint32_t __INITIAL_SP;
+
+#if defined(SL_APP_PROPERTIES)
+extern ApplicationProperties_t sl_app_properties;
+#define APP_PROPERTIES_ADDR (void(*)(void)) & sl_app_properties
+#else
+#define APP_PROPERTIES_ADDR (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler))
+#endif
 
 /*----------------------------------------------------------------------------
  * Trustzone Non-Secure execution pre-compiled binary.
@@ -158,7 +177,7 @@ __ATTRIBUTE_SECURE_FAULT_HANDLER const uint8_t sli_tz_secure_fault_handler[] = {
     { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
     { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
     { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
-    { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
+    { APP_PROPERTIES_ADDR },                                                     /*      Application properties     */ \
     { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
     { (void(*)(void))(VECTOR_TABLE_ENTRY_OFFSET(sli_tz_secure_fault_handler)) }, /*      Secure_Default_Handler     */ \
 }

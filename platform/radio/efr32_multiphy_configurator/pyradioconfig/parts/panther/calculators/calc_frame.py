@@ -236,6 +236,10 @@ class CALC_Frame_panther(CALC_Frame_common):
         self._addModelVariable(model, 'header_size_internal', int, ModelVariableFormat.DECIMAL, units='bytes',
                                desc='Internal representation of header size. 0 for no header.')
 
+        #Internal FCDX.WORDS register size
+        self._addModelVariable(model, 'fcdx_words_bitwidth', int, ModelVariableFormat.DECIMAL, units='bytes', desc='FCD_WORDS bitwidth.')
+
+
         """
         #Outputs
         """

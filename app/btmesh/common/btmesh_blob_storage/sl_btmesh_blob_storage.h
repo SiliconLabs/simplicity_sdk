@@ -615,6 +615,17 @@ uint32_t sl_btmesh_blob_storage_get_max_blob_size_free(bool include_unmanaged_bl
 uint32_t sl_btmesh_blob_storage_get_max_blob_count(void);
 
 /***************************************************************************//**
+ * Queries the BLOB storage alignment
+ *
+ * Writes to the BLOB storage must have an offset that is aligned to this value.
+ * Apart from the last write of a writing procedure, the length of the data must
+ * be a multiple of this value. The last write can be of any length.
+ *
+ * @return The BLOB storage alignment
+ ******************************************************************************/
+uint8_t sl_btmesh_blob_storage_get_alignment(void);
+
+/***************************************************************************//**
  * Queries the error code/state of the asynchronous erase
  *
  * @return State of asynchronous erase

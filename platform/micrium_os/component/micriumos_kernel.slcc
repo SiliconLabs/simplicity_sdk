@@ -47,6 +47,7 @@ provides:
   - name: cmsis_rtos2_port
     condition: [device_cortexm]
 requires:
+  - name: device_series_2
   - name: code_classification
   - name: sleeptimer
   - name: rtos_description

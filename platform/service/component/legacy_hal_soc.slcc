@@ -31,7 +31,7 @@ requires:
   - name: hal_emu
     condition: [device_series_3]
   - name: status
-  - name: token_manager
+  - name: common_token_manager
   - name: legacy_hal_wdog
     condition: [device_series_2]
 
@@ -43,6 +43,8 @@ source:
   - path: platform/service/legacy_hal/src/faults.s
   - path: platform/service/legacy_hal/src/random.c
   - path: platform/service/legacy_hal/src/token_legacy.c
+    condition:
+      - device_series_2
 include:
   - path: platform/service/legacy_hal/inc
     file_list:

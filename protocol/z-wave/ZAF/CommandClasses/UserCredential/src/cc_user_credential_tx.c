@@ -16,11 +16,10 @@
 #include "assert.h"
 #include "cc_user_credential_config_api.h"
 #include "CC_Notification.h"
-#include "zaf_transport_tx.h"
 #include "ZAF_Common_interface.h"
+#include "zaf_transport_tx.h"
 #include "ZAF_TSE.h"
 #include "ZW_TransportSecProtocol.h"
-#include "association_plus_base.h"
 #include <string.h>
 
 /****************************************************************************/
@@ -66,44 +65,15 @@ static void send_report(
   const bool notify_lifeline
   )
 {
-  node_id_t initiator_node_id = p_rx_options->sourceNode.nodeId;
-  uint8_t initiator_endpoint = p_rx_options->sourceNode.endpoint;
-  uint8_t n_nodes_in_lifeline = 0;
-  bool initiator_is_in_lifeline = false;
-
-  if (notify_lifeline) {
-    MULTICHAN_NODE_ID * p_nodes = NULL;
-    NODE_LIST_STATUS node_list_status =
-      handleAssociationGetnodeList(LIFELINE_GROUP_ID, 0, &p_nodes,
-                                   &n_nodes_in_lifeline);
-    if (node_list_status == NODE_LIST_STATUS_SUCCESS) {
-      for (uint8_t i = 0; i < n_nodes_in_lifeline; ++i) {
-        if (p_nodes[i].node.nodeId == initiator_node_id
-            && p_nodes[i].node.endpoint == initiator_endpoint) {
-          initiator_is_in_lifeline = true;
-        }
-      }
-    }
-  }
-
   zaf_tx_options_t tx_options;
   zaf_transport_rx_to_tx_options(p_rx_options, &tx_options);
-
-  /**
-   * Send single report to requesting node only if
-   * - the report is not addressed to the Lifeline group or
-   * - the initiating node is not in the Lifeline
-   * - the only node in the Lifeline is the initiator (TSE wouldn't send
-   *   anything in this case)
-   */
-  if (!notify_lifeline
-      || (!initiator_is_in_lifeline || (n_nodes_in_lifeline == 1))
-      ) {
-    zaf_transport_tx(
-      report_out_frame, report_out_size, NULL, &tx_options);
-  }
+  zaf_transport_tx(report_out_frame, report_out_size, NULL, &tx_options);
 
   if (notify_lifeline) {
+    /**
+     * Note: TSE will send the report to all nodes in the Lifeline association
+     * group, except the initiator.
+     */
     ZAF_TSE_Trigger((void *)&send_report_tse, p_rx_options, false);
   }
 }

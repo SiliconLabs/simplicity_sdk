@@ -19,6 +19,8 @@
 {{zap_header}}
 
 #include "af-types.h"
+#include "sl_token_manager_defines.h"
+#include "sl_token_manager_api.h"
 
 {{#token_attributes}}
   {{#first}}
@@ -30,10 +32,12 @@
 // Creator for singleton attribute: {{name}}
 #define CREATOR_{{define}}_SINGLETON {{as_hex tokenId 4}}
 #define NVM3KEY_{{define}}_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | {{as_hex tokenId 4}})
+#define COMMON_TOKEN_{{define}}_SINGLETON SL_TOKEN_GET_DYNAMIC_TOKEN(NVM3KEY_{{define}}_SINGLETON, 0)
   {{else}}
 // Creator for attribute: {{name}}, endpoint: {{endpointId}}
 #define CREATOR_{{define}}_{{endpointId}} {{as_hex tokenId 4}}
 #define NVM3KEY_{{define}}_{{endpointId}} (NVM3KEY_DOMAIN_ZIGBEE | {{as_hex tokenId 4}})
+#define COMMON_TOKEN_{{define}}_{{endpointId}} SL_TOKEN_GET_DYNAMIC_TOKEN(NVM3KEY_{{define}}_{{endpointId}}, 0)
   {{/if}}
 {{/token_attributes}}
 
@@ -81,7 +85,7 @@ DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{f
           {{else if (is_number_greater_than attributeSize 4)}}
 DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
           {{else if (is_num_equal attributeSize 3)}}
-DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })          
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
           {{else if defaultValue}}
 DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
           {{else}}
@@ -106,7 +110,7 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
                         {{else if (is_number_greater_than attributeSize 4)}}
 DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
                         {{else if (is_num_equal attributeSize 3)}}
-DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })                        
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
                         {{else if defaultValue}}
 DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
                         {{else}}
@@ -143,8 +147,8 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
   {{/all_user_cluster_generated_attributes}}
   {{#token_attributes}}
         {{#if isSingleton}}
-  halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_SINGLETON); \
-  sli_zigbee_af_write_attribute({{smallestEndpointIdentifier}}, ZCL_{{clusterDefine}}_ID, ZCL_{{define}}_ATTRIBUTE_ID, CLUSTER_MASK_{{as_delimited_macro side}}, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}{{else}}SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE{{/if}}, (uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, true, false, false); \
+  (void)sl_token_manager_get_data(COMMON_TOKEN_{{define}}_SINGLETON, (tokType_{{as_snake_case define}} *)ptr, sizeof(tokType_{{as_snake_case define}})); \
+  (void)sli_zigbee_af_write_attribute({{smallestEndpointIdentifier}}, ZCL_{{clusterDefine}}_ID, ZCL_{{define}}_ATTRIBUTE_ID, CLUSTER_MASK_{{as_delimited_macro side}}, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}{{else}}SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE{{/if}}, (uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, true, false, false); \
         {{/if}}
   {{/token_attributes}}
 {{#token_attribute_endpoints isSingleton=0}}
@@ -153,8 +157,8 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
   epNetwork = sl_zigbee_af_network_index_from_endpoint({{../endpointId}}); \
   if({{../endpointId}} == (endpoint) || (SL_ZIGBEE_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork)) { \
         {{/first}}
-    halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_{{../endpointId}}); \
-    sli_zigbee_af_write_attribute({{../endpointId}}, ZCL_{{clusterDefine}}_ID, ZCL_{{define}}_ATTRIBUTE_ID, CLUSTER_MASK_{{as_delimited_macro side}}, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}{{else}}SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE{{/if}}, (uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, true, false, false); \
+    (void)sl_token_manager_get_data(COMMON_TOKEN_{{define}}_{{../endpointId}}, (tokType_{{as_snake_case define}} *)ptr, sizeof(tokType_{{as_snake_case define}})); \
+    (void)sli_zigbee_af_write_attribute({{../endpointId}}, ZCL_{{clusterDefine}}_ID, ZCL_{{define}}_ATTRIBUTE_ID, CLUSTER_MASK_{{as_delimited_macro side}}, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}{{else}}SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE{{/if}}, (uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, true, false, false); \
         {{#last}}
   } \
         {{/last}}
@@ -184,7 +188,7 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
             {{#if isSingleton}}
                 {{#if (is_lowercase_equal ./clusterName ../name)}}
 if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == sl_zigbee_af_get_mfg_code(metadata) && {{#if_compare 'server' side operator='=='}}!{{/if_compare}}sl_zigbee_af_attribute_is_client(metadata) ) {   \
-        halCommonSetToken(TOKEN_{{define}}_SINGLETON, data); } \
+        (void)sl_token_manager_set_data(COMMON_TOKEN_{{define}}_SINGLETON, data, sizeof(tokType_{{as_snake_case define}})); } \
                 {{/if}}
             {{/if}}
         {{/if_compare}}
@@ -198,7 +202,7 @@ if ( {{endpointId}} == endpoint ) { \
         {{#token_attributes ../endpointTypeRef isSingleton=0}}
           {{#if (is_lowercase_equal ./clusterName ../name)}}
 if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == sl_zigbee_af_get_mfg_code(metadata) && {{#if side}}!{{/if}}sl_zigbee_af_attribute_is_client(metadata) ) \
-          halCommonSetToken(TOKEN_{{define}}_{{../../endpointId}}, data); \
+          (void)sl_token_manager_set_data(COMMON_TOKEN_{{define}}_{{../../endpointId}}, data, sizeof(tokType_{{as_snake_case define}})); \
           {{/if}}
         {{/token_attributes}}
     } \

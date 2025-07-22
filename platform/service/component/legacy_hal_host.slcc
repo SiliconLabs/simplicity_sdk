@@ -42,6 +42,17 @@ include:
       - path: led.h
       - path: button.h
       - path: em2xx-reset-defs.h
+  # This component brings in prototypes for CTM routines, while ZB code defines/overrides defines them, since the host does not save tokens to flash
+  # The sl_token_manager_defines.h file is needed to resolve macros for tokens, which are used on the host
+  - path: "platform/service/token_manager/inc/"
+    file_list:
+      - path: sl_token_manager_api.h
+      - path: sl_token_manager_defines.h
+  - path: platform/service/token_manager/legacy/inc
+    file_list:
+      - path: sl_token_manufacturing_generic.h
+config_file:
+  - path: platform/service/token_manager/config/sl_token_manager_config.h
 define:
   - name: "PLATFORM_HEADER"
     value: "\"platform-header.h\""

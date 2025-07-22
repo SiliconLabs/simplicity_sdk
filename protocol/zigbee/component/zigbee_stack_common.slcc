@@ -31,7 +31,7 @@ requires:
       - zigbee_phy_2_4
   - name: zigbee_system_common
   - name: component_catalog
-  - name: token_manager
+  - name: common_token_manager
   - name: status
   - name: endianness
   # Randomness
@@ -76,6 +76,7 @@ include:
     file_list:
       - path: config/config.h
       - path: config/token-stack.h
+      - path: config/sl_zigbee_token_defines.h
       - path: config/token-phy.h
       - path: config/sl_zigbee_configuration_defaults.h
       - path: zll/zll-token-config.h
@@ -87,6 +88,7 @@ include:
       - path: sl_zigbee_types_internal.h
       - path: sl_zigbee.h
       - path: sl_zigbee_debug.h
+      - path: sl_zigbee_token.h
       - path: child.h
       - path: sl_zigbee_alternate_mac.h
       - path: sl_zigbee_duty_cycle.h
@@ -165,12 +167,16 @@ include:
       - path: event_queue/event-queue.h
   - path: protocol/zigbee/stack/core/
     file_list:
+      - path: sl_zigbee_stack.h
       - path: sl_zigbee_multi_network.h
       - path: multi-pan-token-config.h
       - path: multi-pan.h
   - path: protocol/zigbee/stack/mac/
     file_list:
       - path: multi-mac.h
+  - path: protocol/zigbee/stack/routing/zigbee
+    file_list:
+      - path: zigbee.h
   - path: protocol/zigbee/stack/internal/inc
     file_list:
       - path: internal-defs-patch.h
@@ -195,6 +201,7 @@ include:
       - path: trust-center-internal-def.h
       - path: mfglib_internal_def.h
       - path: internal-callbacks-patch.h
+      - path: sl_zigbee_token_internal_def.h
   - path: protocol/zigbee/app/em260/
     file_list:
       - path: command-handlers-zll.h
@@ -290,6 +297,9 @@ include:
         condition:
           - zigbee_use_ipc
       - path: trust-center-ipc-callback-events.h
+        condition:
+          - zigbee_use_ipc
+      - path: sl_zigbee_token_ipc_command_messages.h
         condition:
           - zigbee_use_ipc
 
@@ -450,7 +460,28 @@ source:
   - path: protocol/zigbee/stack/stubs/sl_zigbee_fragmentation_stubs.c
     unless:
       - zigbee_fragmentation
+
+  - path: protocol/zigbee/stack/internal/src/baremetal/sl_zigbee_token_baremetal_wrapper.c
+    unless:
+      - zigbee_use_ipc
+      - native_host
+  - path: protocol/zigbee/stack/internal/src/ipc/sl_zigbee_token_ipc_command_messages.c
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/src/stubs/sl_zigbee_token_internal_weak_stubs.c
+    unless:
+      - zigbee_use_ipc
+
    #these are duplicated and copied over from zigbee_token_interface   
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token.c
+    unless:
+      - device_series_2
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_defines.c
+    unless:
+      - device_series_2
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_legacy.c
+    condition:
+      - device_series_2
   - path: protocol/zigbee/stack/platform/zigbee_token_interface_stub.c
   #end of files duplicated and copied over from zigbee_token_interface     
   - path: protocol/zigbee/stack/internal/src/baremetal/stack-info-baremetal-callbacks.c
@@ -538,6 +569,9 @@ source:
     condition:
       - zigbee_use_ipc
   - path: protocol/zigbee/stack/internal/src/ipc/zigbee-device-stack-ipc-command-messages.c
+    condition:
+      - zigbee_use_ipc
+  - path: protocol/zigbee/stack/internal/src/ipc/mac-layer-ipc-command-messages.c
     condition:
       - zigbee_use_ipc
   - path: protocol/zigbee/stack/internal/src/ipc/multi-phy-ipc-command-messages.c

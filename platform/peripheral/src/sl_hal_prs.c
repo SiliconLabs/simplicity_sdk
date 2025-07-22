@@ -65,28 +65,28 @@ extern __INLINE void sl_hal_prs_async_combine_signals(uint8_t channel_a,
 /***************************************************************************//**
  * Configure Async channel.
  ******************************************************************************/
-void sl_hal_prs_async_init_channel(const sl_hal_prs_async_channel_config_t *config)
+void sl_hal_prs_async_init_channel(const sl_hal_prs_async_channel_init_t *init)
 {
-  EFM_ASSERT(config->channel < SL_HAL_PRS_ASYNC_CHAN_COUNT);
+  EFM_ASSERT(init->channel < SL_HAL_PRS_ASYNC_CHAN_COUNT);
 
 #if defined(_PRS_ASYNC_CH_CTRL_AUXSEL_MASK)
-  sl_hal_prs_async_combine_signals(config->channel, config->aux_prs, config->logic);
+  sl_hal_prs_async_combine_signals(init->channel, init->aux_prs, init->logic);
 #else
-  sl_hal_prs_async_combine_signals(config->channel, config->channel - 1, config->logic);
+  sl_hal_prs_async_combine_signals(init->channel, init->channel - 1, init->logic);
 #endif
-  sl_hal_prs_async_connect_channel_producer(config->channel, config->producer_signal);
-  sl_hal_prs_connect_channel_consumer(config->channel, SL_HAL_PRS_TYPE_ASYNC, config->consumer_event);
+  sl_hal_prs_async_connect_channel_producer(init->channel, init->producer_signal);
+  sl_hal_prs_connect_channel_consumer(init->channel, SL_HAL_PRS_TYPE_ASYNC, init->consumer_event);
 }
 
 /***************************************************************************//**
  * Configure Sync channel.
  ******************************************************************************/
-void sl_hal_prs_sync_init_channel(const sl_hal_prs_sync_channel_config_t *config)
+void sl_hal_prs_sync_init_channel(const sl_hal_prs_sync_channel_init_t *init)
 {
-  EFM_ASSERT(config->channel < SL_HAL_PRS_SYNC_CHAN_COUNT);
+  EFM_ASSERT(init->channel < SL_HAL_PRS_SYNC_CHAN_COUNT);
 
-  sl_hal_prs_sync_connect_channel_producer(config->channel, config->producer_signal);
-  sl_hal_prs_connect_channel_consumer(config->channel, SL_HAL_PRS_TYPE_SYNC, config->consumer_event);
+  sl_hal_prs_sync_connect_channel_producer(init->channel, init->producer_signal);
+  sl_hal_prs_connect_channel_consumer(init->channel, SL_HAL_PRS_TYPE_SYNC, init->consumer_event);
 }
 
 /***************************************************************************//**

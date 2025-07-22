@@ -42,7 +42,8 @@
 #ifdef SL_CATALOG_RGB_LED_PRESENT
 #include "sl_simple_rgb_pwm_led.h"
 #include "sl_simple_rgb_pwm_led_instances.h"
-#else // SL_CATALOG_RGB_LED_PRESENT
+#endif
+#ifdef SL_CATALOG_PWM_PRESENT
 #include "sl_pwm.h"
 #include "sl_pwm_instances.h"
 #endif
@@ -122,19 +123,19 @@ void app_rgbw_led_update(void)
 {
   uint8_t multilevel_switch_max = cc_multilevel_switch_get_max_value();
 
-#if defined(SL_CATALOG_RGB_LED_PRESENT)
   ZPAL_LOG_DEBUG(ZPAL_LOG_APP, "%s Setting RGB=(%u,%u,%u)\n", __func__,
                  (rgb_led_attributes.color.red * rgb_led_attributes.intensity) / multilevel_switch_max,
                  (rgb_led_attributes.color.green * rgb_led_attributes.intensity) / multilevel_switch_max,
                  (rgb_led_attributes.color.blue * rgb_led_attributes.intensity) / multilevel_switch_max);
-#endif
 
 #ifdef SL_CATALOG_RGB_LED_PRESENT
   sl_led_set_rgb_color(&sl_simple_rgb_pwm_led_rgb_led0,
                        (uint16_t)((rgb_led_attributes.color.red * rgb_led_attributes.intensity) / multilevel_switch_max),
                        (uint16_t)((rgb_led_attributes.color.green * rgb_led_attributes.intensity) / multilevel_switch_max),
                        (uint16_t)((rgb_led_attributes.color.blue * rgb_led_attributes.intensity) / multilevel_switch_max));
-#else
+#endif
+
+#ifdef SL_CATALOG_PWM_PRESENT
   static bool pwm_led_initialized = false;
   if (!pwm_led_initialized) {
     sl_pwm_start(&sl_pwm_led1);

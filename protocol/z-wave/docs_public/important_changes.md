@@ -3,6 +3,8 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.24.1 {#section-7-24-1}
+
 # 7.24.0 {#section-7-24-0}
 
 ## Improve Clear Channel Assessment

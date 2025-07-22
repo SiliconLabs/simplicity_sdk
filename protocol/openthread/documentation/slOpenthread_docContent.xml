@@ -1,129 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1135-using-third-generation-nonvolatile-memory.pdf" category="Application Notes" priority="20">
-    <description>Explains how NVM3 can be used as non-volatile data storage in various protocol implementations. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="20"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1141: Thread Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1141-thread-mesh-network-performance.pdf" category="Application Notes" priority="35">
+  <contentItemData name="" label="AN1141: Thread Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1141-thread-mesh-network-performance.pdf" category="Application Notes" priority="35">
     <description>Details methods for testing Thread mesh network performance; results are intended to provide guidance  on design practices and principles as well as expected field performance results. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="35"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1142: Mesh Network Performance Comparison" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1142-mesh-network-performance-comparison.pdf" category="Application Notes" priority="35">
-    <description>Reviews the Zigbee, Thread, and Bluetooth mesh networks to evaluate their differences in performance and behavior. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="35"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth\ Mesh Zigbee Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1190:  Series 2 Secure Debug" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1190-efr32-secure-debug.pdf" category="Application Notes" priority="50">
-    <description>Describes how to lock and unlock the debug access of EFR32 Gecko Series 2  devices. Many aspects of the debug access, including the secure debug unlock are described. The Debug  Challenge Interface (DCI) and Secure Engine (SE) Mailbox Interface for locking and unlocking debug  access are also included. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1218: Series 2 Secure Boot with RTSL" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1218-secure-boot-with-rtsl.pdf" category="Application Notes" priority="15">
-    <description>Contains detailed information on configuring and using the Secure Boot with hardware Root of Trust and Secure Loader on  Series 2 devices, including how to provision the signing key. This is a companion document to UG489: Silicon Labs Gecko  Bootloader User's Guide for GSDK 4.0 and Higher. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
     <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1247:  Anti-Tamper Protection Configuration and Use" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1247-efr32-secure-vault-tamper.pdf" category="Application Notes" priority="50">
-    <description>How to program, provision, and configure the anti-tamper module on EFR32 Series 2 devices with  Secure Vault.          </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1256: Using the Silicon Labs RCP with the OpenThread Border Router" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1256-using-sl-rcp-with-openthread-border-router.pdf" category="Application Notes" priority="12">
-    <description>Describes using the OpenThread Border Router GitHub repository and the Silicon Labs OpenThread  Radio Co-Processor (RCP) application to create a Thread Border Router. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="12"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1268:  Authenticating Silicon Labs Devices using Device Certificates" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1268-efr32-secure-identity.pdf" category="Application Notes" priority="50">
-    <description>How to authenticate an EFR32 Series 2 device with Secure Vault, using secure device certificates  and signatures. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1271:  Secure Key Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1271-efr32-secure-key-storage.pdf" category="Application Notes" priority="50">
-    <description>How to securely &quot;wrap&quot; keys in EFR32 Series 2 devices with Secure Vault, so they can be stored in  non-volatile storage. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1294: Configuring Antenna Diversity for OpenThread" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1294-configuring-antenna-diversity-for-openthread.pdf" category="Application Notes" priority="40">
+  <contentItemData name="" label="AN1294: Configuring Antenna Diversity for OpenThread" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1294-configuring-antenna-diversity-for-openthread.pdf" category="Application Notes" priority="40">
     <description>Describes how to use Project Configurator and Component Editor in Simplicity Studio 5 to configure antenna diversity in OpenThread applications. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="40"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
     <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
     <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.           </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1326-gecko-bootloader-transitioning-guide.pdf" category="Application Notes" priority="3">
-    <description>Gecko Bootloader v2.x, introduced in GSDK 4.0, contains a number of changes compared to Gecko Bootloader v1.x. This document describes the differences between the versions, including how to configure the new Gecko Bootloader in Simplicity Studio 5.      </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="3"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread 32-bit\ MCU HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1329:  Using Silicon Labs Secure Vault Features with OpenThread" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1329-using-secure-vault-openthread.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1329:  Using Silicon Labs Secure Vault Features with OpenThread" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1329-using-secure-vault-openthread.pdf" category="Application Notes" priority="50">
     <description>Describes how Secure Vault features are leveraged in OpenThread applications. It focuses on specific PSA features and emphasizes how these are integrated into the OpenThread stack.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1372: Configuring OpenThread Applications for Thread 1.3" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1372-configuring-for-thread-1-3.pdf" category="Application Notes" priority="12">
+  <contentItemData name="" label="AN1372: Configuring OpenThread Applications for Thread 1.3" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1372-configuring-for-thread-1-3.pdf" category="Application Notes" priority="12">
     <description>Provides instructions for configuring OpenThread SoC and Border Router applications to use Thread 1.3 features.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1385: Performance Results for Multi-PAN RCP for OpenThread and Zigbee" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1385-multi-pan-rcp-performance-test.pdf" category="Application Notes" priority="30">
+  <contentItemData name="" label="AN1385: Performance Results for Multi-PAN RCP for OpenThread and Zigbee" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1385-multi-pan-rcp-performance-test.pdf" category="Application Notes" priority="30">
     <description>Summarizes the results of simultaneous Thread and Zigbee throughput performance testing for the concurrent  multiprotocol / multi-PAN RCP, running both OpenThread and Zigbee on the host processor.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="30"/>
@@ -131,14 +60,14 @@
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1408: OpenThread Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an1408-openthread-mesh-network-performance.pdf" category="Application Notes" priority="35">
+  <contentItemData name="" label="AN1408: OpenThread Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an1408-openthread-mesh-network-performance.pdf" category="Application Notes" priority="35">
     <description>This application note details methods for testing OpenThread mesh network performance and demonstrates how the OpenThread mesh network differs in performance and behavior from other mesh networks. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="35"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN700.1: Manufacturing Test Guidelines for the EFR32" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an700-1-mfg-test-guidelines-efr32.pdf" category="Application Notes" priority="30">
+  <contentItemData name="" label="AN700.1: Manufacturing Test Guidelines for the EFR32" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an700-1-mfg-test-guidelines-efr32.pdf" category="Application Notes" priority="30">
     <description>Details the different options for integrating RF testing and characterization into standard test flows. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="30"/>
@@ -146,7 +75,7 @@
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN718: Manufacturing Test Overview" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/an718-mfg-test-overview.pdf" category="Application Notes" priority="30">
+  <contentItemData name="" label="AN718: Manufacturing Test Overview" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/an718-mfg-test-overview.pdf" category="Application Notes" priority="30">
     <description>Provides a high-level description of the different options for integrating RF testing and characterization into standard  test flows. It is intended for customers who are moving from the early prototype development stage to the manufacturing production environment  and need assistance with manufacturing test.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="30"/>
@@ -154,10 +83,26 @@
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/slOpenthread-index.html" category="Application Notes" priority="9">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/slOpenthread-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1268:  Authenticating Silicon Labs Devices using Device Certificates" itemURI="https://docs.silabs.com/openthread/latest/authenticating-devices-using-device-certificates/index.html" category="Application Notes" priority="50">
+    <description>How to authenticate an EFR32 Series 2 device with Secure Vault, using secure device certificates  and signatures. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="https://docs.silabs.com/openthread/latest/bootloader-transitioning-guide-gsdk-v40-and-higher/index.html" category="Application Notes" priority="3">
+    <description>Gecko Bootloader v2.x, introduced in GSDK 4.0, contains a number of changes compared to Gecko Bootloader v1.x. This document describes the differences between the versions, including how to configure the new Gecko Bootloader in Simplicity Studio 5.      </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="3"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread 32-bit\ MCU Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -166,6 +111,30 @@
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="25"/>
     <property key="core.sdkAndProtocolTags" value="Zigbee Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1271:  Secure Key Storage" itemURI="https://docs.silabs.com/openthread/latest/efr32-secure-key-storage/index.html" category="Application Notes" priority="50">
+    <description>How to securely &quot;wrap&quot; keys in EFR32 Series 2 devices with Secure Vault, so they can be stored in  non-volatile storage. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1247:  Anti-Tamper Protection Configuration and Use" itemURI="https://docs.silabs.com/openthread/latest/efr32-secure-vault-tamper/index.html" category="Application Notes" priority="50">
+    <description>How to program, provision, and configure the anti-tamper module on EFR32 Series 2 devices with  Secure Vault.          </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1142: Mesh Network Performance Comparison" itemURI="https://docs.silabs.com/openthread/latest/mesh-network-performance-comparison/index.html" category="Application Notes" priority="35">
+    <description>Reviews the Zigbee, Thread, and Bluetooth mesh networks to evaluate their differences in performance and behavior. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="35"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth\ Mesh Zigbee Thread"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -191,6 +160,45 @@
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1218: Series 2 Secure Boot with RTSL" itemURI="https://docs.silabs.com/openthread/latest/series2-secure-boot-with-rtsl/index.html" category="Application Notes" priority="15">
+    <description>Contains detailed information on configuring and using the Secure Boot with hardware Root of Trust and Secure Loader on  Series 2 devices, including how to provision the signing key. This is a companion document to Silicon Labs Gecko  Bootloader User's Guide for GSDK 4.0 and Higher. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="15"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1190:  Series 2 Secure Debug" itemURI="https://docs.silabs.com/openthread/latest/series2-secure-debug/index.html" category="Application Notes" priority="50">
+    <description>Describes how to lock and unlock the debug access of EFR32 Gecko Series 2  devices. Many aspects of the debug access, including the secure debug unlock are described. The Debug  Challenge Interface (DCI) and Secure Engine (SE) Mailbox Interface for locking and unlocking debug  access are also included. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1374:  Series 2 TrustZone" itemURI="https://docs.silabs.com/openthread/latest/series2-trustzone/index.html" category="Application Notes" priority="50">
+    <description>Covers the basics of ARMv8-M TrustZone, describes how TrustZone is implemented on Series 2 devices, and provides application examples. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1256: Using the Silicon Labs RCP with the OpenThread Border Router" itemURI="https://docs.silabs.com/openthread/latest/using-sl-rcp-with-openthread-border-router/index.html" category="Application Notes" priority="12">
+    <description>Describes using the OpenThread Border Router GitHub repository and the Silicon Labs OpenThread  Radio Co-Processor (RCP) application to create a Thread Border Router. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="12"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage" itemURI="https://docs.silabs.com/openthread/latest/using-third-generation-nonvolatile-memory/index.html" category="Application Notes" priority="20">
+    <description>Explains how NVM3 can be used as non-volatile data storage in various protocol implementations. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="20"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1017: Zigbee and Thread Coexistence with WiFi" itemURI="https://docs.silabs.com/zigbee/latest/zigbee-openthread-coexistence-wifi/index.html" category="Application Notes" priority="40">
     <description>Describes the impact of Wi-Fi on Zigbee and Thread, and methods to improve coexistence. First, methods to improve coexistence without direct  interaction between Zigbee/Thread and Wi-Fi radios are described. Second, Silicon Labs's Packet Traffic  Arbitration (PTA) support to coordinate 2.5 GHz RF traffic for co-located Zigbee/Thread and Wi-Fi radios is described (for the EFR32MG only). </description>
     <property key="core.category" value="Application Notes"/>
@@ -199,56 +207,40 @@
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="QSG170: Silicon Labs OpenThread Quick Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/qsg170-openthread-sdk-quick-start-guide.pdf" category="Quick Start Guides" priority="1">
+  <contentItemData name="" label="QSG170: Silicon Labs OpenThread Quick Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/qsg170-openthread-sdk-quick-start-guide.pdf" category="Quick Start Guides" priority="1">
     <description>Provides basic information on configuring, building, and installing applications using the Silicon Labs OpenThread stack. </description>
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs OpenThread API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/OpenThread-Doxygen/index.html" category="Reference Manuals" priority="1">
+  <contentItemData name="" label="Silicon Labs OpenThread API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/OpenThread-Doxygen/index.html" category="Reference Manuals" priority="1">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs OpenThread stack. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs OpenThread Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.0/sisdk-ot-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Silicon Labs OpenThread Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-ot-release-notes/index.html" category="Release Notes" priority="1">
     <description>Lists compatibility requirements and sources for all software components  in the development environment. Discusses the latest changes to the Silicon  Labs OpenThread stack (and associated utilities) including added/deleted/deprecated  features/API, and lists bugs that have been fixed  since the last release and any pending ones. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.0/sisdk-platform-release-notes/index.html" category="Release Notes" priority="3">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-platform-release-notes/index.html" category="Release Notes" priority="3">
     <description>A detailed overview of all the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform includes: EMLIB, EMDRV, RAIL Library, NVM3, and the component-based infrastructure. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="3"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave 32-bit\ MCU HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave 32-bit\ MCU Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG103.01: Wireless Networking Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/ug103-01-fundamentals-wireless-network.pdf" category="User's Guides" priority="10">
+  <contentItemData name="" label="UG103.01: Wireless Networking Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/openthread/documentation/ug103-01-fundamentals-wireless-network.pdf" category="User's Guides" priority="10">
     <description>Introduces some fundamental concepts of wireless networking. These concepts are referred to in other Fundamentals documents. If you are new to wireless networking, you should read this document first.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="10"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG162: Simplicity Commander Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/ug162-simplicity-commander-reference-guide.pdf" category="User's Guides" priority="12">
-    <description>Describes how and when to use Simplicity Commander's Command-Line Interface.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="12"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG489: Silicon Labs Gecko Bootloader User's Guide for GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.0/protocol/openthread/documentation/ug489-gecko-bootloader-user-guide-gsdk-4.pdf" category="User's Guides" priority="9">
-    <description>Describes the high-level implementation of the Silicon Labs Gecko Bootloader for EFR32 SoCs and NCPs,  and provides information on how to get started using the Gecko Bootloader with Silicon Labs wireless protocol stacks in GSDK 4.0 and higher.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="9"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -256,7 +248,15 @@
     <description>Introduces bootloading for Silicon Labs networking devices. Discusses the Gecko Bootloader as well  as legacy Ember and Bluetooth bootloaders, and describes the file formats used by each.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="15"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG489: Silicon Labs Gecko Bootloader User's Guide for GSDK 4.0 and Higher" itemURI="https://docs.silabs.com/openthread/latest/bootloader-user-guide-gsdk-4/index.html" category="User's Guides" priority="9">
+    <description>Describes the high-level implementation of the Silicon Labs Gecko Bootloader for EFR32 SoCs and NCPs,  and provides information on how to get started using the Gecko Bootloader with Silicon Labs wireless protocol stacks in GSDK 4.0 and higher.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="9"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -264,7 +264,7 @@
     <description>Introduces the security concepts that must be considered when implementing an Internet of Things (IoT)  system. Using the ioXt Alliance's eight security principles as a structure, it clearly delineates  the solutions Silicon Labs provides to support endpoint security and what you must do outside of  the Silicon Labs framework.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Z-Wave Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -272,7 +272,7 @@
     <description>Describes how to implement a dynamic multiprotocol solution.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="25"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -280,7 +280,7 @@
     <description>Describes the four multiprotocol modes, discusses considerations when selecting protocols for  multiprotocol implementations, and reviews the Radio Scheduler, a required component of a  dynamic multiprotocol solution. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="25"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread HomeKit"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -296,7 +296,7 @@
     <description>Introduces non-volatile data storage using flash and the three different storage implementations offered  for Silicon Labs microcontrollers and SoCs: Simulated EEPROM, PS Store, and NVM3.   </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="20"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread HomeKit Wi-SUN"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -304,6 +304,14 @@
     <description>Includes a brief background on the emergence of Thread, provides a technology overview,  and describes some key features of Thread to consider when implementing a Thread solution. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="10"/>
+    <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG162: Simplicity Commander Reference Guide" itemURI="https://docs.silabs.com/simplicity-commander/latest/simplicity-commander-start/index.html" category="User's Guides" priority="12">
+    <description>Describes how and when to use Simplicity Commander's Command-Line Interface.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="12"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>

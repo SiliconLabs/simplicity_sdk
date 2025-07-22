@@ -235,10 +235,18 @@ uint8_t sli_zigbee_supported_networks = 1;
 // Neighbor and frame counter table exist on end device as well but it contains only one entry.
 // Duplicate neighbor and frame counter tables per ZC and ZR device.
 // If there is no ZC and ZR device present, then allocate one entry for each end device.
+#ifdef CSL_SUPPORT
+// For a CSL device, we reserve SL_ZIGBEE_NEIGHBOR_TABLE_SIZE entries for inbound reception of messages from SL_ZIGBEE_NEIGHBOR_TABLE_SIZE (number S2S initiators).
+sl_zigbee_neighbor_table_entry_info_t sli_zigbee_neighbor_data[(SL_ZIGBEE_NEIGHBOR_TABLE_SIZE * SL_ZIGBEE_ZC_AND_ZR_DEVICE_COUNT) \
+                                                               + SL_ZIGBEE_NEIGHBOR_TABLE_SIZE + SL_ZIGBEE_SUPPORTED_NETWORKS];
+uint32_t sli_zigbee_frame_counters_table[((SL_ZIGBEE_NEIGHBOR_TABLE_SIZE + SL_ZIGBEE_CHILD_TABLE_SIZE) * SL_ZIGBEE_ZC_AND_ZR_DEVICE_COUNT) \
+                                         + (SL_ZIGBEE_NEIGHBOR_TABLE_SIZE + SL_ZIGBEE_CHILD_TABLE_SIZE)                                    \
+                                         + SL_ZIGBEE_SUPPORTED_NETWORKS];
+#else // !CSL_SUPPORT
 sl_zigbee_neighbor_table_entry_info_t sli_zigbee_neighbor_data[((SL_ZIGBEE_NEIGHBOR_TABLE_SIZE * SL_ZIGBEE_ZC_AND_ZR_DEVICE_COUNT) + SL_ZIGBEE_SUPPORTED_NETWORKS)];
-uint8_t sli_zigbee_router_neighbor_table_size = SL_ZIGBEE_NEIGHBOR_TABLE_SIZE;
-
 uint32_t sli_zigbee_frame_counters_table[((SL_ZIGBEE_NEIGHBOR_TABLE_SIZE + SL_ZIGBEE_CHILD_TABLE_SIZE) * SL_ZIGBEE_ZC_AND_ZR_DEVICE_COUNT + SL_ZIGBEE_SUPPORTED_NETWORKS)];
+#endif // CSL_SUPPORT
+uint8_t sli_zigbee_router_neighbor_table_size = SL_ZIGBEE_NEIGHBOR_TABLE_SIZE;
 
 //------------------------------------------------------------------------------
 // NWK Retry Queue

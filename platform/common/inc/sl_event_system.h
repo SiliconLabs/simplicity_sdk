@@ -37,6 +37,7 @@
 #include "sl_status.h"
 #include "sl_enum.h"
 #include "sl_core.h"
+#include "sl_component_catalog.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,6 +87,14 @@ extern "C" {
  * After consuming the event, the @sl_event_process function must be called for each
  * event instance. This will ensure that the memory and resources used by the event
  * data structure is properly deallocated.
+ *
+ * ## Supervisor Mode
+ *
+ * Supervisor mode allows users to subscribe to all events from all classes. There is an internal
+ * queue that will receive all events published by any publisher. When a publisher is registered,
+ * the supervisor queue will subscribe to it automatically. To get an event from the supervisor
+ * queue, the user must call the function @ref sl_event_supervisor_queue_get.
+ *
  * @{
  ******************************************************************************/
 
@@ -119,6 +128,7 @@ typedef struct {
 } sl_event_publisher_t;
 
 typedef struct {
+  sl_event_class_t        event_class;
   sl_event_free_data_cb_t free_data_callback;
   uint8_t                 reference_count;
   void*                   event_data;
@@ -379,14 +389,81 @@ sl_status_t sl_event_alloc(sl_event_t **event);
  *
  * @note
  *  Freeing an event structure that has not yet been processed by all
- *  subscribers will
+ *  subscribers will result in undefined behavior.
  *
- * @param[in] event    address of a pointer to an event struct
+ * @param[in] event    address of a pointer to an event struct.
  *
  * @return
  *    SL_STATUS_OK if successful, otherwise an error code is returned.
  ******************************************************************************/
 sl_status_t sl_event_free(sl_event_t *event);
+
+#if defined(SL_CATALOG_EVENT_SYSTEM_SUPERVISOR_MODE_PRESENT)
+/*******************************************************************************
+ * @brief
+ *  Get an event from the supervisor event queue.
+ *
+ * @param[out] event  address of a pointer to an event struct.
+ *
+ * @return
+ *    SL_STATUS_OK if successful, otherwise an error code is returned.
+ ******************************************************************************/
+sl_status_t sl_event_supervisor_queue_get(sl_event_t **event);
+#endif
+
+/*******************************************************************************
+ * @brief
+ *  Initialize the IRQ event system.
+ *
+ * @description
+ *  This function initializes the IRQ event publisher to allow publishing events
+ *  from interrupt service routines. This must be called after sl_event_system_init().
+ *
+ * @param[in] event_queue  Event queue to use for IRQ events.
+ *
+ * @return
+ *    SL_STATUS_OK if successful, otherwise an error code is returned.
+ ******************************************************************************/
+sl_status_t sl_event_irq_publisher_init(void);
+
+/*******************************************************************************
+ * @brief
+ *  De-initialize the IRQ event system.
+ *
+ * @return
+ *    SL_STATUS_OK if successful, otherwise an error code is returned.
+ ******************************************************************************/
+sl_status_t sl_event_irq_publisher_deinit(void);
+
+/*******************************************************************************
+ * @brief
+ *  Publish an event from an interrupt service routine (ISR).
+ *
+ * @details
+ *  This function should only be called from IRQ contexts to publish IRQ events to
+ *  subscribers of the IRQ event class.
+ *
+ * @param[in] irq_number   The IRQ number associated with the event.
+ *
+ * @return
+ *    SL_STATUS_OK if successful, otherwise an error code is returned.
+ *
+ * @note
+ *    This function must only be called from IRQ contexts. For non-IRQ contexts,
+ *    use the standard event publishing mechanisms.
+ ******************************************************************************/
+sl_status_t sl_event_irq_publish(uint32_t irq_number);
+
+/*******************************************************************************
+ * @brief
+ *  Decode the IRQ event from a given event structure.
+ *
+ * @param[in] event    Pointer to the event structure.
+ *
+ * @return
+ *    The decoded IRQ event, or 0xFFFFFFFF if the event is invalid.
+ ******************************************************************************/
+uint32_t sl_event_irq_decode(sl_event_t *event);
 
 /** @} (end addtogroup event-system) */
 

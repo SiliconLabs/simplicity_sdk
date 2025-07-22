@@ -303,13 +303,6 @@ SL_WEAK uint8_t sli_zigbee_stack_get_stack_compliance_revision(void)
   return 0;
 }
 
-SL_WEAK uint8_t sli_zigbee_stack_get_token_count(void)
-{
-  // NOTE stub definition
-
-  return 0;
-}
-
 SL_WEAK sl_status_t sli_zigbee_stack_get_token_data(uint32_t token,
                                                     uint32_t index,
                                                     sl_zigbee_token_data_t *tokenData)

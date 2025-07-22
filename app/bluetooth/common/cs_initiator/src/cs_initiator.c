@@ -1109,7 +1109,7 @@ void cs_ras_client_on_ranging_data_reception_finished(uint8_t                   
   initiator_log_info(INSTANCE_PREFIX "RAS - %s reception finished, "
                                      "lost:%u counter:%u, resp.code:0x%02x, "
                                      "segment: %u -> %u %s, size:%lu, %s, "
-                                     "last known segment: %u, lost segments mask: %llx" LOG_NL,
+                                     "last known segment: %u, lost segments mask: 0x%08llx" LOG_NL,
                      initiator->conn_handle,
                      (real_time ? "real-time" : "on-demand"),
                      retrieve_lost,

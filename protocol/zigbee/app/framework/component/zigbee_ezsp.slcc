@@ -128,6 +128,12 @@ include:
     file_list:
       - path: ash-common.h
   - path: platform/service/token_manager/legacy/inc/
+  # This component brings in prototypes for CTM routines, while ZB code defines/overrides defines them, since the host does not save tokens to flash
+  # The sl_token_manager_defines.h file is needed to resolve macros for tokens, which are used on the host
+  - path: platform/service/token_manager/inc
+    file_list:
+      - path: sl_token_manager_defines.h
+      - path: sl_token_manager_api.h
   - path: platform/emlib/inc/
     file_list:
       - path: em_core.h

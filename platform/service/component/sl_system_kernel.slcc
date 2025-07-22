@@ -36,7 +36,7 @@ description: |
     This component was deprecated in version 2025.6. 
     Please migrate to the sl_main component.
     See the sl_main migration guide: 
-    https://docs.silabs.com/gecko-platform/latest/platform-service-sl_system-to-sl_main-migration-guide/
+    https://docs.silabs.com/gecko-platform/latest/platform-service-sl-system-to-sl-main-migration-guide/
     
     System Kernel component provides a function for starting the kernel:
 

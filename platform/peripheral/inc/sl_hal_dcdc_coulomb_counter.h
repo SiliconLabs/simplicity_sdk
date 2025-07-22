@@ -80,31 +80,41 @@ SL_ENUM(sl_hal_dcdc_coulomb_counter_calibration_load_level_t) {
 typedef struct {
   uint16_t counter_threshold_em0;      ///< Coulomb Counter Threshold in EM0.
   uint16_t counter_threshold_em2;      ///< Coulomb Counter Threshold in EM2.
-} sl_hal_dcdc_coulomb_counter_config_t;
-
-/// DCDC_COULOMB_COUNTER calibration configuration structure.
+} sl_hal_dcdc_coulomb_counter_init_t;
 typedef struct {
   CMU_Select_TypeDef reference_clk;                                     ///< Coulomb Counter Calibration Reference Clock.
   int8_t cal_count;                                                     ///< Coulomb Counter Calibration Reference Count.
   sl_hal_dcdc_coulomb_counter_emode_t cal_emode;                        ///< Coulomb Counter Calibration Energy Mode.
   sl_hal_dcdc_coulomb_counter_calibration_load_level_t cal_load_level;  ///< Coulomb Counter Calibration Power Load.
-} sl_hal_dcdc_coulomb_counter_calibration_config_t;
+} sl_hal_dcdc_coulomb_counter_calibration_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_dcdc_coulomb_counter_init_t sl_hal_dcdc_coulomb_counter_config_t;
+typedef sl_hal_dcdc_coulomb_counter_calibration_init_t sl_hal_dcdc_coulomb_counter_calibration_config_t;
+/** @endcond */
 
 /// Suggested default values for DCDC_COULOMB_COUNTER configuration structure.
-#define DCDC_COULOMB_COUNTER_CONFIG_DEFAULT                              \
+#define SL_HAL_DCDC_COULOMB_COUNTER_INIT_DEFAULT                         \
   {                                                                      \
     0x8000,                         /* Coulomb Counter EM0 Threshold. */ \
     0x8000,                         /* Coulomb Counter EM2 Threshold. */ \
   }
 
 /// Suggested default values for DCDC_COULOMB_COUNTER calibration configuration structure.
-#define DCDC_COULOMB_COUNTER_CALIBRATION_CONFIG_DEFAULT                                              \
+#define SL_HAL_DCDC_COULOMB_COUNTER_CALIBRATION_INIT_DEFAULT                                         \
   {                                                                                                  \
     cmuSelect_HFXO,                             /* Coulomb Counter Calibration Reference Clock.   */ \
     8,                                          /* Coulomb Counter Calibration Reference Count.   */ \
     SL_HAL_DCDC_COULOMB_COUNTER_EM0,            /* Coulomb Counter Calibration DC-DC energy mode. */ \
     SL_HAL_DCDC_COULOMB_COUNTER_CAL_LOAD3,      /* Coulomb Counter Calibration Load.              */ \
   }
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro names used for backward compatibility purposes.
+#define DCDC_COULOMB_COUNTER_CONFIG_DEFAULT SL_HAL_DCDC_COULOMB_COUNTER_INIT_DEFAULT
+#define DCDC_COULOMB_COUNTER_CALIBRATION_CONFIG_DEFAULT SL_HAL_DCDC_COULOMB_COUNTER_CALIBRATION_INIT_DEFAULT
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -114,11 +124,11 @@ typedef struct {
  * @brief
  *   Initializes DCDC_COULOMB_COUNTER module.
  *
- * @param[in] p_config
+ * @param[in] init
  *   A pointer to the DCDC_COULOMB_COUNTER initialization
  *   structure variable.
  ******************************************************************************/
-void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_config_t *p_config);
+void sl_hal_dcdc_coulomb_counter_init(const sl_hal_dcdc_coulomb_counter_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -354,14 +364,14 @@ __STATIC_INLINE void sl_hal_dcdc_coulomb_counter_set_interrupts(uint32_t flags)
  * @brief
  *   Initializes the calibration of the DCDC Coulomb Counter.
  *
- * @param[in] config
+ * @param[in] init
  *   DCDC_COULOMB_COUNTER calibration configuration structure.
  *
  * @note
  *   The charge per pulse is measured using known on-chip calibration
  *   loads, a PRS channel, and the CMU RC oscillator calibration circuitry.
  ******************************************************************************/
-void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibration_config_t config);
+void sl_hal_dcdc_coulomb_counter_cal_init(sl_hal_dcdc_coulomb_counter_calibration_init_t init);
 
 /***************************************************************************//**
  * @brief
@@ -472,10 +482,10 @@ __STATIC_INLINE bool sl_hal_dcdc_coulomb_counter_calhalt_is_set(void)
  *  @code{.c}
  *  {
  *    // Initialize with default configuration
- *    sl_hal_dcdc_coulomb_counter_config_t config = DCDC_COULOMB_COUNTER_CONFIG_DEFAULT;
+ *    sl_hal_dcdc_coulomb_counter_init_t init = SL_HAL_DCDC_COULOMB_COUNTER_INIT_DEFAULT;
  *
  *    // Initialize the coulomb counter
- *    sl_hal_dcdc_coulomb_counter_init(&config);
+ *    sl_hal_dcdc_coulomb_counter_init(&init);
  *
  *    // Enable the counter
  *    sl_hal_dcdc_coulomb_counter_enable();
@@ -502,10 +512,10 @@ __STATIC_INLINE bool sl_hal_dcdc_coulomb_counter_calhalt_is_set(void)
  *    sl_hal_dcdc_coulomb_counter_disable();
  *
  *    // To calibrate the counter before use:
- *    sl_hal_dcdc_coulomb_counter_calibration_config_t cal_config =
- *      DCDC_COULOMB_COUNTER_CALIBRATION_CONFIG_DEFAULT;
+ *    sl_hal_dcdc_coulomb_counter_calibration_init_t cal_init =
+ *      SL_HAL_DCDC_COULOMB_COUNTER_CALIBRATION_INIT_DEFAULT;
  *
- *    sl_hal_dcdc_coulomb_counter_cal_init(cal_config);
+ *    sl_hal_dcdc_coulomb_counter_cal_init(cal_init);
  *    sl_hal_dcdc_coulomb_counter_cal_start();
  *
  *    // After calibration is complete

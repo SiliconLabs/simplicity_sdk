@@ -281,7 +281,6 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
         self.IEEE802154_2p4GHz_base(phy, model)
         # Use Enhanced demod and HFXOMULT clocking (avoid recalculation on channel change)
         phy.profile_inputs.demod_select.value = model.vars.demod_select.var_enum.ENHANCED_DSSS
-        model.vars.adc_clock_mode.value_forced = model.vars.adc_clock_mode.var_enum.HFXOMULT
 
         # Non-framing Profile Inputs
         phy.profile_inputs.base_frequency_hz.value = long(2494630022)
@@ -685,7 +684,7 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
 
         # Duty cycle enablement
         phy.profile_inputs.rxdc_power_save_mode.value = model.vars.rxdc_power_save_mode.var_enum.SYNTH
-        phy.profile_inputs.rxdc_power_save_time_us.value = 20
+        phy.profile_inputs.rxdc_power_save_time_us.value = 23
 
         phy.profile_inputs.synth_settling_mode.value = model.vars.synth_settling_mode.var_enum.FAST
         phy.profile_inputs.hop_enable.value = model.vars.hop_enable.var_enum.DISABLED

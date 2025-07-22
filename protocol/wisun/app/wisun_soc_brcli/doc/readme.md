@@ -86,6 +86,7 @@ The list of available commands is output on the console with the associated help
 | wisun concurrent_detection \<state> | Configure concurrent detection <br> - [uint8] state: 0=disabled, 1=enabled <br> | > wisun concurrent_detection 1 |
 | wisun trigger_global_repair | Increase DODAG version to trigger RPL global repair procedure | > wisun trigger_global_repair |
 | wisun routing_table | Display border router's routing table | > wisun routing_table |
+| wisun reset_duty_cycle | Reset the duty cycle counters | > wisun reset_duty_cycle |
 
 ## Wi-SUN Border Router Settings
 

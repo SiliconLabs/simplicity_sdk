@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <demos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:model="http://www.silabs.com/ss/Studio.ecore" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/Demo.ecore">
+  <demo name="brd2719a.demo.bt_soc_blinky_freertos" label="Bluetooth - SoC Blinky FreeRTOS">
+    <model:description>The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC Blinky FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
+    <property key="core.boardCompatibility" value="brd2719a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_blinky_freertos/bt_soc_blinky_freertos-brd2719a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_soc_blinky/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
   <demo name="brd4407a.demo.bt_soc_blinky_freertos" label="Bluetooth - SoC Blinky FreeRTOS">
     <model:description>The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.
 </model:description>
     <property key="demos.blurb" value="Bluetooth - SoC Blinky FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
     <property key="core.boardCompatibility" value="brd4407a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_blinky_freertos/bt_soc_blinky_freertos-brd4407a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_blinky_freertos/bt_soc_blinky_freertos-brd4407a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_blinky/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>
@@ -17,9 +28,20 @@
     <property key="demos.blurb" value="Bluetooth - SoC Blinky FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104xil_8mb.*"/>
     <property key="core.boardCompatibility" value="brd4408a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_blinky_freertos/bt_soc_blinky_freertos-brd4408a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_blinky_freertos/bt_soc_blinky_freertos-brd4408a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_blinky/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2719a.demo.bt_soc_throughput_freertos" label="Bluetooth - SoC Throughput FreeRTOS">
+    <model:description>This example tests the throughput capabilities of the device and can be used to measure throughput between 2 *EFR32* devices, as well as between a device and a smartphone using the 'Si Connect' mobile app, through the 'Throughput' demo tile.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC Throughput FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
+    <property key="core.boardCompatibility" value="brd2719a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_throughput_freertos/bt_soc_throughput_freertos-brd2719a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_soc_throughput/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>
   </demo>
   <demo name="brd4407a.demo.bt_soc_throughput_freertos" label="Bluetooth - SoC Throughput FreeRTOS">
@@ -28,7 +50,7 @@
     <property key="demos.blurb" value="Bluetooth - SoC Throughput FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
     <property key="core.boardCompatibility" value="brd4407a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_throughput_freertos/bt_soc_throughput_freertos-brd4407a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_throughput_freertos/bt_soc_throughput_freertos-brd4407a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_throughput/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>
@@ -39,9 +61,20 @@
     <property key="demos.blurb" value="Bluetooth - SoC Throughput FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104xil_8mb.*"/>
     <property key="core.boardCompatibility" value="brd4408a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_throughput_freertos/bt_soc_throughput_freertos-brd4408a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_throughput_freertos/bt_soc_throughput_freertos-brd4408a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_throughput/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
+    <property key="core.quality" value="EXPERIMENTAL"/>
+  </demo>
+  <demo name="brd2719a.demo.bt_soc_ibeacon_freertos" label="Bluetooth - SoC iBeacon FreeRTOS">
+    <model:description>Sends non-connectable advertisements in iBeacon format. The iBeacon Service gives Bluetooth accessories a simple and convenient way to send iBeacons to smartphones. This example can be tested together with the Simplicity Connect mobile app.
+</model:description>
+    <property key="demos.blurb" value="Bluetooth - SoC iBeacon FreeRTOS"/>
+    <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
+    <property key="core.boardCompatibility" value="brd2719a"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_ibeacon_freertos/bt_soc_ibeacon_freertos-brd2719a.s37"/>
+    <property key="core.readmeFiles" value="example/bt_soc_ibeacon/readme.md"/>
+    <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>
   </demo>
   <demo name="brd4407a.demo.bt_soc_ibeacon_freertos" label="Bluetooth - SoC iBeacon FreeRTOS">
@@ -50,7 +83,7 @@
     <property key="demos.blurb" value="Bluetooth - SoC iBeacon FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
     <property key="core.boardCompatibility" value="brd4407a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_ibeacon_freertos/bt_soc_ibeacon_freertos-brd4407a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_ibeacon_freertos/bt_soc_ibeacon_freertos-brd4407a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_ibeacon/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>
@@ -61,7 +94,7 @@
     <property key="demos.blurb" value="Bluetooth - SoC iBeacon FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104xil_8mb.*"/>
     <property key="core.boardCompatibility" value="brd4408a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.0/app/bluetooth/demos/bt_soc_ibeacon_freertos/bt_soc_ibeacon_freertos-brd4408a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/bluetooth/demos/bt_soc_ibeacon_freertos/bt_soc_ibeacon_freertos-brd4408a.s37"/>
     <property key="core.readmeFiles" value="example/bt_soc_ibeacon/readme.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
     <property key="core.quality" value="EXPERIMENTAL"/>

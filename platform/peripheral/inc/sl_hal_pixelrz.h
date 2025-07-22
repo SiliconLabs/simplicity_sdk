@@ -144,10 +144,15 @@ typedef struct {
 
   /// Reset symbol high/low times.
   sl_hal_pixelrz_symbol_t reset_symbol;
-} sl_hal_pixelrz_config_t;
+} sl_hal_pixelrz_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_pixelrz_init_t sl_hal_pixelrz_config_t;
+/** @endcond */
 
 /// Default sequential configuration.
-#define SL_HAL_PIXELRZ_CONFIG_SEQUENTIAL_DEFAULT                      \
+#define SL_HAL_PIXELRZ_SEQUENTIAL_INIT_DEFAULT                        \
   {                                                                   \
     SL_HAL_PIXELRZ_MODE_SEQUENTIAL, /* mode is sequential. */         \
     false,                          /* LSB first. */                  \
@@ -169,7 +174,7 @@ typedef struct {
   }
 
 /// Default parallel configuration.
-#define SL_HAL_PIXELRZ_CONFIG_PARALLEL_DEFAULT                      \
+#define SL_HAL_PIXELRZ_PARALLEL_INIT_DEFAULT                        \
   {                                                                 \
     SL_HAL_PIXELRZ_MODE_PARALLEL, /* Mode is parallel. */           \
     false,                        /* LSB first. */                  \
@@ -190,6 +195,12 @@ typedef struct {
     { 0, 0 },                     /* Reset symbol high/low times */ \
   }
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro name used for backward compatibility purposes.
+#define SL_HAL_PIXELRZ_CONFIG_SEQUENTIAL_DEFAULT SL_HAL_PIXELRZ_SEQUENTIAL_INIT_DEFAULT
+#define SL_HAL_PIXELRZ_CONFIG_PARALLEL_DEFAULT SL_HAL_PIXELRZ_PARALLEL_INIT_DEFAULT
+/** @endcond */
+
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
  ******************************************************************************/
@@ -205,7 +216,7 @@ typedef struct {
  *   A pointer to the PIXELRZ initialization structure.
  ******************************************************************************/
 void sl_hal_pixelrz_init(PIXELRZ_TypeDef *pixelrz,
-                         const sl_hal_pixelrz_config_t *init);
+                         const sl_hal_pixelrz_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -605,7 +616,7 @@ __INLINE uint32_t sl_hal_pixelrz_get_enabled_pending_interrupts(PIXELRZ_TypeDef 
  *    #define WS2812B_TRST_HIGH  0.0f
  *    #define WS2812B_TRST_LOW   60.0f
  *
- *    sl_hal_pixelrz_config_t init_serial = SL_HAL_PIXELRZ_CONFIG_SEQUENTIAL_DEFAULT;
+ *    sl_hal_pixelrz_init_t init_serial = SL_HAL_PIXELRZ_CONFIG_SEQUENTIAL_DEFAULT;
  *    uint32_t freq;
  *
  *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PIXELRZ0);

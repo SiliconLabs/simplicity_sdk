@@ -28,6 +28,10 @@ define:
     value: "\"app/framework/util/config.h\""
 
 include:
+  - path: protocol/zigbee/
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
+      - path: stack/config/token-cache.h
   - path: protocol/zigbee/app/framework/include
     file_list:
       - path: af.h

@@ -18,10 +18,10 @@
 #include "app/framework/include/af.h"
 #include "app/framework/util/af-main.h"
 #include "app/framework/util/attribute-storage.h"
-
-#ifndef SL_ZIGBEE_TEST
-#include "token.h"
-#endif
+#include "manufacturing-library-cli-tokens.h"
+#include "sl_token_manager_api.h"
+#include "sl_token_manager_defines.h"
+#include "sl_zigbee_token.h"
 
 // -----------------------------------------------------------------------------
 // Globals
@@ -85,10 +85,10 @@ bool sl_zigbee_af_mfglib_running(void)
 // the end customer is not exposed to this functionality.
 bool sl_zigbee_af_mfglib_enabled(void)
 {
-  uint8_t enabled;
+  uint8_t enabled = false;
 
 #ifndef SL_ZIGBEE_TEST
-  halCommonGetToken(&enabled, TOKEN_MFG_LIB_ENABLED);
+  (void)sl_token_manager_get_data(COMMON_TOKEN_MFG_LIB_ENABLED, &enabled, sizeof(uint8_t));
 #else
   // no op
   enabled = true;
@@ -99,6 +99,12 @@ bool sl_zigbee_af_mfglib_enabled(void)
   return enabled;
 }
 
+sl_status_t sl_zigbee_af_manufacturing_library_cli_token_init(void)
+{
+  uint8_t tokMfgLibEnabledDefault = TOKEN_MFG_LIB_ENABLED_DEFAULT;
+  return sl_zigbee_initialize_basic_token(COMMON_TOKEN_MFG_LIB_ENABLED, &tokMfgLibEnabledDefault, sizeof(uint8_t));
+}
+
 // -----------------------------------------------------------------------------
 
 void sli_zigbee_af_manufacturing_library_cli_init_callback(uint8_t init_level)
@@ -107,6 +113,8 @@ void sli_zigbee_af_manufacturing_library_cli_init_callback(uint8_t init_level)
 
   sl_zigbee_af_event_init(checkReceiveCompleteEventControl,
                           sl_zigbee_af_manufacturing_library_cli_check_receive_complete_event_handler);
+
+  assert(SL_STATUS_OK == sl_zigbee_af_manufacturing_library_cli_token_init());
 }
 
 // This is unfortunate but there is no callback indicating when sending is complete
@@ -409,7 +417,7 @@ void sli_zigbee_af_mfglib_enable_mfglib(SL_CLI_COMMAND_ARG)
 #ifndef SL_ZIGBEE_TEST
   uint8_t enabled = sl_cli_get_argument_uint8(arguments, 0);
 
-  halCommonSetToken(TOKEN_MFG_LIB_ENABLED, &enabled);
+  (void)sl_token_manager_set_data(COMMON_TOKEN_MFG_LIB_ENABLED, (void *)&enabled, sizeof(uint8_t));
 #endif
 }
 

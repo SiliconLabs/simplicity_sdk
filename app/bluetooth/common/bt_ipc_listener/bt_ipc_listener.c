@@ -3,7 +3,7 @@
  * @brief Bluetooth IPC Listener Source
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -40,7 +40,6 @@
 #define EVENT_CLASS             SL_EVENT_CLASS_BLUETOOTH
 #define EVENT_CLASS_MASK        SL_BT_EVENT_MASK_PUBLIC
 #define TASK_NAME               "bt_ipc_listener"
-#define STACK_CHECKING_RATE     1 // in OS ticks
 
 // Queue to store the incoming events.
 static sl_event_queue_t event_queue;
@@ -87,34 +86,11 @@ static void event_handler_task(void *p_arg)
     sc = sl_event_queue_get(event_queue, &event_prio, osWaitForever, &event);
 
     if (sc == SL_STATUS_OK) {
-      // Check if the event can be processed
-      sl_bt_msg_t *evt = (sl_bt_msg_t *)event->event_data;
-      uint32_t evt_len = (uint32_t)(SL_BT_MSG_LEN(evt->header) + SL_BT_MSG_HEADER_LEN);
-
-      while (!sl_bt_can_process_event(evt_len)) {
-        (void)osDelay(STACK_CHECKING_RATE); // Wait until the event can be processed
-      }
-
       // Pass the event to the subscribers.
-      sl_bt_process_event(evt);
+      sl_bt_process_event((sl_bt_msg_t *)event->event_data);
 
       // Signal the publisher that the event has been handled.
       (void)sl_event_process(&event);
     }
   }
-}
-
-/******************************************************************************
- * Tells if the application can process a new Bluetooth event in its current
- * state, for example, based on resource availability status.
- * If true is returned by this function, sl_bt_process_event can be called
- * for event processing.
- *
- * @param len Data length of the event
- * @return true if event can be processed; false otherwise
- *****************************************************************************/
-SL_WEAK bool sl_bt_can_process_event(uint32_t len)
-{
-  (void)(len);
-  return true;
 }

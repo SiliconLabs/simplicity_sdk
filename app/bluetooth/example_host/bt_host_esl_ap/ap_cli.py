@@ -89,11 +89,11 @@ def ble_address_type_all(arg_value):
 
 def address_type(arg_value):
     pat = re.compile(
-        r"("
+        "("
         + VALID_ESL_ID_NUMBER_REGEX
         + "|"
         + VALID_BD_ADDRESS_REGEX
-        + "|^(?=\s*$)|all)"
+        + r"|^(?=\s*$)|all)"
     )
     if not pat.match(arg_value):
         raise argparse.ArgumentTypeError("Invalid address type.")

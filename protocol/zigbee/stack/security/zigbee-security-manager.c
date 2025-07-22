@@ -25,9 +25,14 @@
 #include "stack/internal/inc/internal-defs-patch.h"
 #include "stack/include/sl_zigbee_types_internal.h"
 #include "hal.h" // for TOKEN_resolution
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
 #endif
+#include "sl_token_manager_api.h"
 
 // Externs
 
@@ -39,7 +44,7 @@ extern bool findTransientLinkKey(const sl_802154_long_addr_t eui64ToFind,
                                  sl_zigbee_key_struct_bitmask_t* bitmask);
 extern void sli_zigbee_stack_token_primitive(bool tokenRead,
                                              void* tokenStruct,
-                                             uint16_t tokenAddress,
+                                             uint32_t tokenAddress,
                                              uint8_t length);
 extern bool sli_zigbee_is_token_data_initialized(uint8_t* data, uint8_t length);
 extern uint8_t sli_zigbee_find_key_table_entry(sl_802154_long_addr_t address, bool linkKey, uint8_t bitmask);
@@ -353,16 +358,16 @@ void zb_sec_man_set_network_key_info(sl_zigbee_sec_man_network_key_info_t* netwo
 {
   tokTypeStackKeys tok;
 
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   if (tok.activeKeySeqNum != network_key_info->network_key_sequence_number) {
     tok.activeKeySeqNum = network_key_info->network_key_sequence_number;
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   }
 
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   if (tok.activeKeySeqNum != network_key_info->alt_network_key_sequence_number) {
     tok.activeKeySeqNum = network_key_info->alt_network_key_sequence_number;
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   }
 }
 
@@ -577,17 +582,17 @@ void sli_zigbee_stack_fetch_key_table_entry_at_index(uint8_t index, tokTypeStack
   // Set token to some invalid initial value
   memset(tok, 0xFF, sizeof(tokTypeStackKeyTable));
   if (index < ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX) {
-    halCommonGetIndexedToken(tok, TOKEN_STACK_KEY_TABLE, index);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_KEY_TABLE + index, (void *)tok, sizeof(tokTypeStackKeyTable));
   } else {
-    halCommonGetIndexedToken(tok, TOKEN_STACK_KEY_TABLE_EXTENDED, index - ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_KEY_TABLE_EXTENDED + (index - ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX), (void *)tok, sizeof(tokTypeStackKeyTable));
   }
 }
 
 void sli_zigbee_stack_set_key_table_entry_at_index(uint8_t index, tokTypeStackKeyTable *tok)
 {
   if (index < ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX) {
-    halCommonSetIndexedToken(TOKEN_STACK_KEY_TABLE, index, tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_KEY_TABLE + index, (void *)tok, sizeof(tokTypeStackKeyTable));
   } else {
-    halCommonSetIndexedToken(TOKEN_STACK_KEY_TABLE_EXTENDED, index - ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX, tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_KEY_TABLE_EXTENDED + (index - ORIGINAL_TOKEN_STACK_KEY_TABLE_MAX_INDEX), (void *)tok, sizeof(tokTypeStackKeyTable));
   }
 }

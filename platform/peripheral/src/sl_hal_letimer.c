@@ -81,7 +81,7 @@ extern __INLINE uint32_t sl_hal_letimer_get_top_buffer(LETIMER_TypeDef *letimer)
  *   Initialize LETIMER.
  ******************************************************************************/
 void sl_hal_letimer_init(LETIMER_TypeDef *letimer,
-                         const sl_hal_letimer_config_t *init)
+                         const sl_hal_letimer_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_LETIMER_REF_VALID(letimer));

@@ -155,6 +155,10 @@ configuration:
     value: "1"
   - name: "APP_PROJECT_INFO_MBEDTLS_VERSION_ENABLED"
     value: "1"
+  - name: SL_SLEEPTIMER_WALLCLOCK_CONFIG
+    value: "1"
+    condition:
+      - "sl_wisun_ota_dfu"
 
   # LFN related peripheral and energy saver setup
   - name: "SL_SLEEPTIMER_PERIPHERAL"

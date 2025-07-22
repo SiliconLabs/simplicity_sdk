@@ -1,6 +1,13 @@
 from pyradioconfig.parts.lynx.calculators.calc_rail import CalcRailLynx
+from pycalcmodel.core.variable import ModelVariableFormat
+
 
 class CalcRailOcelot(CalcRailLynx):
+
+    def buildVariables(self, model):
+        super().buildVariables(model)
+        self._addModelVariable(model, 'ircal_index', int, ModelVariableFormat.DECIMAL, 'IR calibration ID')
+
     def calc_rail_delays(self, model):
         """calc_rail_delays
 
@@ -22,3 +29,11 @@ class CalcRailOcelot(CalcRailLynx):
         model.vars.tx_sync_delay_ns.value = startTx_delay_ns
         model.vars.tx_eof_delay_ns.value = endTx_delay_ns
 
+    def calc_ircal_index(self, model):
+        # https://jira.silabs.com/browse/MCUW_RADIO_CFG-2687
+
+        loside_reg = model.vars.SYNTH_IFFREQ_LOSIDE.value
+        pgabwmode_reg = model.vars.RAC_PGACTRL_PGABWMODE.value
+        lodiv_actual = model.vars.lodiv_actual.value
+
+        model.vars.ircal_index.value = lodiv_actual << 5 + pgabwmode_reg << 1 + loside_reg

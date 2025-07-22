@@ -15,20 +15,23 @@
  *
  ******************************************************************************/
 
-#include "ias-zone-server-config.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#include "sl_token_manager_api.h"
+#include "sl_token_manager_defines.h"
+#endif
+
+#include "config/ias-zone-server-config.h"
 
 /**
  * Custom Application Tokens
  */
 #define CREATOR_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD  (0x0020)
 #define NVM3KEY_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD (NVM3KEY_DOMAIN_USER | 0x0020)
+#define COMMON_TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_USER | 0x0020), 0)
 
-#ifdef DEFINETYPES
-// Include or define any typedef for tokens here
-#endif  // DEFINETYPES
+#define TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD_DEFAULT 0xFF
 
 #ifdef DEFINETOKENS
 // Define the actual token storage information here
-DEFINE_BASIC_TOKEN(PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD, uint8_t, 0xFF)
-
+DEFINE_BASIC_TOKEN(PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD, uint8_t, TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD_DEFAULT)
 #endif  // DEFINETOKENS

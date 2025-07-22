@@ -86,7 +86,7 @@ extern __INLINE void sl_hal_rtcc_disable(void);
 /***************************************************************************//**
  * Initialize RTCC.
  ******************************************************************************/
-void sl_hal_rtcc_init(const sl_hal_rtcc_config_t *init)
+void sl_hal_rtcc_init(const sl_hal_rtcc_init_t *init)
 {
   EFM_ASSERT(init != NULL);
 
@@ -107,19 +107,19 @@ void sl_hal_rtcc_init(const sl_hal_rtcc_config_t *init)
  * Configure the selected capture/compare channel of the RTCC.
  ******************************************************************************/
 void sl_hal_rtcc_channel_init(uint32_t channel,
-                              const sl_hal_rtcc_cc_config_t *config)
+                              const sl_hal_rtcc_cc_init_t *init)
 {
   EFM_ASSERT(SL_HAL_RTCC_CH_VALID(channel));
-  EFM_ASSERT(config != NULL);
+  EFM_ASSERT(init != NULL);
 
   // Configure the selected capture/compare channel.
-  RTCC->CC[channel].CTRL = ( (uint32_t)config->channel_mode << _RTCC_CC_CTRL_MODE_SHIFT)
-                           | ( (uint32_t)config->compare_match_out_action << _RTCC_CC_CTRL_CMOA_SHIFT)
-                           | ( (uint32_t)config->input_edge_select << _RTCC_CC_CTRL_ICEDGE_SHIFT)
-                           | ( (uint32_t)config->compare_base << _RTCC_CC_CTRL_COMPBASE_SHIFT);
-  if (config->channel_mode == SL_HAL_RTCC_CAPTURE_COMPARE_CHANNEL_MODE_CAPTURE) {
+  RTCC->CC[channel].CTRL = ( (uint32_t)init->channel_mode << _RTCC_CC_CTRL_MODE_SHIFT)
+                           | ( (uint32_t)init->compare_match_out_action << _RTCC_CC_CTRL_CMOA_SHIFT)
+                           | ( (uint32_t)init->input_edge_select << _RTCC_CC_CTRL_ICEDGE_SHIFT)
+                           | ( (uint32_t)init->compare_base << _RTCC_CC_CTRL_COMPBASE_SHIFT);
+  if (init->channel_mode == SL_HAL_RTCC_CAPTURE_COMPARE_CHANNEL_MODE_CAPTURE) {
     volatile uint32_t *reg = &PRS->CONSUMER_RTCC_CC0;
-    reg[channel] = config->prs_select;
+    reg[channel] = init->prs_select;
   }
 }
 

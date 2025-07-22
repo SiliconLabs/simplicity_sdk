@@ -153,7 +153,7 @@ psa_status_t sli_se_opaque_mac_sign_setup(
 
   #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
   {
-    psa_status = sli_se_driver_mac_sign_setup(&(operation->operation),
+    psa_status = sli_se_driver_mac_sign_setup(&operation->operation,
                                               attributes,
                                               alg);
     if (psa_status != PSA_SUCCESS) {
@@ -165,7 +165,7 @@ psa_status_t sli_se_opaque_mac_sign_setup(
   psa_status = sli_se_key_desc_from_input(attributes,
                                           key_buffer,
                                           key_buffer_size,
-                                          &(operation->key_desc));
+                                          &operation->key_desc);
   if (psa_status != PSA_SUCCESS) {
     return psa_status;
   }
@@ -267,20 +267,33 @@ psa_status_t sli_se_opaque_mac_update(sli_se_opaque_mac_operation_t *operation,
       return PSA_ERROR_BAD_STATE;
     }
 
+  #if defined(_SILICON_LABS_32B_SERIES_2)
+
     return sli_se_driver_mac_compute(
-      &(operation->key_desc),
+      &operation->key_desc,
       operation->operation.alg,
       input,
       input_length,
       operation->operation.ctx.hmac.hmac_result,
       sizeof(operation->operation.ctx.hmac.hmac_result),
       &operation->operation.ctx.hmac.hmac_len);
+
+  #endif
+
+  #if defined(_SILICON_LABS_32B_SERIES_3)
+
+    return sli_se_driver_mac_update(&operation->operation,
+                                    &operation->key_desc,
+                                    input,
+                                    input_length);
+
+  #endif
   }
   #endif   // SLI_PSA_DRIVER_FEATURE_HMAC
 
   #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
-  return sli_se_driver_mac_update(&(operation->operation),
-                                  &(operation->key_desc),
+  return sli_se_driver_mac_update(&operation->operation,
+                                  &operation->key_desc,
                                   input,
                                   input_length);
   #else
@@ -315,6 +328,13 @@ psa_status_t sli_se_opaque_mac_sign_finish(
 
   #if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(operation->operation.alg)) {
+  #if defined(_SILICON_LABS_32B_SERIES_3)
+    return sli_se_driver_mac_sign_finish(&operation->operation,
+                                         &operation->key_desc,
+                                         mac,
+                                         mac_size,
+                                         mac_length);
+  #else
     if ( operation->operation.ctx.hmac.hmac_len == 0 ) {
       return PSA_ERROR_BAD_STATE;
     }
@@ -322,19 +342,19 @@ psa_status_t sli_se_opaque_mac_sign_finish(
     if ( mac_size < operation->operation.ctx.hmac.hmac_len ) {
       return PSA_ERROR_BUFFER_TOO_SMALL;
     }
-
     memcpy(mac,
            operation->operation.ctx.hmac.hmac_result,
            operation->operation.ctx.hmac.hmac_len);
     *mac_length = operation->operation.ctx.hmac.hmac_len;
 
     return PSA_SUCCESS;
+  #endif
   }
   #endif   // SLI_PSA_DRIVER_FEATURE_HMAC
 
   #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
-  return sli_se_driver_mac_sign_finish(&(operation->operation),
-                                       &(operation->key_desc),
+  return sli_se_driver_mac_sign_finish(&operation->operation,
+                                       &operation->key_desc,
                                        mac,
                                        mac_size,
                                        mac_length);

@@ -20,6 +20,7 @@ provides:
   - name: hal_syscfg
 
 requires:
+  - name: device_has_syscfg
   - name: tz_service_syscfg
     condition: [trustzone_nonsecure]
 documentation:

@@ -50,14 +50,14 @@ class JSONHelper:
             "type": "object",
             "maxProperties": 128,
             "patternProperties": {
-                "^(group_([0-9]|[1-9][0-9]|1[01][0-9]|12[0-7]))$": {
+                r"^(group_([0-9]|[1-9][0-9]|1[01][0-9]|12[0-7]))$": {
                     "type": "object",
                     "maxProperties": 255,
                     "uniqueItems": True,
                     "patternProperties": {
-                        "^(id_(0|[1]?\d\d?|2[0-4]\d|25[0-4]))$": {
+                        r"^(id_(0|[1]?\d\d?|2[0-4]\d|25[0-4]))$": {
                             "type": "string",
-                            "pattern": "^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$",
+                            "pattern": r"^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$",
                             "uniqueItems": True,
                         }
                     },

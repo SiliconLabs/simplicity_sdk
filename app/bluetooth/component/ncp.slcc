@@ -18,10 +18,20 @@ config_file:
   - path: config/sl_ncp_config.h
 source:
   - path: sl_ncp.c
+  - path: sli_ncp_sync_bm.c
+    unless:
+      - kernel
+  - path: sli_ncp_sync_freertos.c
+    condition:
+      - freertos
+  - path: sli_ncp_sync_micriumos.c
+    condition:
+      - micriumos_kernel
 include:
   - path: .
     file_list:
       - path: sl_ncp.h
+      - path: sli_ncp_sync.h
 template_file:
   - path: template/sl_ncp_local_evt_process.c.jinja
 provides:
@@ -47,6 +57,10 @@ recommends:
 define:
   - name: SL_BT_API_FULL
 template_contribution:
+  - name: app_rta_init
+    value:
+      include: sli_ncp_sync.h
+      handler: sli_ncp_sync_init
   - name: app_rta_init
     value:
       include: sl_ncp.h

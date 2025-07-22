@@ -112,7 +112,7 @@ void setConfigIndex(sl_cli_command_arg_t *args)
   } else {
     // No channel is provided, use the first available one.
     channel = sl_rail_get_first_channel(railHandle,
-                                        (const sl_rail_channel_config_t *)channelConfigs[configIndex]);
+                                        (const sl_rail_channel_config_t *)channelConfigs[proposedIndex]);
   }
   configIndex = proposedIndex;
   if (channel != SL_RAIL_CHANNEL_INVALID) {
@@ -133,7 +133,7 @@ void setConfigIndex(sl_cli_command_arg_t *args)
 
 void setTransitionTime(sl_cli_command_arg_t *args)
 {
-  (void) sl_rail_set_transition_time(railHandle,
+  (void) sl_rail_set_transition_time(SL_RAIL_EFR32_HANDLE,
                                      (sl_rail_time_t)sl_cli_get_argument_uint32(args, 0));
   responsePrint(sl_cli_get_command_string(args, 0),
                 "DMP transition time:%d,"

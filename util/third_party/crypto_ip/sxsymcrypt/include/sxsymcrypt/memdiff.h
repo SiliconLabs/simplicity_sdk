@@ -9,11 +9,14 @@
 #ifndef MEMDIFF_HEADER_FILE
 #define MEMDIFF_HEADER_FILE
 
+#include "sl_code_classification.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static inline int sx_memdiff(const char *a, const char *b, size_t sz)
 {
     int r = 0;

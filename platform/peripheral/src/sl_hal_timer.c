@@ -133,7 +133,7 @@ extern __INLINE void sl_hal_timer_set_interrupts(TIMER_TypeDef *timer,
  *   Initialize TIMER.
  ******************************************************************************/
 void sl_hal_timer_init(TIMER_TypeDef *timer,
-                       const sl_hal_timer_config_t *init)
+                       const sl_hal_timer_init_t *init)
 {
   EFM_ASSERT(SL_HAL_TIMER_REF_VALID(timer));
 
@@ -179,7 +179,7 @@ void sl_hal_timer_init(TIMER_TypeDef *timer,
  ******************************************************************************/
 void sl_hal_timer_channel_init(TIMER_TypeDef *timer,
                                uint8_t channel,
-                               const sl_hal_timer_channel_config_t *init)
+                               const sl_hal_timer_channel_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_TIMER_REF_VALID(timer));
@@ -221,7 +221,7 @@ void sl_hal_timer_channel_init(TIMER_TypeDef *timer,
  *   Initialize the TIMER DTI unit. This must be called before enabling the timer.
  ******************************************************************************/
 void sl_hal_timer_dti_init(TIMER_TypeDef *timer,
-                           const sl_hal_timer_dti_config_t *init)
+                           const sl_hal_timer_dti_init_t *init)
 {
   EFM_ASSERT(SL_HAL_TIMER_SUPPORTS_DTI(timer));
 

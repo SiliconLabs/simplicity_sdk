@@ -20,6 +20,11 @@
 #include "app/framework/util/common.h"
 #include "app/framework/util/attribute-storage.h"
 #include "app/framework/plugin/reporting/reporting.h"
+#include "stack/include/sl_zigbee_token.h"
+
+#if !defined(EZSP_HOST) && !defined(ENABLE_EXPANDED_TABLE) && !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#include "sl_token_manager_api.h"
+#endif
 
 #ifdef ZCL_ATTRIBUTE_LARGEST
 // The ZCL Long String type data type takes first 2 bytes as the length
@@ -131,13 +136,14 @@ void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_repor
   ifValidIndex(nvm3_writeData(nvm3_defaultHandle, reportingTableKey(index), value, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
 }
 #else // SoC and expanded table is disabled
+
 void sli_zigbee_af_reporting_get_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *result)
 {
-  ifValidIndex(halCommonGetIndexedToken(result, TOKEN_REPORT_TABLE, index));
+  ifValidIndex((void)sl_token_manager_get_data(COMMON_TOKEN_REPORT_TABLE + index, (void *)result, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
 }
 void sli_zigbee_af_reporting_set_entry(uint16_t index, sl_zigbee_af_plugin_reporting_entry_t *value)
 {
-  ifValidIndex(halCommonSetIndexedToken(TOKEN_REPORT_TABLE, index, value));
+  ifValidIndex((void)sl_token_manager_set_data(COMMON_TOKEN_REPORT_TABLE + index, (void *)value, sizeof(sl_zigbee_af_plugin_reporting_entry_t)));
 }
 #endif
 
@@ -150,6 +156,12 @@ void sli_zigbee_af_reporting_stack_status_callback(sl_status_t status)
 
     scheduleTick();
   }
+}
+
+sl_status_t sl_zigbee_af_reporting_token_init(void)
+{
+  sl_zigbee_af_plugin_reporting_entry_t reporting_entry_default = TOKEN_REPORT_TABLE_DEFAULT;
+  return sl_zigbee_initialize_index_token(COMMON_TOKEN_REPORT_TABLE, &reporting_entry_default, sizeof(sl_zigbee_af_plugin_reporting_entry_t), REPORT_TABLE_SIZE);
 }
 
 void sl_zigbee_af_reporting_init_cb(uint8_t init_level)
@@ -195,6 +207,7 @@ void sl_zigbee_af_reporting_init_cb(uint8_t init_level)
       // MISRA requires default case.
       break;
   }
+  assert(SL_STATUS_OK == sl_zigbee_af_reporting_token_init());
 }
 
 uint16_t sli_zigbee_af_reporting_num_entries(void)

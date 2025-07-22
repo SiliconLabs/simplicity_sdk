@@ -57,8 +57,13 @@
 // The advertising set handle allocated from Bluetooth stack.
 static char *gbl_file = NULL;
 
-// Flag indicating that the DFU has finished successfully.
-static bool dfu_done = false;
+// Enum for the DFU internal state machine.
+typedef enum {
+  DFU_INIT,
+  DFU_BOOT,
+  DFU_DONE
+} dfu_state_e;
+static dfu_state_e dfu_state = DFU_INIT;
 
 static void dfu_progress(size_t uploaded_size, size_t total_size);
 
@@ -109,9 +114,6 @@ void app_init(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   app_assert_status(sc);
-  app_log_info("NCP host initialised." APP_LOG_NL);
-  app_log_info("Reset NCP target in bootloader mode..." APP_LOG_NL);
-  sl_bt_user_reset_to_dfu();
 }
 
 /**************************************************************************//**
@@ -155,12 +157,14 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       app_log_info("DFU booted: v0x%08x" APP_LOG_NL,
                    evt->data.evt_dfu_boot.version);
 
-      if (dfu_done) {
+      if (dfu_state == DFU_DONE) {
         // Bootloader started instead of the application. Prevent permanent boot
         // loop by exiting.
         app_log_error("Failed to start new application." APP_LOG_NL);
         app_deinit();
         exit(EXIT_FAILURE);
+      } else {
+        dfu_state = DFU_BOOT;
       }
 
       app_log_info("Pressing Crtl+C aborts the update process." APP_LOG_NL);
@@ -187,7 +191,7 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
           break;
       }
       app_assert_status(sc);
-      dfu_done = true;
+      dfu_state = DFU_DONE;
       app_log_info("DFU finished successfully. Resetting the device."
                    APP_LOG_NL);
       sl_bt_system_reboot();
@@ -206,11 +210,18 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
                    evt->data.evt_system_boot.minor,
                    evt->data.evt_system_boot.patch,
                    evt->data.evt_system_boot.hash);
-      app_deinit();
-      if (dfu_done) {
+      if (dfu_state == DFU_DONE) {
+        app_deinit();
         // The new application has started.
         exit(EXIT_SUCCESS);
+      } else if (dfu_state == DFU_INIT) {
+        // This is the first boot event for the clean start from known NCP state
+        app_log_info("NCP host initialised." APP_LOG_NL);
+        app_log_info("Reset NCP target in bootloader mode..." APP_LOG_NL);
+        sl_bt_user_reset_to_dfu();
+        dfu_state = DFU_BOOT;
       } else {
+        app_deinit();
         app_log_error("Failed to start bootloader. Please make sure to flash"
                       " BGAPI UART DFU Bootloader on the target device."
                       APP_LOG_NL);

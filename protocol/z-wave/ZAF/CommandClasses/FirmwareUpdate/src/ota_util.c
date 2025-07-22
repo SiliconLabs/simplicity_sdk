@@ -2,6 +2,17 @@
  * @file
  * This module implements functions used in combination with command class firmware update.
  * @copyright 2018 Silicon Laboratories Inc.
+ *
+ * @note **Important**: Performing an OTA update is not possible in debug builds due to memory
+ *       and storage constraints. Debug builds have reduced bootloader storage space and additional
+ *       debug information that prevents successful OTA operations. Always use release builds for
+ *       OTA update testing and deployment.
+ *
+ * @note **Troubleshooting**: When troubleshooting OTA updates in release mode, the zw_log component
+ *       is highly recommended. It provides comprehensive logging capabilities that can help identify
+ *       issues during the OTA process, including transfer failures, CRC errors, and bootloader
+ *       problems. Enable the zw_log component and configure appropriate log levels to capture
+ *       detailed OTA-related debug information.
  */
 
 /****************************************************************************/
@@ -904,6 +915,10 @@ void handleCmdClassFirmwareUpdateMdReqGet(
 
   // Keep awake for a long time, but not forever.
   zw_power_manager_lock(ZPAL_PM_TYPE_USE_RADIO, OTA_AWAKE_PERIOD_LONG_TERM, ZPAL_PM_APP_RADIO_ZAF_CC_OTA_ID);
+
+  // Reset the internal page counters so they point to the start of the storage slot.
+  zpal_bootloader_reset_page_counters();
+
   initOTAState();
   memcpy( (uint8_t*) &myOta.rxOpt, (uint8_t*)rxOpt, sizeof(RECEIVE_OPTIONS_TYPE_EX));
 

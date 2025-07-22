@@ -276,8 +276,10 @@
 #define SL_CLOCK_MANAGER_SOCPLL_EN    1
 #endif
 
-// <o SL_CLOCK_MANAGER_SOCPLL_FREQ> Target Frequency in Hz <100000000-150000000>
+// <o SL_CLOCK_MANAGER_SOCPLL_FREQ> Target Frequency in Hz
 // <i> SOCPLL target output frequency
+// <145000000=> 145 MHz
+// <150000000=> 150 MHz
 // <d> 150000000
 #ifndef SL_CLOCK_MANAGER_SOCPLL_FREQ
 #define SL_CLOCK_MANAGER_SOCPLL_FREQ    150000000
@@ -299,33 +301,9 @@
 #ifndef SL_CLOCK_MANAGER_SOCPLL_REFCLK
 #define SL_CLOCK_MANAGER_SOCPLL_REFCLK    SOCPLL_CTRL_REFCLKSEL_REF_HFXO
 #endif
-
-// <e SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN> Fractional-N Mode
-// <i> If enabled, the SOCPLL operates in fractional-N mode. Else, the SOCPLL operates in integer-N mode.
-// <d> 1
-#ifndef SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN
-#define SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN    1
-#endif
-
-// <o SL_CLOCK_MANAGER_SOCPLL_DIVF> Divider value for fractional-N operation <1-1023>
-// <i> Value of DIVF for output frequency calculation Fout = Fref * (DIVN+2 + DIVF/1024) / 6
-// <i> In integer-N mode, DIVF is ignored, i.e. is value is zero
-// <d> 701
-#ifndef SL_CLOCK_MANAGER_SOCPLL_DIVF
-#define SL_CLOCK_MANAGER_SOCPLL_DIVF    448
-#endif
-// </e>
-
-// <o SL_CLOCK_MANAGER_SOCPLL_DIVN> Divider value for integer N operation <16-28>
-// <i> Value of DIVN for output frequency calculation Fout = Fref * (DIVN+2 + DIVF/1024) / 6
-// <i> In integer-N mode, DIVF is ignored, i.e. is value is zero
-// <d> 21
-#ifndef SL_CLOCK_MANAGER_SOCPLL_DIVN
-#define SL_CLOCK_MANAGER_SOCPLL_DIVN    21
 #endif
 // </e>
 // </e>
-#endif
 // </h>
 
 // <h> CLKIN0 Settings

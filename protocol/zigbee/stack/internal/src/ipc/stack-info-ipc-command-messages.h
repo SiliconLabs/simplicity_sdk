@@ -3,7 +3,7 @@
  * @brief defines structured format for 'stack-info' ipc messages
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -412,14 +412,6 @@ typedef struct {
 typedef struct {
   sli_zigbee_stack_get_stack_compliance_revision_ipc_rsp_t response;
 } sli_zigbee_stack_get_stack_compliance_revision_ipc_msg_t;
-
-typedef struct {
-  uint8_t result;
-} sli_zigbee_stack_get_token_count_ipc_rsp_t;
-
-typedef struct {
-  sli_zigbee_stack_get_token_count_ipc_rsp_t response;
-} sli_zigbee_stack_get_token_count_ipc_msg_t;
 
 typedef struct {
   uint32_t token;

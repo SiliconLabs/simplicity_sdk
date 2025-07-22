@@ -50,6 +50,9 @@ source:
 
 
 include:
+  - path: protocol/zigbee
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
   - path: protocol/zigbee/app/framework/plugin-soc/zigbee_direct_zdd/
     file_list:
       - path: zigbee_direct_security.h

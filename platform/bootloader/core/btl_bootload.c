@@ -54,6 +54,12 @@ MISRAC_ENABLE
 #include "btl_parse.h"
 #endif
 
+#if defined(BOOTLOADER_SUPPORT_INTERNAL_STORAGE) \
+  && (BOOTLOADER_SUPPORT_INTERNAL_STORAGE)       \
+  && !defined(BTL_PLUGIN_STORAGE_INTERNAL_FLASH)
+#include "btl_storage_slot_cfg.h"
+#endif
+
 // Debug
 #include "debug/btl_debug.h"
 
@@ -252,6 +258,20 @@ static bool bootload_verifySecureBoot(uint32_t startAddress)
     return false;
   }
 
+#if defined(BOOTLOADER_SUPPORT_INTERNAL_STORAGE) && (BOOTLOADER_SUPPORT_INTERNAL_STORAGE)
+  // Initialize an array of storage slots based on the storage slot configuration
+  BootloaderStorageSlot_t slot[BTL_STORAGE_NUM_SLOTS] = BTL_STORAGE_SLOTS;
+
+  // Iterate through all storage slots to check for overlap with the application
+  for (size_t i = 0; i < BTL_STORAGE_NUM_SLOTS; i++) {
+    // Check if the storage slot's address overlaps with the application's signature address
+    if (appSignatureX > slot[i].address) {
+      BTL_DEBUG_PRINTLN("Application and storage slot overlap detected");
+      return false;
+    }
+  }
+#endif
+
   // SHA-256 of the entire application (startAddress until signature)
   btl_initSha256(&shaState);
   btl_updateSha256(&shaState,
@@ -334,6 +354,20 @@ SL_WEAK void bootload_applicationCallback(uint32_t address,
       BTL_DEBUG_PRINT_LF();
       return;
     }
+
+#if defined(BOOTLOADER_SUPPORT_INTERNAL_STORAGE) && (BOOTLOADER_SUPPORT_INTERNAL_STORAGE)
+    // Initialize an array of storage slots based on the storage slot configuration
+    BootloaderStorageSlot_t slot[BTL_STORAGE_NUM_SLOTS] = BTL_STORAGE_SLOTS;
+
+    // Iterate through all storage slots to check for overlap with the application
+    for (size_t i = 0; i < BTL_STORAGE_NUM_SLOTS; i++) {
+      // Check if the storage slot's address overlaps with the current application's address
+      if ((address + length) > slot[i].address) {
+        BTL_DEBUG_PRINTLN("Application and storage slot overlap detected");
+        return;
+      }
+    }
+#endif
 
     flashData(address, data, length);
   }
@@ -865,6 +899,15 @@ SL_WEAK bool bootload_commitBootloaderUpgrade(uint32_t upgradeAddress, uint32_t 
   sli_se_mailbox_command_t applyImage = SLI_SE_MAILBOX_COMMAND_DEFAULT(SLI_SE_COMMAND_APPLY_HOST_IMAGE);
   sli_se_mailbox_command_add_parameter(&applyImage, upgradeAddress);
   sli_se_mailbox_command_add_parameter(&applyImage, size);
+
+  // Check whether the SE handled the SLI_SE_COMMAND_APPLY_HOST_IMAGE command during boot
+  // and acknowledge any previously executed command to clear the VSE mailbox state
+  if (sli_vse_mailbox_read_executed_command() == SLI_SE_COMMAND_APPLY_HOST_IMAGE) {
+    sli_se_mailbox_response_t response = sli_vse_mailbox_ack_command(&applyImage);
+    BTL_DEBUG_PRINT("SE response: ");
+    BTL_DEBUG_PRINT_WORD_HEX(response);
+    BTL_DEBUG_PRINT_LF();
+  }
 
   sli_se_mailbox_execute_command(&applyImage);
 

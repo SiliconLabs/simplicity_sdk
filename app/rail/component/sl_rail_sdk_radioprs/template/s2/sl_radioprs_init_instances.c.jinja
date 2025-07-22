@@ -18,7 +18,7 @@ void sl_radioprs_init_instances(void)
   //begin radioprs_init_{{ instance }}();
   PRS_ConnectSignal(RADIOPRS_{{ instance | upper }}_CHANNEL, prsTypeAsync, RADIOPRS_{{ instance | upper }}_SOURCESEL);
   PRS_PinOutput(RADIOPRS_{{ instance | upper }}_CHANNEL, prsTypeAsync, RADIOPRS_{{ instance | upper }}_PORT, RADIOPRS_{{ instance | upper }}_PIN);
-  GPIO_PinModeSet(RADIOPRS_{{ instance | upper }}_PORT, RADIOPRS_{{ instance | upper }}_PIN, gpioModePushPullAlternate, 0);
+  GPIO_PinModeSet(RADIOPRS_{{ instance | upper }}_PORT, RADIOPRS_{{ instance | upper }}_PIN, gpioModePushPull, 0);
   //end radioprs_init_{{ instance }}();
   {% endfor %}
 }

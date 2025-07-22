@@ -29,10 +29,14 @@
 #endif // SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
 
 //headers used in non-Vault security manager implementation
-#include "hal.h" // for TOKEN_resolution
-#include "stack/config/token-stack.h"
+#include "hal.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
 #include "stack/include/stack-info.h"
 #include "stack/include/security.h"
+#include "sl_token_manager_api.h"
 
 #include "stack/internal/inc/internal-defs-patch.h"
 
@@ -40,7 +44,7 @@ extern uint8_t sli_zigbee_gp_proxy_table_size;
 
 extern void sli_zigbee_stack_token_primitive(bool tokenRead,
                                              void* tokenStruct,
-                                             uint16_t tokenAddress,
+                                             uint32_t tokenAddress,
                                              uint8_t length);
 
 extern void sli_zigbee_stack_fetch_key_table_entry_at_index(uint8_t index, tokTypeStackKeyTable *tok);
@@ -132,7 +136,7 @@ sl_status_t zb_sec_man_upgrade_gp_proxy_table(void)
 
     sl_zigbee_sec_man_key_t plaintext_key;
     tokTypeStackGpProxyTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_PROXY_TABLE, i);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_PROXY_TABLE + i, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     memmove(&plaintext_key.key, tok.gpdKey, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
 
     vault_import_status = sli_zigbee_stack_sec_man_import_key(&context, &plaintext_key);
@@ -143,7 +147,7 @@ sl_status_t zb_sec_man_upgrade_gp_proxy_table(void)
     }
     //erase token by writing all 0xFF to it
     memset(&tok, 0xFF, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
-    halCommonSetIndexedToken(TOKEN_STACK_GP_PROXY_TABLE, i, &tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_GP_PROXY_TABLE + i, (void *)&tok, sizeof(tokTypeStackGpProxyTableEntry));
     keys_passed[KEYS_STATUS_GP]++;
   }
   return SL_STATUS_OK;
@@ -167,7 +171,7 @@ sl_status_t zb_sec_man_upgrade_gp_sink_table(void)
 
     sl_zigbee_sec_man_key_t plaintext_key;
     tokTypeStackGpSinkTableEntry tok;
-    halCommonGetIndexedToken(&tok, TOKEN_STACK_GP_SINK_TABLE, i);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_GP_SINK_TABLE + i, (void *)&tok, sizeof(tokTypeStackGpSinkTableEntry));
     memmove(&plaintext_key.key, tok.gpdKey, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
 
     vault_import_status = sli_zigbee_stack_sec_man_import_key(&context, &plaintext_key);
@@ -177,7 +181,7 @@ sl_status_t zb_sec_man_upgrade_gp_sink_table(void)
     }
     //erase plaintext token's key data by setting it to all 0xFF
     memset(&tok, 0xFF, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
-    halCommonSetIndexedToken(TOKEN_STACK_GP_SINK_TABLE, i, &tok);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_GP_SINK_TABLE + i, (void *)&tok, sizeof(tokTypeStackGpSinkTableEntry));
     keys_passed[KEYS_STATUS_GP]++;
   }
   return SL_STATUS_OK;
@@ -199,9 +203,9 @@ sl_status_t zb_sec_man_upgrade_nwk_key(uint8_t key_index)
 
     tokTypeStackKeys tok;
     if (context.key_index == 1) {
-      sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+      sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
     } else {
-      sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+      sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
     }
     memmove(&plaintext_key.key, tok.networkKey, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
 
@@ -223,9 +227,9 @@ sl_status_t zb_sec_man_upgrade_nwk_key(uint8_t key_index)
     memset(&tok.networkKey, 0xFF, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
     //write the cleared token data back to NVM3
     if (context.key_index == 1) {
-      sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+      sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
     } else {
-      sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+      sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
     }
     keys_passed[KEYS_STATUS_NETWORK]++;
   }
@@ -245,7 +249,7 @@ sl_status_t zb_sec_man_upgrade_tc_link_key(void)
     sl_status_t vault_import_status;
 
     tokTypeStackTrustCenter tok;
-    sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+    sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
     memmove(&plaintext_key.key, tok.key, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
 
     vault_import_status = sli_zigbee_stack_sec_man_import_key(&context, &plaintext_key);
@@ -258,7 +262,7 @@ sl_status_t zb_sec_man_upgrade_tc_link_key(void)
     memset(&tok.key, 0xFF, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
     // write cleared token data to NVM3; previous call to import already marked this key as
     // having been migrated away from token
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
     keys_passed[KEYS_STATUS_LINK]++;
   }
   return SL_STATUS_OK;
@@ -279,7 +283,7 @@ sl_status_t zb_sec_man_upgrade_zll_key(void)
   if (is_key_migrated_enc != SL_STATUS_OK || is_key_migrated_pre != SL_STATUS_OK) {
     sl_zigbee_sec_man_key_t plaintext_key;
     tokTypeStackZllSecurity zllSecurityToken;
-    halCommonGetToken(&zllSecurityToken, TOKEN_STACK_ZLL_SECURITY);
+    (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
 
     sl_status_t vault_import_status_enc = SL_STATUS_FAIL;
     sl_status_t vault_import_status_pre = SL_STATUS_FAIL;
@@ -315,7 +319,9 @@ sl_status_t zb_sec_man_upgrade_zll_key(void)
       if (vault_import_status_pre == SL_STATUS_OK) {
         memset(&zllSecurityToken.preconfiguredKey, 0xFF, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
       }
-      halCommonSetToken(TOKEN_STACK_ZLL_SECURITY, &zllSecurityToken);
+      (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_ZLL_SECURITY,
+                                      (void *)&zllSecurityToken,
+                                      sizeof(tokTypeStackZllSecurity));
     }
   }
 

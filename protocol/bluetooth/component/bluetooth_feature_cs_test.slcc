@@ -10,7 +10,6 @@ root_path: "protocol/bluetooth"
 requires:
   - name: "bluetooth_controller"
   - name: "bluetooth_feature_cs"
-  - name: "bluetooth_feature_test"
   - name: "device_supports_bluetooth_cs"
 provides:
   - name: "bluetooth_feature_cs_test"

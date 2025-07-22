@@ -20,7 +20,11 @@
  *
  ******************************************************************************/
 
+#ifdef _SILICON_LABS_32B_SERIES_2
 #include "em_timer.h"
+#else
+#include "sl_hal_timer.h"
+#endif
 #include "coexistence-hal.h"
 #include "rail.h"
 
@@ -71,7 +75,7 @@ _Static_assert(SL_RAIL_UTIL_COEX_DP_TIMER_CC0_PIN == SL_RAIL_UTIL_COEX_REQ_PIN, 
 #define GET_TIMER_REG_(reg, timer) reg ## timer
 
 #if SL_RAIL_UTIL_COEX_PRI_SHARED
-#define SL_RAIL_UTIL_COEX_DP_MODE gpioModeWiredOr
+#define SL_RAIL_UTIL_COEX_DP_MODE SL_GPIO_MODE_WIRED_OR
 #else //!SL_RAIL_UTIL_COEX_PRI_SHARED
 #define SL_RAIL_UTIL_COEX_DP_MODE SL_GPIO_MODE_PUSH_PULL
 #endif //SL_RAIL_UTIL_COEX_PRI_SHARED

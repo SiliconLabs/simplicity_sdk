@@ -8,6 +8,9 @@ metadata:
     sbom:
         license: Zlib
 root_path: platform/common
+config_file:
+  - path: config/sl_event_system_config.h
+    file_id: sl_event_system_config
 include:
   - path: inc
     file_list:

@@ -100,7 +100,7 @@ if [[ -n ${PATH_SCMD} ]]; then
 fi
 if [[ ! -f "${COMMANDER}" ]]; then
     echo "Error: Simplicity Commander not found. Please set the PATH_SCMD"
-    echo "environment variable according to AN1086 (sections 2.3 and 3.10)."
+    echo "environment variable according to AN1086 (sections 2.3 and 3.3.2)."
     read -rsp $'Press enter to continue...\n'
     exit
 fi

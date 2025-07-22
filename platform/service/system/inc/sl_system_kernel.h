@@ -45,7 +45,7 @@ extern "C" {
  * Start the kernel
  *
  * API was deprecated in version 2025.6. Please migrate to the new sl_main API.
- * See the sl_main migration guide: https://docs.silabs.com/gecko-platform/latest/platform-service-sl_system-to-sl_main-migration-guide/
+ * See the sl_main migration guide: https://docs.silabs.com/gecko-platform/latest/platform-service-sl-system-to-sl-main-migration-guide/
  */
 SL_DEPRECATED_API_SDK_2025_6
 void sl_system_kernel_start(void);

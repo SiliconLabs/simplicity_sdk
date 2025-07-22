@@ -623,7 +623,7 @@ class PhysRAILBaseStandardBluetoothLEPanther(IPhy):
         phy.profile_outputs.FRC_FCD2_CALCCRC.override = 1
         phy.profile_outputs.FRC_FCD2_EXCLUDESUBFRAMEWCNT.override = 0
         phy.profile_outputs.FRC_FCD2_INCLUDECRC.override = 1
-        phy.profile_outputs.FRC_FCD2_WORDS.override = 255
+        phy.profile_outputs.FRC_FCD2_WORDS.override = 2 ** phy.profile_outputs.FRC_FCD2_WORDS.var.get_bit_width() - 1
         phy.profile_outputs.FRC_AUTOCG_AUTOCGEN.override = 7
         phy.profile_outputs.FRC_CONVGENERATOR_GENERATOR0.override = 13
         phy.profile_outputs.FRC_CONVGENERATOR_GENERATOR1.override = 15

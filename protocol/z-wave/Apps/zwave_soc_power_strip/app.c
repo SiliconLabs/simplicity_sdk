@@ -33,9 +33,7 @@
 #include "zw_cli_common.h"
 #endif
 
-#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
 
 static ESwTimerStatus notificationOverLoadTimerStatus = ESWTIMER_STATUS_FAILED;
 // Timer
@@ -139,9 +137,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 
   ZAF_PrintAppInfo();
 
-#if (!defined(UNIT_TEST))
   app_hw_init();
-#endif
 
   AppTimerRegister(&NotificationTimer, true, ZCB_NotificationTimerCallback);
 

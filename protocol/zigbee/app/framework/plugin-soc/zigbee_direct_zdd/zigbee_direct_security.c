@@ -41,6 +41,7 @@
 #include "mbedtls/md.h"
 #include "sl_bt_rtos_adaptation.h"
 #include "sl_custom_token_header.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 #include <mbedtls/build_info.h>
 
@@ -591,7 +592,7 @@ void sli_zigbee_direct_handle_authenticate_write(uint8_t connection, byte_array 
       if (memcmp(MacTag_check, &sl_tlv_pointer1.value[0], compare_length) == 0) {
         sl_zigbee_app_debug_println("MAC TAG is matching!");
         sl_zvd_connection_status = sl_zvd_connection_status_next;
-        halCommonSetToken(TOKEN_PLUGIN_ZDD_AUTH_STATUS, &sl_zvd_connection_status);
+        (void)sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_AUTH_STATUS, (void *)&sl_zvd_connection_status, sizeof(uint8_t));
       } else {
         sl_zigbee_app_debug_println("MAC TAG is NOT matching");
         return;

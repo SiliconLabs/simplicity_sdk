@@ -94,6 +94,10 @@ configuration:
     value: "1"
   - name: SL_RAIL_UTIL_PTI_BAUD_RATE_HZ
     value: "3200000"
+  - name: SL_SLEEPTIMER_WALLCLOCK_CONFIG
+    value: "1"
+    condition:
+      - "sl_wisun_ota_dfu"
 
   # LFN related peripheral and energy saver setup
   - name: SL_IOSTREAM_EUSART_INSTANCE_RESTRICT_ENERGY_MODE_TO_ALLOW_RECEPTION

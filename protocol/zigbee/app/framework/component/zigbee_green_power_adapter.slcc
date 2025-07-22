@@ -93,6 +93,9 @@ include:
   - path: protocol/zigbee/app/util/serial
     file_list:
       - path: sl_zigbee_command_interpreter.h
+  - path: protocol/zigbee/
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
 
 template_file:
   - path: protocol/zigbee/app/framework/util/template/zigbee_zcl_callback_dispatcher.h.jinja

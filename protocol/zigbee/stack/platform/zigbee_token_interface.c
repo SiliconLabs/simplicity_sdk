@@ -22,14 +22,18 @@
 #include "sl_component_catalog.h"
 #endif
 
+#include "stack/include/sl_zigbee_token.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
+
 #ifdef SL_CATALOG_ZIGBEE_SECURE_KEY_STORAGE_PRESENT
 extern void zb_sec_man_delete_all_keys(void);
 #endif
 
 #if (defined(SL_CATALOG_TOKEN_MANAGER_PRESENT))
-
-#include "sl_token_api.h"
-#include "sl_token_manager.h"
 
 // The following interfaces are wrapper on top of platform service token manager
 // APIs. The reason for providing an access to token get and set from a host is to
@@ -44,7 +48,7 @@ static bool is_token_excluded(bool exclude_outgoing_fc, bool exclude_boot_counte
 {
   bool ret = false;
   if (exclude_outgoing_fc) {
-    uint32_t excluded_nvm3_outgoing_fc[] = { NVM3KEY_STACK_NONCE_COUNTER, NVM3KEY_STACK_APS_FRAME_COUNTER };
+    uint32_t excluded_nvm3_outgoing_fc[] = { COMMON_TOKEN_STACK_NONCE_COUNTER, COMMON_TOKEN_STACK_APS_FRAME_COUNTER };
     for (uint8_t i = 0; i < (sizeof(excluded_nvm3_outgoing_fc) / sizeof(uint32_t)); i++) {
       if (excluded_nvm3_outgoing_fc[i] == nvm3_key) {
         ret = true;
@@ -52,7 +56,7 @@ static bool is_token_excluded(bool exclude_outgoing_fc, bool exclude_boot_counte
       }
     }
   }
-  if (exclude_boot_counter && (NVM3KEY_STACK_BOOT_COUNTER == nvm3_key)) {
+  if (exclude_boot_counter && (COMMON_TOKEN_STACK_BOOT_COUNTER == nvm3_key)) {
     ret = true;
   }
   return ret;
@@ -86,15 +90,10 @@ void sli_zigbee_stack_token_factory_reset(bool exclude_outgoing_fc, bool exclude
 #endif // SL_CATALOG_ZIGBEE_SECURE_KEY_STORAGE_PRESENT
 }
 
-uint8_t sli_zigbee_stack_get_token_count(void)
-{
-  return (TOKEN_COUNT);
-}
-
 sl_status_t sli_zigbee_stack_get_token_info(uint8_t index,
                                             sl_zigbee_token_info_t *tokenInfo)
 {
-  if (index >= (TOKEN_COUNT)) {
+  if (index >= sl_zigbee_get_token_count()) {
     return SL_STATUS_INVALID_INDEX;
   }
   tokenInfo->nvm3Key = tokenNvm3Keys[index];
@@ -147,7 +146,7 @@ void sl_zigbee_get_restored_eui64(sl_802154_long_addr_t eui64)
   sl_zigbee_token_data_t tokenData;
   tokenData.size = 0;
   tokenData.data = (void *)restoredEui64;
-  sl_status_t status = sli_zigbee_stack_get_token_data(NVM3KEY_STACK_RESTORED_EUI64,
+  sl_status_t status = sli_zigbee_stack_get_token_data(COMMON_TOKEN_STACK_RESTORED_EUI64,
                                                        0,
                                                        &tokenData);
   if (status == SL_STATUS_OK
@@ -171,7 +170,7 @@ void sl_zigbee_get_restored_eui64(sl_802154_long_addr_t eui64)
 #if defined(SL_CATALOG_ZIGBEE_STACK_UNIX_PRESENT)
 #include PLATFORM_HEADER
 #include CONFIGURATION_HEADER
-#include "platform/service/legacy_host/inc/token.h"
+#include "stack/include/sl_zigbee_token.h"
 #include <syslog.h>
 
 extern const uint32_t tokenNvm3Keys[];
@@ -180,16 +179,10 @@ extern const uint8_t tokenSize[];
 extern const uint8_t tokenArraySize[];
 extern const void * const tokenDefaults[];
 
-// From the token interface
-uint8_t sli_zigbee_stack_get_token_count(void)
-{
-  return (TOKEN_COUNT);
-}
-
 sl_status_t sli_zigbee_stack_get_token_info(uint8_t index,
                                             sl_zigbee_token_info_t *tokenInfo)
 {
-  if (index >= (TOKEN_COUNT)) {
+  if (index >= sl_zigbee_get_token_count()) {
     return SL_STATUS_INVALID_INDEX;
   }
   tokenInfo->nvm3Key = tokenNvm3Keys[index];
@@ -210,7 +203,7 @@ sl_status_t sli_zigbee_stack_get_token_data(uint32_t token,
     if (token == tokenNvm3Keys[i]) {
       tokenData->size = tokenSize[i];
       //syslog(LOG_INFO, "Getting : Creator = %04X Token = %d index = %d tokenData->size = %d",token, i, index, tokenData->size);
-      halInternalGetTokenData(tokenData->data, i, index, tokenData->size);
+      (void)sl_token_manager_get_data(token + index, (void *)tokenData->data, sizeof(tokenData->size));
       return SL_STATUS_OK;
     }
   }
@@ -225,7 +218,7 @@ sl_status_t sli_zigbee_stack_set_token_data(uint32_t token,
   for (uint8_t i = 0; i < sli_zigbee_stack_get_token_count(); i++) {
     if (token == tokenNvm3Keys[i]) {
       //syslog(LOG_INFO, "Setting : Creator = %04X Token = %d index = %d tokenData->size = %d",token, i, index, tokenData->size);
-      halInternalSetTokenData(i, index, tokenData->data, tokenData->size);
+      (void)sl_token_manager_set_data(token + index, (void *)tokenData->data, tokenData->size);
       return SL_STATUS_OK;
     }
   }
@@ -240,7 +233,7 @@ void sl_zigbee_get_restored_eui64(sl_802154_long_addr_t eui64)
   sl_zigbee_token_data_t tokenData;
   tokenData.size = 0;
   tokenData.data = (void *)restoredEui64;
-  sl_status_t status = sli_zigbee_stack_get_token_data(NVM3KEY_STACK_RESTORED_EUI64,
+  sl_status_t status = sli_zigbee_stack_get_token_data(COMMON_TOKEN_STACK_RESTORED_EUI64,
                                                        0,
                                                        &tokenData);
   if (status == SL_STATUS_OK

@@ -22,6 +22,17 @@
  * - CC_FirmwareUpdate_SetStartCallback()
  * - CC_FirmwareUpdate_SetFinishCallback()
  *
+ * @note **Important**: Performing an OTA update is not possible in debug builds due to memory
+ *       and storage constraints. Debug builds have reduced bootloader storage space and additional
+ *       debug information that prevents successful OTA operations. Always use release builds for
+ *       OTA update testing and deployment.
+ *
+ * @note **Troubleshooting**: When troubleshooting OTA updates in release mode, the zw_log component
+ *       is highly recommended. It provides comprehensive logging capabilities that can help identify
+ *       issues during the OTA process, including transfer failures, CRC errors, and bootloader
+ *       problems. Enable the zw_log component and configure appropriate log levels to capture
+ *       detailed OTA-related debug information.
+ *
  * The specification of CC Firmware Update MD can be found in
  * https://github.com/Z-Wave-Alliance/AWG/tree/main/source/management_command_classes/command_class_definitions
  *

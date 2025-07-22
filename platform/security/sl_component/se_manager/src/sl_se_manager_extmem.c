@@ -538,6 +538,11 @@ sl_status_t sli_se_flash_get_status(sl_se_command_context_t *cmd_ctx,
                                     sli_se_flash_status_t *status)
 {
   sli_se_flash_status_t flash_status;
+
+  if ((cmd_ctx == NULL) || (status == NULL)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sli_se_mailbox_command_t *se_cmd = &cmd_ctx->command;
 
   sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_GET_FLASH_STATUS)
@@ -616,6 +621,12 @@ sl_status_t sli_se_data_region_write_non_blocking(sl_se_command_context_t *cmd_c
     return SL_STATUS_OK;
   }
 
+  // The data buffer must be in SRAM.
+  size_t sram_size = ((DEVINFO->EMBSIZE & _DEVINFO_EMBSIZE_RAM_MASK) >> _DEVINFO_EMBSIZE_RAM_SHIFT) * 1024;
+  if (((size_t)data < SRAM_BASE) || ((size_t)data + num_bytes > SRAM_BASE + sram_size)) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   se_cmd = &cmd_ctx->command;
   sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_WRITE_DATA_REGION | SLI_SE_COMMAND_OPTION_NON_BLOCKING)
   sli_se_mailbox_command_add_parameter(se_cmd, QSPI_FLASH_HOST_BASE + offset);
@@ -654,6 +665,10 @@ sl_status_t sli_se_data_region_erase_non_blocking(sl_se_command_context_t *cmd_c
  ******************************************************************************/
 sl_status_t sli_se_flash_pause(sl_se_command_context_t *cmd_ctx)
 {
+  if (cmd_ctx == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_FLASH_PAUSE)
   return sli_se_execute_and_wait(cmd_ctx);
 }
@@ -663,6 +678,10 @@ sl_status_t sli_se_flash_pause(sl_se_command_context_t *cmd_ctx)
  ******************************************************************************/
 sl_status_t sli_se_flash_resume(sl_se_command_context_t *cmd_ctx)
 {
+  if (cmd_ctx == NULL) {
+    return SL_STATUS_INVALID_PARAMETER;
+  }
+
   sli_se_command_init(cmd_ctx, SLI_SE_COMMAND_FLASH_RESUME)
   return sli_se_execute_and_wait(cmd_ctx);
 }
@@ -690,6 +709,12 @@ sl_status_t sli_se_code_region_write_non_blocking(sl_se_command_context_t *cmd_c
 
   if (num_bytes == 0U) {
     return SL_STATUS_OK;
+  }
+
+  // The data buffer must be in SRAM.
+  size_t sram_size = ((DEVINFO->EMBSIZE & _DEVINFO_EMBSIZE_RAM_MASK) >> _DEVINFO_EMBSIZE_RAM_SHIFT) * 1024;
+  if (((size_t)data < SRAM_BASE) || ((size_t)data + num_bytes > SRAM_BASE + sram_size)) {
+    return SL_STATUS_INVALID_PARAMETER;
   }
 
   se_cmd = &cmd_ctx->command;

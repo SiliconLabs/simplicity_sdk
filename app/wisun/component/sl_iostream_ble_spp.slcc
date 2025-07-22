@@ -31,7 +31,6 @@ requires:
   - name: "bluetooth_feature_gatt_server"
   - name: "bluetooth_feature_sm"
   - name: "iostream"
-  - name: "cli"
 config_file:
   - path: "config/sl_iostream_ble_spp_config.h"
   - path: "gatt_service_spp.xml"

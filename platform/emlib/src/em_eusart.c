@@ -1067,7 +1067,7 @@ static void EUSART_AsyncInitCommon(EUSART_TypeDef *eusart,
 #endif /* EUSART_DALICFG_DALIEN */
 
   // Enable EUSART IP.
-  EUSART_Enable(eusart, eusartEnable);
+  eusart->EN_SET = EUSART_EN_EN;
 
   // Configure the baudrate if auto baud detection is not used.
   if (init->baudrate) {
@@ -1222,13 +1222,8 @@ static void EUSART_SyncInitCommon(EUSART_TypeDef *eusart,
   // Set baudrate for synchronous operation mode.
   EUSART_BaudrateSet(eusart, init->refFreq, init->bitRate);
 
-  // Enable EUSART IP.
-  EUSART_Enable(eusart, eusartEnable);
-
   // Finally enable the Rx and/or Tx channel (as specified).
-  eusart_sync(eusart, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK); // Wait for low frequency register synchronization.
-  eusart->CMD = (uint32_t)init->enable;
-  eusart_sync(eusart, _EUSART_SYNCBUSY_RXEN_MASK | _EUSART_SYNCBUSY_TXEN_MASK);
+  EUSART_Enable(eusart, init->enable);
   while (~EUSART_StatusGet(eusart) & (_EUSART_STATUS_RXIDLE_MASK | _EUSART_STATUS_TXIDLE_MASK)) {
   }
 }

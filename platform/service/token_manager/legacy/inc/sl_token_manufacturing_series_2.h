@@ -146,7 +146,6 @@
 #include "sl_token_manufacturing_generic.h"
 #endif //DEFINETYPES
 
-#ifdef DEFINETOKENS
 //The Manufacturing tokens need to be stored at well-defined locations.
 //None of these addresses should ever change without extremely great care.
 //Any _LOCATION <256 will dispatch to NVM by halInternalGetTokenData.
@@ -228,6 +227,8 @@
 
 // Define the size of indexed token array
 #define MFG_ASH_CONFIG_ARRAY_SIZE       20
+
+#ifdef DEFINETOKENS
 
 //--- User Data ---
 TOKEN_NEXT_ADDRESS(MFG_EMBER_EUI_64_ADDR, MFG_EMBER_EUI_64_LOCATION)

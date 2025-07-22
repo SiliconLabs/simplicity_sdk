@@ -55,7 +55,7 @@ component:
   - id: sl_rail_sdk_range_test_std_component
 #-------------- Restriction rules -------------------
 #-----------------Series 3 OS-------------------------
-  - id: micriumos_kernel
+  - id: freertos
     condition: [device_series_3]
 #---------------Code Classification------------------
   - id: code_classification

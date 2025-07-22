@@ -23,6 +23,10 @@
 #include "hal/hal.h"
 #include "internal/inc/internal-defs-patch.h"
 #include "aps-keys-full.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
 
 #include "stack/include/cbke-crypto-engine.h"
 #include "stack/include/zigbee-security-manager.h"

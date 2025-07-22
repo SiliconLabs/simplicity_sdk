@@ -130,21 +130,13 @@ class CalcEnhancedRainier(ICalculator):
         self._reg_write(model.vars.MODEM_EHDSSSCFG2_DSSSFRTCORRTHD, dsssfrtcorrthd, do_not_care=do_not_care)
 
     def calc_enhanced_dssspatt_reg(self, model):
-        # Assume the only 2 use cases are Zigbee and Signify
+        # Use DSSSPATT=0 for all cases for best frequency offset tolerance
         enhanced_en = (model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value == 1)
-        dual_syncword_used = model.vars.syncword_dualsync.value
-        duty_cycled = model.vars.rxdc_power_save_mode.value != model.vars.rxdc_power_save_mode.var_enum.DISABLED
-        hop_enabled = model.vars.hop_enable.value == model.vars.hop_enable.var_enum.ENABLED
 
+        dssspatt = 0
         if enhanced_en:
             do_not_care = False
-            if dual_syncword_used or duty_cycled or hop_enabled:
-                # DSSSPATT = 0 is better for duty-cycling FreqOffset (See https://jira.silabs.com/browse/MCUW_RADIO_CFG-2865)
-                dssspatt = 0        # Use last 4 preamble symbols for frequency offset estimation
-            else:
-                dssspatt = 0x7A      # we will use the last 2 preamble symbols + 2 802.15.4 syncword symbol for the frequency offset estimation
         else:
-            dssspatt = 0
             do_not_care = True
 
         self._reg_write(model.vars.MODEM_EHDSSSCFG0_DSSSPATT, dssspatt, do_not_care=do_not_care)

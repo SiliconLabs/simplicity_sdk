@@ -39,7 +39,8 @@
 #ifdef SL_CATALOG_RGB_LED_PRESENT
 #include "sl_simple_rgb_pwm_led.h"
 #include "sl_simple_rgb_pwm_led_instances.h"
-#else // SL_CATALOG_RGB_LED_PRESENT
+#endif
+#ifdef SL_CATALOG_PWM_PRESENT
 #include "sl_pwm.h"
 #include "sl_pwm_instances.h"
 #endif
@@ -81,7 +82,9 @@ void cc_multilevel_switch_support_cb(cc_multilevel_switch_t * p_switch)
   const uint8_t level = ZAF_Actuator_GetCurrentValue(&p_switch->actuator);
 #ifdef SL_CATALOG_RGB_LED_PRESENT
   sl_led_set_rgb_color(&sl_simple_rgb_pwm_led_rgb_led0, (uint16_t)level, (uint16_t)level, (uint16_t)level);
-#else
+#endif
+
+#ifdef SL_CATALOG_PWM_PRESENT
   static bool pwm_led_initialized = false;
   if (!pwm_led_initialized) {
     sl_pwm_start(&sl_pwm_led1);

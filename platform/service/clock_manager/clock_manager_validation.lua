@@ -24,6 +24,9 @@ local hfxo_crystal_sharing = slc.config("SL_CLOCK_MANAGER_HFXO_CRYSTAL_SHARING_E
 local hfxo_mode = slc.config("SL_CLOCK_MANAGER_HFXO_MODE")
 local socpll_enable = slc.config("SL_CLOCK_MANAGER_SOCPLL_EN")
 local socpll_refclk = slc.config("SL_CLOCK_MANAGER_SOCPLL_REFCLK")
+local socpll_fraq = slc.config("SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN")
+local socpll_divf = slc.config("SL_CLOCK_MANAGER_SOCPLL_DIVF")
+local socpll_divn = slc.config("SL_CLOCK_MANAGER_SOCPLL_DIVN")
 local clkin0_freq = slc.config("SL_CLOCK_MANAGER_CLKIN0_FREQ")
 local qspi_advanced_config_enable = slc.config("SL_CLOCK_MANAGER_QSPICLK_ADVANCED_CONFIG_EN")
 local qspi_custom_freq = slc.config("SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ")
@@ -153,17 +156,25 @@ end
       socpll_refclk_freq = tonumber(slc.config("SL_CLOCK_MANAGER_HFRCO_BAND").value)
     end
   end
-  if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings.value == "1" then
+  if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings.value == "1"
+     and (socpll_refclk_freq < 34000000 or socpll_refclk_freq > 44000000) then
+    validation.error(
+      "SOCPLL reference clock frequency must be between 38MHz and 40MHz",
+      validation.target_for_defines({"SL_CLOCK_MANAGER_SOCPLL_REFCLK"}),
+      nil,
+      nil)
+  end
+  if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings.value == "1"
+     and socpll_fraq ~= nil and socpll_divf ~= nil and socpll_divn ~= nil then
     -- check formula validation: socpll_freq = Fref * (DIVN+2 + DIVF/1024) / 6
     local socpll_freq
     local socpll_freq_expected = tonumber(slc.config("SL_CLOCK_MANAGER_SOCPLL_FREQ").value)
-    local socpll_fraq = slc.config("SL_CLOCK_MANAGER_SOCPLL_FRACTIONAL_EN")
-    local socpll_divf = tonumber(slc.config("SL_CLOCK_MANAGER_SOCPLL_DIVF").value)
-    local socpll_divn = tonumber(slc.config("SL_CLOCK_MANAGER_SOCPLL_DIVN").value)
+    local socpll_divf_val = tonumber(socpll_divf.value)
+    local socpll_divn_val = tonumber(socpll_divn.value)
     if socpll_fraq.value == "1" then
-      socpll_freq = socpll_refclk_freq * (socpll_divn + 2 + socpll_divf/1024) / 6
+      socpll_freq = socpll_refclk_freq * (socpll_divn_val + 2 + socpll_divf_val/1024) / 6
     else
-      socpll_freq = socpll_refclk_freq * (socpll_divn + 2) / 6
+      socpll_freq = socpll_refclk_freq * (socpll_divn_val + 2) / 6
     end
     local socpll_max_ppm = 41
     local socpll_range_max = socpll_freq + socpll_max_ppm * socpll_freq/1000000

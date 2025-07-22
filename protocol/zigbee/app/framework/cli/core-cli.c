@@ -135,16 +135,11 @@ static bool printSmartEnergySecurityInfo(void)
     } else {
       sl_zigbee_core_debug_print("Real163k1Cbke ");
 
-      // Status of SL_STATUS_OK means the Cert is good.
       if (status == SL_STATUS_OK) {
         sl_zigbee_core_debug_print("GoodCert");
-      }
-      // Status of SL_STATUS_FAIL means the Cert failed.
-      else if (status == SL_STATUS_FAIL) {
+      } else {
         sl_zigbee_core_debug_print("BadCert");
         securityGood = false;
-      } else {
-        // MISRA requires ..else if.. to have a terminating else.
       }
     }
     sl_zigbee_core_debug_println("]");
@@ -185,16 +180,11 @@ static bool printSmartEnergySecurityInfo283k1(void)
     } else {
       sl_zigbee_core_debug_print("Real283k1Cbke ");
 
-      // Status of SL_STATUS_OK means the Cert is good.
       if (status == SL_STATUS_OK) {
         sl_zigbee_core_debug_print("GoodCert");
-      }
-      // Status of SL_STATUS_FAIL means the Cert failed.
-      else if (status == SL_STATUS_FAIL) {
+      } else {
         sl_zigbee_core_debug_print("BadCert");
         securityGood = false;
-      } else {
-        // MISRA requires ..else if.. to have a terminating else.
       }
     }
     sl_zigbee_core_debug_println("]");

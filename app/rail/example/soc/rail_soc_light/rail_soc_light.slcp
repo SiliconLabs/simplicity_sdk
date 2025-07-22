@@ -41,7 +41,7 @@ component:
   - id: restrictions_profile_connect
   - id: restrictions_profile_long_range
 #-----------------Series 3 OS-------------------------
-  - id: micriumos_kernel
+  - id: freertos
     condition: [device_series_3]
 #---------------Code Classification------------------
   - id: code_classification

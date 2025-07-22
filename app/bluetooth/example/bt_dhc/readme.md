@@ -24,6 +24,12 @@ Use the provided host application (`host/dhc.py`) to communicate with the device
  - Launch the host app. E.g.: `python3 dhc.py -p <COM# on Windows, /dev/tty# on POSIX> --ncp -c configuration_sample.json`
  - This will apply the configuration values of `configuration_sample.json` to the selected device and verify that they have been applied correctly
 
+## RCP Usage
+ - The EFR device needs to be attached using the `btattach` command
+ - Check the available hci devices using the `hcitool dev` command
+ - Use the HCI device name. E.g.: `python3 dhc.py -p hci0 --rcp`
+ - Note that RCP only works on Linux
+
 ## Providing custom XAPI path to the host application
 
 The host application - when launched from it's default location in the SDK will use the XAPI file supplied with the SDK. If you wish to run this script without the SDK - you can specify the location of the XAPI file by using the `-x` or `--xapi` command line option:

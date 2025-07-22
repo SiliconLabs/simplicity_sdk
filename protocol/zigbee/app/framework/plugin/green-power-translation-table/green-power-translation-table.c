@@ -31,6 +31,9 @@
 
 #include "green-power-server.h"
 #include "green-power-common.h"
+#include "sl_zigbee_token.h"
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
 
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USER_HAS_DEFAULT_TRANSLATION_TABLE == 1)
 #define USER_HAS_DEFAULT_TRANSLATION_TABLE
@@ -41,6 +44,12 @@
 
 #define isClusterInManufactureSpeceficRange(clusterId) (0xFC00 <= clusterId)
 #define isAttributeInManufactureSpecificRange(attributeId) (0x5000 <= attributeId)
+
+#ifdef SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
+// wrapper for common token manager APIs if GP adapter isn't present
+#define sl_zigbee_gp_set_token(token, data, length) (void)sl_token_manager_set_data(token, data, length)
+#define sl_zigbee_gp_get_token(token, data, length) (void)sl_token_manager_get_data(token, data, length)
+#endif
 
 #ifndef USER_HAS_DEFAULT_TRANSLATION_TABLE
 // Following GPDF to Zcl Command only applies for following ApplicationID
@@ -459,6 +468,24 @@ WEAK(void sl_zigbee_af_green_power_translation_table_stack_status_cb(sl_status_t
   }
 }
 
+sl_status_t sl_zigbee_af_green_power_translation_table_token_init(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+  sli_zigbee_af_gp_command_translation_table_entry tokTranslationTableDefault = TOKEN_TRANSLATION_TABLE_DEFAULT;
+  status = sl_zigbee_initialize_index_token(COMMON_TOKEN_TRANSLATION_TABLE, &tokTranslationTableDefault, sizeof(sli_zigbee_af_gp_command_translation_table_entry), SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_TRANSLATION_TABLE_SIZE);
+  sl_zigbee_af_green_power_server_gpd_sub_translation_table_entry_t tokCustomizedTableDefault = TOKEN_CUSTOMIZED_TABLE_DEFAULT;
+  status = sl_zigbee_initialize_index_token(COMMON_TOKEN_CUSTOMIZED_TABLE, &tokCustomizedTableDefault, sizeof(sl_zigbee_af_green_power_server_gpd_sub_translation_table_entry_t), SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE);
+  sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t tokAdditionalInfoTableDefault = TOKEN_ADDITIONALINFO_TABLE_DEFAULT;
+  status = sl_zigbee_initialize_index_token(COMMON_TOKEN_ADDITIONALINFO_TABLE, &tokAdditionalInfoTableDefault, sizeof(sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t), SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_ADDITIONALINFO_TABLE_SIZE);
+  uint8_t tokAdditionalInfoTableValidEntriesDefault = TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES_DEFAULT;
+  status = sl_zigbee_initialize_index_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES, &tokAdditionalInfoTableValidEntriesDefault, sizeof(uint8_t), SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_ADDITIONALINFO_TABLE_SIZE);
+  uint8_t tokTranslationTableTotalEntriesDefault = TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES_DEFAULT;
+  status = sl_zigbee_initialize_basic_token(COMMON_TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES, &tokTranslationTableTotalEntriesDefault, sizeof(uint8_t));
+  uint8_t tokAdditionalInfoTableTotalEntriesDefault = TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES_DEFAULT;
+  status = sl_zigbee_initialize_basic_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES, &tokAdditionalInfoTableTotalEntriesDefault, sizeof(uint8_t));
+  return status;
+}
+
 WEAK(void sl_zigbee_af_green_power_translation_table_init_cb(uint8_t init_level))
 {
   (void)init_level;
@@ -468,23 +495,39 @@ WEAK(void sl_zigbee_af_green_power_translation_table_init_cb(uint8_t init_level)
   // and the Aditional Info Block Table from the persistent memory.
 
   //sli_zigbee_af_gp_get_customized_table();
+
   for (int i = 0; i < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE; i++) {
-    halCommonGetIndexedToken(&customizedTranslationTable[i], TOKEN_CUSTOMIZED_TABLE, i);
+    sl_zigbee_gp_get_token(COMMON_TOKEN_CUSTOMIZED_TABLE + i,
+                           (void *)&customizedTranslationTable[i],
+                           sizeof(sl_zigbee_af_green_power_server_gpd_sub_translation_table_entry_t));
   }
 
   //sli_zigbee_af_gp_trans_table_get_translation_table();
   for (int i = 0; i < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_TRANSLATION_TABLE_SIZE; i++) {
-    halCommonGetIndexedToken(&sli_zigbee_af_gp_translation_table.TableEntry[i], TOKEN_TRANSLATION_TABLE, i);
+    sl_zigbee_gp_get_token(COMMON_TOKEN_TRANSLATION_TABLE + i,
+                           (void *)&sli_zigbee_af_gp_translation_table.TableEntry[i],
+                           sizeof(sli_zigbee_af_gp_command_translation_table_entry));
   }
-  halCommonGetToken(&sli_zigbee_af_gp_translation_table.totalNoOfEntries, TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES);
+  sl_zigbee_gp_get_token(COMMON_TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES,
+                         (void *)&sli_zigbee_af_gp_translation_table.totalNoOfEntries,
+                         sizeof(uint8_t));
 
-  //sli_zigbee_af_gp_get_additional_info_table();
+  // sli_zigbee_af_gp_get_additional_info_table();
   for (int i = 0; i < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_ADDITIONALINFO_TABLE_SIZE; i++) {
-    halCommonGetIndexedToken(&sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[i], TOKEN_ADDITIONALINFO_TABLE, i);
-    halCommonGetIndexedToken(&sli_zigbee_af_gp_additional_info_table.validEntry[i], TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES, i);
+    sl_zigbee_gp_get_token(COMMON_TOKEN_ADDITIONALINFO_TABLE + i,
+                           (void *)&sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[i],
+                           sizeof(sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t));
+
+    sl_zigbee_gp_get_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES + i,
+                           (void *)&sli_zigbee_af_gp_additional_info_table.validEntry[i],
+                           sizeof(uint8_t));
   }
-  halCommonGetToken(&sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries, TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES);
+  sl_zigbee_gp_get_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES,
+                         (void *)&sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries,
+                         sizeof(uint8_t));
+
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
+  assert(SL_STATUS_OK == sl_zigbee_af_green_power_translation_table_token_init());
   sl_zigbee_af_table_init_cb();
 }
 
@@ -502,12 +545,12 @@ void sli_zigbee_af_gp_trans_table_clear_translation_table(void)
     sli_zigbee_af_gp_translation_table.TableEntry[i].offset = 0xFF;
     sli_zigbee_af_gp_translation_table.TableEntry[i].additionalInfoOffset = 0xFF;
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
-    halCommonSetIndexedToken(TOKEN_TRANSLATION_TABLE, i, &sli_zigbee_af_gp_translation_table.TableEntry[i]);
+    sl_zigbee_gp_set_token(COMMON_TOKEN_TRANSLATION_TABLE + i, (void *)&sli_zigbee_af_gp_translation_table.TableEntry[i], sizeof(sli_zigbee_af_gp_command_translation_table_entry));
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   }
   sli_zigbee_af_gp_translation_table.totalNoOfEntries = 0;
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS) && !defined(EZSP_HOST)
-  halCommonSetToken(TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES, &sli_zigbee_af_gp_translation_table.totalNoOfEntries);
+  sl_zigbee_gp_set_token(COMMON_TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES, (void *)&sli_zigbee_af_gp_translation_table.totalNoOfEntries, sizeof(uint8_t));
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }
 
@@ -516,8 +559,8 @@ void sli_zigbee_af_gp_set_translation_table_entry(uint8_t index)
 {
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   if (index < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_TRANSLATION_TABLE_SIZE) {
-    halCommonSetToken(TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES, &sli_zigbee_af_gp_translation_table.totalNoOfEntries);
-    halCommonSetIndexedToken(TOKEN_TRANSLATION_TABLE, index, &sli_zigbee_af_gp_translation_table.TableEntry[index]);
+    sl_zigbee_gp_set_token(COMMON_TOKEN_TRANSLATION_TABLE_TOTAL_ENTRIES, (void *)&sli_zigbee_af_gp_translation_table.totalNoOfEntries, sizeof(uint8_t));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_TRANSLATION_TABLE + index, (void *)&sli_zigbee_af_gp_translation_table.TableEntry[index], sizeof(sli_zigbee_af_gp_command_translation_table_entry));
   }
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }
@@ -540,7 +583,7 @@ void sli_zigbee_af_gp_clear_customized_table(void)
          * SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE);
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   for (int i = 0; i < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE; i++) {
-    halCommonSetIndexedToken(TOKEN_CUSTOMIZED_TABLE, i, &customizedTranslationTable[i]);
+    sl_zigbee_gp_set_token(COMMON_TOKEN_CUSTOMIZED_TABLE + i, (void *)&customizedTranslationTable[i], sizeof(sl_zigbee_af_green_power_server_gpd_sub_translation_table_entry_t));
   }
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }
@@ -550,7 +593,7 @@ void sli_zigbee_af_gp_set_customized_table_entry(uint8_t index)
 {
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   if (index < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_CUSTOMIZED_GPD_TRANSLATION_TABLE_SIZE) {
-    halCommonSetIndexedToken(TOKEN_CUSTOMIZED_TABLE, index, &customizedTranslationTable[index]);
+    sl_zigbee_gp_set_token(COMMON_TOKEN_CUSTOMIZED_TABLE + index, (void *)&customizedTranslationTable[index], sizeof(sl_zigbee_af_green_power_server_gpd_sub_translation_table_entry_t));
   }
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }
@@ -567,10 +610,10 @@ void sli_zigbee_gp_clear_additional_info_block_table(void)
   memset(&sli_zigbee_af_gp_additional_info_table, 0x00, sizeof(sl_zigbee_gp_translation_table_additional_info_block_field_t));
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   for (int i = 0; i < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_ADDITIONALINFO_TABLE_SIZE; i++) {
-    halCommonSetIndexedToken(TOKEN_ADDITIONALINFO_TABLE, i, &(sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[i]));
-    halCommonSetIndexedToken(TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES, i, &(sli_zigbee_af_gp_additional_info_table.validEntry[i]));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE + i, (void *)&(sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[i]), sizeof(sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES + i, (void *)&(sli_zigbee_af_gp_additional_info_table.validEntry[i]), sizeof(uint8_t));
   }
-  halCommonSetToken(TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES, &(sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries));
+  sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES, (void *)&(sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries), sizeof(uint8_t));
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }
 
@@ -579,9 +622,9 @@ void sli_zigbee_af_gp_set_additional_info_block_table_entry(uint8_t index)
 {
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
   if (index < SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_ADDITIONALINFO_TABLE_SIZE) {
-    halCommonSetIndexedToken(TOKEN_ADDITIONALINFO_TABLE, index, &(sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[index]));
-    halCommonSetIndexedToken(TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES, index, &(sli_zigbee_af_gp_additional_info_table.validEntry[index]));
-    halCommonSetToken(TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES, &(sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE + index, (void *)&(sli_zigbee_af_gp_additional_info_table.additionalInfoBlock[index]), sizeof(sl_zigbee_gp_translation_table_additional_info_block_option_record_field_t));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_VALID_ENTRIES + index, (void *)&(sli_zigbee_af_gp_additional_info_table.validEntry[index]), sizeof(uint8_t));
+    sl_zigbee_gp_set_token(COMMON_TOKEN_ADDITIONALINFO_TABLE_TOTAL_ENTRIES, (void *)&(sli_zigbee_af_gp_additional_info_table.totlaNoOfEntries), sizeof(uint8_t));
   }
 #endif // (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_TRANSLATION_TABLE_USE_TOKENS == 1) && !defined(EZSP_HOST)
 }

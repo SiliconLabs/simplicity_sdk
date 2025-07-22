@@ -226,11 +226,6 @@ void sli_zigbee_stack_get_stack_compliance_revision_process_ipc_command(sli_zigb
   msg->data.get_stack_compliance_revision.response.result = sli_zigbee_stack_get_stack_compliance_revision();
 }
 
-void sli_zigbee_stack_get_token_count_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
-{
-  msg->data.get_token_count.response.result = sli_zigbee_stack_get_token_count();
-}
-
 void sli_zigbee_stack_get_token_data_process_ipc_command(sli_zigbee_ipc_cmd_t *msg)
 {
   msg->data.get_token_data.response.result = sli_zigbee_stack_get_token_data(msg->data.get_token_data.request.token,
@@ -904,15 +899,6 @@ uint8_t sl_zigbee_get_stack_compliance_revision(void)
   sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_stack_compliance_revision_process_ipc_command, &msg);
 
   return msg.data.get_stack_compliance_revision.response.result;
-}
-
-uint8_t sl_zigbee_get_token_count(void)
-{
-  sli_zigbee_ipc_cmd_t msg = { 0, };
-
-  sli_zigbee_send_ipc_cmd(sli_zigbee_stack_get_token_count_process_ipc_command, &msg);
-
-  return msg.data.get_token_count.response.result;
 }
 
 sl_status_t sl_zigbee_get_token_data(uint32_t token,

@@ -36,7 +36,7 @@ component:
   - id: iostream_recommended_stream
   - id: iostream_retarget_stdio
 #-----------------Series 3 OS-------------------------
-  - id: micriumos_kernel
+  - id: freertos
     condition: [device_series_3]
 #---------------Code Classification------------------
   - id: code_classification

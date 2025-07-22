@@ -21,6 +21,9 @@
 #include "ezsp-frame-utilities.h"
 #include "app/framework/util/attribute-storage.h"
 #include "app/framework/util/attribute-table.h"
+#ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_SERVER_PRESENT
+#include "green-power-server-config.h"
+#endif // SL_CATALOG_ZIGBEE_GREEN_POWER_SERVER_PRESENT
 
 #if defined(SL_CATALOG_ZIGBEE_AF_SUPPORT_PRESENT)
 extern sl_zigbee_af_zcl_request_status_t sli_zigbee_af_green_power_server_gp_sink_commissioning_mode_command_handler(uint8_t options,

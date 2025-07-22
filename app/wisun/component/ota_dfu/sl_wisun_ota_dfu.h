@@ -45,6 +45,7 @@ extern "C" {
 #include "sl_wisun_ota_dfu_config.h"
 #include "sl_status.h"
 #include "em_common.h"
+#include "sl_sleeptimer.h"
 
 /**************************************************************************//**
  * @addtogroup SL_WISUN_OTA_DFU_API
@@ -135,6 +136,48 @@ typedef union sl_wisun_ota_dfu_error_ctx {
   /// Set error context
   sl_wisun_ota_dfu_error_ctx_btl_fw_set_t set;
 } sl_wisun_ota_dfu_error_ctx_t;
+
+/// Wi-SUN OTA DFU statistics typedef
+typedef struct sl_wisun_ota_dfu_statistics {
+  /// Resent packet count
+  uint32_t resent_cnt;
+  /// Received packet count
+  uint32_t received_cnt;
+  /// Downloaded bytes
+  uint32_t downl_bytes;
+  /// Global IP String
+  const char *global_ip_str;
+  /// Start time reference in seconds
+  sl_sleeptimer_timestamp_t start_time;
+  /// Firmware download time
+  sl_sleeptimer_date_t fw_downl_time;
+  /// Firmware update time
+  sl_sleeptimer_date_t fw_update_time;
+  /// Elapsed time since reset
+  sl_sleeptimer_date_t elapsed_time_since_rst;
+} sl_wisun_ota_dfu_statistics_t;
+
+/// Wi-SUN OTA DFU settings typedef
+typedef struct sl_wisun_ota_dfu_settings {
+  /// Host address string buffer
+  char host_addr_str[SL_WISUN_OTA_DFU_IPV6_STR_BUF_LEN];
+  /// Host port
+  uint16_t host_port;
+  /// GBL file path
+  char gbl_path_str[SL_WISUN_OTA_DFU_GBL_PATH_STR_BUF_LEN];
+  /// CoAP URI path
+  char coap_uri_path[SL_WISUN_OTA_DFU_COAP_URI_PATH_STR_BUF_LEN];
+#if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
+  /// Notify host addr str
+  char notify_host_addr_str[SL_WISUN_OTA_DFU_IPV6_STR_BUF_LEN];
+  /// Notify host port
+  uint16_t notify_host_port;
+  /// Notify coap uri path
+  char notify_coap_uri_path[SL_WISUN_OTA_DFU_COAP_URI_PATH_STR_BUF_LEN];
+  /// Download chunk count for notification
+  uint32_t notify_dwnld_chunk_cnt;
+#endif
+} sl_wisun_ota_dfu_settings_t;
 
 /** @} (end SL_WISUN_OTA_DFU_TYPES) */
 
@@ -269,6 +312,14 @@ sl_status_t sl_wisun_ota_dfu_set_gbl_path(const char *gbl_path);
  ******************************************************************************/
 sl_status_t sl_wisun_ota_dfu_get_gbl_path(char * const dst_gbl_path,
                                           const uint16_t dst_gbl_path_size);
+
+/***************************************************************************//**
+ * @brief Get firmware update statistics.
+ * @details Get firmware update statistics
+ * @param[out] stats Pointer to statistics structure
+ * @return sl_status_t SL_STATUS_OK on success, otherwise failure
+ ******************************************************************************/
+sl_status_t sl_wisun_ota_dfu_get_fw_update_statistics(sl_wisun_ota_dfu_statistics_t * const stats);
 
 #if SL_WISUN_OTA_DFU_HOST_NOTIFY_ENABLED
 /***************************************************************************//**

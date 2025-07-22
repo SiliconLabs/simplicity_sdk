@@ -27,26 +27,32 @@
 // <i> Default: 4
 #define SL_PSA_KEY_USER_SLOT_COUNT     (4)
 
-// <o SL_PSA_ITS_USER_MAX_FILES> PSA Maximum User Persistent Keys Count <0-1024>
+// <o SL_PSA_ITS_USER_MAX_FILES> Maximum User Persistent PSA Key Count <0-1024>
 // <i> Maximum amount of keys (or other files) that can be stored persistently
-// <i> by the application through the PSA interface, when persistent storage
-// <i> support for PSA Crypto is included in the project.
-// <i> Due to caching logic, this setting does have an impact on static RAM usage.
-// <i> Note that this number is added to the potential requirements from other
-// <i> software components in the project, such that the total amount of keys
-// <i> which can be stored through the ITS backend can be higher than what is
-// <i> configured here.
+// <i> by the user application, when PSA ITS (Internal Trusted Storage) support
+// <i> is included in the project.
+// <i> NOTE:
+// <i> In addition to SL_PSA_ITS_USER_MAX_FILES (number of user keys) the
+// <i> application may be configured to include SDK components that require an
+// <i> additional number of keys. The sum of user keys and SDK component keys
+// <i> is computed and the result, called SL_PSA_ITS_MAX_FILES, is used
+// <i> internally in the PSA ITS driver.
 // <i>
-// <i> WARNING: When changing this setting on an application that is already
-// <i> deployed, and thus will get the change through an application upgrade,
-// <i> care should be taken to ensure that the setting is only ever increased,
-// <i> and never decreased. Decreasing this setting might cause previously
-// <i> stored keys/files to become inaccessible.
+// <i> WARNING:
+// <i> For applications using PSA ITS driver version 1 or 2, when changing the
+// <i> SL_PSA_ITS_USER_MAX_FILES in an application that is already depeloyed,
+// <i> and thus will get the change through an application upgrade, care should
+// <i> be taken to ensure that the total sum of keys SL_PSA_ITS_MAX_FILES is
+// <i> only ever equal or increased, and never decreased. Decreasing this
+// <i> setting might cause previously stored keys/files to become inaccessible,
+// <i> ITS should be cleared and all files need to be stored again.
 // <i>
-// <i> It is not possible to change this setting when using V3 ITS Driver.
-// <i> The file-storage indexing is dependent on the  maximum number of files,
-// <i> and if SL_PSA_ITS_USER_MAX_FILES is changed, ITS should be cleared and
-// <i> all files need to be stored again.
+// <i> For applications using PSA ITS driver version 3, it is not possible to
+// <i> change this setting because the file-storage indexing is dependent on the
+// <i> maximum number of files (SL_PSA_ITS_MAX_FILES) being consistent, and if
+// <i> the sum of SDK component keys and user keys (SL_PSA_ITS_USER_MAX_FILES)
+// <i> is changed, may cause previously stored keys/files to become inaccessible
+// <i> ITS should be cleared and all files need to be stored again.
 // <i> Default: 128
 #define SL_PSA_ITS_USER_MAX_FILES           (128)
 

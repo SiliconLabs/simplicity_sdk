@@ -28,6 +28,7 @@
 #include "app/util/ezsp/ezsp-enum.h"
 #include "app/xncp/xncp-sample-custom-ezsp-protocol.h"
 #include "sl_zigbee_system_common.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 #ifdef SL_CATALOG_ZIGBEE_GREEN_POWER_SERVER_PRESENT
 #include "green-power-server.h"

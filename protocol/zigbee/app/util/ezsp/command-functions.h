@@ -4315,14 +4315,14 @@ uint8_t sl_zigbee_ezsp_gp_sink_table_get_number_of_active_entries(void)
 // Token Interface Frames
 //------------------------------------------------------------------------------
 
-uint8_t sl_zigbee_ezsp_get_token_count(void)
+uint32_t sl_zigbee_ezsp_get_token_count(void)
 {
-  uint8_t count;
+  uint32_t count;
   startCommand(SL_ZIGBEE_EZSP_GET_TOKEN_COUNT);
   sl_zigbee_ezsp_status_t sendStatus = sendCommand();
   sli_zigbee_ezsp_set_last_status(sendStatus);
   if (sendStatus == SL_ZIGBEE_EZSP_SUCCESS) {
-    count = fetchInt8u();
+    count = fetchInt32u();
     return count;
   }
   return 255;

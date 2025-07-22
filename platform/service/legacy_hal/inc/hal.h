@@ -34,10 +34,12 @@
 #include "crc.h"
 
 #include "random.h"
+#if defined(SL_CATALOG_TOKEN_MANAGER_PRESENT) && !defined(SL_ZIGBEE_TEST)
 #if !defined(EZSP_HOST) && !defined(SL_ZIGBEE_TEST) && !defined(ZIGBEE_STACK_ON_HOST)
 #include "sl_token_api.h"
 #else
 #include "token.h"
+#endif
 #endif
 #ifdef CORTEXM3
 #include "cortexm3/diagnostic.h"

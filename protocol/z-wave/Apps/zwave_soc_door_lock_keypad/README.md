@@ -157,7 +157,7 @@ Please note external wakeup is not supported on button 1 in case of brd2603a and
     <td>Press</td>
     <td>Resets the firmware of an application (like losing power). All volatile memory will be cleared.</td>
 </tr><tr>
-    <td rowspan="3">BTN0</td>
+    <td rowspan="3">BTN0*</td>
     <td>Short Press</td>
     <td>Simulates entering a PIN Code on a keypad via the User Credential API.<br>
         The entered PIN Code is hard-coded with the value of 3494.<br>
@@ -208,6 +208,8 @@ Please note external wakeup is not supported on button 1 in case of brd2603a and
 </tr>
 </table>
 
+\*: There is a limitation of BTN0 functionality on BRD2705A. On this board, BTN0 is routed to PC00 pin, which is incapable of triggering an interrupt from EM2. Since Door Lock Keypad mostly operates in EM2, sometimes, this could result in an incorrect behaviour, i.e. a short press on BTN0 may trigger Battery Report, and a medium press may enter the PIN code.
+
 ## Firmware Update
 
 This section will describe backward compatibility when upgrading the Door Lock application from one SDK to a newer version. 
@@ -215,6 +217,8 @@ This section will describe backward compatibility when upgrading the Door Lock a
 ## CLI Support
 
 In case CLI support is needed, please install zw_cli_common component to the project. Please note that the zw_cli_common component will modify the power consumption for every application.
+
+The default baud rate is 9600, which allows the underlying EUSART module to work in EM2. On some development kits (e.g. BRD2603A and BRD2705A), the following command should be applied in Simplicity Studio via the Admin console to adjust the baudrate: `serial vcom config speed 9600`.
 
 ### Available CLI commands
 

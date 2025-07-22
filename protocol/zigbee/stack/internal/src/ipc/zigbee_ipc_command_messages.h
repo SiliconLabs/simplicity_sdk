@@ -80,6 +80,7 @@
 #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_stack_specific_tlv_ipc_command_messages.h"
 #endif
+#include "stack/internal/src/ipc/sl_zigbee_token_ipc_command_messages.h"
 #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
 #include "stack/internal/src/ipc/sl_zigbee_zdo_configuration_ipc_command_messages.h"
 #endif
@@ -438,6 +439,7 @@ typedef struct {
     sli_zigbee_stack_global_tlv_supp_key_negotiation_ipc_msg_t global_tlv_supp_key_negotiation;
     sli_zigbee_stack_global_tlv_symmetric_passphrase_ipc_msg_t global_tlv_symmetric_passphrase;
     #endif
+    sli_zigbee_stack_get_token_count_ipc_msg_t get_token_count;
     #ifdef SL_CATALOG_ZIGBEE_R23_SUPPORT_PRESENT
     sli_zigbee_stack_zdo_get_configuration_req_ipc_msg_t zdo_get_configuration_req;
     sli_zigbee_stack_zdo_set_add_configuration_ipc_msg_t zdo_set_add_configuration;
@@ -512,7 +514,6 @@ typedef struct {
     sli_zigbee_stack_get_routing_shortcut_threshold_ipc_msg_t get_routing_shortcut_threshold;
     sli_zigbee_stack_get_source_route_table_size_ipc_msg_t get_source_route_table_size;
     sli_zigbee_stack_get_stack_compliance_revision_ipc_msg_t get_stack_compliance_revision;
-    sli_zigbee_stack_get_token_count_ipc_msg_t get_token_count;
     sli_zigbee_stack_get_token_data_ipc_msg_t get_token_data;
     sli_zigbee_stack_get_token_info_ipc_msg_t get_token_info;
     sli_zigbee_stack_is_local_eui64_ipc_msg_t is_local_eui64;

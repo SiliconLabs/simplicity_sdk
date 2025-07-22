@@ -43,7 +43,6 @@
 #include "sl_iostream_handles.h"
 #include "sl_bluetooth.h"
 #include "gatt_db.h"
-#include "sl_cli.h"
 #include "sl_bluetooth_advertiser_config.h"
 #include "sl_bluetooth_connection_config.h"
 #include "sl_iostream_ble_spp.h"

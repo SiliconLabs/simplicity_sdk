@@ -50,7 +50,7 @@ template_contribution:
   - name: "psa_key_slots"
     value:
       name: "psa_key_slots_wisun_stack"
-      count: "9"
+      count: "12"
     unless: [wisun_br_stack]
   - name: "psa_key_slots"
     value:

@@ -19,6 +19,7 @@
 #include "app/framework/util/af-main.h"
 #include "app/framework/util/util.h"
 #include "app/framework/util/common.h"
+#include "sl_zigbee_token.h"
 
 #include "sl_component_catalog.h"
 #ifdef SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT
@@ -49,6 +50,7 @@
 #include "app/framework/plugin/network-steering/network-steering.h"
 #include "app/framework/plugin/network-creator-security/network-creator-security.h"
 #include "app/framework/plugin/network-creator/network-creator.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 //some macros
 #define DEVNAME_LEN 5  // incl term null
@@ -314,6 +316,16 @@ void zb_ble_dmp_print_ble_address(uint8_t *address)
   sl_zigbee_core_debug_println("BLE address: [%02X %02X %02X %02X %02X %02X]",
                                address[5], address[4], address[3],
                                address[2], address[1], address[0]);
+}
+
+sl_status_t sl_zigbee_af_zigbee_direct_token_init(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+  uint8_t tokPluginZDDAuthStatusDefault = TOKEN_PLUGIN_ZDD_AUTH_STATUS_DEFAULT;
+  status = sl_zigbee_initialize_basic_token(COMMON_TOKEN_PLUGIN_ZDD_AUTH_STATUS, &tokPluginZDDAuthStatusDefault, sizeof(uint8_t));
+  uint32_t tokPluginZDDJoinTimeoutDefault = TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT_DEFAULT;
+  status = sl_zigbee_initialize_basic_token(COMMON_TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT, &tokPluginZDDJoinTimeoutDefault, sizeof(uint32_t));
+  return status;
 }
 
 void bleConnectionInfoTableInit(void)
@@ -956,6 +968,9 @@ void sli_zigbee_af_zdd_application_init(uint8_t init_level)
       break;
     }
   }
+
+  // initialize tokens
+  assert(SL_STATUS_OK == sl_zigbee_af_zigbee_direct_token_init());
 }
 
 static uint8_t sli_zigbee_direct_generate_commissioning_status(uint8_t *data)
@@ -1795,7 +1810,7 @@ uint32_t sl_zigbee_af_zigbee_direct_cluster_server_command_parse(sl_service_opco
                                             0x0001,
                                             (uint8_t *) &sl_zigbee_direct_anonymous_join_timeout_sec,
                                             ZCL_INT24U_ATTRIBUTE_TYPE);
-        halCommonSetToken(TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT, &sl_zigbee_direct_anonymous_join_timeout_sec);
+        (void)sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT, (void *)&sl_zigbee_direct_anonymous_join_timeout_sec, sizeof(uint32_t));
         sl_zigbee_af_send_default_response(cmd, SL_ZIGBEE_ZCL_STATUS_SUCCESS);
         break;
       }
@@ -1838,7 +1853,7 @@ sl_zigbee_af_status_t sl_zigbee_af_external_attribute_read_cb(uint8_t endpoint,
         break;
 
       case 0x0001:
-        halCommonGetToken(&temp_timeout, TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT);
+        (void)sl_token_manager_get_data(COMMON_TOKEN_PLUGIN_ZDD_JOIN_TIMEOUT, &temp_timeout, sizeof(uint32_t));
         sl_zigbee_app_debug_println("WRITING %04X", temp_timeout);
         sli_zigbee_store_int24u(true, buffer, temp_timeout);
         return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
@@ -1979,7 +1994,11 @@ void sli_zigbee_af_plugin_zdd_stack_status_callback(sl_status_t status)
       break;
   }
 
-  halCommonSetToken(TOKEN_PLUGIN_ZDD_AUTH_STATUS, &sl_zvd_connection_status);
+  sl_status_t write_status = sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_AUTH_STATUS, (void *)&sl_zvd_connection_status, sizeof(sl_zvd_connection_status));
+  if (status != SL_STATUS_OK) {
+    sl_zigbee_app_debug_println("ERROR: failed to set ZDD auth status in persistence: 0x%0X\n", write_status);
+    (void)write_status;
+  }
 
   sl_bt_legacy_advertiser_set_data(adv_handle[HANDLE_ZIGBEE_DIRECT],
                                    0,  //advertising packets

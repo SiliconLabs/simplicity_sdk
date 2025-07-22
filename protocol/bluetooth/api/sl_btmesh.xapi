@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<api device_id="5" device_name="btmesh" version="10.0.0">
+<api device_id="5" device_name="btmesh" version="10.1.0">
     <datatypes>
         <datatype base="uint16" name="errorcode" length="2"/>
         <datatype base="int16" name="int16" length="2"/>
@@ -3571,6 +3571,16 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
+        <command index="15" name="configure_throttle" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+                <param datatype="uint16" name="throttle_delay_ms" type="uint16"/>
+                <param datatype="uint8" name="throttle_concurrent" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
         <command index="2" name="start_transfer" >
             <params>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
@@ -3827,6 +3837,23 @@
             </returns>
         </command>
         <command index="6" name="transfer_start_rsp" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+                <param datatype="uint8" name="status" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="7" name="enable_block_start_req" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="8" name="block_start_rsp" >
             <params>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
                 <param datatype="uint8" name="status" type="uint8"/>
@@ -5841,6 +5868,16 @@
                 <param datatype="errorcode" name="result" type="uint16"/>
             </returns>
         </command>
+        <command index="21" name="configure_throttle" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+                <param datatype="uint16" name="throttle_delay_ms" type="uint16"/>
+                <param datatype="uint8" name="throttle_concurrent" type="uint8"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
         <event index="0" name="nodes_added">
             <params>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
@@ -6768,6 +6805,16 @@
         <command index="13" name="cancel" >
             <params>
                 <param datatype="uint16" name="elem_index" type="uint16"/>
+            </params>
+            <returns>
+                <param datatype="errorcode" name="result" type="uint16"/>
+            </returns>
+        </command>
+        <command index="14" name="configure_throttle" >
+            <params>
+                <param datatype="uint16" name="elem_index" type="uint16"/>
+                <param datatype="uint16" name="throttle_delay_ms" type="uint16"/>
+                <param datatype="uint8" name="throttle_concurrent" type="uint8"/>
             </params>
             <returns>
                 <param datatype="errorcode" name="result" type="uint16"/>

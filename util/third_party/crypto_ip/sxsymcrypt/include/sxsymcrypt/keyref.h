@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include "internal.h"
-
+#include "sl_code_classification.h"
 
 /** Returns a reference to a key whose key material is in user memory.
  *
@@ -31,6 +31,7 @@ extern "C" {
  * @remark - \p keymaterial buffer should not be changed until the operation
  *           is completed.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 struct sxkeyref sx_keyref_load_material(size_t keysz, const char *keymaterial);
 
 
@@ -47,6 +48,7 @@ struct sxkeyref sx_keyref_load_material(size_t keysz, const char *keymaterial);
  * @return sxkeyref initialized object with configuration of the hardware key
  *         index provided
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 struct sxkeyref sx_keyref_load_by_id(size_t keyindex);
 
 #ifdef __cplusplus

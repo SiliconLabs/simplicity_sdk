@@ -33,13 +33,14 @@ requires:
     condition: [iostream_usart]
   - name: wisun_rcp_uart_plt
     condition: [iostream_eusart]
+  - name: freertos
+    condition: [device_sdid_210]
+  - name: wisun_rcp_cpc
+    condition: [device_sdid_210]
 
 recommends:
   - id: freertos
   - id: wisun_rcp_uart
-    unless: [device_sdid_210]
-  - id: wisun_rcp_cpc
-    condition: [device_sdid_210]
 
 define:
   - name: DEBUG_EFM_USER

@@ -26,7 +26,7 @@ component:
 #------------Memory Protection Unit-------------------
   - id: mpu
 #-----------------Series 3 OS-------------------------
-  - id: micriumos_kernel
+  - id: freertos
     condition: [device_series_3]
 #---------------Code Classification------------------
   - id: code_classification

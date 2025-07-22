@@ -80,35 +80,66 @@ SL_WEAK int sl_bgapi_user_cmd_increase_security(uint8_t *public_key,
   return 0;
 }
 
+#include <openssl/evp.h>
+#include <openssl/params.h>
+#include <openssl/ec.h>
+
 static sl_status_t ec_ephemeral_key(ec_keypair_t *key)
 {
   sl_status_t e = SL_STATUS_ALLOCATION_FAILED;
   EVP_PKEY *pkey = NULL;
+  EVP_PKEY_CTX *pctx = NULL;
   BIGNUM *bn_priv = NULL;
+  int evp_error;
 
   do {
     uint8_t pub_buf[1 + PUBLIC_KEYPAIR_SIZE] = { 0 };
-    size_t len;
+    size_t len = 0;
+    OSSL_PARAM params[] = {
+      OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, SN_X9_62_prime256v1, 0),
+      OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT, "uncompressed", 0),
+      OSSL_PARAM_construct_end()
+    };
 
-    pkey = EVP_EC_gen(SN_X9_62_prime256v1);
+    pctx = EVP_PKEY_CTX_new_from_name(NULL, "EC", NULL);
+    if (!pctx) {
+      app_log_error("EVP_PKEY_CTX_new_id failed!" APP_LOG_NL);
+      break;
+    }
 
-    if (!pkey) {
+    if ((evp_error = EVP_PKEY_keygen_init(pctx)) <= 0) {
+      e = SL_STATUS_INITIALIZATION;
+      app_log_error("EVP_PKEY_keygen_init failed with error code %d." APP_LOG_NL, evp_error);
+      break;
+    }
+
+    if ((evp_error = EVP_PKEY_CTX_set_params(pctx, params)) <= 0) {
+      e = SL_STATUS_INVALID_PARAMETER;
+      app_log_error("EVP_PKEY_CTX_set_params failed with error code %d." APP_LOG_NL, evp_error);
+      break;
+    }
+
+    if ((evp_error = EVP_PKEY_generate(pctx, &pkey)) <= 0) {
+      e = SL_STATUS_FAIL;
+      app_log_error("EVP_PKEY_keygen failed with error code %d." APP_LOG_NL, evp_error);
       break;
     }
 
     if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &bn_priv)) {
+      app_log_error("EVP_PKEY_get_bn_param failed!" APP_LOG_NL);
       e = SL_STATUS_INVALID_SIGNATURE;
       break;
     }
 
     e = SL_STATUS_INVALID_COUNT;
-    if (!bn_priv || BN_num_bytes(bn_priv) != sizeof(key->priv)) {
+    if (!bn_priv || ((len = BN_num_bytes(bn_priv)) != sizeof(key->priv))) {
+      app_log_error("Invalid private key length of %zd." APP_LOG_NL, len);
       break;
     }
     BN_bn2bin(bn_priv, key->priv);
 
-    if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY,
-                                         pub_buf, sizeof(pub_buf), &len)) {
+    if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, pub_buf, sizeof(pub_buf), &len)) {
+      app_log_error("EVP_PKEY_get_octet_string_param failed!" APP_LOG_NL);
       e = SL_STATUS_INVALID_KEY;
       break;
     }
@@ -116,10 +147,13 @@ static sl_status_t ec_ephemeral_key(ec_keypair_t *key)
     if (len == sizeof(pub_buf)) {
       memcpy(key->pub, pub_buf + 1, sizeof(key->pub)); // Skip prefix byte - the UNCOMPRESSED flag
       e = SL_STATUS_OK;
+    } else {
+      app_log_error("Key size of %zd bytes to %zd buffer mismatch!" APP_LOG_NL, len, sizeof(pub_buf));
     }
   } while (0);
 
   EVP_PKEY_free(pkey);
+  EVP_PKEY_CTX_free(pctx);
   BN_clear_free(bn_priv);
 
   if (e != SL_STATUS_OK) {
@@ -446,7 +480,7 @@ void security_start()
 
       sl_status_t err = ec_ephemeral_key(&local_ec_key);
       if (err) {
-        app_log_warning("EC keypair generation failed 0x%x" APP_LOG_NL,
+        app_log_warning("EC keypair generation failed 0x%04x" APP_LOG_NL,
                         err);
         return;
       }
@@ -498,7 +532,7 @@ void security_increase_security_rsp(uint8_t *public_key,
              sizeof(sec_counter_in.target_iv));
       sl_status_t err = ecdh_secret(&remote_ec_key);
       if (err) {
-        app_log_warning("AES CCM key generation failed 0x%x" APP_LOG_NL,
+        app_log_warning("AES CCM key generation failed 0x%04x" APP_LOG_NL,
                         err);
         change_state(SECURITY_STATE_UNENCRYPTED);
         return;
@@ -556,7 +590,7 @@ void security_decrypt_packet(char *src, char *dst, unsigned *len)
                                     auth_data, 7,
                                     (uint8_t *)dst, (uint8_t *)src + *len);
   if (err) {
-    app_log_warning("Packet decryption failed 0x%x, len: %u/%u" APP_LOG_NL, err, *len, new_length);
+    app_log_warning("Packet decryption failed 0x%04x, len: %u/%u" APP_LOG_NL, err, *len, new_length);
     app_log_hexdump_info(src, new_length);
     app_log_append(APP_LOG_NL);
     *len = 0;
@@ -597,7 +631,7 @@ void security_encrypt_packet(char *src, char *dst, unsigned *len)
                                     auth_data, 7,
                                     (uint8_t *)dst, (uint8_t *)dst + *len - 2);
   if (err) {
-    app_log_warning("Packet encryption failed 0x%x" APP_LOG_NL, err);
+    app_log_warning("Packet encryption failed 0x%04x" APP_LOG_NL, err);
     *len = 0;
     return;
   }

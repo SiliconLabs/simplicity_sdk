@@ -37,6 +37,10 @@ toolchain_settings:
   # Platform code contains implicit conversions that may alter a value
   # - option: gcc_compiler_option
   #   value: "-Wconversion"
+  # Allow implicit function declaration until freertos has an integration hook
+  - option: gcc_compiler_option
+    value: "-Wno-implicit-function-declaration"
+    condition: [zw_release]
   # Linker flags
   - option: gcc_linker_option
     value: "-Wl,--start-group -lgcc -lc -Wl,--end-group"

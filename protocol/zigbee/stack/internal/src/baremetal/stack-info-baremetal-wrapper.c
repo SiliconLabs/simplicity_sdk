@@ -3,7 +3,7 @@
  * @brief internal implementations for 'stack-info' as a thin-wrapper
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -227,11 +227,6 @@ uint8_t sl_zigbee_get_source_route_table_size(void)
 uint8_t sl_zigbee_get_stack_compliance_revision(void)
 {
   return sli_zigbee_stack_get_stack_compliance_revision();
-}
-
-uint8_t sl_zigbee_get_token_count(void)
-{
-  return sli_zigbee_stack_get_token_count();
 }
 
 sl_status_t sl_zigbee_get_token_data(uint32_t token,

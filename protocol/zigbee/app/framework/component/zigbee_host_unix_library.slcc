@@ -28,8 +28,13 @@ source:
   - path: platform/service/legacy_hal/src/random.c
   - path: platform/service/legacy_hal/src/system-timer.c
   - path: platform/service/legacy_hal/src/micro_host.c
-  - path: platform/service/legacy_host/src/token.c
-  - path: platform/service/token_manager/legacy/src/sl_token_def.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_defines.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_host.c
+    unless:
+      - zigbee_host_simulation
+      - zigbee_simulation
+  - path: protocol/zigbee/stack/platform/sl_zigbee_legacy_token_host.c
 
 include:
   - path: platform/service/legacy_hal/inc/
@@ -39,13 +44,17 @@ include:
       - path: hal.h
       - path: hal/hal.h
       - path: micro_host.h
-  - path: platform/service/legacy_host/inc/
+  - path: platform/service/legacy_host/inc
     file_list:
       - path: token.h
+  - path: protocol/zigbee/stack/include/
+    file_list:
+      - path: sl_zigbee_token.h
   - path: protocol/zigbee/stack/config/
     file_list:
       - path: token-stack.h
       - path: token-phy.h
+      - path: sl_zigbee_token_defines.h
   - path: protocol/zigbee/stack/zll/
     file_list:
       - path: zll-token-config.h

@@ -96,7 +96,7 @@ extern __INLINE uint32_t sl_hal_leddrv_get_enabled_pending_interrupts(LEDDRV_Typ
  *   Initialize LEDDRV.
  ******************************************************************************/
 void sl_hal_leddrv_init(LEDDRV_TypeDef *leddrv,
-                        const sl_hal_leddrv_config_t *init)
+                        const sl_hal_leddrv_init_t *init)
 {
   sl_gpio_t temp;
   EFM_ASSERT(SL_HAL_LEDDRV_REF_VALID(leddrv));

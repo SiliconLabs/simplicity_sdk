@@ -28,6 +28,9 @@
 #endif //SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
 #include "green-power-server-config.h"
 #include "green-power-common.h"
+#include "sl_zigbee_token.h"
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
 
 //keys are loaded into core in this file to avoid
 //passing them down to functions (design centered around
@@ -77,6 +80,12 @@ static uint8_t gpSinkTableSize = 0;
 #define sl_zigbee_get_endpoint_count() (ZCL_FIXED_ENDPOINT_COUNT)
 #define sl_zigbee_get_endpoint(i)     (sli_zigbee_af_endpoints[i].endpoint)
 #endif // defined(SL_ZIGBEE_AF_NCP) && defined(SL_CATALOG_ZIGBEE_AF_SUPPORT_PRESENT)
+
+#ifdef SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
+// wrapper for common token manager APIs if GP adapter isn't present
+#define sl_zigbee_gp_set_token(token, data, length) (void)sl_token_manager_set_data(token, data, length)
+#define sl_zigbee_gp_get_token(token, data, length) (void)sl_token_manager_get_data(token, data, length)
+#endif
 
 typedef struct {
   uint8_t gpdCommand;
@@ -233,8 +242,8 @@ static void clearGpsStateInToken(void)
 {
   #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_USE_TOKENS == 1) && !defined(EZSP_HOST)
   sli_zigbee_gps_network_state_t gpsNodeState = GREEN_POWER_SERVER_GPS_NODE_STATE_NOT_IN_NETWORK;
-  halCommonSetToken(TOKEN_GPS_NETWORK_STATE, &gpsNodeState);
-  #endif
+  sl_zigbee_gp_set_token(COMMON_TOKEN_GPS_NETWORK_STATE, (void *)&gpsNodeState, sizeof(sli_zigbee_gps_network_state_t));
+#endif
 }
 
 // Checks if the node is just joined checking from the tokens
@@ -242,12 +251,12 @@ static bool updateInvolveTCNeeded(void)
 {
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_USE_TOKENS == 1) && !defined(EZSP_HOST)
   sli_zigbee_gps_network_state_t gpsNodeState;
-  halCommonGetToken(&gpsNodeState, TOKEN_GPS_NETWORK_STATE);
+  sl_zigbee_gp_get_token(COMMON_TOKEN_GPS_NETWORK_STATE, (void *)&gpsNodeState, sizeof(sli_zigbee_gps_network_state_t));
   if (gpsNodeState == GREEN_POWER_SERVER_GPS_NODE_STATE_IN_NETWORK) {
     return false;
   } else {
     gpsNodeState = GREEN_POWER_SERVER_GPS_NODE_STATE_IN_NETWORK;
-    halCommonSetToken(TOKEN_GPS_NETWORK_STATE, &gpsNodeState);
+    sl_zigbee_gp_set_token(COMMON_TOKEN_GPS_NETWORK_STATE, &gpsNodeState, sizeof(sli_zigbee_gps_network_state_t));
   }
   return true;
 #else
@@ -488,6 +497,12 @@ static sl_status_t sendGpPairingMessage(sl_zigbee_outgoing_message_type_t type,
 
   #endif // SL_CATALOG_ZIGBEE_GREEN_POWER_CLIENT_PRESENT && !ESZP_HOST
   return status;
+}
+
+sl_status_t sl_zigbee_af_green_power_server_token_init(void)
+{
+  uint8_t tokGPSNetworkStateDefault = TOKEN_GPS_NETWORK_STATE_DEFAULT;
+  return sl_zigbee_initialize_basic_token(COMMON_TOKEN_GPS_NETWORK_STATE, &tokGPSNetworkStateDefault, sizeof(uint8_t));
 }
 
 void sl_zigbee_af_green_power_server_remove_sink_entry(sl_zigbee_gp_address_t *gpdAddr)
@@ -2389,6 +2404,8 @@ void sl_zigbee_af_green_power_server_sink_table_init(void)
 {
   sl_zigbee_af_green_power_cluster_println("SinkTable Init..");
   sl_zigbee_gp_sink_table_init();
+  // initialize tokens
+  assert(SL_STATUS_OK == sl_zigbee_af_green_power_server_token_init());
   greenPowerServerInitialised = true;
 }
 
@@ -2410,9 +2427,11 @@ void sl_zigbee_af_green_power_server_init_cb(uint8_t init_level)
     {
       // Init GP Sink Table
 #ifdef EZSP_HOST
-      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&gpSinkTableSize)) {
+      uint16_t sinkTableSize = 0;
+      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&sinkTableSize)) {
         sl_zigbee_af_green_power_cluster_println("ERR: Cannot get the sink table size from GP stack.");
       }
+      gpSinkTableSize = (uint8_t)sinkTableSize;
 #endif //EZSP_HOST
       sl_zigbee_af_green_power_server_sink_table_init();
       break;

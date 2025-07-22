@@ -67,25 +67,6 @@ extern "C" {
 #include "raw-message.h"
 #include "multi-network.h"
 
-/** @name PHY Information
- * Bit masks for TOKEN_MFG_RADIO_BANDS_SUPPORTED.
- */
-//@{
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#define RADIO_BANDS_SUPPORTED_868   BIT(0)
-#define RADIO_BANDS_SUPPORTED_915   BIT(1)
-#define RADIO_BANDS_SUPPORTED_433   BIT(2)
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-/** @brief 2.4 GHz band */
-#define RADIO_BANDS_SUPPORTED_2400  BIT(3)
-
-#ifndef DOXYGEN_SHOULD_SKIP_THIS
-#define RADIO_BANDS_SUPPORTED_408   BIT(4)
-#endif // DOXYGEN_SHOULD_SKIP_THIS
-
-//@} //END PHY INFO
-
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
 /** @name Stack Build Configuration Settings */

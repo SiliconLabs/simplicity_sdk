@@ -116,7 +116,7 @@ if ($Env:PATH_SCMD) {
 }
 if ($Commander -eq $Null -or -not (Test-Path -Path $Commander)) {
     Write-Output "Error: Simplicity Commander not found. Please set the PATH_SCMD"
-    Write-Output "environment variable according to AN1086 (sections 2.3 and 3.10)."
+    Write-Output "environment variable according to AN1086 (sections 2.3 and 3.3.2)."
     Write-Output "Press any key to continue..."
     [void][Console]::ReadKey()
     Exit(1)

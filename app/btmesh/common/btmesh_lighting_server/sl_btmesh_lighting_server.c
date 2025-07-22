@@ -3,7 +3,7 @@
  * @brief Lighting Server module
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -107,10 +107,6 @@ static PACKSTRUCT(struct lightbulb_state {
   uint16_t lightness_default;     /**< Default lightness value */
   uint16_t lightness_min;         /**< Minimum lightness value */
   uint16_t lightness_max;         /**< Maximum lightness value */
-
-  // Primary Generic Level
-  int16_t pri_level_current;      /**< Current primary generic level value */
-  int16_t pri_level_target;       /**< Target primary generic level value */
 }) lightbulb_state;
 
 /// copy of transition delay parameter, needed for delayed on/off request
@@ -130,7 +126,18 @@ static uint32_t move_pri_level_trans = 0;
 static int16_t move_pri_level_delta = 0;
 
 static void lightbulb_state_changed(void);
-static void lightbulb_state_validate_and_correct(void);
+
+/// Converts the given pri_level value to lightness
+static inline uint16_t pri_level_to_lightness(int16_t pri_level)
+{
+  return (uint16_t)((int32_t)pri_level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
+}
+
+/// Converts the given lightness value to pri_level
+static inline int16_t lightness_to_pri_level(uint16_t lightness)
+{
+  return (int16_t)((int32_t)lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
+}
 
 static sl_status_t generic_server_respond(uint16_t model_id,
                                           uint16_t element_index,
@@ -225,7 +232,7 @@ uint16_t sl_btmesh_get_lightness_current(void)
 void sl_btmesh_set_lightness_current(uint16_t lightness)
 {
   if (lightness != lightbulb_state.lightness_current) {
-    lightbulb_state.lightness_current = lightness;
+    lightbulb_state.lightness_current = lightness_validate_and_correct(lightness);
     lightbulb_state_changed();
   }
 }
@@ -248,7 +255,7 @@ uint16_t sl_btmesh_get_lightness_target(void)
 void sl_btmesh_set_lightness_target(uint16_t lightness)
 {
   if (lightness != lightbulb_state.lightness_target) {
-    lightbulb_state.lightness_target = lightness;
+    lightbulb_state.lightness_target = lightness_validate_and_correct(lightness);
     lightbulb_state_changed();
   }
 }
@@ -271,7 +278,7 @@ uint16_t sl_btmesh_get_lightness_default(void)
 void sl_btmesh_set_lightness_default(uint16_t lightness)
 {
   if (lightness != lightbulb_state.lightness_default) {
-    lightbulb_state.lightness_default = lightness;
+    lightbulb_state.lightness_default = lightness_validate_and_correct(lightness);
     lightbulb_state_changed();
   }
 }
@@ -284,7 +291,7 @@ void sl_btmesh_set_lightness_default(uint16_t lightness)
 void sl_btmesh_set_lightness_last(uint16_t lightness)
 {
   if (lightness != lightbulb_state.lightness_last) {
-    lightbulb_state.lightness_last = lightness;
+    lightbulb_state.lightness_last = lightness_validate_and_correct(lightness);
     lightbulb_state_changed();
   }
 }
@@ -538,7 +545,7 @@ static void onoff_request(uint16_t model_id,
       lightbulb_state.lightness_target = 0;
     } else {
       // restore last brightness
-      lightbulb_state.lightness_target = lightbulb_state.lightness_last;
+      lightbulb_state.lightness_target = lightness_validate_and_correct(lightbulb_state.lightness_last);
     }
     if (transition_ms == 0 && delay_ms == 0) { // Immediate change
       lightbulb_state.onoff_current = request->on_off;
@@ -1170,11 +1177,11 @@ static void lightness_request(uint16_t model_id,
     log_info("Request for current state received; no op" NL);
   } else {
     log_info("Setting lightness to <%u>" NL, actual_request);
+    lightbulb_state.lightness_target = lightness_validate_and_correct(actual_request);
     if (transition_ms == 0 && delay_ms == 0) { // Immediate change
-      lightbulb_state.lightness_current = actual_request;
-      lightbulb_state.lightness_target = actual_request;
-      if (actual_request != 0) {
-        lightbulb_state.lightness_last = actual_request;
+      lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+      if (lightbulb_state.lightness_target != 0) {
+        lightbulb_state.lightness_last = lightbulb_state.lightness_target;
       }
 
       // update LED PWM duty cycle
@@ -1184,7 +1191,6 @@ static void lightness_request(uint16_t model_id,
       // a delay has been specified for the light change. Start a soft timer
       // that will trigger the change after the given delay
       // Current state remains as is for now
-      lightbulb_state.lightness_target = actual_request;
       sl_status_t sc = app_timer_start(&lighting_delayed_lightness_request_timer,
                                        delay_ms,
                                        lighting_delayed_lightness_request_timer_cb,
@@ -1195,7 +1201,6 @@ static void lightness_request(uint16_t model_id,
       delayed_lightness_trans = transition_ms;
     } else {
       // no delay but transition time has been set.
-      lightbulb_state.lightness_target = actual_request;
       sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
                                    transition_ms);
 
@@ -1532,7 +1537,7 @@ static void lightness_setup_request(uint16_t model_id,
         log_info("Request for current state received; no op" NL);
       } else {
         log_info("Setting default lightness to <%u>" NL, request->lightness);
-        lightbulb_state.lightness_default = request->lightness;
+        lightbulb_state.lightness_default = lightness_validate_and_correct(request->lightness);
         lightbulb_state_changed();
       }
       break;
@@ -1557,6 +1562,7 @@ static void lightness_setup_request(uint16_t model_id,
           sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
                                        IMMEDIATE);
         }
+        lightbulb_state.lightness_target = lightness_validate_and_correct(lightbulb_state.lightness_target);
       }
       if (lightbulb_state.lightness_max != request->lightness_range.max) {
         log_info("Setting max lightness to <%u>" NL,
@@ -1567,6 +1573,7 @@ static void lightness_setup_request(uint16_t model_id,
           sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
                                        IMMEDIATE);
         }
+        lightbulb_state.lightness_target = lightness_validate_and_correct(lightbulb_state.lightness_target);
       }
       lightbulb_state_changed();
 
@@ -1668,10 +1675,10 @@ static sl_status_t pri_level_response(uint16_t element_index,
   struct mesh_generic_state current, target;
 
   current.kind = mesh_generic_state_level;
-  current.level.level = lightbulb_state.pri_level_current;
+  current.level.level = lightness_to_pri_level(lightbulb_state.lightness_current);
 
   target.kind = mesh_generic_state_level;
-  target.level.level = lightbulb_state.pri_level_target;
+  target.level.level = lightness_to_pri_level(lightbulb_state.lightness_target);
 
   return generic_server_respond(MESH_GENERIC_LEVEL_SERVER_MODEL_ID,
                                 element_index,
@@ -1698,10 +1705,10 @@ static sl_status_t pri_level_update(uint16_t element_index,
   struct mesh_generic_state current, target;
 
   current.kind = mesh_generic_state_level;
-  current.level.level = lightbulb_state.pri_level_current;
+  current.level.level = lightness_to_pri_level(lightbulb_state.lightness_current);
 
   target.kind = mesh_generic_state_level;
-  target.level.level = lightbulb_state.pri_level_target;
+  target.level.level = lightness_to_pri_level(lightbulb_state.lightness_target);
 
   return generic_server_update(MESH_GENERIC_LEVEL_SERVER_MODEL_ID,
                                element_index,
@@ -1744,8 +1751,9 @@ static void pri_level_move_schedule_next_request(int32_t remaining_delta)
 {
   uint32_t transition_ms = 0;
   if (abs(remaining_delta) < abs(move_pri_level_delta)) {
-    transition_ms = (uint32_t)(((int64_t)move_pri_level_trans * remaining_delta)
-                               / move_pri_level_delta);
+    // Round transition_ms up
+    transition_ms = (uint32_t)((((int64_t)move_pri_level_trans * remaining_delta)
+                                / move_pri_level_delta) + 1);
     sl_btmesh_lighting_set_level(lightbulb_state.lightness_target,
                                  transition_ms);
   } else {
@@ -1767,23 +1775,20 @@ static void pri_level_move_schedule_next_request(int32_t remaining_delta)
  ******************************************************************************/
 static void pri_level_move_request(void)
 {
-  // sync current pri level and actual lightness
-  lightbulb_state.pri_level_current = lightbulb_state.lightness_current - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-
   log_info("Primary level move: level %d -> %d, delta %d in %lu ms" NL,
-           lightbulb_state.pri_level_current,
-           lightbulb_state.pri_level_target,
+           lightness_to_pri_level(lightbulb_state.lightness_current),
+           lightness_to_pri_level(lightbulb_state.lightness_target),
            move_pri_level_delta,
            move_pri_level_trans);
 
-  int32_t remaining_delta = (int32_t)lightbulb_state.pri_level_target
-                            - lightbulb_state.pri_level_current;
+  int32_t remaining_delta = (int32_t)lightbulb_state.lightness_target
+                            - lightbulb_state.lightness_current;
 
   if (abs(remaining_delta) < abs(move_pri_level_delta)) {
     // end of move level as it reached target state
-    lightbulb_state.pri_level_current = lightbulb_state.pri_level_target;
+    lightbulb_state.lightness_current = lightbulb_state.lightness_target;
   } else {
-    lightbulb_state.pri_level_current += move_pri_level_delta;
+    lightbulb_state.lightness_current += move_pri_level_delta;
   }
   lightbulb_state.transtime_ms = UNKNOWN_REMAINING_TIME;
   lightbulb_state_changed();
@@ -1856,36 +1861,25 @@ static void pri_level_request(uint16_t model_id,
       pri_level_move_stop();
 
       lightness_kind = mesh_generic_state_level;
+      lightness = pri_level_to_lightness(request->level);
+      lightbulb_state.lightness_target = lightness_validate_and_correct(lightness);
 
-      if (lightbulb_state.pri_level_current == request->level) {
+      if (lightness_to_pri_level(lightbulb_state.lightness_current) == request->level) {
         log_info("Request for current state received; no op" NL);
-        lightbulb_state.pri_level_target = request->level;
         remaining_ms = delay_ms + transition_ms;
         break;
       }
       log_info("Setting pri_level to <%d>" NL, request->level);
 
-      lightness = (uint16_t)(request->level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
-      if (!lightness) {
-        lightness = SL_BTMESH_LIGHTING_SERVER_LIGHTNESS_MIN_CFG_VAL;
-      }
       if (transition_ms == 0 && delay_ms == 0) { // Immediate change
-        lightbulb_state.pri_level_current = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-        lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
-        lightbulb_state.lightness_current = lightness;
-        lightbulb_state.lightness_target = lightness;
-        if (lightness != 0) {
-          lightbulb_state.lightness_last = lightness;
-        }
+        lightbulb_state.lightness_current = lightbulb_state.lightness_target;
+        lightbulb_state.lightness_last = lightbulb_state.lightness_current;
 
         // update LED Level
         sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, IMMEDIATE);
       } else if (delay_ms > 0) {
         // a delay has been specified for the change. Start a soft timer
         // that will trigger the change after the given delay
-        // Current state remains as is for now
-        lightbulb_state.pri_level_target = request->level;
-        lightbulb_state.lightness_target = lightness;
         pri_level_request_kind = mesh_generic_request_level;
         sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
                                          delay_ms,
@@ -1898,8 +1892,6 @@ static void pri_level_request(uint16_t model_id,
         delayed_pri_level_trans = transition_ms;
       } else {
         // no delay but transition time has been set.
-        lightbulb_state.pri_level_target = lightness - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-        lightbulb_state.lightness_target = lightness;
         sl_btmesh_lighting_set_level(lightbulb_state.lightness_target, transition_ms);
 
         // lightbulb current state will be updated when transition is complete
@@ -1929,22 +1921,20 @@ static void pri_level_request(uint16_t model_id,
         requested_level = 0x8000; // Min level value
       }
 
-      if (lightbulb_state.pri_level_current == requested_level) {
+      lightness_kind = mesh_generic_state_level;
+      lightness = pri_level_to_lightness(requested_level);
+      lightbulb_state.lightness_target = lightness_validate_and_correct(lightness);
+
+      if (lightness_to_pri_level(lightbulb_state.lightness_current) == requested_level) {
         log_info("Request for current state received; no op" NL);
-        lightbulb_state.pri_level_target = requested_level;
         remaining_ms = IMMEDIATE;
         break;
       }
       log_info("Setting pri_level to <%d>" NL, requested_level);
 
-      lightness = (uint16_t)(requested_level + GENERIC_TO_LIGHTNESS_LEVEL_SHIFT);
-
       if (delay_ms > 0) {
         // a delay has been specified for the move. Start a soft timer
         // that will trigger the move after the given delay
-        // Current state remains as is for now
-        lightbulb_state.pri_level_target = requested_level;
-        lightbulb_state.lightness_target = lightness;
         pri_level_request_kind = mesh_generic_request_level_move;
         sl_status_t sc = app_timer_start(&lighting_delayed_pri_level_timer,
                                          delay_ms,
@@ -1954,11 +1944,8 @@ static void pri_level_request(uint16_t model_id,
         app_assert_status_f(sc, "Failed to start Delayed Primary Level timer");
       } else {
         // no delay so start move
-        lightbulb_state.pri_level_target = requested_level;
-        lightbulb_state.lightness_target = lightness;
-
-        int32_t remaining_delta = (int32_t)lightbulb_state.pri_level_target
-                                  - lightbulb_state.pri_level_current;
+        int32_t remaining_delta = (int32_t)lightbulb_state.lightness_target
+                                  - (int32_t)lightbulb_state.lightness_current;
         pri_level_move_schedule_next_request(remaining_delta);
       }
 
@@ -1981,10 +1968,8 @@ static void pri_level_request(uint16_t model_id,
       // Set current state
       lightbulb_state.lightness_current = sl_btmesh_get_level();
       lightbulb_state.lightness_target = lightbulb_state.lightness_current;
-      lightbulb_state.pri_level_current = lightbulb_state.lightness_current
-                                          - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
       lightbulb_state.lightness_last = lightbulb_state.lightness_current;
-      lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
+
       if (delay_ms > 0) {
         // a delay has been specified for the move halt. Start a soft timer
         // that will trigger the move halt after the given delay
@@ -2045,14 +2030,14 @@ static void pri_level_change(uint16_t model_id,
   (void)target;
   (void)remaining_ms;
 
-  if (lightbulb_state.pri_level_current != current->level.level) {
+  if (lightness_to_pri_level(lightbulb_state.lightness_current) != current->level.level) {
     log_info("Primary level update: from %d to %d" NL,
-             lightbulb_state.pri_level_current,
+             lightness_to_pri_level(lightbulb_state.lightness_current),
              current->level.level);
-    lightbulb_state.pri_level_current = current->level.level;
+    lightbulb_state.lightness_current = pri_level_to_lightness(current->level.level);
   } else {
     log_info("Primary level update -same value (%d)" NL,
-             lightbulb_state.pri_level_current);
+             lightness_to_pri_level(lightbulb_state.lightness_current));
   }
 }
 
@@ -2075,19 +2060,19 @@ static void pri_level_recall(uint16_t model_id,
 
   log_info("Primary Generic Level recall" NL);
   if (transition_ms == IMMEDIATE) {
-    lightbulb_state.pri_level_target = current->level.level;
+    lightbulb_state.lightness_target = pri_level_to_lightness(current->level.level);
   } else {
-    lightbulb_state.pri_level_target = target->level.level;
+    lightbulb_state.lightness_target = pri_level_to_lightness(target->level.level);
   }
 
-  if (lightbulb_state.pri_level_current == lightbulb_state.pri_level_target) {
+  if (lightbulb_state.lightness_current == lightbulb_state.lightness_target) {
     log_info("Request for current state received; no op" NL);
   } else {
     log_info("Recall pri_level to %d with transition=%lu ms" NL,
-             lightbulb_state.pri_level_target,
+             lightness_to_pri_level(lightbulb_state.lightness_target),
              transition_ms);
     if (transition_ms == IMMEDIATE) {
-      lightbulb_state.pri_level_current = current->level.level;
+      lightbulb_state.lightness_current = pri_level_to_lightness(current->level.level);
     } else {
       // lightbulb current state will be updated when transition is complete
       sl_status_t sc = app_timer_start(&lighting_level_transition_complete_timer,
@@ -2110,7 +2095,6 @@ static void pri_level_recall(uint16_t model_id,
 static void pri_level_transition_complete(void)
 {
   // transition done -> set state, update and publish
-  lightbulb_state.pri_level_current = lightbulb_state.pri_level_target;
   lightbulb_state.lightness_current = lightbulb_state.lightness_target;
   lightbulb_state.transtime_ms = 0;
 
@@ -2119,7 +2103,7 @@ static void pri_level_transition_complete(void)
   }
 
   log_info("Transition complete. New pri_level is %d" NL,
-           lightbulb_state.pri_level_current);
+           lightness_to_pri_level(lightbulb_state.lightness_current));
 
   lightbulb_state_changed();
   pri_level_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN, IMMEDIATE);
@@ -2132,8 +2116,8 @@ static void pri_level_transition_complete(void)
 static void delayed_pri_level_request(void)
 {
   log_info("Starting delayed primary level request: level %d -> %d, %lu ms" NL,
-           lightbulb_state.pri_level_current,
-           lightbulb_state.pri_level_target,
+           lightness_to_pri_level(lightbulb_state.lightness_current),
+           lightness_to_pri_level(lightbulb_state.lightness_target),
            delayed_pri_level_trans);
 
   switch (pri_level_request_kind) {
@@ -2143,7 +2127,6 @@ static void delayed_pri_level_request(void)
 
       if (delayed_pri_level_trans == 0) {
         // no transition delay, update state immediately
-        lightbulb_state.pri_level_current = lightbulb_state.pri_level_target;
         lightbulb_state.lightness_current = lightbulb_state.lightness_target;
 
         if (lightbulb_state.lightness_target != 0) {
@@ -2165,8 +2148,8 @@ static void delayed_pri_level_request(void)
       break;
 
     case mesh_generic_request_level_move:
-      pri_level_move_schedule_next_request((int32_t)lightbulb_state.pri_level_target
-                                           - lightbulb_state.pri_level_current);
+      pri_level_move_schedule_next_request((int32_t)lightbulb_state.lightness_target
+                                           - (int32_t)lightbulb_state.lightness_current);
       pri_level_update_and_publish(BTMESH_LIGHTING_SERVER_MAIN,
                                    UNKNOWN_REMAINING_TIME);
       break;
@@ -2175,9 +2158,7 @@ static void delayed_pri_level_request(void)
       // Set current state
       lightbulb_state.lightness_current = sl_btmesh_get_level();
       lightbulb_state.lightness_target = lightbulb_state.lightness_current;
-      lightbulb_state.pri_level_current = lightbulb_state.lightness_current
-                                          - GENERIC_TO_LIGHTNESS_LEVEL_SHIFT;
-      lightbulb_state.pri_level_target = lightbulb_state.pri_level_current;
+
       pri_level_move_stop();
       sl_btmesh_lighting_set_level(lightbulb_state.lightness_current,
                                    IMMEDIATE);
@@ -2253,13 +2234,16 @@ static sl_status_t lightbulb_state_load(void)
   // Set default values if app_btmesh_nvm_read failed or size of lightbulb_state has changed
   if ((sc != SL_STATUS_OK) || (ps_len != sizeof(struct lightbulb_state))) {
     memset(&lightbulb_state, 0, sizeof(struct lightbulb_state));
-    lightbulb_state.lightness_last    = LIGHTNESS_LAST_DEFAULT;
-    lightbulb_state.lightness_default = LIGHTNESS_DEFAULT_DEFAULT;
     lightbulb_state.lightness_min     = SL_BTMESH_LIGHTING_SERVER_LIGHTNESS_MIN_CFG_VAL;
     lightbulb_state.lightness_max     = SL_BTMESH_LIGHTING_SERVER_LIGHTNESS_MAX_CFG_VAL;
 
     // Check if default values are valid and correct them if needed
-    lightbulb_state_validate_and_correct();
+    if (lightbulb_state.lightness_min > lightbulb_state.lightness_max) {
+      lightbulb_state.lightness_min = lightbulb_state.lightness_max;
+    }
+
+    lightbulb_state.lightness_last    = lightness_validate_and_correct(LIGHTNESS_LAST_DEFAULT);
+    lightbulb_state.lightness_default = lightness_validate_and_correct(LIGHTNESS_DEFAULT_DEFAULT);
 
     if (sc == SL_STATUS_OK) {
       // The app_btmesh_nvm_read call was successful but the size of the loaded data
@@ -2282,34 +2266,25 @@ static sl_status_t lightbulb_state_load(void)
 }
 
 /*******************************************************************************
- * This function validates the lighbulb_state and change it if it is against
- * the specification.
+ * This function checks if the provided lightness value is within the allowed range
+ * for the lighting server. If the value is out of range, it will be corrected to
+ * the nearest valid value.
  ******************************************************************************/
-static void lightbulb_state_validate_and_correct(void)
+uint16_t lightness_validate_and_correct(uint16_t lightness)
 {
-  if (lightbulb_state.lightness_min > lightbulb_state.lightness_max) {
-    lightbulb_state.lightness_min = lightbulb_state.lightness_max;
+  // Return 0 if lightness is zero and not controlled by the generic level model
+  if (lightness == 0 && lightness_kind != mesh_generic_state_level) {
+    return lightness;
   }
-  if (lightbulb_state.lightness_default) {
-    if (lightbulb_state.lightness_default < lightbulb_state.lightness_min) {
-      lightbulb_state.lightness_default = lightbulb_state.lightness_min;
-    }
-    if (lightbulb_state.lightness_default > lightbulb_state.lightness_max) {
-      lightbulb_state.lightness_default = lightbulb_state.lightness_max;
-    }
+
+  if (lightness < lightbulb_state.lightness_min) {
+    return lightbulb_state.lightness_min;
   }
-  if (lightbulb_state.lightness_current < lightbulb_state.lightness_min) {
-    lightbulb_state.lightness_current = lightbulb_state.lightness_min;
+
+  if (lightness > lightbulb_state.lightness_max) {
+    return lightbulb_state.lightness_max;
   }
-  if (lightbulb_state.lightness_current > lightbulb_state.lightness_max) {
-    lightbulb_state.lightness_current = lightbulb_state.lightness_max;
-  }
-  if (lightbulb_state.lightness_target < lightbulb_state.lightness_min) {
-    lightbulb_state.lightness_target = lightbulb_state.lightness_min;
-  }
-  if (lightbulb_state.lightness_target > lightbulb_state.lightness_max) {
-    lightbulb_state.lightness_target = lightbulb_state.lightness_max;
-  }
+  return lightness;
 }
 
 /*******************************************************************************

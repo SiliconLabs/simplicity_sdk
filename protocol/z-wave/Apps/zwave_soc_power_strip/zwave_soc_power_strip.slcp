@@ -46,9 +46,10 @@ component:
   - id: mpu # disable execution from RAM
   - id: pwm
     instance: [led1]
+    condition: [zw_board_has_no_rgb]
   - id: simple_rgb_pwm_led
     instance: [rgb_led0]
-    condition: [hardware_board_has_rgb]
+    condition: [zw_board_has_rgb]
   - id: ZW_MIGRATION_TO_7_19
   - id: zw_cli_common
     condition: [zw_stack_release_libraries]
@@ -57,7 +58,10 @@ component:
   - id: simple_button
     instance: [btn0, btn1]
   - id: simple_led
-    instance: [led0, led1]
+    instance: [led0]
+  - id: simple_led
+    instance: [led1]
+    condition: [zw_board_has_rgb]
   - id: clock_manager
 
 source:
@@ -74,9 +78,9 @@ include:
     file_list:
       - path: events.h
 configuration:
-  - name: SHORT_BUTTON_PRESS_DURATION
+  - name: SHORT_BUTTON_PRESS_DURATION_MS
     value: (400)
-  - name: MEDIUM_BUTTON_PRESS_DURATION
+  - name: MEDIUM_BUTTON_PRESS_DURATION_MS
     value: (1500)
   - name: CC_MULTI_CHANNEL_IDENTICAL_ENDPOINTS
     value: 0

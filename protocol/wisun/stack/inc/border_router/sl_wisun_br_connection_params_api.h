@@ -36,9 +36,10 @@
 #include <stdint.h>
 #include "sl_status.h"
 #include "sl_wisun_connection_params_api.h"
+#include "sl_wisun_types.h"
 
 /// API version used to check compatibility (do not edit when using this header)
-#define SL_WISUN_BR_PARAMS_API_VERSION 5
+#define SL_WISUN_BR_PARAMS_API_VERSION 6
 
 /**************************************************************************//**
  * @addtogroup SL_WISUN_TYPES
@@ -225,6 +226,8 @@ typedef struct {
   sl_wisun_br_params_misc_t misc;
   /// Traffic parameter set
   sl_wisun_br_params_traffic_t traffic;
+  /// MAC parameter set
+  sl_wisun_mac_params_t mac;
   /// Maximum number of nodes supported by border router at once
   uint32_t pan_capacity;
   /// Enable authentication of FAN 1.0 routers
@@ -318,6 +321,13 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_TEST = {
     .ipv6_mru = 1504,
     .max_edfe_fragment_count = 5,
   },
+  .mac = {
+    .backoff_period_us = 0, // calculate from PHY by default
+    .min_be = 3,
+    .max_be = 5,
+    .max_cca_retries = 8,
+    .max_frame_retries = 19,
+  },
   .pan_capacity = 100,
   .enable_ffn10 = false
 };
@@ -393,6 +403,13 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_SMALL = 
     .lowpan_mtu = 1576,
     .ipv6_mru = 1504,
     .max_edfe_fragment_count = 5,
+  },
+  .mac = {
+    .backoff_period_us = 0, // calculate from PHY by default
+    .min_be = 3,
+    .max_be = 5,
+    .max_cca_retries = 8,
+    .max_frame_retries = 19,
   },
   .pan_capacity = 100,
   .enable_ffn10 = false
@@ -470,6 +487,13 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_MEDIUM =
     .ipv6_mru = 1504,
     .max_edfe_fragment_count = 5,
   },
+  .mac = {
+    .backoff_period_us = 0, // calculate from PHY by default
+    .min_be = 3,
+    .max_be = 5,
+    .max_cca_retries = 8,
+    .max_frame_retries = 19,
+  },
   .pan_capacity = 1000,
   .enable_ffn10 = false
 };
@@ -545,6 +569,13 @@ static const sl_wisun_br_connection_params_t SL_WISUN_BR_PARAMS_PROFILE_LARGE = 
     .lowpan_mtu = 1576,
     .ipv6_mru = 1504,
     .max_edfe_fragment_count = 5,
+  },
+  .mac = {
+    .backoff_period_us = 0, // calculate from PHY by default
+    .min_be = 3,
+    .max_be = 5,
+    .max_cca_retries = 8,
+    .max_frame_retries = 19,
   },
   .pan_capacity = 10000,
   .enable_ffn10 = false

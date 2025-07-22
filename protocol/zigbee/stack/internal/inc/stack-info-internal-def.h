@@ -3,7 +3,7 @@
  * @brief internal names for 'stack-info' declarations
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -107,8 +107,6 @@ uint8_t sli_zigbee_stack_get_routing_shortcut_threshold(void);
 uint8_t sli_zigbee_stack_get_source_route_table_size(void);
 
 uint8_t sli_zigbee_stack_get_stack_compliance_revision(void);
-
-uint8_t sli_zigbee_stack_get_token_count(void);
 
 sl_status_t sli_zigbee_stack_get_token_data(uint32_t token,
                                             uint32_t index,

@@ -35,6 +35,9 @@ provides:
   - name: token_manager
     condition:
       - zigbee_stack_unix
+  - name: common_token_manager
+    condition:
+      - zigbee_stack_unix
   - name: rail_util_ant_div
     condition:
       - zigbee_stack_unix
@@ -124,9 +127,15 @@ include:
   - path: platform/service/legacy_host/inc
   - path: platform/service/legacy_common_ash/inc
   - path: platform/service/legacy_ncp_ash/inc
+  - path: platform/service/token_manager/inc
+    file_list:
+      - path: sl_token_manager_defines.h
   - path: platform/service/token_manager/legacy/inc
     file_list:
-      - path: sl_token_manufacturing_unix.h
+      - path: sl_token_manufacturing_generic.h
+  - path: protocol/zigbee/stack/include/
+    file_list:
+      - path: sl_zigbee_token.h
   - path: platform/emlib/host/inc
     file_list:
       - path: em_core.h
@@ -153,6 +162,9 @@ include:
 # move it in with lower-mac-spinel at the minimum.
   - path: protocol/zigbee/app/projects/zigbeed
 
+config_file:
+  - path: platform/service/token_manager/config/sl_token_manager_config.h
+
 source:
 
 # Posix Stubs
@@ -161,14 +173,19 @@ source:
 # implements sl_zigbee_serial* functions for a posix target, opening a tty
 # possibly move file to something like:
 # platform/service/legacy_serial/ember-serial-posix.c
-  - path: platform/service/token_manager/legacy/src/sl_token_def.c
   - path: protocol/zigbee/app/projects/zigbeed/serial_adapter.c
-  - path: platform/service/legacy_host/src/token.c
   - path: platform/service/legacy_hal/src/rijndael-alg-fst.c
   - path: platform/service/legacy_hal/src/rijndael-api-fst.c
   - path: platform/service/legacy_hal/src/random.c
   - path: platform/service/legacy_hal/src/system-timer.c
   - path: platform/service/legacy_hal/src/crc.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_defines.c
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_host.c
+    unless:
+      - zigbee_host_simulation
+      - zigbee_simulation
+  - path: protocol/zigbee/stack/platform/sl_zigbee_legacy_token_host.c
   # not brought in by default, since this component provides zigbee_debug_basic
   - path: protocol/zigbee/stack/framework/debug-stub.c
 

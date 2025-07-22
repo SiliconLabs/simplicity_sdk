@@ -485,7 +485,7 @@ template_contribution:
       help: "Set Leaf behavior"
       argument:
         - type: uint8
-          help: "is_leaf: True to act as RPL leaf"
+          help: "is_leaf: 1 to act as RPL leaf"
   - name: "cli_command"
     value:
       group: "wisun"
@@ -494,7 +494,7 @@ template_contribution:
       help: "Enable/disable Direct Connect"
       argument:
         - type: uint8
-          help: "is_enabled: True to enable Direct Connect"
+          help: "is_enabled: 1 to enable Direct Connect"
   - name: "cli_command"
     value:
       group: "wisun"
@@ -515,7 +515,14 @@ template_contribution:
           help: "PHY mode ID"
         - type: int16
           help: "Sensitivity in dBm"
-
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "reset_duty_cycle"
+      handler: "app_reset_duty_cycle"
+      help: "Reset the duty cycle counters"
+      shortcuts:
+        - name: "rdc"
 
 # -------------------------------
   - name: "cli_group"

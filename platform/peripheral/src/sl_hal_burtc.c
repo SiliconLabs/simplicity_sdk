@@ -80,22 +80,22 @@ __STATIC_INLINE uint32_t div_to_log2(uint32_t div)
  * @brief
  *   Initialize the Back-Up RTC.
  ******************************************************************************/
-void sl_hal_burtc_init(const sl_hal_burtc_init_config_t *burtc_init)
+void sl_hal_burtc_init(const sl_hal_burtc_init_t *init)
 {
-  EFM_ASSERT(burtc_init != NULL);
+  EFM_ASSERT(init != NULL);
 
   uint32_t presc;
 
-  presc = div_to_log2(burtc_init->clock_divider);
+  presc = div_to_log2(init->clock_divider);
 
   sl_hal_burtc_disable();
 
   BURTC->CFG = (presc << _BURTC_CFG_CNTPRESC_SHIFT)
-               | ((burtc_init->compare0_top ? 1UL : 0UL) << _BURTC_CFG_COMPTOP_SHIFT)
-               | ((burtc_init->debug_run ? 1UL : 0UL) << _BURTC_CFG_DEBUGRUN_SHIFT);
+               | ((init->compare0_top ? 1UL : 0UL) << _BURTC_CFG_COMPTOP_SHIFT)
+               | ((init->debug_run ? 1UL : 0UL) << _BURTC_CFG_DEBUGRUN_SHIFT);
 
-  BURTC->EM4WUEN = ((burtc_init->em4_comparator ? 1UL : 0UL) << _BURTC_EM4WUEN_COMPEM4WUEN_SHIFT)
-                   | ((burtc_init->em4_overflow ? 1UL : 0UL) << _BURTC_EM4WUEN_OFEM4WUEN_SHIFT);
+  BURTC->EM4WUEN = ((init->em4_comparator ? 1UL : 0UL) << _BURTC_EM4WUEN_COMPEM4WUEN_SHIFT)
+                   | ((init->em4_overflow ? 1UL : 0UL) << _BURTC_EM4WUEN_OFEM4WUEN_SHIFT);
 }
 
 /***************************************************************************//**

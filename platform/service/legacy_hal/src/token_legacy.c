@@ -104,11 +104,9 @@ void halInternalSetMfgTokenData(uint16_t token, void *data, uint32_t len)
 
 //Link the public API to the private internal instance.
 #ifndef halCommonGetMfgToken
-#define halCommonGetMfgToken(data, token)
-halInternalGetMfgTokenData(data, token, 0x7F, token##_SIZE)
+#define halCommonGetMfgToken(data, token) halInternalGetMfgTokenData(data, token, 0x7F, token##_SIZE)
 #endif
 
 #ifndef halCommonSetMfgTokenData
-#define halCommonSetMfgTokenData(token, data, size) \
-  halInternalSetMfgTokenData(token, data, size)
+#define halCommonSetMfgTokenData(token, data, size) halInternalSetMfgTokenData(token, data, size)
 #endif

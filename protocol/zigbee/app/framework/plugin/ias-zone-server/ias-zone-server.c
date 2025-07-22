@@ -29,6 +29,8 @@
 #include "app/framework/include/af.h"
 #include "ias-zone-server.h"
 #include "hal/hal.h"
+#include "sl_zigbee_token.h"
+#include "ias-zone-server-tokens.h"
 
 #ifdef SL_ZIGBEE_SCRIPTED_TEST
  #ifndef SL_CATALOG_ZIGBEE_ZCL_FRAMEWORK_CORE_PRESENT
@@ -50,6 +52,7 @@
 #ifdef SL_CATALOG_ZIGBEE_WWAH_APP_EVENT_RETRY_MANAGER_PRESENT
 #include "wwah-app-event-retry-manager-config.h"
 #endif
+
 #if (SL_ZIGBEE_AF_PLUGIN_IAS_ZONE_SERVER_ENABLE_QUEUE == 1)
 #define ENABLE_QUEUE
 #endif
@@ -292,7 +295,11 @@ sl_zigbee_af_status_t sl_zigbee_af_ias_zone_cluster_set_enrollment_method(uint8_
   } else {
     enrollmentMethod = method;
 #ifndef EZSP_HOST
-    halCommonSetToken(TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD, &enrollmentMethod);
+    sl_status_t sl_status = sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD,
+                                                      (void *)&enrollmentMethod,
+                                                      sizeof(uint8_t));
+    SL_ZIGBEE_TEST_ASSERT(sl_status == SL_STATUS_OK);
+    UNUSED_VAR(status);
 #endif
     sl_zigbee_af_ias_zone_cluster_println("IAS Zone Server Enrollment Mode: %d", method);
     status = SL_ZIGBEE_ZCL_STATUS_SUCCESS;
@@ -533,6 +540,12 @@ void sl_zigbee_af_ias_zone_server_manage_queue_event_handler(sl_zigbee_af_event_
 #endif // ENABLE_QUEUE
 }
 
+sl_status_t sl_zigbee_af_ias_zone_server_token_init(void)
+{
+  uint8_t tokPluginIASZoneServerEnrollmentMethodDefault = TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD_DEFAULT;
+  return sl_zigbee_initialize_basic_token(COMMON_TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD, &tokPluginIASZoneServerEnrollmentMethodDefault, sizeof(uint8_t));
+}
+
 void sl_zigbee_af_ias_zone_cluster_server_init_cb(uint8_t endpoint)
 {
   sl_zigbee_af_event_init(serverManageQueueEventControl,
@@ -542,9 +555,14 @@ void sl_zigbee_af_ias_zone_cluster_server_init_cb(uint8_t endpoint)
     sl_zigbee_af_app_print("WARNING: ATTRIBUTES ARE NOT BEING STORED IN FLASH! ");
     sl_zigbee_af_app_println("DEVICE WILL NOT FUNCTION PROPERLY AFTER REBOOTING!!");
   }
+  assert(SL_STATUS_OK == sl_zigbee_af_ias_zone_server_token_init());
 
 #ifndef EZSP_HOST
-  halCommonGetToken(&enrollmentMethod, TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD);
+  sl_status_t status = sl_token_manager_get_data(COMMON_TOKEN_PLUGIN_IAS_ZONE_SERVER_ENROLLMENT_METHOD,
+                                                 (void *)&enrollmentMethod,
+                                                 sizeof(uint8_t));
+  SL_ZIGBEE_TEST_ASSERT(status == SL_STATUS_OK);
+  UNUSED_VAR(status);
 #else
   enrollmentMethod = DEFAULT_ENROLLMENT_METHOD;
 #endif

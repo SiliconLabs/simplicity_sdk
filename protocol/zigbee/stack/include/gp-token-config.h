@@ -15,8 +15,60 @@
  *
  ******************************************************************************/
 
-#if defined(DEFINETYPES)
+#define TOKEN_STACK_GP_DATA_DEFAULT { \
+    0xFF,                             \
+    0xFF,                             \
+    0xFF,                             \
+    0xFF,                             \
+    0xFFFF,                           \
+    0xFFFF,                           \
+    0xFFFF,                           \
+    { 0xFF, 0xFF, 0xFF, 0xFF,         \
+      0xFF, 0xFF, 0xFF },             \
+}
+#define TOKEN_STACK_GP_PROXY_TABLE_DEFAULT { \
+    0xFF,                                    \
+    0xFFFFFFFFU,                             \
+    { 0xFF, 0xFF, 0xFF, 0xFF,                \
+      0xFF, 0xFF, 0xFF, 0xFF },              \
+    0xFF,                                    \
+    0xFF,                                    \
+    { 0xFF, 0xFF, 0xFF, 0xFF,                \
+      0xFF, 0xFF, 0xFF, 0xFF,                \
+      0xFF, 0xFF, 0xFF, 0xFF,                \
+      0xFF, 0xFF, 0xFF, 0xFF },              \
+    { 0xFF, 0xFF },                          \
+    {                                        \
+      { 0xFF, 0xFF, 0xFF, 0xFF,              \
+        0xFF, 0xFF, 0xFF, 0xFF },            \
+      { 0xFF, 0xFF, 0xFF, 0xFF,              \
+        0xFF, 0xFF, 0xFF, 0xFF },            \
+    },                                       \
+}
+#define TOKEN_STACK_GP_INCOMING_FC_DEFAULT { 0x00000000U }
+#define TOKEN_STACK_GP_SINK_TABLE_DEFAULT { \
+    0xFF,                                   \
+    0xFFFF,                                 \
+    { 0xFF, 0xFF, 0xFF, 0xFF,               \
+      0xFF, 0xFF, 0xFF, 0xFF },             \
+    0xFF,                                   \
+    0xFF,                                   \
+    { 0xFF, 0xFF, 0xFF, 0xFF,               \
+      0xFF, 0xFF, 0xFF, 0xFF,               \
+      0xFF, 0xFF, 0xFF, 0xFF,               \
+      0xFF, 0xFF, 0xFF, 0xFF },             \
+    { 0xFF, 0xFF },                         \
+    {                                       \
+      { 0xFFFF, 0xFFFF },                   \
+      { 0xFFFF, 0xFFFF },                   \
+    },                                      \
+    0xFFFF,                                 \
+    0xFF,                                   \
+    0xFF,                                   \
+}
+#define TOKEN_STACK_GP_INCOMING_FC_IN_SINK_DEFAULT { 0x00000000U }
 
+#ifdef DEFINETYPES
 typedef struct {
   uint8_t networkIndex;
   uint8_t nodeCapabilities;
@@ -61,84 +113,31 @@ typedef struct {
 
 typedef uint32_t tokTypeGPDIncomingFC;
 typedef uint32_t tokTypeGPDIncomingFCInSink;
-#endif //DEFINETYPES
+#endif
 
 #ifdef DEFINETOKENS
-
 DEFINE_BASIC_TOKEN(STACK_GP_DATA,
                    tokTypeStackGpData,
-{
-  0xFF,                                                 // network index
-  0xFF,                                                 // node capabilities
-  0xFF,                                                 // radio power
-  0xFF,                                                 // base channel
-  0xFFFF,                                               // local node ID
-  0xFFFF,                                               // local PAN ID
-  0xFFFF,                                               // vendor ID
-  { 0xFF, 0xFF, 0xFF, 0xFF,                             // vendor string
-    0xFF, 0xFF, 0xFF },
-})
+                   TOKEN_STACK_GP_DATA_DEFAULT)
 DEFINE_INDEXED_TOKEN(STACK_GP_PROXY_TABLE,
                      tokTypeStackGpProxyTableEntry,
                      SL_ZIGBEE_GP_PROXY_TABLE_SIZE,
-{
-  0xFF,                                                 // status
-  0xFFFFFFFFU,                                           // options
-  { 0xFF, 0xFF, 0xFF, 0xFF,                             // GPD address
-    0xFF, 0xFF, 0xFF, 0xFF },
-  0xFF,                                                 // endpoint
-  //  0xFFFF,                         // assignedAlias
-  0xFF,                                                 //security options
-  { 0xFF, 0xFF, 0xFF, 0xFF,                             // GPD key
-    0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF },
-  { 0xFF, 0xFF },                                       //sinkType
-  {
-    { 0xFF, 0xFF, 0xFF, 0xFF,                               // sinkEUI
-      0xFF, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0xFF,                               // sinkEUI
-      0xFF, 0xFF, 0xFF, 0xFF },
-  },
-  //                    {0xFFFF,                             //sink nodeID
-  //                    0xFFFF
-  //                    },
-})
+                     TOKEN_STACK_GP_PROXY_TABLE_DEFAULT)
 
 DEFINE_INDEXED_TOKEN(STACK_GP_INCOMING_FC,
                      tokTypeGPDIncomingFC,
                      SL_ZIGBEE_GP_INCOMING_FC_TOKEN_TABLE_SIZE,
-                     { 0x00000000U })
+                     TOKEN_STACK_GP_INCOMING_FC_DEFAULT)
 
 // Sink Table and Sink table incoming FC tokens
 
 DEFINE_INDEXED_TOKEN(STACK_GP_SINK_TABLE,
                      tokTypeStackGpSinkTableEntry,
                      SL_ZIGBEE_GP_SINK_TABLE_SIZE,
-{
-  0xFF,                        // Status
-  0xFFFF,                      // Options
-  { 0xFF, 0xFF, 0xFF, 0xFF,    // GPD address / IEEE
-    0xFF, 0xFF, 0xFF, 0xFF },
-  0xFF,                        // GPD endpoint
-  0xFF,                        // Security options
-  { 0xFF, 0xFF, 0xFF, 0xFF,    // GPD key
-    0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF },
-  { 0xFF, 0xFF },              // SinkType
-  {
-    { 0xFFFF, 0xFFFF },        // GroupList
-    { 0xFFFF, 0xFFFF },        // GroupList
-  },
-  //0xFFFFFFFFU,               // Incoming FC for gpd in a separate Token to control its update
-  0xFFFF,                      // Assigned Alias
-  0xFF,                        // Device Id
-  0xFF,                        // Groupcast radius
-})
+                     TOKEN_STACK_GP_SINK_TABLE_DEFAULT)
 
 DEFINE_INDEXED_TOKEN(STACK_GP_INCOMING_FC_IN_SINK,
                      tokTypeGPDIncomingFCInSink,
                      SL_ZIGBEE_GP_SINK_TABLE_SIZE,
-                     { 0x00000000U })
-#endif
+                     TOKEN_STACK_GP_INCOMING_FC_IN_SINK_DEFAULT)
+#endif // DEFINETOKENS

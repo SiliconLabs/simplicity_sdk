@@ -75,8 +75,8 @@
 #define RAM0_END    RAM_MEM_END
 #endif
 
-#if defined(EMU_DCDC_BUCK_PRESENT) \
-  || defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) \
+  || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 // EMU DCDC MODE set timeout.
 #define EMU_DCDC_MODE_SET_TIMEOUT           1000000
 #endif
@@ -147,7 +147,7 @@ extern __INLINE void sl_hal_emu_dcdc_unlock(void);
 extern __INLINE void sl_hal_emu_dcdc_sync(uint32_t mask);
 #endif
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 extern __INLINE void sl_hal_emu_enable_boost_external_shutdown(void);
 extern __INLINE void sl_hal_emu_disable_boost_external_shutdown(void);
 #endif
@@ -234,8 +234,8 @@ void sl_hal_emu_ram_power_up(void)
 #endif
 }
 
-#if (defined(EMU_DCDC_BUCK_PRESENT) \
-  || defined(EMU_DCDC_BOOST_PRESENT))
+#if (defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) \
+  || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT))
 /***************************************************************************//**
  * Set DCDC regulator operating mode.
  ******************************************************************************/
@@ -318,15 +318,15 @@ sl_status_t sl_hal_emu_set_dcdc_mode(sl_hal_emu_dcdc_mode_t dcdc_mode)
 SL_WEAK void sl_hal_emu_dcdc_updated_hook(void)
 {
 }
-#endif /* (defined(EMU_DCDC_BUCK_PRESENT) || defined(EMU_DCDC_BOOST_PRESENT)) */
+#endif /* (defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)) */
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /***************************************************************************//**
  * Configure the DCDC Boost regulator.
  ******************************************************************************/
-void sl_hal_emu_init_dcdc_boost(const sl_hal_emu_dcdc_boost_config_t *config)
+void sl_hal_emu_init_dcdc_boost(const sl_hal_emu_dcdc_boost_init_t *init)
 {
-  EFM_ASSERT(config != NULL);
+  EFM_ASSERT(init != NULL);
   bool dcdc_locked;
 
 #if defined(_DCDC_EN_EN_MASK)
@@ -343,17 +343,17 @@ void sl_hal_emu_init_dcdc_boost(const sl_hal_emu_dcdc_boost_config_t *config)
 #if defined(_DCDC_CTRL_DVDDBSTPRG_MASK)
   sl_hal_bus_reg_write_mask(&DCDC->CTRL,
                             _DCDC_CTRL_DVDDBSTPRG_MASK,
-                            ((uint32_t)config->output_voltage << _DCDC_CTRL_DVDDBSTPRG_SHIFT));
+                            ((uint32_t)init->output_voltage << _DCDC_CTRL_DVDDBSTPRG_SHIFT));
 #endif
 
   DCDC->BSTCTRL     = (DCDC->BSTCTRL & ~(_DCDC_BSTCTRL_IPKTMAXCTRL_MASK))
-                      | ((uint32_t)config->ton_max << _DCDC_BSTCTRL_IPKTMAXCTRL_SHIFT);
-  DCDC->BSTEM01CTRL = ((uint32_t)config->drive_speed_em01 << _DCDC_BSTEM01CTRL_DRVSPEED_SHIFT)
-                      | ((uint32_t)config->peak_current_em01 << _DCDC_BSTEM01CTRL_IPKVAL_SHIFT);
-  DCDC->BSTEM23CTRL = ((uint32_t)config->drive_speed_em23 << _DCDC_BSTEM23CTRL_DRVSPEED_SHIFT)
-                      | ((uint32_t)config->peak_current_em23 << _DCDC_BSTEM23CTRL_IPKVAL_SHIFT);
+                      | ((uint32_t)init->ton_max << _DCDC_BSTCTRL_IPKTMAXCTRL_SHIFT);
+  DCDC->BSTEM01CTRL = ((uint32_t)init->drive_speed_em01 << _DCDC_BSTEM01CTRL_DRVSPEED_SHIFT)
+                      | ((uint32_t)init->peak_current_em01 << _DCDC_BSTEM01CTRL_IPKVAL_SHIFT);
+  DCDC->BSTEM23CTRL = ((uint32_t)init->drive_speed_em23 << _DCDC_BSTEM23CTRL_DRVSPEED_SHIFT)
+                      | ((uint32_t)init->peak_current_em23 << _DCDC_BSTEM23CTRL_IPKVAL_SHIFT);
 
-  if (config->external_shutdown_enable) {
+  if (init->external_shutdown_enable) {
     sl_hal_emu_enable_boost_external_shutdown();
   } else {
     sl_hal_emu_disable_boost_external_shutdown();
@@ -421,15 +421,15 @@ void sl_hal_emu_set_dcdc_boost_output_voltage(const sl_hal_emu_dcdc_boost_output
   sl_hal_emu_dcdc_updated_hook();
 }
 #endif
-#endif /* defined(EMU_DCDC_BOOST_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BOOST_PRESENT) */
 
-#if defined(EMU_DCDC_BUCK_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
 /***************************************************************************//**
  * Configure the DCDC regulator.
  ******************************************************************************/
-void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_config_t *dcdc_config)
+void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_init_t *init)
 {
-  EFM_ASSERT(dcdc_config != NULL);
+  EFM_ASSERT(init != NULL);
   bool dcdc_locked;
 
 #if defined(_DCDC_EN_EN_MASK)
@@ -439,7 +439,7 @@ void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_config_t *dcdc_config)
   dcdc_locked = ((DCDC->LOCKSTATUS & _DCDC_LOCKSTATUS_LOCK_MASK) != 0);
   sl_hal_emu_dcdc_unlock();
 
-  EMU->VREGVDDCMPCTRL = ((uint32_t)dcdc_config->comparator_threshold << _EMU_VREGVDDCMPCTRL_THRESSEL_SHIFT)
+  EMU->VREGVDDCMPCTRL = ((uint32_t)init->comparator_threshold << _EMU_VREGVDDCMPCTRL_THRESSEL_SHIFT)
                         | EMU_VREGVDDCMPCTRL_VREGINCMPEN;
 
 #if defined(_DCDC_SYNCBUSY_MASK)
@@ -452,18 +452,18 @@ void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_config_t *dcdc_config)
 #if defined(_DCDC_CTRL_DCMONLYEN_MASK)
   DCDC->CTRL = (DCDC->CTRL & ~(_DCDC_CTRL_IPKTMAXCTRL_MASK
                                | _DCDC_CTRL_DCMONLYEN_MASK))
-               | ((uint32_t)dcdc_config->ton_max << _DCDC_CTRL_IPKTMAXCTRL_SHIFT)
-               | ((uint32_t)(dcdc_config->dcm_only_enable) << _DCDC_CTRL_DCMONLYEN_SHIFT);
+               | ((uint32_t)init->ton_max << _DCDC_CTRL_IPKTMAXCTRL_SHIFT)
+               | ((uint32_t)(init->dcm_only_enable) << _DCDC_CTRL_DCMONLYEN_SHIFT);
 #else
   DCDC->CTRL = (DCDC->CTRL & ~(_DCDC_CTRL_IPKTMAXCTRL_MASK))
-               | ((uint32_t)dcdc_config->ton_max << _DCDC_CTRL_IPKTMAXCTRL_SHIFT);
+               | ((uint32_t)init->ton_max << _DCDC_CTRL_IPKTMAXCTRL_SHIFT);
 #endif
-  DCDC->EM01CTRL0 = ((uint32_t)dcdc_config->drive_speed_em01 << _DCDC_EM01CTRL0_DRVSPEED_SHIFT)
-                    | ((uint32_t)dcdc_config->peak_current_em01 << _DCDC_EM01CTRL0_IPKVAL_SHIFT);
-  DCDC->EM23CTRL0 = ((uint32_t)dcdc_config->drive_speed_em23 << _DCDC_EM23CTRL0_DRVSPEED_SHIFT)
-                    | ((uint32_t)dcdc_config->peak_current_em23 << _DCDC_EM23CTRL0_IPKVAL_SHIFT);
+  DCDC->EM01CTRL0 = ((uint32_t)init->drive_speed_em01 << _DCDC_EM01CTRL0_DRVSPEED_SHIFT)
+                    | ((uint32_t)init->peak_current_em01 << _DCDC_EM01CTRL0_IPKVAL_SHIFT);
+  DCDC->EM23CTRL0 = ((uint32_t)init->drive_speed_em23 << _DCDC_EM23CTRL0_DRVSPEED_SHIFT)
+                    | ((uint32_t)init->peak_current_em23 << _DCDC_EM23CTRL0_IPKVAL_SHIFT);
 
-  sl_hal_emu_set_dcdc_mode(dcdc_config->mode);
+  sl_hal_emu_set_dcdc_mode(init->mode);
 
   if (dcdc_locked) {
     sl_hal_emu_dcdc_lock();
@@ -574,6 +574,6 @@ SL_WEAK void sl_hal_emu_set_dcdc_pfmx_timeout_max_control(sl_hal_emu_dcdc_ton_ma
   sl_hal_emu_dcdc_updated_hook();
 }
 #endif /* defined(_DCDC_PFMXCTRL_IPKTMAXCTRL_MASK) */
-#endif /* defined(EMU_DCDC_BUCK_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) */
 
 #endif /* defined(EMU_PRESENT) */

@@ -20,13 +20,17 @@
 #include "stack/include/zigbee-security-manager.h"
 #include "stack/security/zigbee-security-manager-internal.h"
 #include "sl_status.h"
-#include "stack/config/token-stack.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
 #include "zigbee-security-manager-vault-support.h"
 #include "security_manager.h"
 #include "hal.h"
 #include "em_device.h"
 #include "sl_psa_values.h"
 #include "sl_psa_crypto.h"
+#include "sl_token_manager_api.h"
 
 #include "stack/internal/inc/internal-defs-patch.h"
 
@@ -38,7 +42,7 @@ extern void sli_zigbee_stack_set_key_table_entry_at_index(uint8_t index, tokType
 extern bool sli_zigbee_is_null_key(sl_zigbee_key_data_t * key);
 extern void sli_zigbee_stack_token_primitive(bool tokenRead,
                                              void* tokenStruct,
-                                             uint16_t tokenAddress,
+                                             uint32_t tokenAddress,
                                              uint8_t length);
 extern bool sli_zigbee_get_trust_center_eui64(sl_802154_long_addr_t address);
 extern sl_802154_short_addr_t sli_zigbee_stack_get_node_id(void);
@@ -458,11 +462,11 @@ sl_status_t sli_zigbee_stack_sec_man_get_network_key_info(sl_zigbee_sec_man_netw
 {
   tokTypeStackKeys tok;
   //Fetch Alternate nwk key info
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_ALTERNATE_KEY, TOKEN_STACK_ALTERNATE_KEY_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_ALTERNATE_KEY, sizeof(tokTypeStackKeys));
   network_key_info->alt_network_key_sequence_number = tok.activeKeySeqNum;
   network_key_info->alternate_network_key_set = zb_sec_is_key_present(ZB_PSA_KEY_ID_ALTERNATE_NWK_KEY);
   //Fetch nwk key info
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_KEYS, TOKEN_STACK_KEYS_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_KEYS, sizeof(tokTypeStackKeys));
   network_key_info->network_key_sequence_number = tok.activeKeySeqNum;
   network_key_info->network_key_set = zb_sec_is_key_present(ZB_PSA_KEY_ID_ACTIVE_NWK_KEY);
   // Fetch nwk key frame counter info
@@ -491,10 +495,10 @@ sl_status_t zb_sec_man_store_tc_link_key(sl_zigbee_sec_man_context_t* context,
   // Write a bit in the token to tell the upgrade code that this token already
   // points to a PSA ID
   tokTypeStackTrustCenter tok;
-  sli_zigbee_stack_token_primitive(true, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
   if ((tok.mode & TRUST_CENTER_KEY_LIVES_IN_PSA) == 0) {
     tok.mode |= TRUST_CENTER_KEY_LIVES_IN_PSA;
-    sli_zigbee_stack_token_primitive(false, &tok, TOKEN_STACK_TRUST_CENTER, TOKEN_STACK_TRUST_CENTER_SIZE);
+    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
   }
 
   return SL_STATUS_OK;
@@ -549,7 +553,8 @@ sl_status_t zb_sec_man_store_zll_key(sl_zigbee_sec_man_context_t* context,
   psa_status_t status = SL_STATUS_NOT_SUPPORTED;
   uint32_t key_id;
   tokTypeStackZllSecurity zllSecurityToken;
-  halCommonGetToken(&zllSecurityToken, TOKEN_STACK_ZLL_SECURITY);
+  (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
+
   zllSecurityToken.bitmask |= SL_ZIGBEE_ZLL_TOKEN_POINTS_TO_PSA_ID;
 
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_ZLL_ENCRYPTION_KEY) {
@@ -566,7 +571,7 @@ sl_status_t zb_sec_man_store_zll_key(sl_zigbee_sec_man_context_t* context,
                                  plaintext_key->key, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
 
   if (status == SL_STATUS_OK) {
-    halCommonSetToken(TOKEN_STACK_ZLL_SECURITY, &zllSecurityToken);
+    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
   }
   return status;
 }

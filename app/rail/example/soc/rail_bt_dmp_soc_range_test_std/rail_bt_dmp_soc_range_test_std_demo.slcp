@@ -56,6 +56,11 @@ component:
 #-----------Bluetooth & OS ---------------------------
   - id: sl_rail_sdk_range_test_dmp_component
   - id: micriumos_kernel
+    condition:
+      - device_series_2
+  - id: freertos
+    condition:
+      - device_series_3
 #-------------- Restriction rules -------------------
 #---------------Code Classification------------------
   - id: code_classification

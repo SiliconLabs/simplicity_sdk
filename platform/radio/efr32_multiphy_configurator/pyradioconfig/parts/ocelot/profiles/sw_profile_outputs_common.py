@@ -173,6 +173,8 @@ class sw_profile_outputs_common_ocelot(object):
                                            readable_name='LOW ramp level for amplitude modulation'))
         profile.outputs.append(ModelOutput(model.vars.ircal_power_level, '', ModelOutputType.RAIL_CONFIG,
                                            readable_name='IR cal power level (amplitude)'))
+        profile.outputs.append(ModelOutput(model.vars.ircal_index, '', ModelOutputType.RAIL_CONFIG,
+                                           readable_name='IR cal unique ID'))
         profile.outputs.append(ModelOutput(model.vars.div_antdivmode, '', ModelOutputType.RAIL_CONFIG,
                                            readable_name='Antenna diversity mode'))
         profile.outputs.append(ModelOutput(model.vars.div_antdivrepeatdis, '', ModelOutputType.RAIL_CONFIG,

@@ -19,6 +19,7 @@
 #include "sl_core.h"
 #include "sl_gpio.h"
 #include "sl_hal_gpio.h"
+#include "sl_device_clock.h"
 #include "em_device.h"
 #include "coexistence-hal.h"
 
@@ -183,40 +184,30 @@ void sli_coex_enableGpioInt(COEX_GpioHandle_t gpioHandle,
 
     bool intAsserted = (coexGpio->options & COEX_GPIO_OPTION_INT_ASSERTED) != 0U;
     bool intDeasserted = (coexGpio->options & COEX_GPIO_OPTION_INT_DEASSERTED) != 0U;
-
-    if (enabled) {
-      if (gpio->intNo != INVALID_INTERRUPT) {
-        // Disable triggering and clear any stale events
-        GPIO_ExtIntConfig((GPIO_Port_TypeDef)gpio->port,
-                          gpio->pin,
-                          gpio->intNo,
-                          false,
-                          false,
-                          false);
+    sl_gpio_interrupt_flag_t flags;
+    if (intAsserted) {
+      if (intDeasserted) {
+        flags = SL_GPIO_INTERRUPT_RISING_FALLING_EDGE;
+      } else {
+        flags = SL_GPIO_INTERRUPT_RISING_EDGE;
       }
-
-      // Register callbacks and get the interrupt number before setting up and
-      // enabling pin interrupt. assert if no intNo was set
-      gpio->intNo = GPIOINT_CallbackRegisterExt(gpio->pin, gpio->isr, (void *)NULL);
+    } else if (intDeasserted) {
+      flags = SL_GPIO_INTERRUPT_FALLING_EDGE;
+    } else {
+      flags = SL_GPIO_INTERRUPT_NO_EDGE;
+    }
+    if (enabled) {
+      sl_gpio_configure_external_interrupt(&(sl_gpio_t){gpio->port, gpio->pin },
+                                           &gpio->intNo,
+                                           flags,
+                                           gpio->isr,
+                                           NULL);
       EFM_ASSERT(gpio->intNo != INVALID_INTERRUPT);
-
-      // set up source and signal
-      GPIO_IntClear(GPIO_FLAG(gpio->intNo));
       gpio->source = PRS_GPIO_SOURCE(gpio->intNo);
       gpio->signal = PRS_GPIO_SIGNAL(gpio->intNo);
-
-      // Enable both edges' interrupt
-      GPIO_ExtIntConfig((GPIO_Port_TypeDef)gpio->port,
-                        gpio->pin,
-                        gpio->intNo,
-                        gpio->polarity ? intAsserted : intDeasserted,
-                        gpio->polarity ? intDeasserted : intAsserted,
-                        true);
     } else {
       if (gpio->intNo != INVALID_INTERRUPT) {
-        GPIO_IntDisable(GPIO_FLAG(gpio->intNo));
-        GPIO_IntClear(GPIO_FLAG(gpio->intNo));
-        GPIOINT_CallbackUnRegister(gpio->intNo);
+        sl_gpio_deconfigure_external_interrupt(gpio->intNo);
 
         // reset source, signal, and intno to invalid
         gpio->source = INVALID_SOURCE;
@@ -271,9 +262,9 @@ static void configGpio(COEX_GpioHandle_t gpioHandle, COEX_GpioConfig_t *coexGpio
     if ((coexGpio->options & COEX_GPIO_OPTION_SHARED) != 0U) {
       gpio->mode = gpio->polarity ? GPIO_CONFIG_OR : GPIO_CONFIG_AND;
     } else if ((coexGpio->options & COEX_GPIO_OPTION_OUTPUT) != 0U) {
-      gpio->mode = gpioModePushPull;
+      gpio->mode = SL_GPIO_MODE_PUSH_PULL;
     } else {
-      gpio->mode = gpioModeInputPull;
+      gpio->mode = SL_GPIO_MODE_INPUT_PULL;
     }
     setGpioConfig(gpio);
     setGpio(gpio, defaultAsserted);
@@ -287,9 +278,9 @@ static void setGpioFlag(COEX_GpioHandle_t gpioHandle, bool enabled)
 
     if (gpio->intNo != INVALID_INTERRUPT) {
       if (enabled) {
-        GPIO_IntSet(GPIO_FLAG(gpio->intNo));
+        sl_hal_gpio_set_interrupts(GPIO_FLAG(gpio->intNo));
       } else {
-        GPIO_IntClear(GPIO_FLAG(gpio->intNo));
+        sl_hal_gpio_clear_interrupts(GPIO_FLAG(gpio->intNo));
       }
     }
   }
@@ -419,6 +410,19 @@ bool COEX_HAL_ConfigRadioHoldOff(COEX_HAL_GpioConfig_t *gpioConfig)
 #ifdef SL_RAIL_UTIL_COEX_RX_ACTIVE_PORT
 bool COEX_HAL_ConfigRxActive(void)
 {
+#ifdef _SILICON_LABS_32B_SERIES_3
+  sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PRS);
+  sl_hal_prs_async_connect_channel_producer(SL_RAIL_UTIL_COEX_RX_ACTIVE_CHANNEL,
+                                            PRS_ASYNC_MODEML_FRAMEDET);
+  sl_hal_prs_async_combine_signals(SL_RAIL_UTIL_COEX_RX_ACTIVE_CHANNEL,
+                                   WRAP_PRS_ASYNC(SL_RAIL_UTIL_COEX_RX_ACTIVE_CHANNEL - 1),
+                                   (SL_RAIL_UTIL_COEX_RX_ACTIVE_ASSERT_LEVEL != 0U)
+                                   ? SL_HAL_PRS_LOGIC_A : SL_HAL_PRS_LOGIC_NOT_A);
+  sl_hal_prs_pin_output(SL_RAIL_UTIL_COEX_RX_ACTIVE_CHANNEL,
+                        SL_HAL_PRS_TYPE_ASYNC,
+                        SL_RAIL_UTIL_COEX_RX_ACTIVE_PORT,
+                        SL_RAIL_UTIL_COEX_RX_ACTIVE_PIN);
+#else
   CMU_ClockEnable(cmuClock_PRS, true);
 #ifdef _SILICON_LABS_32B_SERIES_1
 #if SL_RAIL_UTIL_COEX_RX_ACTIVE_ASSERT_LEVEL
@@ -455,6 +459,7 @@ bool COEX_HAL_ConfigRxActive(void)
                 SL_RAIL_UTIL_COEX_RX_ACTIVE_PORT,
                 SL_RAIL_UTIL_COEX_RX_ACTIVE_PIN);
 #endif //_SILICON_LABS_32B_SERIES_1
+#endif //_SILICON_LABS_32B_SERIES_3
   sl_gpio_set_pin_mode(&(sl_gpio_t){SL_RAIL_UTIL_COEX_RX_ACTIVE_PORT, SL_RAIL_UTIL_COEX_RX_ACTIVE_PIN }, SL_GPIO_MODE_PUSH_PULL, false);
   return true;
 }
@@ -554,7 +559,7 @@ void COEX_HAL_Init(void)
   coex_hal_initialized = true;
   COEX_SetHalCallbacks(&coexHalCallbacks);
   COEX_InitHalConfigOptions();
-  GPIOINT_Init();
+  sl_gpio_init();
   sl_rail_config_multi_timer(SL_RAIL_EFR32_HANDLE, true);
 
   #ifdef SL_CATALOG_RAIL_UTIL_COEX_PRESENT

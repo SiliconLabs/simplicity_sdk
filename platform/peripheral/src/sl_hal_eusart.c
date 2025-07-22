@@ -49,18 +49,18 @@ static uint8_t dali_rx_nb_packets[EUSART_COUNT];
  ******************************************************************************/
 #if defined(EUSART_DALICFG_DALIEN)
 static void eusart_async_init_common(EUSART_TypeDef *eusart,
-                                     const sl_hal_eusart_uart_config_t *init,
-                                     const sl_hal_eusart_irda_config_t *irda_init,
-                                     const sl_hal_eusart_dali_config_t *dali_init);
+                                     const sl_hal_eusart_uart_init_t *init,
+                                     const sl_hal_eusart_irda_init_t *irda_init,
+                                     const sl_hal_eusart_dali_init_t *dali_init);
 #else
 static void eusart_async_init_common(EUSART_TypeDef *eusart,
-                                     const sl_hal_eusart_uart_config_t *init,
-                                     const sl_hal_eusart_irda_config_t *irda_init);
+                                     const sl_hal_eusart_uart_init_t *init,
+                                     const sl_hal_eusart_irda_init_t *irda_init);
 #endif
 
 #if defined(_EUSART_CFG0_SYNC_MASK)
 static void eusart_sync_init_common(EUSART_TypeDef *eusart,
-                                    const sl_hal_eusart_spi_config_t *init);
+                                    const sl_hal_eusart_spi_init_t *init);
 #endif
 static uint8_t eusart_map_oversampling(uint32_t ref_freq, uint32_t baudrate,
                                        sl_hal_eusart_ovs_t ovs);
@@ -104,7 +104,7 @@ extern __INLINE void sl_hal_eusart_set_interrupts(EUSART_TypeDef *eusart,
  * Initializes the EUSART when used with the high frequency clock.
  ******************************************************************************/
 void sl_hal_eusart_init_uart_hf(EUSART_TypeDef *eusart,
-                                const sl_hal_eusart_uart_config_t *init)
+                                const sl_hal_eusart_uart_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_EUSART_REF_VALID(eusart));
@@ -130,7 +130,7 @@ void sl_hal_eusart_init_uart_hf(EUSART_TypeDef *eusart,
  * Initializes the EUSART when used with the low frequency clock.
  ******************************************************************************/
 void sl_hal_eusart_init_uart_lf(EUSART_TypeDef *eusart,
-                                const sl_hal_eusart_uart_config_t *init)
+                                const sl_hal_eusart_uart_init_t *init)
 {
   // Make sure the module exists and is Low frequency capable.
   EFM_ASSERT(SL_HAL_EUSART_REF_VALID(eusart) && EUSART_EM2_CAPABLE(EUSART_NUM(eusart)));
@@ -159,29 +159,29 @@ void sl_hal_eusart_init_uart_lf(EUSART_TypeDef *eusart,
  * frequency clock.
  ******************************************************************************/
 void sl_hal_eusart_init_irda(EUSART_TypeDef *eusart,
-                             const sl_hal_eusart_irda_config_t *irda_config)
+                             const sl_hal_eusart_irda_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_EUSART_REF_VALID(eusart));
   // Init structure must be provided.
-  EFM_ASSERT(irda_config);
+  EFM_ASSERT(init);
 
-  if (irda_config->irda_mode == SL_HAL_EUSART_IRDA_MODE_LF) {
+  if (init->irda_mode == SL_HAL_EUSART_IRDA_MODE_LF) {
     // Validate the low frequency capability of the EUSART instance.
     EFM_ASSERT(EUSART_EM2_CAPABLE(EUSART_NUM(eusart)));
     // The oversampling must be disabled when using a low frequency clock.
-    EFM_ASSERT(irda_config->eusart_init.oversampling == SL_HAL_EUSART_OVS_0);
+    EFM_ASSERT(init->eusart_init.oversampling == SL_HAL_EUSART_OVS_0);
     // Number of stop bits can only be 1 or 2 in LF.
-    EFM_ASSERT((irda_config->eusart_init.stop_bits == SL_HAL_EUSART_STOP_BITS_1) || (irda_config->eusart_init.stop_bits == SL_HAL_EUSART_STOP_BITS_2));
+    EFM_ASSERT((init->eusart_init.stop_bits == SL_HAL_EUSART_STOP_BITS_1) || (init->eusart_init.stop_bits == SL_HAL_EUSART_STOP_BITS_2));
   } else {
-    EFM_ASSERT(irda_config->eusart_init.oversampling != SL_HAL_EUSART_OVS_0);
+    EFM_ASSERT(init->eusart_init.oversampling != SL_HAL_EUSART_OVS_0);
   }
 
   // Initialize EUSART with common features to HF and LF.
 #if defined(EUSART_DALICFG_DALIEN)
-  eusart_async_init_common(eusart, &irda_config->eusart_init, irda_config, NULL);
+  eusart_async_init_common(eusart, &init->eusart_init, init, NULL);
 #else
-  eusart_async_init_common(eusart, &irda_config->eusart_init, irda_config);
+  eusart_async_init_common(eusart, &init->eusart_init, init);
 #endif
 }
 
@@ -191,31 +191,31 @@ void sl_hal_eusart_init_irda(EUSART_TypeDef *eusart,
  * frequency clock.
  ******************************************************************************/
 void sl_hal_eusart_init_dali(EUSART_TypeDef *eusart,
-                             const sl_hal_eusart_dali_config_t *dali_config)
+                             const sl_hal_eusart_dali_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_EUSART_REF_VALID(eusart));
   // Init structure must be provided.
-  EFM_ASSERT(dali_config);
+  EFM_ASSERT(init);
 
-  if (dali_config->eusart_init.loopback_enable) {
+  if (init->eusart_init.loopback_enable) {
     // If LOOPBK in CFG0 is set to 1 in order to do loopback testing for DALI,
     // then in this case DALIRXENDT should be set to 1 and DALIRXDATABITS should
     // be set the same as DALITXDATABITS.
-    EFM_ASSERT(dali_config->tx_data_bits == dali_config->rx_data_bits);
+    EFM_ASSERT(init->tx_data_bits == init->rx_data_bits);
   }
 
-  if (dali_config->dali_low_frequency_enable) {
+  if (init->dali_low_frequency_enable) {
     // Validate the low frequency capability of the EUSART instance.
     EFM_ASSERT(EUSART_EM2_CAPABLE(EUSART_NUM(eusart)));
     // The oversampling must be disabled when using a low frequency clock.
-    EFM_ASSERT(dali_config->eusart_init.oversampling == SL_HAL_EUSART_OVS_0);
+    EFM_ASSERT(init->eusart_init.oversampling == SL_HAL_EUSART_OVS_0);
   } else {
-    EFM_ASSERT(dali_config->eusart_init.oversampling != SL_HAL_EUSART_OVS_0);
+    EFM_ASSERT(init->eusart_init.oversampling != SL_HAL_EUSART_OVS_0);
   }
 
   // Initialize EUSART with common features to HF and LF.
-  eusart_async_init_common(eusart, &dali_config->eusart_init, NULL, dali_config);
+  eusart_async_init_common(eusart, &init->eusart_init, NULL, init);
 }
 #endif
 
@@ -224,7 +224,7 @@ void sl_hal_eusart_init_dali(EUSART_TypeDef *eusart,
  * Initializes the EUSART when used in SPI mode.
  ******************************************************************************/
 void sl_hal_eusart_init_spi(EUSART_TypeDef *eusart,
-                            sl_hal_eusart_spi_config_t const *init)
+                            const sl_hal_eusart_spi_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_EUSART_REF_VALID(eusart));
@@ -296,15 +296,15 @@ void sl_hal_eusart_reset(EUSART_TypeDef *eusart)
 #endif
   eusart->STARTFRAMECFG = _EUSART_STARTFRAMECFG_RESETVALUE;
   eusart->SIGFRAMECFG = _EUSART_SIGFRAMECFG_RESETVALUE;
-  eusart->TRIGCTRL = _EUSART_TRIGCTRL_RESETVALUE;
   eusart->IEN = _EUSART_IEN_RESETVALUE;
   eusart->IF_CLR = _EUSART_IF_MASK;
-  eusart->CLKDIV = _EUSART_CLKDIV_RESETVALUE;
 
-  while (!(eusart->SYNCBUSY & _EUSART_SYNCBUSY_MASK)) {
-    // Wait for all registers to be modified preventing issues when
-    // disabling the eusart bus clock just after calling this function.
-  }
+  // Reset synchronized registers.
+  eusart->CLKDIV = _EUSART_CLKDIV_RESETVALUE;
+  eusart->TRIGCTRL = _EUSART_TRIGCTRL_RESETVALUE;
+  // Force the previous register writes to be finished to prevent issues
+  // when disabling the eusart bus clock just after calling this function.
+  eusart->CLKDIV = _EUSART_CLKDIV_RESETVALUE;
 }
 
 /***************************************************************************//**
@@ -743,13 +743,13 @@ uint32_t sl_hal_eusart_spi_calculate_baudrate(uint32_t div, uint32_t freq)
  ******************************************************************************/
 #if defined(EUSART_DALICFG_DALIEN)
 static void eusart_async_init_common(EUSART_TypeDef *eusart,
-                                     const sl_hal_eusart_uart_config_t *init,
-                                     const sl_hal_eusart_irda_config_t *irda_init,
-                                     const sl_hal_eusart_dali_config_t *dali_init)
+                                     const sl_hal_eusart_uart_init_t *init,
+                                     const sl_hal_eusart_irda_init_t *irda_init,
+                                     const sl_hal_eusart_dali_init_t *dali_init)
 #else
 static void eusart_async_init_common(EUSART_TypeDef *eusart,
-                                     const sl_hal_eusart_uart_config_t *init,
-                                     const sl_hal_eusart_irda_config_t *irda_init)
+                                     const sl_hal_eusart_uart_init_t *init,
+                                     const sl_hal_eusart_irda_init_t *irda_init)
 #endif
 {
   // Initialize EUSART registers to hardware reset state.
@@ -944,7 +944,7 @@ static void eusart_async_init_common(EUSART_TypeDef *eusart,
  * @param[in] init A pointer to the initialization structure.
  ******************************************************************************/
 static void eusart_sync_init_common(EUSART_TypeDef *eusart,
-                                    sl_hal_eusart_spi_config_t const *init)
+                                    const sl_hal_eusart_spi_init_t *init)
 {
   // Initialize EUSART registers to hardware reset state.
   sl_hal_eusart_reset(eusart);

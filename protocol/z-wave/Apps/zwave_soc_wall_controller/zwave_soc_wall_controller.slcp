@@ -61,9 +61,9 @@ include:
     file_list:
       - path: events.h
 configuration:
-  - name: SHORT_BUTTON_PRESS_DURATION
+  - name: SHORT_BUTTON_PRESS_DURATION_MS
     value: (400)
-  - name: MEDIUM_BUTTON_PRESS_DURATION
+  - name: MEDIUM_BUTTON_PRESS_DURATION_MS
     value: (1500)
   - name: APP_BUTTON_PRESS_DETECTION
     value: APP_BUTTON_PRESS_DETECT_PRESS_AND_RELEASE

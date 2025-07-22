@@ -192,6 +192,8 @@ class CALC_Frame(ICalculator):
         #Internal HEADER_SIZE
         self._addModelVariable(model, 'header_size_internal', int, ModelVariableFormat.DECIMAL, units='bytes', desc='Internal representation of header size. 0 for no header.')
 
+        #Internal FCDX.WORDS register size
+        self._addModelVariable(model, 'fcdx_words_bitwidth', int, ModelVariableFormat.DECIMAL, units='bytes', desc='FCD_WORDS bitwidth.')
 
         """
         #Outputs
@@ -339,6 +341,11 @@ class CALC_Frame(ICalculator):
             model (ModelRoot) : Data model to read and write variables from
         """
 
+        # FCDX_WORDS is being set to max value. To figure out the max value, reading the bitwidth.
+        # assuming FCD0/1/2/3 will always have same bitwidth in future as well.
+        # checking the value for None in case the register does not exist (for e.g. unit_test_part)
+        fcdx_words_bitwidth = model.vars.fcdx_words_bitwidth.value
+
         #Payload Configuration
         fcdDict = {
             "excludesubframewcnt": int(model.vars.payload_excludesubframewcnt_en.value == True),
@@ -347,7 +354,7 @@ class CALC_Frame(ICalculator):
             "skipcrc": 0,
             "calccrc": int(model.vars.payload_crc_en.value == True),
             "includecrc": int(model.vars.payload_crc_en.value == True),
-            "words": 0xFF,
+            "words": 2 ** fcdx_words_bitwidth - 1,
         }
         #Configure TX FCD
         self._configure_fcd(model, fcdindex="1", buf=0, **fcdDict)
@@ -381,6 +388,10 @@ class CALC_Frame(ICalculator):
         Args:
             model (ModelRoot) : Data model to read and write variables from
         """
+        # FCDX_WORDS is being set to max value. To figure out the max value, reading the bitwidth.
+        # assuming FCD0/1/2/3 will always have same bitwidth in future as well.
+        # checking the value for None in case the register does not exist (for e.g. unit_test_part)
+        fcdx_words_bitwidth = model.vars.fcdx_words_bitwidth.value
 
         self._reg_write(model.vars.FRC_WCNTCMP0_FRAMELENGTH, model.vars.fixed_length_size.value - 1)
         fcdDict = {
@@ -390,7 +401,7 @@ class CALC_Frame(ICalculator):
             "skipcrc": 0,
             "calccrc": int(model.vars.payload_crc_en.value == True),
             "includecrc": int(model.vars.payload_crc_en.value == True),
-            "words": 0xFF,
+            "words": 2 ** fcdx_words_bitwidth - 1,
         }
         #Configure TX FCD
         self._configure_fcd(model, fcdindex="0", buf=0, **fcdDict)
@@ -406,6 +417,12 @@ class CALC_Frame(ICalculator):
         return
 
     def _configure_fcd_for_frame_type(self, model):
+
+        # FCDX_WORDS is being set to max value. To figure out the max value, reading the bitwidth.
+        # assuming FCD0/1/2/3 will always have same bitwidth in future as well.
+        # checking the value for None in case the register does not exist (for e.g. unit_test_part)
+        fcdx_words_bitwidth = model.vars.fcdx_words_bitwidth.value
+
         # Only use one frame descriptor
         fcdDict = {
             "excludesubframewcnt": int(model.vars.payload_excludesubframewcnt_en.value == True),
@@ -414,7 +431,7 @@ class CALC_Frame(ICalculator):
             "skipcrc": 0,
             "calccrc": int(model.vars.payload_crc_en.value == True),
             "includecrc": int(model.vars.payload_crc_en.value == True),
-            "words": 0xFF,
+            "words":  2 ** fcdx_words_bitwidth - 1,
         }
         #Configure TX FCD
         self._configure_fcd(model, fcdindex="0", buf=0, **fcdDict)
@@ -643,3 +660,11 @@ class CALC_Frame(ICalculator):
             if crc_poly == model.vars.crc_poly.var_enum.NONE.value:
                 raise CalculationException("ERROR: CRC enabled with crc polynomial set to NONE")
 
+    def calc_fcdx_words_bitwidth(self, model):
+        # This is the bitwidth for FCDX_WORDS
+        # check if the register is part of the register model, e.g. unit_test_part does not
+        if model.vars.FRC_FCD0_WORDS.rm is None:
+            val = 8
+        else:
+            val = model.vars.FRC_FCD0_WORDS.get_bit_width()
+        model.vars.fcdx_words_bitwidth.value = val

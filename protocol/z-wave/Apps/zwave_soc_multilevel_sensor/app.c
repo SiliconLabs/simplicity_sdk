@@ -41,9 +41,7 @@
 #include "app_pm_transition_event.h"
 #endif
 
-#if (!defined(UNIT_TEST))
 #include "app_hw.h"
-#endif
 
 void ApplicationTask(SApplicationHandles* pAppHandles);
 
@@ -119,9 +117,7 @@ ApplicationTask(SApplicationHandles* pAppHandles)
 
   ZAF_PrintAppInfo();
 
-#if (!defined(UNIT_TEST))
   app_hw_init();
-#endif
 
   resetReason = GetResetReason();
 
@@ -134,11 +130,9 @@ ApplicationTask(SApplicationHandles* pAppHandles)
    */
   AppTimerDeepSleepPersistentLoadAll(resetReason);
 
-#if (!defined(UNIT_TEST))
   if (ZPAL_RESET_REASON_DEEP_SLEEP_EXT_INT == resetReason) {
     app_hw_deep_sleep_wakeup_handler();
   }
-#endif
 
   /**
    * Set the maximum inclusion request interval for SmartStart.

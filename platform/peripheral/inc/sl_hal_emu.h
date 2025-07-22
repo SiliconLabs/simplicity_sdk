@@ -63,12 +63,12 @@ extern "C" {
 #if ((_SILICON_LABS_DCDC_FEATURE == _SILICON_LABS_DCDC_FEATURE_DCDC_BUCK) \
   || (_SILICON_LABS_DCDC_FEATURE == _SILICON_LABS_DCDC_FEATURE_DCDC_BOB))
 // DC-DC buck converter present.
-#define EMU_DCDC_BUCK_PRESENT
+#define SL_HAL_EMU_DCDC_BUCK_PRESENT
 #endif
 #if ((_SILICON_LABS_DCDC_FEATURE == _SILICON_LABS_DCDC_FEATURE_DCDC_BOOST) \
   || (_SILICON_LABS_DCDC_FEATURE == _SILICON_LABS_DCDC_FEATURE_DCDC_BOB))
 // DC-DC boost converter present.
-#define EMU_DCDC_BOOST_PRESENT
+#define SL_HAL_EMU_DCDC_BOOST_PRESENT
 #endif
 #endif
 
@@ -143,8 +143,8 @@ SL_ENUM(sl_hal_emu_hdreg_stop_gear_current_limit_t) {
 };
 #endif
 
-#if defined(EMU_DCDC_BUCK_PRESENT) \
-  || defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) \
+  || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /// DCDC mode.
 SL_ENUM(sl_hal_emu_dcdc_mode_t) {
   SL_HAL_EMU_DCDC_MODE_BYPASS     = _DCDC_CTRL_MODE_BYPASS,          ///< DCDC regulator bypass.
@@ -152,7 +152,7 @@ SL_ENUM(sl_hal_emu_dcdc_mode_t) {
 };
 #endif
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /// DCDC Boost drive speed.
 SL_ENUM(sl_hal_emu_dcdc_boost_drive_speed_t) {
   SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_BEST_EMI        = _DCDC_BSTEM01CTRL_DRVSPEED_DEFAULT_SETTING,         ///< Recommend no options other than DEFAULT be used here, as there is no benefit.
@@ -204,9 +204,9 @@ SL_ENUM(sl_hal_emu_dcdc_boost_output_voltage_t) {
   SL_HAL_EMU_DCDC_BOOST_OUTPUT_VOLTAGE_2V4 = _DCDC_CTRL_DVDDBSTPRG_BOOST_2V4      ///< Output voltage is 2.4V.
 };
 #endif
-#endif /* defined(EMU_DCDC_BOOST_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BOOST_PRESENT) */
 
-#if defined(EMU_DCDC_BUCK_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
 /// VREGIN comparator threshold.
 SL_ENUM(sl_hal_emu_vregin_cmp_threshold_t) {
   SL_HAL_EMU_VREGIN_CMP_THRESHOLD_2V0 = 0,   ///< Comparator threshold is 2.0V.
@@ -333,13 +333,13 @@ SL_ENUM(sl_hal_emu_dcdc_peak_current_t) {
   SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_80MA    = _DCDC_EM01CTRL0_IPKVAL_Load80mA    ///< Load 80mA, peak current 200mA.
 #endif
 };
-#endif /* defined(EMU_DCDC_BUCK_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) */
 
 /*******************************************************************************
  *******************************   STRUCTS   ***********************************
  ******************************************************************************/
 
- #if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /// DCDC Boost regulator initialization structure.
 typedef struct {
   sl_hal_emu_dcdc_boost_ton_max_timeout_t       ton_max;                     ///< Ton max timeout control.
@@ -351,10 +351,15 @@ typedef struct {
 #if defined(_DCDC_CTRL_DVDDBSTPRG_MASK)
   sl_hal_emu_dcdc_boost_output_voltage_t        output_voltage;              ///< DCDC Boost output voltage.
 #endif
-} sl_hal_emu_dcdc_boost_config_t;
-#endif /* defined(EMU_DCDC_BOOST_PRESENT) */
+} sl_hal_emu_dcdc_boost_init_t;
 
-#if defined(EMU_DCDC_BUCK_PRESENT)
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_emu_dcdc_boost_init_t sl_hal_emu_dcdc_boost_config_t;
+/** @endcond */
+#endif /* defined(SL_HAL_EMU_DCDC_BOOST_PRESENT) */
+
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
 /// DCDC regulator initialization structure.
 typedef struct {
   sl_hal_emu_dcdc_mode_t                mode;                    ///< DCDC mode.
@@ -367,62 +372,73 @@ typedef struct {
   sl_hal_emu_dcdc_drive_speed_t         drive_speed_em23;        ///< DCDC drive speed in EM2/3.
   sl_hal_emu_dcdc_peak_current_t        peak_current_em01;       ///< EM0/1 peak current setting.
   sl_hal_emu_dcdc_peak_current_t        peak_current_em23;       ///< EM2/3 peak current setting.
-} sl_hal_emu_dcdc_config_t;
-#endif /* defined(EMU_DCDC_BUCK_PRESENT) */
+} sl_hal_emu_dcdc_init_t;
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_emu_dcdc_init_t sl_hal_emu_dcdc_config_t;
+/** @endcond */
+#endif /* defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) */
+
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /// Default DCDC Boost initialization.
 #if defined(_DCDC_CTRL_DVDDBSTPRG_MASK)
-#define EMU_DCDCBOOSTINIT_DEFAULT                                                                       \
-  {                                                                                                     \
-    SL_HAL_EMU_DCDC_BOOST_TON_MAX_TIMEOUT_1P19US,        /*< Ton max is 1.19us. */                      \
-    true,                                                /*< disable DCDC boost mode with BOOST_EN=0 */ \
-    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM0/1. */            \
-    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM2/3. */            \
-    SL_HAL_EMU_DCDC_BOOST_EM01_PEAK_CURRENT_LOAD_23MA,   /*< Default peak current in EM0/1. */          \
-    SL_HAL_EMU_DCDC_BOOST_EM23_PEAK_CURRENT_LOAD_10MA,   /*< Default peak current in EM2/3. */          \
-    SL_HAL_EMU_DCDC_BOOST_OUTPUT_VOLTAGE_1V8              /*< DCDC Boost output voltage. */             \
+#define SL_HAL_EMU_DCDC_BOOST_INIT_DEFAULT                                                                  \
+  {                                                                                                         \
+    SL_HAL_EMU_DCDC_BOOST_TON_MAX_TIMEOUT_1P19US,            /*< Ton max is 1.19us. */                      \
+    true,                                                    /*< disable DCDC boost mode with BOOST_EN=0 */ \
+    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,               /*< Default efficiency in EM0/1. */            \
+    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,               /*< Default efficiency in EM2/3. */            \
+    SL_HAL_EMU_DCDC_BOOST_EM01_PEAK_CURRENT_LOAD_23MA,       /*< Default peak current in EM0/1. */          \
+    SL_HAL_EMU_DCDC_BOOST_EM23_PEAK_CURRENT_LOAD_10MA,       /*< Default peak current in EM2/3. */          \
+    SL_HAL_EMU_DCDC_BOOST_OUTPUT_VOLTAGE_1V8                 /*< DCDC Boost output voltage. */              \
   }
 #else
-#define EMU_DCDCBOOSTINIT_DEFAULT                                                                       \
-  {                                                                                                     \
-    SL_HAL_EMU_DCDC_BOOST_TON_MAX_TIMEOUT_1P19US,        /*< Ton max is 1.19us. */                      \
-    true,                                                /*< disable DCDC boost mode with BOOST_EN=0 */ \
-    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM0/1. */            \
-    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM2/3. */            \
-    SL_HAL_EMU_DCDC_BOOST_EM01_PEAK_CURRENT_LOAD_23MA,   /*< Default peak current in EM0/1. */          \
-    SL_HAL_EMU_DCDC_BOOST_EM23_PEAK_CURRENT_LOAD_10MA    /*< Default peak current in EM2/3. */          \
+#define SL_HAL_EMU_DCDC_BOOST_INIT_DEFAULT                                                                  \
+  {                                                                                                         \
+    SL_HAL_EMU_DCDC_BOOST_TON_MAX_TIMEOUT_1P19US,            /*< Ton max is 1.19us. */                      \
+    true,                                                    /*< disable DCDC boost mode with BOOST_EN=0 */ \
+    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,               /*< Default efficiency in EM0/1. */            \
+    SL_HAL_EMU_DCDC_BOOST_DRIVE_SPEED_DEFAULT,               /*< Default efficiency in EM2/3. */            \
+    SL_HAL_EMU_DCDC_BOOST_EM01_PEAK_CURRENT_LOAD_23MA,       /*< Default peak current in EM0/1. */          \
+    SL_HAL_EMU_DCDC_BOOST_EM23_PEAK_CURRENT_LOAD_10MA        /*< Default peak current in EM2/3. */          \
   }
 #endif
-#endif /* defined(EMU_DCDC_BOOST_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BOOST_PRESENT) */
 
-#if defined(EMU_DCDC_BUCK_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
 /// Default DCDC Buck initialization.
 #if defined(_DCDC_CTRL_DCMONLYEN_MASK)
-#define EMU_DCDCINIT_DEFAULT                                                            \
-  {                                                                                     \
-    SL_HAL_EMU_DCDC_MODE_REGULATION,           /*< DCDC regulator on. */                \
-    SL_HAL_EMU_VREGIN_CMP_THRESHOLD_2V3,       /*< 2.3V VREGIN comparator threshold. */ \
-    SL_HAL_EMU_DCDC_TON_MAX_TIMEOUT_1P19US,    /*< Ton max is 1.19us. */                \
-    true,                                      /*< Enable DCM only mode. */             \
-    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,       /*< Default efficiency in EM0/1. */      \
-    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,       /*< Default efficiency in EM2/3. */      \
-    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_60MA,    /*< Default peak current in EM0/1. */    \
-    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_5MA      /*< Default peak current in EM2/3. */    \
+#define SL_HAL_EMU_DCDC_INIT_DEFAULT                                                       \
+  {                                                                                        \
+    SL_HAL_EMU_DCDC_MODE_REGULATION,              /*< DCDC regulator on. */                \
+    SL_HAL_EMU_VREGIN_CMP_THRESHOLD_2V3,          /*< 2.3V VREGIN comparator threshold. */ \
+    SL_HAL_EMU_DCDC_TON_MAX_TIMEOUT_1P19US,       /*< Ton max is 1.19us. */                \
+    true,                                         /*< Enable DCM only mode. */             \
+    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,          /*< Default efficiency in EM0/1. */      \
+    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,          /*< Default efficiency in EM2/3. */      \
+    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_60MA,       /*< Default peak current in EM0/1. */    \
+    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_5MA         /*< Default peak current in EM2/3. */    \
   }
 #else
- #define EMU_DCDCINIT_DEFAULT                                                           \
-  {                                                                                     \
-    SL_HAL_EMU_DCDC_MODE_REGULATION,           /*< DCDC regulator on. */                \
-    SL_HAL_EMU_VREGIN_CMP_THRESHOLD_2V3,       /*< 2.3V VREGIN comparator threshold. */ \
-    SL_HAL_EMU_DCDC_TON_MAX_TIMEOUT_1P19US,    /*< Ton max is 1.19us. */                \
-    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,       /*< Default efficiency in EM0/1. */      \
-    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,       /*< Default efficiency in EM2/3. */      \
-    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_60MA,    /*< Default peak current in EM0/1. */    \
-    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_5MA      /*< Default peak current in EM2/3. */    \
+ #define SL_HAL_EMU_DCDC_INIT_DEFAULT                                                       \
+  {                                                                                         \
+    SL_HAL_EMU_DCDC_MODE_REGULATION,               /*< DCDC regulator on. */                \
+    SL_HAL_EMU_VREGIN_CMP_THRESHOLD_2V3,           /*< 2.3V VREGIN comparator threshold. */ \
+    SL_HAL_EMU_DCDC_TON_MAX_TIMEOUT_1P19US,        /*< Ton max is 1.19us. */                \
+    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM0/1. */      \
+    SL_HAL_EMU_DCDC_DRIVE_SPEED_DEFAULT,           /*< Default efficiency in EM2/3. */      \
+    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_60MA,        /*< Default peak current in EM0/1. */    \
+    SL_HAL_EMU_DCDC_PEAK_CURRENT_LOAD_5MA          /*< Default peak current in EM2/3. */    \
   }
 #endif
-#endif /* defined(EMU_DCDC_BUCK_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) */
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Alias for deprecated macro names used for backward compatibility purposes.
+#define EMU_DCDCBOOSTINIT_DEFAULT     SL_HAL_EMU_DCDC_BOOST_INIT_DEFAULT
+#define EMU_DCDCINIT_DEFAULT          SL_HAL_EMU_DCDC_INIT_DEFAULT
+/** @endcond */
 
 /*******************************************************************************
  *****************************   PROTOTYPES   **********************************
@@ -479,8 +495,8 @@ void sl_hal_emu_ram_power_down(uint32_t start,
  ******************************************************************************/
 void sl_hal_emu_ram_power_up(void);
 
-#if (defined(EMU_DCDC_BUCK_PRESENT) \
-  || defined(EMU_DCDC_BOOST_PRESENT))
+#if (defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) \
+  || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT))
 /***************************************************************************//**
  * Set DCDC regulator operating mode.
  *
@@ -504,17 +520,17 @@ sl_status_t sl_hal_emu_set_dcdc_mode(sl_hal_emu_dcdc_mode_t dcdc_mode);
  *          SL_WEAK so that it can use the RAIL version if needed.
  ******************************************************************************/
 void sl_hal_emu_dcdc_updated_hook(void);
-#endif /* (defined(EMU_DCDC_BUCK_PRESENT) || defined(EMU_DCDC_BOOST_PRESENT)) */
+#endif /* (defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) || defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)) */
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /***************************************************************************//**
  * Configure the DCDC Boost regulator.
  *
- * @param[in] dcdc_boost_config The DCDC initialization structure.
+ * @param[in] init The DCDC initialization structure.
  *
  * @return True if initialization parameters are valid.
  ******************************************************************************/
-void sl_hal_emu_init_dcdc_boost(const sl_hal_emu_dcdc_boost_config_t *dcdc_boost_config);
+void sl_hal_emu_init_dcdc_boost(const sl_hal_emu_dcdc_boost_init_t *init);
 
 /***************************************************************************//**
  * Set EM01 mode Boost Peak Current setting.
@@ -531,17 +547,17 @@ void sl_hal_emu_set_em01_boost_peak_current(const sl_hal_emu_dcdc_boost_em01_pea
  ******************************************************************************/
 void sl_hal_emu_set_dcdc_boost_output_voltage(const sl_hal_emu_dcdc_boost_output_voltage_t boost_output_voltage);
 #endif
-#endif /* defined(EMU_DCDC_BOOST_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BOOST_PRESENT) */
 
-#if defined(EMU_DCDC_BUCK_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
 /***************************************************************************//**
  * Configure the DCDC regulator.
  *
- * @param[in] dcdc_config The DCDC initialization structure.
+ * @param[in] init The DCDC initialization structure.
  *
  * @return True if initialization parameters are valid.
  ******************************************************************************/
-void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_config_t *dcdc_config);
+void sl_hal_emu_init_dcdc(const sl_hal_emu_dcdc_init_t *init);
 
 /***************************************************************************//**
  * Power off the DCDC regulator.
@@ -575,7 +591,7 @@ void sl_hal_emu_set_dcdc_pfmx_mode_peak_current(uint32_t value);
  ******************************************************************************/
 void sl_hal_emu_set_dcdc_pfmx_timeout_max_control(sl_hal_emu_dcdc_ton_max_timeout_t value);
 #endif
-#endif /* defined(EMU_DCDC_BUCK_PRESENT) */
+#endif /* defined(SL_HAL_EMU_DCDC_BUCK_PRESENT) */
 
 /***************************************************************************//**
  * @brief
@@ -1087,7 +1103,7 @@ __INLINE void sl_hal_emu_dcdc_sync(uint32_t mask)
 }
 #endif
 
-#if defined(EMU_DCDC_BOOST_PRESENT)
+#if defined(SL_HAL_EMU_DCDC_BOOST_PRESENT)
 /***************************************************************************//**
  * Enable Boost External Shutdown Mode.
  *
@@ -1174,10 +1190,10 @@ __INLINE void sl_hal_emu_dcdc_disable_interrupts(uint32_t flags)
  *    float temperature = sl_hal_emu_get_temperature();
  *
  *    // Power management example with DCDC
- *    #if defined(EMU_DCDC_BUCK_PRESENT)
+ *    #if defined(SL_HAL_EMU_DCDC_BUCK_PRESENT)
  *    // Initialize DCDC regulator
- *    sl_hal_emu_dcdc_config_t dcdc_config = EMU_DCDCINIT_DEFAULT;
- *    sl_hal_emu_init_dcdc(&dcdc_config);
+ *    sl_hal_emu_dcdc_init_t init = SL_HAL_EMU_DCDC_INIT_DEFAULT;
+ *    sl_hal_emu_init_dcdc(&init);
  *
  *    // Set DCDC mode to regulation
  *    sl_hal_emu_set_dcdc_mode(SL_HAL_EMU_DCDC_MODE_REGULATION);

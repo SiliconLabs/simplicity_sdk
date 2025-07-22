@@ -74,8 +74,10 @@ def PHY_COMMON_FRAME_BLE(phy, model):
     # field to 0xFF, but since that field is currently populated by header_size
     # input (wrong concept being applied), we also need to force the output for
     # both FCDs (TX/RX).
-    phy.profile_outputs.FRC_FCD0_WORDS.override = 0xFF
-    phy.profile_outputs.FRC_FCD2_WORDS.override = 0xFF
+
+    # 0xFF is the max value of FCDX_WORDS. We want to set the max value here making this value part agnostic
+    phy.profile_outputs.FRC_FCD0_WORDS.override = 2 ** phy.profile_outputs.FRC_FCD0_WORDS.var.get_bit_width() - 1
+    phy.profile_outputs.FRC_FCD2_WORDS.override = 2 ** phy.profile_outputs.FRC_FCD2_WORDS.var.get_bit_width() - 1
 
     phy.profile_inputs.var_length_numbits.value = 8
     phy.profile_inputs.var_length_bitendian.value = model.vars.var_length_bitendian.var_enum.LSB_FIRST

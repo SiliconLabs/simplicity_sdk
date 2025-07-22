@@ -34,6 +34,7 @@
 #include "sl_wisun_types.h"
 #include "sl_wisun_connection_params_api.h"
 #include "sl_wisun_lfn_params_api.h"
+#include "sl_wisun_regulation_api.h"
 
 /**************************************************************************//**
  * @addtogroup SL_WISUN_MSG_API Wi-SUN Message API
@@ -115,6 +116,9 @@ typedef enum {
   SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_REQ_ID          = 0x4B,
   SL_WISUN_MSG_SET_LFN_TIMINGS_REQ_ID                     = 0x4C,
   SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_REQ_ID         = 0x4D,
+  SL_WISUN_MSG_SET_REGULATION_PARAMS_REQ_ID               = 0x4E,
+  SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_REQ_ID         = 0x4F,
+  SL_WISUN_MSG_SET_EAP_IDENTITY_REQ_ID                    = 0x50,
 } sl_wisun_msg_req_id_t;
 
 /// Wi-SUN Message API confirmation IDs
@@ -192,6 +196,9 @@ typedef enum {
   SL_WISUN_MSG_CONFIG_NEIGHBOR_TABLE_SIZE_CNF_ID          = 0x4B,
   SL_WISUN_MSG_SET_LFN_TIMINGS_CNF_ID                     = 0x4C,
   SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION_CNF_ID         = 0x4D,
+  SL_WISUN_MSG_SET_REGULATION_PARAMS_CNF_ID               = 0x4E,
+  SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_CNF_ID         = 0x4F,
+  SL_WISUN_MSG_SET_EAP_IDENTITY_CNF_ID                    = 0x50,
 } sl_wisun_msg_cnf_id_t;
 
 /**************************************************************************//**
@@ -3511,6 +3518,129 @@ typedef struct {
 SL_PACK_END()
 
 /** @} (end SL_WISUN_MSG_CONFIG_CONCURRENT_DETECTION) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_MSG_SET_REGULATION_PARAMS sl_wisun_msg_set_regulation_params
+ * @{
+ *****************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// Regional regulation parameters
+  sl_wisun_regulation_params_t parameters;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_regulation_params_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_set_regulation_params_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_regulation_params_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_regulation_params_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_set_regulation_params_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_regulation_params_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_SET_REGULATION_PARAMS) */
+
+/******************************************************************************
+ * @defgroup SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE sl_wisun_msg_reset_regulation_duty_cycle
+ * @{
+ *****************************************************************************/
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_reset_regulation_duty_cycle_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_reset_regulation_duty_cycle_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_reset_regulation_duty_cycle_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_reset_regulation_duty_cycle_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE) */
+
+/**************************************************************************//**
+ * @defgroup SL_WISUN_MSG_SET_EAP_IDENTITY sl_wisun_msg_set_eap_identity
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// EAP identity
+  uint8_t identity[SL_WISUN_EAP_IDENTITY_SIZE];
+  /// Length of EAP identity
+  uint8_t identity_length;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_eap_identity_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_set_eap_identity_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_eap_identity_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_eap_identity_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_set_eap_identity_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_eap_identity_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_SET_EAP_IDENTITY) */
 
 /** @} (end SL_WISUN_MSG_API) */
 

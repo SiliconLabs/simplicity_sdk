@@ -22,7 +22,7 @@
 // Weak implementation to return the library not available incase the token
 // manager is not present.
 
-WEAK(uint8_t sli_zigbee_stack_get_token_count(void))
+WEAK(uint32_t sli_zigbee_stack_get_token_count(void))
 {
   return 0;
 }

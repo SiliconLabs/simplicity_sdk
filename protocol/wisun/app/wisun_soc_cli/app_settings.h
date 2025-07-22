@@ -75,6 +75,7 @@ typedef struct {
   uint16_t ipv6_mru;
   uint8_t max_edfe_fragment_count;
   uint16_t socket_rx_buffer_size;
+  char eap_identity[SL_WISUN_EAP_IDENTITY_SIZE+1];
 } app_settings_wisun_t;
 
 typedef struct {
@@ -92,9 +93,18 @@ typedef struct {
   uint8_t pti_state;
 } app_settings_app_t;
 
+typedef struct {
+  uint8_t min_be;
+  uint8_t max_be;
+  uint16_t backoff_period_us;
+  uint8_t max_cca_retries;
+  uint8_t max_frame_retries;
+} app_settings_mac_t;
+
 extern app_settings_wisun_t app_settings_wisun;
 extern app_settings_ping_t app_settings_ping;
 extern app_settings_app_t app_settings_app;
+extern app_settings_mac_t app_settings_mac;
 
 extern const app_enum_t app_settings_wisun_join_state_enum_ffn[];
 extern const app_enum_t app_settings_wisun_join_state_enum_lfn[];

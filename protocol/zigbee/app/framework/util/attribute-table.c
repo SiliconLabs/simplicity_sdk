@@ -19,8 +19,11 @@
 
 // this file contains all the common includes for clusters in the zcl-util
 #include "app/framework/util/common.h"
-
 #include "app/framework/util/attribute-storage.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
 
 // for pulling in defines dealing with EITHER server or client
 #include "af-main.h"

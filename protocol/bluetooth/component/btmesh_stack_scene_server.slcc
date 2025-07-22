@@ -11,6 +11,7 @@ root_path: "protocol/bluetooth"
 requires:
   - name: "btmesh_stack"
   - name: "btmesh_stack_scene_setup_server"
+  - name: "btmesh_stack_generic_server"
   - name: "btmesh_core"
 provides:
   - name: "btmesh_stack_scene_server"

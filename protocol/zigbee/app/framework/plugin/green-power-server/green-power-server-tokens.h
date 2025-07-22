@@ -15,6 +15,10 @@
  *
  ******************************************************************************/
 
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#include "sl_token_manager_api.h"
+#include "sl_token_manager_defines.h"
+#endif
 #include "green-power-server-config.h"
 
 #if (SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_USE_TOKENS == 1)
@@ -28,13 +32,12 @@
 
 // Basic Tokens
 #define NVM3KEY_GPS_NETWORK_STATE      (NVM3KEY_DOMAIN_ZIGBEE | 0x892B)
+#define COMMON_TOKEN_GPS_NETWORK_STATE SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_ZIGBEE | 0x892B), 0)
 
-#ifdef DEFINETYPES
-// Define token types
-#endif //DEFINETYPES
+#define TOKEN_GPS_NETWORK_STATE_DEFAULT 0x00
 
 #ifdef DEFINETOKENS
 // Define the actual token storage information here
-DEFINE_BASIC_TOKEN(GPS_NETWORK_STATE, uint8_t, 0x00)
+DEFINE_BASIC_TOKEN(GPS_NETWORK_STATE, uint8_t, TOKEN_GPS_NETWORK_STATE_DEFAULT)
 #endif //DEFINETOKENS
 #endif // SL_ZIGBEE_AF_PLUGIN_GREEN_POWER_SERVER_USE_TOKENS

@@ -4,7 +4,7 @@ package: platform_core
 description: >
     Crypto HAL for cryptographic hardware residing on the SE subsystem.
 category: Services|Token Manager
-quality: evaluation
+quality: production
 metadata:
   sbom:
     license: Zlib

@@ -73,12 +73,6 @@
 #error "This driver is only compatible with Series 2 & 3"
 #endif
 
-#if defined(_SILICON_LABS_32B_SERIES_2_CONFIG_5) \
-  || defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
-// MMLDMA has an issue with LDMA SYNC bits not waiting on a low signal before link
-#define DEVICE_HAS_MMLDMA
-#endif
-
 // Series 2 compatibility layer
 #if defined(_SILICON_LABS_32B_SERIES_2)
 #include "em_ldma.h"
@@ -424,13 +418,7 @@ static volatile int dma_irq_seq_no = 0;
 
 // Reception descriptors
 static ldma_descriptor_t rx_desc_wait_cs_high_after_header;
-#if defined(DEVICE_HAS_MMLDMA)
-static ldma_descriptor_t rx_desc_inv_cs_before_payload;
-#endif
 static ldma_descriptor_t rx_desc_wait_cs_low_before_payload;
-#if defined(DEVICE_HAS_MMLDMA)
-static ldma_descriptor_t rx_desc_revert_cs_before_payload;
-#endif
 static ldma_descriptor_t rx_desc_set_irq_high;
 static ldma_descriptor_t rx_desc_recv_payload;
 #if (SLI_CPC_DRV_SPI_RX_DATA_MAX_LENGTH > LDMA_DESCRIPTOR_MAX_XFER_SIZE)
@@ -448,13 +436,7 @@ static struct {
 } rx_desc_group;
 
 static ldma_descriptor_t rx_desc_rxblockdis;
-#if defined(DEVICE_HAS_MMLDMA)
-static ldma_descriptor_t rx_desc_inv_cs_before_header;
-#endif
 static ldma_descriptor_t rx_desc_wait_cs_low_before_header;
-#if defined(DEVICE_HAS_MMLDMA)
-static ldma_descriptor_t rx_desc_revert_cs_before_header;
-#endif
 static ldma_descriptor_t rx_desc_clear_availability_sync_bit;
 static ldma_descriptor_t rx_desc_set_irq_high_after_header_cs_low;
 static ldma_descriptor_t rx_desc_recv_header;
@@ -865,64 +847,20 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
         SYNC_ON_CS_PRS_CHANNEL_EQUAL_ONE,
         ENABLE_SYNC_ON_CS_PRS_CHANNEL);
 
-      #if defined(DEVICE_HAS_MMLDMA)
-      // Fixed branching to the descriptor following to include the 3 descriptors for the MMLDMA hack
-      rx_desc_wait_cs_high_after_header.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_inv_cs_before_payload);
-      #else
       // Fixed branching skipping the 3 following descriptors used for the SERIES_2_CONFIG_5 hack
       rx_desc_wait_cs_high_after_header.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_low_before_payload);
-      #endif
     }
-
-    #if defined(DEVICE_HAS_MMLDMA)
-    // The MMLDMA has an issue where the SYNC descriptors do not
-    // block when waiting for a 0 SYNC signal. To circumvent this, we always wait on
-    // a 1 SYNC signal by inverting CS using the PRS logical functions, so that
-    // when when CS goes low, the SYNC signal will go high.
-
-    // Invert CS polarity using PRS FNSEL
-    {
-      rx_desc_inv_cs_before_payload = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_WRITE(
-        _PRS_ASYNC_CH_CTRL_FNSEL_MASK, // Toggle FNSEL bits of PRS ASYNC Channel register to invert logic
-        &PRS->ASYNC_CH_TGL[SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH].CTRL
-        );
-
-      // Fixed branching to the descriptor following
-      rx_desc_inv_cs_before_payload.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_low_before_payload);
-    }
-    #endif
 
     // Sync descriptor to wait for the CS low before payload clocking
     {
       rx_desc_wait_cs_low_before_payload = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_SYNC(
         0x0,
         0x0,
-        #if defined(DEVICE_HAS_MMLDMA)
-        SYNC_ON_CS_PRS_CHANNEL_EQUAL_ONE,
-        #else
         SYNC_ON_CS_PRS_CHANNEL_EQUAL_ZERO,
-        #endif
         ENABLE_SYNC_ON_CS_PRS_CHANNEL);
 
-      #if defined(DEVICE_HAS_MMLDMA)
-      rx_desc_wait_cs_low_before_payload.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_revert_cs_before_payload);
-      #else
       rx_desc_wait_cs_low_before_payload.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_set_irq_high);
-      #endif
     }
-
-    #if defined(DEVICE_HAS_MMLDMA)
-    // Revert CS polarity using PRS FNSEL
-    {
-      rx_desc_revert_cs_before_payload = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_WRITE(
-        _PRS_ASYNC_CH_CTRL_FNSEL_MASK, // Toggle FNSEL bits of PRS ASYNC Channel register to invert logic
-        &PRS->ASYNC_CH_TGL[SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH].CTRL
-        );
-
-      // Fixed branching to one descriptor after the following
-      rx_desc_revert_cs_before_payload.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_set_irq_high);
-    }
-    #endif
 
     // WRITE descriptor to set the IRQ pin high after the falling edge of CS of payload
     {
@@ -1057,61 +995,19 @@ static sl_status_t spi_drv_init(sli_cpc_drv_t *drv, sli_cpc_instance_t *inst)
         RXBLOCKDIS_CMD,
         &SL_CPC_DRV_SPI_PERIPHERAL->CMD);
 
-      #if defined(DEVICE_HAS_MMLDMA)
-      rx_desc_rxblockdis.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_inv_cs_before_header);
-      #else
       rx_desc_rxblockdis.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_low_before_header);
-      #endif
     }
-
-    #if defined(DEVICE_HAS_MMLDMA)
-    // The LDMA on xG25 has an issue where the SYNC descriptors do not
-    // block when waiting for a 0 SYNC signal. To circumvent this, we always wait on
-    // a 1 SYNC signal by inverting CS using the PRS logical functions, so that
-    // when when CS goes low, the SYNC signal will go high.
-
-    // Invert CS polarity using PRS FNSEL
-    {
-      rx_desc_inv_cs_before_header = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_WRITE(
-        _PRS_ASYNC_CH_CTRL_FNSEL_MASK,  // Toggle FNSEL bits of PRS ASYNC Channel register to invert logic
-        &PRS->ASYNC_CH_TGL[SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH].CTRL);
-
-      // Fixed branching
-      rx_desc_inv_cs_before_header.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_wait_cs_low_before_header);
-    }
-    #endif
 
     // Sync descriptor to wait for the falling edge of the UART CS of the next header.
     {
       rx_desc_wait_cs_low_before_header = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_SYNC(
         0,
         0x0,
-        #if defined(DEVICE_HAS_MMLDMA)
-        SYNC_ON_CS_PRS_CHANNEL_EQUAL_ONE,
-        #else
         SYNC_ON_CS_PRS_CHANNEL_EQUAL_ZERO,
-        #endif
         ENABLE_SYNC_ON_CS_PRS_CHANNEL);
 
-      #if defined(DEVICE_HAS_MMLDMA)
-      rx_desc_wait_cs_low_before_header.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_revert_cs_before_header);
-      #else
       rx_desc_wait_cs_low_before_header.sync.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_clear_availability_sync_bit);
-      #endif
     }
-
-    #if defined(DEVICE_HAS_MMLDMA)
-    // Revert CS polarity using PRS FNSEL
-    {
-      // Toggle FNSEL bits of PRS ASYNC Channel register to invert logic
-      rx_desc_revert_cs_before_header = (ldma_descriptor_t) LDMA_DESCRIPTOR_LINKABS_WRITE(
-        _PRS_ASYNC_CH_CTRL_FNSEL_MASK,
-        &PRS->ASYNC_CH_TGL[SL_CPC_DRV_SPI_CS_SYNCTRIG_PRS_CH].CTRL);
-
-      // Fixed branching
-      rx_desc_revert_cs_before_header.wri.LDMA_DESCRIPTOR_LINK_ADDR = LDMA_DESCRIPTOR_LINKABS_ADDR_TO_LINKADDR(&rx_desc_clear_availability_sync_bit);
-    }
-    #endif
 
     // Sync descriptor to clear the SYNCTRIG[7] bit
     {
@@ -1496,11 +1392,7 @@ static sl_status_t spi_drv_start_rx(sli_cpc_drv_t *drv)
   // Due to the nature of the DMA chain, the start descriptor for the initial
   // DMA priming is in the middle of the chain, as opposed to when the DMA
   // is armed in the header interrupt
-  #if defined(DEVICE_HAS_MMLDMA)
-  ldma_descriptor_t *start_descriptor = &rx_desc_inv_cs_before_header;
-  #else
   ldma_descriptor_t *start_descriptor = &rx_desc_wait_cs_low_before_header;
-  #endif
 
   // The initial reception priming is special because we prime the RX DMA channel from
   // a descriptor in the middle of the chain.

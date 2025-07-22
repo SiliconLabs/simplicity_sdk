@@ -20,6 +20,7 @@
 #include "diagnostic-server.h"
 #include "app/framework/util/attribute-storage.h"
 #include "app/util/common/common.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 bool sl_zigbee_af_read_diagnostic_attribute(
   sl_zigbee_af_attribute_metadata_t *attributeMetadata,
@@ -129,7 +130,7 @@ bool sl_zigbee_af_read_diagnostic_attribute(
 
       uint16_t rebootCounter16;
 
-      halCommonGetToken(&rebootCounter, TOKEN_STACK_BOOT_COUNTER);
+      (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_BOOT_COUNTER, (void *)&rebootCounter, sizeof(tokTypeStackBootCounter));
 
       // The token is a uint32, but the attribute is a uint16
       rebootCounter16 = (uint16_t) rebootCounter;

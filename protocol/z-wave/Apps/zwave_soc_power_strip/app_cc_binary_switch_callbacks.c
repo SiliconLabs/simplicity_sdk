@@ -70,8 +70,9 @@
  *
  * @param p_switch Pointer to the binary switch structure that has changed.
  */
-void cc_binary_switch_handler(cc_binary_switch_t * p_switch)
+void cc_binary_switch_handler(__attribute__((unused)) cc_binary_switch_t * p_switch)
 {
+#if SL_SIMPLE_LED_COUNT >= 2
   uint8_t value = ZAF_Actuator_GetCurrentValue(&p_switch->actuator);
 
   if ( value > 0) {
@@ -79,4 +80,5 @@ void cc_binary_switch_handler(cc_binary_switch_t * p_switch)
   } else {
     sl_simple_led_turn_off(sl_led_led1.context);
   }
+#endif
 }

@@ -447,16 +447,6 @@ void sl_set_mfg_token_eui64_hash_data(tokTypeMfgEui64Hash *data)
   halCommonSetMfgToken(TOKEN_MFG_EUI_64_HASH, data);
 }
 
-void sl_get_mfg_token_radio_bands_supported(tokTypeMfgRadioBandsSupported *data)
-{
-  halCommonGetMfgToken(data, TOKEN_MFG_RADIO_BANDS_SUPPORTED);
-}
-
-void sl_set_mfg_token_radio_bands_supported_data(tokTypeMfgRadioBandsSupported *data)
-{
-  halCommonSetMfgToken(TOKEN_MFG_RADIO_BANDS_SUPPORTED, data);
-}
-
 void sl_get_mfg_token_radio_crystal_offset(tokTypeMfgRadioCrystalOffset *data)
 {
   halCommonGetMfgToken(data, TOKEN_MFG_RADIO_CRYSTAL_OFFSET);

@@ -34,6 +34,7 @@
 extern "C" {
 #endif
 
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
 #ifndef NVM3KEY_MFG_TOKEN_RANGE
 //To store a manufacturing token in NVM3 region we shall follow NVM3 key format.
 //Each object in the NVM3 is addressed by a 20-bit key
@@ -68,6 +69,7 @@ extern "C" {
                                                          : NVM3KEY_MFG_LB_TOKEN_RANGE_ID_SHIFTED))
 
 #endif
+/** @endcond */
 
 /***************************************************************************//**
  * Initialize the Token Manager.
@@ -292,6 +294,11 @@ extern bool nvm3OverrideActive;
 ///
 ///   @details
 ///
+///
+/// @note The 'token_manager' component is scheduled for deprecation.
+/// Support for both 'token_manager' component and the legacy HAL APIs will be discontinued.
+/// It is recommended to transition to the new 'common_token_manager' component and the APIs
+/// listed under 'Common Token Manager (CTM)' section.
 ///
 /// @n @section token_manager_intro Introduction
 ///

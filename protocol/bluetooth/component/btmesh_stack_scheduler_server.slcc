@@ -11,6 +11,8 @@ requires:
   - name: "btmesh_stack"
   - name: "btmesh_core"
   - name: "btmesh_stack_time_server"
+  - name: "btmesh_stack_scene_server"
+  - name: "btmesh_stack_generic_server"  
 provides:
   - name: "btmesh_stack_scheduler_server"
 template_contribution:

@@ -19,6 +19,7 @@
 #include "../../include/af.h"
 #include "../../util/common.h"
 #include "scenes.h"
+#include "sl_zigbee_token.h"
 
 #include "zap-cluster-command-parser.h"
 #ifdef SL_CATALOG_ZIGBEE_ZLL_SCENES_SERVER_PRESENT
@@ -1505,4 +1506,22 @@ uint32_t sl_zigbee_af_scenes_cluster_server_command_parse(sl_service_opcode_t op
   }
 
   return status;
+}
+
+sl_status_t sl_zigbee_af_scenes_token_init(void)
+{
+  sl_status_t status = SL_STATUS_OK;
+  uint8_t tok_scenes_num_entries_default = TOKEN_SCENES_NUM_ENTRIES_DEFAULT;
+  status = sl_zigbee_initialize_basic_token(COMMON_TOKEN_SCENES_NUM_ENTRIES, &tok_scenes_num_entries_default, sizeof(uint8_t));
+  assert(status == SL_STATUS_OK);
+  sl_zigbee_af_scene_table_entry_t scene_table_entry_default = TOKEN_SCENES_TABLE_DEFAULT;
+  status = sl_zigbee_initialize_index_token(COMMON_TOKEN_SCENES_TABLE, &scene_table_entry_default, sizeof(sl_zigbee_af_scene_table_entry_t), SL_ZIGBEE_AF_PLUGIN_SCENES_TABLE_SIZE);
+  assert(status == SL_STATUS_OK);
+  return status;
+}
+
+void sl_zigbee_af_scenes_init(uint8_t init_level)
+{
+  (void)init_level;
+  assert(SL_STATUS_OK == sl_zigbee_af_scenes_token_init());
 }

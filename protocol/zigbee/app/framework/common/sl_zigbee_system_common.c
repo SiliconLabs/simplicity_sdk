@@ -17,6 +17,7 @@
 #include PLATFORM_HEADER
 #include "hal.h"
 #include "stack/include/sl_zigbee.h"
+#include "stack/include/sl_zigbee_token.h"
 #include "sl_zigbee_system_common.h"
 #include "zigbee_app_framework_callback.h"
 #ifndef EZSP_HOST
@@ -83,6 +84,15 @@ extern void sli_zigbee_af_init_done(void);
 
 void sli_zigbee_app_framework_init_callback(void)
 {
+#ifdef EZSP_HOST
+  // Initialize all tokens, which includes 'stack' tokens
+  // (while stack tokens are initialized on host, they have no use apart from their
+  // existence to remain backwards-compatible with older host NVM files)
+  // On SoC/NCP, stack tokens are initialized in the zigbee stack library
+  sl_status_t status = halStackInitTokens();
+  assert(status == SL_STATUS_OK);
+#endif // EZSP_HOST
+
   // Init the event queue.
   sli_zigbee_initialize_event_queue(&sli_zigbee_af_app_event_queue);
 

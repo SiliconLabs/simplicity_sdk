@@ -44,7 +44,7 @@
 /***************************************************************************//**
  * Initialize ETAMPDET.
  ******************************************************************************/
-void sl_hal_etampdet_init(const sl_hal_etampdet_config_t *config)
+void sl_hal_etampdet_init(const sl_hal_etampdet_init_t *init)
 {
   // Wait for synchronization to finish
   sl_hal_etampdet_wait_sync();
@@ -57,14 +57,14 @@ void sl_hal_etampdet_init(const sl_hal_etampdet_config_t *config)
   }
 
   // Set upper and lower clock prescaler
-  ETAMPDET->CLKPRESCVAL = ((uint32_t)config->upper_clk_presc_val << _ETAMPDET_CLKPRESCVAL_UPPERPRESC_SHIFT)
-                          | ((uint32_t)config->lower_clk_presc_val << _ETAMPDET_CLKPRESCVAL_LOWERPRESC_SHIFT);
+  ETAMPDET->CLKPRESCVAL = ((uint32_t)init->upper_clk_presc_val << _ETAMPDET_CLKPRESCVAL_UPPERPRESC_SHIFT)
+                          | ((uint32_t)init->lower_clk_presc_val << _ETAMPDET_CLKPRESCVAL_LOWERPRESC_SHIFT);
 }
 
 /***************************************************************************//**
  * Initialize ETAMPDET channel.
  ******************************************************************************/
-void sl_hal_etampdet_init_channel(const sl_hal_etampdet_config_channel_t *config_channel)
+void sl_hal_etampdet_init_channel(const sl_hal_etampdet_channel_init_t *init_channel)
 {
   uint32_t temp = 0;
   // Wait for synchronization to finish
@@ -78,42 +78,42 @@ void sl_hal_etampdet_init_channel(const sl_hal_etampdet_config_channel_t *config
   }
 
   // Set enable channel value
-  temp |= (uint32_t)config_channel->channel_pad_en << _ETAMPDET_CFG_CHNLPADEN0_SHIFT;
+  temp |= (uint32_t)init_channel->channel_pad_en << _ETAMPDET_CFG_CHNLPADEN0_SHIFT;
   // Set channel tamper detect filtering value
-  temp |= (uint32_t)config_channel->channel_tampdet_filt_en << _ETAMPDET_CFG_CHNLTAMPDETFILTEN0_SHIFT;
+  temp |= (uint32_t)init_channel->channel_tampdet_filt_en << _ETAMPDET_CFG_CHNLTAMPDETFILTEN0_SHIFT;
   // Set 1 clock delay to TX value
-  temp |= (uint32_t)config_channel->channel_cmp_dly_en << _ETAMPDET_CFG_CHNLCMPDLYEN0_SHIFT;
+  temp |= (uint32_t)init_channel->channel_cmp_dly_en << _ETAMPDET_CFG_CHNLCMPDLYEN0_SHIFT;
   // Set channel configuration register
   ETAMPDET->CFG_CLR = (_ETAMPDET_CFG_CHNLPADEN0_MASK
                        | _ETAMPDET_CFG_CHNLTAMPDETFILTEN0_MASK
-                       | _ETAMPDET_CFG_CHNLCMPDLYEN0_MASK) << (config_channel->channel * _ETAMPDET_CFG_CHNLCMPDLYEN1_SHIFT);
-  ETAMPDET->CFG_SET = temp << (config_channel->channel * _ETAMPDET_CFG_CHNLCMPDLYEN1_SHIFT);
+                       | _ETAMPDET_CFG_CHNLCMPDLYEN0_MASK) << (init_channel->channel * _ETAMPDET_CFG_CHNLCMPDLYEN1_SHIFT);
+  ETAMPDET->CFG_SET = temp << (init_channel->channel * _ETAMPDET_CFG_CHNLCMPDLYEN1_SHIFT);
 
-  if (config_channel->channel_tampdet_filt_en) {
+  if (init_channel->channel_tampdet_filt_en) {
     // Set filter threshold register
     ETAMPDET->CNTMISMATCHMAX_CLR = _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX0_MASK
-                                   << (config_channel->channel * _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX1_SHIFT);
-    ETAMPDET->CNTMISMATCHMAX_SET = (uint32_t)config_channel->channel_cnt_mismatch
-                                   << (config_channel->channel * _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX1_SHIFT);
+                                   << (init_channel->channel * _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX1_SHIFT);
+    ETAMPDET->CNTMISMATCHMAX_SET = (uint32_t)init_channel->channel_cnt_mismatch
+                                   << (init_channel->channel * _ETAMPDET_CNTMISMATCHMAX_CHNLCNTMISMATCHMAX1_SHIFT);
 
     // Set moving window size register
     ETAMPDET->CHNLFILTWINSIZE_CLR = _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE0_MASK
-                                    << (config_channel->channel * _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE1_SHIFT);
-    ETAMPDET->CHNLFILTWINSIZE_SET = (uint32_t)config_channel->channel_filt_win_size
-                                    << (config_channel->channel * _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE1_SHIFT);
+                                    << (init_channel->channel * _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE1_SHIFT);
+    ETAMPDET->CHNLFILTWINSIZE_SET = (uint32_t)init_channel->channel_filt_win_size
+                                    << (init_channel->channel * _ETAMPDET_CHNLFILTWINSIZE_CHNLFILTWINSIZE1_SHIFT);
   }
 
   // Set EM4 wakeup enable value
   ETAMPDET->EM4WUEN_CLR = _ETAMPDET_EM4WUEN_CHNLEM4WUEN0_MASK
-                          << (config_channel->channel * _ETAMPDET_EM4WUEN_CHNLEM4WUEN1_SHIFT);
-  ETAMPDET->EM4WUEN_SET = (uint32_t)config_channel->em4_wakeup_en
-                          << (config_channel->channel * _ETAMPDET_EM4WUEN_CHNLEM4WUEN1_SHIFT);
+                          << (init_channel->channel * _ETAMPDET_EM4WUEN_CHNLEM4WUEN1_SHIFT);
+  ETAMPDET->EM4WUEN_SET = (uint32_t)init_channel->em4_wakeup_en
+                          << (init_channel->channel * _ETAMPDET_EM4WUEN_CHNLEM4WUEN1_SHIFT);
 
   // Set Seed value
-  if (config_channel->channel == channel_0) {
-    ETAMPDET->CHNLSEEDVAL0 = config_channel->channel_seed_val;
+  if (init_channel->channel == channel_0) {
+    ETAMPDET->CHNLSEEDVAL0 = init_channel->channel_seed_val;
   } else {
-    ETAMPDET->CHNLSEEDVAL1 = config_channel->channel_seed_val;
+    ETAMPDET->CHNLSEEDVAL1 = init_channel->channel_seed_val;
   }
 }
 

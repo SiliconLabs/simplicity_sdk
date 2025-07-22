@@ -11,3 +11,5 @@ metadata:
 provides:
   - name: nvm3_optimization
   - name: nvm3_optimization_disable
+requires:
+  - name: device_efx

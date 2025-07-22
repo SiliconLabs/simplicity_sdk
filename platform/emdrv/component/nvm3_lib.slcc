@@ -28,3 +28,5 @@ provides:
   - name: nvm3_lib
 requires:
   - name: nvm3_source
+ui_hints:
+  visibility: never

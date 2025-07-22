@@ -64,7 +64,12 @@ typedef struct {
   bool                 compare0_top;    ///< Set if Compare Value 0 is also top value (counter restart)
   bool                 em4_comparator;  ///< Enable EM4 wakeup on compare match.
   bool                 em4_overflow;    ///< Enable EM4 wakeup on counter overflow.
-} sl_hal_burtc_init_config_t;
+} sl_hal_burtc_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_burtc_init_t sl_hal_burtc_init_config_t;
+/** @endcond */
 
 /*******************************************************************************
  **************************   STRUCT INITIALIZERS   ****************************
@@ -91,10 +96,10 @@ typedef struct {
  * @brief
  *   Initialize the Back-Up RTC.
  *
- * @param[in] burtc_init
+ * @param[in] init
  *    A pointer to the initialization structure used to configure the BURTC.
  ******************************************************************************/
-void sl_hal_burtc_init(const sl_hal_burtc_init_config_t *burtc_init);
+void sl_hal_burtc_init(const sl_hal_burtc_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -347,7 +352,7 @@ __INLINE void sl_hal_burtc_unlock(void)
  * void burtc_example(void)
  * {
  *   // Initialize configuration structure with default settings
- *   sl_hal_burtc_init_config_t init = SL_HAL_BURTC_INIT_DEFAULT;
+ *   sl_hal_burtc_init_t init = SL_HAL_BURTC_INIT_DEFAULT;
  *
  *   // Initialize BURTC with default settings
  *   sl_hal_burtc_init(&init);

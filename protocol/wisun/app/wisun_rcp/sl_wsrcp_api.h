@@ -27,7 +27,8 @@ void rcp_ind_nop(struct sl_wsrcp_mac *rcp_mac);
 void rcp_ind_reset(struct sl_wsrcp_mac *rcp_mac);
 void rcp_cnf_data_tx(struct sl_wsrcp_mac *rcp_mac,
                      const struct mcps_data_conf_s *cnf,
-                     const struct mcps_data_conf_payload_s *ie_ext);
+                     const struct mcps_data_conf_payload_s *ie_ext,
+                     bool report_tx_duration);
 void rcp_ind_data_rx(struct sl_wsrcp_mac *rcp_mac,
                      const struct mcps_data_ind_s *ind,
                      const struct mcps_data_ie_list *ie_ext);

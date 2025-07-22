@@ -15,6 +15,7 @@
 #include "hw.h"
 #include "cmdma.h"
 #include "cmaes.h"
+#include "sl_code_classification.h"
 
 /** Mode Register value for context loading */
 #define AES_AEAD_MODEID_CTX_LOAD (1u << 4)
@@ -32,6 +33,7 @@ void set_nonce_gcm(struct sxaead *c);
 void set_nonce_ccm(struct sxaead *c);
 
 static int lenAlenC_aesgcm_ba411(size_t aadsz, size_t datasz, uint8_t *out);
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static int lenAlenC_nop(size_t aadsz, size_t datasz, uint8_t *out);
 
 
@@ -108,6 +110,7 @@ static const struct sx_aead_cmdma_cfg ba411ccmcfg = {
 
 
 /** Returns the bitmask for key size used for verifying HW capabilities. */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static uint32_t sx_aead_ba411_key_mask(size_t keysz)
 {
     switch (keysz) {
@@ -167,6 +170,7 @@ void set_nonce_ccm(struct sxaead *c)
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static void sx_memcpy(void* dst, void* src, size_t length)
 {
     for (size_t i = 0; i < length; i++)
@@ -174,6 +178,7 @@ static void sx_memcpy(void* dst, void* src, size_t length)
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static void sx_writebe(uint8_t *out, uint64_t data, uint16_t targetsz)
 {
     uint16_t i;
@@ -181,7 +186,7 @@ static void sx_writebe(uint8_t *out, uint64_t data, uint16_t targetsz)
         out[(targetsz - 1) - i] = (data >> (i * 8)) & 0xFF;
 }
 
-
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_create_ccmheader(const char *nonce, size_t noncesz,
     uint8_t tagsz, uint64_t aadsz, uint64_t datasz, uint8_t *header,
     uint8_t *headersz)
@@ -244,6 +249,7 @@ int sx_aead_create_ccmheader(const char *nonce, size_t noncesz,
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static void sx_aead_free(struct sxaead *c)
 {
     sx_cmdma_release_hw(c->dma.regs);
@@ -372,6 +378,7 @@ int sx_aead_create_aesgcm_dec(struct sxaead *c, const struct sxkeyref *key,
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SLI_CRYPTO, SL_CODE_CLASS_TIME_CRITICAL)
 static int sx_aead_create_aesccm(struct sxaead *c, const struct sxkeyref *key,
     const char *nonce, size_t noncesz, size_t tagsz, size_t aadsz, size_t datasz,
     const uint32_t dir, const struct sxaesparams *params)
@@ -585,6 +592,7 @@ int sx_aead_multifeed_aad(struct sxaead *c, struct sxdataref *aadin, size_t coun
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static void sx_aead_discard_aad(struct sxaead *c)
 {
     if (c->discardaadsz) {
@@ -594,6 +602,7 @@ static void sx_aead_discard_aad(struct sxaead *c)
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static void sx_aead_finish_and_discard_aad(struct sxaead *c)
 {
     /* Add extraaad remaining as no more AAD data can be
@@ -700,6 +709,7 @@ int sx_aead_multifeed_crypt(struct sxaead *c,
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static int sx_aead_run(struct sxaead *c)
 {
     sx_cmdma_start(&c->dma, sizeof(c->descs) + sizeof(c->extramem), c->descs);

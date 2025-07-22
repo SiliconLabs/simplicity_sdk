@@ -79,7 +79,8 @@ extern __INLINE uint32_t sl_hal_usart_rx_double_x_get(USART_TypeDef *usart);
 /***************************************************************************//**
  * Initialize USART/UART for normal asynchronous mode.
  ******************************************************************************/
-void sl_hal_usart_init_async(USART_TypeDef *usart, const sl_hal_usart_async_config_t *config)
+void sl_hal_usart_init_async(USART_TypeDef *usart,
+                             const sl_hal_usart_async_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_USART_REF_VALID(usart));
@@ -89,38 +90,38 @@ void sl_hal_usart_init_async(USART_TypeDef *usart, const sl_hal_usart_async_conf
   sl_hal_usart_enable(usart);
 
   // Configure majority vote, auto CS mode, CS invert mode.
-  usart->CTRL |= ((uint32_t)config->majority_vote << _USART_CTRL_MVDIS_SHIFT)
-                 | ((uint32_t)config->auto_cs_enable << _USART_CTRL_AUTOCS_SHIFT)
-                 | ((uint32_t)config->cs_invert << _USART_CTRL_CSINV_SHIFT);
+  usart->CTRL |= ((uint32_t)init->majority_vote << _USART_CTRL_MVDIS_SHIFT)
+                 | ((uint32_t)init->auto_cs_enable << _USART_CTRL_AUTOCS_SHIFT)
+                 | ((uint32_t)init->cs_invert << _USART_CTRL_CSINV_SHIFT);
 
   // Configure the PRS input mode.
-  if (config->prs_rx_enable) {
-    usart_prs_input(usart, config->prs_rx_channel);
+  if (init->prs_rx_enable) {
+    usart_prs_input(usart, init->prs_rx_channel);
   }
 
   // Configure databits, stopbits, and parity.
-  usart->FRAME = ((uint32_t)config->data_bits << _USART_FRAME_DATABITS_SHIFT)
-                 | ((uint32_t)config->stop_bits << _USART_FRAME_STOPBITS_SHIFT)
-                 | ((uint32_t)config->parity << _USART_FRAME_PARITY_SHIFT);
+  usart->FRAME = ((uint32_t)init->data_bits << _USART_FRAME_DATABITS_SHIFT)
+                 | ((uint32_t)init->stop_bits << _USART_FRAME_STOPBITS_SHIFT)
+                 | ((uint32_t)init->parity << _USART_FRAME_PARITY_SHIFT);
 
-  usart->CTRL_SET = (uint32_t)config->oversampling << _USART_CTRL_OVS_SHIFT;
+  usart->CTRL_SET = (uint32_t)init->oversampling << _USART_CTRL_OVS_SHIFT;
 
-  usart->CLKDIV = (config->clock_div << _USART_CLKDIV_DIV_SHIFT) & _USART_CLKDIV_DIV_MASK;
+  usart->CLKDIV = (init->clock_div << _USART_CLKDIV_DIV_SHIFT) & _USART_CLKDIV_DIV_MASK;
 
-  usart->TIMING = (((uint32_t)config->auto_cs_hold << _USART_TIMING_CSHOLD_SHIFT)
+  usart->TIMING = (((uint32_t)init->auto_cs_hold << _USART_TIMING_CSHOLD_SHIFT)
                    & _USART_TIMING_CSHOLD_MASK)
-                  | (((uint32_t)config->auto_cs_setup << _USART_TIMING_CSSETUP_SHIFT)
+                  | (((uint32_t)init->auto_cs_setup << _USART_TIMING_CSSETUP_SHIFT)
                      & _USART_TIMING_CSSETUP_MASK);
 
-  if ((config->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_RTS)
-      || (config->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS_RTS)) {
+  if ((init->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_RTS)
+      || (init->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS_RTS)) {
     GPIO->USARTROUTE_SET[USART_NUM(usart)].ROUTEEN = GPIO_USART_ROUTEEN_RTSPEN;
   } else {
     GPIO->USARTROUTE_CLR[USART_NUM(usart)].ROUTEEN = GPIO_USART_ROUTEEN_RTSPEN;
   }
 
-  if ((config->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS)
-      || (config->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS_RTS)) {
+  if ((init->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS)
+      || (init->hw_flow_control == SL_HAL_USART_HW_FLOW_CONTROL_CTS_RTS)) {
     usart->CTRLX_SET = USART_CTRLX_CTSEN;
   } else {
     usart->CTRLX_CLR = USART_CTRLX_CTSEN;
@@ -130,7 +131,8 @@ void sl_hal_usart_init_async(USART_TypeDef *usart, const sl_hal_usart_async_conf
 /***************************************************************************//**
  * Initialize USART for synchronous mode.
  ******************************************************************************/
-void sl_hal_usart_init_sync(USART_TypeDef *usart, const sl_hal_usart_sync_config_t *config)
+void sl_hal_usart_init_sync(USART_TypeDef *usart,
+                            const sl_hal_usart_sync_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_USART_REF_VALID(usart));
@@ -141,29 +143,29 @@ void sl_hal_usart_init_sync(USART_TypeDef *usart, const sl_hal_usart_sync_config
 
   // Set bits for synchronous mode.
   usart->CTRL |= USART_CTRL_SYNC
-                 | config->clock_mode
-                 | ((uint32_t)config->msb_first << _USART_CTRL_MSBF_SHIFT)
-                 | ((uint32_t)config->auto_tx << _USART_CTRL_AUTOTX_SHIFT)
-                 | ((uint32_t)config->auto_cs_enable << _USART_CTRL_AUTOCS_SHIFT)
-                 | ((uint32_t)config->cs_invert << _USART_CTRL_CSINV_SHIFT);
+                 | init->clock_mode
+                 | ((uint32_t)init->msb_first << _USART_CTRL_MSBF_SHIFT)
+                 | ((uint32_t)init->auto_tx << _USART_CTRL_AUTOTX_SHIFT)
+                 | ((uint32_t)init->auto_cs_enable << _USART_CTRL_AUTOCS_SHIFT)
+                 | ((uint32_t)init->cs_invert << _USART_CTRL_CSINV_SHIFT);
 
   // Configure the PRS input mode.
-  if (config->prs_rx_enable) {
-    usart_prs_input(usart, config->prs_rx_channel);
+  if (init->prs_rx_enable) {
+    usart_prs_input(usart, init->prs_rx_channel);
   }
 
   // Configure databits, leave stopbits and parity at reset default (not used).
-  usart->FRAME = ((uint32_t)config->data_bits << _USART_FRAME_DATABITS_SHIFT)
+  usart->FRAME = ((uint32_t)init->data_bits << _USART_FRAME_DATABITS_SHIFT)
                  | USART_FRAME_STOPBITS_DEFAULT
                  | USART_FRAME_PARITY_DEFAULT;
 
   // Finally, enable (as specified).
-  usart->CMD = ((uint32_t)config->master << _USART_CMD_MASTEREN_SHIFT);
+  usart->CMD = ((uint32_t)init->master << _USART_CMD_MASTEREN_SHIFT);
 
-  usart->CLKDIV = (config->clock_div << _USART_CLKDIV_DIV_SHIFT) & _USART_CLKDIV_DIV_MASK;
-  usart->TIMING = (((uint32_t)config->auto_cs_hold << _USART_TIMING_CSHOLD_SHIFT)
+  usart->CLKDIV = (init->clock_div << _USART_CLKDIV_DIV_SHIFT) & _USART_CLKDIV_DIV_MASK;
+  usart->TIMING = (((uint32_t)init->auto_cs_hold << _USART_TIMING_CSHOLD_SHIFT)
                    & _USART_TIMING_CSHOLD_MASK)
-                  | (((uint32_t)config->auto_cs_setup << _USART_TIMING_CSSETUP_SHIFT)
+                  | (((uint32_t)init->auto_cs_setup << _USART_TIMING_CSSETUP_SHIFT)
                      & _USART_TIMING_CSSETUP_MASK);
 }
 
@@ -291,7 +293,8 @@ uint32_t sl_hal_usart_async_calculate_clock_div(uint32_t ref_freq,
  * Calculate baudrate for USART/UART (sync mode) given reference frequency,
  * clock division.
  ******************************************************************************/
-uint32_t sl_hal_usart_sync_calculate_baudrate(uint32_t ref_freq, uint32_t clk_div)
+uint32_t sl_hal_usart_sync_calculate_baudrate(uint32_t ref_freq,
+                                              uint32_t clk_div)
 {
   uint32_t br;
 
@@ -310,7 +313,8 @@ uint32_t sl_hal_usart_sync_calculate_baudrate(uint32_t ref_freq, uint32_t clk_di
  * Calculate SPI (sync mode) clock divider using given reference frequency and
  * baudrate.
  ******************************************************************************/
-uint32_t sl_hal_usart_sync_calculate_clock_div(uint32_t ref_freq, uint32_t baudrate)
+uint32_t sl_hal_usart_sync_calculate_clock_div(uint32_t ref_freq,
+                                               uint32_t baudrate)
 {
   uint32_t clk_div;
 
@@ -335,23 +339,24 @@ uint32_t sl_hal_usart_sync_calculate_clock_div(uint32_t ref_freq, uint32_t baudr
  *
  * @note Not all USART instances support IrDA. See the data sheet for your device.
  ******************************************************************************/
-void sl_hal_usart_init_irda(USART_TypeDef *usart, const sl_hal_usart_irda_config_t *config)
+void sl_hal_usart_init_irda(USART_TypeDef *usart,
+                            const sl_hal_usart_irda_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_USART_REF_VALID(usart));
 
   // Initialize USART as an async device.
-  sl_hal_usart_init_async(usart, &(config->async));
+  sl_hal_usart_init_async(usart, &(init->async));
 
   // Set IrDA modulation to RZI (return-to-zero-inverted).
   usart->CTRL |= USART_CTRL_TXINV;
 
   // Invert the Rx signal before the demodulator if enabled.
-  usart->CTRL |= ((uint32_t)config->ir_rx_inv << _USART_CTRL_RXINV_SHIFT);
+  usart->CTRL |= ((uint32_t)init->ir_rx_inv << _USART_CTRL_RXINV_SHIFT);
 
   // Configure IrDA.
-  usart->IRCTRL = ((uint32_t)config->ir_pulse_width << _USART_IRCTRL_IRPW_SHIFT)
-                  | ((config->ir_filter ? 1UL : 0UL) << _USART_IRCTRL_IRFILT_SHIFT);
+  usart->IRCTRL = ((uint32_t)init->ir_pulse_width << _USART_IRCTRL_IRPW_SHIFT)
+                  | ((init->ir_filter ? 1UL : 0UL) << _USART_IRCTRL_IRFILT_SHIFT);
 
   // Enable IrDA.
   usart->IRCTRL_SET = USART_IRCTRL_IREN;
@@ -362,7 +367,8 @@ void sl_hal_usart_init_irda(USART_TypeDef *usart, const sl_hal_usart_irda_config
  *
  * @note This function does not apply to all USART's. See the chip Reference Manual.
  ******************************************************************************/
-void sl_hal_usart_init_i2s(USART_TypeDef *usart, sl_hal_usart_i2s_config_t *config)
+void sl_hal_usart_init_i2s(USART_TypeDef *usart,
+                           const sl_hal_usart_i2s_init_t *init)
 {
   // Make sure the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_USART_REF_VALID(usart));
@@ -371,14 +377,14 @@ void sl_hal_usart_init_i2s(USART_TypeDef *usart, sl_hal_usart_i2s_config_t *conf
   sl_hal_usart_disable_tx(usart);
 
   // Initialize USART as a sync device.
-  sl_hal_usart_init_sync(usart, &config->sync);
+  sl_hal_usart_init_sync(usart, &init->sync);
 
   // Configure and enable I2CCTRL register according to the selected mode.
-  usart->I2SCTRL = ((uint32_t)config->format << _USART_I2SCTRL_FORMAT_SHIFT)
-                   | ((uint32_t)config->justify << _USART_I2SCTRL_JUSTIFY_SHIFT)
-                   | (config->delay    ? USART_I2SCTRL_DELAY     : 0)
-                   | (config->dma_split ? USART_I2SCTRL_DMASPLIT : 0)
-                   | (config->mono     ? USART_I2SCTRL_MONO      : 0)
+  usart->I2SCTRL = ((uint32_t)init->format << _USART_I2SCTRL_FORMAT_SHIFT)
+                   | ((uint32_t)init->justify << _USART_I2SCTRL_JUSTIFY_SHIFT)
+                   | (init->delay    ? USART_I2SCTRL_DELAY     : 0)
+                   | (init->dma_split ? USART_I2SCTRL_DMASPLIT : 0)
+                   | (init->mono     ? USART_I2SCTRL_MONO      : 0)
                    | USART_I2SCTRL_EN;
 }
 
@@ -466,7 +472,8 @@ void sl_hal_usart_disable_rx_prs_trigger(USART_TypeDef *usart)
 /***************************************************************************//**
  * Enable automatic enabling of transmission using the PRS as a trigger.
  ******************************************************************************/
-void sl_hal_usart_enable_tx_prs_trigger(USART_TypeDef *usart, uint8_t channel)
+void sl_hal_usart_enable_tx_prs_trigger(USART_TypeDef *usart,
+                                        uint8_t channel)
 {
   // Make sure that the module exists on the selected chip.
   EFM_ASSERT(SL_HAL_USART_REF_VALID(usart));
@@ -516,7 +523,8 @@ void sl_hal_usart_disable_tx_prs_trigger(USART_TypeDef *usart)
 /***************************************************************************//**
  * Configure a PRS channel as USART Rx input
  ******************************************************************************/
-static void usart_prs_input(USART_TypeDef *usart, uint8_t channel)
+static void usart_prs_input(USART_TypeDef *usart,
+                            uint8_t channel)
 {
   if (usart == USART0) {
     sl_hal_prs_connect_channel_consumer(channel,

@@ -115,21 +115,21 @@ static __INLINE LDMAXBAR_TypeDef *sli_get_ldmaxbar_by_ldma_instance(LDMA_TypeDef
  *   Initialize the LDMA controller.
  ******************************************************************************/
 void sl_hal_ldma_init(LDMA_TypeDef *ldma,
-                      const sl_hal_ldma_config_t *config)
+                      const sl_hal_ldma_init_t *init)
 {
-  EFM_ASSERT(config != NULL);
-  EFM_ASSERT(!(((uint32_t)config->num_fixed_priority << _LDMA_CTRL_NUMFIXED_SHIFT)
+  EFM_ASSERT(init != NULL);
+  EFM_ASSERT(!(((uint32_t)init->num_fixed_priority << _LDMA_CTRL_NUMFIXED_SHIFT)
                & ~_LDMA_CTRL_NUMFIXED_MASK));
 
-  EFM_ASSERT(!(((uint32_t)config->sync_prs_clr_en << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
+  EFM_ASSERT(!(((uint32_t)init->sync_prs_clr_en << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
                & ~_LDMA_SYNCHWEN_SYNCCLREN_MASK));
-  EFM_ASSERT(!(((uint32_t)config->sync_prs_set_en << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT)
+  EFM_ASSERT(!(((uint32_t)init->sync_prs_set_en << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT)
                & ~_LDMA_SYNCHWEN_SYNCSETEN_MASK));
 
-  ldma->CTRL = (uint32_t)config->num_fixed_priority << _LDMA_CTRL_NUMFIXED_SHIFT;
+  ldma->CTRL = (uint32_t)init->num_fixed_priority << _LDMA_CTRL_NUMFIXED_SHIFT;
 
-  ldma->SYNCHWEN = ((uint32_t)config->sync_prs_clr_en << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
-                   | ((uint32_t)config->sync_prs_set_en << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT);
+  ldma->SYNCHWEN = ((uint32_t)init->sync_prs_clr_en << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
+                   | ((uint32_t)init->sync_prs_set_en << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT);
 
   ldma->CHDIS = _LDMA_CHEN_MASK;
   ldma->DBGHALT = 0;
@@ -142,59 +142,59 @@ void sl_hal_ldma_init(LDMA_TypeDef *ldma,
  ******************************************************************************/
 void sl_hal_ldma_init_transfer(LDMA_TypeDef *ldma,
                                uint32_t channel,
-                               const sl_hal_ldma_transfer_config_t *transfer_config,
+                               const sl_hal_ldma_transfer_init_t *transfer_init,
                                const sl_hal_ldma_descriptor_t *descriptor)
 {
   CORE_DECLARE_IRQ_STATE;
   uint32_t ch_mask = 1UL << channel;
 
   EFM_ASSERT(channel < DMA_CHAN_COUNT);
-  EFM_ASSERT(transfer_config != NULL);
+  EFM_ASSERT(transfer_init != NULL);
   EFM_ASSERT(descriptor != NULL);
 
-  EFM_ASSERT(!(transfer_config->request_sel & ~_LDMAXBAR_CH_REQSEL_MASK));
+  EFM_ASSERT(!(transfer_init->request_sel & ~_LDMAXBAR_CH_REQSEL_MASK));
 
-  EFM_ASSERT(!(((uint32_t)transfer_config->arb_slots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
+  EFM_ASSERT(!(((uint32_t)transfer_init->arb_slots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
                & ~_LDMA_CH_CFG_ARBSLOTS_MASK));
-  EFM_ASSERT(!(((uint32_t)transfer_config->src_inc_sign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
+  EFM_ASSERT(!(((uint32_t)transfer_init->src_inc_sign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
                & ~_LDMA_CH_CFG_SRCINCSIGN_MASK));
-  EFM_ASSERT(!(((uint32_t)transfer_config->dst_inc_sign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT)
+  EFM_ASSERT(!(((uint32_t)transfer_init->dst_inc_sign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT)
                & ~_LDMA_CH_CFG_DSTINCSIGN_MASK));
-  EFM_ASSERT(!(((uint32_t)transfer_config->loop_count << _LDMA_CH_LOOP_LOOPCNT_SHIFT)
+  EFM_ASSERT(!(((uint32_t)transfer_init->loop_count << _LDMA_CH_LOOP_LOOPCNT_SHIFT)
                & ~_LDMA_CH_LOOP_LOOPCNT_MASK));
 
   CORE_ENTER_ATOMIC();
 
-  sli_get_ldmaxbar_by_ldma_instance(ldma)->CH[channel].REQSEL = transfer_config->request_sel;
+  sli_get_ldmaxbar_by_ldma_instance(ldma)->CH[channel].REQSEL = transfer_init->request_sel;
 
-  ldma->CH[channel].LOOP = transfer_config->loop_count << _LDMA_CH_LOOP_LOOPCNT_SHIFT;
-  ldma->CH[channel].CFG = (transfer_config->arb_slots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
+  ldma->CH[channel].LOOP = transfer_init->loop_count << _LDMA_CH_LOOP_LOOPCNT_SHIFT;
+  ldma->CH[channel].CFG = (transfer_init->arb_slots << _LDMA_CH_CFG_ARBSLOTS_SHIFT)
 #if defined(_LDMA_CH_CFG_STRUCTBUSPORT_MASK) || defined(_LDMA_CH_CFG_SRCBUSPORT_MASK)
-                          | (transfer_config->struct_bus_port << _LDMA_CH_CFG_STRUCTBUSPORT_SHIFT)
-                          | (transfer_config->src_bus_port << _LDMA_CH_CFG_SRCBUSPORT_SHIFT)
-                          | (transfer_config->dst_bus_port << _LDMA_CH_CFG_DSTBUSPORT_SHIFT)
+                          | (transfer_init->struct_bus_port << _LDMA_CH_CFG_STRUCTBUSPORT_SHIFT)
+                          | (transfer_init->src_bus_port << _LDMA_CH_CFG_SRCBUSPORT_SHIFT)
+                          | (transfer_init->dst_bus_port << _LDMA_CH_CFG_DSTBUSPORT_SHIFT)
 #endif
-                          | (transfer_config->src_inc_sign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
-                          | (transfer_config->dst_inc_sign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT);
+                          | (transfer_init->src_inc_sign << _LDMA_CH_CFG_SRCINCSIGN_SHIFT)
+                          | (transfer_init->dst_inc_sign << _LDMA_CH_CFG_DSTINCSIGN_SHIFT);
 
   // Set the descriptor address.
   ldma->CH[channel].LINK = (uint32_t)descriptor & _LDMA_CH_LINK_LINKADDR_MASK;
 
   ldma->SYNCHWEN_CLR =
-    (((uint32_t)transfer_config->ldma_control_sync_prs_clear_off  << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
-     | ((uint32_t)transfer_config->ldma_control_sync_prs_set_off << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT))
+    (((uint32_t)transfer_init->ldma_control_sync_prs_clear_off  << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
+     | ((uint32_t)transfer_init->ldma_control_sync_prs_set_off << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT))
     & _LDMA_SYNCHWEN_MASK;
 
   ldma->SYNCHWEN_SET =
-    (((uint32_t)transfer_config->ldma_control_sync_prs_clear_on << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
-     | ((uint32_t)transfer_config->ldma_control_sync_prs_set_on << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT))
+    (((uint32_t)transfer_init->ldma_control_sync_prs_clear_on << _LDMA_SYNCHWEN_SYNCCLREN_SHIFT)
+     | ((uint32_t)transfer_init->ldma_control_sync_prs_set_on << _LDMA_SYNCHWEN_SYNCSETEN_SHIFT))
     & _LDMA_SYNCHWEN_MASK;
 
-  if (transfer_config->request_dis) {
+  if (transfer_init->request_dis) {
     sl_hal_ldma_disable_channel_request(ldma, channel);
   }
 
-  if (transfer_config->debug_halt_en) {
+  if (transfer_init->debug_halt_en) {
     ldma->DBGHALT_SET = ch_mask;
   }
 
@@ -211,7 +211,7 @@ void sl_hal_ldma_init_transfer(LDMA_TypeDef *ldma,
  ******************************************************************************/
 void sl_hal_ldma_init_transfer_extend(LDMA_TypeDef *ldma,
                                       uint32_t channel,
-                                      const sl_hal_ldma_transfer_config_t *transfer_config,
+                                      const sl_hal_ldma_transfer_init_t *transfer_init,
                                       const sl_hal_ldma_descriptor_extend_t *descriptor_extend)
 {
   // Ensure destination interleaving supported for given channel if enabled.
@@ -227,7 +227,7 @@ void sl_hal_ldma_init_transfer_extend(LDMA_TypeDef *ldma,
 
   sl_hal_ldma_init_transfer(ldma,
                             channel,
-                            transfer_config,
+                            transfer_init,
                             (const sl_hal_ldma_descriptor_t *)descriptor_extend);
 }
 #endif

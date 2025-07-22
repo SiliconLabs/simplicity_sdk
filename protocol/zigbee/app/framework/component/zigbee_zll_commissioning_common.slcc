@@ -22,6 +22,9 @@ source:
       - cli
   - path: protocol/zigbee/app/framework/plugin/zll-commissioning-common/zll-commissioning-common-cb.c
 include:
+  - path: protocol/zigbee
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
   - path: protocol/zigbee/app/framework/plugin/zll-commissioning-common
     file_list:
       - path: zll-commissioning-common.h

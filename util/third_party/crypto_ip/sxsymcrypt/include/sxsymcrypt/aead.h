@@ -68,6 +68,7 @@ extern "C" {
 #endif
 
 #include <stddef.h>
+#include "sl_code_classification.h"
 
 /** Initialization vector (IV) size, in bytes, for GCM encryption/decryption */
 #define SX_GCM_IV_SZ 12u
@@ -98,6 +99,7 @@ struct sxdataref;
  * @remark - \p aad buffer should not be changed until the operation is
  *           completed.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_feed_aad(struct sxaead *c, const char *aad, size_t aadsz);
 
 
@@ -159,6 +161,7 @@ int sx_aead_multifeed_aad(struct sxaead *c, struct sxdataref *aadin,
  * @remark - this function can not be called after having called sx_aead_crypt().
  * @remark - this function can not be called after having called sx_aead_multifeed_crypt().
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_crypt(struct sxaead *c, const char *datain, size_t datainsz,
     char *dataout);
 
@@ -229,6 +232,7 @@ int sx_aead_multifeed_crypt(struct sxaead *c,
  * @remark - if used with context saving(last chunk), the fed data size for
  *         the last chunk can not be 0
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_produce_tag(struct sxaead *c, char *tag);
 
 
@@ -253,6 +257,7 @@ int sx_aead_produce_tag(struct sxaead *c, char *tag);
  * @remark - if used with context saving(last chunk), the fed data size for
  *         the last chunk can not be 0
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_verify_tag(struct sxaead *c, const char *tag);
 
 
@@ -340,6 +345,7 @@ int sx_aead_save_state(struct sxaead *c);
  *
  * @remark - this function is blocking until operation finishes.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_wait(struct sxaead *c);
 
 
@@ -366,6 +372,7 @@ int sx_aead_wait(struct sxaead *c);
  *            will be returned. In this case, the decrypted text is not valid
  *            and shall not be used.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 int sx_aead_status(struct sxaead *c);
 
 

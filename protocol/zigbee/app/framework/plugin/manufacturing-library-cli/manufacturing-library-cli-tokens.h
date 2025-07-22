@@ -15,18 +15,18 @@
  *
  ******************************************************************************/
 
+#include "sl_token_manager_defines.h"
+
 /**
  * Custom Application Tokens
  */
 #define CREATOR_MFG_LIB_ENABLED  (0x000d)
 #define NVM3KEY_MFG_LIB_ENABLED  (NVM3KEY_DOMAIN_USER | 0x000d)
+#define COMMON_TOKEN_MFG_LIB_ENABLED SL_TOKEN_GET_DYNAMIC_TOKEN((SL_TOKEN_NVM3_REGION_USER | 0x000d), 0)
 
-#ifdef DEFINETYPES
-// Include or define any typedef for tokens here
-#endif //DEFINETYPES
+#define TOKEN_MFG_LIB_ENABLED_DEFAULT 0
+
 #ifdef DEFINETOKENS
 // Define the actual token storage information here
-
-DEFINE_BASIC_TOKEN(MFG_LIB_ENABLED, uint8_t, 0)
-
+DEFINE_BASIC_TOKEN(MFG_LIB_ENABLED, uint8_t, TOKEN_MFG_LIB_ENABLED_DEFAULT)
 #endif //DEFINETOKENS

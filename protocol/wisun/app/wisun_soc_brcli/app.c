@@ -803,6 +803,11 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
   params.traffic.lowpan_mtu = app_settings_wisun.lowpan_mtu;
   params.traffic.ipv6_mru = app_settings_wisun.ipv6_mru;
   params.traffic.max_edfe_fragment_count = app_settings_wisun.max_edfe_fragment_count;
+  params.mac.min_be = app_settings_mac.min_be;
+  params.mac.max_be = app_settings_mac.max_be;
+  params.mac.backoff_period_us = app_settings_mac.backoff_period_us;
+  params.mac.max_cca_retries = app_settings_mac.max_cca_retries;
+  params.mac.max_frame_retries = app_settings_mac.max_frame_retries;
   status = sl_wisun_br_set_connection_parameters(&params);
   if (status != SL_STATUS_OK) {
     printf("[Failed: unable to set parameters (%"PRIu32")]\r\n", status);
@@ -3033,6 +3038,25 @@ cleanup:
   if (routing_table) {
     sl_free(routing_table);
   }
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_reset_duty_cycle(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t status;
+  (void)arguments;
+
+  app_wisun_cli_mutex_lock();
+
+  status = sl_wisun_reset_regulation_duty_cycle();
+  if (status != SL_STATUS_OK) {
+    printf("[Failed: unable to reset the duty cycle counters: %lu]\r\n", status);
+    goto cleanup;
+  }
+  printf("[Duty cycle counters reset]\r\n");
+
+cleanup:
 
   app_wisun_cli_mutex_unlock();
 }

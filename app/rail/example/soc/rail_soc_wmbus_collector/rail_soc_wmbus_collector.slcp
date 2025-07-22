@@ -38,7 +38,7 @@ component:
 #-------------- Restriction rules -------------------
   - id: restrictions_profile_wmbus
 #-----------------Series 3 OS-------------------------
-  - id: micriumos_kernel
+  - id: freertos
     condition: [device_series_3]
 #---------------Code Classification------------------
   - id: code_classification

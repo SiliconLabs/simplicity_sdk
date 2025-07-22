@@ -1348,15 +1348,24 @@ void ieee802154ConfigRxChannelSwitching(sl_cli_command_arg_t *args)
   #endif
     .buffer_bytes = SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_BUF_BYTES,
   };
+  sl_rail_ieee802154_rx_channel_switching_cfg_t *p_config = &config;
 
-  uint8_t channelCount = 0U;
-  while (channelCount <  SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS) {
-    config.channels[channelCount] = sl_cli_get_argument_uint16(args, channelCount);
-    channelCount += 1U;
+  #ifdef _SILICON_LABS_32B_SERIES_3
+  if ((sl_cli_get_argument_count(args) == 3U) && (sl_cli_get_argument_uint16(args, 2) != 0U)) {
+    // A 3rd argument indicates whether the feature is reset using NULL.
+    p_config = NULL;
+  } else
+  #endif
+  {
+    uint8_t channelCount = 0U;
+    while (channelCount <  SL_RAIL_IEEE802154_RX_CHANNEL_SWITCHING_NUM_CHANNELS) {
+      config.channels[channelCount] = sl_cli_get_argument_uint16(args, channelCount);
+      channelCount += 1U;
+    }
   }
 
   sl_rail_status_t status
-    = sl_rail_ieee802154_config_rx_channel_switching(railHandle, &config);
+    = sl_rail_ieee802154_config_rx_channel_switching(railHandle, p_config);
 
   responsePrint(sl_cli_get_command_string(args, 0),
                 "Success:%s",

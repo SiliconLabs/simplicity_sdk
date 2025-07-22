@@ -412,6 +412,8 @@ static sl_status_t state_in_procedure_on_ranging_data(cs_initiator_t            
                          initiator->conn_handle);
       initiator->initiator_state = (uint8_t)INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_ABORTED;
     }
+    // Allow upcoming procedures
+    reset_subevent_data(initiator, false);
     sc = SL_STATUS_OK;
   } else if (data->evt_ranging_data.procedure_state == CS_PROCEDURE_STATE_COMPLETED) {
     initiator_log_info(INSTANCE_PREFIX "Instance new state: WAIT_REFLECTOR_PROCEDURE_COMPLETE" LOG_NL,

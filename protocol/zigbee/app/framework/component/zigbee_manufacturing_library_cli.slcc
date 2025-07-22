@@ -16,7 +16,35 @@ source:
   - path: protocol/zigbee/app/framework/plugin/manufacturing-library-cli/manufacturing-library-cli-host.c
     condition:
       - zigbee_ezsp
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_legacy.c
+    condition:
+      - device_series_2
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token.c
+    unless:
+      - device_series_2
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_defines.c
+    unless:
+      - device_series_2
+  - path: protocol/zigbee/stack/platform/sl_zigbee_token_host.c
+    condition:
+      - zigbee_ezsp
+    unless:
+      - zigbee_host_simulation
+      - zigbee_simulation
+  - path: protocol/zigbee/stack/platform/sl_zigbee_legacy_token_host.c
+    condition:
+      - zigbee_ezsp
+    unless:
+      - device_series_2
 include:
+  - path: platform/service/token_manager/inc
+  - path: platform/service/token_manager/legacy/inc
+  - path: protocol/zigbee
+    file_list:
+      - path: stack/config/sl_zigbee_token_defines.h
+  - path: protocol/zigbee/stack/include
+    file_list:
+      - path: sl_zigbee_token.h
   - path: protocol/zigbee/app/framework/plugin/manufacturing-library-cli
     file_list:
       - path: manufacturing-library-cli-plugin.h

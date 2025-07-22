@@ -323,12 +323,12 @@ void sl_button_on_change(const sl_button_t *handle)
       if (wakeup_buttons[i]) {
         // This button caused an EM4 wakeup
         evt.duration = sl_sleeptimer_get_tick_count()
-                       + sl_sleeptimer_ms_to_tick(APP_BUTTON_PRESS_WAKEUP_DELAY);
+                       + sl_sleeptimer_ms_to_tick(APP_BUTTON_PRESS_WAKEUP_DELAY_MS);
         wakeup_buttons[i] = false;
       }
 #endif // SL_CATALOG_APP_EM4H_RESET_PRESENT
       evt.index = i;
-      if ((evt.duration > sl_sleeptimer_ms_to_tick(MIN_VALID_BUTTON_PRESS_DURATION))
+      if ((evt.duration > sl_sleeptimer_ms_to_tick(MIN_VALID_BUTTON_PRESS_DURATION_MS))
           || (state.buttons[i].press == APP_BUTTON_PRESS_PRESSED_DOWN)) {
         sc = app_rta_queue_push(ctx, (uint8_t *)&evt, sizeof(evt));
         if (sc != SL_STATUS_OK) {
@@ -400,11 +400,11 @@ void button_release_from_cli(sl_cli_command_arg_t *arguments)
   if (cli_button_states[button_id] == SL_SIMPLE_BUTTON_PRESSED) {
     uint32_t t_diff = sl_sleeptimer_get_tick_count() - cli_button_timestamps[button_id];
     cli_button_states[button_id] = SL_SIMPLE_BUTTON_RELEASED;
-    if (t_diff < sl_sleeptimer_ms_to_tick(SHORT_BUTTON_PRESS_DURATION)) {
+    if (t_diff < sl_sleeptimer_ms_to_tick(SHORT_BUTTON_PRESS_DURATION_MS)) {
       app_button_press_cb(button_id, APP_BUTTON_PRESS_DURATION_SHORT);
-    } else if (t_diff < sl_sleeptimer_ms_to_tick(MEDIUM_BUTTON_PRESS_DURATION)) {
+    } else if (t_diff < sl_sleeptimer_ms_to_tick(MEDIUM_BUTTON_PRESS_DURATION_MS)) {
       app_button_press_cb(button_id, APP_BUTTON_PRESS_DURATION_MEDIUM);
-    } else if (t_diff < sl_sleeptimer_ms_to_tick(LONG_BUTTON_PRESS_DURATION)) {
+    } else if (t_diff < sl_sleeptimer_ms_to_tick(LONG_BUTTON_PRESS_DURATION_MS)) {
       app_button_press_cb(button_id, APP_BUTTON_PRESS_DURATION_LONG);
     } else {
       app_button_press_cb(button_id, APP_BUTTON_PRESS_DURATION_VERYLONG);
@@ -431,11 +431,11 @@ static void calculate_press(button_event_t *evt)
   }
   #endif // APP_BUTTON_PRESS_DETECTION
   // Set state flag according to the difference
-  if (evt->duration < sl_sleeptimer_ms_to_tick(SHORT_BUTTON_PRESS_DURATION)) {
+  if (evt->duration < sl_sleeptimer_ms_to_tick(SHORT_BUTTON_PRESS_DURATION_MS)) {
     state.buttons[i].press = APP_BUTTON_PRESS_DURATION_SHORT;
-  } else if (evt->duration < sl_sleeptimer_ms_to_tick(MEDIUM_BUTTON_PRESS_DURATION)) {
+  } else if (evt->duration < sl_sleeptimer_ms_to_tick(MEDIUM_BUTTON_PRESS_DURATION_MS)) {
     state.buttons[i].press = APP_BUTTON_PRESS_DURATION_MEDIUM;
-  } else if (evt->duration < sl_sleeptimer_ms_to_tick(LONG_BUTTON_PRESS_DURATION)) {
+  } else if (evt->duration < sl_sleeptimer_ms_to_tick(LONG_BUTTON_PRESS_DURATION_MS)) {
     state.buttons[i].press = APP_BUTTON_PRESS_DURATION_LONG;
   } else {
     state.buttons[i].press = APP_BUTTON_PRESS_DURATION_VERYLONG;

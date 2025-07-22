@@ -144,3 +144,11 @@ upgrade:
           For baremetal applications sl_system_compatibility is now used for a seamless transition.
           For RTOS applications you can manually upgrade your project to sl_main or add the define SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2025_6 to your project to keep sl_system until it is removed.
           sl_system support for RTOS applications will be removed in sisdk-2026.6.0 and your project will need to upgrade to sl_main.
+
+  - sdk:
+      id: simplicity_sdk
+      version: 2025.6.1
+    configuration:
+      - script: protocol/zigbee/component/scripts/upgrade_zigbee_token_manager.lua
+        description: >
+          The Token Manager component has been added to the project. This is a legacy component that handles the management of tokens. No action is required, but the user is encouraged to read the corresponding zigbee 2025.6 release notes that describe the new Common Token Manager component.

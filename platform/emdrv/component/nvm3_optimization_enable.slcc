@@ -15,3 +15,5 @@ define:
 provides:
   - name: nvm3_optimization
   - name: nvm3_optimization_enable
+requires:
+  - name: device_efx

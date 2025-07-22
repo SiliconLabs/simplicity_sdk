@@ -516,6 +516,14 @@ template_contribution:
       help: "Display the routing table"
       shortcuts:
         - name: "rt"
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "reset_duty_cycle"
+      handler: "app_reset_duty_cycle"
+      help: "Reset the duty cycle counters"
+      shortcuts:
+        - name: "rdc"
 # -------------------------------
   - name: cli_group
     value:

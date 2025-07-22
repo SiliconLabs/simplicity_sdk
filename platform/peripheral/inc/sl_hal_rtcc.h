@@ -133,7 +133,7 @@ typedef struct {
   bool                            counter_wrap_on_ccv_1;      ///< Enable/disable counter wrap on ch. 1 CCV value.
   sl_hal_rtcc_counter_prescaler_t prescaler;                  ///< Counter prescaler.
   sl_hal_rtcc_prescaler_mode_t    prescaler_mode;             ///< Prescaler mode.
-} sl_hal_rtcc_config_t;
+} sl_hal_rtcc_init_t;
 
 /// RTCC capture/compare channel configuration structure.
 typedef struct {
@@ -142,7 +142,13 @@ typedef struct {
   sl_hal_rtcc_prs_select_t                   prs_select;                ///< Capture mode channel PRS input channel selection.
   sl_hal_rtcc_in_edge_select_t               input_edge_select;         ///< Capture mode channel input edge selection.
   sl_hal_rtcc_compare_base_t                 compare_base;              ///<< Comparison base of channel in compare mode.
-} sl_hal_rtcc_cc_config_t;
+} sl_hal_rtcc_cc_init_t;
+
+/** @cond DO_NOT_INCLUDE_WITH_DOXYGEN */
+// Typedef for configuration structure used for backward compatibility purposes.
+typedef sl_hal_rtcc_init_t sl_hal_rtcc_config_t;
+typedef sl_hal_rtcc_cc_init_t sl_hal_rtcc_cc_config_t;
+/** @endcond */
 
 /*******************************************************************************
  ****************************  STRUCT INITIALIZERS  ***************************
@@ -195,7 +201,7 @@ typedef struct {
  *   to the use of this function if configuring the RTCC to start when
  *   initialization is completed.
  ******************************************************************************/
-void sl_hal_rtcc_init(const sl_hal_rtcc_config_t *init);
+void sl_hal_rtcc_init(const sl_hal_rtcc_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -204,16 +210,16 @@ void sl_hal_rtcc_init(const sl_hal_rtcc_config_t *init);
  * @param[in] channel
  *   A channel selector.
  *
- * @param[in] confPtr
- *   A pointer to the configuration structure.
+ * @param[in] init
+ *   A pointer to the RTCC channel initialization structure.
  *
  * @details
  *   Use this function to configure an RTCC channel. Select capture/compare mode,
  *   match output action, overflow output action, and PRS input configuration.
- *   See the configuration structure @ref sl_hal_rtcc_cc_config_t for more details.
+ *   See the configuration structure @ref sl_hal_rtcc_cc_init_t for more details.
  ******************************************************************************/
 void sl_hal_rtcc_channel_init(uint32_t channel,
-                              const sl_hal_rtcc_cc_config_t *config);
+                              const sl_hal_rtcc_cc_init_t *init);
 
 /***************************************************************************//**
  * @brief
@@ -633,12 +639,12 @@ __INLINE uint32_t sl_hal_rtcc_get_status(void)
  * void rtcc_example(void)
  * {
  *   // Initialize RTCC with default settings
- *   sl_hal_rtcc_config_t rtcc_config = SL_HAL_RTCC_INIT_DEFAULT;
- *   sl_hal_rtcc_init(&rtcc_config);
+ *   sl_hal_rtcc_init_t rtcc_init = SL_HAL_RTCC_INIT_DEFAULT;
+ *   sl_hal_rtcc_init(&rtcc_init);
  *
  *   // Configure channel 0 for compare mode
- *   sl_hal_rtcc_cc_config_t cc_config = SL_HAL_RTCC_CH_INIT_COMPARE_DEFAULT;
- *   sl_hal_rtcc_channel_init(0, &cc_config);
+ *   sl_hal_rtcc_cc_init_t cc_init = SL_HAL_RTCC_CH_INIT_COMPARE_DEFAULT;
+ *   sl_hal_rtcc_channel_init(0, &cc_init);
  *
  *   // Set compare value for channel 0
  *   sl_hal_rtcc_set_channel_compare_value(0, 1000); // 1000 counts

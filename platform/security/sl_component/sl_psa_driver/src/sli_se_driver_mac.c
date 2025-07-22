@@ -41,6 +41,8 @@
 #include "sli_se_manager_internal.h"
 #include "sli_se_driver_key_management.h"
 #include "sli_psa_driver_common.h"
+#include "sl_se_manager.h"
+#include "sl_se_manager_cipher.h"
 
 #include <string.h>
 
@@ -68,15 +70,20 @@ sl_se_hash_type_t sli_se_hash_type_from_psa_hmac_alg(psa_algorithm_t alg,
       *length = 32;
       return SL_SE_HASH_SHA256;
 
-      #if defined(SLI_MBEDTLS_DEVICE_HSE_VAULT_HIGH)
+    #if defined(SLI_MBEDTLS_DEVICE_HSE_VAULT_HIGH)
     case PSA_ALG_SHA_384:
       *length = 48;
       return SL_SE_HASH_SHA384;
     case PSA_ALG_SHA_512:
       *length = 64;
       return SL_SE_HASH_SHA512;
-      #endif
-
+    #endif
+    #if defined(_SILICON_LABS_32B_SERIES_3)
+    case PSA_ALG_AES_MMO_ZIGBEE:
+      // AES-MMO digest size is 16 bytes
+      *length = 16;
+      return SL_SE_HASH_AES_MMO;
+    #endif
     default:
       return SL_SE_HASH_NONE;
   }
@@ -104,7 +111,7 @@ psa_status_t sli_se_driver_mac_compute(sl_se_key_descriptor_t *key_desc,
   }
 
   sl_status_t status;
-  psa_status_t psa_status = PSA_ERROR_INVALID_ARGUMENT;
+  psa_status_t psa_status = PSA_ERROR_CORRUPTION_DETECTED;
   sl_se_command_context_t cmd_ctx = { 0 };
 
   status = sl_se_init_command_context(&cmd_ctx);
@@ -281,8 +288,6 @@ psa_status_t sli_se_driver_mac_compute(sl_se_key_descriptor_t *key_desc,
 
   if (status == SL_STATUS_INVALID_PARAMETER) {
     psa_status = PSA_ERROR_INVALID_ARGUMENT;
-  } else if (status == SL_STATUS_FAIL) {
-    psa_status = PSA_ERROR_DOES_NOT_EXIST;
   } else if (status != SL_STATUS_OK) {
     psa_status = PSA_ERROR_HARDWARE_FAILURE;
   } else {
@@ -361,33 +366,147 @@ psa_status_t sli_se_driver_mac_sign_setup(
   return PSA_SUCCESS;
 }
 
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC || SLI_PSA_DRIVER_FEATURE_CBC_MAC
+
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC) || (defined(SLI_PSA_DRIVER_FEATURE_HMAC) && defined(_SILICON_LABS_32B_SERIES_3))
+
 psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
                                       sl_se_key_descriptor_t *key_desc,
                                       const uint8_t *input,
                                       size_t input_length)
 {
+  #if defined(SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART)
+
   if (operation == NULL
-      || (input == NULL && input_length > 0)) {
+      || (input == NULL && input_length > 0)
+      || key_desc == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
+
+  if (input_length == 0) {
+    return PSA_SUCCESS;
+  }
+
+  sl_status_t status;
+  psa_status_t psa_status = PSA_ERROR_CORRUPTION_DETECTED;
 
   // Ephemeral contexts
   sl_se_command_context_t cmd_ctx = { 0 };
 
-  sl_status_t status = sl_se_init_command_context(&cmd_ctx);
+  status = sl_se_init_command_context(&cmd_ctx);
   if (status != SL_STATUS_OK) {
     return PSA_ERROR_HARDWARE_FAILURE;
   }
 
-  psa_status_t psa_status = PSA_ERROR_NOT_SUPPORTED;
+  #if defined(SLI_PSA_DRIVER_FEATURE_HMAC) && defined(_SILICON_LABS_32B_SERIES_3)
+  if (PSA_ALG_IS_HMAC(operation->alg)) {
+    size_t hmac_state_len = 0;
+    size_t requested_length = 0;
+    sl_se_hash_type_t hash_type = sli_se_hash_type_from_psa_hmac_alg(operation->alg,
+                                                                     &requested_length);
+    if (hash_type == SL_SE_HASH_NONE) {
+      return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    if (requested_length > sizeof(operation->ctx.hmac.hmac_result)) {
+      return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    size_t block_size = 0u;
+    switch (hash_type) {
+      case SL_SE_HASH_SHA1:
+      {
+        block_size = 64u;
+        hmac_state_len = 28u;
+        break;
+      }
+      case SL_SE_HASH_SHA224:
+      case SL_SE_HASH_SHA256:
+      {
+        block_size = 64u;
+        hmac_state_len = 40u;
+        break;
+      }
+      case SL_SE_HASH_SHA384:
+      case SL_SE_HASH_SHA512:
+      {
+        block_size = 128u;
+        hmac_state_len = 72u;
+        break;
+      }
+      default:
+      {
+        return PSA_ERROR_NOT_SUPPORTED;
+      }
+    }
+
+    size_t offset = 0u;
+    // If there is a partial data in the buffer, fill it up to a block size
+    if (operation->ctx.hmac.buffer_length > 0) {
+      size_t to_copy = block_size - operation->ctx.hmac.buffer_length;
+      if (input_length < to_copy) {
+        memcpy(operation->ctx.hmac.buffer + operation->ctx.hmac.buffer_length,
+               input,
+               input_length);
+        operation->ctx.hmac.buffer_length += input_length;
+        return PSA_SUCCESS;
+      } else {
+        memcpy(operation->ctx.hmac.buffer + operation->ctx.hmac.buffer_length,
+               input,
+               to_copy);
+        if (operation->ctx.hmac.processed_msg_len == 0) {
+          status = sl_se_hmac_multipart_starts(&cmd_ctx, key_desc, hash_type,
+                                               (const unsigned char *)operation->ctx.hmac.buffer, block_size,
+                                               operation->ctx.hmac.hmac_state_buffer, hmac_state_len);
+        } else {
+          status = sl_se_hmac_multipart_update(&cmd_ctx, hash_type,
+                                               (const unsigned char *)operation->ctx.hmac.buffer, block_size,
+                                               operation->ctx.hmac.hmac_state_buffer, hmac_state_len);
+        }
+        if (status != SL_STATUS_OK) {
+          goto exit;
+        }
+        operation->ctx.hmac.processed_msg_len += block_size;
+        operation->ctx.hmac.buffer_length = 0;
+        offset += to_copy;
+      }
+    }
+
+    // Now we can process the full blocks of data from the input
+    while (offset + block_size <= input_length) {
+      size_t blocks_to_process = (input_length - offset) / block_size;
+      size_t data_to_process = blocks_to_process * block_size;
+
+      if (operation->ctx.hmac.processed_msg_len == 0) {
+        status = sl_se_hmac_multipart_starts(&cmd_ctx, key_desc, hash_type,
+                                             (const unsigned char *)(input + offset), data_to_process,
+                                             operation->ctx.hmac.hmac_state_buffer, hmac_state_len);
+      } else {
+        status = sl_se_hmac_multipart_update(&cmd_ctx, hash_type,
+                                             (const unsigned char *)(input + offset), data_to_process,
+                                             operation->ctx.hmac.hmac_state_buffer, hmac_state_len);
+      }
+      if (status != SL_STATUS_OK) {
+        goto exit;
+      }
+      operation->ctx.hmac.processed_msg_len += data_to_process;
+      offset += data_to_process;
+    }
+
+    // Store remaining bytes in buffer
+    if (offset < input_length) {
+      operation->ctx.hmac.buffer_length = input_length - offset;
+      memcpy(operation->ctx.hmac.buffer, input + offset, operation->ctx.hmac.buffer_length);
+    }
+
+    goto exit;
+  }
+  #endif // SLI_PSA_DRIVER_FEATURE_HMAC && defined(_SILICON_LABS_32B_SERIES_3)
+
+  #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
   switch (PSA_ALG_FULL_LENGTH_MAC(operation->alg)) {
     #if defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
     case PSA_ALG_CBC_MAC:
-      if (input_length == 0) {
-        psa_status = PSA_SUCCESS;
-        goto exit;
-      }
-
       // Add bytes to the streaming buffer up to the next block boundary
       if (operation->ctx.cbcmac.processed_length % 16 != 0) {
         size_t bytes_to_boundary
@@ -397,8 +516,7 @@ psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
                  input,
                  input_length);
           operation->ctx.cbcmac.processed_length += input_length;
-          psa_status = PSA_SUCCESS;
-          goto exit;
+          return PSA_SUCCESS;
         }
 
         memcpy(&operation->ctx.cbcmac.streaming_block[16 - bytes_to_boundary],
@@ -416,11 +534,7 @@ psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
                                      operation->ctx.cbcmac.streaming_block,
                                      operation->ctx.cbcmac.iv);
 
-        if (status == SL_STATUS_FAIL) {
-          psa_status = PSA_ERROR_DOES_NOT_EXIST;
-          goto exit;
-        } else if (status != SL_STATUS_OK) {
-          psa_status = PSA_ERROR_HARDWARE_FAILURE;
+        if (status != SL_STATUS_OK) {
           goto exit;
         }
       }
@@ -436,7 +550,6 @@ psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
                                      operation->ctx.cbcmac.iv);
 
         if (status != SL_STATUS_OK) {
-          psa_status = PSA_ERROR_HARDWARE_FAILURE;
           goto exit;
         }
 
@@ -452,39 +565,37 @@ psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
         operation->ctx.cbcmac.processed_length += input_length;
       }
 
-      psa_status = PSA_SUCCESS;
       goto exit;
     #endif // SLI_PSA_DRIVER_FEATURE_CBC_MAC
 
     #if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
     case PSA_ALG_CMAC:
-      if (input_length == 0) {
-        psa_status = PSA_SUCCESS;
-        goto exit;
-      }
-
       status = sl_se_cmac_multipart_update(&operation->ctx.cmac,
                                            &cmd_ctx,
                                            key_desc,
                                            input,
                                            input_length);
-      if (status == SL_STATUS_FAIL) {
-        psa_status = PSA_ERROR_DOES_NOT_EXIST;
-        goto exit;
-      } else if (status != SL_STATUS_OK) {
-        psa_status = PSA_ERROR_HARDWARE_FAILURE;
+      if (status != SL_STATUS_OK) {
         goto exit;
       }
-      psa_status = PSA_SUCCESS;
-      goto exit;
+      break;
     #endif // SLI_PSA_DRIVER_FEATURE_CMAC
 
     default:
-      psa_status = PSA_ERROR_BAD_STATE;
-      goto exit;
+      return PSA_ERROR_BAD_STATE;
   }
+  #endif // SLI_PSA_DRIVER_FEATURE_CMAC || SLI_PSA_DRIVER_FEATURE_CBC_MAC
 
   exit:
+
+  if (status == SL_STATUS_INVALID_PARAMETER) {
+    psa_status = PSA_ERROR_INVALID_ARGUMENT;
+  } else if (status != SL_STATUS_OK) {
+    psa_status = PSA_ERROR_HARDWARE_FAILURE;
+  } else {
+    psa_status = PSA_SUCCESS;
+  }
+
   // Cleanup
   status = sl_se_deinit_command_context(&cmd_ctx);
   if (status != SL_STATUS_OK) {
@@ -492,6 +603,15 @@ psa_status_t sli_se_driver_mac_update(sli_se_driver_mac_operation_t *operation,
   }
 
   return psa_status;
+
+  #else // SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART
+  (void)operation;
+  (void)key_desc;
+  (void)input;
+  (void)input_length;
+
+  return PSA_ERROR_NOT_SUPPORTED;
+  #endif // SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART
 }
 
 psa_status_t sli_se_driver_mac_sign_finish(
@@ -501,13 +621,108 @@ psa_status_t sli_se_driver_mac_sign_finish(
   size_t mac_size,
   size_t *mac_length)
 {
+  #if defined(SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART)
+
   if (operation == NULL
       || mac == NULL
       || mac_size == 0
-      || mac_length == NULL) {
+      || mac_length == NULL
+      || key_desc == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
+  sl_status_t status;
+  psa_status_t psa_status = PSA_ERROR_CORRUPTION_DETECTED;
+
+  // Ephemeral contexts
+  sl_se_command_context_t cmd_ctx = { 0 };
+  status = sl_se_init_command_context(&cmd_ctx);
+  if (status != SL_STATUS_OK) {
+    return PSA_ERROR_HARDWARE_FAILURE;
+  }
+
+  #if defined(SLI_PSA_DRIVER_FEATURE_HMAC) && defined(_SILICON_LABS_32B_SERIES_3)
+  if (PSA_ALG_IS_HMAC(operation->alg)) {
+    #if defined(SLI_PSA_DRIVER_FEATURE_HASH_STATE_64)
+    uint8_t tmp_hmac[64];
+    #else
+    uint8_t tmp_hmac[32];
+    #endif
+
+    size_t requested_length = 0;
+    sl_se_hash_type_t hash_type =
+      sli_se_hash_type_from_psa_hmac_alg(operation->alg, &requested_length);
+    if (hash_type == SL_SE_HASH_NONE) {
+      return PSA_ERROR_NOT_SUPPORTED;
+    }
+
+    if (PSA_MAC_TRUNCATED_LENGTH(operation->alg) > requested_length) {
+      return PSA_ERROR_INVALID_ARGUMENT;
+    }
+
+    if (PSA_MAC_TRUNCATED_LENGTH(operation->alg) > 0) {
+      requested_length = PSA_MAC_TRUNCATED_LENGTH(operation->alg);
+    }
+
+    if (mac_size < requested_length) {
+      return PSA_ERROR_BUFFER_TOO_SMALL;
+    }
+
+    size_t hmac_state_len = 0;
+    switch (hash_type) {
+      case SL_SE_HASH_SHA1:
+      {
+        hmac_state_len = 28u;
+        break;
+      }
+      case SL_SE_HASH_SHA224:
+      case SL_SE_HASH_SHA256:
+      {
+        hmac_state_len = 40u;
+        break;
+      }
+      case SL_SE_HASH_SHA384:
+      case SL_SE_HASH_SHA512:
+      {
+        hmac_state_len = 72u;
+        break;
+      }
+      default:
+      {
+        return PSA_ERROR_NOT_SUPPORTED;
+      }
+    }
+
+    if (operation->ctx.hmac.processed_msg_len == 0) {
+      status = sli_se_driver_mac_compute(key_desc,
+                                         operation->alg,
+                                         operation->ctx.hmac.buffer,
+                                         operation->ctx.hmac.buffer_length,
+                                         tmp_hmac,
+                                         sizeof(tmp_hmac),
+                                         mac_length);
+    } else {
+      status = sl_se_hmac_multipart_finish(&cmd_ctx, key_desc, hash_type,
+                                           (const unsigned char *)&operation->ctx.hmac.buffer, operation->ctx.hmac.buffer_length,
+                                           operation->ctx.hmac.hmac_state_buffer, hmac_state_len,
+                                           tmp_hmac, sizeof(tmp_hmac));
+    }
+
+    if (status != SL_STATUS_OK) {
+      *mac_length = 0;
+      goto exit;
+    }
+    operation->ctx.hmac.processed_msg_len = 0;
+    operation->ctx.hmac.buffer_length = 0;
+
+    memcpy(mac, tmp_hmac, requested_length);
+    *mac_length = requested_length;
+
+    goto exit;
+  }
+  #endif // SLI_PSA_DRIVER_FEATURE_HMAC && defined(_SILICON_LABS_32B_SERIES_3)
+
+  #if defined(SLI_PSA_DRIVER_FEATURE_CMAC) || defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
   // Set maximum output size to 16 or truncated length
   if (mac_size > 16) {
     mac_size = 16;
@@ -523,7 +738,6 @@ psa_status_t sli_se_driver_mac_sign_finish(
     #if defined(SLI_PSA_DRIVER_FEATURE_CBC_MAC)
     case PSA_ALG_CBC_MAC: {
       (void)key_desc;
-
       if (operation->ctx.cbcmac.processed_length % 16 != 0) {
         return PSA_ERROR_BAD_STATE;
       }
@@ -531,8 +745,8 @@ psa_status_t sli_se_driver_mac_sign_finish(
       // Copy the requested number of bytes (max 16) to the user buffer.
       memcpy(mac, operation->ctx.cbcmac.iv, mac_size);
       *mac_length = mac_size;
-
-      return PSA_SUCCESS;
+      status = SL_STATUS_OK;
+      goto exit;
       break;
     }
     #endif // SLI_PSA_DRIVER_FEATURE_CBC_MAC
@@ -540,12 +754,8 @@ psa_status_t sli_se_driver_mac_sign_finish(
     #if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
     case PSA_ALG_CMAC: {
       // Ephemeral contexts
-      sl_se_command_context_t cmd_ctx = { 0 };
+      memset(&cmd_ctx, 0, sizeof(sl_se_command_context_t));
       uint8_t tmp_mac[16] = { 0 };
-      sl_status_t status = sl_se_init_command_context(&cmd_ctx);
-      if (status != SL_STATUS_OK) {
-        return PSA_ERROR_HARDWARE_FAILURE;
-      }
 
       status = sl_se_cmac_multipart_finish(&operation->ctx.cmac,
                                            &cmd_ctx,
@@ -553,21 +763,13 @@ psa_status_t sli_se_driver_mac_sign_finish(
                                            tmp_mac);
       if (status != SL_STATUS_OK) {
         *mac_length = 0;
-        return PSA_ERROR_HARDWARE_FAILURE;
-      }
-
-      // Cleanup
-      status = sl_se_deinit_command_context(&cmd_ctx);
-      if (status != SL_STATUS_OK) {
-        *mac_length = 0;
-        return PSA_ERROR_HARDWARE_FAILURE;
+        goto exit;
       }
 
       // Copy the requested number of bytes (max 16) to the user buffer.
       memcpy(mac, tmp_mac, mac_size);
       *mac_length = mac_size;
-
-      return PSA_SUCCESS;
+      goto exit;
       break;
     }
     #endif // SLI_PSA_DRIVER_FEATURE_CMAC
@@ -575,8 +777,39 @@ psa_status_t sli_se_driver_mac_sign_finish(
     default:
       return PSA_ERROR_BAD_STATE;
   }
+  #endif // SLI_PSA_DRIVER_FEATURE_CMAC || SLI_PSA_DRIVER_FEATURE_CBC_MAC
+
+  exit:
+
+  if (status == SL_STATUS_INVALID_PARAMETER) {
+    psa_status = PSA_ERROR_INVALID_ARGUMENT;
+  } else if (status != SL_STATUS_OK) {
+    psa_status = PSA_ERROR_HARDWARE_FAILURE;
+  } else {
+    psa_status = PSA_SUCCESS;
+  }
+
+  // Cleanup
+  status = sl_se_deinit_command_context(&cmd_ctx);
+  if (status != SL_STATUS_OK) {
+    return PSA_ERROR_HARDWARE_FAILURE;
+  }
+
+  return psa_status;
+
+  #else // SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART
+
+  (void)operation;
+  (void)key_desc;
+  (void)mac;
+  (void)mac_size;
+  (void)mac_length;
+
+  return PSA_ERROR_NOT_SUPPORTED;
+
+  #endif // SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART
 }
 
-#endif // SLI_PSA_DRIVER_FEATURE_CMAC || SLI_PSA_DRIVER_FEATURE_CBC_MAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC || SLI_PSA_DRIVER_FEATURE_CBC_MAC || (defined(SLI_PSA_DRIVER_FEATURE_HMAC) && defined(_SILICON_LABS_32B_SERIES_3))
 
 #endif // SLI_MBEDTLS_DEVICE_HSE

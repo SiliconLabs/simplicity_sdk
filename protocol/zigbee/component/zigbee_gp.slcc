@@ -94,7 +94,12 @@ template_contribution:
       function_name: sli_zigbee_af_gpep_incoming_message_callback
     condition:
       - zigbee_ncp
-
+  - name: event_handler
+    value:
+      event: stack_init
+      include: gp-types.h
+      handler: sli_zigbee_gp_init_tokens
+    priority: -8923
 documentation:
   docset: zigbee
   document: zigbee-af-api/gp

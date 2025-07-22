@@ -205,10 +205,13 @@ sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config)
   config->conn_ce_length_min = SL_BT_CONTROLLER_CONN_EVENT_LENGTH_MIN;
 
 #if !defined(SL_CATALOG_KERNEL_PRESENT)
+  config->rtos_enabled = false;
 // Ensure that the radio IRQs have a higher priority than the Link Layer IRQ priority
 #if (SL_BT_CONTROLLER_LINKLAYER_IRQ_PRIORITY <= SL_BT_CONTROLLER_RADIO_IRQ_PRIORITY)
 #error Invalid configuration: SL_BT_CONTROLLER_LINKLAYER_IRQ_PRIORITY <= SL_BT_CONTROLLER_RADIO_IRQ_PRIORITY
 #endif // SL_BT_CONTROLLER_LINKLAYER_IRQ_PRIORITY <= SL_BT_CONTROLLER_RADIO_IRQ_PRIORITY
+#else // SL_CATALOG_KERNEL_PRESENT
+  config->rtos_enabled = true;
 #endif // !SL_CATALOG_KERNEL_PRESENT
 
 #if defined(SL_CATALOG_BLUETOOTH_PRESENT) // Stack present

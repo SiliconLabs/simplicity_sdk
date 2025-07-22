@@ -71,7 +71,7 @@ struct sl_btctrl_config {
   uint32_t buffer_memory; // Amount of controller buffer memory to allocate
   uint16_t sleepClockAccuracy;
   uint32_t flags;
-  sl_btctrl_ll_priorities * priorities;
+  sl_btctrl_ll_priorities *priorities;
   int16_t txGain;
   int16_t rxGain;
   int16_t tx_power_min;
@@ -80,6 +80,7 @@ struct sl_btctrl_config {
   uint8_t linklayer_irq_priority;
   uint8_t radio_irq_priority;
   uint16_t conn_ce_length_min;
+  bool rtos_enabled;
 };
 
 /**

@@ -57,6 +57,7 @@ void sx_add_outdesc(struct sx_dmactl *dmactl, char *p, size_t bsz)
 }
 
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
 static struct sxdesc *sx_cmdma_finalize_descs(struct sxdesc *start,
     struct sxdesc *end, struct sxdesc *mappeddesc)
 {
@@ -117,6 +118,7 @@ int sx_cmdma_check(struct sx_dmactl *dma)
     busy = sx_rdreg(dma->regs, REG_STATUS) & REG_STATUS_BUSY_MASK;
 
     if (r & (DMA_BUS_FETCHER_ERROR_MASK | DMA_BUS_PUSHER_ERROR_MASK)) {
+        sx_trigger_hardfault();
         sx_cmdma_reset(dma->regs);
         return SX_ERR_DMA_FAILED;
     }

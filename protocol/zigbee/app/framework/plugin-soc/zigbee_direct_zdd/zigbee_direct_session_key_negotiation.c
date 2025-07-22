@@ -40,9 +40,9 @@
 #include "zigbee_direct_zdd_config.h"
 #include "app/util/zigbee-framework/zigbee-device-common.h"
 #include "sl_custom_token_header.h"
-#include "token-manufacturing.h"
 #include "app/framework/security/af-security.h"
 #include "mbedtls/sha256.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 
 #ifndef SL_ZIGBEE_DIRECT_ZDD_DEFAULT_PASSCODE
 // The default passcode to use for session key negotiation.
@@ -282,7 +282,7 @@ sl_status_t sli_zigbee_direct_handle_incoming_dlk_negotiation_request(uint8_t me
     case DLK_SECRET_ENUM_WELL_KNOWN_KEY:   // well-known secret
       if (sl_zvd_connection_status == PROVISIONED_IN_PROVISIONING_SESSION) {
         sl_zvd_connection_status = PROVISIONED;
-        halCommonSetToken(TOKEN_PLUGIN_ZDD_AUTH_STATUS, &sl_zvd_connection_status);
+        (void)sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_AUTH_STATUS, (void *)&sl_zvd_connection_status, sizeof(uint8_t));
       }
       if ((sl_zigbee_direct_anonymous_join_timeout_sec == 0) || ((sl_zvd_connection_status >= PROVISIONED) && (sl_zigbee_get_permit_joining() == false))) {
         sl_zigbee_app_debug_println("Killing attempt as we are already commissioned (%02X) or permit joining is closed %02X sec or timeout %08X sec",
@@ -300,7 +300,7 @@ sl_status_t sli_zigbee_direct_handle_incoming_dlk_negotiation_request(uint8_t me
     case DLK_SECRET_ENUM_PRECONFIG_INSTALL_CODE:   //install code
       if (sl_zvd_connection_status == PROVISIONED_IN_PROVISIONING_SESSION) {
         sl_zvd_connection_status = PROVISIONED;
-        halCommonSetToken(TOKEN_PLUGIN_ZDD_AUTH_STATUS, &sl_zvd_connection_status);
+        (void)sl_token_manager_set_data(COMMON_TOKEN_PLUGIN_ZDD_AUTH_STATUS, (void *)&sl_zvd_connection_status, sizeof(uint8_t));
       }
 
       if (sl_zvd_connection_status >= PROVISIONED) {
@@ -309,7 +309,7 @@ sl_status_t sli_zigbee_direct_handle_incoming_dlk_negotiation_request(uint8_t me
         return SL_STATUS_FAIL;
       }
       sl_zvd_connection_status_next = PROVISIONED_IN_PROVISIONING_SESSION;
-      halCommonGetMfgToken(&tokInstallCode, TOKEN_MFG_INSTALLATION_CODE);
+      (void)sl_token_manager_get_data(SL_TOKEN_GET_STATIC_SECURE_TOKEN(TOKEN_MFG_INSTALLATION_CODE), (void *)&tokInstallCode, sizeof(tokTypeMfgInstallationCode));
       sl_zigbee_core_debug_println("Install Code:");
       sl_zigbee_core_debug_println("CRC: %04X", tokInstallCode.crc);
       memcpy(installcode_with_crc, tokInstallCode.value, 16);

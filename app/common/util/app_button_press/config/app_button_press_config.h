@@ -49,35 +49,35 @@
 
 // <h> Threshold values
 
-// <o MIN_VALID_BUTTON_PRESS_DURATION> Minimum duration of valid button presses
+// <o MIN_VALID_BUTTON_PRESS_DURATION_MS> Minimum duration (ms) of valid button presses
 // <i> Default: 40
 // <i> Any button press shorter than this value will not be considered as a valid button
 // press.
-#define MIN_VALID_BUTTON_PRESS_DURATION    (40)
+#define MIN_VALID_BUTTON_PRESS_DURATION_MS    (40)
 
-// <o SHORT_BUTTON_PRESS_DURATION> Duration of Short button presses
+// <o SHORT_BUTTON_PRESS_DURATION_MS> Duration (ms) of Short button presses
 // <i> Default: 250
-// <i> Any button press shorter than this value and longer than MIN_VALID_BUTTON_PRESS_DURATION
+// <i> Any button press shorter than this value and longer than MIN_VALID_BUTTON_PRESS_DURATION_MS
 // will be considered SHORT_BUTTON_PRESS.
-#define SHORT_BUTTON_PRESS_DURATION   (250)
+#define SHORT_BUTTON_PRESS_DURATION_MS   (250)
 
-// <o MEDIUM_BUTTON_PRESS_DURATION> Duration of MEDIUM button presses
+// <o MEDIUM_BUTTON_PRESS_DURATION_MS> Duration (ms) of MEDIUM button presses
 // <i> Default: 1000
 // <i> Any button press shorter than this value and longer SHORT_BUTTON_PRESS than will
 // be considered MEDIUM_BUTTON_PRESS.
-#define MEDIUM_BUTTON_PRESS_DURATION   (1000)
+#define MEDIUM_BUTTON_PRESS_DURATION_MS   (1000)
 
-// <o LONG_BUTTON_PRESS_DURATION> Duration of LONG button presses
+// <o LONG_BUTTON_PRESS_DURATION_MS> Duration (ms) of LONG button presses
 // <i> Default: 5000
 // <i> Any button press shorter than this value and longer MEDIUM_BUTTON_PRESS than will
 // be consideredLONG_BUTTON_PRESS. Any button press longer than this value will be
 // considered VERY_LONG_BUTTON_PRESS
-#define LONG_BUTTON_PRESS_DURATION   (5000)
+#define LONG_BUTTON_PRESS_DURATION_MS   (5000)
 
-// <o APP_BUTTON_PRESS_WAKEUP_DELAY> Duration (ms) from the button press wakeup interrupt to the Sleep Timer initialization
+// <o APP_BUTTON_PRESS_WAKEUP_DELAY_MS> Duration (ms) from the button press wakeup interrupt to the Sleep Timer initialization
 // <i> Default: 0
 // <i> This value will be added to the button press timestamp if it caused a wakeup from EM4.
-#define APP_BUTTON_PRESS_WAKEUP_DELAY   (0)
+#define APP_BUTTON_PRESS_WAKEUP_DELAY_MS   (0)
 
 // </h>
 

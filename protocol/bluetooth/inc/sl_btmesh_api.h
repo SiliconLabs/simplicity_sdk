@@ -10172,6 +10172,7 @@ sl_status_t sl_btmesh_config_client_set_request_timeout_for_node(uint16_t lpn_ad
 #define sl_btmesh_cmd_mbt_client_query_information_id                    0x01280028
 #define sl_btmesh_cmd_mbt_client_get_server_status_id                    0x0d280028
 #define sl_btmesh_cmd_mbt_client_add_server_id                           0x0e280028
+#define sl_btmesh_cmd_mbt_client_configure_throttle_id                   0x0f280028
 #define sl_btmesh_cmd_mbt_client_start_transfer_id                       0x02280028
 #define sl_btmesh_cmd_mbt_client_start_block_id                          0x03280028
 #define sl_btmesh_cmd_mbt_client_send_chunk_request_rsp_id               0x04280028
@@ -10185,6 +10186,7 @@ sl_status_t sl_btmesh_config_client_set_request_timeout_for_node(uint16_t lpn_ad
 #define sl_btmesh_rsp_mbt_client_query_information_id                    0x01280028
 #define sl_btmesh_rsp_mbt_client_get_server_status_id                    0x0d280028
 #define sl_btmesh_rsp_mbt_client_add_server_id                           0x0e280028
+#define sl_btmesh_rsp_mbt_client_configure_throttle_id                   0x0f280028
 #define sl_btmesh_rsp_mbt_client_start_transfer_id                       0x02280028
 #define sl_btmesh_rsp_mbt_client_start_block_id                          0x03280028
 #define sl_btmesh_rsp_mbt_client_send_chunk_request_rsp_id               0x04280028
@@ -10810,6 +10812,28 @@ sl_status_t sl_btmesh_mbt_client_add_server(uint16_t elem_index,
 
 /***************************************************************************//**
  *
+ * Configure the MBT Client's sender.
+ *
+ * This command is used to configure sender of the MBT Client.
+ *
+ * @param[in] elem_index The client model element index.
+ * @param[in] throttle_delay_ms Controls the delay in milliseconds between
+ *   batches of messages. Works in conjunction with `throttle_concurrent` to
+ *   control message sending rate. When the first transmission in the current
+ *   batch completes, the sender will wait for this delay before refilling the
+ *   batch up to the `throttle_concurrent` limit with new transmissions.
+ * @param[in] throttle_concurrent Defines how many messages are being sent
+ *   concurrently. If set to 0, the maximum supported value is used.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_mbt_client_configure_throttle(uint16_t elem_index,
+                                                    uint16_t throttle_delay_ms,
+                                                    uint8_t throttle_concurrent);
+
+/***************************************************************************//**
+ *
  * Initiate the BLOB transfer.
  *
  * After receiving @ref sl_btmesh_evt_mbt_client_query_information_complete
@@ -11087,6 +11111,8 @@ sl_status_t sl_btmesh_mbt_client_abort(uint16_t elem_index);
 #define sl_btmesh_cmd_mbt_server_abort_id                                0x04290028
 #define sl_btmesh_cmd_mbt_server_set_pull_mode_parameters_id             0x05290028
 #define sl_btmesh_cmd_mbt_server_transfer_start_rsp_id                   0x06290028
+#define sl_btmesh_cmd_mbt_server_enable_block_start_req_id               0x07290028
+#define sl_btmesh_cmd_mbt_server_block_start_rsp_id                      0x08290028
 #define sl_btmesh_rsp_mbt_server_init_id                                 0x02290028
 #define sl_btmesh_rsp_mbt_server_start_id                                0x00290028
 #define sl_btmesh_rsp_mbt_server_get_transfer_status_id                  0x01290028
@@ -11094,6 +11120,8 @@ sl_status_t sl_btmesh_mbt_client_abort(uint16_t elem_index);
 #define sl_btmesh_rsp_mbt_server_abort_id                                0x04290028
 #define sl_btmesh_rsp_mbt_server_set_pull_mode_parameters_id             0x05290028
 #define sl_btmesh_rsp_mbt_server_transfer_start_rsp_id                   0x06290028
+#define sl_btmesh_rsp_mbt_server_enable_block_start_req_id               0x07290028
+#define sl_btmesh_rsp_mbt_server_block_start_rsp_id                      0x08290028
 
 /**
  * @brief The MBT Status codes.
@@ -11301,6 +11329,12 @@ typedef struct sl_btmesh_evt_mbt_server_transfer_start_req_s sl_btmesh_evt_mbt_s
  * @addtogroup sl_btmesh_evt_mbt_server_block_start sl_btmesh_evt_mbt_server_block_start
  * @{
  * @brief The transfer of a new block has started
+ *
+ * If the block start request has been enabled with @ref
+ * sl_btmesh_mbt_server_enable_block_start_req, the @ref
+ * sl_btmesh_mbt_server_block_start_rsp command must be called to accept or
+ * reject the block. The new block starts immediately after it has been
+ * accepted.
  *
  * After the new block has been started, the MBT Client starts sending the
  * chunks of the block. The chunk data is carried in @ref
@@ -11611,6 +11645,42 @@ sl_status_t sl_btmesh_mbt_server_set_pull_mode_parameters(uint16_t elem_index,
  ******************************************************************************/
 sl_status_t sl_btmesh_mbt_server_transfer_start_rsp(uint16_t elem_index,
                                                     uint8_t status);
+
+/***************************************************************************//**
+ *
+ * Enable the MBT Server block start request.
+ *
+ * This changes the behavior of the @ref sl_btmesh_evt_mbt_server_block_start
+ * event, making it a request instead of a notification. If this is enabled,
+ * @ref sl_btmesh_mbt_server_block_start_rsp must be called after receiving the
+ * event.
+ *
+ * @param[in] elem_index The server model element index.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_mbt_server_enable_block_start_req(uint16_t elem_index);
+
+/***************************************************************************//**
+ *
+ * Accept or reject an MBT Server block start request.
+ *
+ * This command must be called after receiving the @ref
+ * sl_btmesh_evt_mbt_server_block_start event to accept or reject the block. If
+ * some preparation is needed for the block, e.g. erasing flash pages, those
+ * should be done before accepting the block. The block might also be rejected
+ * if implementation-specific errors occur.
+ *
+ * @param[in] elem_index The server model element index.
+ * @param[in] status @ref sl_btmesh_mbt_server_status_success to accept, @ref
+ *   sl_btmesh_mbt_server_status_internal_error to reject.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_mbt_server_block_start_rsp(uint16_t elem_index,
+                                                 uint8_t status);
 
 /** @} */ // end addtogroup sl_btmesh_mbt_server
 
@@ -16954,6 +17024,7 @@ sl_status_t sl_btmesh_time_client_set_time_role(uint16_t server_address,
 #define sl_btmesh_cmd_fw_dist_server_set_multicast_threshold_id          0x14580028
 #define sl_btmesh_cmd_fw_dist_server_delete_all_rsp_id                   0x0f580028
 #define sl_btmesh_cmd_fw_dist_server_resume_rsp_id                       0x10580028
+#define sl_btmesh_cmd_fw_dist_server_configure_throttle_id               0x15580028
 #define sl_btmesh_rsp_fw_dist_server_init_id                             0x00580028
 #define sl_btmesh_rsp_fw_dist_server_deinit_id                           0x01580028
 #define sl_btmesh_rsp_fw_dist_server_upload_start_rsp_id                 0x02580028
@@ -16969,6 +17040,7 @@ sl_status_t sl_btmesh_time_client_set_time_role(uint16_t server_address,
 #define sl_btmesh_rsp_fw_dist_server_set_multicast_threshold_id          0x14580028
 #define sl_btmesh_rsp_fw_dist_server_delete_all_rsp_id                   0x0f580028
 #define sl_btmesh_rsp_fw_dist_server_resume_rsp_id                       0x10580028
+#define sl_btmesh_rsp_fw_dist_server_configure_throttle_id               0x15580028
 
 /**
  * @brief The state machine states of the Distribution Server's distribution
@@ -18153,6 +18225,28 @@ sl_status_t sl_btmesh_fw_dist_server_delete_all_rsp(uint16_t elem_index,
  ******************************************************************************/
 sl_status_t sl_btmesh_fw_dist_server_resume_rsp(uint16_t elem_index,
                                                 uint16_t status);
+
+/***************************************************************************//**
+ *
+ * Configure the sender parameters for the Distributor Server. This command is
+ * used to set the parameters that will be used when sending messages to the
+ * Target Nodes.
+ *
+ * @param[in] elem_index Server model element index
+ * @param[in] throttle_delay_ms Controls the delay in milliseconds between
+ *   batches of messages. Works in conjunction with `throttle_concurrent` to
+ *   control message sending rate. When the first transmission in the current
+ *   batch completes, the sender will wait for this delay before refilling the
+ *   batch up to the `throttle_concurrent` limit with new transmissions.
+ * @param[in] throttle_concurrent Defines how many messages are being sent
+ *   concurrently. If set to 0, the maximum supported value is used.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_fw_dist_server_configure_throttle(uint16_t elem_index,
+                                                        uint16_t throttle_delay_ms,
+                                                        uint8_t throttle_concurrent);
 
 /** @} */ // end addtogroup sl_btmesh_fw_dist_server
 
@@ -19846,6 +19940,7 @@ sl_status_t sl_btmesh_remote_provisioning_server_set_default_bearer(uint8_t bear
 #define sl_btmesh_cmd_fw_standalone_updater_get_node_status_by_index_id  0x0b5a0028
 #define sl_btmesh_cmd_fw_standalone_updater_get_node_status_by_address_id 0x0c5a0028
 #define sl_btmesh_cmd_fw_standalone_updater_cancel_id                    0x0d5a0028
+#define sl_btmesh_cmd_fw_standalone_updater_configure_throttle_id        0x0e5a0028
 #define sl_btmesh_rsp_fw_standalone_updater_init_id                      0x005a0028
 #define sl_btmesh_rsp_fw_standalone_updater_deinit_id                    0x015a0028
 #define sl_btmesh_rsp_fw_standalone_updater_setup_id                     0x025a0028
@@ -19860,6 +19955,7 @@ sl_status_t sl_btmesh_remote_provisioning_server_set_default_bearer(uint8_t bear
 #define sl_btmesh_rsp_fw_standalone_updater_get_node_status_by_index_id  0x0b5a0028
 #define sl_btmesh_rsp_fw_standalone_updater_get_node_status_by_address_id 0x0c5a0028
 #define sl_btmesh_rsp_fw_standalone_updater_cancel_id                    0x0d5a0028
+#define sl_btmesh_rsp_fw_standalone_updater_configure_throttle_id        0x0e5a0028
 
 /**
  * @addtogroup sl_btmesh_evt_fw_standalone_updater_dist_state_changed sl_btmesh_evt_fw_standalone_updater_dist_state_changed
@@ -20199,6 +20295,28 @@ sl_status_t sl_btmesh_fw_standalone_updater_get_node_status_by_address(uint16_t 
  *
  ******************************************************************************/
 sl_status_t sl_btmesh_fw_standalone_updater_cancel(uint16_t elem_index);
+
+/***************************************************************************//**
+ *
+ * Configure the sender parameters for the Standalone Updater. This command is
+ * used to set the parameters that will be used when sending messages to the
+ * Target Nodes.
+ *
+ * @param[in] elem_index Element index
+ * @param[in] throttle_delay_ms Controls the delay in milliseconds between
+ *   batches of messages. Works in conjunction with `throttle_concurrent` to
+ *   control message sending rate. When the first transmission in the current
+ *   batch completes, the sender will wait for this delay before refilling the
+ *   batch up to the `throttle_concurrent` limit with new transmissions.
+ * @param[in] throttle_concurrent Defines how many messages are being sent
+ *   concurrently. If set to 0, the maximum supported value is used.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_fw_standalone_updater_configure_throttle(uint16_t elem_index,
+                                                               uint16_t throttle_delay_ms,
+                                                               uint8_t throttle_concurrent);
 
 /** @} */ // end addtogroup sl_btmesh_fw_standalone_updater
 
@@ -22616,8 +22734,10 @@ sl_status_t sl_btmesh_diagnostic_get_relay(uint32_t *relay_counter);
  * Get a chunk of Bluetooth mesh stack statistics data counters. As there can be
  * a large amount of statistics, it has to be retrieved as chunks. The
  * application is free to specify the size of the chunk it wants to use, but
- * keep in mind that for the NCP use case there may be limited size buffers in
- * the underlying serial channel.
+ * keep in mind that there is an inherent BGAPI limitation that caps the maximum
+ * size for the variable-length data array to 255 bytes; and furthermore, for
+ * the NCP use case there may be limited size buffers in the underlying serial
+ * channel.
  *
  * @param[in] requested_chunk Size of the statistics data chunk requested
  * @param[in] requested_offset Byte offset to the statistics data chunk

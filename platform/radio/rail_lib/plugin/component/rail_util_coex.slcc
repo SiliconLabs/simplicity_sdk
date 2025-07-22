@@ -10,18 +10,29 @@ metadata:
         name: RAIL Utility, Coexistence
         license: MSLA
 requires:
+  - name: component_catalog
   - name: device
   - name: rail_lib
   - name: gpiointerrupt
+    condition:
+      - device_series_2
   - name: emlib_common
+    condition:
+      - device_series_2
   - name: sl_core
+  - name: sl_common
+    condition:
+      - device_series_3
   - name: emlib_gpio
     condition:
       - device_series_2
   - name: emlib_prs
     condition:
       - device_series_2
+  - name: hal_timer
   - name: emlib_timer
+    condition:
+      - device_series_2
   - name: emlib_cmu
     condition:
       - device_series_2
@@ -67,6 +78,10 @@ config_file:
     unless:
       - device_sdid_215
       - device_sdid_225
+    file_id: rail_util_coex_config
+  - path: platform/radio/rail_lib/plugin/coexistence/config/sixg301/sl_rail_util_coex_config.h
+    condition:
+      - device_generic_family_sixx301
     file_id: rail_util_coex_config
   - path: platform/radio/rail_lib/plugin/coexistence/config/sl_rail_util_coex_common_config.h
     file_id: rail_util_coex_common_config

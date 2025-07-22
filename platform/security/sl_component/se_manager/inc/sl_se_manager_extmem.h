@@ -595,6 +595,7 @@ sl_status_t sl_se_data_region_write(sl_se_command_context_t *cmd_ctx,
  *   of type sl_status_t that indicates why the command was not successful,
  *   ref sl_status.h.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_se_data_region_erase(sl_se_command_context_t *cmd_ctx,
                                     void *start_address,
                                     size_t num_sectors);

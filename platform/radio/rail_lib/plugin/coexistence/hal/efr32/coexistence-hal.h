@@ -58,7 +58,7 @@ typedef struct COEX_HAL_GpioConfig {
   uint8_t pin;
 
   /** GPIO interrupt number */
-  uint8_t intNo;
+  int32_t intNo;
 
   /** GPIO assert polarity */
   bool polarity;
@@ -70,7 +70,7 @@ typedef struct COEX_HAL_GpioConfig {
   uint8_t mode;
 
   /** GPIO ISR */
-  GPIOINT_IrqCallbackPtrExt_t isr;
+  sl_gpio_irq_callback_t isr;
 
   /** GPIO config */
   COEX_GpioConfig_t config;
@@ -113,7 +113,7 @@ void sli_coex_enableGpioInt(COEX_GpioHandle_t gpioHandle,
 
 #define PRS_CHANNEL_SIGNAL(ch) ((ch) & 7U)
 
-#define INVALID_INTERRUPT 0xFF
+#define INVALID_INTERRUPT SL_GPIO_INTERRUPT_UNAVAILABLE
 #define INVALID_SOURCE 0U
 #define INVALID_SIGNAL 0U
 
@@ -308,7 +308,11 @@ extern COEX_HAL_GpioConfig_t sli_coex_wifiTxCfg;
 #define SL_RAIL_UTIL_COEX_DP_TIMER_CC0_LOC BSP_COEX_DP_CC0_LOC
 #endif //defined(BSP_COEX_DP_CC0_LOC) and !defined(SL_RAIL_UTIL_COEX_DP_TIMER_CC0_LOC)
 
+#ifdef _SILICON_LABS_32B_SERIES_3
+#define WRAP_PRS_ASYNC(ch) (((ch) + SL_HAL_PRS_ASYNC_CHAN_COUNT) % SL_HAL_PRS_ASYNC_CHAN_COUNT)
+#else
 #define WRAP_PRS_ASYNC(ch) (((ch) + PRS_ASYNC_CHAN_COUNT) % PRS_ASYNC_CHAN_COUNT)
+#endif
 
 #if defined(PER_REG_BLOCK_SET_OFFSET)
 #define COEX_HAL_GPIO_ADDR(port, polarity) ((uint32_t)&GPIO->P[port].DOUT \
@@ -331,10 +335,10 @@ extern COEX_HAL_GpioConfig_t sli_coex_wifiTxCfg;
 #define COEX_HAL_FAST_REQUEST 1
 #endif
 #ifdef _SILICON_LABS_32B_SERIES_2
-#define COEX_HAL_ReadGpio(port,                  \
-                          pin,                   \
-                          polarity)              \
-  (!!GPIO_PinInGet((GPIO_Port_TypeDef)port, pin) \
+#define COEX_HAL_ReadGpio(port,               \
+                          pin,                \
+                          polarity)           \
+  (!!GPIO_PinInGet((sl_gpio_port_t)port, pin) \
    == !!polarity)
 #else
 __STATIC_INLINE bool COEX_HAL_ReadGpio(uint32_t port, uint32_t pin, bool polarity)

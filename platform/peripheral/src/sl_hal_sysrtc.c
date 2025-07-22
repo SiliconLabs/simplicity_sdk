@@ -75,7 +75,7 @@ extern __INLINE uint32_t sl_hal_sysrtc_get_ms_compare_buffer(void);
 /***************************************************************************//**
  * Initializes SYSRTC module.
  ******************************************************************************/
-void sl_hal_sysrtc_init(const sl_hal_sysrtc_config_t *p_config)
+void sl_hal_sysrtc_init(const sl_hal_sysrtc_init_t *init)
 {
   // Wait to be ready.
   sl_hal_sysrtc_wait_ready();
@@ -88,7 +88,7 @@ void sl_hal_sysrtc_init(const sl_hal_sysrtc_config_t *p_config)
   }
 
   // Set configuration.
-  SYSRTC0->CFG = (p_config->enable_debug_run ? 1UL : 0UL) << _SYSRTC_CFG_DEBUGRUN_SHIFT;
+  SYSRTC0->CFG = (init->enable_debug_run ? 1UL : 0UL) << _SYSRTC_CFG_DEBUGRUN_SHIFT;
 }
 
 /***************************************************************************//**
@@ -211,7 +211,7 @@ void sl_hal_sysrtc_wait_sync_group(uint8_t group_number)
  * Initializes the selected SYSRTC group.
  ******************************************************************************/
 void sl_hal_sysrtc_init_group(uint8_t group_number,
-                              sl_hal_sysrtc_group_config_t const *p_group_config)
+                              sl_hal_sysrtc_group_init_t const *group_init)
 {
   uint32_t temp = 0;
 
@@ -219,27 +219,27 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
   switch (group_number) {
     case 0:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP0CMOA_SHIFT);
       }
 
 #ifdef SYSRTC_GRP0_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP0_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP0_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP0_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP0_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP0_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP0_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP0_CTRL = temp;
@@ -247,26 +247,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 1
     case 1:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP1_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP1_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP1_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP1_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP1_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP1_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP1_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP1_CTRL = temp;
@@ -274,26 +274,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 2
     case 2:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP2_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP2_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP2_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP2_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP2_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP2_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP2_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP2_CTRL = temp;
@@ -301,26 +301,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 3
     case 3:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP3_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP3_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP3_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP3_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP3_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP3_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP3_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP3_CTRL = temp;
@@ -328,26 +328,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 4
     case 4:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP4_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP4_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP4_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP4_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP4_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP4_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP4_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP4_CTRL = temp;
@@ -355,26 +355,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 5
     case 5:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP5_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP5_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP5_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP5_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP5_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP5_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP5_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP5_CTRL = temp;
@@ -382,26 +382,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 6
     case 6:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP6_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP6_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP6_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP6_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP6_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP6_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP6_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP6_CTRL = temp;
@@ -409,26 +409,26 @@ void sl_hal_sysrtc_init_group(uint8_t group_number,
 
 #if SYSRTC_GROUP_NUMBER > 7
     case 7:
-      temp = ((p_group_config->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP0EN_SHIFT);
-      if (p_group_config->p_compare_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP0CMOA_SHIFT);
+      temp = ((group_init->compare_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP0EN_SHIFT);
+      if (group_init->p_compare_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel0_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP0CMOA_SHIFT);
       }
 #ifdef SYSRTC_GRP7_CTRL_CMP1EN
-      temp |= ((p_group_config->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP1EN_SHIFT);
-      if (p_group_config->p_compare_channel1_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP1CMOA_SHIFT);
+      temp |= ((group_init->compare_channel1_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP1EN_SHIFT);
+      if (group_init->p_compare_channel1_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel1_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP1CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP7_CTRL_CMP2EN
-      temp |= ((p_group_config->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP2EN_SHIFT);
-      if (p_group_config->p_compare_channel2_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP2CMOA_SHIFT);
+      temp |= ((group_init->compare_channel2_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CMP2EN_SHIFT);
+      if (group_init->p_compare_channel2_config != NULL) {
+        temp |= ((uint32_t)group_init->p_compare_channel2_config->compare_match_out_action << _SYSRTC_GRP7_CTRL_CMP2CMOA_SHIFT);
       }
 #endif
 #ifdef SYSRTC_GRP7_CTRL_CAP0EN
-      temp |= ((p_group_config->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CAP0EN_SHIFT);
-      if (p_group_config->p_capture_channel0_config != NULL) {
-        temp |= ((uint32_t)p_group_config->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP7_CTRL_CAP0EDGE_SHIFT);
+      temp |= ((group_init->capture_channel0_enable ? 1UL : 0UL) << _SYSRTC_GRP7_CTRL_CAP0EN_SHIFT);
+      if (group_init->p_capture_channel0_config != NULL) {
+        temp |= ((uint32_t)group_init->p_capture_channel0_config->capture_input_edge << _SYSRTC_GRP7_CTRL_CAP0EDGE_SHIFT);
       }
 #endif
       SYSRTC0->GRP7_CTRL = temp;

@@ -200,3 +200,14 @@ char *sx_map_usrdataout(char *s, size_t sz)
 
   return s;
 }
+
+/*****************************************************************************
+ ** Bus error handling
+ *****************************************************************************/
+
+/** @brief Trigger hardfault by access to invalid memory address */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+void sx_trigger_hardfault(void) {
+   uint32_t *bad_mem_addr = (uint32_t*) 0xFFFFFFFC;
+   *bad_mem_addr = 1;
+}

@@ -427,7 +427,14 @@ template_contribution:
           help: "PHY mode ID"
         - type: int16
           help: "Sensitivity in dBm"
-
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "reset_duty_cycle"
+      handler: "app_reset_duty_cycle"
+      help: "Reset the duty cycle counters"
+      shortcuts:
+        - name: "rdc"
 
 # -------------------------------
   - name: "cli_group"

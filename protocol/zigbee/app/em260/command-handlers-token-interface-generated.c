@@ -47,9 +47,9 @@ bool sli_zigbee_af_process_ezsp_command_token_interface(uint16_t commandId)
 //------------------------------------------------------------------------------
 
     case SL_ZIGBEE_EZSP_GET_TOKEN_COUNT: {
-      uint8_t count;
+      uint32_t count;
       count = sli_zigbee_stack_get_token_count();
-      appendInt8u(count);
+      appendInt32u(count);
       break;
     }
 

@@ -124,6 +124,12 @@
  *  provided by sl_main, if you removed the call to `sl_main_start_task_should_continue`
  *  in your main function then re-implementing this function will have no effect.
  *
+ *      @note By default, when using Micrium OS, the start task's resources — such as
+ *            its stack and Task Control Block (TCB) — are not released upon task exit,
+ *            which can result in a memory leak. To avoid this, enable Micrium OS garbage
+ *            collection. Note that enabling garbage collection may significantly increase
+ *            both RAM and flash usage.
+ *
  *  The following code snippet shows how to implement this function to allow the
  *  start task to continue:
  *  @code{.c}

@@ -72,7 +72,7 @@ extern __INLINE uint32_t sl_hal_pixelrz_get_enabled_pending_interrupts(PIXELRZ_T
  *   Initialize PIXELRZ.
  ******************************************************************************/
 void sl_hal_pixelrz_init(PIXELRZ_TypeDef *pixelrz,
-                         const sl_hal_pixelrz_config_t *init)
+                         const sl_hal_pixelrz_init_t *init)
 {
   EFM_ASSERT(SL_HAL_PIXELRZ_REF_VALID(pixelrz));
   // Init structure must be provided.

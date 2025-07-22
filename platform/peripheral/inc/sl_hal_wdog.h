@@ -584,7 +584,7 @@ __INLINE bool sl_hal_wdog_is_locked(WDOG_TypeDef *wdog)
  *   sl_hal_wdog_enable_interrupts(WDOG0, WDOG_IF_WARN);
  *
  *   // Enable NVIC interrupt for WDOG
- *   sl_interrupt_manager_clear_pending_irq(WDOG0_IRQn);
+ *   sl_interrupt_manager_clear_irq_pending(WDOG0_IRQn);
  *   sl_interrupt_manager_enable_irq(WDOG0_IRQn);
  *
  *   // Enable WDOG - this starts the watchdog timer

@@ -889,6 +889,11 @@ bool sl_zigbee_gp_remove_from_tx_queue(sl_zigbee_gp_tx_queue_entry_t *txQueue);
  */
 void sl_zigbee_gp_clear_tx_queue(void);
 
+/** @brief Initialize GP tokens
+ * This function initializes GP tokens for SoC usage.
+ */
+void sli_zigbee_gp_init_tokens(void);
+
 #endif // SILABS_GP_TYPES_H
 
 /** @} */ // end of name API

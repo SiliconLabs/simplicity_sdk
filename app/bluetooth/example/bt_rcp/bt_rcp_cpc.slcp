@@ -24,7 +24,6 @@ component:
     instance:
       - vcom
   - id: board_control
-  - id: cpc_security_secondary_none
   - id: bluetooth_controller
   - id: bluetooth_feature_connection_role_central
   - id: bluetooth_feature_connection_role_peripheral

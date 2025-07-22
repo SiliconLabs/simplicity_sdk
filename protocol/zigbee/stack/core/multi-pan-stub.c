@@ -22,6 +22,11 @@
 #include "mac-child.h" // for sl_mac_child_entry_t
 #include "stack/include/sl_zigbee_types_internal.h" // for PAN_ID_OKAY
 #include "sl_code_classification.h"
+#if !defined(SL_CATALOG_TOKEN_MANAGER_PRESENT)
+#define DEFINETYPES
+#endif
+#include "stack/config/sl_zigbee_token_defines.h"
+#include "sl_token_manager_api.h"
 
 const sl_zigbee_library_status_t sli_zigbee_multi_pan_library_status = SL_ZIGBEE_LIBRARY_IS_STUB;
 
@@ -63,17 +68,23 @@ void sli_zigbee_set_child_table_for_current_network(void)
 }
 
 void sli_zigbee_get_child_token_for_current_network(void *data,
-                                                    uint16_t tokenAddress,
+                                                    uint32_t tokenAddress,
                                                     uint8_t childIndex)
 {
   switch (tokenAddress) {
-    case TOKEN_STACK_CHILD_TABLE: {
-      halCommonGetIndexedToken(data, TOKEN_STACK_CHILD_TABLE, childIndex);
+    case COMMON_TOKEN_STACK_CHILD_TABLE: {
+      (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_CHILD_TABLE + childIndex,
+                                      (void *)data,
+                                      sizeof(tokTypeStackChildTable));
+
       break;
     }
 
-    case TOKEN_STACK_ADDITIONAL_CHILD_DATA: {
-      halCommonGetIndexedToken(data, TOKEN_STACK_ADDITIONAL_CHILD_DATA, childIndex);
+    case COMMON_TOKEN_STACK_ADDITIONAL_CHILD_DATA: {
+      (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ADDITIONAL_CHILD_DATA + childIndex,
+                                      (void *)data,
+                                      sizeof(tokTypeStackAdditionalChildData));
+
       break;
     }
 
@@ -82,18 +93,20 @@ void sli_zigbee_get_child_token_for_current_network(void *data,
   }
 }
 
-void sli_zigbee_set_child_token_for_current_network(uint16_t tokenAddress,
+void sli_zigbee_set_child_token_for_current_network(uint32_t tokenAddress,
                                                     uint8_t childIndex,
                                                     void *data)
 {
   switch (tokenAddress) {
-    case TOKEN_STACK_CHILD_TABLE: {
-      halCommonSetIndexedToken(TOKEN_STACK_CHILD_TABLE, childIndex, data);
+    case COMMON_TOKEN_STACK_CHILD_TABLE: {
+      (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_CHILD_TABLE + childIndex, (void *)data, sizeof(tokTypeStackChildTable));
+
       break;
     }
 
-    case TOKEN_STACK_ADDITIONAL_CHILD_DATA: {
-      halCommonSetIndexedToken(TOKEN_STACK_ADDITIONAL_CHILD_DATA, childIndex, data);
+    case COMMON_TOKEN_STACK_ADDITIONAL_CHILD_DATA: {
+      (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_ADDITIONAL_CHILD_DATA + childIndex, (void *)data, sizeof(tokTypeStackAdditionalChildData));
+
       break;
     }
 

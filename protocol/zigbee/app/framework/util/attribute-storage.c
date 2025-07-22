@@ -18,6 +18,7 @@
 #include "app/framework/include/af.h"
 #include "app/framework/util/attribute-storage.h"
 #include "app/framework/util/common.h"
+#include "stack/config/sl_zigbee_token_defines.h"
 #ifndef SL_ZIGBEE_SCRIPTED_TEST
 #include "zigbee_zcl_callback_dispatcher.h"
 #include "zigbee_af_cluster_functions.h"

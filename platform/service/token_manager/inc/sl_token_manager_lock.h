@@ -37,23 +37,21 @@ extern "C" {
 #endif
 
 /***************************************************************************//**
- * @addtogroup token_manager
+ * @addtogroup common_token_manager
  * @{
  ******************************************************************************/
 
 /***************************************************************************//**
- * @addtogroup lock Lock
- * @brief Token manager lock functions
+ * @addtogroup lock Common Token Manager lock functions
+ * @brief This module provides data protection tools for the common token manager.
  * @{
  * @details
- * This module provides data protection tools for the token manager.
- *
- * The functions in this module are the default protection tools for the token manager.
+ * The functions in this module are the default protection tools for the CTM.
  * The application can substitute the `sl_token_manager_lock_begin` and
- * `sl_token_manager_lock_end` functions, provided that the token manager functions
+ * `sl_token_manager_lock_end` functions, provided that the CTM functions
  * are protected from being called in a re-entrant manner.
  *
- * @note These functions are intended for use by the token manager and should not
+ * @note These functions are intended for use by the CTM and should not
  *       be used directly by any applications.
  ******************************************************************************/
 
@@ -76,7 +74,7 @@ void sl_token_manager_lock_begin(void);
 void sl_token_manager_lock_end(void);
 
 /** @} (end addtogroup lock) */
-/** @} (end addtogroup token_manager) */
+/** @} (end addtogroup common_token_manager) */
 
 #ifdef __cplusplus
 }
