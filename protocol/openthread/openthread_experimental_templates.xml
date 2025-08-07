@@ -13,6 +13,8 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/openthread/embedded-otbr/si91x_project/openthread-si91x-mcu-host.slcp"/>
     <properties key="filters" value=""/>
   </descriptors>
   <descriptors name="openthread-si91x-otbr-mcu-host-ftd" label="ot-si91x" description="This platform project is used to generate a CMake library for SiWx917 SoC">
@@ -28,6 +30,8 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/openthread/embedded-otbr/si91x_project/openthread-si91x-otbr-mcu-host.slcp"/>
     <properties key="filters" value=""/>
   </descriptors>
   <descriptors name="ot-ncp-ftd" label="OpenThread - NCP (FTD)" description="This is a simple OpenThread Full Thread Device NCP application. This is equivalent to the ot-ncp-ftd application in the OpenThread GitHub repo.&#xA;">
@@ -43,6 +47,8 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-ftd.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
   <descriptors name="ot-ncp-mtd" label="OpenThread - NCP (MTD)" description="This is a simple OpenThread Minimal Thread Device NCP application. This is equivalent to the ot-ncp-mtd application in the OpenThread GitHub repo.&#xA;">
@@ -58,6 +64,8 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-mtd.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
 </model:MDescriptors>

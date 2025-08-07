@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "zpal_status.h"
+#include "zpal_misc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -389,6 +390,16 @@ typedef struct
   uint8_t preamble_length;               ///< Length of the preamble. Minimum preamble length is specified in ITU G.9959-2015.
   uint8_t start_of_frame;                ///< The start of frame byte used to indicate the end of preamble and the start of frame.
   uint8_t repeats;                       ///< Number of repetitions for the frame. This is used for wakeup beams where the beam is to be repeated for 250 or 1000 ms.
+  uint8_t use_lbt;                       ///< 1 to transmit frame with LBT, 0 without LBT
+  zpal_radio_tx_power_t tx_power;        ///< The RF tx power to use for transmitting in dBm.
+  zpal_time_t turnaround_ref_tick;       /**< Timestamp (in zpal base time) that must be used as reference for the
+                                              Rx-To-Tx turnaround time. Mostly used for Ack.
+                                              If not 0, the zpal must guarantee the minimum Rx-To-Tx turnaround
+                                              time before the Tx.
+                                              Not done with the TxQueue delay because:
+                                              - TxQueue delay is 1ms base time which is not enough (Rx-to-Tx turnaround time is 1ms)
+                                              - Ack is high priority and should "lock" the TxQueue without any delay (TxQueue
+                                              delay is handled before adding the frame to the TxQueue). */
 } zpal_radio_transmit_parameter_t;
 
 /**
@@ -411,6 +422,7 @@ typedef struct
   zpal_radio_zwave_channel_t channel_id;          ///< Channel id on which the frame was received.
   zpal_radio_header_type_t channel_header_format; ///< Z-Wave Header format used in channel frame was received on.
   int8_t rssi;                                    ///< Rssi value.
+  zpal_time_t rx_zpal_tick;                         ///< Timestamp when the frame was received
 } zpal_radio_rx_parameters_t;
 
 /**
@@ -562,17 +574,13 @@ zpal_radio_region_t zpal_radio_get_region(void);
  * @param[in] frame_header_buffer   Pointer to data array containing the frame header.
  * @param[in] frame_payload_length  Length of frame payload data to transmit.
  * @param[in] frame_payload_buffer  Pointer to data array containing the frame payload.
- * @param[in] use_lbt               if set to 1, LBT will be done prior radioTransmit.
- * @param[in] tx_power              The RF tx power to use for transmitting in dBm.
  * @return @ref ZPAL_STATUS_OK if the data was successfully transmit, @ref ZPAL_STATUS_BUFFER_FULL when queue is full.
  */
 zpal_status_t zpal_radio_transmit(zpal_radio_transmit_parameter_t const *const tx_parameters,
                                   uint8_t frame_header_length,
                                   uint8_t const *const frame_header_buffer,
                                   uint8_t frame_payload_length,
-                                  uint8_t const *const frame_payload_buffer,
-                                  uint8_t use_lbt,
-                                  zpal_radio_tx_power_t tx_power);
+                                  uint8_t const *const frame_payload_buffer);
 
 /**
  * @brief Function for transmitting a Z-Wave Beam frame though the radio.
@@ -580,13 +588,11 @@ zpal_status_t zpal_radio_transmit(zpal_radio_transmit_parameter_t const *const t
  * @param[in] tx_parameters Parameter setting specifying speed, channel, wakeup.
  * @param[in] beam_data_len Length of the Beam data to transmit.
  * @param[in] beam_data     Pointer to data array containing the BEAM data.
- * @param[in] tx_power      The RF tx power to use for transmitting in dbm.
  * @return @ref ZPAL_STATUS_OK if the data was successfully transmit, @ref ZPAL_STATUS_BUFFER_FULL when queue is full.
  */
 zpal_status_t zpal_radio_transmit_beam(zpal_radio_transmit_parameter_t const *const tx_parameters,
                                        uint8_t beam_data_len,
-                                       uint8_t const *const beam_data,
-                                       int8_t tx_power);
+                                       uint8_t const *const beam_data);
 
 /**
  * @brief Starts the receiver and enables reception of frames.

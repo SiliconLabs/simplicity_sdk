@@ -125,9 +125,11 @@ void sl_zigbee_af_green_power_client_init_cb(uint8_t init_level)
       // Write the max proxy table entries attribute, since we currently have no
       // way to configure it at compile time.
 #ifdef EZSP_HOST
-      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_PROXY_TABLE_SIZE, (uint16_t*)&gpProxyTableSize)) {
+      uint16_t stackProxyTableSize = 0;
+      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_PROXY_TABLE_SIZE, (uint16_t*)&stackProxyTableSize)) {
         sl_zigbee_af_green_power_cluster_println("ERR: Cannot get the proxy table size from GP stack.");
       }
+      gpProxyTableSize = (uint8_t)stackProxyTableSize;
 #endif //EZSP_HOST
       uint8_t proxyTableSize = SL_ZIGBEE_GP_PROXY_TABLE_SIZE;
       sl_zigbee_af_status_t UNUSED status

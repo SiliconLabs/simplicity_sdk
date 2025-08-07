@@ -113,7 +113,12 @@
 #endif
 
 #if (SL_CPC_DRV_UART_RX_QUEUE_SIZE > SL_CPC_DRV_UART_RX_BUFFER_MAX_COUNT)
-#error  Invalid configuration SL_CPC_DRV_UART_RX_BUFFER_MAX_COUNT must be greater than SL_CPC_DRV_UART_RX_QUEUE_SIZE
+#error  Invalid configuration SL_CPC_RX_BUFFER_MAX_COUNT must be greater than SL_CPC_DRV_UART_RX_QUEUE_SIZE
+#endif
+
+#if ((SL_CPC_DRV_UART_RX_BUFFER_MAX_COUNT <= 2) \
+  && (SL_CPC_DRV_UART_FLOW_CONTROL_TYPE == WITHOUT_HWFC))
+#error  Invalid configuration SL_CPC_RX_BUFFER_MAX_COUNT must be greater than 2 when no hardware flow control is provided
 #endif
 
 // Series 2/3 compatibility layer

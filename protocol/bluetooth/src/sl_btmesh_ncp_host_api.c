@@ -5663,6 +5663,25 @@ sl_status_t sl_btmesh_mbt_client_add_server(uint16_t elem_index,
 
 }
 
+sl_status_t sl_btmesh_mbt_client_configure_throttle(uint16_t elem_index,
+                                                    uint16_t throttle_delay_ms,
+                                                    uint8_t throttle_concurrent) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_mbt_client_configure_throttle.elem_index=elem_index;
+    cmd->data.cmd_mbt_client_configure_throttle.throttle_delay_ms=throttle_delay_ms;
+    cmd->data.cmd_mbt_client_configure_throttle.throttle_concurrent=throttle_concurrent;
+
+    cmd->header=sl_btmesh_cmd_mbt_client_configure_throttle_id+(((5)&0xff)<<8)+(((5)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_mbt_client_configure_throttle.result;
+
+}
+
 sl_status_t sl_btmesh_mbt_client_start_transfer(uint16_t elem_index,
                                                 uint8_t block_size_log,
                                                 uint8_t transfer_mode) {
@@ -5982,6 +6001,38 @@ sl_status_t sl_btmesh_mbt_server_transfer_start_rsp(uint16_t elem_index,
 
     sl_btmesh_host_handle_command();
     return rsp->data.rsp_mbt_server_transfer_start_rsp.result;
+
+}
+
+sl_status_t sl_btmesh_mbt_server_enable_block_start_req(uint16_t elem_index) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_mbt_server_enable_block_start_req.elem_index=elem_index;
+
+    cmd->header=sl_btmesh_cmd_mbt_server_enable_block_start_req_id+(((2)&0xff)<<8)+(((2)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_mbt_server_enable_block_start_req.result;
+
+}
+
+sl_status_t sl_btmesh_mbt_server_block_start_rsp(uint16_t elem_index,
+                                                 uint8_t status) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_mbt_server_block_start_rsp.elem_index=elem_index;
+    cmd->data.cmd_mbt_server_block_start_rsp.status=status;
+
+    cmd->header=sl_btmesh_cmd_mbt_server_block_start_rsp_id+(((3)&0xff)<<8)+(((3)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_mbt_server_block_start_rsp.result;
 
 }
 
@@ -8525,6 +8576,25 @@ sl_status_t sl_btmesh_fw_dist_server_resume_rsp(uint16_t elem_index,
 
 }
 
+sl_status_t sl_btmesh_fw_dist_server_configure_throttle(uint16_t elem_index,
+                                                        uint16_t throttle_delay_ms,
+                                                        uint8_t throttle_concurrent) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_fw_dist_server_configure_throttle.elem_index=elem_index;
+    cmd->data.cmd_fw_dist_server_configure_throttle.throttle_delay_ms=throttle_delay_ms;
+    cmd->data.cmd_fw_dist_server_configure_throttle.throttle_concurrent=throttle_concurrent;
+
+    cmd->header=sl_btmesh_cmd_fw_dist_server_configure_throttle_id+(((5)&0xff)<<8)+(((5)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_fw_dist_server_configure_throttle.result;
+
+}
+
 sl_status_t sl_btmesh_fw_dist_client_init(uint16_t elem_index) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -9578,6 +9648,25 @@ sl_status_t sl_btmesh_fw_standalone_updater_cancel(uint16_t elem_index) {
 
     sl_btmesh_host_handle_command();
     return rsp->data.rsp_fw_standalone_updater_cancel.result;
+
+}
+
+sl_status_t sl_btmesh_fw_standalone_updater_configure_throttle(uint16_t elem_index,
+                                                               uint16_t throttle_delay_ms,
+                                                               uint8_t throttle_concurrent) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_fw_standalone_updater_configure_throttle.elem_index=elem_index;
+    cmd->data.cmd_fw_standalone_updater_configure_throttle.throttle_delay_ms=throttle_delay_ms;
+    cmd->data.cmd_fw_standalone_updater_configure_throttle.throttle_concurrent=throttle_concurrent;
+
+    cmd->header=sl_btmesh_cmd_fw_standalone_updater_configure_throttle_id+(((5)&0xff)<<8)+(((5)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_fw_standalone_updater_configure_throttle.result;
 
 }
 

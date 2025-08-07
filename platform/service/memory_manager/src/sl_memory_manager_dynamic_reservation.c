@@ -49,6 +49,13 @@
 #endif
 
 /*******************************************************************************
+ ***************************  LOCAL VARIABLES   ********************************
+ ******************************************************************************/
+
+extern size_t heap_used_size;
+extern size_t heap_high_watermark;
+
+/*******************************************************************************
  **************************   GLOBAL FUNCTIONS   *******************************
  ******************************************************************************/
 
@@ -160,6 +167,9 @@ sl_status_t sl_memory_reserve_block(size_t size,
       }
     }
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+    heap_used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     // Update head pointers accordingly.
     sli_update_free_list_heads(neighbour_block, free_block_metadata, true);
   }
@@ -169,6 +179,14 @@ sl_status_t sl_memory_reserve_block(size_t size,
   handle->block_size = size;
   handle->block_address = reserved_blk;
   *block = reserved_blk;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  // Heap usage size statistic.
+  heap_used_size += size_real;
+  if (heap_used_size > heap_high_watermark) {
+    heap_high_watermark = heap_used_size;
+  }
+#endif
 
 #ifdef SLI_MEMORY_MANAGER_ENABLE_TEST_UTILITIES
   // Save the reservation for heap integrity check purposes.
@@ -258,6 +276,9 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
       // Layout around the reserved block to free (aka R1) will be:
       // |...|Metadata Free block|Data Free block|R2|R1|| or |...|Metadata ST1|Data ST1|R1|| or |...|Metadata LT|Data LT|R1||
       sli_free_blocks_number++;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      heap_used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     }
   }
 
@@ -275,6 +296,10 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
       next_block->length = 0;
       // 2 free blocks have been merged, account for 1 free block only.
       sli_free_blocks_number--;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      heap_used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
 
       if (next_block->offset_neighbour_next != 0) {
         // Get next block following current next block.
@@ -316,6 +341,11 @@ sl_status_t sl_memory_release_block(sl_memory_reservation_t *handle)
       || sli_free_st_list_head->length == 0) {
     sli_free_st_list_head = new_free_block;
   }
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  // Decrease heap usage statistic.
+  heap_used_size -= SLI_ALIGN_ROUND_UP(handle->block_size, SLI_BLOCK_ALLOC_MIN_ALIGN);
+#endif
 
   // Invalidate handle.
   handle->block_address = NULL;

@@ -538,7 +538,7 @@ int32_t gbl_writeProgData(ParserContext_t *context,
     (void) memset(&buffer[withholdSrcOffset], 0xFF, 4U);
   }
 
-#if BTL_PARSER_SUPPORT_DELTA_DFU
+#if defined(BTL_PARSER_SUPPORT_DELTA_DFU)
   //Check if the delta patch extraction won't overstep the storage slot
   //Check this only in case of a delta upgrade. Skip this in scenarios
   //where the bootloader supports delta DFU but it's parsing a regular

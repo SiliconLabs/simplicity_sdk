@@ -154,7 +154,7 @@ void sl_zigbee_af_green_power_client_print_proxy_table(SL_CLI_COMMAND_ARG)
     sl_zigbee_af_core_println("No Proxy Entries");
   }
 #else
-  uint8_t proxyTableSize = 0;
+  uint16_t proxyTableSize = 0;
   sl_zigbee_gp_proxy_table_entry_t entry;
   sl_status_t status = sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_PROXY_TABLE_SIZE, (uint16_t*)&proxyTableSize);
   if (status != SL_ZIGBEE_EZSP_SUCCESS) {
@@ -163,7 +163,7 @@ void sl_zigbee_af_green_power_client_print_proxy_table(SL_CLI_COMMAND_ARG)
   }
   uint8_t i, j;
   sl_zigbee_af_green_power_cluster_print("Proxy Table:\n");
-  for (i = 0; i < proxyTableSize; i++) {
+  for (i = 0; i < (uint8_t)proxyTableSize; i++) {
     sl_zigbee_gp_proxy_table_get_entry(i, &entry);
     if (entry.status == SL_ZIGBEE_GP_PROXY_TABLE_ENTRY_STATUS_ACTIVE) {
       sl_zigbee_af_core_print("%d opt:%08X seco:%02X srcID:%08X ", i, entry.options, entry.securityOptions, entry.gpd.id.sourceId);

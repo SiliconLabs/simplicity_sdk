@@ -2,7 +2,7 @@
 - id: xg26_pk6028a
 - label: XG26-PK6028A
 - package: platform
-- description: Kit BSP support for the xG26 2.4 GHz 10 dBm Pro Kit.
+- description: Kit BSP support for the EFR32xG26 Wireless 2.4 GHz 10 dBm Pro Kit.
 - category: Platform|Board|Kit|Pro Kit
 - quality: production
 - metadata:

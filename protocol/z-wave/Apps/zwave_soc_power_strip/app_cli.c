@@ -76,12 +76,9 @@
 void cli_toggle_endpoint(sl_cli_command_arg_t *arguments)
 {
   uint8_t endpoint = sl_cli_get_argument_uint8(arguments, 0);
-  if (endpoint == 1) {
-    app_log_info("Toggle endpoint 1\r\n");
-    zaf_event_distributor_enqueue_app_event(EVENT_APP_OUTLET1_TOGGLE);
-  } else if (endpoint == 2) {
-    app_log_info("Toggle endpoint 2\r\n");
-    zaf_event_distributor_enqueue_app_event(EVENT_APP_OUTLET2_DIMMER_SHORT_PRESS);
+  if (endpoint == 1 || endpoint == 2) {
+    app_log_info("Toggle endpoint %d\r\n", endpoint);
+    zaf_event_distributor_enqueue_app_event(endpoint == 1 ? EVENT_APP_OUTLET1_TOGGLE : EVENT_APP_OUTLET2_DIMMER_SHORT_PRESS);
   } else {
     app_log_error("Invalid endpoint\r\n");
   }
@@ -98,35 +95,26 @@ void cli_dim_endpoint(sl_cli_command_arg_t *arguments)
     return;
   }
   app_log_info("Dimming endpoint 2 to %d%%\r\n", dimming_rate_level);
-  cc_multilevel_switch_t *switches;
-  switches = cc_multilevel_switch_support_config_get_switches();
+  cc_multilevel_switch_t *switches = cc_multilevel_switch_support_config_get_switches();
   cc_multilevel_switch_set_level(&switches[0], dimming_rate_level, DIMMING_TRANSITION_PERIOD_SEC);
 }
 
 /******************************************************************************
  * CLI - cli_toggle_notification_sending: Toggle the notification sending
  *****************************************************************************/
-void cli_toggle_notification_sending(sl_cli_command_arg_t *arguments)
+void cli_toggle_notification_sending(__attribute__((unused)) sl_cli_command_arg_t *arguments)
 {
   static bool notification_sending = false;
-  (void) arguments;
-
-  if (notification_sending) {
-    app_log_info("Stop sending Overload detected notification\r\n");
-    notification_sending = false;
-  } else {
-    app_log_info("Start sending Overload detected notification\r\n");
-    notification_sending = true;
-  }
+  notification_sending = !notification_sending;
+  app_log_info("%s sending Overload detected notification\r\n", notification_sending ? "Start" : "Stop");
   zaf_event_distributor_enqueue_app_event(EVENT_APP_NOTIFICATION_TOGGLE);
 }
 
 /******************************************************************************
  * CLI - get_led_state: Get the state of the LED1
  *****************************************************************************/
-void cli_get_led_state(sl_cli_command_arg_t *arguments)
+void cli_get_led_state(__attribute__((unused)) sl_cli_command_arg_t *arguments)
 {
-  (void) arguments;
   app_log_info("Get the state of the LED1\r\n");
   cc_binary_switch_t * p_switches = cc_binary_switch_get_config();
   char* state = cc_binary_switch_get_current_value(&p_switches[0]) > 0 ? "on" : "off";

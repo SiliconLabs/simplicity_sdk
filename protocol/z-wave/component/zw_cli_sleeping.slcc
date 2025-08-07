@@ -32,10 +32,8 @@ template_contribution:
     value:
       name: sleeping
       handler: cli_sleeping
-      help: Enable or disable sleeping
       argument:
       - type: string
-        help: "enable or disable"
   #------------------ Template Contribution ---------------------
   - name: component_catalog
     value: zw_cli_sleeping

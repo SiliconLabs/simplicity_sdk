@@ -918,6 +918,7 @@ typedef enum {
   SL_WISUN_TRACE_GROUP_RALG    = 39,    ///< Adaptive rate algorithms
   SL_WISUN_TRACE_GROUP_FSM     = 40,    ///< Finite state machine
   SL_WISUN_TRACE_GROUP_APP     = 41,    ///< Application
+  SL_WISUN_TRACE_GROUP_REG     = 43,    ///< Regional regulation
   // 36 to 63 reserved for future used
   SL_WISUN_TRACE_GROUP_INT     = 63,    ///< Internal usage
   SL_WISUN_TRACE_GROUP_COUNT   = 64     ///< Max number of trace group in this enum

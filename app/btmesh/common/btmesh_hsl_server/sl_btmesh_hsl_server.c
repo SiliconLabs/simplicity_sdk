@@ -105,6 +105,9 @@ static sl_status_t hsl_hue_update(uint16_t element_index,
                                   uint32_t remaining_ms);
 static sl_status_t hsl_saturation_update(uint16_t element_index,
                                          uint32_t remaining_ms);
+void pri_level_move_stop(void);
+static void hue_level_move_stop(void);
+static void saturation_level_move_stop(void);
 
 /// copy of transition delay parameter, needed for delayed hsl request
 static uint32_t delayed_hsl_trans = 0;
@@ -396,6 +399,17 @@ static void hsl_request(uint16_t model_id,
            request->hsl.saturation,
            transition_ms,
            delay_ms);
+
+  // Because HSL Set request updates Lightness, Hue and Saturation at the same time,
+  // all ongoing underlying generic level move transitions must be stopped
+  // If no delay is specified, the cancellation is done immediately,
+  // otherwise the cancellation is done by the delayed timer callback
+
+  if (!delay_ms) {
+    pri_level_move_stop();
+    hue_level_move_stop();
+    saturation_level_move_stop();
+  }
 
   if ((sl_btmesh_get_lightness_current() == request->hsl.lightness)
       && (lightbulb_state.hue_current == request->hsl.hue)
@@ -1149,6 +1163,12 @@ static void hsl_hue_request(uint16_t model_id,
            request->hsl_hue,
            transition_ms, delay_ms);
 
+  // HSL Hue is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    hue_level_move_stop();
+  }
+
   if (lightbulb_state.hue_current == request->hsl_hue) {
     log_info("Request for current state received; no op" NL);
   } else {
@@ -1736,7 +1756,6 @@ static void hue_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.hue_level_current = current->level.level;
     lightbulb_state_changed();
-    hue_level_move_stop();
   } else {
     log_info("Hue generic level update -same value (%d)" NL,
              lightbulb_state.hue_level_current);
@@ -1998,6 +2017,12 @@ static void hsl_saturation_request(uint16_t model_id,
   log_info("hsl_saturation_request: saturation=%u, transition=%lu, delay=%u" NL,
            request->hsl_saturation,
            transition_ms, delay_ms);
+
+  // HSL Saturation is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    saturation_level_move_stop();
+  }
 
   if (lightbulb_state.saturation_current == request->hsl_saturation) {
     log_info("Request for current state received; no op" NL);
@@ -2593,7 +2618,6 @@ static void saturation_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.saturation_level_current = current->level.level;
     lightbulb_state_changed();
-    saturation_level_move_stop();
   } else {
     log_info("Saturation generic level update -same value (%d)" NL,
              lightbulb_state.saturation_level_current);
@@ -2726,6 +2750,18 @@ static void delayed_saturation_level_request(void)
 
 /** @} (end addtogroup SaturationGenericLevel) */
 
+/*******************************************************************************
+ * This function is registered as callback to be executed when the underlying
+ * Generic OnOff state had been changed
+ ******************************************************************************/
+void lightness_server_onoff_changed_cb(void)
+{
+  // If the OnOff state had been changed for the light, ongoing Generic Level Move
+  // transitions must be stopped
+  saturation_level_move_stop();
+  hue_level_move_stop();
+}
+
 /***************************************************************************//**
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
@@ -2767,6 +2803,8 @@ static void init_hsl_models(void)
                                   saturation_level_request,
                                   saturation_level_change,
                                   saturation_level_recall);
+
+  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
 /***************************************************************************//**
@@ -3235,6 +3273,11 @@ static void hsl_delayed_hsl_hue_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // HSL Hue is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  hue_level_move_stop();
+
   // delay for a hsl hue request has passed, now process the request
   delayed_hsl_hue_request();
 }
@@ -3254,6 +3297,11 @@ static void hsl_delayed_hsl_saturation_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // HSL Saturation is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  saturation_level_move_stop();
+
   // delay for a hsl saturation request has passed, now process the request
   delayed_hsl_saturation_request();
 }
@@ -3263,6 +3311,12 @@ static void hsl_delayed_hsl_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // Cancel any ongoing underlying generic level transition
+  pri_level_move_stop();
+  hue_level_move_stop();
+  saturation_level_move_stop();
+
   // delay for a hsl request has passed, now process the request
   delayed_hsl_request();
 }

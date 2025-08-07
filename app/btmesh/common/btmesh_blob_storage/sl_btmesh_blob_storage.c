@@ -440,18 +440,20 @@ sl_status_t sl_btmesh_blob_storage_write(uint32_t offset,
                                          uint32_t len,
                                          void *data)
 {
+  int32_t r; // Bootloader result
+
   log_debug("BLOB Storage write; offset 0x%08lX, "
             "length %lu cache status %d" NL,
             offset,
             len, blob_storage.slot_cache[blob_storage.current_index].status);
   // Write data into flash
-  if (BOOTLOADER_OK
-      != bootloader_writeStorage(blob_storage.current_index,
-                                 offset,
-                                 data,
-                                 // Truncate length to alignment (if needed)
-                                 sli_btmesh_blob_storage_align_to_prev_word(len))) {
-    return SL_STATUS_FLASH_PROGRAM_FAILED;
+  r = bootloader_writeStorage(blob_storage.current_index,
+                              offset,
+                              data,
+                              // Truncate length to alignment (if needed)
+                              sli_btmesh_blob_storage_align_to_prev_word(len));
+  if (BOOTLOADER_OK != r) {
+    goto write_failed;
   }
   // Check whether length had to be truncated
   if (0 != sli_btmesh_blob_storage_word_align_remainder(len)) {
@@ -468,18 +470,36 @@ sl_status_t sl_btmesh_blob_storage_write(uint32_t offset,
            &((uint8_t *)data)[sli_btmesh_blob_storage_align_to_prev_word(len)],
            sli_btmesh_blob_storage_word_align_remainder(len));
     // Write (padded) data into flash
-    if (BOOTLOADER_OK
-        != bootloader_writeStorage(blob_storage.current_index,
-                                   offset
-                                   + sli_btmesh_blob_storage_align_to_prev_word(len),
-                                   buffer,
-                                   SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL)) {
-      return SL_STATUS_FLASH_PROGRAM_FAILED;
+    r = bootloader_writeStorage(blob_storage.current_index,
+                                offset
+                                + sli_btmesh_blob_storage_align_to_prev_word(len),
+                                buffer,
+                                SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL);
+    if (BOOTLOADER_OK != r) {
+      goto write_failed;
     }
   }
   blob_storage.written_bytes += len;
   blob_storage.slot_cache[blob_storage.current_index].status = SL_BTMESH_BLOB_STORAGE_STATUS_CORRUPTED;
   return SL_STATUS_OK;
+
+  write_failed:
+  // If the write failed due to non-erased storage, check if the content matches
+  // what is already in the storage. If it does, the write is considered successful.
+  if (BOOTLOADER_ERROR_STORAGE_NEEDS_ERASE == r) {
+    int32_t diff = 1;
+    (void)blob_storage_compare(blob_storage.current_index,
+                               offset,
+                               data,
+                               len,
+                               &diff);
+    if (diff == 0) {
+      return SL_STATUS_OK;
+    }
+  }
+  log_error("BLOB Storage write failed; offset 0x%08lX, length %lu, error 0x%04lX" NL,
+            offset, len, r);
+  return SL_STATUS_FLASH_PROGRAM_FAILED;
 }
 
 void sl_btmesh_blob_storage_get_cache(sl_btmesh_blob_storage_slot_metadata_cache_t const **cache,
@@ -1141,6 +1161,11 @@ uint32_t sl_btmesh_blob_storage_get_max_blob_size_free(bool include_unmanaged_bl
 uint32_t sl_btmesh_blob_storage_get_max_blob_count(void)
 {
   return blob_storage.cache_length;
+}
+
+uint8_t sl_btmesh_blob_storage_get_alignment(void)
+{
+  return SL_BTMESH_BLOB_STORAGE_ALIGNMENT_CFG_VAL;
 }
 
 sl_btmesh_blob_storage_status_t sli_btmesh_blob_storage_get_slot_status(uint32_t slot_id)

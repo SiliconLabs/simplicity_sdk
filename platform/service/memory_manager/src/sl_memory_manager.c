@@ -81,8 +81,8 @@ extern char __HeapLimit[];
 extern sli_block_metadata_t *sli_free_lt_list_head;
 extern sli_block_metadata_t *sli_free_st_list_head;
 extern uint32_t sli_free_blocks_number;
-static size_t heap_used_size;
-static size_t heap_high_watermark;
+size_t heap_used_size;
+size_t heap_high_watermark;
 #if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
 bool reserve_no_retention_first = true;
 #endif
@@ -120,6 +120,12 @@ sl_status_t sl_memory_init(void)
   sli_memory_metadata_init(sli_free_lt_list_head);
   sli_free_lt_list_head->length = (uint16_t)SLI_BLOCK_LEN_BYTE_TO_DWORD(heap_region.size - SLI_BLOCK_METADATA_SIZE_BYTE);
   sli_free_blocks_number++;
+
+  // Add first free block metadata to heap usage.
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  heap_used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
+  heap_high_watermark += SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
 
 #if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
   // Create the pool tracker for the physical RAM
@@ -246,10 +252,9 @@ sl_status_t sl_memory_reserve_no_retention(size_t size,
     status = SL_STATUS_ALLOCATION_FAILED;
   }
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   heap_used_size += size_real;
-  if (heap_used_size > heap_high_watermark) {
-    heap_high_watermark = heap_used_size;
-  }
+#endif
 
   CORE_EXIT_ATOMIC();
 
@@ -334,7 +339,7 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
   size_t size_adjusted;
   size_t block_size_remaining;
   size_t block_align = (align == SL_MEMORY_BLOCK_ALIGN_DEFAULT) ? SLI_BLOCK_ALLOC_MIN_ALIGN : align;
-  size_t other_offset;
+  size_t other_offset = 0;
   bool is_aligned = false;
 #if defined(DEBUG_EFM) || defined(DEBUG_EFM_USER)
   reserve_no_retention_first = false;
@@ -417,6 +422,11 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
 
       // Update head pointers. See Note #1.
       sli_update_free_list_heads(new_free_blk, old_block_metadata, false);
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      // New block is created so there is a new metadata metadata.
+      heap_used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     } else {
       // Create a new block = allocated block returned to requester. This new block is the nearest to the heap end.
       allocated_blk = (sli_block_metadata_t *)((uint8_t *)current_block_metadata + block_size_remaining);
@@ -449,6 +459,11 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
       // the ST header pointer and is the first free block to consider for the next allocation.
       // Thus no need to update the ST header pointer. ST head pointer is always the same when the
       // block is split. LT head pointer is left untouched for ST block allocation with split.
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      // New block is created so there is a new metadata metadata.
+      heap_used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     }
 
     allocated_blk->block_in_use = true;
@@ -473,10 +488,12 @@ sl_status_t sl_memory_alloc_advanced(size_t size,
     sli_update_free_list_heads(allocated_blk, old_block_metadata, true);
   }
 
-  heap_used_size += size_adjusted;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  heap_used_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(allocated_blk->length);
   if (heap_used_size > heap_high_watermark) {
     heap_high_watermark = heap_used_size;
   }
+#endif
 
   CORE_EXIT_ATOMIC();
 
@@ -553,7 +570,9 @@ sl_status_t sl_memory_free(void *block)
   sli_block_metadata_t *free_block = current_metadata;
   sli_block_metadata_t *next_block = NULL;
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   heap_used_size -= SLI_BLOCK_LEN_DWORD_TO_BYTE(current_metadata->length);
+#endif
 
   // Update counter with block being freed.
   sli_free_blocks_number++;
@@ -573,6 +592,11 @@ sl_status_t sl_memory_free(void *block)
 
       // 2 free blocks have been merged, account for 1 free block only.
       sli_free_blocks_number--;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      // To account for one less metadata in heap.
+      heap_used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     } else if (current_metadata->heap_start_align) {
       // Special block whose data payload was aligned near heap start. Merge process is special as between
       // the heap start and the block metadata, there is a lost zone to be merged. But at heap start, there is
@@ -602,6 +626,11 @@ sl_status_t sl_memory_free(void *block)
 
       // 2 free blocks have been merged, account for 1 free block only.
       sli_free_blocks_number--;
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+      // To account for one less metadata in heap.
+      heap_used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
+#endif
     }
   }
 
@@ -903,12 +932,14 @@ sl_status_t sl_memory_realloc(void *ptr,
       }
     }
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
     if (find_new_block == false) {
       heap_used_size += size_real - current_block_len;
       if (heap_used_size > heap_high_watermark) {
         heap_high_watermark = heap_used_size;
       }
     }
+#endif
 
     // BLOCK REDUCTION.
   } else if (size_real < current_block_len) {
@@ -990,7 +1021,9 @@ sl_status_t sl_memory_realloc(void *ptr,
                                       size_real + SLI_BLOCK_METADATA_SIZE_BYTE);
 #endif
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
     heap_used_size -= current_block_len - size_real;
+#endif
   } else {
     // If the size requested does not provoke a block extension or reduction, consider no error.
     // And return the same given address. We still track it to show that resize was requested.
@@ -1018,11 +1051,11 @@ sl_status_t sl_memory_realloc(void *ptr,
  ******************************************************************************/
 sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
 {
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   sl_memory_region_t heap_region = sl_memory_get_heap_region();
   sli_block_metadata_t *block_metadata = (sli_block_metadata_t *)heap_region.addr;
   bool compute = true;
   size_t remaining_size = 0u;
-  size_t used_size = 0u;
   size_t free_block_count = 0u;
   size_t used_block_count = 0u;
   size_t largest_free_size = 0u;
@@ -1038,17 +1071,26 @@ sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
   CORE_ENTER_ATOMIC();
 
   do {
-    // Calculate the different used and remaining heap sizes.
+    // Calculate the smallest and largest used size and the remaining heap sizes.
     if (block_metadata->block_in_use == 0) {
       remaining_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length);
       largest_free_size = SL_MAX(SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length), largest_free_size);
       smallest_free_size = SL_MIN(SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length), smallest_free_size);
       free_block_count++;
     } else {
-      used_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length);
       largest_used_size = SL_MAX(SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length), largest_used_size);
       smallest_used_size = SL_MIN(SLI_BLOCK_LEN_DWORD_TO_BYTE(block_metadata->length), smallest_used_size);
       used_block_count++;
+    }
+
+    // If no used block, set the smallest used size to 0.
+    if (smallest_used_size == SIZE_MAX) {
+      smallest_used_size = 0u;
+    }
+
+    // If no free block, set the smallest free size to 0.
+    if (smallest_free_size == SIZE_MAX) {
+      smallest_free_size = 0u;
     }
 
     // Get the next block.
@@ -1063,7 +1105,7 @@ sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
 
   heap_info->base_addr = (size_t)heap_region.addr;
   heap_info->total_size = heap_region.size;
-  heap_info->used_size = used_size;
+  heap_info->used_size = heap_used_size;
   heap_info->free_size = remaining_size;
   heap_info->free_block_count = free_block_count;
   heap_info->free_block_largest_size = largest_free_size;
@@ -1071,6 +1113,9 @@ sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
   heap_info->used_block_count = used_block_count;
   heap_info->used_block_largest_size = largest_used_size;
   heap_info->used_block_smallest_size = smallest_used_size;
+#else
+  (void) heap_info;
+#endif
 
   return SL_STATUS_OK;
 }
@@ -1080,11 +1125,13 @@ sl_status_t sl_memory_get_heap_info(sl_memory_heap_info_t *heap_info)
  ******************************************************************************/
 size_t sl_memory_get_total_heap_size(void)
 {
-  sl_memory_heap_info_t heap_info;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  sl_memory_region_t heap_region = sl_memory_get_heap_region();
 
-  sl_memory_get_heap_info(&heap_info);
-
-  return heap_info.total_size;
+  return heap_region.size;
+#else
+  return 0;
+#endif
 }
 
 /***************************************************************************//**
@@ -1092,11 +1139,15 @@ size_t sl_memory_get_total_heap_size(void)
  ******************************************************************************/
 size_t sl_memory_get_free_heap_size(void)
 {
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   sl_memory_heap_info_t heap_info;
 
   sl_memory_get_heap_info(&heap_info);
 
   return heap_info.free_size;
+#else
+  return 0;
+#endif
 }
 
 /***************************************************************************//**
@@ -1104,11 +1155,16 @@ size_t sl_memory_get_free_heap_size(void)
  ******************************************************************************/
 size_t sl_memory_get_used_heap_size(void)
 {
-  sl_memory_heap_info_t heap_info;
+  size_t heap_used_size_value = 0;
 
-  sl_memory_get_heap_info(&heap_info);
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  CORE_DECLARE_IRQ_STATE;
+  CORE_ENTER_ATOMIC();
+  heap_used_size_value = heap_used_size;
+  CORE_EXIT_ATOMIC();
+#endif
 
-  return heap_info.used_size;
+  return heap_used_size_value;
 }
 
 /***************************************************************************//**
@@ -1118,10 +1174,12 @@ size_t sl_memory_get_heap_high_watermark(void)
 {
   size_t heap_high_watermark_value = 0;
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   CORE_DECLARE_IRQ_STATE;
   CORE_ENTER_ATOMIC();
   heap_high_watermark_value = heap_high_watermark;
   CORE_EXIT_ATOMIC();
+#endif
 
   return heap_high_watermark_value;
 }
@@ -1131,6 +1189,7 @@ size_t sl_memory_get_heap_high_watermark(void)
  ******************************************************************************/
 void sl_memory_reset_heap_high_watermark(void)
 {
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   sl_memory_heap_info_t heap_info;
 
   sl_memory_get_heap_info(&heap_info);
@@ -1138,6 +1197,7 @@ void sl_memory_reset_heap_high_watermark(void)
   CORE_ENTER_ATOMIC();
   heap_high_watermark = heap_info.used_size;
   CORE_EXIT_ATOMIC();
+#endif
 }
 
 /*******************************************************************************
@@ -1195,6 +1255,10 @@ static sli_block_metadata_t *memory_manage_data_alignment(sli_block_metadata_t *
   } else {
     current_block_metadata->offset_neighbour_next = 0;
   }
+
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+  heap_used_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(align_offset);
+#endif
 
   return current_block_metadata;
 }

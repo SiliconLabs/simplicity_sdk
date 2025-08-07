@@ -78,7 +78,8 @@ void sli_802154_stack_passthrough_message_handler(sl_zigbee_mac_passthrough_type
 
 void sli_zigbee_stack_raw_transmit_complete_handler(uint8_t messageLength,
                                                     uint8_t *messageContents,
-                                                    sl_status_t status)
+                                                    sl_status_t status,
+                                                    uint8_t messageTag)
 {
   sl_zigbee_stack_cb_event_t *cb_event = (sl_zigbee_stack_cb_event_t *) malloc(sizeof(sl_zigbee_stack_cb_event_t));
   cb_event->data.raw_transmit_complete_handler.messageLength = messageLength;
@@ -88,6 +89,7 @@ void sli_zigbee_stack_raw_transmit_complete_handler(uint8_t messageLength,
   }
 
   cb_event->data.raw_transmit_complete_handler.status = status;
+  cb_event->data.raw_transmit_complete_handler.messageTag = messageTag;
   cb_event->tag = SLI_ZIGBEE_STACK_RAW_TRANSMIT_COMPLETE_HANDLER_IPC_EVENT_TYPE;
   #ifndef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   cb_event->network_idx = sl_zigbee_get_callback_network();
@@ -120,7 +122,8 @@ void sli_zigbee_raw_message_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_eve
     case SLI_ZIGBEE_STACK_RAW_TRANSMIT_COMPLETE_HANDLER_IPC_EVENT_TYPE:
       sl_zigbee_raw_transmit_complete_handler(cb_event->data.raw_transmit_complete_handler.messageLength,
                                               cb_event->data.raw_transmit_complete_handler.messageContents,
-                                              cb_event->data.raw_transmit_complete_handler.status);
+                                              cb_event->data.raw_transmit_complete_handler.status,
+                                              cb_event->data.raw_transmit_complete_handler.messageTag);
       break;
 
     default:

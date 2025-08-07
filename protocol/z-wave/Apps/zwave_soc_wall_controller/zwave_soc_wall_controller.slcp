@@ -170,12 +170,9 @@ template_contribution:
     value:
       name: send_central_scene_key
       handler: cli_send_central_scene_key
-      help: Send Central Scene Command
       argument:
       - type: uint8
-        help: Number of the key (1 ,2 or 3)
       - type: string
-        help: Action of the key action (press, hold, release)
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE

@@ -102,6 +102,7 @@ ZW_APPLICATION_STATUS
 ApplicationInit(__attribute__((unused)) zpal_reset_reason_t eResetReason)
 {
   DPRINT("Enabling watchdog\n");
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
 
 #ifdef DEBUGPRINT

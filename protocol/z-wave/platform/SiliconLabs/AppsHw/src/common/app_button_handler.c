@@ -36,11 +36,9 @@
 #include "app_button_press.h"
 #include "app_button_press_config.h"
 #include "sl_component_catalog.h"
+#include "sl_simple_button_instances.h"
+#include "sl_power_manager.h"
 #include <events.h>
-
-#ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-#include <zpal_power_manager.h>
-#endif
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -48,11 +46,8 @@
 //#define DEBUGPRINT
 #include "DebugPrint.h"
 
-#ifdef SL_CATALOG_SIMPLE_BUTTON_PRESENT
-#define SL_AWAKE_DURATION_MS LONG_BUTTON_PRESS_DURATION
-#else
-#define SL_AWAKE_DURATION_MS 1000
-#endif
+#define BUTTON_HOLD_POWER_LOCK (SL_POWER_MANAGER_EM1)
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -64,8 +59,9 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
+
 #ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-static zpal_pm_handle_t radio_power_lock = NULL;
+static bool button_power_locked[SL_SIMPLE_BUTTON_COUNT] = { false };
 #endif
 
 // -----------------------------------------------------------------------------
@@ -119,18 +115,22 @@ bool app_cc_event_enqueue(uint16_t command_class, uint8_t cc_event, void *cc_dat
  * @brief Keeps the device awake until the button is released.
  *
  * This function sets a power lock to keep the device awake for the duration of the
- * longest possible button press event. If the button press event is shorter, the lock
- * will be canceled, allowing the MCU to sleep.
+ * button hold.
  */
 void app_button_press_stay_awake_until_release(void)
 {
-  if (radio_power_lock == NULL) {
-    radio_power_lock = zpal_pm_register(ZPAL_PM_TYPE_USE_RADIO);
-  }
-  /* We set a power lock to stay awake for the duration of the longest possible button press event.
-     In case it is a shorter event the lock will be canceled and MCU will sleep
+  /* If any of the buttons are pressed down, keep the device awake.
+   * This check is necessary, because if the button is released before this point
+   * (which can happen for very short presses), the button release won't be detected,
+   * and we stay awake indefinitely.
    */
-  zpal_pm_stay_awake(radio_power_lock, SL_AWAKE_DURATION_MS);
+  for (uint8_t i = 0; i < SL_SIMPLE_BUTTON_COUNT; i++) {
+    if (sl_simple_button_get_state(SL_SIMPLE_BUTTON_INSTANCE(i)) != SL_SIMPLE_BUTTON_RELEASED
+        && !button_power_locked[i]) {
+      sl_power_manager_add_em_requirement(BUTTON_HOLD_POWER_LOCK);
+      button_power_locked[i] = true;
+    }
+  }
 }
 #endif
 
@@ -170,9 +170,15 @@ void app_button_press_cb(uint8_t button, uint8_t duration)
     default:
       break;
   }
-#ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
-  zpal_pm_cancel(radio_power_lock);
-#endif
+  #ifdef SL_CATALOG_ZW_SLEEPING_DEVICE_PRESENT
+  if (!button_power_locked[button] && duration == APP_BUTTON_PRESS_PRESSED_DOWN) {
+    sl_power_manager_add_em_requirement(BUTTON_HOLD_POWER_LOCK);
+    button_power_locked[button] = true;
+  } else if (button_power_locked[button] && duration != APP_BUTTON_PRESS_PRESSED_DOWN) {
+    sl_power_manager_remove_em_requirement(BUTTON_HOLD_POWER_LOCK);
+    button_power_locked[button] = false;
+  }
+  #endif
 }
 
 /**

@@ -20,6 +20,8 @@ include:
 source:
   - path: util/plugin/slot-manager/slot-manager.c
   - path: util/plugin/slot-manager/slot-manager-cli.c
+    condition:
+      - cli
 template_contribution:
   - name: component_catalog
     value: slot_manager

@@ -17,9 +17,9 @@
   - name: SL_KIT_NAME
     value: '"ZGM230-RB4205B"'
   - name: SL_KIT_REV
-    value: '"A00"'
+    value: '"A01"'
 - tag:
   - kit:opn:ZGM230-RB4205B
   - kit:pn:RB4205
   - kit:variant:B
-  - kit:revision:A00
+  - kit:revision:A01

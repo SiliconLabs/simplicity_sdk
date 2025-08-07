@@ -160,6 +160,8 @@ configuration:
     value: '"power_strip"'
   - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
     value: 0
+  - name: SL_MEMORY_MANAGER_STATISTICS_API_ENABLE # Save footprint
+    value: 0
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -186,37 +188,30 @@ template_contribution:
     value:
       name: toggle_endpoint
       handler: cli_toggle_endpoint
-      help: Toggle the endpoint 1 or 2. Possible values are 1 or 2
       argument:
       - type: uint8
-        help: Endpoint number (1 or 2)
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: dim_endpoint
       handler: cli_dim_endpoint
-      help: Dim the endpoint 2
       argument:
       - type: uint8
-        help: New dimming level, it can be minimum 0 and maximum 99
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: toggle_notification_sending
       handler: cli_toggle_notification_sending
-      help: Send Overload detected notification, for more information, see the application README
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_rgb_values
       handler: cli_get_rgb_values
-      help: Get rgb LED values
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_led_state
       handler: cli_get_led_state
-      help: Get LED1 state from the expansion header
 
 post_build:
   profile: zwave_application

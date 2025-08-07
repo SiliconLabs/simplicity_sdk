@@ -13,6 +13,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_cbap.bt_soc_cbap_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
   </descriptors>
@@ -29,6 +31,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
   </descriptors>
@@ -45,6 +49,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_esl_ap_micriumos" label="Bluetooth - NCP ESL Access Point Micrium OS" description="Network Co-Processor (NCP) target application with additional features to support the Electronic Shelf Label Profile ESL Access Point role. Note: Some BLE features unused by the ESL Access Point are removed compared to the NCP target application.&#xA;">
@@ -60,6 +66,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_freertos" label="Bluetooth - NCP FreeRTOS" description="Network Co-Processor (NCP) target application. Runs the Bluetooth stack dynamically and provides access to it via Bluetooth API (BGAPI) using UART connection. NCP mode makes it possible to run your application on a host controller or PC.&#xA;">
@@ -75,6 +83,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_ncp_micriumos" label="Bluetooth - NCP Micrium OS" description="Network Co-Processor (NCP) target application. Runs the Bluetooth stack dynamically and provides access to it via Bluetooth API (BGAPI) using UART connection. NCP mode makes it possible to run your application on a host controller or PC.&#xA;">
@@ -90,6 +100,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_cpc_freertos" label="Bluetooth - RCP CPC FreeRTOS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over CPC (Co-Processor Communication) protocol through UART connection.&#xA;">
@@ -105,6 +117,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_cpc_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_freertos" label="Bluetooth - RCP FreeRTOS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over a UART connection.&#xA;">
@@ -120,6 +134,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_rcp_micriumos" label="Bluetooth - RCP Micrium OS" description="Radio Co-Processor (RCP) target application. Runs the Bluetooth Controller (i.e. the Link Layer only) and provides access to it using the standard HCI (Host-Controller Interface) over a UART connection.&#xA;">
@@ -135,6 +151,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_freertos" label="Bluetooth - SoC Blinky FreeRTOS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -150,6 +168,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_freertos_shared" label="Bluetooth - SoC Blinky FreeRTOS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the  Simplicity Connect mobile app.&#xA;">
@@ -165,6 +185,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_micriumos" label="Bluetooth - SoC Blinky Micrium OS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -180,6 +202,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_blinky_micriumos_shared" label="Bluetooth - SoC Blinky Micrium OS" description="The classic blinky example using Bluetooth communication. Demonstrates a simple two-way data exchange over GATT. This can be tested with the Simplicity Connect mobile app.&#xA;">
@@ -195,6 +219,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_cbap" label="Bluetooth - SoC Certificate Based Authentication and Pairing (Secure Vault)&#xA;" description="Demonstrates Certificate Based Authentication and Pairing over BLE. This example utilizes Secure Vault for storing keys.&#xA;">
@@ -210,6 +236,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_cbap_tz_ns" label="Bluetooth - SoC Certificate Based Authentication and Pairing (TrustZone)&#xA;" description="Demonstrates Certificate Based Authentication and Pairing over BLE. This example utilizes TrustZone for storing keys.&#xA;">
@@ -225,6 +253,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz_ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_csr_generator" label="Bluetooth - SoC Certificate Signing Request Generator (Secure Vault)&#xA;" description="Certificate generating firmware example. Software is generating the device EC key pair, the signing request for the device certificate, and other related data. The generated data can be read out by the Central Authority. This example utilizes Secure Vault for storing keys.&#xA;">
@@ -240,6 +270,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_csr_generator_tz_ns" label="Bluetooth - SoC Certificate Signing Request Generator (TrustZone)&#xA;" description="Certificate generating firmware example. Software is generating the device EC key pair, the signing request for the device certificate, and other related data. The generated data can be read out by the Central Authority. This example utilizes TrustZone for storing keys.&#xA;">
@@ -255,6 +287,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz_ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_empty_freertos" label="Bluetooth - SoC Empty FreeRTOS" description="A minimal project structure, that serves as a starting point for custom Bluetooth applications. The application starts advertising after boot and restarts advertising after a connection is closed.&#xA;">
@@ -270,6 +304,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_empty_micriumos" label="Bluetooth - SoC Empty Micrium OS" description="A minimal project structure, that serves as a starting point for custom Bluetooth applications. The application starts advertising after boot and restarts advertising after a connection is closed.&#xA;">
@@ -285,6 +321,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_ibeacon_freertos" label="Bluetooth - SoC iBeacon FreeRTOS" description="Sends non-connectable advertisements in iBeacon format. The iBeacon Service gives Bluetooth accessories a simple and convenient way to send iBeacons to smartphones. This example can be tested together with the Simplicity Connect mobile app.&#xA;">
@@ -300,6 +338,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_ibeacon_micriumos" label="Bluetooth - SoC iBeacon Micrium OS" description="Sends non-connectable advertisements in iBeacon format. The iBeacon Service gives Bluetooth accessories a simple and convenient way to send iBeacons to smartphones. This example can be tested together with the Simplicity Connect mobile app.&#xA;">
@@ -315,6 +355,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_iop_test_freertos" label="Bluetooth - SoC Interoperability Test FreeRTOS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity  Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop  view of the app.&#xA;">
@@ -330,6 +372,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_iop_test_micriumos" label="Bluetooth - SoC Interoperability Test Micrium OS" description="This is a test procedure containing several test cases for Bluetooth Low Energy communication. This demo is meant to be used with the Simplicity Connect mobile app, through the &quot;Interoperability Test&quot; tile on the Develop  view of the app.&#xA;">
@@ -345,6 +389,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
   <descriptors name="bt_soc_tz_secure_application" label="Sample project for TrustZone Secure Key Library" description="This project can be used as a reference implementation for creating secure applications with TrustZone for bluetooth products.&#xA;This project makes a TrustZone secure library for running PSA libraries in the secure world.">
@@ -360,6 +406,8 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_tz_secure_application/bt_soc_tz_secure_application.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
 </model:MDescriptors>

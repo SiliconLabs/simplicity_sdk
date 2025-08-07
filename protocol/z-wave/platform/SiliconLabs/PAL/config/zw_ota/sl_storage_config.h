@@ -33,7 +33,7 @@
 #if defined(NDEBUG)
 #define SL_BOOTLOADER_STORAGE_SIZE  0x00030000
 #else /* defined(NDEBUG) */
-#define SL_BOOTLOADER_STORAGE_SIZE  0x0002C000
+#define SL_BOOTLOADER_STORAGE_SIZE  0x00028000
 #endif /* defined(NDEBUG) */
 
 // </e>

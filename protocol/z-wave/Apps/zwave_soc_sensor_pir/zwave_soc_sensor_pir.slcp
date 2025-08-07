@@ -72,6 +72,8 @@ configuration:
     value: (400)
   - name: MEDIUM_BUTTON_PRESS_DURATION
     value: (1500)
+  - name: APP_BUTTON_PRESS_DETECTION
+    value: APP_BUTTON_PRESS_DETECT_PRESS_AND_RELEASE
   - name: ZAF_CONFIG_REQUEST_KEY_S2_UNAUTHENTICATED
     value: 1
   - name: ZAF_CONFIG_REQUEST_KEY_S2_AUTHENTICATED
@@ -172,16 +174,13 @@ template_contribution:
     value:
       name: battery_report
       handler: cli_battery_report
-      help: Send Battery Report
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: motion_detected
       handler: cli_motion_detected
-      help: Emulate - motion detected
       argument:
       - type: string
-        help: "activate or deactivate"
 
 post_build:
   profile: zwave_application

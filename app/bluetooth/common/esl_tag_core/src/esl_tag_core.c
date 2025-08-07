@@ -251,10 +251,13 @@ static void esl_core_secondary_advertiser(void *p_event_data, uint16_t event_siz
 {
   (void)event_size;
   (void)p_event_data;
-  // start the secondary advertiser also as sl_bt_legacy_advertiser_connectable
-  // but this advertising doesn't expose any service nor other UUID
-  (void)sl_bt_legacy_advertiser_start(esl_tag_persistent.advertising_set_handle[1],
-                                      sl_bt_legacy_advertiser_connectable);
+  // start only if there's no active connection
+  if (esl_tag.connection_handle == SL_BT_INVALID_CONNECTION_HANDLE) {
+    // start the secondary advertiser also as sl_bt_legacy_advertiser_connectable
+    // but this advertising doesn't expose any service nor other UUID
+    (void)sl_bt_legacy_advertiser_start(esl_tag_persistent.advertising_set_handle[1],
+                                        sl_bt_legacy_advertiser_connectable);
+  }
 }
 #endif // ESL_TAG_INTERMITTENT_ADVERTISING
 
@@ -550,8 +553,18 @@ static void esl_state_boot_handler(sl_bt_msg_t *evt)
         sc = sl_bt_sm_set_bondable_mode(ESL_FALSE);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
 
-        // extend security flags
+#if !ESL_TAG_INTERMITTENT_ADVERTISING
+        // ESL_SECURITY_BONDED_ONLY option is incompatible with Intermittent
+        // Advertising ESL Core custom feature as the BLE stack doesn't emit the
+        // events necessary for proper advertisement handling if the flag
+        // ESL_SECURITY_BONDED_ONLY is set and an untrusted device tried
+        // connecting. With the bonded-only SM flag set, the stack won't emit
+        // any event for such connections eventually, which then leaves the
+        // "other" connectable advertising disabled after the untrusted device
+        // has been disconnected silently.
+        // Extend security flags if allowed by the configuration
         flags |= ESL_SECURITY_BONDED_ONLY;
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
 
         // set esl_tag.bonding_handle, default 0
         esl_tag.bonding_handle = 0;
@@ -675,10 +688,13 @@ static void esl_state_connectable_handler(sl_bt_msg_t *evt)
 
     case sl_bt_evt_sm_bonded_id:
       if (esl_tag.bonding_handle == SL_BT_INVALID_BONDING_HANDLE) {
+        uint8_t  flags = ESL_SECURITY_BASE_FLAGS;
         esl_tag.bonding_handle = evt->data.evt_sm_bonded.bonding;
-
-        sc = sl_bt_sm_configure(ESL_SECURITY_BASE_FLAGS
-                                | ESL_SECURITY_BONDED_ONLY,
+#if !ESL_TAG_INTERMITTENT_ADVERTISING
+        // Extend security flags if allowed by the configuration
+        flags |= ESL_SECURITY_BONDED_ONLY;
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
+        sc = sl_bt_sm_configure(flags,
                                 sl_bt_sm_io_capability_noinputnooutput);
         sl_bt_esl_assert(sc == SL_STATUS_OK);
         // do not accept bonding anymore
@@ -1524,13 +1540,13 @@ sl_status_t esl_core_start_advertising(void)
                     ESL_LOG_LEVEL_INFO,
                     "Power saving disabled by ESL_TAG_POWER_DOWN_ENABLE config!");
     }
+#if ESL_TAG_INTERMITTENT_ADVERTISING
+    (void)app_scheduler_add_delayed(&esl_core_secondary_advertiser,
+                                    ESL_TAG_SECONDARY_ADVERTISING_DELAY,
+                                    NULL, 0, NULL);
+#endif // ESL_TAG_INTERMITTENT_ADVERTISING
   }
 
-#if ESL_TAG_INTERMITTENT_ADVERTISING
-  (void)app_scheduler_add_delayed(&esl_core_secondary_advertiser,
-                                  ESL_TAG_SECONDARY_ADVERTISING_DELAY,
-                                  NULL, 0, NULL);
-#endif // ESL_TAG_INTERMITTENT_ADVERTISING
   return result;
 }
 

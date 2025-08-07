@@ -3,7 +3,7 @@
  * @brief internal implementations for 'raw-message' as a thin-wrapper
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -37,6 +37,19 @@ sl_status_t sl_zigbee_send_raw_message(const uint8_t *message,
                                            message_length,
                                            priority,
                                            useCca);
+}
+
+sl_status_t sl_zigbee_send_raw_message_with_tag(const uint8_t *message,
+                                                uint8_t message_length,
+                                                sl_zigbee_transmit_priority_t priority,
+                                                bool useCca,
+                                                uint8_t messageTag)
+{
+  return sli_zigbee_stack_send_raw_message_with_tag(message,
+                                                    message_length,
+                                                    priority,
+                                                    useCca,
+                                                    messageTag);
 }
 
 void sl_zigbee_set_embernet_passthrough_source_address(sl_802154_short_addr_t address)

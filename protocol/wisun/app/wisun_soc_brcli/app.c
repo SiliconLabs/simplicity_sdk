@@ -1423,6 +1423,8 @@ void app_set_lfn_support(sl_cli_command_arg_t *arguments)
   ret = sl_wisun_br_set_lfn_support(lfn_limit, lfn_support_pan);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set LFN support: %lu]\r\n", ret);
+  } else {
+    printf("[LFN support set]\r\n");
   }
 
   app_wisun_cli_mutex_unlock();
@@ -1445,6 +1447,8 @@ void app_set_dhcp_vendor_data(sl_cli_command_arg_t *arguments)
   ret = sl_wisun_br_dhcpv6_set_vendor_data(enterprise_number, (uint16_t)data_length, data);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set DHCP Vendor data: %lu]\r\n", ret);
+  } else {
+    printf("[DHCP Vendor data set]\r\n");
   }
 
   app_wisun_cli_mutex_unlock();
@@ -1474,6 +1478,8 @@ void app_pan_defect_advertise(sl_cli_command_arg_t *arguments)
                                          max_scan_duration_s);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set PAN Defect: %lu]\r\n", ret);
+  } else {
+    printf("[PAN Defect advertisement started]\r\n");
   }
 cleanup:
   app_wisun_cli_mutex_unlock();

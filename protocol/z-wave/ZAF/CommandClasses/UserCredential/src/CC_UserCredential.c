@@ -642,6 +642,9 @@ static received_frame_status_t CC_UserCredential_CredentialSet_handler(
       if (p_credential->metadata.slot == 0) {
         // Bulk delete credentials
 
+        // Remember whether any credentials were deleted
+        bool deleted_any_credentials = false;
+
         uint16_t user_uid = p_credential->metadata.uuid;
         if (user_uid == 0) {
           user_uid = CC_UserCredential_get_next_user(0);
@@ -650,7 +653,7 @@ static received_frame_status_t CC_UserCredential_CredentialSet_handler(
         // Iterate through each user
         while (user_uid) {
           // Delete a user's every credential (of a certain type, if specified)
-          CC_UserCredential_delete_all_credentials_of_type(user_uid, p_credential->metadata.type);
+          deleted_any_credentials |= CC_UserCredential_delete_all_credentials_of_type(user_uid, p_credential->metadata.type);
           user_uid = CC_UserCredential_get_next_user(user_uid);
 
           /**
@@ -664,9 +667,15 @@ static received_frame_status_t CC_UserCredential_CredentialSet_handler(
 
         p_credential->metadata.modifier_type = MODIFIER_TYPE_DNE;
         p_credential->metadata.modifier_node_id = 0;
+
+        u3c_credential_report_type_t report_type =
+          deleted_any_credentials
+          ? CREDENTIAL_REP_TYPE_DELETED
+          : CREDENTIAL_REP_TYPE_UNCHANGED;
+
         // Echo data from request back to sender
         CC_UserCredential_CredentialReport_tx(
-          CREDENTIAL_REP_TYPE_DELETED, p_credential, CREDENTIAL_TYPE_NONE, 0,
+          report_type, p_credential, CREDENTIAL_TYPE_NONE, 0,
           p_rx_options);
 
         status = RECEIVED_FRAME_STATUS_SUCCESS;

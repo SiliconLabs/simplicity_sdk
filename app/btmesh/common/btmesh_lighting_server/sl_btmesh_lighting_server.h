@@ -135,4 +135,21 @@ uint16_t sl_btmesh_get_lightness_onpowerup(void);
  ******************************************************************************/
 void sl_btmesh_update_lightness(uint16_t lightness, uint32_t remaining_ms);
 
+/***************************************************************************//**
+ * This function stops generic level move on primary element.
+ ******************************************************************************/
+void pri_level_move_stop(void);
+
+/** @} (end addtogroup btmesh_lighting_server) */
+
+/***************************************************************************//**
+ * Register a callback function to be called when the lightness state changes.
+ * Example: when the lightness state is changed by a client request, either by
+ * a Generic OnOff Set message or a Light Lightness Set message.
+ *
+ ******************************************************************************/
+typedef void (*sl_btmesh_lighting_onoff_state_change_cb_t)(void);
+
+sl_status_t sl_btmesh_register_lightness_onoff_state_change_cb(sl_btmesh_lighting_onoff_state_change_cb_t callback);
+
 #endif // SL_BTMESH_LIGHTING_SERVER_H

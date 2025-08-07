@@ -356,6 +356,7 @@ enum sli_btmesh_command_id
     sli_btmesh_mbt_client_query_information_command_id = 0x01,
     sli_btmesh_mbt_client_get_server_status_command_id = 0x0d,
     sli_btmesh_mbt_client_add_server_command_id = 0x0e,
+    sli_btmesh_mbt_client_configure_throttle_command_id = 0x0f,
     sli_btmesh_mbt_client_start_transfer_command_id = 0x02,
     sli_btmesh_mbt_client_start_block_command_id = 0x03,
     sli_btmesh_mbt_client_send_chunk_request_rsp_command_id = 0x04,
@@ -371,6 +372,8 @@ enum sli_btmesh_command_id
     sli_btmesh_mbt_server_abort_command_id = 0x04,
     sli_btmesh_mbt_server_set_pull_mode_parameters_command_id = 0x05,
     sli_btmesh_mbt_server_transfer_start_rsp_command_id = 0x06,
+    sli_btmesh_mbt_server_enable_block_start_req_command_id = 0x07,
+    sli_btmesh_mbt_server_block_start_rsp_command_id = 0x08,
     sli_btmesh_sensor_server_init_command_id = 0x00,
     sli_btmesh_sensor_server_deinit_command_id = 0x01,
     sli_btmesh_sensor_server_send_descriptor_status_command_id = 0x02,
@@ -484,6 +487,7 @@ enum sli_btmesh_command_id
     sli_btmesh_fw_dist_server_set_multicast_threshold_command_id = 0x14,
     sli_btmesh_fw_dist_server_delete_all_rsp_command_id = 0x0f,
     sli_btmesh_fw_dist_server_resume_rsp_command_id = 0x10,
+    sli_btmesh_fw_dist_server_configure_throttle_command_id = 0x15,
     sli_btmesh_fw_dist_client_init_command_id = 0x00,
     sli_btmesh_fw_dist_client_deinit_command_id = 0x01,
     sli_btmesh_fw_dist_client_setup_command_id = 0x02,
@@ -535,6 +539,7 @@ enum sli_btmesh_command_id
     sli_btmesh_fw_standalone_updater_get_node_status_by_index_command_id = 0x0b,
     sli_btmesh_fw_standalone_updater_get_node_status_by_address_command_id = 0x0c,
     sli_btmesh_fw_standalone_updater_cancel_command_id = 0x0d,
+    sli_btmesh_fw_standalone_updater_configure_throttle_command_id = 0x0e,
     sli_btmesh_migration_migrate_keys_command_id = 0x1,
     sli_btmesh_migration_migrate_ddb_command_id = 0x2,
     sli_btmesh_ncp_fw_list_init_command_id = 0x00,
@@ -878,6 +883,7 @@ enum sli_btmesh_response_id
     sli_btmesh_mbt_client_query_information_response_id = 0x01,
     sli_btmesh_mbt_client_get_server_status_response_id = 0x0d,
     sli_btmesh_mbt_client_add_server_response_id = 0x0e,
+    sli_btmesh_mbt_client_configure_throttle_response_id = 0x0f,
     sli_btmesh_mbt_client_start_transfer_response_id = 0x02,
     sli_btmesh_mbt_client_start_block_response_id = 0x03,
     sli_btmesh_mbt_client_send_chunk_request_rsp_response_id = 0x04,
@@ -893,6 +899,8 @@ enum sli_btmesh_response_id
     sli_btmesh_mbt_server_abort_response_id = 0x04,
     sli_btmesh_mbt_server_set_pull_mode_parameters_response_id = 0x05,
     sli_btmesh_mbt_server_transfer_start_rsp_response_id = 0x06,
+    sli_btmesh_mbt_server_enable_block_start_req_response_id = 0x07,
+    sli_btmesh_mbt_server_block_start_rsp_response_id = 0x08,
     sli_btmesh_sensor_server_init_response_id = 0x00,
     sli_btmesh_sensor_server_deinit_response_id = 0x01,
     sli_btmesh_sensor_server_send_descriptor_status_response_id = 0x02,
@@ -1006,6 +1014,7 @@ enum sli_btmesh_response_id
     sli_btmesh_fw_dist_server_set_multicast_threshold_response_id = 0x14,
     sli_btmesh_fw_dist_server_delete_all_rsp_response_id = 0x0f,
     sli_btmesh_fw_dist_server_resume_rsp_response_id = 0x10,
+    sli_btmesh_fw_dist_server_configure_throttle_response_id = 0x15,
     sli_btmesh_fw_dist_client_init_response_id = 0x00,
     sli_btmesh_fw_dist_client_deinit_response_id = 0x01,
     sli_btmesh_fw_dist_client_setup_response_id = 0x02,
@@ -1057,6 +1066,7 @@ enum sli_btmesh_response_id
     sli_btmesh_fw_standalone_updater_get_node_status_by_index_response_id = 0x0b,
     sli_btmesh_fw_standalone_updater_get_node_status_by_address_response_id = 0x0c,
     sli_btmesh_fw_standalone_updater_cancel_response_id = 0x0d,
+    sli_btmesh_fw_standalone_updater_configure_throttle_response_id = 0x0e,
     sli_btmesh_migration_migrate_keys_response_id = 0x1,
     sli_btmesh_migration_migrate_ddb_response_id = 0x2,
     sli_btmesh_ncp_fw_list_init_response_id = 0x00,
@@ -3449,6 +3459,16 @@ PACKSTRUCT( struct sl_btmesh_cmd_mbt_client_add_server_s
 typedef struct sl_btmesh_cmd_mbt_client_add_server_s sl_btmesh_cmd_mbt_client_add_server_t;
 
 
+PACKSTRUCT( struct sl_btmesh_cmd_mbt_client_configure_throttle_s
+{
+    uint16_t elem_index;
+    uint16_t throttle_delay_ms;
+    uint8_t throttle_concurrent;
+});
+
+typedef struct sl_btmesh_cmd_mbt_client_configure_throttle_s sl_btmesh_cmd_mbt_client_configure_throttle_t;
+
+
 PACKSTRUCT( struct sl_btmesh_cmd_mbt_client_start_transfer_s
 {
     uint16_t elem_index;
@@ -3590,6 +3610,23 @@ PACKSTRUCT( struct sl_btmesh_cmd_mbt_server_transfer_start_rsp_s
 });
 
 typedef struct sl_btmesh_cmd_mbt_server_transfer_start_rsp_s sl_btmesh_cmd_mbt_server_transfer_start_rsp_t;
+
+
+PACKSTRUCT( struct sl_btmesh_cmd_mbt_server_enable_block_start_req_s
+{
+    uint16_t elem_index;
+});
+
+typedef struct sl_btmesh_cmd_mbt_server_enable_block_start_req_s sl_btmesh_cmd_mbt_server_enable_block_start_req_t;
+
+
+PACKSTRUCT( struct sl_btmesh_cmd_mbt_server_block_start_rsp_s
+{
+    uint16_t elem_index;
+    uint8_t status;
+});
+
+typedef struct sl_btmesh_cmd_mbt_server_block_start_rsp_s sl_btmesh_cmd_mbt_server_block_start_rsp_t;
 
 
 PACKSTRUCT( struct sl_btmesh_cmd_sensor_server_init_s
@@ -4743,6 +4780,16 @@ PACKSTRUCT( struct sl_btmesh_cmd_fw_dist_server_resume_rsp_s
 typedef struct sl_btmesh_cmd_fw_dist_server_resume_rsp_s sl_btmesh_cmd_fw_dist_server_resume_rsp_t;
 
 
+PACKSTRUCT( struct sl_btmesh_cmd_fw_dist_server_configure_throttle_s
+{
+    uint16_t elem_index;
+    uint16_t throttle_delay_ms;
+    uint8_t throttle_concurrent;
+});
+
+typedef struct sl_btmesh_cmd_fw_dist_server_configure_throttle_s sl_btmesh_cmd_fw_dist_server_configure_throttle_t;
+
+
 PACKSTRUCT( struct sl_btmesh_cmd_fw_dist_client_init_s
 {
     uint16_t elem_index;
@@ -5220,6 +5267,16 @@ PACKSTRUCT( struct sl_btmesh_cmd_fw_standalone_updater_cancel_s
 });
 
 typedef struct sl_btmesh_cmd_fw_standalone_updater_cancel_s sl_btmesh_cmd_fw_standalone_updater_cancel_t;
+
+
+PACKSTRUCT( struct sl_btmesh_cmd_fw_standalone_updater_configure_throttle_s
+{
+    uint16_t elem_index;
+    uint16_t throttle_delay_ms;
+    uint8_t throttle_concurrent;
+});
+
+typedef struct sl_btmesh_cmd_fw_standalone_updater_configure_throttle_s sl_btmesh_cmd_fw_standalone_updater_configure_throttle_t;
 
 
 PACKSTRUCT( struct sl_btmesh_cmd_ncp_fw_list_init_s
@@ -7857,6 +7914,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_mbt_client_add_server_s
 typedef struct sl_btmesh_rsp_mbt_client_add_server_s sl_btmesh_rsp_mbt_client_add_server_t;
 
 
+PACKSTRUCT( struct sl_btmesh_rsp_mbt_client_configure_throttle_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_mbt_client_configure_throttle_s sl_btmesh_rsp_mbt_client_configure_throttle_t;
+
+
 PACKSTRUCT( struct sl_btmesh_rsp_mbt_client_start_transfer_s
 {
     uint16_t result;
@@ -7985,6 +8050,22 @@ PACKSTRUCT( struct sl_btmesh_rsp_mbt_server_transfer_start_rsp_s
 });
 
 typedef struct sl_btmesh_rsp_mbt_server_transfer_start_rsp_s sl_btmesh_rsp_mbt_server_transfer_start_rsp_t;
+
+
+PACKSTRUCT( struct sl_btmesh_rsp_mbt_server_enable_block_start_req_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_mbt_server_enable_block_start_req_s sl_btmesh_rsp_mbt_server_enable_block_start_req_t;
+
+
+PACKSTRUCT( struct sl_btmesh_rsp_mbt_server_block_start_rsp_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_mbt_server_block_start_rsp_s sl_btmesh_rsp_mbt_server_block_start_rsp_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_sensor_server_init_s
@@ -8938,6 +9019,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_fw_dist_server_resume_rsp_s
 typedef struct sl_btmesh_rsp_fw_dist_server_resume_rsp_s sl_btmesh_rsp_fw_dist_server_resume_rsp_t;
 
 
+PACKSTRUCT( struct sl_btmesh_rsp_fw_dist_server_configure_throttle_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_fw_dist_server_configure_throttle_s sl_btmesh_rsp_fw_dist_server_configure_throttle_t;
+
+
 PACKSTRUCT( struct sl_btmesh_rsp_fw_dist_client_init_s
 {
     uint16_t result;
@@ -9359,6 +9448,14 @@ PACKSTRUCT( struct sl_btmesh_rsp_fw_standalone_updater_cancel_s
 });
 
 typedef struct sl_btmesh_rsp_fw_standalone_updater_cancel_s sl_btmesh_rsp_fw_standalone_updater_cancel_t;
+
+
+PACKSTRUCT( struct sl_btmesh_rsp_fw_standalone_updater_configure_throttle_s
+{
+    uint16_t result;
+});
+
+typedef struct sl_btmesh_rsp_fw_standalone_updater_configure_throttle_s sl_btmesh_rsp_fw_standalone_updater_configure_throttle_t;
 
 
 PACKSTRUCT( struct sl_btmesh_rsp_migration_migrate_keys_s
@@ -10120,6 +10217,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_mbt_client_query_information_t                 cmd_mbt_client_query_information;
     sl_btmesh_cmd_mbt_client_get_server_status_t                 cmd_mbt_client_get_server_status;
     sl_btmesh_cmd_mbt_client_add_server_t                        cmd_mbt_client_add_server;
+    sl_btmesh_cmd_mbt_client_configure_throttle_t                cmd_mbt_client_configure_throttle;
     sl_btmesh_cmd_mbt_client_start_transfer_t                    cmd_mbt_client_start_transfer;
     sl_btmesh_cmd_mbt_client_start_block_t                       cmd_mbt_client_start_block;
     sl_btmesh_cmd_mbt_client_send_chunk_request_rsp_t            cmd_mbt_client_send_chunk_request_rsp;
@@ -10135,6 +10233,8 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_mbt_server_abort_t                             cmd_mbt_server_abort;
     sl_btmesh_cmd_mbt_server_set_pull_mode_parameters_t          cmd_mbt_server_set_pull_mode_parameters;
     sl_btmesh_cmd_mbt_server_transfer_start_rsp_t                cmd_mbt_server_transfer_start_rsp;
+    sl_btmesh_cmd_mbt_server_enable_block_start_req_t            cmd_mbt_server_enable_block_start_req;
+    sl_btmesh_cmd_mbt_server_block_start_rsp_t                   cmd_mbt_server_block_start_rsp;
     sl_btmesh_cmd_sensor_server_init_t                           cmd_sensor_server_init;
     sl_btmesh_cmd_sensor_server_deinit_t                         cmd_sensor_server_deinit;
     sl_btmesh_cmd_sensor_server_send_descriptor_status_t         cmd_sensor_server_send_descriptor_status;
@@ -10245,6 +10345,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_fw_dist_server_set_multicast_threshold_t       cmd_fw_dist_server_set_multicast_threshold;
     sl_btmesh_cmd_fw_dist_server_delete_all_rsp_t                cmd_fw_dist_server_delete_all_rsp;
     sl_btmesh_cmd_fw_dist_server_resume_rsp_t                    cmd_fw_dist_server_resume_rsp;
+    sl_btmesh_cmd_fw_dist_server_configure_throttle_t            cmd_fw_dist_server_configure_throttle;
     sl_btmesh_cmd_fw_dist_client_init_t                          cmd_fw_dist_client_init;
     sl_btmesh_cmd_fw_dist_client_deinit_t                        cmd_fw_dist_client_deinit;
     sl_btmesh_cmd_fw_dist_client_setup_t                         cmd_fw_dist_client_setup;
@@ -10294,6 +10395,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_cmd_fw_standalone_updater_get_node_status_by_index_t cmd_fw_standalone_updater_get_node_status_by_index;
     sl_btmesh_cmd_fw_standalone_updater_get_node_status_by_address_t cmd_fw_standalone_updater_get_node_status_by_address;
     sl_btmesh_cmd_fw_standalone_updater_cancel_t                 cmd_fw_standalone_updater_cancel;
+    sl_btmesh_cmd_fw_standalone_updater_configure_throttle_t     cmd_fw_standalone_updater_configure_throttle;
     sl_btmesh_cmd_ncp_fw_list_init_t                             cmd_ncp_fw_list_init;
     sl_btmesh_cmd_ncp_fw_list_deinit_t                           cmd_ncp_fw_list_deinit;
     sl_btmesh_cmd_ncp_fw_list_get_fw_info_by_index_t             cmd_ncp_fw_list_get_fw_info_by_index;
@@ -10598,6 +10700,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_mbt_client_query_information_t                 rsp_mbt_client_query_information;
     sl_btmesh_rsp_mbt_client_get_server_status_t                 rsp_mbt_client_get_server_status;
     sl_btmesh_rsp_mbt_client_add_server_t                        rsp_mbt_client_add_server;
+    sl_btmesh_rsp_mbt_client_configure_throttle_t                rsp_mbt_client_configure_throttle;
     sl_btmesh_rsp_mbt_client_start_transfer_t                    rsp_mbt_client_start_transfer;
     sl_btmesh_rsp_mbt_client_start_block_t                       rsp_mbt_client_start_block;
     sl_btmesh_rsp_mbt_client_send_chunk_request_rsp_t            rsp_mbt_client_send_chunk_request_rsp;
@@ -10613,6 +10716,8 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_mbt_server_abort_t                             rsp_mbt_server_abort;
     sl_btmesh_rsp_mbt_server_set_pull_mode_parameters_t          rsp_mbt_server_set_pull_mode_parameters;
     sl_btmesh_rsp_mbt_server_transfer_start_rsp_t                rsp_mbt_server_transfer_start_rsp;
+    sl_btmesh_rsp_mbt_server_enable_block_start_req_t            rsp_mbt_server_enable_block_start_req;
+    sl_btmesh_rsp_mbt_server_block_start_rsp_t                   rsp_mbt_server_block_start_rsp;
     sl_btmesh_rsp_sensor_server_init_t                           rsp_sensor_server_init;
     sl_btmesh_rsp_sensor_server_deinit_t                         rsp_sensor_server_deinit;
     sl_btmesh_rsp_sensor_server_send_descriptor_status_t         rsp_sensor_server_send_descriptor_status;
@@ -10726,6 +10831,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_fw_dist_server_set_multicast_threshold_t       rsp_fw_dist_server_set_multicast_threshold;
     sl_btmesh_rsp_fw_dist_server_delete_all_rsp_t                rsp_fw_dist_server_delete_all_rsp;
     sl_btmesh_rsp_fw_dist_server_resume_rsp_t                    rsp_fw_dist_server_resume_rsp;
+    sl_btmesh_rsp_fw_dist_server_configure_throttle_t            rsp_fw_dist_server_configure_throttle;
     sl_btmesh_rsp_fw_dist_client_init_t                          rsp_fw_dist_client_init;
     sl_btmesh_rsp_fw_dist_client_deinit_t                        rsp_fw_dist_client_deinit;
     sl_btmesh_rsp_fw_dist_client_setup_t                         rsp_fw_dist_client_setup;
@@ -10777,6 +10883,7 @@ PACKSTRUCT( struct sl_btmesh_packet {
     sl_btmesh_rsp_fw_standalone_updater_get_node_status_by_index_t rsp_fw_standalone_updater_get_node_status_by_index;
     sl_btmesh_rsp_fw_standalone_updater_get_node_status_by_address_t rsp_fw_standalone_updater_get_node_status_by_address;
     sl_btmesh_rsp_fw_standalone_updater_cancel_t                 rsp_fw_standalone_updater_cancel;
+    sl_btmesh_rsp_fw_standalone_updater_configure_throttle_t     rsp_fw_standalone_updater_configure_throttle;
     sl_btmesh_rsp_migration_migrate_keys_t                       rsp_migration_migrate_keys;
     sl_btmesh_rsp_migration_migrate_ddb_t                        rsp_migration_migrate_ddb;
     sl_btmesh_rsp_ncp_fw_list_init_t                             rsp_ncp_fw_list_init;

@@ -3,7 +3,7 @@ label: RAIL Utility, IEEE802.15.4 Fast Channel Switching Configuration
 description: Utility to aid with IEEE802.15.4 Fast Channel Switching Configuration
 package: platform
 category: Platform|Radio
-quality: evaluation
+quality: production
 metadata:
   sbom:
     id: rail_util_ieee802154_fast_channel_switching

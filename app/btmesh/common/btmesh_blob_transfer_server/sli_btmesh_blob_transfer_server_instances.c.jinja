@@ -48,6 +48,11 @@
         == (SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_STATIC))
 {% endfor %}
 {% for inst in btmesh_blob_transfer_server_instance | sort -%}
+#define SLI_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_HEAP           \
+        ((SL_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_TYPE_CFG_VAL) \
+        == (SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_HEAP))
+{% endfor %}
+{% for inst in btmesh_blob_transfer_server_instance | sort -%}
 #define SLI_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_SIZE  \
         (1 << (SL_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_MAX_BLOCK_SIZE_LOG_CFG_VAL))
 {% endfor %}
@@ -69,8 +74,11 @@ const sli_btmesh_blob_transfer_server_config_t sli_btmesh_blob_transfer_server_{
   .high_throughput_timer = NULL,
   #endif
   #if SLI_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_STATIC
-  .block_buffer = &blob_transfer_server_{{ inst | lower }}_block_buffer,
+  .block_buffer = blob_transfer_server_{{ inst | lower }}_block_buffer,
   .block_buffer_size = SLI_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_SIZE,
+  #elif SLI_BTMESH_BLOB_TRANSFER_SERVER_{{ inst | upper }}_BLOCK_BUFFER_HEAP
+  .block_buffer = NULL,
+  .block_buffer_size = UINT32_MAX,
   #else
   .block_buffer = NULL,
   .block_buffer_size = 0,

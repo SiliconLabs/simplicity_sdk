@@ -3,7 +3,7 @@
  * @brief internal wrappers for 'gp-proxy-table' ipc commands
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -41,7 +41,7 @@ void sli_zigbee_stack_gp_proxy_table_process_gp_pairing_process_ipc_command(sli_
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.sinkNwkAddress,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.sinkGroupId,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.assignedAlias,
-                                                                                                                   &msg->data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress,
+                                                                                                                   msg->data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress,
                                                                                                                    &msg->data.gp_proxy_table_process_gp_pairing.request.gpdKey,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.gpdSecurityFrameCounter,
                                                                                                                    msg->data.gp_proxy_table_process_gp_pairing.request.forwardingRadius);
@@ -109,7 +109,7 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
   msg.data.gp_proxy_table_process_gp_pairing.request.assignedAlias = assignedAlias;
 
   if (sinkIeeeAddress != NULL) {
-    msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress = *sinkIeeeAddress;
+    memmove(msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress, sinkIeeeAddress, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
   if (gpdKey != NULL) {
@@ -125,7 +125,7 @@ bool sl_zigbee_gp_proxy_table_process_gp_pairing(uint32_t options,
   }
 
   if (sinkIeeeAddress != NULL) {
-    *sinkIeeeAddress = msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress;
+    memmove(sinkIeeeAddress, msg.data.gp_proxy_table_process_gp_pairing.request.sinkIeeeAddress, sizeof(uint8_t) * (EUI64_SIZE));
   }
 
   if (gpdKey != NULL) {

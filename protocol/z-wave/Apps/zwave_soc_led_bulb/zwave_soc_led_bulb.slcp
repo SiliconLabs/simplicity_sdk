@@ -174,13 +174,11 @@ template_contribution:
     value:
       name: get_rgb_values
       handler: cli_get_rgb_values
-      help: Get RGB LED values. The range is 0-65535
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: toggle_led_bulb
       handler: cli_toggle_led_bulb
-      help: Toggle the RGB LED on or off
 
 post_build:
   profile: zwave_application

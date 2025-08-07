@@ -13,6 +13,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_ncp_serial_api_controller_otw.slcw"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_ncp_serial_api.zwave_ncp_serial_api_controller.slcp protocol.z-wave.bootloaders.bootloader-uart-xmodem-zwave-otw.slcp"/>
   </descriptors>
@@ -29,6 +31,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_ncp_serial_api_end_device_otw.slcw"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_ncp_serial_api.zwave_ncp_serial_api_end_device.slcp protocol.z-wave.bootloaders.bootloader-uart-xmodem-zwave-otw.slcp"/>
   </descriptors>
@@ -45,6 +49,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_ncp_zniffer_otw.slcw"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_ncp_zniffer.zwave_ncp_zniffer.slcp protocol.z-wave.bootloaders.bootloader-uart-xmodem-zwave-otw.slcp"/>
   </descriptors>
@@ -61,6 +67,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_ncp_zniffer_pti_otw.slcw"/>
     <properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_ncp_zniffer_pti.zwave_ncp_zniffer_pti.slcp protocol.z-wave.bootloaders.bootloader-uart-xmodem-zwave-otw.slcp"/>
   </descriptors>
@@ -77,6 +85,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_door_lock_keypad_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_door_lock_keypad.zwave_soc_door_lock_keypad.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -93,6 +103,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_led_bulb_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_led_bulb.zwave_soc_led_bulb.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -109,6 +121,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_multilevel_sensor_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_multilevel_sensor.zwave_soc_multilevel_sensor.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -125,6 +139,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_power_strip_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_power_strip.zwave_soc_power_strip.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -141,6 +157,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_sensor_pir_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_sensor_pir.zwave_soc_sensor_pir.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -157,6 +175,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_switch_on_off_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_switch_on_off.zwave_soc_switch_on_off.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -173,6 +193,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/workspaces/zwave_soc_wall_controller_ota.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
     <properties key="solutionProjects" value="protocol.z-wave.Apps.zwave_soc_wall_controller.zwave_soc_wall_controller.slcp protocol.z-wave.bootloaders.bootloader-storage-internal-single-zwave-ota.slcp"/>
   </descriptors>
@@ -189,6 +211,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_ncp_serial_api/zwave_ncp_serial_api_controller.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_ncp_serial_api_end_device" label="Z-Wave - NCP Serial API End Device" description="The Serial Application Programming Interface (Serial API) allows a host to communicate with a Z-Wave chip. The host may be PC or a less powerful embedded host CPU, e.g., in a remote control or in a gateway device.&#xA;The Serial API End Device allows the user to create a product with a host application with different capabilites than the Z-Wave device, such as drive a high performance display, but does not require the Z-Wave Controller role.&#xA;">
@@ -204,6 +228,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_ncp_serial_api/zwave_ncp_serial_api_end_device.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_ncp_zniffer" label="Z-Wave - NCP Zniffer Beta" description="The Z-Wave Zniffer Application">
@@ -219,6 +245,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_ncp_zniffer/zwave_ncp_zniffer.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_ncp_zniffer_pti" label="Z-Wave - NCP Zniffer PTI" description="The Z-Wave Zniffer Packet Trace Interface application helps with analyzing the communication between devices and debugging the application. It is possible to log and filter datagrams in any supported region. The log can be saved for later analysis.&#xA;">
@@ -234,6 +262,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_ncp_zniffer_pti/zwave_ncp_zniffer_pti.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_door_lock_keypad" label="Z-Wave - SoC Door Lock Keypad" description="The Z-Wave certified Door Lock application shows a lock implementation. It will support user codes to open a door and thereby eliminate the need for traditional keys. It is possible to both lock and unlock the door remotely through the Z-Wave protocol.&#xA;For certain devices, the application supports and uses the User Credential Command Class. See README file for details.&#xA;">
@@ -249,6 +279,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_door_lock_keypad/zwave_soc_door_lock_keypad.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_led_bulb" label="Z-Wave - SoC LED Bulb" description="The Z-Wave LED Bulb application shows an implementation of a remotely controlled color switch. An example is an LED bulb or any other color-capable device. The app supports dimming of an RGB LED.&#xA;">
@@ -264,6 +296,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_led_bulb/zwave_soc_led_bulb.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_multilevel_sensor" label="Z-Wave - SoC Multilevel Sensor" description="The Z-Wave Switch Multilevel Sensor application shows the ability to advertize numerical sensor readings, such as temperature and humidity, and so on. Multiple parameters can be set for the minimum and maximum values, and a notification will be sent if the measured temperature value is out of the range.&#xA;">
@@ -279,6 +313,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_multilevel_sensor/zwave_soc_multilevel_sensor.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_power_strip" label="Z-Wave - SoC Power Strip" description="The Z-Wave certified Power Strip application shows an extension block implementation used to turn on several devices that are connected to power. Examples include lights, appliances, etc.&#xA;Endpoint 1 device type - generic type switch binary and specific type on/off power switch.&#xA;Endpoint 2 device type - generic type light dimmer switch and specific type light dimmer switch.&#xA;">
@@ -294,6 +330,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_power_strip/zwave_soc_power_strip.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_sensor_pir" label="Z-Wave - SoC Sensor PIR" description="The Z-Wave certified passive infrared (PIR) sensor application shows a presence/movement detector implementation for controlling other devices and for sending notifications.&#xA;">
@@ -309,6 +347,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_sensor_pir/zwave_soc_sensor_pir.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_switch_on_off" label="Z-Wave - SoC Switch On/Off" description="[RECOMMENDED STARTER PROJECT] The Z-Wave certified Switch On/Off application shows a switch implementation that turns on any device that is connected to power. Examples include lights, appliances, and so on.&#xA;">
@@ -324,6 +364,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_switch_on_off/zwave_soc_switch_on_off.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
   <descriptors name="zwave_soc_wall_controller" label="Z-Wave - SoC Wall Controller" description="The Z-Wave certified Wall Controller application shows a push-button switch panel implementation to control devices in the Z-Wave network from push buttons (physical or virtual) on a device that is meant to be mounted on a wall. Examples include scene and zone controllers and wall-mounted AV controllers.&#xA;">
@@ -339,6 +381,8 @@
     <properties key="category" value="Z-Wave|Apps"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/z-wave/Apps/zwave_soc_wall_controller/zwave_soc_wall_controller.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Z-Wave"/>
   </descriptors>
 </model:MDescriptors>

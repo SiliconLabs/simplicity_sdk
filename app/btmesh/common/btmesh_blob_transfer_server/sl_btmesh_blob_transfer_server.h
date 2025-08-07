@@ -51,7 +51,7 @@ extern void sl_btmesh_blob_transfer_server_init(void);
  *
  * @param[in] evt BT Mesh stack event
  ******************************************************************************/
-extern void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt);
+extern void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t *evt);
 
 /***************************************************************************//**
  * Let BLOB Transfer Server accept an incoming BLOB with given ID

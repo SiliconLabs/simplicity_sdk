@@ -21,7 +21,6 @@ component:
   - id: bluetooth_api_ncp_host
   - id: gatt_configuration
   - id: ncp_gatt
-  - id: ram_interrupt_vector_init
   - id: ncp_host_com
   - id: uartdrv_usart
     instance:

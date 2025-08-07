@@ -635,7 +635,7 @@ void sleep(sl_cli_command_arg_t *args)
   char* em4State = "";
   uint8_t emMode = (uint8_t)sl_cli_get_argument_string(args, 0)[0] - '0';
 #if defined(_SILICON_LABS_32B_SERIES_2)
-  void (*em4Function)(void) = &EMU_EnterEM4;
+  void (*em4Function)(void) = &sl_power_manager_enter_em4;
   uint8_t rfSenseSyncWordNumBytes = 0U;
   uint32_t rfSenseSyncWord = 0U;
   RailRfSenseMode_t mode = RAIL_RFSENSE_MODE_OFF;

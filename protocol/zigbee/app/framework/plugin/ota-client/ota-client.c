@@ -1417,7 +1417,24 @@ static sl_zigbee_af_status_t queryNextImageResponseParse(uint8_t* buffer,
     zclStatus = SL_ZIGBEE_ZCL_STATUS_SUCCESS;
     goto queryNextImageResponseDone;
   } else {
-    startDownload(imageId.firmwareVersion);
+    // If an image is already available in storage,
+    // verify whether the image on the server is newer than the stored image.
+    // If the server's image is not newer, the stored image will be verified
+    // instead of downloading the server's image
+    uint32_t currentOffset;
+    sl_zigbee_af_ota_storage_status_t
+      otaStatus = sl_zigbee_af_ota_storage_check_temp_data_cb(&currentOffset,
+                                                              &totalImageSize,
+                                                              &currentDownloadFile);
+    if (otaStatus == SL_ZIGBEE_AF_OTA_STORAGE_SUCCESS
+        && imageId.firmwareVersion <= currentDownloadFile.firmwareVersion) {
+      otaPrintln("Found fully downloaded file in storage (version 0x%08X).",
+                 currentDownloadFile.firmwareVersion);
+      updateImageTypeIdAttribute(currentDownloadFile.imageTypeId);
+      continueImageVerification(SL_ZIGBEE_AF_IMAGE_UNKNOWN);
+    } else {
+      startDownload(imageId.firmwareVersion);
+    }
     return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
   }
 

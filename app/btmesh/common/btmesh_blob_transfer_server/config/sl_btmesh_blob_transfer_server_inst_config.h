@@ -39,6 +39,9 @@
 // Memory is allocated dynamically at runtime from heap
 #define SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_HEAP    1
 
+// No memory is allocated
+#define SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_NONE    2
+
 // <<< Use Configuration Wizard in Context Menu >>>
 
 // <e SL_BTMESH_BLOB_TRANSFER_SERVER_INSTANCE_ELEM_INDEX_OVERRIDE_CFG_VAL> Override Element Index
@@ -74,9 +77,11 @@
 // <o SL_BTMESH_BLOB_TRANSFER_SERVER_INSTANCE_BLOCK_BUFFER_TYPE_CFG_VAL> Block Buffer Memory Type
 // <SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_STATIC=> Static
 // <SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_HEAP=> Heap
+// <SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_NONE=> None
 // <i> If Static is selected then RAM buffer is allocated statically at link time for the worst case Max BLOB Block Size.
 // <i> If Heap is selected then RAM buffer is allocated from the heap at runtime when the BLOB transfer is started and
 // <i> the buffer is deallocated when the BLOB transfer is completed or cancelled.
+// <i> If None is selected then no RAM buffer is allocated.
 // <i> The Heap provides the following advantages over Static block buffer memory type:
 // <i>  - The block buffer memory is allocated for the BLOB transfer only.
 // <i>  - The size of allocated block buffer memory is calculated from the actual Block Size Log from BLOB Transfer Start
@@ -86,9 +91,12 @@
 // <i>    Example: if there is a memory leak in the application then it might be impossible to run a firmware update
 // <i>    through BLOB Transfer Server without resetting the device because it can't allocate the block buffer memory
 // <i>    from the heap.
-// <i> Note: The BLOB Transfer Server must have buffer for the whole block during BLOB transfer because the BLOB Chunk
+// <i> The None may be used in special cases, where very large block sizes are used, e.g. large enough to fit the whole
+// <i> BLOB in a single block. As the flash writing has alignment requirements, this mode needs special coordination
+// <i> with the BLOB Transfer Client to ensure a suitable chunk size is used.
+// <i> Note: The BLOB Transfer Server should have buffer for the whole block during BLOB transfer because the BLOB Chunk
 // <i> Transfer messages can be received in any order (e.g. due to interference). The Chunk Data of BLOB Chunk Transfer
-// <i> can't be written in the flash at reception because the data size is not the multiple of flash write size (alignment).
+// <i> can't be written in the flash at reception, unless the data size is a multiple of flash write size (alignment).
 // <d> SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_HEAP
 #define SL_BTMESH_BLOB_TRANSFER_SERVER_INSTANCE_BLOCK_BUFFER_TYPE_CFG_VAL   SL_BTMESH_BLOB_TRANSFER_SERVER_MEMORY_HEAP
 

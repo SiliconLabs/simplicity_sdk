@@ -1816,7 +1816,7 @@ class AccessPoint:
                 tag = self.tag_db.find(evt.node_id)
                 self.bonding_finished = True
                 if tag is not None:
-                    self.key_db.delete_ltk(tag.ble_address)
+                    self.key_db.delete_ltk(tag.ble_address, self.ncp_address)
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT or (
             evt.lib_status == elw.ESL_LIB_STATUS_CONN_FAILED
             and evt.sl_status
@@ -2921,7 +2921,7 @@ class AccessPoint:
             return
         for tag in tags_to_remove:
             if tag.blocked in [
-                elw.ESL_LIB_STATUS_NO_ERROR,
+                elw.ESL_LIB_STATUS_UNSPECIFIED_ERROR,
                 elw.ESL_LIB_STATUS_UNASSOCIATED,
             ]:  # keep tags with blocked status - manual connection can override blocking, later!
                 self.log.info(

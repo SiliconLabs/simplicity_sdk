@@ -164,7 +164,9 @@ bool sl_zigbee_af_ota_client_download_complete_cb(sl_zigbee_af_ota_download_resu
     }
 #endif
 
-    return true;   // return value is ignored
+    // Returning true to indicate that, even in case of a bad result,
+    // the OTA state machine will "go ahead" handling the process.
+    return true;
   }
 
   // If the client wants to abort for some reason then it can do so here
@@ -192,6 +194,11 @@ void sl_zigbee_af_ota_client_bootload_cb(const sl_zigbee_af_ota_image_id_t* id)
     sl_zigbee_af_core_flush();
     otaPrintln("Image does not contain an Upgrade Image Tag (0x%04X). Skipping "
                "upgrade.", OTA_TAG_UPGRADE_IMAGE);
+#if defined(DELETE_FAILED_DOWNLOADS)
+    sl_zigbee_af_ota_storage_status_t status = sl_zigbee_af_ota_storage_clear_temp_data_cb();
+    sl_zigbee_af_ota_bootload_cluster_println("Deleting failed download, status: 0x%02X",
+                                              status);
+#endif // DELETE_FAILED_DOWNLOADS
     return;
   }
 

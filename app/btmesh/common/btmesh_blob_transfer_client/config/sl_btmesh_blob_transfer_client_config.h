@@ -109,6 +109,15 @@
 // <i> to the preferred chunk size calculation. (see Advertisement Extension Server component for details)
 #define SL_BTMESH_BLOB_TRANSFER_CLIENT_PREF_CHUNK_SIZE_CFG_VAL                53
 
+// <o SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL> Chunk size should be a multiple of this value
+// <1-128:1>
+// <i> Default: 1
+// <i> The chunk size selected during BLOB Transfer should be a multiple of this value. This is useful when the BLOB
+// <i> Transfer Server has a specific requirement for the chunk size that cannot be negotiated with the standard
+// <i> Bluetooth Mesh BLOB Transfer model. If other transfer parameters would prohibit the selection of a chunk size
+// <i> that would satisfy this requirement, those take precedence.
+#define SL_BTMESH_BLOB_TRANSFER_CLIENT_CHUNK_SIZE_MULTIPLE_OF_CFG_VAL      1
+
 // </h>
 
 // <h> Retry and Separation parameters
@@ -171,6 +180,22 @@
 // <i> is started again to avoid too early message retransmission while the receivers are still responding otherwise
 // <i> the interference between receiver nodes would be even higher.
 #define SL_BTMESH_BLOB_TRANSFER_CLIENT_PULL_RETRY_TIME_MS_DEFAULT_CFG_VAL     4000
+
+// <o SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_CONCURRENT_CFG_VAL> Amount of concurrent messages sent by the BLOB Transfer client
+// <0-255:1>
+// <i> Default: 4
+// <i> Defines how many messages are being sent concurrently by the BLOB Transfer Client.
+// <i> If set to 0, the maximum supported value is used.
+#define SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_CONCURRENT_CFG_VAL    (4)
+
+// <o SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_DELAY_MS_CFG_VAL> Delay between batches of messages
+// <0-65535:1>
+// <i> Default: 0
+// <i> Controls the delay in milliseconds between batches of messages. Works in conjunction with
+// <i> SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_CONCURRENT_CFG_VAL to control message sending rate.
+// <i> When the first transmission in the current batch completes, the sender will wait for this delay before refilling the batch
+// <i> up to the SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_CONCURRENT_CFG_VAL limit with new transmissions.
+#define SL_BTMESH_BLOB_TRANSFER_CLIENT_THROTTLE_DELAY_MS_CFG_VAL    (0)
 
 // </h>
 

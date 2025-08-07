@@ -964,7 +964,8 @@ static inline bool txWaitingForAck(void)
 
 static inline bool isRadioTransmittingOrScanning(void)
 {
-    return ((sEnergyScanStatus != ENERGY_SCAN_STATUS_IDLE) || getInternalFlag(FLAG_ONGOING_TX_DATA));
+    return ((sEnergyScanStatus != ENERGY_SCAN_STATUS_IDLE) || getInternalFlag(FLAG_ONGOING_TX_DATA)
+            || getInternalFlag(RADIO_TX_EVENTS));
 }
 
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_OT_PLATFORM_ABSTRACTION, SL_CODE_CLASS_TIME_CRITICAL)

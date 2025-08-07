@@ -3,7 +3,7 @@
  * @brief Clock Manager - Oscillators configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -81,7 +81,7 @@
 // <o SL_CLOCK_MANAGER_HFXO_CTUNE> CTUNE <0-255>
 // <d> 140
 #ifndef SL_CLOCK_MANAGER_HFXO_CTUNE
-#define SL_CLOCK_MANAGER_HFXO_CTUNE    140
+#define SL_CLOCK_MANAGER_HFXO_CTUNE    120
 #endif
 
 // <o SL_CLOCK_MANAGER_HFXO_PRECISION> Precision in PPM <0-65535>
@@ -117,7 +117,7 @@
 // <o SL_CLOCK_MANAGER_LFXO_CTUNE> CTUNE <0-127>
 // <d> 63
 #ifndef SL_CLOCK_MANAGER_LFXO_CTUNE
-#define SL_CLOCK_MANAGER_LFXO_CTUNE    63
+#define SL_CLOCK_MANAGER_LFXO_CTUNE    37
 #endif
 
 // <o SL_CLOCK_MANAGER_LFXO_PRECISION> LFXO precision in PPM <0-65535>
@@ -162,13 +162,9 @@
 // <cmuHFRCODPLLFreq_26M0Hz=> 26 MHz
 // <cmuHFRCODPLLFreq_32M0Hz=> 32 MHz
 // <cmuHFRCODPLLFreq_38M0Hz=> 38 MHz
-// <cmuHFRCODPLLFreq_48M0Hz=> 48 MHz
-// <cmuHFRCODPLLFreq_56M0Hz=> 56 MHz
-// <cmuHFRCODPLLFreq_64M0Hz=> 64 MHz
-// <cmuHFRCODPLLFreq_80M0Hz=> 80 MHz
-// <d> cmuHFRCODPLLFreq_80M0Hz
+// <d> cmuHFRCODPLLFreq_38M0Hz
 #ifndef SL_CLOCK_MANAGER_HFRCO_BAND
-#define SL_CLOCK_MANAGER_HFRCO_BAND    cmuHFRCODPLLFreq_80M0Hz
+#define SL_CLOCK_MANAGER_HFRCO_BAND    cmuHFRCODPLLFreq_38M0Hz
 #endif
 
 // <e> Use DPLL

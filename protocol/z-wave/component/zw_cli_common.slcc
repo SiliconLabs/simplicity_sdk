@@ -32,22 +32,18 @@ template_contribution:
     value:
       name: set_learn_mode
       handler: cli_set_learn_mode 
-      help: Include / exclude the device into / from a z-wave network
   - name: cli_command
     value:
       name: factory_reset
       handler: cli_factory_reset
-      help: Factory reset the device
   - name: cli_command
     value:
       name: get_dsk
       handler: cli_get_dsk
-      help: Read the DSK, stored in the manufacturing token
   - name: cli_command
     value:
       name: get_region
       handler: cli_get_region
-      help: Get the used region
 #------------------ Component Catalog ---------------------
   - name: component_catalog
     value: zw_cli_common

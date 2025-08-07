@@ -17,6 +17,8 @@
   - name: hardware_board
   - name: hardware_board_rb
   - name: hardware_board_from_stk
+  - name: hardware_board_from_xg29-pk6034a
+  - name: hardware_board_from_xg29-rb4412a
   - name: hardware_board_has_si70xx
   - name: hardware_board_has_tempsensor
   - name: hardware_board_supports_wstk_lcd
@@ -72,7 +74,7 @@
   - name: SL_BOARD_NAME
     value: '"BRD4412A"'
   - name: SL_BOARD_REV
-    value: '"A03"'
+    value: '"A04"'
   - name: HFXO_FREQ
     value: 38400000
   - name: HARDWARE_BOARD_SUPPORTS_RF_BAND_2400
@@ -81,7 +83,7 @@
 - tag:
   - board:pn:BRD4412
   - board:variant:A
-  - board:revision:A03
+  - board:revision:A04
   - board:device:efr32mg29b140f1024im40
   - hardware:has:vcom
   - hardware:has:pti

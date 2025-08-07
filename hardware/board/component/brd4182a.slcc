@@ -15,6 +15,7 @@
   - name: hardware_board_from_stk
   - name: hardware_board_from_slwrb4182a
   - name: hardware_board_from_slwstk6021a
+  - name: hardware_board_from_slwstk6021b
 - recommends:
   - id: brd4182a_b06
 - ui_hints:

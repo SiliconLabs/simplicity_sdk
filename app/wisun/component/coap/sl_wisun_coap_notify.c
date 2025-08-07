@@ -441,10 +441,10 @@ static void _notify_thr_fnc(void * args)
   (void) args;
 
   SL_COAP_SERVICE_LOOP() {
-    
-    (void) sl_wisun_app_core_wait_state((1UL << SL_WISUN_APP_CORE_STATE_NETWORK_CONNECTED), 
+
+    (void) sl_wisun_app_core_wait_state((1UL << SL_WISUN_APP_CORE_STATE_NETWORK_CONNECTED),
                                          osWaitForever);
-    
+
     _coap_notify_mtx_acquire();
 
     if (_schd.tick_evt_enable) {

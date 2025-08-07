@@ -55,7 +55,7 @@
 #warn "SL_ZIGBEE_GP_SINK_TABLE_SIZE must be configured on the NCP using the zigbee_gp component. The user-supplied SL_ZIGBEE_GP_SINK_TABLE_SIZE value is being ignored."
 #endif // SL_ZIGBEE_GP_SINK_TABLE_SIZE
 static uint8_t gpSinkTableSize = 0;
-  #define SL_ZIGBEE_GP_SINK_TABLE_SIZE gpSinkTableSize
+#define SL_ZIGBEE_GP_SINK_TABLE_SIZE gpSinkTableSize
 #endif
 
 #if defined(SL_ZIGBEE_AF_NCP) && defined(SL_CATALOG_ZIGBEE_AF_SUPPORT_PRESENT)
@@ -2410,9 +2410,11 @@ void sl_zigbee_af_green_power_server_init_cb(uint8_t init_level)
     {
       // Init GP Sink Table
 #ifdef EZSP_HOST
-      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&gpSinkTableSize)) {
+      uint16_t sinkTableSize = 0;
+      if (SL_ZIGBEE_EZSP_SUCCESS != sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&sinkTableSize)) {
         sl_zigbee_af_green_power_cluster_println("ERR: Cannot get the sink table size from GP stack.");
       }
+      gpSinkTableSize = (uint8_t)sinkTableSize;
 #endif //EZSP_HOST
       sl_zigbee_af_green_power_server_sink_table_init();
       break;
@@ -2961,16 +2963,48 @@ sl_zigbee_af_zcl_request_status_t sl_zigbee_af_green_power_cluster_gp_pairing_co
           if (cmd_data.groupListCount == 0 || cmd_data.groupList == NULL) {
             return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
           }
-          for (uint8_t index = 0, pos = 1;
-               index < GP_SINK_LIST_ENTRIES && pos < ((cmd_data.groupList[0] * sizeof(sl_zigbee_gp_sink_group_t)) + 1);
-               index++) {
+
+          bool found = false;
+
+          for (uint8_t i = 0; i < cmd_data.groupListCount; i++) {
             sl_zigbee_gp_sink_group_t gpPairingConfigGroupID = { 0 };
-            memcpy(&gpPairingConfigGroupID, &(cmd_data.groupList[pos]), sizeof(sl_zigbee_gp_sink_group_t));
-            pos += sizeof(sl_zigbee_gp_sink_group_t);
-            if (entry.sinkList[index].target.groupcast.groupID != gpPairingConfigGroupID.groupID) {
-              return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+            memcpy(&gpPairingConfigGroupID, &(cmd_data.groupList[i * sizeof(sl_zigbee_gp_sink_group_t)]), sizeof(sl_zigbee_gp_sink_group_t));
+            for (uint8_t j = 0; j < GP_SINK_LIST_ENTRIES; j++) {
+              if (entry.sinkList[j].type == SL_ZIGBEE_GP_SINK_TYPE_GROUPCAST
+                  && entry.sinkList[j].target.groupcast.groupID == gpPairingConfigGroupID.groupID) {
+                // Remove paring if group id match
+                sl_zigbee_af_green_power_cluster_println("Remove GPD group ID: 0x%04X", gpPairingConfigGroupID.groupID);
+                sl_zigbee_gp_sink_table_remove_group(sinkEntryIndex, gpPairingConfigGroupID.groupID, gpPairingConfigGroupID.alias);
+                found = true;
+                break;
+              }
             }
           }
+
+          if (!found) {
+            sl_zigbee_af_green_power_cluster_println("Group ID mismatch found");
+            return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+          }
+
+          // Check if all group ID removed, processing decommission GPD
+          if (sl_zigbee_gp_sink_table_get_entry(sinkEntryIndex, &entry) != SL_STATUS_OK) {
+            // return if entry not found
+            sl_zigbee_af_green_power_cluster_println("ERR: entry not found");
+            return SL_ZIGBEE_ZCL_STATUS_INTERNAL_COMMAND_HANDLED;
+          }
+          bool isRemoved = true;
+          for (uint8_t i = 0; i < GP_SINK_LIST_ENTRIES; i++) {
+            if (entry.sinkList[i].type != SL_ZIGBEE_GP_SINK_TYPE_UNUSED
+                || entry.sinkList[i].target.groupcast.groupID != 0
+                || entry.sinkList[i].target.groupcast.alias != 0) {
+              isRemoved = false;
+            }
+          }
+          if (isRemoved) {
+            sl_zigbee_af_green_power_cluster_println("decommission GPD!");
+            decommissionGpd(0, 0, &gpdAddr, false, cmd_data.actions & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_ACTIONS_SEND_GP_PAIRING);
+          }
+          return SL_ZIGBEE_ZCL_STATUS_SUCCESS;
         }
       }
       decommissionGpd(0, 0, &gpdAddr, false, cmd_data.actions & SL_ZIGBEE_AF_GP_PAIRING_CONFIGURATION_ACTIONS_SEND_GP_PAIRING);

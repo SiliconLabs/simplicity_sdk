@@ -171,9 +171,6 @@ void sl_zigbee_af_network_steering_finish_steering_event_handler(sl_zigbee_af_ev
 #define UPDATE_TC_LINK_KEY_JITTER_MIN_MS (MILLISECOND_TICKS_PER_SECOND * 10)
 #define UPDATE_TC_LINK_KEY_JITTER_MAX_MS (MILLISECOND_TICKS_PER_SECOND * 40)
 
-// This is an attribute specified in the BDB.
-#define VERIFY_KEY_TIMEOUT_MS (5 * MILLISECOND_TICKS_PER_SECOND)
-
 sl_zigbee_af_plugin_network_steering_options_t sli_zigbee_af_network_steering_options_mask
   = SL_ZIGBEE_AF_PLUGIN_NETWORK_STEERING_OPTIONS_NONE;
 
@@ -626,17 +623,7 @@ void sl_zigbee_af_network_steering_finish_steering_event_handler(sl_zigbee_af_ev
 
   sl_zigbee_af_event_set_inactive(finishSteeringEvent);
 
-  if (sli_zigbee_af_network_steering_state_verify_tclk()) {
-    // If we get here, then we have failed to verify the TCLK. Therefore,
-    // we leave the network.
-    sl_zigbee_af_update_tc_link_key_stop();
-    sl_zigbee_leave_network(SL_ZIGBEE_LEAVE_NWK_WITH_NO_OPTION);
-    sl_zigbee_af_core_println("%s: %s",
-                              PLUGIN_NAME,
-                              "Key verification failed. Leaving network");
-    cleanupAndStop(SL_STATUS_FAIL);
-    sl_zigbee_af_remove_from_current_app_tasks(SL_ZIGBEE_AF_WAITING_FOR_TC_KEY_UPDATE);
-  } else if (sli_zigbee_af_network_steering_state_update_tclk()) {
+  if (sli_zigbee_af_network_steering_state_update_tclk()) {
     // Start the process to update the TC link key. We will set another event
     // for the broadcast permit join.
     // Attempt a TC link key update now.
@@ -665,15 +652,12 @@ void sl_zigbee_af_update_tc_link_key_status_cb(sl_zigbee_key_status_t keyStatus)
     switch (keyStatus) {
       case SL_ZIGBEE_TRUST_CENTER_LINK_KEY_ESTABLISHED:
         // Success! But we should still wait to make sure we verify the key.
-        sli_zigbee_af_network_steering_state_set_verify_tclk();
-        sl_zigbee_af_event_set_delay_ms(finishSteeringEvent, VERIFY_KEY_TIMEOUT_MS);
         return;
       case SL_ZIGBEE_TRUST_CENTER_IS_PRE_R21:
       case SL_ZIGBEE_VERIFY_LINK_KEY_SUCCESS:
         // If the trust center is pre-r21, then we don't update the link key.
         // If the key status is that the link key has been verified, then we
         // have successfully updated our trust center link key and we are done!
-        sli_zigbee_af_network_steering_state_clear_verify_tclk();
         sl_zigbee_af_event_set_delay_ms(finishSteeringEvent, randomJitterMS());
         break;
       default:

@@ -5,7 +5,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im48.*"/>
     <property key="core.boardCompatibility" value="brd2705a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd2705a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd2705a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -15,7 +15,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4270a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4270a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4270a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -25,7 +25,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4270b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4270b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4270b.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -35,7 +35,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4271a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4271a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4271a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -45,7 +45,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg25b222f1920im56.*"/>
     <property key="core.boardCompatibility" value="brd4272a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4272a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4272a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -55,7 +55,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -65,7 +65,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400b.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -75,7 +75,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32zg28b312f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4400c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4400c.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -85,7 +85,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32fg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401a.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -95,7 +95,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401b"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401b.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401b.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>
@@ -105,7 +105,7 @@
     <property key="demos.blurb" value="Wi-SUN - LFN CLI example"/>
     <property key="core.partCompatibility" value=".*efr32zg28b322f1024im68.*"/>
     <property key="core.boardCompatibility" value="brd4401c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.2/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2024.12.3/app/wisun/demos/wisun_soc_lfn_cli/wisun_soc_lfn_cli-brd4401c.s37"/>
     <property key="core.readmeFiles" value="../../protocol/wisun/app/wisun_soc_cli/doc/readme_lfn.md"/>
     <property key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Wi-SUN"/>
     <property key="core.quality" value="EVALUATION"/>

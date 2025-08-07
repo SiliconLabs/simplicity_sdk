@@ -39,7 +39,7 @@ extern "C" {
 
 // <h> CS Antenna Offset Configuration
 // <o SL_RAIL_UTIL_CS_ANTENNA_COUNT> Number of available antennas <1..4>
-// <d> 4
+// <d> 1
 #define SL_RAIL_UTIL_CS_ANTENNA_COUNT                     4
 
 // <o SL_RAIL_UTIL_CS_ANTENNA_CONFIG_TYPE> Antenna offset configuration type

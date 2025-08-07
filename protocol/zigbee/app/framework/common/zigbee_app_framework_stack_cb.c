@@ -1079,8 +1079,10 @@ void sl_zigbee_raw_transmit_complete_handler(
   uint8_t* messageContents,
   // SL_STATUS_OK if the transmission was successful, or
   // SL_STATUS_ZIGBEE_DELIVERY_FAILED if not
-  sl_status_t status)
+  sl_status_t status,
+  uint8_t messageTag)
 {
+  (void)messageTag;
   sl_zigbee_af_push_callback_network_index();
   sli_zigbee_af_raw_transmit_complete(messageLength, messageContents, status);
   sl_zigbee_af_raw_transmit_complete_cb(messageLength, messageContents, status);

@@ -3,7 +3,7 @@
  * @brief Clock Manager - Clock Tree configuration file.
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -106,9 +106,9 @@
 //   <CMU_SYSCLKCTRL_PCLKPRESC_DIV1=> DIV1
 //   <CMU_SYSCLKCTRL_PCLKPRESC_DIV2=> DIV2
 // <i> PCLK branch is derived from HCLK. This clock drives the APB bus interface.
-// <d> CMU_SYSCLKCTRL_PCLKPRESC_DIV1
+// <d> CMU_SYSCLKCTRL_PCLKPRESC_DIV2
 #ifndef SL_CLOCK_MANAGER_PCLK_DIVIDER
-#define SL_CLOCK_MANAGER_PCLK_DIVIDER    CMU_SYSCLKCTRL_PCLKPRESC_DIV1
+#define SL_CLOCK_MANAGER_PCLK_DIVIDER    CMU_SYSCLKCTRL_PCLKPRESC_DIV2
 #endif
 
 // </h>

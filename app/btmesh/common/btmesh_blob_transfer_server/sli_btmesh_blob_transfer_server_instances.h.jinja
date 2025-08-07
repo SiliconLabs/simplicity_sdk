@@ -129,7 +129,7 @@ typedef struct {
   /// It is set to NULL if the block shall be allocated from heap.
   uint8_t *block_buffer;
   /// Size of block buffer
-  /// It is set to 0 if the block shall be allocated from heap.
+  /// If set to 0, block buffer is not used.
   uint32_t block_buffer_size;
   /// Element index of model instance (in DCD)
   uint16_t elem_index;

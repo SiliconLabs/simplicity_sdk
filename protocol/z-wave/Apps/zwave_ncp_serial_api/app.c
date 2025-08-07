@@ -850,6 +850,7 @@ ApplicationInit(
   zpal_reset_reason_t eResetReason)
 {
   // enable the watchdog at init of application
+  zpal_watchdog_init();
   zpal_enable_watchdog(true);
   
   // Serial API can control hardware with information

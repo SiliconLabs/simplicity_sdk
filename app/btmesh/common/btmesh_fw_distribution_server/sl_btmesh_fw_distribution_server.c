@@ -1561,6 +1561,12 @@ static void sl_btmesh_fw_distribution_server_element_init(uint16_t elem_index)
 
   app_assert_status_f(sc, "Failed to init FW Distribution Server");
 
+  sc = sl_btmesh_fw_dist_server_configure_throttle(BTMESH_FW_DISTRIBUTION_SERVER_GROUP_MAIN_ELEM_INDEX,
+                                                   SL_BTMESH_FW_DIST_SERVER_THROTTLE_DELAY_MS_CFG_VAL,
+                                                   SL_BTMESH_FW_DIST_SERVER_THROTTLE_CONCURRENT_CFG_VAL);
+
+  app_assert_status_f(sc, "Failed to configure FW Distribution Server's sender");
+
   sl_btmesh_fw_distribution_server_on_distribution_state_changed(self->elem_index,
                                                                  self->dist.state,
                                                                  self->dist.num_active_nodes,

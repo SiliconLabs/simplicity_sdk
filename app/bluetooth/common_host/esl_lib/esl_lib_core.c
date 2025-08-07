@@ -30,6 +30,7 @@
  ******************************************************************************/
 #include <stdlib.h>
 #include <unistd.h>
+#include <inttypes.h>
 #include "ncp_host.h"
 #include "app_log_cli.h"
 #include "sl_bt_api.h"
@@ -173,7 +174,12 @@ void esl_lib_deinit(void)
 
 sl_status_t esl_lib_core_add_command(esl_lib_command_list_cmd_t *cmd)
 {
-  return esl_lib_command_list_put(&ap_state->command_list, cmd);
+  sl_status_t sc = esl_lib_command_list_put(&ap_state->command_list, cmd);
+  esl_lib_log_core_debug("Add command = %u, id: %#04" PRIx32 ", sc: 0x%04x" APP_LOG_NL,
+                         cmd->cmd_code,
+                         cmd->id,
+                         sc);
+  return sc;
 }
 
 void sl_bt_on_event(sl_bt_msg_t *evt)
@@ -879,8 +885,9 @@ static void esl_lib_core_step(void)
     // Move and execute next command.
     cmd = esl_lib_command_list_get(&ap_state->command_list);
     if (cmd != NULL) {
-      esl_lib_log_core_debug("Running next command = %d" APP_LOG_NL,
-                             cmd->cmd_code);
+      esl_lib_log_core_debug("Running next command: %d, id = %#04" PRIx32 APP_LOG_NL,
+                             cmd->cmd_code,
+                             cmd->id);
       ap_state->command = cmd;
       ap_state->command_complete = false;
       run_command(ap_state->command);

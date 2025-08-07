@@ -82,6 +82,8 @@ configuration:
     value: (400)
   - name: MEDIUM_BUTTON_PRESS_DURATION
     value: (1500)
+  - name: APP_BUTTON_PRESS_DETECTION
+    value: APP_BUTTON_PRESS_DETECT_PRESS_AND_RELEASE
   - name: ZAF_CONFIG_REQUEST_KEY_S2_UNAUTHENTICATED
     value: 1
   - name: ZAF_CONFIG_REQUEST_KEY_S2_AUTHENTICATED
@@ -164,6 +166,8 @@ configuration:
     value: '"multilevel_sensor"'
   - name: SL_RAIL_UTIL_RAIL_POWER_MANAGER_INIT
     value: 0
+  - name: SL_MEMORY_MANAGER_STATISTICS_API_ENABLE # Save footprint
+    value: 0
 
 define:
   - name: APP_PROPERTIES_CONFIG_FILE
@@ -187,7 +191,6 @@ template_contribution:
     value:
       name: send_reports
       handler: cli_send_reports
-      help: Send battery and sensor report
 
 post_build:
   profile: zwave_application

@@ -1,4 +1,4 @@
-Wi-SUN SDK 2.5.0
+Wi-SUN SDK 2.5.1
 - Wi-SUN Stack
   -  Targeted quality improvements and bug fixes.
 - Wi-SUN Applications

@@ -106,16 +106,17 @@ static void blob_transfer_server_state_change(sli_btmesh_blob_transfer_server_t 
  * If Block Buffer Memory Type is configured to Static then the link time
  * allocated block buffer is returned unless its size is not sufficient which
  * is handled by returning NULL pointer.
+ * If Block Buffer Memory Type is configured to None then no memory is allocated
+ * and the block buffer is disabled.
  * See SL_BTMESH_BLOB_TRANSFER_SERVER_INSTANCE_BLOCK_BUFFER_TYPE_CFG_VAL
  * configuration option for further details.
  *
  * @param[in] self Pointer to the BLOB Transfer Server model instance
- * @param[in] block_size Size of buffer to allocate
- * @returns Pointer to the allocated BLOB Block buffer
- * @retval NULL Memory allocation failed
+ * @returns Status of the operation
+ * @retval true Block buffer successfully allocated
+ * @retval false Block buffer allocation failed
  ******************************************************************************/
-static uint8_t *alloc_block_buffer(const sli_btmesh_blob_transfer_server_t *const self,
-                                   uint32_t block_size);
+static bool alloc_block_buffer(sli_btmesh_blob_transfer_server_t *const self);
 
 /*******************************************************************************
  * Deallocates block buffer based on pointer and instance configuration.
@@ -124,10 +125,8 @@ static uint8_t *alloc_block_buffer(const sli_btmesh_blob_transfer_server_t *cons
  * deallocated otherwise it is a no-operation.
  *
  * @param[in] self Pointer to the BLOB Transfer Server model instance
- * @param[in] block_buffer Pointer to the previously allocated block buffer
  ******************************************************************************/
-static void free_block_buffer(const sli_btmesh_blob_transfer_server_t *const self,
-                              void *block_buffer);
+static void free_block_buffer(sli_btmesh_blob_transfer_server_t *const self);
 
 void sl_btmesh_blob_transfer_server_inst_init(sli_btmesh_blob_transfer_server_t *const self,
                                               uint32_t max_blob_size)
@@ -145,6 +144,9 @@ void sl_btmesh_blob_transfer_server_inst_init(sli_btmesh_blob_transfer_server_t 
                                  self->config->pull_mode_chunks_to_request,
                                  self->config->pull_mode_retry_interval_ms,
                                  self->config->pull_mode_retry_count);
+  app_assert_status(sc);
+
+  sc = sl_btmesh_mbt_server_enable_block_start_req(self->config->elem_index);
   app_assert_status(sc);
 
   // Initial state is Idle
@@ -188,7 +190,7 @@ sl_status_t sl_btmesh_blob_transfer_server_set_pull_mode_parameters(uint16_t ele
                                                        pull_mode_retry_count);
 }
 
-void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
+void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t *evt)
 {
   sli_btmesh_blob_transfer_server_t *self = NULL;
 
@@ -231,9 +233,7 @@ void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
       self->blob_size = msg->blob_size;
       // Set expected block size
       self->blob_block_size = 1 << msg->block_size_log;
-      self->block_buffer = alloc_block_buffer(self, self->blob_block_size);
-      // Check allocation result
-      if (self->block_buffer == NULL) {
+      if (alloc_block_buffer(self) == false) {
         log_critical("Block buffer allocation failed!" NL);
         sl_btmesh_mbt_server_transfer_start_rsp(self->config->elem_index,
                                                 sl_btmesh_mbt_server_status_internal_error);
@@ -263,9 +263,21 @@ void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
       if (memcmp(&msg->blob_id, &self->blob_id, sizeof(sl_bt_uuid_64_t)) != 0) {
         return;
       }
+      // If block buffer is disabled, chunks are written directly to the storage and the chunk size
+      // must be a multiple of the storage alignment.
+      if (self->block_buffer == NULL
+          && msg->chunk_size % sl_btmesh_blob_storage_get_alignment() != 0) {
+        log_error("No block buffer and chunk size (%u) not multiple of storage alignment (%u)" NL,
+                  msg->chunk_size, sl_btmesh_blob_storage_get_alignment());
+        (void)sl_btmesh_mbt_server_block_start_rsp(msg->elem_index,
+                                                   sl_btmesh_mbt_server_status_internal_error);
+        return;
+      }
       self->progress = msg->block_number * self->blob_block_size;
 
       log_debug("Block %d start" NL, msg->block_number);
+      (void)sl_btmesh_mbt_server_block_start_rsp(msg->elem_index,
+                                                 sl_btmesh_mbt_server_status_success);
       break;
     }
     case sl_btmesh_evt_mbt_server_block_complete_id: {
@@ -283,15 +295,20 @@ void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
                                                        SL_PROG_TO_PCT(self->blob_size,
                                                                       self->progress));
 #endif // SL_BTMESH_BLOB_TRANSFER_PROGRESS_CALLBACK_CFG_VAL
-      // Calculate offset of block to be received; since the last block can be
-      // smaller than the rest, use the size received in Transfer Start to
-      // calculate offset
-      uint32_t write_offset = self->blob_block_size * msg->block_number;
-      // Write data using wrapper
-      sl_status_t sc = sl_btmesh_blob_storage_write(write_offset,
-                                                    msg->block_size,
-                                                    self->block_buffer);
-      app_assert_status_f(sc, "Storage writing failed!");
+      if (self->block_buffer != NULL) {
+        // Calculate offset of block to be received; since the last block can be
+        // smaller than the rest, use the size received in Transfer Start to
+        // calculate offset
+        uint32_t write_offset = self->blob_block_size * msg->block_number;
+        // Write the buffered block data
+        sl_status_t sc = sl_btmesh_blob_storage_write(write_offset,
+                                                      msg->block_size,
+                                                      self->block_buffer);
+        if (sc != SL_STATUS_OK) {
+          sl_btmesh_mbt_server_abort(self->config->elem_index);
+          return;
+        }
+      }
       log_info("Block %d complete (%s), progress %u%%" NL,
                msg->block_number,
                BLOB_ID_TO_STRING(&self->blob_id),
@@ -371,7 +388,7 @@ void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
       break;
     }
     case sl_btmesh_evt_mbt_server_chunk_id: {
-      sl_btmesh_evt_mbt_server_chunk_t const *msg = &evt->data.evt_mbt_server_chunk;
+      sl_btmesh_evt_mbt_server_chunk_t *msg = &evt->data.evt_mbt_server_chunk;
       self = sli_btmesh_blob_transfer_server_get_by_elem_index(msg->elem_index);
       CHECK_PTR(self);
       // If not in Active state, ignore message
@@ -380,10 +397,21 @@ void sl_btmesh_blob_transfer_server_on_event(sl_btmesh_msg_t const *evt)
       }
       // Increment progress
       self->progress += msg->data.len;
-      // Buffer data according to block offset
-      memcpy(&self->block_buffer[msg->block_offset],
-             msg->data.data,
-             msg->data.len);
+      if (self->block_buffer != NULL) {
+        // Buffer data according to block offset
+        memcpy(&self->block_buffer[msg->block_offset],
+               msg->data.data,
+               msg->data.len);
+      } else {
+        // Write the chunk data directly
+        sl_status_t sc = sl_btmesh_blob_storage_write(msg->total_offset,
+                                                      msg->data.len,
+                                                      msg->data.data);
+        if (sc != SL_STATUS_OK) {
+          sl_btmesh_mbt_server_abort(self->config->elem_index);
+          return;
+        }
+      }
       // Calculate progress in percent
       float prog = SL_PROG_TO_PCT(self->blob_size, self->progress);
       log_debug("BLOB Transfer (%s) %3d.%02d%%" NL,
@@ -437,8 +465,7 @@ static void blob_transfer_server_state_change(sli_btmesh_blob_transfer_server_t 
       self->blob_size = UINT32_MAX;
       // Set progress to Unknown, i.e. 0xFFFFFFFF
       self->progress = UINT32_MAX;
-      free_block_buffer(self, self->block_buffer);
-      self->block_buffer = NULL;
+      free_block_buffer(self);
       break;
     case SLI_BTMESH_BLOB_TRANSFER_SERVER_IDLE_DONE: {
       self->state.idle = 1;
@@ -452,7 +479,7 @@ static void blob_transfer_server_state_change(sli_btmesh_blob_transfer_server_t 
       // Notify user that transfer has completed
       sl_btmesh_blob_transfer_server_transfer_done(&self->blob_id);
 #endif // SL_BTMESH_BLOB_TRANSFER_SERVER_TRANSFER_DONE_CALLBACK_CFG_VAL
-      free_block_buffer(self, self->block_buffer);
+      free_block_buffer(self);
       break;
     }
     case SLI_BTMESH_BLOB_TRANSFER_SERVER_ACTIVE:
@@ -508,34 +535,40 @@ static void blob_transfer_server_state_change(sli_btmesh_blob_transfer_server_t 
 }
 
 // Allocates block buffer based on block size and instance configuration.
-static uint8_t *alloc_block_buffer(const sli_btmesh_blob_transfer_server_t *const self,
-                                   uint32_t block_size)
+static bool alloc_block_buffer(sli_btmesh_blob_transfer_server_t *const self)
 {
-  uint8_t *block_buffer = NULL;
+  self->block_buffer = NULL;
+
+  if (self->config->block_buffer_size == 0) {
+    // Block buffer is disabled
+    return true;
+  }
+
+  if (self->blob_block_size > self->config->block_buffer_size) {
+    // Maximum block buffer size is not sufficient
+    return false;
+  }
+
   if (self->config->block_buffer == NULL) {
     // Block buffer shall be allocated from heap
-    sl_memory_alloc(block_size,
+    sl_memory_alloc(self->blob_block_size,
                     BLOCK_TYPE_LONG_TERM,
-                    (void **)&block_buffer);
+                    (void **)&self->block_buffer);
   } else {
     // Static block buffer was allocated statically at link time
-    if (block_size <= self->config->block_buffer_size) {
-      block_buffer = self->config->block_buffer;
-    } else {
-      block_buffer = NULL;
-    }
+    self->block_buffer = self->config->block_buffer;
   }
-  return block_buffer;
+  return self->block_buffer != NULL;
 }
 
 // Deallocates block buffer based on pointer and instance configuration.
-static void free_block_buffer(const sli_btmesh_blob_transfer_server_t *const self,
-                              void *block_buffer)
+static void free_block_buffer(sli_btmesh_blob_transfer_server_t *const self)
 {
-  if (self->config->block_buffer == NULL) {
+  if (self->config->block_buffer == NULL && self->block_buffer != NULL) {
     // Block buffer was allocated from heap so it shall be deallocated
-    sl_memory_free(block_buffer);
+    sl_memory_free(self->block_buffer);
   }
+  self->block_buffer = NULL;
 }
 
 void sl_btmesh_blob_transfer_server_step_handle(void)

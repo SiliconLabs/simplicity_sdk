@@ -327,7 +327,7 @@ static sl_status_t _parse_packet(sl_tftp_clnt_t * const clnt,
  * @param[in] buff_size Buffer size
  ******************************************************************************/
 static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
-                     uint8_t *buff,
+                     uint8_t **buff,
                      const uint16_t buff_size);
 
 /***************************************************************************//**
@@ -338,7 +338,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
  * @param[in] buff_size Buffer size
  ******************************************************************************/
 static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
-                     uint8_t *buff,
+                     uint8_t **buff,
                      const uint16_t buff_size);
 
 /***************************************************************************//**
@@ -984,7 +984,7 @@ static void _prepare_and_send_data(sl_tftp_clnt_t * const clnt,
 }
 
 static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
-                     uint8_t *buff,
+                     uint8_t **buff,
                      const uint16_t buff_size)
 {
   int32_t sock_id           = SL_TFTP_INVALID_SOCKID;
@@ -1008,9 +1008,9 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
     return;
   }
 
-  pkt_payload_size = _build_packet(clnt, buff, buff_size);
+  pkt_payload_size = _build_packet(clnt, *buff, buff_size);
 
-  (void) sl_tftp_udp_sendto(sock_id, buff, pkt_payload_size, host_addr);
+  (void) sl_tftp_udp_sendto(sock_id, *buff, pkt_payload_size, host_addr);
 
   while (timeout < SL_TFTP_CLNT_RECV_TIMEOUT_MS) {
     sl_tftp_delay_ms(100UL);
@@ -1020,19 +1020,19 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
                                   SL_TFTP_ERRORCODE_NOTDEF,
                                   SL_TFTP_CLNT_TERMINATION_MSG,
                                   sock_id,
-                                  buff,
+                                  *buff,
                                   blocksize,
                                   host_addr);
       break;
     }
 
-    res = sl_tftp_udp_recvfrom(sock_id, buff, blocksize + sizeof(sl_tftp_pkt_t), host_addr);
+    res = sl_tftp_udp_recvfrom(sock_id, *buff, blocksize + sizeof(sl_tftp_pkt_t), host_addr);
     if (res <= 0L) {
       timeout += 100UL;
       continue;
     }
 
-    if (_parse_packet(clnt, buff, res) != SL_STATUS_OK) {
+    if (_parse_packet(clnt, *buff, res) != SL_STATUS_OK) {
       timeout += 100UL;
       continue;
     }
@@ -1046,9 +1046,9 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
     if (clnt->packet.opcode == SL_TFTP_OPCODE_OACK) {
       // reallocate buffer if blocksize is different
       if (clnt->options.blksize != SL_TFTP_DEFAULT_DATA_BLOCK_SIZE) {
-        app_wisun_free(buff);
-        buff = (uint8_t *)app_wisun_malloc(clnt->options.blksize + sizeof(sl_tftp_pkt_t));
-        if (!buff) {
+        app_wisun_free(*buff);
+        *buff = (uint8_t *)app_wisun_malloc(clnt->options.blksize + sizeof(sl_tftp_pkt_t));
+        if (!(*buff)) {
           osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_OP_FINISHED_MSK);
           printf("[TFTP buffer allocation failed]\n");
           return;
@@ -1056,7 +1056,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
         blocksize = clnt->options.blksize;
       }
       // Prepare ACK
-      _prepare_and_send_ack(clnt, 0U, sock_id, buff, blocksize, host_addr);
+      _prepare_and_send_ack(clnt, 0U, sock_id, *buff, blocksize, host_addr);
     }
     // Data packet
     else if (clnt->packet.opcode == SL_TFTP_OPCODE_DATA) {
@@ -1068,7 +1068,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
                        clnt->packet.content.data.data_size);
       }
       // Prepare ACK
-      _prepare_and_send_ack(clnt, block_num, sock_id, buff, blocksize, host_addr);
+      _prepare_and_send_ack(clnt, block_num, sock_id, *buff, blocksize, host_addr);
 
       // Last packet
       if (clnt->packet.content.data.data_size < blocksize) {
@@ -1085,7 +1085,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
       _set_tftp_err_evt_flag(clnt,
                              clnt->packet.content.error.errcode);
       // Prepare ACK
-      _prepare_and_send_ack(clnt, block_num, sock_id, buff, blocksize, host_addr);
+      _prepare_and_send_ack(clnt, block_num, sock_id, *buff, blocksize, host_addr);
     }
 
     timeout = 0UL;
@@ -1100,7 +1100,7 @@ static void _rrq_hnd(sl_tftp_clnt_t * const clnt,
 }
 
 static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
-                     uint8_t * buff,
+                     uint8_t **buff,
                      const uint16_t buff_size)
 {
   int32_t sock_id             = SL_TFTP_INVALID_SOCKID;
@@ -1128,8 +1128,8 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
     return;
   }
 
-  pkt_payload_size = _build_packet(clnt, buff, buff_size);
-  (void) sl_tftp_udp_sendto(sock_id, buff, pkt_payload_size, host_addr);
+  pkt_payload_size = _build_packet(clnt, *buff, buff_size);
+  (void) sl_tftp_udp_sendto(sock_id, *buff, pkt_payload_size, host_addr);
 
   ptr = (uint8_t *) clnt->ext_data;
   remained_size = clnt->ext_data_size;
@@ -1143,19 +1143,19 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
                                   SL_TFTP_ERRORCODE_NOTDEF,
                                   SL_TFTP_CLNT_TERMINATION_MSG,
                                   sock_id,
-                                  buff,
+                                  *buff,
                                   blocksize,
                                   host_addr);
       break;
     }
 
-    res = sl_tftp_udp_recvfrom(sock_id, buff, blocksize + sizeof(sl_tftp_pkt_t), host_addr);
+    res = sl_tftp_udp_recvfrom(sock_id, *buff, blocksize + sizeof(sl_tftp_pkt_t), host_addr);
     if (res <= 0L) {
       timeout += 100UL;
       continue;
     }
 
-    if (_parse_packet(clnt, buff, res) != SL_STATUS_OK) {
+    if (_parse_packet(clnt, *buff, res) != SL_STATUS_OK) {
       timeout += 100UL;
       continue;
     }
@@ -1168,9 +1168,9 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
     if (clnt->packet.opcode == SL_TFTP_OPCODE_OACK) {
       // reallocate buffer if blocksize is different
       if (clnt->options.blksize != SL_TFTP_DEFAULT_DATA_BLOCK_SIZE) {
-        app_wisun_free(buff);
-        buff = (uint8_t *)app_wisun_malloc(clnt->options.blksize + sizeof(sl_tftp_pkt_t));
-        if (!buff) {
+        app_wisun_free(*buff);
+        *buff = (uint8_t *)app_wisun_malloc(clnt->options.blksize + sizeof(sl_tftp_pkt_t));
+        if (!(*buff)) {
           osEventFlagsSet(clnt->evt_flags, SL_TFTP_EVT_OP_FINISHED_MSK);
           printf("[TFTP buffer allocation failed]\n");
           return;
@@ -1179,7 +1179,7 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
         required_block_num = remained_size / blocksize + 1U;
       }
       // Prepare ACK
-      _prepare_and_send_ack(clnt, 0U, sock_id, buff, blocksize, host_addr);
+      _prepare_and_send_ack(clnt, 0U, sock_id, *buff, blocksize, host_addr);
     }
     // ACK packet
     else if (clnt->packet.opcode == SL_TFTP_OPCODE_ACK) {
@@ -1219,7 +1219,7 @@ static void _wrq_hnd(sl_tftp_clnt_t * const clnt,
                            (const uint8_t *)ptr,
                            data_size,
                            sock_id,
-                           buff,
+                           *buff,
                            blocksize,
                            host_addr);
 #if SL_TFTP_DEBUG
@@ -1272,12 +1272,12 @@ static void _clnt_thr_fnc(void * args)
     switch (clnt.packet.opcode) {
       case SL_TFTP_OPCODE_RRQ:
         (void) osEventFlagsSet(clnt.evt_flags, SL_TFTP_EVT_GET_REQUEST_MSK);
-        _rrq_hnd(&clnt, buff, SL_TFTP_DEFAULT_DATA_BLOCK_SIZE);
+        _rrq_hnd(&clnt, &buff, SL_TFTP_DEFAULT_DATA_BLOCK_SIZE);
         break;
 
       case SL_TFTP_OPCODE_WRQ:
         (void) osEventFlagsSet(clnt.evt_flags, SL_TFTP_EVT_PUT_REQUEST_MSK);
-        _wrq_hnd(&clnt, buff, SL_TFTP_DEFAULT_DATA_BLOCK_SIZE);
+        _wrq_hnd(&clnt, &buff, SL_TFTP_DEFAULT_DATA_BLOCK_SIZE);
         break;
 
       default:

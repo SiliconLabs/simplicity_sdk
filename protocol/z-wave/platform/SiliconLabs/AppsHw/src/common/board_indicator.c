@@ -62,8 +62,8 @@ static void sleeptimer_off_cb(__attribute__((unused)) sl_sleeptimer_timer_handle
 
   sl_simple_led_turn_off(sl_led_led0.context);
 
-  if(indicator_settings.cycles > 0) {
-    if(indicator_settings.cycles != INDEFINITE_NUMBER_OF_BLINKING_CYCLES) {
+  if (indicator_settings.cycles > 1) {
+    if (indicator_settings.cycles != INDEFINITE_NUMBER_OF_BLINKING_CYCLES) {
       indicator_settings.cycles--;
     }
     sl_sleeptimer_start_timer_ms(&my_sleeptimer_handle, indicator_settings.off_time_ms, sleeptimer_on_cb, NULL,0,0);

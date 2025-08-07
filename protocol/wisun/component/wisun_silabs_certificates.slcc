@@ -30,12 +30,14 @@ template_contribution:
       key: SILABS_DEVICE_KEY
     condition:
       - wisun_stack
+    priority: 1
   - name: wisun_keychain_credential
     value:
       certificate: SILABS_BR_CERT
       key: SILABS_BR_KEY
     condition:
       - wisun_br_stack
+    priority: 1
 
 metadata:
   sbom:

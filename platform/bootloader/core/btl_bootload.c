@@ -867,6 +867,16 @@ SL_WEAK bool bootload_commitBootloaderUpgrade(uint32_t upgradeAddress, uint32_t 
   sli_se_mailbox_command_add_parameter(&applyImage, upgradeAddress);
   sli_se_mailbox_command_add_parameter(&applyImage, size);
 
+  // Check whether the SE handled the SLI_SE_COMMAND_APPLY_HOST_IMAGE command during boot
+  // and acknowledge any previously executed command to clear the VSE mailbox state
+  if (sli_vse_mailbox_read_executed_command() == SLI_SE_COMMAND_APPLY_HOST_IMAGE) {
+    sli_se_mailbox_response_t response = sli_vse_mailbox_ack_command(&applyImage);
+    BTL_DEBUG_PRINT("SE response: ");
+    BTL_DEBUG_PRINT_WORD_HEX(response);
+    BTL_DEBUG_PRINT_LF();
+    (void)response; // Suppress unused variable warning
+  }
+
   sli_se_mailbox_execute_command(&applyImage);
 
   // Should never get here

@@ -39,6 +39,7 @@ typedef struct {
   uint8_t messageLength;
   uint8_t messageContents[MAX_IPC_VEC_ARG_CAPACITY];
   sl_status_t status;
+  uint8_t messageTag;
 } sli_zigbee_stack_raw_transmit_complete_handler_ipc_event_t;
 
 #endif // RAW_MESSAGE_IPC_CALLBACK_EVENTS_H

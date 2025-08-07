@@ -4,7 +4,7 @@ label: Bluetooth RAIL DMP - SoC Light Micrium OS
 description: >
   This is a Dynamic Multiprotocol reference application demonstrating a light
   bulb that can be switched both via Bluetooth and via a Proprietary protocol.
-  Can be tested with the Simplicity Connect mobile app and RAIL - SoC Switch 
+  Can be tested with the Simplicity Connect mobile app and RAIL - SoC Switch
   sample app.
 category: Bluetooth Examples
 quality: production
@@ -300,7 +300,6 @@ post_build:
     condition: [device_series_2, bootloader_app_properties]
 
 tag:
-  - prebuilt_demo
   - hardware:component:display
   - hardware:device:ram:64
   - hardware:rf:band:2400

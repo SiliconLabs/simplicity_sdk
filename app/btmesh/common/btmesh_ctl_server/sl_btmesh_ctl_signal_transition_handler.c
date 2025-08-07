@@ -74,11 +74,11 @@ static int16_t target_deltauv;
 /// temperature transition time in ms
 static uint32_t temp_transtime_ms;
 /// time elapsed from temperature transition start
-static uint32_t temp_transtime_elapsed;
+static uint64_t temp_transtime_elapsed;
 /// non-zero if temperature transition is active
 static uint8_t temp_transitioning;
-/// timestamp of the last sleeptimer tick
-static uint64_t last_tick;
+/// timestamp of the transition start
+static uint64_t start_tick;
 
 static app_timer_t transition_timer;
 
@@ -111,9 +111,7 @@ static void transition_timer_cb(app_timer_t *timer, void *data)
 
   // Use sleeptimer to account for scheduling errors
   uint64_t current_tick = sl_sleeptimer_get_tick_count64();
-  uint64_t period_ms = 0;
-  sl_sleeptimer_tick64_to_ms(current_tick - last_tick, &period_ms);
-  last_tick = current_tick;
+  sl_sleeptimer_tick64_to_ms(current_tick - start_tick, &temp_transtime_elapsed);
 
   // Initialize the variable to UI update period in order to trigger a UI update
   // at the beginning of the transition.
@@ -124,8 +122,6 @@ static void transition_timer_cb(app_timer_t *timer, void *data)
     app_assert_status_f(sc, "Failed to stop Periodic Level Transition Timer\n");
     return;
   } else {
-    temp_transtime_elapsed += period_ms;
-
     if (temp_transtime_elapsed >= temp_transtime_ms) {
       // transition complete
       temp_transitioning = 0;
@@ -198,7 +194,7 @@ void sl_btmesh_ctl_set_temperature_deltauv_level(uint16_t temperature,
   }
 
   // get last tick before running the first transition timer
-  last_tick = sl_sleeptimer_get_tick_count64();
+  start_tick = sl_sleeptimer_get_tick_count64();
 
   if (transition_ms == 0) {
     current_temperature = temperature;

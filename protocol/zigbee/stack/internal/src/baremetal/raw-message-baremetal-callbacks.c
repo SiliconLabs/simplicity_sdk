@@ -44,9 +44,11 @@ void sli_802154_stack_passthrough_message_handler(sl_zigbee_mac_passthrough_type
 
 void sli_zigbee_stack_raw_transmit_complete_handler(uint8_t messageLength,
                                                     uint8_t *messageContents,
-                                                    sl_status_t status)
+                                                    sl_status_t status,
+                                                    uint8_t messageTag)
 {
   sl_zigbee_raw_transmit_complete_handler(messageLength,
                                           messageContents,
-                                          status);
+                                          status,
+                                          messageTag);
 }

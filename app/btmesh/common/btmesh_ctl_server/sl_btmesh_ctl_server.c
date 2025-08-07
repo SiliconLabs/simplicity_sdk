@@ -96,6 +96,8 @@ static PACKSTRUCT(struct lightbulb_state {
 
 static sl_status_t ctl_temperature_update(uint16_t element_index,
                                           uint32_t remaining_ms);
+void pri_level_move_stop(void);
+static void sec_level_move_stop(void);
 
 /// copy of transition delay parameter, needed for delayed ctl request
 static uint32_t delayed_ctl_trans = 0;
@@ -367,6 +369,16 @@ static void ctl_request(uint16_t model_id,
            request->ctl.deltauv,
            transition_ms,
            delay_ms);
+
+  // Because CTL Set request updates Lightness and Color Temperature at the same time,
+  // all ongoing underlying generic level move transitions must be stopped
+  // If no delay is specified, the cancellation is done immediately,
+  // otherwise the cancellation is done by the delayed timer callback
+
+  if (!delay_ms) {
+    pri_level_move_stop();
+    sec_level_move_stop();
+  }
 
   if ((sl_btmesh_get_lightness_current() == request->ctl.lightness)
       && (lightbulb_state.temperature_current == request->ctl.temperature)
@@ -1089,6 +1101,12 @@ static void ctl_temperature_request(uint16_t model_id,
            request->ctl_temperature.deltauv,
            transition_ms, delay_ms);
 
+  // CTL Temperature is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  if (!delay_ms) {
+    sec_level_move_stop();
+  }
+
   if ((lightbulb_state.temperature_current
        == request->ctl_temperature.temperature)
       && (lightbulb_state.deltauv_current
@@ -1756,7 +1774,6 @@ static void sec_level_change(uint16_t model_id,
              current->level.level);
     lightbulb_state.sec_level_current = current->level.level;
     lightbulb_state_changed();
-    sec_level_move_stop();
   } else {
     log_info("Secondary level update -same value (%d)" NL,
              lightbulb_state.sec_level_current);
@@ -1890,7 +1907,18 @@ static void delayed_sec_level_request(void)
 
 /** @} (end addtogroup SecGenericLevel) */
 
-/***************************************************************************//**
+/*******************************************************************************
+ * This function is registered as callback to be executed when the underlying
+ * Generic OnOff state had been changed
+ ******************************************************************************/
+static void lightness_server_onoff_changed_cb(void)
+{
+  // If the OnOff state had been changed for the light, ongoing Generic Level Move
+  // transitions must be stopped
+  sec_level_move_stop();
+}
+
+/*******************************************************************************
  * Initialization of the models supported by this node.
  * This function registers callbacks for each of the supported models.
  ******************************************************************************/
@@ -1919,6 +1947,8 @@ static void init_ctl_models(void)
                                   sec_level_request,
                                   sec_level_change,
                                   sec_level_recall);
+
+  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
 /***************************************************************************//**
@@ -2341,6 +2371,11 @@ static void ctl_delayed_ctl_temperature_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // CTL Temperature is bound to a Generic Level, any ongoing level transitions
+  // are stopped before processing the request
+  sec_level_move_stop();
+
   // delay for a ctl temperature request has passed, now process the request
   delayed_ctl_temperature_request();
 }
@@ -2350,6 +2385,12 @@ static void ctl_delayed_ctl_request_timer_cb(app_timer_t *handle,
 {
   (void)data;
   (void)handle;
+
+  // CTL Set updates both Generic Level values, any ongoing level transitions
+  // are stopped before processing the request
+  pri_level_move_stop();
+  sec_level_move_stop();
+
   // delay for a ctl request has passed, now process the request
   delayed_ctl_request();
 }

@@ -2,6 +2,53 @@
 
 This guide shows how to migrate projects from previous SDKs to a newer one.
 
+# 7.23.3 {#migrate-section-7-23-3}
+
+In order to reduce the flash memory usage, the following changes were applied to newly generated projects. Below are the changes need to be made in an existing project in order to align with the updates.
+
+## Multilevel Sensor
+
+In `MultilevelSensor.cc_config` file, remove all acceleration sensors, namely `motion_axis_x`, `motion_axis_y` and `motion_axis_z`.
+
+## Removing CLI command descriptions
+
+CLI command descriptions were removed in sample applications' project files. In an existing project, remove the `help` fields from the CLI commands in the `template_contribution` section.
+
+### Example on Power Strip project:
+
+`zwave_soc_power_strip.slcp` created with SDK version 7.23.2:
+
+```
+...
+template_contribution:
+- condition: [zw_cli_common]
+  name: cli_command
+  priority: 0
+  value:
+    name: toggle_endpoint
+    handler: cli_toggle_endpoint
+    help: Toggle the endpoint 1 or 2. Possible values are 1 or 2
+    argument:
+    - {type: uint8, help: Endpoint number (1 or 2)}
+...
+```
+
+Manually modified `zwave_soc_power_strip.slcp` after upgrading to SDK version 7.23.3:
+
+```
+...
+template_contribution:
+- condition: [zw_cli_common]
+  name: cli_command
+  priority: 0
+  value:
+    name: toggle_endpoint
+    handler: cli_toggle_endpoint
+    argument:
+    - {type: uint8}
+...
+```
+
 # 7.23.0 {#migrate-section-7-23-0}
 
 ## How to migrate legacy HMIs to Silicon Labs based solution

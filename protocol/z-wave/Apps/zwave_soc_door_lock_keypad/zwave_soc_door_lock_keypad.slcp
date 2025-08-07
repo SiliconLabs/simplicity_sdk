@@ -190,179 +190,134 @@ template_contribution:
     value:
       name: battery_report
       handler: cli_battery_report
-      help: "Send battery report"
   - name: cli_command
     condition: [zw_cli_common]
     unless: [zw_cc_user_credential]
     value:
       name: enter_user_code
       handler: cli_enter_user_code
-      help: "Enter a user code"
       argument:
       - type: string
-        help: "Current user code"
   - name: cli_command
     condition: [zw_cli_common]
     unless: [zw_cc_user_credential]
     value:
       name: set_new_user_code
       handler: cli_set_new_user_code
-      help: "Set a new user code"
       argument:
       - type: string
-        help: "User code to be set"
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: set_doorhandle_state
       handler: cli_set_doorhandle_state
-      help: "Set door handle state to locked (1) or unlocked (0)"
       argument:
       - type: string
-        help: "activate or deactivate" 
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_add_user
       handler: cli_u3c_db_add_user
-      help: "Add a user to the User Credential Database"
       argument:
       - type: string
-        help: "Name of the new user"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_add_credential
       handler: cli_u3c_db_add_credential
-      help: "Add a user to the User Credential Database"
       argument:
       - type: uint16
-        help: "Associated User UID"
       - type: string
-        help: "Type of new credential. Can be pin or password"
       - type: uint16
-        help: "Slot numbers of the new credential"
       - type: string
-        help: "Credential data"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_modify_user
       handler: cli_u3c_db_modify_user
-      help: "Modify a user in the User Credential Database"
       argument:
       - type: uint16
-        help: "UUID of the user"
       - type: string
-        help: "Attribute to modify. Can be type, name or active"
       - type: string
-        help: "New attribute value"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_modify_credential
       handler: cli_u3c_db_modify_credential
-      help: "Modify a credential in the User Credential Database"
       argument:
       - type: string
-        help: "Type of credential. Can be pin or password"
       - type: uint16
-        help: "Slot of the credential"
       - type: string
-        help: "Attribute to change. Can be data, uuid or slot"
       - type: string
-        help: "New attribute value"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_delete_user
       handler: cli_u3c_db_delete_user
-      help: "Delete a user from U3C database"
       argument:
       - type: uint16
-        help: "UUID of the user"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_delete_credential
       handler: cli_u3c_db_delete_credential
-      help: "Delete a credential from U3C database"
       argument:
       - type: string
-        help: "Type of credential. Can be pin or password"
       - type: uint16
-        help: "Slot of the credential"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_get_user
       handler: cli_u3c_db_get_user
-      help: "Get a user's data from U3C database"
       argument:
       - type: uint16
-        help: "UUID of the user"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_get_credential
       handler: cli_u3c_db_get_credential
-      help: "Get a credential's data from U3C database"
       argument:
       - type: string
-        help: "Type of credential. Can be pin or password"
       - type: uint16
-        help: "Slot of the credential"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_enter_credential
       handler: cli_u3c_enter_credential
-      help: "Enter and validate user credential"
       argument:
       - type: string
-        help: "Type of credential. Can be pin or password"
       - type: string
-        help: "Credential data"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_credential_learn_start
       handler: cli_u3c_credential_learn_start
-      help: "Start the User Credental Learn process"
       argument:
       - type: uint16
-        help: "Learn target UUID"
       - type: string
-        help: "Type of credential (pin or password)"
       - type: uint16
-        help: "Learn target slot"
   - name: cli_command
     condition: [zw_cli_common, zw_cc_user_credential]
     value:
       name: u3c_credential_learn
       handler: cli_u3c_credential_learn
-      help: "Enter credential data for User Credental Learn process"
       argument:
       - type: string
-        help: "Credential data"
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_doorhandle_state
       handler: cli_get_doorhandle_state
-      help: "Get door handle state"
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_doorbolt_state
       handler: cli_get_doorbolt_state
-      help: "Get door bolt state"
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_doorlatch_state
       handler: cli_get_doorlatch_state
-      help: "Get doorlatch state"
 
 post_build:
   profile: zwave_application

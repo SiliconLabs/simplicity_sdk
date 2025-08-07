@@ -3,7 +3,66 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.23.4 {#section-7-23-4}
+
+Due to the increased flash memory usage, there were cosmetic changes in CLI commands affecting all sample applications, and functional changes in the Multilevel Sensor sample application. These changes could require manual modification of the project file in an existing project. See the [migration guide](migration_guide.md) for the details on how to upgrade your projects.
+
+## Multilevel Sensor
+
+Acceleration sensor was removed from the `MultilevelSensor.cc_config`. This only affects sample applications created for the BRD2603A board.
+
+## Removed CLI command descriptions
+
+In all sample applications, CLI commands' description printing was removed.
+
+### Example output on the Power Strip sample application
+
+`help` command output on 7.23.2 and before:
+
+```
+help
+  set_learn_mode                Include / exclude the device into / from a z-wave network
+  factory_reset                 Factory reset the device
+  get_dsk                       Read the DSK, stored in the manufacturing token
+  get_region                    Get the used region
+  toggle_endpoint               Toggle the endpoint 1 or 2. Possible values are 1 or 2
+                                [uint8] Endpoint number (1 or 2)
+  dim_endpoint                  Dim the endpoint 2
+                                [uint8] New dimming level, it can be minimum 0 and maximum 99
+  toggle_notification_sending   Send Overload detected notification, for more information, see the application README
+  get_rgb_values                Get rgb LED values
+  get_led_state                 Get LED1 state from the expansion header
+  button                        Emulating button events (various type of button presses).
+```
+
+`help` command output since 7.23.3 (only for 7.23.x versions):
+
+```
+help
+  set_learn_mode                
+  factory_reset                 
+  get_dsk                       
+  get_region                    
+  toggle_endpoint               
+                                [uint8] 
+  dim_endpoint                  
+                                [uint8] 
+  toggle_notification_sending   
+  get_rgb_values                
+  get_led_state                 
+  button                        Emulating button events (various type of button presses).
+```
+
+## User Credential Command Class
+
+The return type of function `CC_UserCredential_delete_all_credentials_of_type`
+has been changed from `void` to `bool` to indicate whether any credentials were deleted.  
+If you override this function, update your implementation to return a boolean value.
+
 # 7.23.2 {#section-7-23-2}
+
+## Improve Clear Channel Assessment
+Change the clear channel assessment configuration to improve performance.
 
 ## Restore NVM migration script
 Fix the issue about missing NVM migration script in the controller.

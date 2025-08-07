@@ -13,6 +13,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/z3-light_ot-ftd_soc/z3-light_ot-ftd_soc.slcp"/>
     <properties key="filters" value=""/>
   </descriptors>
   <descriptors name="zigbee_ble_direct_device_light" label="Zigbee BLE - DirectDeviceLight" description="This is a sample application demonstrating a Zigbee Direct Device (ZDD) as part of a light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage.">
@@ -28,6 +30,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/zigbee_ble_direct_device_light/zigbee_ble_direct_device_light.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ble_dynamic_multiprotocol_light" label="Zigbee BLE - DynamicMultiprotocolLight" description="This is a sample application demonstrating a light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. We recommend the use of Micrium Kernel for this sample application.">
@@ -43,6 +47,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light/zigbee_ble_dynamic_multiprotocol_light.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ble_dynamic_multiprotocol_light_minimal" label="Zigbee BLE - DynamicMultiprotocolLightMinimal" description="This is a sample application demonstrating a light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. This application does not use LCD, LED or buttons. We recommend the use of Micrium Kernel for this sample application.">
@@ -58,6 +64,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light/zigbee_ble_dynamic_multiprotocol_light_minimal.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ble_dynamic_multiprotocol_light_sed" label="Zigbee BLE - DynamicMultiprotocolLightSed" description="This is a sample application demonstrating a sleepy light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. We recommend the use of Micrium Kernel for this sample application.">
@@ -73,6 +81,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light_sed/zigbee_ble_dynamic_multiprotocol_light_sed.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ble_dynamic_multiprotocol_light_sed_minimal" label="Zigbee BLE - DynamicMultiprotocolLightSedMinimal" description="This is a sample application demonstrating a sleepy light application using dynamic multiprotocol (Zigbee + Bluetooth LE) and NVM3 for persistent storage. This application does not use LCD, LEDs or buttons. We recommend the use of Micrium Kernel for this sample application.">
@@ -88,6 +98,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light_sed/zigbee_ble_dynamic_multiprotocol_light_sed_minimal.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp-ot_rcp-spi" label="Zigbee - NCP + OpenThread - RCP zigbee_ncp-ot_rcp-spi" description="This concurrent multiprotocol (CMP) application runs the Zigbee NCP simultaneously with the OpenThread RCP. Communication with Zigbee and OpenThread host applications is enabled using the Co-Processor Communication Protocol, which acts as a protocol multiplexer and serial transport layer. The host applications connect to the CPC daemon, which in turn connects to the EFR via a SPI link. The Zigbee NCP part of this application can be built as configured, or can optionally be augmented with ustomized extensions for initialization, main loop processing, event definition/handling, and messaging with the host.">
@@ -103,6 +115,8 @@
     <properties key="category" value="Zigbee + OpenThread Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/ncp-cmp/zigbee_ncp-ot_rcp-spi.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|NCP Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp-ot_rcp-uart" label="Zigbee - NCP + OpenThread - RCP zigbee_ncp-ot_rcp-uart" description="This concurrent multiprotocol (CMP) application runs the Zigbee NCP simultaneously with the OpenThread RCP. Communication with Zigbee and OpenThread host applications is enabled using the Co-Processor Communication Protocol, which acts as a protocol multiplexer and serial transport layer. The host applications connect to the CPC daemon, which in turn connects to the EFR via a UART link. The Zigbee NCP part of this application can be built as configured, or can optionally be augmented with customized extensions for initialization, main loop processing, event definition/handling, and messaging with the host.">
@@ -118,6 +132,8 @@
     <properties key="category" value="Zigbee + OpenThread Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/ncp-cmp/zigbee_ncp-ot_rcp-uart.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|NCP Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="ncp-spi" label="Zigbee - NCP ncp-spi" description="This network coprocessor (NCP) application supports communication with a host application over a SPI interface.  This NCP application can be built as configured, or optionally can be augmented with customized extensions for initialization, main loop processing, event definition/handling, and messaging with the host.">
@@ -133,6 +149,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/ncp-spi/ncp-spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp_mp_spi" label="Zigbee - NCP MpNcpSpi" description="The multi-PAN application provides support to form two personal area networks  on same channel on single radio. This multi-PAN network coprocessor (NCP)  application supports communication with a host application over a SPI interface.  This NCP application can be built as configured, or optionally can be augmented  with customized extensions for initialization, main loop processing, event  definition/handling, and messaging with the host.">
@@ -148,6 +166,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_spi/zigbee_ncp_mp_spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp_mp_uart_hw" label="Zigbee - NCP MpNcpUartHw" description="The multi-PAN application provides support to form two personal area networks  on same channel on single radio. This multi-PAN network coprocessor (NCP)  application supports communication with a host application over a UART  interface with hardware flow control. This NCP application can be built as  configured, or optionally can be augmented with customized extensions for  initialization, main loop processing, event definition/handling, and messaging  with the host.">
@@ -163,6 +183,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_uart_hw/zigbee_ncp_mp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp_uart_hw" label="Zigbee - NCP UartHw" description="This network coprocessor (NCP) application supports communication with a host application over a UART interface with hardware flow control. This NCP application can be built as configured, or optionally can be augmented with customized extensions for initialization, main loop processing, event definition/handling, and messaging with the host. To create a ECC-enabled application for the Smart Energy Profile, please download and extract the 'EmberZnet-Smart-Energy.zip' side-package over your installed SDK and add, depending on use-case, one of two new components ('CBKE 163k1'; 'CBKE 283k1') to your application.">
@@ -178,6 +200,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw/zigbee_ncp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp_uart_hw_gp_multi_rail" label="Zigbee - NCP UartHwGpMultiRail" description="This network co-processor (NCP) application uses the multiple RAIL demo component (multirail-demo), which uses the second RAIL handle to schedule a pre-configured outgoing Green Power device frame (GPDF) in response to an incoming bidirectional GPDF with its rx-after-tx bit set.">
@@ -193,6 +217,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw_gp_multi_rail/zigbee_ncp_uart_hw_gp_multi_rail.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_ncp_xncp_led" label="Zigbee - NCP Xncp Led" description="An extensible network co-processor (xNCP) application with an LED controlled by a HOST.">
@@ -208,6 +234,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_xncp_led/zigbee_ncp_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gp_z3_gateway_combo" label="Zigbee GP - Z3GatewayCombo" description="This is a Zigbee 3.0 gateway Green Power Combo application for a Unix host.  &#xA;">
@@ -223,6 +251,8 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_gateway_combo/zigbee_gp_z3_gateway_combo.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gp_z3_light_combo" label="Zigbee GP - Z3LightCombo" description="This is a Zigbee 3.0 light application with Green Power endpoint, Green Power Proxy and Sink functionality.">
@@ -238,6 +268,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_light_combo/zigbee_gp_z3_light_combo.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_host_minimal" label="Zigbee - Host Minimal" description="This is a minimal Zigbee 3.0 gateway application for a Unix host, providing only network-layer functionality and requiring the addition of application-layer  functionality.&#xA;">
@@ -253,6 +285,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_host_minimal/zigbee_host_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_minimal" label="Zigbee - Minimal" description="This is a Zigbee minimal SoC network-layer application suitable as a  starting point for new application development.">
@@ -268,6 +302,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_minimal/zigbee_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_unified_test_harness" label="Zigbee - UnifiedTestHarness" description="This is a Zigbee 3.0 Zigbee Unified Test Harness (ZUTH) dongle application.">
@@ -283,6 +319,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_unified_test_harness/zigbee_unified_test_harness.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_z3_gateway" label="Zigbee - Z3Gateway" description="This is a Zigbee 3.0 gateway application for a Unix host.&#xA;">
@@ -298,6 +336,8 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_gateway/zigbee_z3_gateway.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_z3_light" label="Zigbee - Z3Light" description="This is a Zigbee 3.0 light application using NVM3 as the persistent storage.">
@@ -313,6 +353,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_light/zigbee_z3_light.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_z3_switch" label="Zigbee - Z3Switch" description="This is a Zigbee 3.0 switch application using NVM3 as the persistent storage.&#xA;">
@@ -328,6 +370,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_switch/zigbee_z3_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gpd_sensor" label="Zigbee - GPD Sensor" description="This is a Green Power Sensor Device that pairs with a GP Combo or Sink device and sends gpd reports periodically.&#xA;">
@@ -343,6 +387,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gpd_sensor" label="Zigbee - GPD Sensor" description="This is a Green Power Sensor Device that pairs with a GP Combo or Sink device and sends gpd reports periodically.&#xA;">
@@ -358,6 +404,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gpd_switch" label="Zigbee - GPD Switch" description="This is a Green Power On/Off Switch Device that pairs with a GP Combo or Sink Light and controls its operation.&#xA;">
@@ -373,6 +421,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_gpd_switch" label="Zigbee - GPD Switch" description="This is a Green Power On/Off Switch Device that pairs with a GP Combo or Sink Light and controls its operation.&#xA;">
@@ -388,6 +438,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_host_mp_z3_tc_custom_tc" label="Zigbee - Host MpZ3TcCustomTc" description="This is a multi-PAN Z3 coordinator on network 1 and custom (no) security  coordinator on network 2.&#xA;">
@@ -403,6 +455,8 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_mp_z3_tc_custom_tc/zigbee_host_mp_z3_tc_custom_tc.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_host_xncp_led" label="Zigbee - Host XncpLed" description="This is a demonstration of a UNIX HOST controlling an LED on an NCP.&#xA;">
@@ -418,6 +472,8 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_xncp_led/zigbee_host_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_minimal_rtos" label="Zigbee - MinimalRtos" description="This is test application with a bare minimum RTOS based Zigbee stack. This application is non-compliant since it does not have all the necessary component and configurations of a fully functional zigbee application. To build a standard zigbee application, please use the provided zigbee scenario application templates.">
@@ -433,6 +489,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_minimal_rtos/zigbee_minimal_rtos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbee_standardized_rf_testing" label="Zigbee - StandardizedRfTesting" description="This is a pre-standardization implementation of Zigbee's RF testing standard.  It utilizes the TIS (Total Isotropic Sensitivity)/ TRP (Total Radiated Power)  testing interfaces and is optional for Zigbee certifications. This application adheres to the Zigbee RF Performance Test Spec v1.0.&#xA;">
@@ -448,6 +506,8 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_standardized_rf_testing/zigbee_standardized_rf_testing.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
   <descriptors name="zigbeed" label="Zigbee - Host zigbeed" description="Zigbeed is a Zigbee Stack daemon that runs on a Linux host processor. It communicates with an 802.15.4 RCP via CPCd, and exposes an EZSP interface to a Zigbee host app. See docs.silabs.com Multiprotocol section- Multiprotocol on Linux Solution for more information.">
@@ -463,6 +523,8 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2024.12.3&quot;}"/>
+    <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbeed/zigbeed.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
 </model:MDescriptors>

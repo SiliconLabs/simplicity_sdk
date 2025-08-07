@@ -63,6 +63,13 @@ typedef uint16_t zpal_soft_reset_info_t;
  */
 typedef uint16_t zpal_soft_reset_mfid_t;
 
+/**
+ * @brief type to store a time in zpal format. This format of this data depend on the zpal, so the stack
+ * should never try to manipulate this data.
+ * TODO: how to make this definition configurable by the zpal?
+ */
+typedef uint32_t zpal_time_t;
+
 static const zpal_soft_reset_info_t ZPAL_RESET_REQUESTED_BY_SAPI     = 0x0000;
 static const zpal_soft_reset_info_t ZPAL_RESET_UNHANDLED_RADIO_EVENT = 0x0001;
 static const zpal_soft_reset_info_t ZPAL_RESET_RADIO_ASSERT          = 0x0002;
@@ -220,7 +227,6 @@ void zpal_psa_set_location_volatile_key(const void *attributes);
  * @param[in] format of the string to print, 
  * follows the same format as the standard printf
  */
-
 void zpal_printf(char *format, ...);
 
 /**

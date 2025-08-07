@@ -86,7 +86,6 @@ post_build:
     condition: [device_series_2, bootloader_app_properties]
 
 tag:
-  - prebuilt_demo
   - hardware:rf:band:2400
 
 ui_hints:

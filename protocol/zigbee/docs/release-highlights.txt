@@ -1,4 +1,4 @@
-Zigbee EmberZNet SDK 8.1.2
+Zigbee EmberZNet SDK 8.1 Revision 3
 - Zigbee
   - Targeted quality improvements and bug fixes.
 - Multiprotocol

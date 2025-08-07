@@ -160,19 +160,16 @@ template_contribution:
     value:
       name: toggle_led
       handler: cli_toggle_led
-      help: Toggle the LED0
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: get_led_state
       handler: cli_get_led_state
-      help: Get LED0 state from the expansion header
   - name: cli_command
     condition: [zw_cli_common]
     value:
       name: send_nif
       handler: cli_send_nif
-      help: Send Node Information Frame
 
 post_build:
   - profile: zwave_application

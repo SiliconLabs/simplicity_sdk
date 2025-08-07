@@ -72,6 +72,22 @@
 // <i> Retry time of firmware update message transmissions
 #define SL_BTMESH_FW_DIST_SERVER_RETRY_TIME_MS_CFG_VAL    (3000)
 
+// <o SL_BTMESH_FW_DIST_SERVER_THROTTLE_CONCURRENT_CFG_VAL> Amount of concurrent messages sent by the Firmware Distribution server
+// <0-255:1>
+// <i> Default: 4
+// <i> Defines how many messages are being sent concurrently by the Firmware Distribution Server.
+// <i> If set to 0, the maximum supported value is used.
+#define SL_BTMESH_FW_DIST_SERVER_THROTTLE_CONCURRENT_CFG_VAL    (4)
+
+// <o SL_BTMESH_FW_DIST_SERVER_THROTTLE_DELAY_MS_CFG_VAL> Delay between batches of messages
+// <0-65535:1>
+// <i> Default: 0
+// <i> Controls the delay in milliseconds between batches of messages. Works in conjunction with
+// <i> SL_BTMESH_FW_DIST_SERVER_THROTTLE_CONCURRENT_CFG_VAL to control message sending rate.
+// <i> When the first transmission in the current batch completes, the sender will wait for this delay before refilling the batch
+// <i> up to the SL_BTMESH_FW_DIST_SERVER_THROTTLE_CONCURRENT_CFG_VAL limit with new transmissions.
+#define SL_BTMESH_FW_DIST_SERVER_THROTTLE_DELAY_MS_CFG_VAL    (0)
+
 // <o SL_BTMESH_FW_DIST_SERVER_FW_LIST_NVM_KEY_CFG_VAL> NVM key of the firmware list
 // <0x0000-0xFFFF>
 // <i> Default: 0x4009

@@ -30,6 +30,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "system.h"
 #include "esl_lib.h"
 #include "esl_lib_core.h"
@@ -134,7 +135,9 @@ sl_status_t esl_lib_connect(esl_lib_address_t         address,
   uint8_t  *data_ptr = NULL;
   esl_lib_connect_tlv_t *tlv = NULL;
 
-  esl_lib_log_api_debug("Requested: Connect" APP_LOG_NL);
+  esl_lib_log_api_debug("Requested: Connect to %012" PRIx64 " via %s" APP_LOG_NL,
+                        address.u64,
+                        pawr == NULL ? "advertisement" : "PAwR");
 
   // Check for NULL key
   if (key_type != ESL_LIB_KEY_TYPE_NO_KEY && key == NULL) {

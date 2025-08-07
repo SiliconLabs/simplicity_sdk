@@ -77,4 +77,13 @@ void sl_btmesh_lighting_level_pwm_cb(uint16_t level);
  ******************************************************************************/
 void sl_btmesh_lighting_server_on_ui_update(uint16_t lightness_level);
 
+/***************************************************************************//**
+ * @brief Stop the lighting level transition timer.
+ *
+ * @return Status code indicating success or error.
+ ******************************************************************************/
+sl_status_t sl_btmesh_stop_transition_timer(void);
+
+/** @} (end addtogroup btmesh_lighting_server) */
+
 #endif // SL_BTMESH_LIGHTING_LEVEL_TRANSITION_H

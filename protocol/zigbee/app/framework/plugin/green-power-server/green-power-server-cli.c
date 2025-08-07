@@ -62,7 +62,7 @@ void sl_zigbee_af_green_power_server_cli_clear_sink_table(SL_CLI_COMMAND_ARG)
 void sl_zigbee_af_green_power_server_cli_sink_table_print(SL_CLI_COMMAND_ARG)
 {
   bool tableEmpty = true;
-  uint8_t sinkTableSize = 0;
+  uint16_t sinkTableSize = 0;
 #ifdef EZSP_HOST
   sl_status_t status = sl_zigbee_ezsp_get_configuration_value(SL_ZIGBEE_EZSP_CONFIG_GP_SINK_TABLE_SIZE, (uint16_t*)&sinkTableSize);
   if (status != SL_ZIGBEE_EZSP_SUCCESS) {
@@ -74,7 +74,7 @@ void sl_zigbee_af_green_power_server_cli_sink_table_print(SL_CLI_COMMAND_ARG)
 #endif // EZSP_HOST
 
   sl_zigbee_af_core_println("\n\rSt Optn Ap SourceId Ep Dv Alis Gr So FrameCtr");
-  for (uint8_t index = 0; index < sinkTableSize; index++) {
+  for (uint8_t index = 0; index < (uint8_t)sinkTableSize; index++) {
     sl_zigbee_gp_sink_table_entry_t entry = { 0 };
     sl_status_t status = sl_zigbee_gp_sink_table_get_entry(index, &entry);
     if (status == SL_STATUS_OK
