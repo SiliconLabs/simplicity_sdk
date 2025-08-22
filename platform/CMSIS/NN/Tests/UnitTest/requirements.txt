@@ -15,7 +15,7 @@ cryptography==3.3.2
 ecdsa==0.16.1
 fasteners==0.16
 flatbuffers==1.12
-future==0.16.0
+future==1.0.0
 gast==0.3.3
 google-auth==1.27.1
 google-auth-oauthlib==0.4.3
