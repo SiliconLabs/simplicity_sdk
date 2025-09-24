@@ -492,15 +492,6 @@ sl_status_t zb_sec_man_store_tc_link_key(sl_zigbee_sec_man_context_t* context,
     return SL_STATUS_FAIL;
   }
 
-  // Write a bit in the token to tell the upgrade code that this token already
-  // points to a PSA ID
-  tokTypeStackTrustCenter tok;
-  sli_zigbee_stack_token_primitive(true, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
-  if ((tok.mode & TRUST_CENTER_KEY_LIVES_IN_PSA) == 0) {
-    tok.mode |= TRUST_CENTER_KEY_LIVES_IN_PSA;
-    sli_zigbee_stack_token_primitive(false, &tok, COMMON_TOKEN_STACK_TRUST_CENTER, sizeof(tokTypeStackTrustCenter));
-  }
-
   return SL_STATUS_OK;
 }
 
@@ -552,27 +543,17 @@ sl_status_t zb_sec_man_store_zll_key(sl_zigbee_sec_man_context_t* context,
 {
   psa_status_t status = SL_STATUS_NOT_SUPPORTED;
   uint32_t key_id;
-  tokTypeStackZllSecurity zllSecurityToken;
-  (void)sl_token_manager_get_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
-
-  zllSecurityToken.bitmask |= SL_ZIGBEE_ZLL_TOKEN_POINTS_TO_PSA_ID;
 
   if (context->core_key_type == SL_ZB_SEC_MAN_KEY_TYPE_ZLL_ENCRYPTION_KEY) {
     key_id = ZB_PSA_KEY_ID_ZLL_ENCRYPT_KEY;
-    sl_util_store_high_low_int32u(zllSecurityToken.encryptionKey, key_id);
   } else {
     key_id = ZB_PSA_KEY_ID_ZLL_PRE_CONFIGURED_KEY;
-    sl_util_store_high_low_int32u(zllSecurityToken.preconfiguredKey, key_id);
   }
   (void)sl_sec_man_destroy_key(key_id);
   status = sl_sec_man_import_key(&key_id, ZB_PSA_KEY_TYPE, context->psa_key_alg_permission,
                                  ZB_PSA_KEY_USAGE,
                                  PSA_KEY_PERSISTENCE_DEFAULT,
                                  plaintext_key->key, SL_ZIGBEE_ENCRYPTION_KEY_SIZE);
-
-  if (status == SL_STATUS_OK) {
-    (void)sl_token_manager_set_data(COMMON_TOKEN_STACK_ZLL_SECURITY, (void *)&zllSecurityToken, sizeof(tokTypeStackZllSecurity));
-  }
   return status;
 }
 #endif // defined(SL_CATALOG_ZIGBEE_LIGHT_LINK_PRESENT)

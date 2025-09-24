@@ -504,8 +504,8 @@ extern "C" {
 #define SL_SE_TAMPER_FILTER_THRESHOLD_256   0x0   ///< Counter threshold 256
 
 /// Tamper flags.
-#define SL_SE_TAMPER_FLAG_DGLITCH_ALWAYS_ON (1UL << 1) /// Digital glitch detector always on
-#define SL_SE_TAMPER_FLAG_KEEP_TAMPER_ALIVE_DURING_SLEEP (1UL << 2) /// Tamper is kept alive during sleep (down to EM3)
+#define SL_SE_TAMPER_FLAG_DGLITCH_ALWAYS_ON (1UL << 1) ///< Digital glitch detector always on
+#define SL_SE_TAMPER_FLAG_KEEP_TAMPER_ALIVE_DURING_SLEEP (1UL << 2) ///< Tamper is kept alive during sleep (down to EM3)
 
 /// @} (end addtogroup sl_se_manager_util_tamper)
 /// @} (end addtogroup sl_se_manager_util)
@@ -559,9 +559,8 @@ extern "C" {
 /// @{
 /// @addtogroup sl_se_memory_region_utils
 /// @{
-// The maximum number of code regions available on the device.
-// The number of available code regions may be different on future devices.
-#define SL_SE_MAX_CODE_REGIONS           8
+#define SL_SE_MAX_CODE_REGIONS           8 ///< The maximum number of code regions available on the device.
+///< The number of available code regions may be different on future devices.
 /// @} (end addtogroup sl_se_memory_region_utils)
 /// @} (end addtogroup sl_se_manager_extmem)
 

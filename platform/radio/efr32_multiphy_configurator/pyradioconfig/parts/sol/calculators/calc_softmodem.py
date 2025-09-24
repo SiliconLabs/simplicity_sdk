@@ -370,7 +370,7 @@ class calc_softmodem_sol(ICalculator):
 
         if softmodem_modulation_type == model.vars.softmodem_modulation_type.var_enum.SUN_OFDM:
             ofdm_stf_length = model.vars.ofdm_stf_length.value
-            cfg2_nbstf = int(ofdm_stf_length * 5 / 2)  # For Melco PHYs longer preamble
+            cfg2_nbstf = int(ofdm_stf_length * 5 / 2)
         else:
             cfg2_nbstf = 0
 

@@ -169,6 +169,7 @@
   - name: device_has_radio_2g4hz
   - name: device_has_radio_dualband
   - name: device_has_radio_subghz
+  - name: device_has_swo
   - name: device_supports_bluetooth
   - name: device_compute_basic
 - recommends:

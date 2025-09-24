@@ -3575,7 +3575,8 @@ sl_rail_status_t sl_rail_start_scheduled_rx(sl_rail_handle_t rail_handle,
  * If automatic PRS LNA bypass is enabled on chip that supports the feature
  * (\ref SL_RAIL_SUPPORTS_PRS_LNA_BYPASS), a level is generated on a PRS
  * channel when the received power exceed a threshold. It is turned off after
- * frame reception or after timeout if no frame has been detected.
+ * frame reception or after timeout if no frame has been detected and power is
+ * below the threshold.
  *
  * @warning Calling this function before \ref sl_rail_init() won't enable the
  *   the feature now. It will return \ref SL_RAIL_STATUS_NO_ERROR but the

@@ -45,9 +45,9 @@
 typedef struct pixelrz_typedef{
   __IM uint32_t  IPVERSION;                     /**< IP VERSION Register                                */
   __IOM uint32_t EN;                            /**< Enable Register                                    */
-  __IOM uint32_t SWRST;                         /**< New Register                                       */
-  __IOM uint32_t CFG;                           /**< Configuration register                             */
-  __IOM uint32_t FRAMECFG;                      /**< New Register                                       */
+  __IOM uint32_t SWRST;                         /**< Software Reset Register                            */
+  __IOM uint32_t CFG;                           /**< Configuration Register                             */
+  __IOM uint32_t FRAMECFG;                      /**< Frame Configuration Register                       */
   __IOM uint32_t T0CFG;                         /**< Zero symbol configuration register                 */
   __IOM uint32_t T1CFG;                         /**< One symbol configuration register                  */
   __IOM uint32_t TSTOPCFG;                      /**< Stop sympbol configuration register                */
@@ -60,9 +60,9 @@ typedef struct pixelrz_typedef{
   uint32_t       RESERVED0[1010U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_SET;                 /**< IP VERSION Register                                */
   __IOM uint32_t EN_SET;                        /**< Enable Register                                    */
-  __IOM uint32_t SWRST_SET;                     /**< New Register                                       */
-  __IOM uint32_t CFG_SET;                       /**< Configuration register                             */
-  __IOM uint32_t FRAMECFG_SET;                  /**< New Register                                       */
+  __IOM uint32_t SWRST_SET;                     /**< Software Reset Register                            */
+  __IOM uint32_t CFG_SET;                       /**< Configuration Register                             */
+  __IOM uint32_t FRAMECFG_SET;                  /**< Frame Configuration Register                       */
   __IOM uint32_t T0CFG_SET;                     /**< Zero symbol configuration register                 */
   __IOM uint32_t T1CFG_SET;                     /**< One symbol configuration register                  */
   __IOM uint32_t TSTOPCFG_SET;                  /**< Stop sympbol configuration register                */
@@ -75,9 +75,9 @@ typedef struct pixelrz_typedef{
   uint32_t       RESERVED1[1010U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_CLR;                 /**< IP VERSION Register                                */
   __IOM uint32_t EN_CLR;                        /**< Enable Register                                    */
-  __IOM uint32_t SWRST_CLR;                     /**< New Register                                       */
-  __IOM uint32_t CFG_CLR;                       /**< Configuration register                             */
-  __IOM uint32_t FRAMECFG_CLR;                  /**< New Register                                       */
+  __IOM uint32_t SWRST_CLR;                     /**< Software Reset Register                            */
+  __IOM uint32_t CFG_CLR;                       /**< Configuration Register                             */
+  __IOM uint32_t FRAMECFG_CLR;                  /**< Frame Configuration Register                       */
   __IOM uint32_t T0CFG_CLR;                     /**< Zero symbol configuration register                 */
   __IOM uint32_t T1CFG_CLR;                     /**< One symbol configuration register                  */
   __IOM uint32_t TSTOPCFG_CLR;                  /**< Stop sympbol configuration register                */
@@ -90,9 +90,9 @@ typedef struct pixelrz_typedef{
   uint32_t       RESERVED2[1010U];              /**< Reserved for future use                            */
   __IM uint32_t  IPVERSION_TGL;                 /**< IP VERSION Register                                */
   __IOM uint32_t EN_TGL;                        /**< Enable Register                                    */
-  __IOM uint32_t SWRST_TGL;                     /**< New Register                                       */
-  __IOM uint32_t CFG_TGL;                       /**< Configuration register                             */
-  __IOM uint32_t FRAMECFG_TGL;                  /**< New Register                                       */
+  __IOM uint32_t SWRST_TGL;                     /**< Software Reset Register                            */
+  __IOM uint32_t CFG_TGL;                       /**< Configuration Register                             */
+  __IOM uint32_t FRAMECFG_TGL;                  /**< Frame Configuration Register                       */
   __IOM uint32_t T0CFG_TGL;                     /**< Zero symbol configuration register                 */
   __IOM uint32_t T1CFG_TGL;                     /**< One symbol configuration register                  */
   __IOM uint32_t TSTOPCFG_TGL;                  /**< Stop sympbol configuration register                */

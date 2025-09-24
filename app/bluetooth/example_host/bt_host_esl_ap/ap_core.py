@@ -63,6 +63,47 @@ if ESL_MAX_TAGS_IN_GROUP < ESL_MAX_TAGS_IN_AUTO_GROUP:
         "Invalid configuration for auto addressing: ESL_MAX_TAGS_IN_AUTO_GROUP violates ESL specification"
     )
 
+def skip_if_stopped(method):
+    def wrapper(self, *args, **kwargs):
+        if hasattr(self, "stop_event") and self.stop_event.is_set():
+            if hasattr(self, "log"):
+                self.log.warning(
+                    f"Skipped execution of AP method '{method.__name__}' due to shutdown"
+                )
+            return None
+        return method(self, *args, **kwargs)
+    return wrapper
+
+class LibProxy:
+    """
+    Proxy ESL library method calls to ensure controlled access.
+
+    - Block method calls if AccessPoint's stop_event is set, except "stop".
+    - Make all methods thread-safe, except "start" and "stop".
+    - Log warnings for skipped calls if shutdown is already in progress.
+    """
+    def __init__(self, lib, access_point):
+        self._lib = lib
+        self._access_point = access_point
+        self._lock = threading.Lock()  # Lock for thread-safety
+
+    def _guarded_method(self, name, attr, *args, **kwargs):
+        if name not in {"start", "stop"}:  # Exclude "start" and "stop" from thread-safety and stop checks
+            with self._lock:  # Ensure thread-safety for all other methods
+                if self._access_point.stop_event.is_set():
+                    self._access_point.log.warning(
+                        f"Skipped LIB call to 'esl_lib_{name}' due to shutdown in progress"
+                    )
+                    return None
+                return attr(*args, **kwargs)
+        else:
+            return attr(*args, **kwargs)
+
+    def __getattr__(self, name):
+        attr = getattr(self._lib, name)
+        if callable(attr):
+            return lambda *args, **kwargs: self._guarded_method(name, attr, *args, **kwargs)
+        return attr
 
 class AccessPoint:
     """Access Point"""
@@ -91,7 +132,7 @@ class AccessPoint:
         else:
             self.log.warning("Starting with NCP encryption disabled!")
 
-        self.lib = esl_lib.Lib(config)
+        self.lib = LibProxy(esl_lib.Lib(config), self)
 
         self.rssi_threshold = RSSI_THRESHOLD
 
@@ -141,6 +182,7 @@ class AccessPoint:
         self.max_conn_count_reached = False
         self.bonding_finished = True
 
+        self.stop_event = threading.Event()
         self.consumer = threading.Thread(target=self.dequeue, daemon=True)
         self.consumer.start()
 
@@ -1516,7 +1558,8 @@ class AccessPoint:
             else:
                 tag = None  # prevent sending unsolicited / mismatching events to tag found in previous cylcle iteration!
 
-            if tag is not None:
+            # skip tag events processing if stop is in progress (e.g. due boot timeout)
+            if not self.stop_event.is_set() and tag is not None:
                 try:
                     tag.handle_event(event)
                 except PAwRSyncLostError as e:
@@ -1577,7 +1620,7 @@ class AccessPoint:
        
     # ----------------------------------------------------------------------------------------------
     # Common ESL event handler methods for all modes (auto/command line/demo)
-
+    @skip_if_stopped
     def esl_event_system_boot(self, evt: esl_lib.EventSystemBoot):
         """Generic handler for the boot event of the ESL library"""
         self.scan_runs = False
@@ -2942,10 +2985,12 @@ class AccessPoint:
         )
         self.ap_imageupdate(image_index, image_path, address=tag.ble_address)
 
+    @skip_if_stopped
     def shutdown(self):
         """Initiate shutdown"""
+        self.stop_event.set()
         try:
-            self.lib.stop()
+            self.lib.stop() # this method blocks the main thread until esl_lib deinit is done
         except esl_lib.CommandFailedError:
             self.log.warning("Clean shutdown failed")
 

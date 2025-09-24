@@ -1718,6 +1718,12 @@ typedef enum IRQn{
                                       : ((ref) == SEMAPHORE1) ? 1 \
                                       : -1)
 
+/* Instance macros for SOCPLL */
+#define SOCPLL(n)                    (((n) == 0) ? SOCPLL0 \
+                                      : 0x0UL)
+#define SOCPLL_NUM(ref)              (((ref) == SOCPLL0) ? 0 \
+                                      : -1)
+
 /* Instance macros for TIMER */
 #define TIMER(n)                     (((n) == 0) ? TIMER0   \
                                       : ((n) == 1) ? TIMER1 \

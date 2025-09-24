@@ -67,7 +67,7 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
       // verify key type
       if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-        return PSA_ERROR_NOT_SUPPORTED;
+        return PSA_ERROR_INVALID_ARGUMENT;
       }
       switch (psa_get_key_bits(attributes)) {
         case 128:   // Fallthrough
@@ -98,7 +98,7 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
       #endif
       // verify key type
       if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-        return PSA_ERROR_NOT_SUPPORTED;
+        return PSA_ERROR_INVALID_ARGUMENT;
       }
       switch (psa_get_key_bits(attributes)) {
         case 128:   // Fallthrough

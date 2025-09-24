@@ -6,14 +6,14 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_cbap.bt_soc_cbap_tz.slcw"/>
     <properties key="projectFilePaths" value="example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].*512.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.{5}h.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_cbap.bt_soc_cbap_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
@@ -24,14 +24,14 @@
     <properties key="solutionReferenceId" value="app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator_tz.slcw"/>
     <properties key="projectFilePaths" value="example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="readmeFiles" value=""/>
-    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4310a brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
+    <properties key="boardCompatibility" value="brd2602a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4187a brd4194a brd4308a brd4308b brd4309a brd4309b brd4311a brd4311b brd4312a brd4314a brd4330a brd4331a brd4356a brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[bm]g21.* .*efr32[bm]g22[^l].*512.* .*efr32[bm]g24.* .*efr32[bm]g26.* .*efr32[bm]g27.* .*efr32[fz]g28.* .*efr32[bm]g29.* .*[bm]gm21.* .*[bm]gm22.{5}h.* .*[bm]gm24.* .*[bm]gm26.* .*[bm]gm27.* .*[bm]gm29.*"/>
     <properties key="ideCompatibility" value="makefile-ide simplicity-ide visual-studio-code"/>
     <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
     <properties key="solutionProjects" value="app.bluetooth.example.bt_soc_tz_secure_application.bt_soc_tz_secure_application.slcp app.bluetooth.example.bt_soc_csr_generator.bt_soc_csr_generator_tz_ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-secure.slcp platform.bootloader.sample-apps.workspaces.bootloader-apploader.bootloader-apploader-nonsecure.slcp"/>
@@ -49,7 +49,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_dhc/bt_ncp_dhc.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -66,7 +66,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_dhc/bt_rcp_dhc.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -83,7 +83,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -100,7 +100,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_esl_ap_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -117,7 +117,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -134,7 +134,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_ncp/bt_ncp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -151,7 +151,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_cpc_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -168,7 +168,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -185,7 +185,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_rcp/bt_rcp_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -202,7 +202,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -219,7 +219,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_freertos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -236,7 +236,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -253,7 +253,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_blinky/bt_soc_blinky_micriumos_shared.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -270,7 +270,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -287,7 +287,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_cbap/bt_soc_cbap_tz_ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -304,7 +304,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -321,7 +321,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_csr_generator/bt_soc_csr_generator_tz_ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -338,7 +338,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_dtm/bt_soc_dtm_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -355,7 +355,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_dtm/bt_soc_dtm_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -372,7 +372,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -389,7 +389,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_empty/bt_soc_empty_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -406,7 +406,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -423,7 +423,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_ibeacon/bt_soc_ibeacon_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -440,7 +440,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -457,7 +457,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_iop_test/bt_soc_iop_test_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -474,7 +474,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_thermometer_client/bt_soc_thermometer_client_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -491,7 +491,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_thermometer_client/bt_soc_thermometer_client_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -508,7 +508,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_throughput/bt_soc_throughput_freertos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -525,7 +525,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_throughput/bt_soc_throughput_micriumos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>
@@ -542,7 +542,7 @@
     <properties key="category" value="Bluetooth Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.1&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
     <properties key="sltPackagePath" value="app/bluetooth/example/bt_soc_tz_secure_application/bt_soc_tz_secure_application.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth"/>
   </descriptors>

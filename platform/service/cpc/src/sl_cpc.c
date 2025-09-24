@@ -3522,10 +3522,13 @@ static void decode_packet(sli_cpc_instance_t *inst)
   data_length = sli_cpc_hdlc_get_length(rx_handle->hdlc_header);
   type = sli_cpc_hdlc_get_frame_type(control);
 
-  if (data_length < SLI_CPC_RX_DATA_MAX_LENGTH_INST(inst)) {
-    // If driver return worst case; set true data size
-    rx_handle->data_length = data_length;
-  } else {
+  // Check if driver dropped the payload due to buffer starvation
+  // rx_handle->data_length is populated by the driver
+  // data_length is what the header says the payload length will be
+  // both of these can differ if the driver had to drop the payload
+  bool payload_dropped = (rx_handle->data_length == 0 && data_length > 0);
+
+  if (data_length >= SLI_CPC_RX_DATA_MAX_LENGTH_INST(inst)) {
     rx_handle->data_length = SLI_CPC_RX_DATA_MAX_LENGTH_INST(inst);
   }
 
@@ -3586,6 +3589,29 @@ static void decode_packet(sli_cpc_instance_t *inst)
 
     // Clean Tx queue
     receive_ack(endpoint, ack);
+  }
+
+  // Early exit if payload was dropped - handle invalid combinations safely
+  if (payload_dropped) {
+    if (data_length > 0 && rx_handle->data != NULL) {
+      // Invalid state: payload marked as dropped but data pointer exists
+      SL_CPC_JOURNAL_RECORD_DEBUG("Invalid frame : payload_dropped but data exists", endpoint->id);
+      sli_cpc_free_buffer_handle(rx_handle);
+      RELEASE_ENDPOINT(endpoint);
+      return;
+    }
+    SL_CPC_JOURNAL_RECORD_DEBUG("Frame with dropped payload - ACK processed, ignoring payload", endpoint->id);
+    sli_cpc_free_buffer_handle(rx_handle);
+    RELEASE_ENDPOINT(endpoint);
+    return;
+  }
+
+  // Check for invalid combination: header says there's payload but driver didn't provide data
+  if (data_length > 0 && rx_handle->data == NULL) {
+    SL_CPC_JOURNAL_RECORD_DEBUG("Invalid frame: data_length > 0 but no data pointer", endpoint->id);
+    sli_cpc_free_buffer_handle(rx_handle);
+    RELEASE_ENDPOINT(endpoint);
+    return;
   }
 
   if (rx_handle->reason != SL_CPC_REJECT_NO_ERROR) {

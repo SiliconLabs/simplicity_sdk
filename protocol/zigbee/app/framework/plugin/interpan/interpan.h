@@ -306,8 +306,10 @@ void sl_zigbee_af_interpan_fragment_transmission_failed_cb(uint8_t interpanFragm
 void interpanPluginInit(uint8_t init_level);
 void interpanPluginSetMacMatchFilterEnable(bool enable);
 
-bool sli_zigbee_af_interpan_process_message(uint8_t messageLength,
-                                            uint8_t *messageContents);
+bool sli_zigbee_af_interpan_process_message(
+  sl_zigbee_mac_passthrough_type_t passthroughType,
+  uint8_t messageLength,
+  uint8_t *messageContents);
 
 sl_status_t sli_zigbee_af_interpan_send_raw_message(uint8_t length, uint8_t* message);
 

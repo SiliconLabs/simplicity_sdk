@@ -14,5 +14,8 @@ provides:
   - name: nvm3_secure
 requires:
   - name: nvm3_crypto_host
+  - name: aes_gcm_ram_functions
+    condition:
+      - device_series_3
 ui_hints:
   visibility: never

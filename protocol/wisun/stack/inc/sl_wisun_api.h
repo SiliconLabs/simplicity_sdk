@@ -993,6 +993,29 @@ sl_status_t sl_wisun_config_concurrent_detection(bool enable_tx, uint8_t reserve
 sl_status_t sl_wisun_set_eap_identity(uint8_t identity_length,
                                       const uint8_t *identity);
 
+/**************************************************************************//**
+ * Set Filter for network events.
+ *
+ * @param[in] address MAC address to filter events
+ *   - **unicast address**: set the filter for the given MAC address
+ *   - **sl_wisun_broadcast_mac**: set the filter for all MAC addresses
+ * @param[in] events Bitmask of accepted events.
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function configures a filter for network events based on the specified
+ * MAC address and a bitmask of `sl_wisun_event_type_t` that defines the filtered
+ * events. The events are delivered through Silicon Labs’ Event System API[1]. To
+ * receive them, user must call `sl_event_subscribe` with `SL_EVENT_CLASS_WISUN`.
+ * To disable a filter, set the events bitmask to 0.
+ * This function can be called at any time.
+ *
+ * [1]: https://docs.silabs.com/gecko-platform/5.2.1/platform-common/event-system
+ *
+ * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_set_event_filter(const sl_wisun_mac_address_t *address,
+                                      uint64_t events);
+
 /** @} (end SL_WISUN_API) */
 
 #ifdef __cplusplus

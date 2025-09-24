@@ -39,6 +39,8 @@ enum {
     HIF_CMD_SET_RADIO_REGULATION              = 0x24,
     HIF_CMD_SET_RADIO_TX_POWER                = 0x25,
     HIF_CMD_REQ_RADIO_TX_DURATION_RESET       = 0x26,
+    HIF_CMD_SET_RADIO_CSMA                    = 0x27,
+    HIF_CMD_SET_RADIO_APC                     = 0x28,
     HIF_CMD_SET_FHSS_UC                       = 0x30,
     HIF_CMD_SET_FHSS_FFN_BC                   = 0x31,
     HIF_CMD_SET_FHSS_LFN_BC                   = 0x32,

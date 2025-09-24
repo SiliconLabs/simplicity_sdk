@@ -849,8 +849,8 @@ void sl_zigbee_ezsp_raw_transmit_complete_handler(uint8_t  messageLength,
 // -----------------------------------------------------------------------------
 // Weak implementation of public Callback sl_zigbee_af_mac_filter_match_message_cb
 WEAK(void sl_zigbee_af_mac_filter_match_message_cb(
-       // filter index match.
-       uint8_t filterIndexMatch,
+       // filter value match.
+       sl_zigbee_mac_filter_match_data_t filterValueMatch,
        // message type.
        sl_zigbee_mac_passthrough_type_t messageType,
        // RX packet info.
@@ -860,22 +860,22 @@ WEAK(void sl_zigbee_af_mac_filter_match_message_cb(
        // message contents.
        uint8_t *messageContents))
 {
-  (void)filterIndexMatch;
+  (void)filterValueMatch;
   (void)messageType;
   (void)packetInfo;
   (void)messageLength;
   (void)messageContents;
 }
 
-void sl_zigbee_ezsp_mac_filter_match_message_handler(uint8_t filterIndexMatch,
+void sl_zigbee_ezsp_mac_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                      uint8_t legacyPassthroughType,
                                                      sl_zigbee_rx_packet_info_t *packetInfo,
                                                      uint8_t messageLength,
                                                      uint8_t *messageContents)
 {
   sl_zigbee_af_push_callback_network_index();
-  sli_zigbee_af_mac_filter_match_message(filterIndexMatch, legacyPassthroughType, packetInfo, messageLength, messageContents);
-  sl_zigbee_af_mac_filter_match_message_cb(filterIndexMatch, legacyPassthroughType, packetInfo, messageLength, messageContents);
+  sli_zigbee_af_mac_filter_match_message(filterValueMatch, legacyPassthroughType, packetInfo, messageLength, messageContents);
+  sl_zigbee_af_mac_filter_match_message_cb(filterValueMatch, legacyPassthroughType, packetInfo, messageLength, messageContents);
   sl_zigbee_af_pop_network_index();
 }
 

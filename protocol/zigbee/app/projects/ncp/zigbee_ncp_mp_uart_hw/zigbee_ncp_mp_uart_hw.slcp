@@ -73,6 +73,14 @@ configuration:
     value: 0
   - name: SL_PSA_ITS_SUPPORT_V3_DRIVER
     value: 1
+  - name: SL_STACK_SIZE
+    value: 4096
+    condition:
+      - cmsis_rtos2
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 4096
+    condition:
+      - cmsis_rtos2
 define:
   - name: SL_ZIGBEE_CUSTOM_MAC_FILTER_TABLE_SIZE
     value: 15

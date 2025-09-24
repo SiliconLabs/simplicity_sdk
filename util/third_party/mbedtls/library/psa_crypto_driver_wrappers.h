@@ -1567,7 +1567,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_encrypt(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_cipher_encrypt(
                         attributes,
                         key_buffer,
@@ -1664,7 +1664,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_encrypt(
                         output_length );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_cipher_encrypt(
                         attributes,
@@ -1781,7 +1781,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_decrypt(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_cipher_decrypt(
                         attributes,
                         key_buffer,
@@ -1866,7 +1866,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_decrypt(
                         output_length );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_cipher_decrypt(
                         attributes,
@@ -1968,7 +1968,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_encrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_cipher_encrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
                         attributes,
@@ -2047,7 +2047,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_encrypt_setup(
                 operation->id = SLI_HOSTCRYPTO_TRANSPARENT_DRIVER_ID;
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_cipher_encrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2142,7 +2142,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_decrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_cipher_decrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
                         attributes,
@@ -2221,7 +2221,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_decrypt_setup(
                 operation->id = SLI_HOSTCRYPTO_TRANSPARENT_DRIVER_ID;
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_cipher_decrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2300,7 +2300,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_set_iv(
                         &operation->ctx.opaque_test_driver_ctx,
                         iv, iv_length ) );
 #endif /* PSA_CRYPTO_DRIVER_TEST */
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_cipher_set_iv(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2379,7 +2379,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_update(
                         input, input_length,
                         output, output_size, output_length ) );
 #endif /* PSA_CRYPTO_DRIVER_TEST */
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_cipher_update(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2461,7 +2461,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_finish(
                         &operation->ctx.opaque_test_driver_ctx,
                         output, output_size, output_length ) );
 #endif /* PSA_CRYPTO_DRIVER_TEST */
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_cipher_finish(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2537,7 +2537,7 @@ static inline psa_status_t psa_driver_wrapper_cipher_abort(
                 sizeof( operation->ctx.opaque_test_driver_ctx ) );
             return( status );
 #endif /* PSA_CRYPTO_DRIVER_TEST */
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_cipher_abort(
                         &operation->ctx.sli_se_transparent_ctx ) );
@@ -2601,7 +2601,7 @@ static inline psa_status_t psa_driver_wrapper_hash_compute(
     if( status != PSA_ERROR_NOT_SUPPORTED )
         return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     status = sli_se_transparent_hash_compute(
                 alg, input, input_length, hash, hash_size, hash_length );
     if( status != PSA_ERROR_NOT_SUPPORTED )
@@ -2671,7 +2671,7 @@ static inline psa_status_t psa_driver_wrapper_hash_setup(
     if( status != PSA_ERROR_NOT_SUPPORTED )
         return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     status = sli_se_transparent_hash_setup(
                 &operation->ctx.sli_se_transparent_ctx, alg );
     if( status == PSA_SUCCESS )
@@ -2743,7 +2743,7 @@ static inline psa_status_t psa_driver_wrapper_hash_clone(
                         &source_operation->ctx.sli_hostcrypto_transparent_ctx,
                         &target_operation->ctx.sli_hostcrypto_transparent_ctx ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             target_operation->id = SLI_SE_TRANSPARENT_DRIVER_ID;
             return( sli_se_transparent_hash_clone(
@@ -2796,7 +2796,7 @@ static inline psa_status_t psa_driver_wrapper_hash_update(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         input, input_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_hash_update(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2848,7 +2848,7 @@ static inline psa_status_t psa_driver_wrapper_hash_finish(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         hash, hash_size, hash_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_hash_finish(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -2895,7 +2895,7 @@ static inline psa_status_t psa_driver_wrapper_hash_abort(
             return( sli_hostcrypto_transparent_hash_abort(
                         &operation->ctx.sli_hostcrypto_transparent_ctx ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_hash_abort(
                         &operation->ctx.sli_se_transparent_ctx ) );
@@ -2959,7 +2959,7 @@ static inline psa_status_t psa_driver_wrapper_aead_encrypt(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_aead_encrypt(
                         attributes, key_buffer, key_buffer_size,
                         alg,
@@ -3033,7 +3033,7 @@ static inline psa_status_t psa_driver_wrapper_aead_encrypt(
                         ciphertext, ciphertext_size, ciphertext_length );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_aead_encrypt(
                         attributes, key_buffer, key_buffer_size,
@@ -3129,7 +3129,7 @@ static inline psa_status_t psa_driver_wrapper_aead_decrypt(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_aead_decrypt(
                         attributes, key_buffer, key_buffer_size,
                         alg,
@@ -3203,7 +3203,7 @@ static inline psa_status_t psa_driver_wrapper_aead_decrypt(
                         plaintext, plaintext_size, plaintext_length );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_aead_decrypt(
                         attributes, key_buffer, key_buffer_size,
@@ -3293,7 +3293,7 @@ static inline psa_status_t psa_driver_wrapper_aead_encrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             operation->id = SLI_SE_TRANSPARENT_DRIVER_ID;
             status = sli_se_transparent_aead_encrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3341,7 +3341,7 @@ static inline psa_status_t psa_driver_wrapper_aead_encrypt_setup(
                         alg );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             operation->id = SLI_SE_TRANSPARENT_DRIVER_ID;
             status = sli_se_transparent_aead_encrypt_setup(
@@ -3409,7 +3409,7 @@ static inline psa_status_t psa_driver_wrapper_aead_decrypt_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             operation->id = SLI_SE_TRANSPARENT_DRIVER_ID;
             status = sli_se_transparent_aead_decrypt_setup(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3458,7 +3458,7 @@ static inline psa_status_t psa_driver_wrapper_aead_decrypt_setup(
                         alg );
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             operation->id = SLI_SE_TRANSPARENT_DRIVER_ID;
             status = sli_se_transparent_aead_decrypt_setup(
@@ -3516,7 +3516,7 @@ static inline psa_status_t psa_driver_wrapper_aead_set_nonce(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         nonce, nonce_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_set_nonce(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3580,7 +3580,7 @@ static inline psa_status_t psa_driver_wrapper_aead_set_lengths(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         ad_length, plaintext_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_set_lengths(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3644,7 +3644,7 @@ static inline psa_status_t psa_driver_wrapper_aead_update_ad(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         input, input_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_update_ad(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3714,7 +3714,7 @@ static inline psa_status_t psa_driver_wrapper_aead_update(
                         input, input_length, output, output_size,
                         output_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_update(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3793,7 +3793,7 @@ static inline psa_status_t psa_driver_wrapper_aead_finish(
                         ciphertext, ciphertext_size,
                         ciphertext_length, tag, tag_size, tag_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_finish(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3892,7 +3892,7 @@ static inline psa_status_t psa_driver_wrapper_aead_verify(
                         plaintext, plaintext_size,
                         plaintext_length, tag, tag_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_verify(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -3957,7 +3957,7 @@ static inline psa_status_t psa_driver_wrapper_aead_abort(
             return( sli_hostcrypto_transparent_aead_abort(
                         &operation->ctx.sli_hostcrypto_transparent_ctx ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_aead_abort(
                         &operation->ctx.sli_se_transparent_ctx ) );
@@ -4027,7 +4027,7 @@ static inline psa_status_t psa_driver_wrapper_mac_compute(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_mac_compute(
                         attributes, key_buffer, key_buffer_size, alg,
                         input, input_length,
@@ -4079,7 +4079,7 @@ static inline psa_status_t psa_driver_wrapper_mac_compute(
                         input, input_length,
                         mac, mac_size, mac_length );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             return sli_se_transparent_mac_compute(
                         attributes, key_buffer, key_buffer_size, alg,
@@ -4171,7 +4171,7 @@ static inline psa_status_t psa_driver_wrapper_mac_sign_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_mac_sign_setup(
                 &operation->ctx.sli_se_transparent_ctx,
                 attributes,
@@ -4237,7 +4237,7 @@ static inline psa_status_t psa_driver_wrapper_mac_sign_setup(
                 operation->id = SLI_HOSTCRYPTO_TRANSPARENT_DRIVER_ID;
             return status;
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_mac_sign_setup(
                 &operation->ctx.sli_se_transparent_ctx,
@@ -4331,7 +4331,7 @@ static inline psa_status_t psa_driver_wrapper_mac_verify_setup(
             if( status != PSA_ERROR_NOT_SUPPORTED )
                 return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
             status = sli_se_transparent_mac_verify_setup(
                 &operation->ctx.sli_se_transparent_ctx,
                 attributes,
@@ -4397,7 +4397,7 @@ static inline psa_status_t psa_driver_wrapper_mac_verify_setup(
                 operation->id = SLI_HOSTCRYPTO_TRANSPARENT_DRIVER_ID;
             return( status );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case PSA_KEY_LOCATION_SLI_SE_TRANSPARENT:
             status = sli_se_transparent_mac_verify_setup(
                 &operation->ctx.sli_se_transparent_ctx,
@@ -4479,7 +4479,7 @@ static inline psa_status_t psa_driver_wrapper_mac_update(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         input, input_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_mac_update(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -4543,7 +4543,7 @@ static inline psa_status_t psa_driver_wrapper_mac_sign_finish(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         mac, mac_size, mac_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_mac_sign_finish(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -4607,7 +4607,7 @@ static inline psa_status_t psa_driver_wrapper_mac_verify_finish(
                         &operation->ctx.sli_hostcrypto_transparent_ctx,
                         mac, mac_length ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_mac_verify_finish(
                         &operation->ctx.sli_se_transparent_ctx,
@@ -4663,7 +4663,7 @@ static inline psa_status_t psa_driver_wrapper_mac_abort(
             return( sli_hostcrypto_transparent_mac_abort(
                         &operation->ctx.sli_hostcrypto_transparent_ctx ) );
 #endif
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
         case SLI_SE_TRANSPARENT_DRIVER_ID:
             return( sli_se_transparent_mac_abort(
                         &operation->ctx.sli_se_transparent_ctx ) );

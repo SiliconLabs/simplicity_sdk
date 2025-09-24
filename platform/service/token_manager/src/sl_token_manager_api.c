@@ -35,6 +35,9 @@
 #if defined(SL_COMMON_TOKEN_MANAGER_ENABLE_DYNAMIC_TOKENS)
 #include "nvm3.h"
 #endif
+#if defined(SL_COMMON_TOKEN_MANAGER_ENABLE_STATIC_TOKENS)
+#include "sl_token_manager_manufacturing.h"
+#endif
 #if defined(SL_TOKEN_MANAGER_SECURITY)
 #include "sli_token_manager_hal_crypto.h"
 #endif
@@ -209,6 +212,15 @@ sl_status_t sl_token_manager_get_data(uint32_t token,
     case SL_TOKEN_TYPE_STATIC_SECURE_TOKEN:
     {
 #if defined(SL_COMMON_TOKEN_MANAGER_ENABLE_STATIC_TOKENS)
+#if defined(SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS) && (SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS == 1)
+      // Since the override config is enabled, read the token from NVM3 first.
+      // If the token is not found, fall back to static storage.
+      status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token & 0xFFFF), data, 0, length);
+      if (status != SL_STATUS_NOT_FOUND) {
+        break; // Override token found.
+      }
+#endif // SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS
+      // Read from static token storage
       sl_token_manager_lock_begin();
       // Offset of '0' always reads from the start.
       status = sli_token_manager_get_static_data(token, data, 0, length);
@@ -268,6 +280,15 @@ sl_status_t sl_token_manager_get_partial_data(uint32_t token,
     case SL_TOKEN_TYPE_STATIC_SECURE_TOKEN:
     {
 #if defined(SL_COMMON_TOKEN_MANAGER_ENABLE_STATIC_TOKENS)
+#if defined(SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS) && (SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS == 1)
+      // Since the override config is enabled, read the token from NVM3 first.
+      // If the token is not found, fall back to static storage.
+      status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token & 0xFFFF), data, offset, length);
+      if (status != SL_STATUS_NOT_FOUND) {
+        break; // Override token found.
+      }
+#endif // SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS
+      // Read from static token storage
       sl_token_manager_lock_begin();
       status = sli_token_manager_get_static_data(token, data, offset, length);
       sl_token_manager_lock_end();

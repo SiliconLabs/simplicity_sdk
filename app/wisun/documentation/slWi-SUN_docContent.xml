@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
+<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/ContentItem.ecore">
+  <contentItemData name="" label="AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
     <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
@@ -8,7 +8,7 @@
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1326-gecko-bootloader-transitioning-guide.pdf" category="Application Notes" priority="15">
+  <contentItemData name="" label="AN1326: Transitioning to the Updated Gecko Bootloader in GSDK 4.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/an1326-gecko-bootloader-transitioning-guide.pdf" category="Application Notes" priority="15">
     <description>Gecko Bootloader v2.x, introduced in GSDK 4.0, contains a number of changes compared to Gecko Bootloader v1.x. This document describes the differences between the versions, including how to configure the new Gecko Bootloader in Simplicity Studio 5.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="15"/>
@@ -16,35 +16,21 @@
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1330: Silicon Labs Wi-SUN Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1330-wi-sun-network-performance.pdf" category="Application Notes" priority="25">
+  <contentItemData name="" label="AN1330: Silicon Labs Wi-SUN Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/an1330-wi-sun-network-performance.pdf" category="Application Notes" priority="25">
     <description>Describes the test environment and methods for testing Wi-SUN network performance. The results are intended to provide guidance on design practices and principles as well as expected field performance results. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="25"/>
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1332: Silicon Labs Wi-SUN Network Setup and Configuration" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1332-wi-sun-network-configuration.pdf" category="Application Notes" priority="14">
+  <contentItemData name="" label="AN1332: Silicon Labs Wi-SUN Network Setup and Configuration" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/an1332-wi-sun-network-configuration.pdf" category="Application Notes" priority="14">
     <description>Describes how to use the Silicon Labs Wi-SUN Linux border router or the EFR32 standalone border router demonstration. Covers the associated configuration and debugging tools.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1403: Wi-SUN PHY Mode Switch on EFR32FG25 with RAILtest" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1403-wi-sun-mode-switch-with-railtest.pdf" category="Application Notes" priority="14">
-    <description>Provides an introduction to the Wi-SUN PHY Mode Switch feature using the RAILtest example application.   </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="14"/>
-    <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1410: Getting Started with Concurrent Mode on EFR32FG25 using RAILtest" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/an1410-concurrent-mode-with-railtest.pdf" category="Application Notes" priority="14">
-    <description>Explains how to program EFR32FG25 devices to enable the Wi-SUN concurrent detection feature. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="14"/>
-    <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/slWi-SUN-index.html" category="Application Notes" priority="9">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/slWi-SUN-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
@@ -59,6 +45,13 @@
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1410: Getting Started with Concurrent Mode on EFR32FG25 using RAILtest" itemURI="https://docs.silabs.com/wisun/latest/wisun-concurrent-mode-with-railtest/index.html" category="Application Notes" priority="14">
+    <description>Explains how to program EFR32FG25 devices to enable the Wi-SUN concurrent detection feature. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1364: Using the Wi-SUN Network Performance Measurement Application" itemURI="https://docs.silabs.com/wisun/latest/wisun-network-performance-measurement-app/index.html" category="Application Notes" priority="14">
     <description>Describes how to use the Wi-SUN Network Performance Measurement Application from either the LCD output or the CLI, and includes suggestions for improving ping latency in a Wi-SUN network.   </description>
     <property key="core.category" value="Application Notes"/>
@@ -66,21 +59,28 @@
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Wi-SUN API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/API_WISUN_HTML/index.html" category="Reference Manuals" priority="30">
+  <contentItemData name="" label="AN1403: Wi-SUN PHY Mode Switch on EFR32FG25 with RAILtest" itemURI="https://docs.silabs.com/wisun/latest/wisun-phy-mode-switch-with-railtest/index.html" category="Application Notes" priority="14">
+    <description>Provides an introduction to the Wi-SUN PHY Mode Switch feature using the RAILtest example application.   </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="Silicon Labs Wi-SUN API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/API_WISUN_HTML/index.html" category="Reference Manuals" priority="30">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs Wi-SUN stack. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="30"/>
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG495: Silicon Labs Wi-SUN Developer's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/wisun/documentation/ug495-wi-sun-developers-guide.pdf" category="Reference Manuals" priority="10">
+  <contentItemData name="" label="UG495: Silicon Labs Wi-SUN Developer's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/wisun/documentation/ug495-wi-sun-developers-guide.pdf" category="Reference Manuals" priority="10">
     <description>Reference for those developing applications using the Silicon Labs Wi-SUN SDK. The guide covers guidelines to  develop an application on top of Silicon Labs Wi-SUN stack . The purpose of this document is to fill in the gaps  between the Silicon Labs Wi-SUN Field Area Network (FAN) API reference, Gecko Platform references, and  documentation for the target EFR32xG part.  </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="10"/>
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
     <description>A detailed overview of the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform includes EMLIB, EMDRV, RAIL Library, NVM3, and the component-based infrastructure. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
@@ -88,7 +88,7 @@
     <property key="core.partCompatibility" value=".*efr32fg23.* .*efr32zg23.* .*efr32fg25.* .*efr32fg28.* .*efr32zg28.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Wi-SUN SDK Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-wisun-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Wi-SUN SDK Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-wisun-release-notes/index.html" category="Release Notes" priority="1">
     <description>Lists compatibility requirements and sources for all software components in the development environment.  Discusses the latest changes to the SiliconLabs Wi-SUN SDK, including added/deleted/deprecated features/API.  Reviews fixed and known issues.  </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>

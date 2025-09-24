@@ -994,8 +994,8 @@ void sli_zigbee_af_zll_touch_link_target(
 {# MAC_FILTER_MATCH_MESSAGE #}
 // Mac Filter Match Message
 void sli_zigbee_af_mac_filter_match_message(
-      // filter index match.
-      uint8_t filterIndexMatch,
+      // filter value match.
+      sl_zigbee_mac_filter_match_data_t filterValueMatch,
       // message type.
       sl_zigbee_mac_passthrough_type_t messageType,
       // RX packet info.
@@ -1005,17 +1005,22 @@ void sli_zigbee_af_mac_filter_match_message(
       // message contents.
       uint8_t *messageContents)
 {
-(void)filterIndexMatch;
+{% set found = false %}
+
+{% for cb in zigbee_stack_callback -%}
+{% if cb['callback_type'] == "mac_filter_match_message" -%}
+{% set found = true %}
+{{ cb['function_name'] }} (filterValueMatch, messageType, packetInfo, messageLength, messageContents);
+{% endif -%}
+{% endfor -%}
+
+{% if not found -%}
+(void)filterValueMatch;
 (void)messageType;
 (void)packetInfo;
 (void)messageLength;
 (void)messageContents;
-
-{% for cb in zigbee_stack_callback -%}
-{% if cb['callback_type'] == "mac_filter_match_message" -%}
-{{ cb['function_name'] }} (filterIndexMatch, messageType, packetInfo, messageLength, messageContents);
 {% endif -%}
-{% endfor -%}
 }
 
 

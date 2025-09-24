@@ -582,6 +582,7 @@ void set_power_level_to_max(bool init)
           || channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[0] == WISUN) {
         if (channelConfigs[range_test_settings.current_phy]->configs[0].stackInfo[1] >= 0x20) {
           tx_power_config_original.mode = SL_RAIL_UTIL_PA_SELECTION_OFDM;
+          tx_power_needs_reinit = true;
         }
       }
 #endif
@@ -1128,6 +1129,7 @@ void send_service_packet(void)
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
   sl_rail_config_channels(rail_handle,
                           (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
+  set_power_level_to_max(false);
 #endif
   range_test_settings_payload_length_tmp = range_test_settings.payload_length;
   range_test_settings.payload_length = sizeof(range_test_packet_t) + sizeof(service_data_t);
@@ -1160,7 +1162,6 @@ void send_service_packet(void)
 
   prepare_packet(rail_handle, tx_buffer, tx_length);
   temp_channel = range_test_settings.channel;
-  set_power_level_to_max(false);
   rail_status = sl_rail_start_tx(rail_handle, range_test_settings.service_channel, SL_RAIL_TX_OPTIONS_DEFAULT, NULL);
   if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
     app_log_error("sl_rail_start_tx() error 0x%0lX\n", rail_status);
@@ -1173,6 +1174,7 @@ void send_service_packet(void)
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
   sl_rail_config_channels(rail_handle,
                           (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
+  set_power_level_to_max(false);
 #endif
   menu_set_std_phy(false);
   update_tx_power();
@@ -1192,12 +1194,13 @@ void receive_service_packet(void)
   range_test_settings.current_phy = range_test_settings.service_phy;
   rail_handle = get_current_rail_handler();
   menu_set_std_phy(false);
-  update_tx_power();
 #if defined(SL_CATALOG_RADIO_CONFIG_SIMPLE_RAIL_SINGLEPHY_PRESENT)
   sl_rail_config_channels(rail_handle,
                           (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
+  set_power_level_to_max(false);
 #endif
   set_all_radio_handlers_to_idle();
+  update_tx_power();
   range_test_settings_payload_length_tmp = range_test_settings.payload_length;
   range_test_settings.payload_length = sizeof(range_test_packet_t) + sizeof(service_data_t);
   set_fixed_length(rail_handle, range_test_settings.payload_length);
@@ -1226,10 +1229,12 @@ void undo_service_config(void)
   sl_rail_handle_t rail_handle = get_current_rail_handler();
   sl_rail_config_channels(rail_handle,
                           (const sl_rail_channel_config_t *)channelConfigs[range_test_settings.current_phy], NULL);
+  set_power_level_to_max(false);
 #endif
 #if defined(SL_CATALOG_RAIL_PACKET_ASSISTANT_PRESENT)
   update_assistant_pointers(range_test_settings.current_phy);
 #endif
+
   update_tx_power();
   range_test_settings.payload_length = range_test_settings_payload_length_tmp;
 }

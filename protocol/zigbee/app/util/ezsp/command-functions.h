@@ -4681,17 +4681,17 @@ static void callbackDispatch(void)
     }
 
     case SL_ZIGBEE_EZSP_MAC_FILTER_MATCH_MESSAGE_HANDLER: {
-      uint8_t filterIndexMatch;
+      sl_zigbee_mac_filter_match_data_t filterValueMatch;
       sl_zigbee_mac_passthrough_type_t legacyPassthroughType;
       sl_zigbee_rx_packet_info_t packetInfo;
       uint8_t messageLength;
       uint8_t *messageContents;
-      filterIndexMatch = fetchInt8u();
+      filterValueMatch = fetchInt16u();
       legacyPassthroughType = fetchInt8u();
       fetch_sl_zigbee_rx_packet_info_t(&packetInfo);
       messageLength = fetchInt8u();
       messageContents = (uint8_t *)fetchInt8uPointer(messageLength);
-      sl_zigbee_ezsp_mac_filter_match_message_handler(filterIndexMatch, legacyPassthroughType, &packetInfo, messageLength, messageContents);
+      sl_zigbee_ezsp_mac_filter_match_message_handler(filterValueMatch, legacyPassthroughType, &packetInfo, messageLength, messageContents);
       break;
     }
 

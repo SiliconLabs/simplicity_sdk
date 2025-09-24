@@ -1,6 +1,6 @@
 project_name: common_token_manager_baremetal
 package: platform
-quality: evaluation
+quality: production
 label: Platform - Common Token Manager Baremetal
 description: >
   This example project demonstrates use of the CTM interface.

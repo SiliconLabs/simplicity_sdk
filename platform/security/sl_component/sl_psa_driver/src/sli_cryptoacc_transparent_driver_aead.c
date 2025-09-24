@@ -62,7 +62,7 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
 #if defined(PSA_WANT_ALG_CCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
       if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-        return PSA_ERROR_NOT_SUPPORTED;
+        return PSA_ERROR_INVALID_ARGUMENT;
       }
       if (tag_length < 4
           || tag_length > 16
@@ -76,7 +76,7 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
 #if defined(PSA_WANT_ALG_GCM)
     case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
       if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-        return PSA_ERROR_NOT_SUPPORTED;
+        return PSA_ERROR_INVALID_ARGUMENT;
       }
       // AD are limited to 2^64 bits, so 2^61 bytes.
       // We need not check if SIZE_MAX (max of size_t) is less than 2^61 (0x2000000000000000)

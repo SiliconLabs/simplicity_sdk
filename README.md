@@ -11,7 +11,13 @@ Silicon Labs also helps future-proof your devices with over-the-air software and
 
 ## Announcements
 
-The 2025.6.0 release of the Simplicity SDK includes several PDF documents and release notes migrated to Markdown hosted on [docs.silabs.com](https://docs.silabs.com).
+**Silicon Labs Series 3: The Future of IoT is Here**
+
+Our first **Series 3** products are now supported with a **comprehensive SDK**, enabling faster, more secure, and more scalable IoT development.
+
+With unmatched **performance, power efficiency, and multi-radio flexibility**, the Series 3 platform future-proofs your designs while ensuring backward compatibility with Series 2.
+
+Learn more: [Series 3 Wireless Platform](https://c212.net/c/link/?t=0&l=en&o=4433343-1&h=2193340756&u=https%3A%2F%2Fwww.silabs.com%2Fwireless%2Fseries-3-wireless-platform%3Fsource%3DPublic-Relations%26detail%3DPress-Release%26cid%3Dpub-prr-mlt-050625&a=Learn+more+about+Series+3+Wireless+Platform) | [SiMG301](https://c212.net/c/link/?t=0&l=en&o=4433343-1&h=83309047&u=http%3A%2F%2Fwww.silabs.com%2Fwireless%2Fzigbee%2Fsimg301-series-3-socs.html%3Fsource%3DPublic-Relations%26detail%3DPress-Release%26cid%3Dpub-prr-mlt-050625&a=Learn+more+about+SiMG301) | [SiBG301](https://c212.net/c/link/?t=0&l=en&o=4433343-1&h=30137323&u=http%3A%2F%2Fwww.silabs.com%2Fwireless%2Fbluetooth%2Fsibg301-series-3-socs.html%3Fsource%3DPublic-Relations%26detail%3DPress-Release%26cid%3Dpub-prr-mlt-043025&a=Learn+more+about+SiBG301)
 
 ## Licensing
 

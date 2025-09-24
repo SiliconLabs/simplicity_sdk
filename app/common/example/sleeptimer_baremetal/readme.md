@@ -15,6 +15,4 @@ Once you flash the application both timers will be started. Button0 is used to s
 Silicon Labs board with 2 buttons and 2 LEDs.
 
 ## Resources
-
-* [AN0005: Real Time Counters](https://www.silabs.com/documents/public/application-notes/AN0005-EFM32-RTC.pdf)
 * [AN0014: EFM32 Timers](https://www.silabs.com/documents/public/application-notes/AN0014.pdf)

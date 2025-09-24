@@ -401,7 +401,7 @@ class Calc_Pro2_Demod_Sol(CALC_Pro2_Demod_Ocelot):
                 bcr_cfe_costthd = 150  # If antdiv enabled, bcrpmacqwin is always 2 so the cost thd is constant.
             elif ((mod_format == model.vars.modulation_type.var_enum.FSK2 or mod_format == model.vars.modulation_type.var_enum.FSK4) and \
                     modulation_index == 0.5):
-                bcr_cfe_costthd = 150  # In Sol, this condition only applies to PHY_Landis_Gyr_915M_19p2kbps_mi0p5
+                bcr_cfe_costthd = 150
             else:
                 bcr_cfe_costthd = int(round(215 - (3 - calculated_bcrpmacqwin) * 60))
         else:

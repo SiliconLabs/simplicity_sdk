@@ -39,6 +39,7 @@ readme:
 ui_hints:
   highlight: readme.md
 tag:
+  - hardware:component:led:1+
   - hardware:device:ram:20
 configuration:
   - name: SL_BOARD_ENABLE_VCOM

@@ -149,8 +149,9 @@ bool CC_UserCredential_send_association_report(
  * @param[in] user_uid    User Unique Identifier
  * @param[in] filter_type The type of Credentials to delete, set this to
  *                        CREDENTIAL_TYPE_NONE to delete every Credential
+ * @return true if one or more Credentials were deleted, false otherwise
  */
-void CC_UserCredential_delete_all_credentials_of_type(
+bool CC_UserCredential_delete_all_credentials_of_type(
   uint16_t uuid,
   u3c_credential_type filter_type
   );

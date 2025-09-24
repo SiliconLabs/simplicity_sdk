@@ -22,14 +22,14 @@ extern void sl_zigbee_wakeup_common_task(void);
 extern sl_status_t sl_zigbee_af_push_network_index(uint8_t networkIndex);
 extern sl_status_t sl_zigbee_af_pop_network_index(void);
 
-void sli_802154_stack_filter_match_message_handler(uint8_t filterIndexMatch,
+void sli_802154_stack_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                    uint8_t legacyPassthroughType,
                                                    sl_zigbee_rx_packet_info_t *packetInfo,
                                                    uint8_t messageLength,
                                                    uint8_t *messageContents)
 {
   sl_zigbee_stack_cb_event_t *cb_event = (sl_zigbee_stack_cb_event_t *) malloc(sizeof(sl_zigbee_stack_cb_event_t));
-  cb_event->data.filter_match_message_handler.filterIndexMatch = filterIndexMatch;
+  cb_event->data.filter_match_message_handler.filterValueMatch = filterValueMatch;
   cb_event->data.filter_match_message_handler.legacyPassthroughType = legacyPassthroughType;
 
   if (packetInfo != NULL) {
@@ -105,7 +105,7 @@ void sli_zigbee_raw_message_process_ipc_event(sl_zigbee_stack_cb_event_t *cb_eve
   #endif // !SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   switch (cb_event->tag) {
     case SLI_802154_STACK_FILTER_MATCH_MESSAGE_HANDLER_IPC_EVENT_TYPE:
-      sl_802154_filter_match_message_handler(cb_event->data.filter_match_message_handler.filterIndexMatch,
+      sl_802154_filter_match_message_handler(cb_event->data.filter_match_message_handler.filterValueMatch,
                                              cb_event->data.filter_match_message_handler.legacyPassthroughType,
                                              &cb_event->data.filter_match_message_handler.packetInfo,
                                              cb_event->data.filter_match_message_handler.messageLength,

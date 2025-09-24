@@ -147,8 +147,8 @@ upgrade:
 
   - sdk:
       id: simplicity_sdk
-      version: 2025.6.1
-    configuration:
+      version: 2025.6.2
+    component:
       - script: protocol/zigbee/component/scripts/upgrade_zigbee_token_manager.lua
         description: >
           The Token Manager component has been added to the project. This is a legacy component that handles the management of tokens. No action is required, but the user is encouraged to read the corresponding zigbee 2025.6 release notes that describe the new Common Token Manager component.

@@ -38,12 +38,14 @@ source:
   - path: "app.c"
   - path: "app_cli.c"
   - path: "app_settings.c"
+  - path: "app_event_log.c"
 
 include:
   - path: "."
     file_list:
     - path: "app_cli.h"
     - path: "app_settings.h"
+    - path: "app_event_log.h"
 
 define:
   - name: "DEBUG_EFM_USER"
@@ -125,6 +127,8 @@ configuration:
   - name: SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION
     value: "SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM"
     condition: [device_sdid_220]
+  - name: SL_SLEEPTIMER_WALLCLOCK_CONFIG
+    value: 1
 
 template_contribution:
   - name: "event_handler"
@@ -521,8 +525,31 @@ template_contribution:
       name: "reset_duty_cycle"
       handler: "app_reset_duty_cycle"
       help: "Reset the duty cycle counters"
+      shortcuts: "rdc"  
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "set_event_log_filter"
+      handler: "app_set_event_log_filter"
+      help: "Set an event log filter: w sf"
       shortcuts:
-        - name: "rdc"
+        - name: "sf"
+      argument:
+        - type: string
+          help: "Neighbor MAC address, FF:FF:FF:FF:FF:FF:FF:FF for default filtering"
+        - type: hex
+          help: "Event filter mask written in hex format (for example {02} for received packets)"
+  - name: "cli_command"
+    value:
+      group: "wisun"
+      name: "event_log"
+      handler: "app_event_log"
+      help: "Read the event_log: w el"
+      shortcuts:
+        - name: "el"
+      argument:
+        - type: string
+          help: "Neighbor MAC address"
 
 # -------------------------------
   - name: "cli_group"

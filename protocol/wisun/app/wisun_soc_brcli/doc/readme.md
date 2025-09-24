@@ -220,7 +220,7 @@ The settings in the *wifi* section relate to the wifi connectivity. This section
 ## Wi-Fi Connectivity
 
 Wi-Fi Backhaul Connectivity is based on the SiWx91x™ chipset and the WiSeConnect™ SDK v3.x.
-Follow the [Getting Started Guide](https://docs.silabs.com/wiseconnect/3.4.0/wiseconnect-getting-started/getting-started-with-ncp-mode-with-efr32) to configure the SiWN917 as a Network Co-Processor (NCP) and install the component *Wi-Fi connectivity for Wi-SUN Border Router* to enable additional features in the Wi-SUN Border Router application. This document is limited to additional commands and settings, a more detailed documentation can be found here [SoC Border Router with Wi-Fi Backhaul](https://docs.silabs.com/wisun/latest/wisun-network-configuration/06-wisun-soc-border-router-backhaul).
+Follow the [Getting Started Guide](https://docs.silabs.com/wiseconnect/3.5.1/wiseconnect-getting-started/getting-started-with-ncp-mode-with-efr32) to configure the SiWN917 as a Network Co-Processor (NCP) and install the component *Wi-Fi connectivity for Wi-SUN Border Router* to enable additional features in the Wi-SUN Border Router application. This document is limited to additional commands and settings, a more detailed documentation can be found here [SoC Border Router with Wi-Fi Backhaul](https://docs.silabs.com/wisun/latest/wisun-network-configuration/06-wisun-soc-border-router-backhaul).
 
 ### Wi-Fi Commands
 

@@ -9,7 +9,7 @@
 #include "crypmasterregs.h"
 #include "hw.h"
 #include "cmdma.h"
-
+#include "sl_code_classification.h"
 
 
 void sx_cmdma_newdma(struct sx_dmactl *dma, union sxdescmem *d, size_t dsz)
@@ -57,7 +57,7 @@ void sx_add_outdesc(struct sx_dmactl *dmactl, char *p, size_t bsz)
 }
 
 
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 static struct sxdesc *sx_cmdma_finalize_descs(struct sxdesc *start,
     struct sxdesc *end, struct sxdesc *mappeddesc)
 {

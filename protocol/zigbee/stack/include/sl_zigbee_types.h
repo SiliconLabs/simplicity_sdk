@@ -1334,6 +1334,7 @@ typedef struct {
   uint16_t groupId;
   /** The sequence number. */
   uint8_t sequence;
+  /** The radius of the message. Note that in context of use of this in a send API, its value gets updated internally based on message type and radius supplied in the API. */
   uint8_t radius;
 } sl_zigbee_aps_frame_t;
 
@@ -2728,8 +2729,8 @@ enum
 
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
   /** Internal Stack passthrough. */
-  EM_MAC_PASSTHROUGH_INTERNAL_ZLL        = 0x80,
-  EM_MAC_PASSTHROUGH_INTERNAL_GP         = 0x40
+  SL_802154_PASSTHROUGH_INTERNAL_ZLL        = 0x80,
+  SL_802154_PASSTHROUGH_INTERNAL_GP         = 0x40
 #endif
 };
 
@@ -2737,8 +2738,7 @@ enum
  *    received by the application configured MAC filters.
  */
 typedef struct {
-  uint8_t filterIndexMatch;
-  sl_zigbee_mac_passthrough_type_t legacyPassthroughType;
+  sl_zigbee_mac_filter_match_data_t filterValueMatch;
   sli_buffer_manager_buffer_t message;
 } sl_zigbee_mac_filter_match_struct_t;
 

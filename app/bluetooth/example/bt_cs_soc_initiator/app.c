@@ -629,6 +629,7 @@ static void check_cli_values(void)
   initiator_config.cs_sync_antenna_req = cs_initiator_cli_get_cs_sync_antenna_usage();
   initiator_config.cs_main_mode = cs_initiator_cli_get_mode();
   initiator_config.conn_phy = cs_initiator_cli_get_conn_phy();
+  initiator_config.max_procedure_count = cs_initiator_cli_get_procedure_counter();
   rtl_config.algo_mode = cs_initiator_cli_get_algo_mode();
   initiator_config.channel_map_preset = cs_initiator_cli_get_preset();
   cs_initiator_apply_channel_map_preset(initiator_config.channel_map_preset,

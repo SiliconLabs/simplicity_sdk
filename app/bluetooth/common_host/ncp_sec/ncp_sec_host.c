@@ -169,7 +169,7 @@ static EVP_PKEY *ec_key(const ec_keypair_t *key,
                         int both_parts)
 {
   EVP_PKEY *result = NULL;
-  EVP_PKEY_CTX *ctx;
+  EVP_PKEY_CTX *ctx = NULL;
   EVP_PKEY *pkey = NULL;
   BIGNUM *priv;
   OSSL_PARAM_BLD *param_bld;
@@ -524,7 +524,7 @@ void security_increase_security_rsp(uint8_t *public_key,
 {
   switch (security_state) {
     case SECURITY_STATE_INCREASE_SECURITY: {
-      ec_keypair_t remote_ec_key;
+      ec_keypair_t remote_ec_key = { 0 };
       memcpy(remote_ec_key.pub, public_key, PUBLIC_KEYPAIR_SIZE);
       memcpy(sec_counter_out.target_iv, target_iv_to_target,
              sizeof(sec_counter_out.target_iv));

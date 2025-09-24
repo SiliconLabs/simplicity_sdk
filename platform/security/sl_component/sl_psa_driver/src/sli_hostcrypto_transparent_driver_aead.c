@@ -54,7 +54,7 @@
 // -----------------------------------------------------------------------------
 // Static Helper Functions
 
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes,
                                           psa_algorithm_t alg,
                                           size_t nonce_length,
@@ -63,66 +63,58 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
   size_t tag_length = PSA_AEAD_TAG_LENGTH(psa_get_key_type(attributes),
                                           psa_get_key_bits(attributes),
                                           alg);
-  if (alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-      return PSA_ERROR_NOT_SUPPORTED;
-    }
-    if (nonce_length < 7 || nonce_length > 13) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
-  } else {
-    switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
-#if defined(PSA_WANT_ALG_CCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-        if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-          return PSA_ERROR_NOT_SUPPORTED;
-        }
-        if (tag_length < 4
-            || tag_length > 16
-            || tag_length % 2 != 0
-            || nonce_length < 7
-            || nonce_length > 13) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        break;
-#endif // PSA_WANT_ALG_CCM
-#if defined(PSA_WANT_ALG_GCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
-        if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
-          return PSA_ERROR_NOT_SUPPORTED;
-        }
-        // AD are limited to 2^64 bits, so 2^61 bytes.
-        // We need not check if SIZE_MAX (max of size_t) is less than 2^61 (0x2000000000000000)
+
+  switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
+      if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      if (tag_length < 4
+          || tag_length > 16
+          || tag_length % 2 != 0
+          || nonce_length < 7
+          || nonce_length > 13) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      break;
+#endif // SLI_PSA_DRIVER_FEATURE_CCM
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+      if (psa_get_key_type(attributes) != PSA_KEY_TYPE_AES) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      // AD are limited to 2^64 bits, so 2^61 bytes.
+      // We need not check if SIZE_MAX (max of size_t) is less than 2^61 (0x2000000000000000)
 #if SIZE_MAX > 0x2000000000000000ull
-        if (additional_data_length >> 61 != 0) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
+      if (additional_data_length >> 61 != 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
 #else // SIZE_MAX > 0x2000000000000000ull
-        (void) additional_data_length;
+      (void) additional_data_length;
 #endif // SIZE_MAX > 0x2000000000000000ull
-        if ((tag_length < 4) || (tag_length > 16)) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        if (nonce_length == 0) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
+      if ((tag_length < 4) || (tag_length > 16)) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      if (nonce_length == 0) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
 #if !defined(SLI_PSA_SUPPORT_GCM_IV_CALCULATION)
-        if (nonce_length != 12) {
-          // sxsymcrypt only supports 12 bytes long IVs.
-          return PSA_ERROR_NOT_SUPPORTED;
-        }
-#endif // ! SLI_PSA_SUPPORT_GCM_IV_CALCULATION
-        break;
-#endif // PSA_WANT_ALG_GCM
-      default:
+      if (nonce_length != 12) {
+        // sxsymcrypt only supports 12 bytes long IVs.
         return PSA_ERROR_NOT_SUPPORTED;
-        break;
-    }
+      }
+#endif // ! SLI_PSA_SUPPORT_GCM_IV_CALCULATION
+      break;
+#endif // SLI_PSA_DRIVER_FEATURE_GCM
+    default:
+      return PSA_ERROR_NOT_SUPPORTED;
+      break;
   }
 
-#if !defined(PSA_WANT_ALG_GCM)
+#if !defined(SLI_PSA_DRIVER_FEATURE_GCM)
   (void) additional_data_length;
-#endif // !PSA_WANT_ALG_GCM
+#endif // !SLI_PSA_DRIVER_FEATURE_GCM
 
   switch (psa_get_key_bits(attributes)) {
     case 128: // fallthrough
@@ -135,9 +127,9 @@ static psa_status_t check_aead_parameters(const psa_key_attributes_t *attributes
 
   return PSA_SUCCESS;
 }
-#endif //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
-#if defined(SLI_PSA_SUPPORT_GCM_IV_CALCULATION) && defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_SUPPORT_GCM_IV_CALCULATION) && defined(SLI_PSA_DRIVER_FEATURE_GCM)
 /* Do GCM in software in case the IV isn't 12 bytes, since that's the only
  * thing the accelerator supports. */
 static psa_status_t sli_hostcrypto_software_gcm(const uint8_t* keybuf,
@@ -372,7 +364,7 @@ static psa_status_t sli_hostcrypto_software_gcm(const uint8_t* keybuf,
 
   return PSA_SUCCESS;
 }
-#endif // SLI_PSA_SUPPORT_GCM_IV_CALCULATION && PSA_WANT_ALG_GCM
+#endif // SLI_PSA_SUPPORT_GCM_IV_CALCULATION && SLI_PSA_DRIVER_FEATURE_GCM
 
 psa_status_t sli_hostcrypto_transparent_aead_encrypt(
   const psa_key_attributes_t *attributes,
@@ -389,7 +381,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt(
   size_t ciphertext_size,
   size_t *ciphertext_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (ciphertext_size <= plaintext_length) {
     return PSA_ERROR_BUFFER_TOO_SMALL;
   }
@@ -409,7 +401,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt(
 
   return psa_status;
 
-#else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)attributes;
   (void)key_buffer;
@@ -427,7 +419,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_decrypt(
@@ -445,7 +437,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt(
   size_t plaintext_size,
   size_t *plaintext_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (attributes == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
@@ -472,7 +464,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt(
     ciphertext, ciphertext_length - tag_length,
     check_tag, tag_length,
     plaintext, plaintext_size, plaintext_length);
-#else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)attributes;
   (void)key_buffer;
@@ -490,7 +482,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
@@ -511,7 +503,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
   size_t tag_size,
   size_t *tag_length)
 {
-  #if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+  #if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   if (key_buffer == NULL
       || attributes == NULL
@@ -523,13 +515,8 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-#if defined(PSA_WANT_ALG_CCM)
-  if (alg != PSA_ALG_CCM_STAR_NO_TAG)
-#endif
-  {
-    if (tag_size == 0 || tag == NULL || tag_length == NULL) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
+  if (tag_size == 0 || tag == NULL || tag_length == NULL) {
+    return PSA_ERROR_INVALID_ARGUMENT;
   }
 
   size_t key_bits = psa_get_key_bits(attributes);
@@ -569,9 +556,8 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
   struct sxkeyref key_ref = sx_keyref_load_material(PSA_BITS_TO_BYTES(key_bits),
                                                     (const char *)key_buffer);
 
-#if defined(PSA_WANT_ALG_CCM)
-  if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)
-      || alg == PSA_ALG_CCM_STAR_NO_TAG) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+  if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
     // Check length of plaintext.
     unsigned char q = 16 - 1 - (unsigned char) nonce_length;
     if (q < sizeof(plaintext_length)
@@ -593,8 +579,8 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
       psa_status = PSA_ERROR_SERVICE_FAILURE;
     }
   } else
-#endif // PSA_WANT_ALG_CCM
-#if defined(PSA_WANT_ALG_GCM)
+#endif // SLI_PSA_DRIVER_FEATURE_CCM
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     if (nonce_length == 12) {
       if (sli_sxsymcrypt_lock_cryptomaster_selection(
@@ -632,7 +618,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
     }
 #endif // SLI_PSA_SUPPORT_GCM_IV_CALCULATION
   } else
-#endif // PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_GCM
   {
     return PSA_ERROR_NOT_SUPPORTED;
   }
@@ -644,7 +630,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
     return PSA_ERROR_HARDWARE_FAILURE;
   }
 
-#if defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     sx_status = sx_aead_truncate_tag(&aead, *tag_length);
     if (sx_status != SX_OK) {
@@ -683,7 +669,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)attributes;
   (void)key_buffer;
@@ -704,7 +690,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_tag(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
@@ -724,22 +710,18 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
   size_t plaintext_size,
   size_t *plaintext_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (attributes == NULL
       || key_buffer == NULL
       || nonce == NULL
       || (additional_data == NULL && additional_data_length > 0)
       || (ciphertext == NULL && ciphertext_length > 0)
       || (plaintext == NULL && plaintext_size > 0)
-      || plaintext_length == NULL) {
+      || plaintext_length == NULL
+      || tag == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-  if (alg != PSA_ALG_CCM_STAR_NO_TAG) {
-    if (tag == NULL) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
-  }
   // Verify that the driver supports the given parameters.
   size_t key_bits = psa_get_key_bits(attributes);
   psa_status_t psa_status = check_aead_parameters(attributes,
@@ -775,9 +757,8 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
   struct sxkeyref key_ref = sx_keyref_load_material(PSA_BITS_TO_BYTES(key_bits),
                                                     (const char *)key_buffer);
 
-#if defined(PSA_WANT_ALG_CCM)
-  if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)
-      || alg == PSA_ALG_CCM_STAR_NO_TAG) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+  if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
     // Check length of ciphertext.
     unsigned char q = 16 - 1 - (unsigned char) nonce_length;
     if (q < sizeof(ciphertext_length)
@@ -799,8 +780,8 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
       psa_status = PSA_ERROR_SERVICE_FAILURE;
     }
   } else
-#endif // PSA_WANT_ALG_CCM
-#if defined(PSA_WANT_ALG_GCM)
+#endif // SLI_PSA_DRIVER_FEATURE_CCM
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     if (nonce_length == 12) {
       if (sli_sxsymcrypt_lock_cryptomaster_selection(
@@ -837,7 +818,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
     }
 #endif // SLI_PSA_SUPPORT_GCM_IV_CALCULATION
   } else
-#endif // PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_GCM
   {
     return PSA_ERROR_NOT_SUPPORTED;
   }
@@ -849,7 +830,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
     return PSA_ERROR_HARDWARE_FAILURE;
   }
 
-#if defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     sx_status = sx_aead_truncate_tag(&aead, tag_length);
     if (sx_status != SX_OK) {
@@ -893,7 +874,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)attributes;
   (void)key_buffer;
@@ -913,10 +894,10 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_tag(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 static psa_status_t transparent_aead_encrypt_decrypt_setup(
   sli_hostcrypto_transparent_aead_operation_t *operation,
   const psa_key_attributes_t *attributes,
@@ -945,41 +926,27 @@ static psa_status_t transparent_aead_encrypt_decrypt_setup(
     return PSA_ERROR_NOT_SUPPORTED;
   }
 
-  // Validate tag length.
-#if defined (PSA_WANT_ALG_CCM)
-  if (alg != PSA_ALG_CCM_STAR_NO_TAG)
-#endif
-  {
-    if ( PSA_AEAD_TAG_LENGTH(psa_get_key_type(attributes), key_bits, alg) > 16 ) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
+  if ( PSA_AEAD_TAG_LENGTH(psa_get_key_type(attributes), key_bits, alg) > 16 ) {
+    return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-  // Validate operation.
-#if defined(PSA_WANT_ALG_CCM)
-  if (alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    operation->alg = alg;
-  } else
-#endif
-  {
-    switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
-    #if defined (PSA_WANT_ALG_GCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
-      {
-        operation->alg = alg;
-        break;
-      }
-    #endif
-    #if defined (PSA_WANT_ALG_CCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-      {
-        operation->alg = alg;
-        break;
-      }
-    #endif
-      default:
-        return PSA_ERROR_NOT_SUPPORTED;
+  switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(alg, 0)) {
+  #if defined (SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+    {
+      operation->alg = alg;
+      break;
     }
+  #endif
+  #if defined (SLI_PSA_DRIVER_FEATURE_CCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
+    {
+      operation->alg = alg;
+      break;
+    }
+  #endif
+    default:
+      return PSA_ERROR_NOT_SUPPORTED;
   }
 
   operation->key_ref = sx_keyref_load_material(key_size, (const char *)key_buffer);
@@ -990,7 +957,7 @@ static psa_status_t transparent_aead_encrypt_decrypt_setup(
 
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
 psa_status_t sli_hostcrypto_transparent_aead_encrypt_setup(
   sli_hostcrypto_transparent_aead_operation_t *operation,
@@ -999,7 +966,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_setup(
   size_t key_buffer_size,
   psa_algorithm_t alg)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   return transparent_aead_encrypt_decrypt_setup(operation,
                                                 attributes,
@@ -1008,7 +975,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_setup(
                                                 alg,
                                                 SLI_HOSTCRYPTO_ENCRYPT);
 
-#else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)operation;
   (void)attributes;
@@ -1017,7 +984,7 @@ psa_status_t sli_hostcrypto_transparent_aead_encrypt_setup(
   (void)alg;
 
   return PSA_ERROR_NOT_SUPPORTED;
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_decrypt_setup(
@@ -1027,7 +994,7 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_setup(
   size_t key_buffer_size,
   psa_algorithm_t alg)
 {
-  #if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+  #if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   return transparent_aead_encrypt_decrypt_setup(operation,
                                                 attributes,
@@ -1036,14 +1003,14 @@ psa_status_t sli_hostcrypto_transparent_aead_decrypt_setup(
                                                 alg,
                                                 SLI_HOSTCRYPTO_DECRYPT);
 
-  #else // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+  #else // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)attributes;
   (void)key_buffer;
   (void)key_buffer_size;
   (void)alg;
   return PSA_ERROR_NOT_SUPPORTED;
-  #endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+  #endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_set_lengths(
@@ -1051,7 +1018,7 @@ psa_status_t sli_hostcrypto_transparent_aead_set_lengths(
   size_t ad_length,
   size_t plaintext_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (operation == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
@@ -1064,49 +1031,40 @@ psa_status_t sli_hostcrypto_transparent_aead_set_lengths(
   size_t tag_len = 0;
   // To pass current PSA Crypto test suite, tag length encoded in the
   // algorithm needs to be checked at this point.
-  #if defined(PSA_WANT_ALG_CCM)
-  if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    operation->ad_len = ad_length;
-    operation->plaintext_len = plaintext_length;
-    operation->lens_set = true;
-  } else
+  switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
+      tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
+      if ((tag_len % 2 != 0) || tag_len < 4 || tag_len > 16) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      operation->ad_len = ad_length;
+      operation->plaintext_len = plaintext_length;
+      operation->lens_set = true;
+      break;
 #endif
-  {
-    switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
-#if defined(PSA_WANT_ALG_CCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-        tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
-        if ((tag_len % 2 != 0) || tag_len < 4 || tag_len > 16) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        operation->ad_len = ad_length;
-        operation->plaintext_len = plaintext_length;
-        operation->lens_set = true;
-        break;
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+      tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
+      if (tag_len < 4 || tag_len > 16) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      operation->ad_len = ad_length;
+      operation->plaintext_len = plaintext_length;
+      operation->lens_set = true;
+      break;
 #endif
-#if defined(PSA_WANT_ALG_GCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
-        tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
-        if (tag_len < 4 || tag_len > 16) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        operation->ad_len = ad_length;
-        operation->plaintext_len = plaintext_length;
-        operation->lens_set = true;
-        break;
-#endif
-      default:
-        return PSA_ERROR_BAD_STATE;
-    }
+    default:
+      return PSA_ERROR_BAD_STATE;
   }
 
   return PSA_SUCCESS;
-#else//PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else//SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)ad_length;
   (void)plaintext_length;
   return PSA_ERROR_NOT_SUPPORTED;
-#endif//PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif//SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_set_nonce(
@@ -1114,7 +1072,7 @@ psa_status_t sli_hostcrypto_transparent_aead_set_nonce(
   const uint8_t *nonce,
   size_t nonce_size)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   if (operation == NULL || nonce == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
@@ -1129,37 +1087,27 @@ psa_status_t sli_hostcrypto_transparent_aead_set_nonce(
     return PSA_ERROR_BAD_STATE;
   }
 
-  // Validate operation.
-#if defined(PSA_WANT_ALG_CCM)
-  if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    if (nonce_size < 7 || nonce_size > 13) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
-  } else
-#endif
-  {
-    switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
-  #if defined(PSA_WANT_ALG_GCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
-      {
-        if (nonce_size != 12) {
-          return PSA_ERROR_NOT_SUPPORTED;
-        }
-        break;
-      }
-  #endif
-  #if defined(PSA_WANT_ALG_CCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-      {
-        if (nonce_size < 7 || nonce_size > 13) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        break;
-      }
-  #endif
-      default:
+  switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+    {
+      if (nonce_size != 12) {
         return PSA_ERROR_NOT_SUPPORTED;
+      }
+      break;
     }
+#endif
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
+    {
+      if (nonce_size < 7 || nonce_size > 13) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      break;
+    }
+#endif
+    default:
+      return PSA_ERROR_NOT_SUPPORTED;
   }
 
   memcpy(operation->iv, nonce, nonce_size);
@@ -1167,7 +1115,7 @@ psa_status_t sli_hostcrypto_transparent_aead_set_nonce(
 
   return PSA_SUCCESS;
 
-#else //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)nonce;
   (void)nonce_size;
@@ -1175,7 +1123,7 @@ psa_status_t sli_hostcrypto_transparent_aead_set_nonce(
 #endif
 }
 
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 static psa_status_t sli_hostcrypto_transparent_aead_create(
   sli_hostcrypto_transparent_aead_operation_t *operation)
 {
@@ -1187,129 +1135,87 @@ static psa_status_t sli_hostcrypto_transparent_aead_create(
     return PSA_ERROR_BAD_STATE;
   }
 
-  #if defined(PSA_WANT_ALG_CCM)
-  if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    if (operation->iv_length == 0) {
-      return PSA_ERROR_BAD_STATE;
-    }
-    if (operation->iv_length < 7 || operation->iv_length > 13) {
-      return PSA_ERROR_INVALID_ARGUMENT;
-    }
-    if (!operation->lens_set) {
-      return PSA_ERROR_BAD_STATE;
-    }
-    if (sli_sxsymcrypt_lock_cryptomaster_selection(
-          SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO, false)) {
-      return PSA_ERROR_SERVICE_FAILURE;
-    }
-    if (operation->direction == SLI_HOSTCRYPTO_ENCRYPT) {
-      sx_status = sx_aead_create_aesccm_enc(&operation->aead_ctx,
-                                            &operation->key_ref,
-                                            (const char *)operation->iv,
-                                            operation->iv_length,
-                                            SLI_HOSTCRYPTO_CCM_STAR_TAG_LENGTH,
-                                            operation->ad_len,
-                                            operation->plaintext_len);
-    } else if (operation->direction == SLI_HOSTCRYPTO_DECRYPT) {
-      sx_status = sx_aead_create_aesccm_dec(&operation->aead_ctx,
-                                            &operation->key_ref,
-                                            (const char *)operation->iv,
-                                            operation->iv_length,
-                                            SLI_HOSTCRYPTO_CCM_STAR_TAG_LENGTH,
-                                            operation->ad_len,
-                                            operation->plaintext_len);
-    }
-    if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
-      return PSA_ERROR_SERVICE_FAILURE;
-    }
-    if (sx_status != SX_OK) {
-      return PSA_ERROR_HARDWARE_FAILURE;
-    }
-  } else
-#endif
-  {
-    switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
-  #if defined(PSA_WANT_ALG_GCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
-      {
-        if (operation->iv_length != 12) {
-          return PSA_ERROR_NOT_SUPPORTED;
-        }
-        if (sli_sxsymcrypt_lock_cryptomaster_selection(
-              SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO, false)) {
-          return PSA_ERROR_SERVICE_FAILURE;
-        }
-        if (operation->direction == SLI_HOSTCRYPTO_ENCRYPT) {
-          sx_status = sx_aead_create_aesgcm_enc(&operation->aead_ctx,
-                                                &operation->key_ref,
-                                                (const char *)operation->iv);
-        } else if (operation->direction == SLI_HOSTCRYPTO_DECRYPT) {
-          sx_status = sx_aead_create_aesgcm_dec(&operation->aead_ctx,
-                                                &operation->key_ref,
-                                                (const char *)operation->iv);
-        }
-        if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
-          return PSA_ERROR_SERVICE_FAILURE;
-        }
-        if (sx_status != SX_OK) {
-          return PSA_ERROR_HARDWARE_FAILURE;
-        }
-        break;
-      }
-  #endif
-  #if defined(PSA_WANT_ALG_CCM)
-      case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
-      {
-        if (operation->iv_length < 7 || operation->iv_length > 13) {
-          return PSA_ERROR_INVALID_ARGUMENT;
-        }
-        if (!operation->lens_set) {
-          return PSA_ERROR_BAD_STATE;
-        }
-        if (sli_sxsymcrypt_lock_cryptomaster_selection(
-              SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO, false)) {
-          return PSA_ERROR_SERVICE_FAILURE;
-        }
-        if (operation->direction == SLI_HOSTCRYPTO_ENCRYPT) {
-          sx_status = sx_aead_create_aesccm_enc(&operation->aead_ctx,
-                                                &operation->key_ref,
-                                                (const char *)operation->iv,
-                                                operation->iv_length,
-                                                PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg),
-                                                operation->ad_len,
-                                                operation->plaintext_len);
-        } else if (operation->direction == SLI_HOSTCRYPTO_DECRYPT) {
-          sx_status = sx_aead_create_aesccm_dec(&operation->aead_ctx,
-                                                &operation->key_ref,
-                                                (const char *)operation->iv,
-                                                operation->iv_length,
-                                                PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg),
-                                                operation->ad_len,
-                                                operation->plaintext_len);
-        }
-        if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
-          return PSA_ERROR_SERVICE_FAILURE;
-        }
-        if (sx_status != SX_OK) {
-          return PSA_ERROR_HARDWARE_FAILURE;
-        }
-        break;
-      }
-  #endif
-      default:
+  switch (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0):
+    {
+      if (operation->iv_length != 12) {
         return PSA_ERROR_NOT_SUPPORTED;
+      }
+      if (sli_sxsymcrypt_lock_cryptomaster_selection(
+            SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO, false)) {
+        return PSA_ERROR_SERVICE_FAILURE;
+      }
+      if (operation->direction == SLI_HOSTCRYPTO_ENCRYPT) {
+        sx_status = sx_aead_create_aesgcm_enc(&operation->aead_ctx,
+                                              &operation->key_ref,
+                                              (const char *)operation->iv);
+      } else if (operation->direction == SLI_HOSTCRYPTO_DECRYPT) {
+        sx_status = sx_aead_create_aesgcm_dec(&operation->aead_ctx,
+                                              &operation->key_ref,
+                                              (const char *)operation->iv);
+      }
+      if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
+        return PSA_ERROR_SERVICE_FAILURE;
+      }
+      if (sx_status != SX_OK) {
+        return PSA_ERROR_HARDWARE_FAILURE;
+      }
+      break;
     }
+#endif
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    case PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0):
+    {
+      if (operation->iv_length < 7 || operation->iv_length > 13) {
+        return PSA_ERROR_INVALID_ARGUMENT;
+      }
+      if (!operation->lens_set) {
+        return PSA_ERROR_BAD_STATE;
+      }
+      if (sli_sxsymcrypt_lock_cryptomaster_selection(
+            SLI_SXSYMCRYPT_CRYPTOMASTER_HOSTSYMCRYPTO, false)) {
+        return PSA_ERROR_SERVICE_FAILURE;
+      }
+      if (operation->direction == SLI_HOSTCRYPTO_ENCRYPT) {
+        sx_status = sx_aead_create_aesccm_enc(&operation->aead_ctx,
+                                              &operation->key_ref,
+                                              (const char *)operation->iv,
+                                              operation->iv_length,
+                                              PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg),
+                                              operation->ad_len,
+                                              operation->plaintext_len);
+      } else if (operation->direction == SLI_HOSTCRYPTO_DECRYPT) {
+        sx_status = sx_aead_create_aesccm_dec(&operation->aead_ctx,
+                                              &operation->key_ref,
+                                              (const char *)operation->iv,
+                                              operation->iv_length,
+                                              PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg),
+                                              operation->ad_len,
+                                              operation->plaintext_len);
+      }
+      if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
+        return PSA_ERROR_SERVICE_FAILURE;
+      }
+      if (sx_status != SX_OK) {
+        return PSA_ERROR_HARDWARE_FAILURE;
+      }
+      break;
+    }
+#endif
+    default:
+      return PSA_ERROR_NOT_SUPPORTED;
   }
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif // SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
 psa_status_t sli_hostcrypto_transparent_aead_update_ad(
   sli_hostcrypto_transparent_aead_operation_t *operation,
   const uint8_t *input,
   size_t input_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (operation == NULL
       || (input == NULL && input_length > 0)) {
     return PSA_ERROR_INVALID_ARGUMENT;
@@ -1392,13 +1298,13 @@ psa_status_t sli_hostcrypto_transparent_aead_update_ad(
   operation->processed_ad += input_length;
 
   return PSA_SUCCESS;
-#else //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 
   (void)operation;
   (void)input;
   (void)input_length;
   return PSA_ERROR_NOT_SUPPORTED;
-#endif//PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif//SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_update(
@@ -1409,7 +1315,7 @@ psa_status_t sli_hostcrypto_transparent_aead_update(
   size_t output_size,
   size_t *output_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   if (output_size < input_length) {
     return PSA_ERROR_BUFFER_TOO_SMALL;
@@ -1495,9 +1401,8 @@ psa_status_t sli_hostcrypto_transparent_aead_update(
            input,
            bytes_left_in_block);
 
-#if defined(PSA_WANT_ALG_CCM)
-    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)
-        || operation->alg == PSA_ALG_CCM_STAR_NO_TAG) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       // If this is the last input and we have a complete block then save it
       // for future processing
       if ((operation->processed_len + bytes_left_in_block) == operation->plaintext_len) {
@@ -1549,9 +1454,8 @@ psa_status_t sli_hostcrypto_transparent_aead_update(
   if (input_length >= 16) {
     // CCM Multipart finish will hardfault without input data, so if remaining
     // input is the final input, then store the last block
-#if defined(PSA_WANT_ALG_CCM)
-    if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-        || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       if ((operation->processed_len + input_length) == operation->plaintext_len
           && operation->plaintext_len % 16 == 0) {
         memcpy(operation->block, input + (input_length - 16), 16);
@@ -1616,7 +1520,7 @@ psa_status_t sli_hostcrypto_transparent_aead_update(
   *output_length = actual_output_length;
 
   return PSA_SUCCESS;
-#else //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)input;
   (void)input_length;
@@ -1624,7 +1528,7 @@ psa_status_t sli_hostcrypto_transparent_aead_update(
   (void)output_size;
   (void)output_length;
   return PSA_ERROR_NOT_SUPPORTED;
-#endif //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_finish(
@@ -1636,21 +1540,13 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
   size_t tag_size,
   size_t *tag_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   if (operation == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-  uint32_t tag_len;
-#if defined(PSA_WANT_ALG_CCM)
-  if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG) {
-    tag_len = 0;
-  } else
-#endif
-  {
-    tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
-  }
+  uint32_t tag_len = PSA_ALG_AEAD_GET_TAG_LENGTH(operation->alg);
 
   if (tag_size < tag_len) {
     return PSA_ERROR_BUFFER_TOO_SMALL;
@@ -1674,9 +1570,8 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
   }
 
   if (operation->processed_ad == 0 && operation->processed_len == 0) {
-#if defined(PSA_WANT_ALG_CCM)
-    if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-        || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       // Since no AAD and plaintext has been processed, operation has not been
       // created. So set plaintext and AAD lengths to zero and create operation.
       operation->plaintext_len = 0;
@@ -1714,10 +1609,9 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
       return PSA_ERROR_HARDWARE_FAILURE;
     }
   }
-#if defined(PSA_WANT_ALG_CCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
   else {
-    if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-        || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       if (operation->processed_len) {
         // If processed length is multiple of 16 then we have saved the last block
         // so process that now
@@ -1736,7 +1630,7 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
   }
 #endif
 
-#if defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     sx_status = sx_aead_truncate_tag(&operation->aead_ctx, tag_len);
     if (sx_status != SX_OK) {
@@ -1755,9 +1649,8 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
     return PSA_ERROR_HARDWARE_FAILURE;
   }
 
-#if defined(PSA_WANT_ALG_CCM)
-  if ((operation->processed_len % 16 == 0) && (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-                                               || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0))) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+  if ((operation->processed_len % 16 == 0) && (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0))) {
     *ciphertext_length = 16;
   } else
 #endif
@@ -1768,7 +1661,7 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
 
   return PSA_SUCCESS;
 
-#else //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)ciphertext;
   (void)ciphertext_size;
@@ -1777,7 +1670,7 @@ psa_status_t sli_hostcrypto_transparent_aead_finish(
   (void)tag_size;
   (void)tag_length;
   return PSA_ERROR_NOT_SUPPORTED;
-#endif //PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM)
+#endif //SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM)
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_verify(
@@ -1788,19 +1681,14 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
   const uint8_t *tag,
   size_t tag_length)
 {
-#if defined(PSA_WANT_ALG_CCM) || defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM) || defined(SLI_PSA_DRIVER_FEATURE_GCM)
 
   if (operation == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
   }
 
-#if defined(PSA_WANT_ALG_CCM)
-  if (operation->alg != PSA_ALG_CCM_STAR_NO_TAG)
-#endif
-  {
-    if (tag == NULL || tag_length == 0 ) {
-      return PSA_ERROR_INVALID_SIGNATURE;
-    }
+  if (tag == NULL || tag_length == 0 ) {
+    return PSA_ERROR_INVALID_SIGNATURE;
   }
 
   if (plaintext_size < operation->processed_len % 16) {
@@ -1821,9 +1709,8 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
   }
 
   if (operation->processed_ad == 0 && operation->processed_len == 0) {
-#if defined(PSA_WANT_ALG_CCM)
-    if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-        || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       // Since no AAD and plaintext has been processed, operation has not been
       // created. So set plaintext and AAD lengths to zero and create operation.
       operation->plaintext_len = 0;
@@ -1861,10 +1748,9 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
       return PSA_ERROR_HARDWARE_FAILURE;
     }
   }
-#if defined(PSA_WANT_ALG_CCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
   else {
-    if (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-        || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
+    if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0)) {
       if (operation->processed_len) {
         // If processed length is multiple of 16 then we have saved the last block
         // so process that now
@@ -1883,7 +1769,7 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
   }
 #endif
 
-#if defined(PSA_WANT_ALG_GCM)
+#if defined(SLI_PSA_DRIVER_FEATURE_GCM)
   if (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_GCM, 0)) {
     sx_status = sx_aead_truncate_tag(&operation->aead_ctx, tag_length);
     if (sx_status != SX_OK) {
@@ -1904,9 +1790,8 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
     return PSA_ERROR_HARDWARE_FAILURE;
   }
 
-#if defined(PSA_WANT_ALG_CCM)
-  if ((operation->processed_len % 16 == 0) && (operation->alg == PSA_ALG_CCM_STAR_NO_TAG
-                                               || PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0))) {
+#if defined(SLI_PSA_DRIVER_FEATURE_CCM)
+  if ((operation->processed_len % 16 == 0) && (PSA_ALG_AEAD_WITH_SHORTENED_TAG(operation->alg, 0) == PSA_ALG_AEAD_WITH_SHORTENED_TAG(PSA_ALG_CCM, 0))) {
     *plaintext_length = 16;
   } else
 #endif
@@ -1916,7 +1801,7 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
 
   return PSA_SUCCESS;
 
-#else//PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#else//SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
   (void)operation;
   (void)plaintext;
   (void)plaintext_size;
@@ -1924,7 +1809,7 @@ psa_status_t sli_hostcrypto_transparent_aead_verify(
   (void)tag;
   (void)tag_length;
   return PSA_ERROR_NOT_SUPPORTED;
-#endif//PSA_WANT_ALG_CCM || PSA_WANT_ALG_GCM
+#endif//SLI_PSA_DRIVER_FEATURE_CCM || SLI_PSA_DRIVER_FEATURE_GCM
 }
 
 psa_status_t sli_hostcrypto_transparent_aead_abort(

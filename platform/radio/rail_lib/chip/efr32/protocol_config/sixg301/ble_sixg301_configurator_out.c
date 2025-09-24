@@ -2,12 +2,12 @@
  * @brief RAIL Configuration
  * @details
  *   WARNING: Auto-Generated Radio Config  -  DO NOT EDIT
- *   Radio Configurator Version: 2404.5.3 (87e0e7d3e5)
- *   RAIL Adapter Version: 2.4.33 (d7e1e7244b)
+ *   Radio Configurator Version: 2504.1.1 (a165f360ce)
+ *   RAIL Adapter Version: 2.4.33 (14b7437903)
  *   RAIL Compatibility: 2.x
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -67,10 +67,10 @@ static const uint8_t hfxoRetimingConfigEntries[] = {
 };
 
 #ifdef RADIO_CONFIG_ENABLE_STACK_INFO
-static const uint8_t stackInfo_0[2] = { 0x03, 0x05 };
+static const uint8_t stackInfo_0[2] = { 0x03, 0x0a };
 static const uint8_t stackInfo_1[2] = { 0x03, 0x02 };
-static const uint8_t stackInfo_2[2] = { 0x03, 0x04 };
-static const uint8_t stackInfo_3[2] = { 0x03, 0x03 };
+static const uint8_t stackInfo_2[2] = { 0x03, 0x03 };
+static const uint8_t stackInfo_3[2] = { 0x03, 0x04 };
 static const uint8_t stackInfo_4[2] = { 0x03, 0x00 };
 #endif // RADIO_CONFIG_ENABLE_STACK_INFO
 
@@ -113,7 +113,7 @@ static RAIL_ChannelConfigEntryAttr_t channelConfigEntryAttr_1 = {
 };
 
 static const uint32_t phyInfo_0[] = {
-  19UL,
+  20UL,
   0x00924924UL, // 146.28571428571428
   (uint32_t) NULL,
   (uint32_t) irCalConfig_0,
@@ -137,7 +137,7 @@ static const uint32_t phyInfo_0[] = {
 };
 
 static const uint32_t phyInfo_1[] = {
-  19UL,
+  20UL,
   0x00666666UL, // 102.4
   (uint32_t) NULL,
   (uint32_t) irCalConfig_0,
@@ -161,7 +161,7 @@ static const uint32_t phyInfo_1[] = {
 };
 
 static const uint32_t phyInfo_2[] = {
-  19UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -185,7 +185,7 @@ static const uint32_t phyInfo_2[] = {
 };
 
 static const uint32_t phyInfo_3[] = {
-  19UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -209,7 +209,7 @@ static const uint32_t phyInfo_3[] = {
 };
 
 static const uint32_t phyInfo_4[] = {
-  19UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -352,9 +352,9 @@ const uint32_t ble_viterbi1M_modemConfigBase[] = {
   /*    4370 */ 0x00000000UL, /* MODEM.ADPC9 */
   /*    4374 */ 0x00000000UL, /* MODEM.ADPC10 */
   0x01054414UL, 0x00082220UL, /* Write: MODEM.EHDSSSCTRL */
-  /*    4418 */ 0x0000007AUL, /* MODEM.EHDSSSCFG0 */
+  /*    4418 */ 0x00000000UL, /* MODEM.EHDSSSCFG0 */
   /*    441C */ 0x2BC32080UL, /* MODEM.EHDSSSCFG1 */
-  /*    4420 */ 0x3155E258UL, /* MODEM.EHDSSSCFG2 */
+  /*    4420 */ 0x31626258UL, /* MODEM.EHDSSSCFG2 */
   /*    4424 */ 0x30000578UL, /* MODEM.EHDSSSCFG3 */
   0x01014470UL, 0x00000000UL, /* Write: MODEM.SPARE */
   0x01054480UL, 0x71764129UL, /* Write: MODEM.SYNC0 */
@@ -401,9 +401,10 @@ const uint32_t ble_viterbi1M_modemConfigBase[] = {
 
 const uint32_t ble_viterbi1M_modemConfig[] = {
   0x0301001CUL, (uint32_t) &phyInfo_0, /* Write: SEQ.PHYINFO */
-  0x03020008UL, 0x00077A61UL, /* Write: SEQ.MODINDEX_CALC */
-  /*    000C */ 0x00077B61UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
-  0x03020014UL, 0x00000004UL, /* Write: SEQ.MODEMINFO */
+  0x03050008UL, 0x00077C19UL, /* Write: SEQ.MODINDEX_CALC */
+  /*    000C */ 0x00077D19UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
+  /*    0010 */ 0x00000000UL, /* SEQ.FSWCOREINFO */
+  /*    0014 */ 0x00000004UL, /* SEQ.MODEMINFO */
   /*    0018 */ 0x00000000UL, /* SEQ.MISC */
   0x00014010UL, 0x00004101UL, /* Write: FRC.MAXLENGTH */
   0x0001403CUL, 0x00000000UL, /* Write: FRC.FECCTRL */
@@ -411,13 +412,13 @@ const uint32_t ble_viterbi1M_modemConfig[] = {
   0x00014050UL, 0x00000000UL, /* Write: FRC.TRAILTXDATACTRL */
   0x0001405CUL, 0x00000000UL, /* Write: FRC.CONVGENERATOR */
   0x00014110UL, 0x00004CFFUL, /* Write: FRC.FCD0 */
-  0x0007C054UL, 0x00301155UL, /* Write: AGC.GAINRANGE */
-  /*    C058 */ 0xE608040EUL, /* AGC.AGCPERIOD0 */
-  /*    C05C */ 0x0000002DUL, /* AGC.AGCPERIOD1 */
-  /*    C060 */ 0x07060504UL, /* AGC.HICNTREGION0 */
-  /*    C064 */ 0x00000008UL, /* AGC.HICNTREGION1 */
-  /*    C068 */ 0x0002B6D1UL, /* AGC.STEPDWN */
-  /*    C06C */ 0x00003564UL, /* AGC.GAINSTEPLIM0 */
+  0x0007C054UL, 0x00302155UL, /* Write: AGC.GAINRANGE */
+  /*    C058 */ 0xE60D060EUL, /* AGC.AGCPERIOD0 */
+  /*    C05C */ 0x00000046UL, /* AGC.AGCPERIOD1 */
+  /*    C060 */ 0x0C0A0806UL, /* AGC.HICNTREGION0 */
+  /*    C064 */ 0x0000000DUL, /* AGC.HICNTREGION1 */
+  /*    C068 */ 0x0002B688UL, /* AGC.STEPDWN */
+  /*    C06C */ 0x00000560UL, /* AGC.GAINSTEPLIM0 */
   0x01074050UL, 0x51500000UL, /* Write: MODEM.AFCADJRX */
   /*    4054 */ 0x11A00000UL, /* MODEM.AFCADJTX */
   /*    4058 */ 0x00000010UL, /* MODEM.MIXCTRL */
@@ -427,22 +428,22 @@ const uint32_t ble_viterbi1M_modemConfig[] = {
   /*    4068 */ 0x00000000UL, /* MODEM.CTRL3 */
   0x01014074UL, 0x40000000UL, /* Write: MODEM.CTRL6 */
   0x01024080UL, 0x00000002UL, /* Write: MODEM.CF */
-  /*    4084 */ 0x00040092UL, /* MODEM.PRE */
-  0x010F4090UL, 0x00077A61UL, /* Write: MODEM.MODINDEX */
+  /*    4084 */ 0x00040091UL, /* MODEM.PRE */
+  0x010F4090UL, 0x00077C19UL, /* Write: MODEM.MODINDEX */
   /*    4094 */ 0xE1000000UL, /* MODEM.AFC */
   /*    4098 */ 0x00000000UL, /* MODEM.AFCADJLIM */
   /*    409C */ 0xFC02FF01UL, /* MODEM.SHAPING0 */
-  /*    40A0 */ 0x58371C15UL, /* MODEM.SHAPING1 */
+  /*    40A0 */ 0x58381C15UL, /* MODEM.SHAPING1 */
   /*    40A4 */ 0x797E7F71UL, /* MODEM.SHAPING2 */
-  /*    40A8 */ 0x26425D6DUL, /* MODEM.SHAPING3 */
-  /*    40AC */ 0x09FF030CUL, /* MODEM.SHAPING4 */
-  /*    40B0 */ 0x090911FEUL, /* MODEM.SHAPING5 */
-  /*    40B4 */ 0x06070708UL, /* MODEM.SHAPING6 */
-  /*    40B8 */ 0x05050506UL, /* MODEM.SHAPING7 */
-  /*    40BC */ 0x03040404UL, /* MODEM.SHAPING8 */
-  /*    40C0 */ 0x02030303UL, /* MODEM.SHAPING9 */
+  /*    40A8 */ 0x24405B6CUL, /* MODEM.SHAPING3 */
+  /*    40AC */ 0x05FCFF09UL, /* MODEM.SHAPING4 */
+  /*    40B0 */ 0x07080EFCUL, /* MODEM.SHAPING5 */
+  /*    40B4 */ 0x05060607UL, /* MODEM.SHAPING6 */
+  /*    40B8 */ 0x04040505UL, /* MODEM.SHAPING7 */
+  /*    40BC */ 0x03030404UL, /* MODEM.SHAPING8 */
+  /*    40C0 */ 0x02020303UL, /* MODEM.SHAPING9 */
   /*    40C4 */ 0x02020202UL, /* MODEM.SHAPING10 */
-  /*    40C8 */ 0x01010102UL, /* MODEM.SHAPING11 */
+  /*    40C8 */ 0x01010202UL, /* MODEM.SHAPING11 */
   0x01014118UL, 0x00051E43UL, /* Write: MODEM.DCCOMP */
   0x01014124UL, 0x8CB16000UL, /* Write: MODEM.SRCCHF */
   0x0101413CUL, 0x005262F6UL, /* Write: MODEM.DIGMIXCTRL */
@@ -495,9 +496,10 @@ const uint32_t ble_viterbi1M_modemConfig[] = {
 
 const uint32_t ble_viterbi2M_0_34_modemConfig[] = {
   0x0301001CUL, (uint32_t) &phyInfo_1, /* Write: SEQ.PHYINFO */
-  0x03020008UL, 0x00055AB7UL, /* Write: SEQ.MODINDEX_CALC */
+  0x03050008UL, 0x00055AB7UL, /* Write: SEQ.MODINDEX_CALC */
   /*    000C */ 0x00055BB7UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
-  0x03020014UL, 0x00000004UL, /* Write: SEQ.MODEMINFO */
+  /*    0010 */ 0x00000000UL, /* SEQ.FSWCOREINFO */
+  /*    0014 */ 0x00000004UL, /* SEQ.MODEMINFO */
   /*    0018 */ 0x00000000UL, /* SEQ.MISC */
   0x00014010UL, 0x00004101UL, /* Write: FRC.MAXLENGTH */
   0x0001403CUL, 0x00000000UL, /* Write: FRC.FECCTRL */
@@ -506,11 +508,11 @@ const uint32_t ble_viterbi2M_0_34_modemConfig[] = {
   0x0001405CUL, 0x00000000UL, /* Write: FRC.CONVGENERATOR */
   0x00014110UL, 0x00004CFFUL, /* Write: FRC.FCD0 */
   0x0007C054UL, 0x00302155UL, /* Write: AGC.GAINRANGE */
-  /*    C058 */ 0xE608040EUL, /* AGC.AGCPERIOD0 */
-  /*    C05C */ 0x0000002AUL, /* AGC.AGCPERIOD1 */
-  /*    C060 */ 0x07060504UL, /* AGC.HICNTREGION0 */
-  /*    C064 */ 0x00000008UL, /* AGC.HICNTREGION1 */
-  /*    C068 */ 0x0002B6D1UL, /* AGC.STEPDWN */
+  /*    C058 */ 0xE60D060EUL, /* AGC.AGCPERIOD0 */
+  /*    C05C */ 0x00000046UL, /* AGC.AGCPERIOD1 */
+  /*    C060 */ 0x0C0A0806UL, /* AGC.HICNTREGION0 */
+  /*    C064 */ 0x0000000DUL, /* AGC.HICNTREGION1 */
+  /*    C068 */ 0x0002B688UL, /* AGC.STEPDWN */
   /*    C06C */ 0x00000560UL, /* AGC.GAINSTEPLIM0 */
   0x01074050UL, 0x51500000UL, /* Write: MODEM.AFCADJRX */
   /*    4054 */ 0x21A00000UL, /* MODEM.AFCADJTX */
@@ -521,7 +523,7 @@ const uint32_t ble_viterbi2M_0_34_modemConfig[] = {
   /*    4068 */ 0x00000000UL, /* MODEM.CTRL3 */
   0x01014074UL, 0x40000000UL, /* Write: MODEM.CTRL6 */
   0x01024080UL, 0x00000002UL, /* Write: MODEM.CF */
-  /*    4084 */ 0x00080092UL, /* MODEM.PRE */
+  /*    4084 */ 0x00080091UL, /* MODEM.PRE */
   0x010F4090UL, 0x00055AB7UL, /* Write: MODEM.MODINDEX */
   /*    4094 */ 0x61000000UL, /* MODEM.AFC */
   /*    4098 */ 0x00000000UL, /* MODEM.AFCADJLIM */
@@ -589,9 +591,10 @@ const uint32_t ble_viterbi2M_0_34_modemConfig[] = {
 
 const uint32_t ble_LR_DSA_125kb_modemConfig[] = {
   0x0301001CUL, (uint32_t) &phyInfo_2, /* Write: SEQ.PHYINFO */
-  0x03020008UL, 0x00025A61UL, /* Write: SEQ.MODINDEX_CALC */
-  /*    000C */ 0x00025B61UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
-  0x03020014UL, 0x00000024UL, /* Write: SEQ.MODEMINFO */
+  0x03050008UL, 0x00025C19UL, /* Write: SEQ.MODINDEX_CALC */
+  /*    000C */ 0x00025D19UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
+  /*    0010 */ 0x00000000UL, /* SEQ.FSWCOREINFO */
+  /*    0014 */ 0x00000024UL, /* SEQ.MODEMINFO */
   /*    0018 */ 0x00000000UL, /* SEQ.MISC */
   0x00014010UL, 0x00004100UL, /* Write: FRC.MAXLENGTH */
   0x0001403CUL, 0x00000010UL, /* Write: FRC.FECCTRL */
@@ -616,21 +619,21 @@ const uint32_t ble_LR_DSA_125kb_modemConfig[] = {
   0x01014074UL, 0x00000000UL, /* Write: MODEM.CTRL6 */
   0x01024080UL, 0x00000010UL, /* Write: MODEM.CF */
   /*    4084 */ 0x000A0092UL, /* MODEM.PRE */
-  0x010F4090UL, 0x00025A61UL, /* Write: MODEM.MODINDEX */
+  0x010F4090UL, 0x00025C19UL, /* Write: MODEM.MODINDEX */
   /*    4094 */ 0x60000000UL, /* MODEM.AFC */
   /*    4098 */ 0x00000000UL, /* MODEM.AFCADJLIM */
   /*    409C */ 0xFC02FF01UL, /* MODEM.SHAPING0 */
-  /*    40A0 */ 0x58371C15UL, /* MODEM.SHAPING1 */
+  /*    40A0 */ 0x58381C15UL, /* MODEM.SHAPING1 */
   /*    40A4 */ 0x797E7F71UL, /* MODEM.SHAPING2 */
-  /*    40A8 */ 0x26425D6DUL, /* MODEM.SHAPING3 */
-  /*    40AC */ 0x09FF030CUL, /* MODEM.SHAPING4 */
-  /*    40B0 */ 0x090911FEUL, /* MODEM.SHAPING5 */
-  /*    40B4 */ 0x06070708UL, /* MODEM.SHAPING6 */
-  /*    40B8 */ 0x05050506UL, /* MODEM.SHAPING7 */
-  /*    40BC */ 0x03040404UL, /* MODEM.SHAPING8 */
-  /*    40C0 */ 0x02030303UL, /* MODEM.SHAPING9 */
+  /*    40A8 */ 0x24405B6CUL, /* MODEM.SHAPING3 */
+  /*    40AC */ 0x05FCFF09UL, /* MODEM.SHAPING4 */
+  /*    40B0 */ 0x07080EFCUL, /* MODEM.SHAPING5 */
+  /*    40B4 */ 0x05060607UL, /* MODEM.SHAPING6 */
+  /*    40B8 */ 0x04040505UL, /* MODEM.SHAPING7 */
+  /*    40BC */ 0x03030404UL, /* MODEM.SHAPING8 */
+  /*    40C0 */ 0x02020303UL, /* MODEM.SHAPING9 */
   /*    40C4 */ 0x02020202UL, /* MODEM.SHAPING10 */
-  /*    40C8 */ 0x01010102UL, /* MODEM.SHAPING11 */
+  /*    40C8 */ 0x01010202UL, /* MODEM.SHAPING11 */
   0x01014118UL, 0x00051E33UL, /* Write: MODEM.DCCOMP */
   0x01014124UL, 0x8C2C3000UL, /* Write: MODEM.SRCCHF */
   0x0101413CUL, 0x0051C04AUL, /* Write: MODEM.DIGMIXCTRL */
@@ -683,9 +686,10 @@ const uint32_t ble_LR_DSA_125kb_modemConfig[] = {
 
 const uint32_t ble_LR_DSA_500kb_modemConfig[] = {
   0x0301001CUL, (uint32_t) &phyInfo_3, /* Write: SEQ.PHYINFO */
-  0x03020008UL, 0x00025A61UL, /* Write: SEQ.MODINDEX_CALC */
-  /*    000C */ 0x00025B61UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
-  0x03020014UL, 0x00000024UL, /* Write: SEQ.MODEMINFO */
+  0x03050008UL, 0x00025C19UL, /* Write: SEQ.MODINDEX_CALC */
+  /*    000C */ 0x00025D19UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
+  /*    0010 */ 0x00000000UL, /* SEQ.FSWCOREINFO */
+  /*    0014 */ 0x00000024UL, /* SEQ.MODEMINFO */
   /*    0018 */ 0x00000000UL, /* SEQ.MISC */
   0x00014010UL, 0x00004100UL, /* Write: FRC.MAXLENGTH */
   0x0001403CUL, 0x00000010UL, /* Write: FRC.FECCTRL */
@@ -710,21 +714,21 @@ const uint32_t ble_LR_DSA_500kb_modemConfig[] = {
   0x01014074UL, 0x00000000UL, /* Write: MODEM.CTRL6 */
   0x01024080UL, 0x00000010UL, /* Write: MODEM.CF */
   /*    4084 */ 0x000A0092UL, /* MODEM.PRE */
-  0x010F4090UL, 0x00025A61UL, /* Write: MODEM.MODINDEX */
+  0x010F4090UL, 0x00025C19UL, /* Write: MODEM.MODINDEX */
   /*    4094 */ 0x60000000UL, /* MODEM.AFC */
   /*    4098 */ 0x00000000UL, /* MODEM.AFCADJLIM */
   /*    409C */ 0xFC02FF01UL, /* MODEM.SHAPING0 */
-  /*    40A0 */ 0x58371C15UL, /* MODEM.SHAPING1 */
+  /*    40A0 */ 0x58381C15UL, /* MODEM.SHAPING1 */
   /*    40A4 */ 0x797E7F71UL, /* MODEM.SHAPING2 */
-  /*    40A8 */ 0x26425D6DUL, /* MODEM.SHAPING3 */
-  /*    40AC */ 0x09FF030CUL, /* MODEM.SHAPING4 */
-  /*    40B0 */ 0x090911FEUL, /* MODEM.SHAPING5 */
-  /*    40B4 */ 0x06070708UL, /* MODEM.SHAPING6 */
-  /*    40B8 */ 0x05050506UL, /* MODEM.SHAPING7 */
-  /*    40BC */ 0x03040404UL, /* MODEM.SHAPING8 */
-  /*    40C0 */ 0x02030303UL, /* MODEM.SHAPING9 */
+  /*    40A8 */ 0x24405B6CUL, /* MODEM.SHAPING3 */
+  /*    40AC */ 0x05FCFF09UL, /* MODEM.SHAPING4 */
+  /*    40B0 */ 0x07080EFCUL, /* MODEM.SHAPING5 */
+  /*    40B4 */ 0x05060607UL, /* MODEM.SHAPING6 */
+  /*    40B8 */ 0x04040505UL, /* MODEM.SHAPING7 */
+  /*    40BC */ 0x03030404UL, /* MODEM.SHAPING8 */
+  /*    40C0 */ 0x02020303UL, /* MODEM.SHAPING9 */
   /*    40C4 */ 0x02020202UL, /* MODEM.SHAPING10 */
-  /*    40C8 */ 0x01010102UL, /* MODEM.SHAPING11 */
+  /*    40C8 */ 0x01010202UL, /* MODEM.SHAPING11 */
   0x01014118UL, 0x00051E33UL, /* Write: MODEM.DCCOMP */
   0x01014124UL, 0x8C2C3000UL, /* Write: MODEM.SRCCHF */
   0x0101413CUL, 0x0051C04AUL, /* Write: MODEM.DIGMIXCTRL */
@@ -777,12 +781,13 @@ const uint32_t ble_LR_DSA_500kb_modemConfig[] = {
 
 const uint32_t ble_LR_DSA_1Mb_modemConfig[] = {
   0x0301001CUL, (uint32_t) &phyInfo_4, /* Write: SEQ.PHYINFO */
-  0x03020008UL, 0x00025A61UL, /* Write: SEQ.MODINDEX_CALC */
-  /*    000C */ 0x00025B61UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
-  0x03020014UL, 0x00000024UL, /* Write: SEQ.MODEMINFO */
+  0x03050008UL, 0x00025C19UL, /* Write: SEQ.MODINDEX_CALC */
+  /*    000C */ 0x00025D19UL, /* SEQ.MODINDEX_CALC_MODINDEXE_DOUBLED */
+  /*    0010 */ 0x00000000UL, /* SEQ.FSWCOREINFO */
+  /*    0014 */ 0x00000024UL, /* SEQ.MODEMINFO */
   /*    0018 */ 0x00000000UL, /* SEQ.MISC */
   0x00014010UL, 0x00004100UL, /* Write: FRC.MAXLENGTH */
-  0x0001403CUL, 0x00000010UL, /* Write: FRC.FECCTRL */
+  0x0001403CUL, 0x00000000UL, /* Write: FRC.FECCTRL */
   0x00014048UL, 0x0B008720UL, /* Write: FRC.CTRL */
   0x00014050UL, 0x00000000UL, /* Write: FRC.TRAILTXDATACTRL */
   0x0001405CUL, 0x00000F0DUL, /* Write: FRC.CONVGENERATOR */
@@ -804,21 +809,21 @@ const uint32_t ble_LR_DSA_1Mb_modemConfig[] = {
   0x01014074UL, 0x00000000UL, /* Write: MODEM.CTRL6 */
   0x01024080UL, 0x00000010UL, /* Write: MODEM.CF */
   /*    4084 */ 0x00040091UL, /* MODEM.PRE */
-  0x010F4090UL, 0x00025A61UL, /* Write: MODEM.MODINDEX */
+  0x010F4090UL, 0x00025C19UL, /* Write: MODEM.MODINDEX */
   /*    4094 */ 0x60000000UL, /* MODEM.AFC */
   /*    4098 */ 0x00000000UL, /* MODEM.AFCADJLIM */
   /*    409C */ 0xFC02FF01UL, /* MODEM.SHAPING0 */
-  /*    40A0 */ 0x58371C15UL, /* MODEM.SHAPING1 */
+  /*    40A0 */ 0x58381C15UL, /* MODEM.SHAPING1 */
   /*    40A4 */ 0x797E7F71UL, /* MODEM.SHAPING2 */
-  /*    40A8 */ 0x26425D6DUL, /* MODEM.SHAPING3 */
-  /*    40AC */ 0x09FF030CUL, /* MODEM.SHAPING4 */
-  /*    40B0 */ 0x090911FEUL, /* MODEM.SHAPING5 */
-  /*    40B4 */ 0x06070708UL, /* MODEM.SHAPING6 */
-  /*    40B8 */ 0x05050506UL, /* MODEM.SHAPING7 */
-  /*    40BC */ 0x03040404UL, /* MODEM.SHAPING8 */
-  /*    40C0 */ 0x02030303UL, /* MODEM.SHAPING9 */
+  /*    40A8 */ 0x24405B6CUL, /* MODEM.SHAPING3 */
+  /*    40AC */ 0x05FCFF09UL, /* MODEM.SHAPING4 */
+  /*    40B0 */ 0x07080EFCUL, /* MODEM.SHAPING5 */
+  /*    40B4 */ 0x05060607UL, /* MODEM.SHAPING6 */
+  /*    40B8 */ 0x04040505UL, /* MODEM.SHAPING7 */
+  /*    40BC */ 0x03030404UL, /* MODEM.SHAPING8 */
+  /*    40C0 */ 0x02020303UL, /* MODEM.SHAPING9 */
   /*    40C4 */ 0x02020202UL, /* MODEM.SHAPING10 */
-  /*    40C8 */ 0x01010102UL, /* MODEM.SHAPING11 */
+  /*    40C8 */ 0x01010202UL, /* MODEM.SHAPING11 */
   0x01014118UL, 0x00051E33UL, /* Write: MODEM.DCCOMP */
   0x01014124UL, 0x8C2C3000UL, /* Write: MODEM.SRCCHF */
   0x0101413CUL, 0x0051C04AUL, /* Write: MODEM.DIGMIXCTRL */

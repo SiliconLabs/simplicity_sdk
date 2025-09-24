@@ -50,8 +50,8 @@ typedef struct {
 typedef struct {
   uint32_t bitmask;
   uint8_t keyIndex;
-  uint8_t encryptionKey[16]; // points to PSA key ID if bitmask & SL_ZIGBEE_ZLL_TOKEN_POINTS_TO_PSA_ID
-  uint8_t preconfiguredKey[16]; // points to PSA key ID if bitmask & SL_ZIGBEE_ZLL_TOKEN_POINTS_TO_PSA_ID
+  uint8_t encryptionKey[16]; // ignored if using Secure Key Storage
+  uint8_t preconfiguredKey[16]; // ignored if using Secure Key Storage
 } tokTypeStackZllSecurity;
 #endif
 

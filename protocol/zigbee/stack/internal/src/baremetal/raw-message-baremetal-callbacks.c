@@ -18,13 +18,13 @@
 #include "stack/include/raw-message.h"
 #include "stack/internal/inc/raw-message-internal-def.h"
 
-void sli_802154_stack_filter_match_message_handler(uint8_t filterIndexMatch,
+void sli_802154_stack_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                    uint8_t legacyPassthroughType,
                                                    sl_zigbee_rx_packet_info_t *packetInfo,
                                                    uint8_t messageLength,
                                                    uint8_t *messageContents)
 {
-  sl_802154_filter_match_message_handler(filterIndexMatch,
+  sl_802154_filter_match_message_handler(filterValueMatch,
                                          legacyPassthroughType,
                                          packetInfo,
                                          messageLength,

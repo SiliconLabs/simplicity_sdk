@@ -63,9 +63,12 @@ static u3c_db_operation_result check_and_report_nonexistent_user(
 /*                             PUBLIC FUNCTIONS                             */
 /****************************************************************************/
 
-ZW_WEAK void CC_UserCredential_delete_all_credentials_of_type(
+ZW_WEAK bool CC_UserCredential_delete_all_credentials_of_type(
   uint16_t uuid, u3c_credential_type filter_type)
 {
+  // Remember whether any credentials were deleted
+  bool deleted_any_credentials = false;
+
   // The Credential to be deleted in the current iteration
   u3c_credential_type target_type = filter_type;
   uint16_t target_slot = 0;
@@ -92,12 +95,17 @@ ZW_WEAK void CC_UserCredential_delete_all_credentials_of_type(
       uuid, target_type, target_slot, &next_type, &next_slot);
 
     // Delete target Credential
-    CC_UserCredential_delete_credential(target_type, target_slot);
+    if (CC_UserCredential_delete_credential(target_type, target_slot)
+        == U3C_DB_OPERATION_RESULT_SUCCESS) {
+      deleted_any_credentials = true;
+    }
 
     // Target the next Credential
     target_type = next_type;
     target_slot = next_slot;
   }
+
+  return deleted_any_credentials;
 }
 
 ZW_WEAK u3c_db_operation_result CC_UserCredential_add_user_and_report(

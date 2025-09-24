@@ -169,6 +169,7 @@
   - name: device_has_mpu
   - name: device_has_radio
   - name: device_has_radio_subghz
+  - name: device_has_swo
   - name: device_supports_rail
   - name: device_supports_rail_stack
   - name: device_supports_connect

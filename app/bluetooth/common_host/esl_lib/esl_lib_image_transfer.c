@@ -844,6 +844,17 @@ static void remove_transfer(image_transfer_t **image_transfer,
 
   if (sc != SL_STATUS_NONE_WAITING) {
     set_state(*image_transfer, ESL_LIB_IMAGE_TRANSFER_REMOVED, sc, NULL);
+  } else {
+    sl_status_t status = sli_bt_ots_client_force_remove(&(*image_transfer)->ots_client);
+    if (status == SL_STATUS_OK) {
+      esl_lib_log_it_debug(IT_FMT "OTS Client forcefully removed from list." APP_LOG_NL,
+                           ESL_LIB_LOG_PTR(*image_transfer));
+    } else {
+      esl_lib_log_it_error(IT_FMT "Failed to forcefully remove OTS Client from list, sc = 0x%04x" APP_LOG_NL,
+                           ESL_LIB_LOG_PTR(*image_transfer),
+                           status);
+    }
+    finish_transfer = false;
   }
 
   if (finish_transfer) {

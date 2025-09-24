@@ -1021,6 +1021,7 @@ void cs_ras_client_on_mode_changed(uint8_t       connection,
   }
 
   state_machine_event_data_t evt_data;
+  sl_status_t sc;
 
   initiator_log_debug(INSTANCE_PREFIX "RAS - mode changed to %u" LOG_NL,
                       initiator->conn_handle,
@@ -1028,10 +1029,26 @@ void cs_ras_client_on_mode_changed(uint8_t       connection,
 
   switch (mode) {
     case CS_RAS_MODE_REAL_TIME_RANGING_DATA:
-      evt_data.evt_init_completed = true;
-      (void)initiator_state_machine_event_handler(initiator,
-                                                  INITIATOR_EVT_INIT_COMPLETED,
-                                                  &evt_data);
+      // Emit the event for the initialization phase
+      if (initiator->ras_client.state != RAS_STATE_MODE_REAL_TIME_REENABLE) {
+        evt_data.evt_init_completed = true;
+        (void)initiator_state_machine_event_handler(initiator,
+                                                    INITIATOR_EVT_INIT_COMPLETED,
+                                                    &evt_data);
+      } else {
+        sc = cs_ras_client_real_time_receive(initiator->conn_handle,
+                                             sizeof(initiator->data.reflector.ranging_data),
+                                             initiator->data.reflector.ranging_data);
+        if (sc != SL_STATUS_OK) {
+          initiator_log_error(INSTANCE_PREFIX "RAS - failed to receive real-time data! [sc: 0x%lx]" LOG_NL,
+                              initiator->conn_handle,
+                              (unsigned long)sc);
+          on_error(initiator,
+                   CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED,
+                   sc);
+        }
+      }
+      initiator->ras_client.state = RAS_STATE_MODE_REAL_TIME;
       break;
     case CS_RAS_MODE_ON_DEMAND_RANGING_DATA:
       initiator->ras_client.state = RAS_STATE_MODE_ON_DEMAND;
@@ -1044,6 +1061,22 @@ void cs_ras_client_on_mode_changed(uint8_t       connection,
     case CS_RAS_MODE_CHANGE_IN_PROGRESS:
       initiator_log_info(INSTANCE_PREFIX "RAS - mode change in progress ..." LOG_NL,
                          initiator->conn_handle);
+      break;
+    case CS_RAS_MODE_NONE:
+      if (initiator->ras_client.state == RAS_STATE_MODE_REAL_TIME) {
+        initiator->ras_client.state = RAS_STATE_MODE_REAL_TIME_REENABLE;
+        sc = cs_ras_client_select_mode(initiator->conn_handle,
+                                       CS_RAS_MODE_REAL_TIME_RANGING_DATA);
+        if (sc != SL_STATUS_OK) {
+          initiator_log_error(INSTANCE_PREFIX "RAS - failed to select mode! [sc: 0x%lx]" LOG_NL,
+                              initiator->conn_handle,
+                              (unsigned long)sc);
+          on_error(initiator,
+                   CS_ERROR_EVENT_RAS_CLIENT_MODE_CHANGE_FAILED,
+                   sc);
+          return;
+        }
+      }
       break;
     default:
       break;
@@ -1080,36 +1113,38 @@ void cs_ras_client_on_ranging_data_reception_finished(uint8_t                   
   cs_initiator_report(CS_INITIATOR_REPORT_LAST_CS_RESULT_BEGIN);
   if (initiator->ras_client.real_time_mode) {
     // Re-enable reception for Real-Time mode
-    sc = cs_ras_client_real_time_receive(initiator->conn_handle,
-                                         sizeof(initiator->data.reflector.ranging_data),
-                                         initiator->data.reflector.ranging_data);
-    if (sc != SL_STATUS_OK) {
+    status = cs_ras_client_real_time_receive(initiator->conn_handle,
+                                             sizeof(initiator->data.reflector.ranging_data),
+                                             initiator->data.reflector.ranging_data);
+    if (status != SL_STATUS_OK) {
       initiator_log_error(INSTANCE_PREFIX "RAS - failed to receive real-time data! [sc: 0x%lx]" LOG_NL,
                           initiator->conn_handle,
-                          (unsigned long)sc);
+                          (unsigned long)status);
       on_error(initiator,
                CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED,
-               sc);
+               status);
       return;
     }
 
     initiator_log_info(INSTANCE_PREFIX "RAS - real-time data reception restarted" LOG_NL,
                        initiator->conn_handle);
   }
-  if (sc != SL_STATUS_OK) {
+  if ((sc != SL_STATUS_OK) || (lost_segments > 0)) {
     initiator_log_error(INSTANCE_PREFIX "RAS - reception finished - failure! [sc: 0x%lx]" LOG_NL,
                         initiator->conn_handle,
                         (unsigned long)sc);
-    on_error(initiator,
-             CS_ERROR_EVENT_RAS_CLIENT_DATA_RECEPTION_FINISH_FAILED,
-             sc);
+    if (sc != SL_STATUS_ABORT) {
+      on_error(initiator,
+               CS_ERROR_EVENT_RAS_CLIENT_DATA_RECEPTION_FINISH_FAILED,
+               sc);
+    }
     return;
   }
 
   initiator_log_info(INSTANCE_PREFIX "RAS - %s reception finished, "
                                      "lost:%u counter:%u, resp.code:0x%02x, "
                                      "segment: %u -> %u %s, size:%lu, %s, "
-                                     "last known segment: %u, lost segments mask: 0x%08llx" LOG_NL,
+                                     "last known segment: %u, lost segments mask: 0x%16llx" LOG_NL,
                      initiator->conn_handle,
                      (real_time ? "real-time" : "on-demand"),
                      retrieve_lost,
@@ -1306,6 +1341,22 @@ void cs_ras_client_on_ranging_data_overwritten(uint8_t connection, cs_ras_rangin
                      ranging_counter);
 }
 #endif // CS_RAS_MODE_ON_DEMAND_RANGING_DATA
+
+bool cs_ras_client_on_timeout(uint8_t connection,
+                              cs_ras_client_timeout_t timeout,
+                              cs_ras_client_timeout_action_t action)
+{
+  cs_initiator_t *initiator = cs_initiator_get_instance(connection);
+  initiator_log_debug(INSTANCE_PREFIX "RAS timeout: %u, action: %u" LOG_NL,
+                      connection,
+                      timeout,
+                      action);
+  on_error(initiator,
+           CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED,
+           SL_STATUS_TIMEOUT);
+  // Perform the action automatically
+  return false;
+}
 
 /******************************************************************************
  * Bluetooth stack event handler.
@@ -1604,6 +1655,10 @@ bool cs_initiator_on_event(sl_bt_msg_t *evt)
       if (initiator == NULL) {
         break;
       }
+      handled = true;
+      #ifdef SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT
+      handled = false;
+      #endif //SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT
       initiator_log_info(INSTANCE_PREFIX "CS - received first initiator CS result" LOG_NL,
                          evt->data.evt_cs_result.connection);
       if (initiator->ranging_counter == CS_RAS_INVALID_RANGING_COUNTER) {
@@ -1614,23 +1669,27 @@ bool cs_initiator_on_event(sl_bt_msg_t *evt)
                              initiator->conn_handle);
         }
       }
-      if (initiator->initiator_state != INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_COMPLETE
-          && initiator->initiator_state != INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_ABORTED) {
-        evt_data.evt_cs_result.cs_event = evt;
-        evt_data.evt_cs_result.first_cs_result = true;
-        sc = initiator_state_machine_event_handler(initiator,
-                                                   INITIATOR_EVT_CS_RESULT,
-                                                   &evt_data);
-        if (sc == SL_STATUS_OK) {
-          handled = true;
+      if (initiator->initiator_state == INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_COMPLETE
+          || initiator->initiator_state == INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_ABORTED) {
+        initiator->drop_counter++;
+        if (initiator->drop_counter > CS_INITIATOR_MAX_DROP) {
+          initiator->drop_counter = 0;
+          initiator->ranging_counter = CS_RAS_INVALID_RANGING_COUNTER;
+          reset_subevent_data(initiator, false);
+          initiator->initiator_state = (uint8_t)INITIATOR_STATE_IN_PROCEDURE;
+          initiator_log_info(INSTANCE_PREFIX "Instance new state: IN_PROCEDURE" LOG_NL,
+                             initiator->conn_handle);
+        } else {
+          initiator_log_info(INSTANCE_PREFIX "CS - ongoing measurement, drop new result" LOG_NL,
+                             evt->data.evt_cs_result.connection);
+          break;
         }
-      } else {
-        initiator_log_info(INSTANCE_PREFIX "CS - ongoing measurement, drop new result" LOG_NL,
-                           evt->data.evt_cs_result.connection);
       }
-      #ifdef SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT
-      handled = false;
-      #endif //SL_CATALOG_BLUETOOTH_FEATURE_CS_TEST_PRESENT
+      evt_data.evt_cs_result.cs_event = evt;
+      evt_data.evt_cs_result.first_cs_result = true;
+      (void)initiator_state_machine_event_handler(initiator,
+                                                  INITIATOR_EVT_CS_RESULT,
+                                                  &evt_data);
       break;
 
     // --------------------------------
@@ -1640,18 +1699,16 @@ bool cs_initiator_on_event(sl_bt_msg_t *evt)
       if (initiator == NULL) {
         break;
       }
+      handled = true;
       if (initiator->initiator_state != INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_COMPLETE
           && initiator->initiator_state != INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_ABORTED) {
         initiator_log_info(INSTANCE_PREFIX "CS - received initiator CS result" LOG_NL,
                            evt->data.evt_cs_result_continue.connection);
         evt_data.evt_cs_result.cs_event = evt;
         evt_data.evt_cs_result.first_cs_result = false;
-        sc = initiator_state_machine_event_handler(initiator,
-                                                   INITIATOR_EVT_CS_RESULT_CONTINUE,
-                                                   &evt_data);
-        if (sc == SL_STATUS_OK) {
-          handled = true;
-        }
+        (void)initiator_state_machine_event_handler(initiator,
+                                                    INITIATOR_EVT_CS_RESULT_CONTINUE,
+                                                    &evt_data);
       } else {
         initiator_log_info(INSTANCE_PREFIX "CS - ongoing measurement, drop new result continue" LOG_NL,
                            evt->data.evt_cs_result.connection);

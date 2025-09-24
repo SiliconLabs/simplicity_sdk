@@ -67,7 +67,7 @@ struct sxdesc {
         d->dmatag |= tag;\
     } while (0)
 
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 void sx_add_indesc(struct sx_dmactl *dma, char *baddr, size_t bsz, uint32_t tag);
 
 #define ADD_CFGDESC(dmactl, baddr, bsz, tag)\
@@ -135,7 +135,7 @@ void sx_add_indesc(struct sx_dmactl *dma, char *baddr, size_t bsz, uint32_t tag)
         (d - 1)->sz = ((d-1)->sz + ign) | DMA_REALIGN;\
     } while (0)
 
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 void sx_add_outdesc(struct sx_dmactl *dmactl, char *p, size_t bsz);
 
 #define ADD_DISCARDDESC(dmactl, bsz) sx_add_outdesc(&(dmactl), 0, (bsz) | DMA_DISCARD)
@@ -166,18 +166,18 @@ void sx_add_outdesc(struct sx_dmactl *dmactl, char *p, size_t bsz);
 struct sx_dmactl;
 
 /** Prepare for a new command/operation over DMA */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 void sx_cmdma_newcmd(struct sx_dmactl *dma, union sxdescmem *d, size_t dsz,
     uint32_t cmd, uint32_t tag);
 
 
 /** Prepare for a new DMA operation */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 void sx_cmdma_newdma(struct sx_dmactl *dma, union sxdescmem *d, size_t dsz);
 
 
 /** Start input/fetcher DMA at indescs and output/pusher DMA at outdescs */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 void sx_cmdma_start(struct sx_dmactl *dma, size_t privsz, union sxdescmem *d);
 
 
@@ -188,7 +188,7 @@ void sx_cmdma_start(struct sx_dmactl *dma, size_t privsz, union sxdescmem *d);
  *  - SX_OK: The DMA transfers finished successfully.
  *  - SX_ERR_DMA_FAILED: The DMA engine failed.
  */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 int sx_cmdma_check(struct sx_dmactl *dma);
 
 
@@ -202,7 +202,7 @@ int sx_cmdma_check(struct sx_dmactl *dma);
  * The compatibility bitmask often cached by the caller and used with
  * sx_cmdma_find_available() or sx_cmdma_filter_compatible().
  */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 unsigned int sx_cmdma_list_compatible(unsigned int mask);
 
 
@@ -217,7 +217,7 @@ unsigned int sx_cmdma_list_compatible(unsigned int mask);
  *
  * @remark - 'compatible' should be generated with sx_cmdma_list_compatible()
  */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SXSYMCRYPT, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_COMMON, SL_CODE_CLASS_SECURITY)
 unsigned int sx_cmdma_filter_compatible(unsigned int compatible,
     uint32_t capsaddr, uint32_t capsmask);
 

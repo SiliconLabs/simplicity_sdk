@@ -1558,26 +1558,24 @@ sl_status_t sl_bt_system_get_tx_power_setting(int16_t *support_min,
 
 /***************************************************************************//**
  *
- * <b>Deprecated</b> . The Bluetooth stack does not provide a replacement for
- * storing an address persistently. User application can implement its own logic
- * of retrieving the address from persistent storage or with other means and use
- * it as the identity address in Bluetooth stack with command @ref
- * sl_bt_gap_set_identity_address.
- *
  * Store a custom Bluetooth identity address in the Bluetooth region of NVM3.
  * The address can be a public device address or a static device address. NVM3
  * keys used for the address and its type are in the key range owned by the
- * Bluetooth stack. The stack returns an error if the static device address does
- * not conform to the Bluetooth specification.
- *
- * The new address will be effective in the next system reboot. The stack will
- * use the address in the NVM3 keys when present. Otherwise, it uses the default
- * Bluetooth public device address which is programmed at production.
+ * Bluetooth stack. The stack returns an error if NVM3 does not present in the
+ * application or if the static device address does not conform to the Bluetooth
+ * specification.
  *
  * The stack treats 00:00:00:00:00:00 and ff:ff:ff:ff:ff:ff as invalid
  * addresses. Therefore, passing one of them into this command will cause the
  * stack to delete the NVM3 keys and use the default address in the next system
  * reboot.
+ *
+ * The new address set with this command will be effective in the next system
+ * reboot. The stack will use the address in the NVM3 keys when present.
+ * Otherwise, it uses the default Bluetooth public device address which is
+ * programmed at production. To set a Bluetooth identity address that is
+ * effective immediately without the need of system reboot, use @ref
+ * sl_bt_gap_set_identity_address.
  *
  * <b>Note:</b> Because the NVM3 keys are located in flash and flash wearing can
  * occur, avoid calling this command regularly.
@@ -13573,7 +13571,7 @@ PACKSTRUCT( struct sl_bt_evt_cs_read_remote_supported_capabilities_complete_s
   uint8_t  modes;                      /**< This value is a bitmask of flags to
                                             indicate which optional CS modes are
                                             supported. Flags:
-                                              - <b>0x02, bit 1:</b> Mode 3 is
+                                              - <b>0x01, bit 0:</b> Mode 3 is
                                                 supported */
   uint8_t  rtt_capability;             /**< This value is a bitmask of flags to
                                             indicate which Round Trip Time (RTT)
@@ -13625,23 +13623,22 @@ PACKSTRUCT( struct sl_bt_evt_cs_read_remote_supported_capabilities_complete_s
   uint8_t  cs_sync_phys;               /**< This value is a bitmask of flags to
                                             indicate which CS SYNC packages
                                             supported in an specific PHY. Flags:
-                                              - <b>0x01, bit 0:</b> LE 2M PHY CS
+                                              - <b>0x02, bit 1:</b> LE 2M PHY CS
                                                 SYNC packages are supported
-                                              - <b>0x02, bit 1:</b> LE 2M PHY
+                                              - <b>0x04, bit 2:</b> LE 2M PHY
                                                 2BT CS SYNC packages are
                                                 supported */
   uint16_t subfeatures;                /**< This value is a bitmask of flags to
                                             indicate which CS subfeatures are
                                             supported. Flags:
-                                              - <b>0x01, bit 0:</b> CS with zero
-                                                Frequency Actuation Error
-                                                relative to Mode 0 transmissions
-                                                in reflector role is supported
-                                              - <b>0x02, bit 1:</b> CS Channel
+                                              - <b>0x02, bit 1:</b> CS with no
+                                                transmitter Frequency Actuation
+                                                Error is supported
+                                              - <b>0x04, bit 2:</b> CS Channel
                                                 Selection Algorithm #3c is
                                                 supported
-                                              - <b>0x04, bit 2:</b> CS
-                                                phase-based ranging from a
+                                              - <b>0x08, bit 3:</b> CS
+                                                phase-based ranging from RTT
                                                 sounding sequence is supported */
   uint16_t t_ip1_times;                /**< This value is a bitmask of flags to
                                             indicate which time durations of
@@ -13796,8 +13793,19 @@ sl_status_t sl_bt_cs_security_enable(uint8_t connection);
  *     - <b>sl_bt_cs_role_status_disable (0x0):</b> The given role is disabled
  *     - <b>sl_bt_cs_role_status_enable (0x1):</b> The given role is enabled
  * @param[in] antenna_identifier Antenna identifier to be used for CS sync
- *   packets.
- *     - <b>Range:</b> 1 to 4
+ *   packets. Values:
+ *     - <b>0x01 to 0x04:</b> The antenna identifier to be used for CS_SYNC
+ *       packets by the local Controller
+ *     - <b>0xFD:</b> Antenna identifiers to be used, in repetitive order {0x01,
+ *       0x01, ..., Num_Antenna_Elements_Supported,
+ *       Num_Antenna_Elements_Supported} for CS_SYNC packets by the local
+ *       Controller, where Num_Antenna_Elements_Supported is the number of
+ *       antenna elements available for CS tone exchanges
+ *     - <b>0xFE:</b> Antenna identifiers to be used, in repetitive order from
+ *       0x01 to Num_Antenna_Elements_Supported, for CS_SYNC packets by the
+ *       local Controller, where Num_Antenna_Elements_Supported is the number of
+ *       antenna elements available for CS tone exchanges
+ *     - <b>0xFF:</b> Host does not have a recommendation.
  * @param[in] max_tx_power Maximum transmit power level to be used in all CS
  *   transmissions. Units: dBm.
  *     - <b>Range:</b> -127 to +20
@@ -14223,10 +14231,10 @@ sl_status_t sl_bt_cs_set_antenna_configuration(size_t antenna_element_offset_len
  *     - <b>0x04, bit 2:</b> LE 2M 2BT PHY CS_SYNC packages are supported
  * @param[out] subfeatures This value is a bitmask of flags to indicate which
  *   optional CS subfeatures are supported. Flags:
- *     - <b>0x01, bit 0:</b> CS with zero Frequency Actuation Error relative to
+ *     - <b>0x02, bit 1:</b> CS with zero Frequency Actuation Error relative to
  *       Mode 0 transmissions in reflector role is supported
- *     - <b>0x02, bit 1:</b> CS Channel Selection Algorithm #3c is supported
- *     - <b>0x04, bit 2:</b> CS phase-based ranging from a sounding sequence is
+ *     - <b>0x04, bit 2:</b> CS Channel Selection Algorithm #3c is supported
+ *     - <b>0x08, bit 3:</b> CS phase-based ranging from an RTT sounding is
  *       supported
  * @param[out] t_ip1_times This value is a bitmask of flags to indicate which
  *   time durations of Time for Interlude Period 1 (IP1) are supported. Flags:

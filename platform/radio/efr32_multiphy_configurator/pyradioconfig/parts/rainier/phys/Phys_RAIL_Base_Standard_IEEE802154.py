@@ -357,7 +357,6 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
         phy = self.PHY_IEEE802154_2p4GHz_Enhanced(model, phy_name=phy_name)
 
         self.fast_detection_ehdsss_settings(phy, model)
-        ## Port overrides from Signify work as these give better sensitivity and freqoffset for all 2ZB
         self.fast_framedet_ehdsss_settings(phy, model)
         self.fast_hopping_demod_ctrl_settings(phy, model)
 
@@ -399,7 +398,6 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
         phy.profile_outputs.MODEM_EHDSSSCFG1_DSSSCORRTHD.override = 400
         phy.profile_outputs.MODEM_EHDSSSCFG3_LQIAVGWIN.override = 0
 
-        # Special Signify modeswitch requirements to achieve minimum timing from TX to FRAMEDET timing
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSDSATHD.override = 0
         phy.profile_outputs.MODEM_EHDSSSCTRL_DSSSFRMTIMEOUT.override = 7
         phy.profile_outputs.MODEM_PHDMODCTRL_PMDETEN.override = 0
@@ -507,11 +505,11 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
     ### ZB Dual Sync PHY with HDR Settings for Minimal Diff (non-switching)###
     # This PHY should not be used in production and is only present for RTL regression
 
-    signify_hdrlist = ['MODEM_TRECSCFG_(?!DTIMLOSS)', 'MODEM_VITERBIDEMOD_*', 'MODEM_VTCORRCFG0_*', 'MODEM_VTCORRCFG1_*',
+    secret2_hdrlist = ['MODEM_TRECSCFG_(?!DTIMLOSS)', 'MODEM_VITERBIDEMOD_*', 'MODEM_VTCORRCFG0_*', 'MODEM_VTCORRCFG1_*',
                       'MODEM_TRECPM*', 'MODEM_REALTIMCFE_*']
 
-    @concurrent_phy(phy_name='PHY_Signify_SUN_FSK_2Mbps_500kHz', reg_field_list=signify_hdrlist)
-    def PHY_Signify_Mode_Switch(self, model, phy_name='PHY_Signify_Mode_Switch'):
+    #NOT WORKING AS INTENDED - IN THE PATCH
+    def PHY_Secret2_Mode_Switch(self, model, phy_name='PHY_Secret2_Mode_Switch'):
         phy = self.PHY_IEEE802154_2p4GHz_Enhanced_Scan(model, phy_name=phy_name)
 
         phy.profile_inputs.frame_length_type.value = model.vars.frame_length_type.var_enum.FIXED_LENGTH
@@ -562,11 +560,11 @@ class PhysRailBaseStandardIeee802154Rainier(PhysRAILBaseStandardIEEE802154Bobcat
 
         return phy
 
-    ### Signify Fast Switching PHY ###
+    ### Fast Switching PHY ###
     # This PHY should not be used in production and is only present for RTL regression
 
-    def PHY_Signify_2ZB_Concurrent_Hop(self, model, phy_name='PHY_Signify_2ZB_Concurrent_Hop'):
-        phy = self.PHY_Signify_Mode_Switch(model, phy_name=phy_name)
+    def PHY_Secret2_2ZB_Concurrent_Hop(self, model, phy_name='PHY_Secret2_2ZB_Concurrent_Hop'):
+        phy = self.PHY_Secret2_Mode_Switch(model, phy_name=phy_name)
         phy.profile_inputs.hop_enable.value = model.vars.hop_enable.var_enum.ENABLED
 
         phy.profile_inputs.frame_length_type.value = model.vars.frame_length_type.var_enum.FIXED_LENGTH  # : YJC - Changing to Fixed length. We can't set VARIABLE_LENGTH if header en is set to False

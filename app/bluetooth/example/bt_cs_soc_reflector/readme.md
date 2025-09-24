@@ -18,10 +18,40 @@ CS mode and object tracking mode is configured on the initiator side.
 - Flash usage can be reduced by
   - turning off some of the "Supported features" in "CS Ranging Service Server" component. Note that "Real-Time Ranging Data" feature is used by default on the Initiator,
   - turning off "Logging" in "CS Reflector" component or completely in "Application"- "Utility" -"Log" component,
-- RAM usage can be reduced by 
+- RAM usage can be reduced by
   - decreasing the "Max number of connections reserved for user" in Bluetooth "Connection" component configuration to the required amount.
   - decreasing "Procedure maximum length" or "Procedure per connection" "CS Ranging Service Server" component configuration. Note that reducing "Procedure maximum length" also affects the maximum number of procedures that can be stored in the buffer in case of RAS On-Demand mode.
 
+### Calculating the size of "Procedure maximum length"
+The optimal value of "Procedure maximum length" is dependent on several configuration values, and can be calculated by the following equation:
+
+proc_max_len = 4 + (subevents * 8) + (mode0_steps * mode0_size) + channels * ( ( 1 + ( antenna_paths + 1 ) * 4) + 1 )
+
+where
+- subevents value is constant 1 since one subevent per procedure is supported,
+- mode0_size is
+  - 4 for Reflector and
+  - 6 for Initiator,
+- mode0_steps value is the configuration "Mode 0 steps",
+- channels value means the number of channels from the channel mask that can be derived from the "Channel map preset" settings:
+  - "High"   - 72 (default),
+  - "Medium" - 37,
+  - "Low"    - 20,
+  - "Custom" - Number of 1s in channel mask,
+- antenna_paths value is controlled by the "Antenna configuration", and limited by number of antennas presented on each board (capabilities). Maximum can be calculated using the product of used Initiator and Reflector antennae. The default maximum value for antenna_paths is 4.
+
+These settings were selected by assuming that the controller creates only one subevent per procedure, and the measuring mode is PBR. In RTT mode there are far less data is created.
+
+If you use submode, you should add the following to the sum:
+
+(1 + mode1_size) * channels / main_mode_steps
+
+where
+- mode1_size is 6
+- main_mode_steps is the value of min_main_mode_steps ranging from to 2. This can be changed in cs_initiator_client.h.
+
+The default is calculated by using the constants and settings above using the worst case scenario, which gives 1866 bytes.
+RAM consumption can be reduced by changing the affected settings and reducing "Procedure maximum length" accordingly.
 
 ## Troubleshooting
 

@@ -26,18 +26,18 @@
 #include <stdbool.h>
 #include "em_device.h"
 
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
 #include "api/btl_interface.h"
 
-#endif // BOOTLOADER_ENABLE
-#ifdef SL_APP_PROPERTIES
+#endif
+#if defined(SL_APP_PROPERTIES)
 #include "api/application_properties.h"
 
-#endif // SL_APP_PROPERTIES
+#endif
 
 #define TOTAL_INTERRUPTS    (16 + EXT_IRQ_COUNT)
 
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
 extern MainBootloaderTable_t mainStageTable;
 extern void SystemInit2(void);
 
@@ -45,16 +45,16 @@ extern void SystemInit2(void);
  * Exception / Interrupt Handler Function Prototype
  *----------------------------------------------------------------------------*/
 typedef void (*VECTOR_TABLE_Type)(void);
-#endif
+#endif // defined(BOOTLOADER_ENABLE)
 
-#ifdef SL_APP_PROPERTIES
+#if defined(SL_APP_PROPERTIES)
 extern ApplicationProperties_t sl_app_properties;
 
 /*----------------------------------------------------------------------------
  * Exception / Interrupt Handler Function Prototype
  *----------------------------------------------------------------------------*/
 typedef void (*VECTOR_TABLE_Type)(void);
-#endif
+#endif // defined(SL_APP_PROPERTIES)
 
 /*---------------------------------------------------------------------------
  * External References
@@ -64,7 +64,7 @@ extern uint32_t __STACK_LIMIT;
 #if defined (SL_TRUSTZONE_SECURE) \
   && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 extern uint64_t __STACK_SEAL;
-#endif // SL_TRUSTZONE_SECURE
+#endif // defined(SL_TRUSTZONE_SECURE)
 
 extern __NO_RETURN void __PROGRAM_START(void);
 
@@ -72,7 +72,7 @@ extern __NO_RETURN void __PROGRAM_START(void);
 extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 void Copy_Table();
 void Zero_Table();
-#endif // __START
+#endif // defined(__START) && defined(__GNUC__)
 
 /*---------------------------------------------------------------------------
  * Internal References
@@ -83,12 +83,12 @@ void Default_Handler(void);
 #if defined (__GNUC__)
 #ifndef __STACK_SIZE
 #define __STACK_SIZE    0x00000400
-#endif // __STACK_SIZE
+#endif
 
 #ifndef __HEAP_SIZE
 #define __HEAP_SIZE    0x00000C00
-#endif // __HEAP_SIZE
-#endif // __GNUC__
+#endif
+#endif // defined(__GNUC__)
 
 /*----------------------------------------------------------------------------
  * Exception / Interrupt Handler
@@ -108,7 +108,7 @@ void SysTick_Handler(void) __attribute__ ((weak, alias("Default_Handler")));
 /* Provide a dummy value for the sl_app_properties symbol. */
 void sl_app_properties(void);    /* Prototype to please MISRA checkers. */
 void sl_app_properties(void) __attribute__ ((weak, alias("Default_Handler")));
-#endif
+#endif // defined(SL_APP_PROPERTIES)
 
 /* Part Specific Interrupts */
 void SMU_SECURE_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -195,7 +195,7 @@ void RFECA1_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 #if defined (__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-#endif // __GNUC__
+#endif // defined(__GNUC__)
 
 #if defined (__ICCARM__)
 #pragma data_alignment=512
@@ -208,7 +208,7 @@ __VECTOR_TABLE_ATTRIBUTE = {
 #else
 extern const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS];
 const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
-#endif
+#endif // defined(__ICCARM__)
   { .topOfStack = &__INITIAL_SP },            /*      Initial Stack Pointer     */
   { &Reset_Handler },                         /*      Reset Handler             */
   { &NMI_Handler },                           /*      -14 NMI Handler           */
@@ -219,18 +219,18 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
   { &SecureFault_Handler },                   /*      -9 Secure Fault Handler   */
   { &Default_Handler },                       /*      Reserved                  */
   { &Default_Handler },                       /*      Reserved                  */
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
   { (VECTOR_TABLE_Type) & mainStageTable },
 #else
   { &Default_Handler },                        /*      Reserved                  */
-#endif
+#endif // defined(BOOTLOADER_ENABLE)
   { &SVC_Handler },                            /*      -5 SVCall Handler         */
   { &DebugMon_Handler },                       /*      -4 Debug Monitor Handler  */
-#ifdef SL_APP_PROPERTIES
+#if defined(SL_APP_PROPERTIES)
   { (VECTOR_TABLE_Type) & sl_app_properties }, /*      Application properties    */
 #else
   { &sl_app_properties },                      /*      Application properties    */
-#endif
+#endif // defined(SL_APP_PROPERTIES)
   { &PendSV_Handler },                         /*      -2 PendSV Handler         */
   { &SysTick_Handler },                        /*      -1 SysTick Handler        */
 
@@ -315,7 +315,7 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
 
 #if defined (__GNUC__)
 #pragma GCC diagnostic pop
-#endif // __GNUC__
+#endif
 
 #if defined (__START) && defined (__GNUC__)
 void Copy_Table()
@@ -343,7 +343,7 @@ void Zero_Table()
     *pDest++ = 0UL;
   }
 }
-#endif // __START
+#endif // defined(__START) && defined(__GNUC__)
 
 #if !defined(SL_LEGACY_LINKER) \
   && !defined(SL_RAM_LINKER)   \
@@ -384,9 +384,8 @@ void CopyToRam(void)
   CopyMemory(from, to, num_instructions);
 }
 #pragma language=restore
-#endif
-#endif
-
+#endif // defined(__GNUC__)
+#endif // !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER) && !defined(BOOTLOADER_ENABLE)
 /*---------------------------------------------------------------------------
  * Reset Handler called on controller reset
  *---------------------------------------------------------------------------*/
@@ -397,7 +396,7 @@ __NO_RETURN void Reset_Handler(void)
 #if defined (SL_TRUSTZONE_SECURE) \
   && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   __TZ_set_STACKSEAL_S((uint32_t *) (&__STACK_SEAL));
-#endif // SL_TRUSTZONE_SECURE && __ARM_FEATURE_CMSE
+#endif // defined(SL_TRUSTZONE_SECURE) && defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
   #ifndef __NO_SYSTEM_INIT
   SystemInit();                    /* CMSIS System Initialization */
@@ -407,24 +406,25 @@ __NO_RETURN void Reset_Handler(void)
   && !defined(SL_RAM_LINKER)   \
   && !defined(BOOTLOADER_ENABLE)
   CopyToRam();
-#endif
+#endif // !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER) && !defined(BOOTLOADER_ENABLE)
 
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
   SystemInit2();
-#endif // BOOTLOADER_ENABLE
+#endif // defined(BOOTLOADER_ENABLE)
+
 #if defined (__GNUC__) && defined (__START)
   Copy_Table();
   Zero_Table();
   __START();
 #else
   __PROGRAM_START();               /* Enter PreMain (C library entry point) */
-#endif // __GNUC__
+#endif // defined(__GNUC__) && defined(__START)
 }
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wmissing-noreturn"
-#endif // __ARMCC_VERSION
+#endif // defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 
 /*----------------------------------------------------------------------------
  * Default Handler for Exceptions / Interrupts
@@ -438,4 +438,4 @@ void Default_Handler(void)
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang diagnostic pop
-#endif // __ARMCC_VERSION
+#endif // defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)

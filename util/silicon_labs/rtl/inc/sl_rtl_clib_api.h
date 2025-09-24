@@ -724,6 +724,36 @@ enum sl_rtl_error_code sl_rtl_aox_antenna_pattern_deinit(sl_rtl_aox_antenna_patt
  *   3. Create the estimator.
  *   4. Process the CS procedure data into distance.
  *   5. Get distance and/or likeliness estimates.
+ *
+ * **Supported Combinations**
+ *
+ * Main Mode: Phase-Based Ranging (PBR), Sub Mode: None
+ *
+ * | CS Algorithm Mode       | Channel Map Preset <br> HIGH | Channel Map Preset <br> MEDIUM | Channel Map Preset <br> LOW |
+ * | :---------------------- | :--------------------------: | :----------------------------: | :-------------------------: |
+ * | REAL TIME BASIC         |                          yes |                            yes |                         yes |
+ * | STATIC HIGH ACCURACY    |                          yes |                             no |                          no |
+ * | REAL TIME FAST          |                    yes + vel |                      yes + vel |                         yes |
+ *
+ * Main Mode: Round-Trip Time (RTT), Sub Mode: None
+ *
+ * | CS Algorithm Mode       | Channel Map Preset <br> HIGH | Channel Map Preset <br> MEDIUM | Channel Map Preset <br> LOW |
+ * | :---------------------- | :--------------------------: | :----------------------------: | :-------------------------: |
+ * | REAL TIME BASIC         |                          yes |                             no |                          no |
+ * | STATIC HIGH ACCURACY    |            (yes)<sup>*</sup> |                             no |                          no |
+ * | REAL TIME FAST          |                           no |                             no |                          no |
+ *
+ * Main Mode: Phase-Based Ranging (PBR), Sub Mode: Round-Trip Time (RTT)
+ *
+ * | CS Algorithm Mode       | Channel Map Preset <br> HIGH | Channel Map Preset <br> MEDIUM | Channel Map Preset <br> LOW |
+ * | :---------------------- | :--------------------------: | :----------------------------: | :-------------------------: |
+ * | REAL TIME BASIC         |                          yes |                             no |                          no |
+ * | STATIC HIGH ACCURACY    |                          yes |                             no |                          no |
+ * | REAL TIME FAST          |                    yes + vel |                             no |                          no |
+ *
+ * Refer to *Developer's Guide > Channel Sounding Performance Metrics* for the channel map preset definitions.
+ * @note vel = Velocity is reported.
+ * @note <sup>*</sup> This mode uses the same implementation as REAL TIME BASIC.
  */
 
 // -----------------------------------------------------------------------------
@@ -760,6 +790,10 @@ typedef enum {
   SL_RTL_CS_ROLE_REFLECTOR      /**< Reflector role. */
 } sl_rtl_cs_role;
 
+/**
+ * Refer to section Supported Combinations for valid parameter combinations
+ * with each algorithm mode.
+ */
 typedef enum {
   SL_RTL_CS_ALGO_MODE_REAL_TIME_BASIC = 0,
   /**< Medium filtering, medium response, medium CPU cost. Suitable for
@@ -805,10 +839,12 @@ typedef enum {
 typedef PACKSTRUCT (struct {
   uint8_t min_main_mode_steps;
   /**< Minimum number of CS main mode steps to be executed before a sub mode
-       step. Field is ignored if sub mode is set to ::SL_RTL_CS_MODE_NONE. */
+       step. Currently only value 2 is supported. Field is ignored if sub mode
+       is set to ::SL_RTL_CS_MODE_NONE. */
   uint8_t max_main_mode_steps;
-  /**< Maximum number of CS main mode steps to be executed before a sub mode
-       step. Field is ignored if sub mode is set to ::SL_RTL_CS_MODE_NONE. */
+  /**< Minimum number of CS main mode steps to be executed before a sub mode
+       step. Currently only value 2 is supported. Field is ignored if sub mode
+       is set to ::SL_RTL_CS_MODE_NONE. */
   uint32_t main_mode_repetition;      /**< Number of main modes repeated from
                                           previous subevent (0, 1, 2, 3). */
   uint8_t num_calib_steps;
@@ -852,9 +888,13 @@ typedef enum  {
                                             if more recent than the last CS
                                             measurement. */
   SL_RTL_RANGE_MIN  =           1,    /**< Minimum limit for the distance
-                                            estimation range. */
+                                            estimation range.
+                                            This parameter is currently not
+                                            applied. */
   SL_RTL_RANGE_MAX =            2,    /**< Maximum limit for the distance
-                                            estimation range. */
+                                            estimation range.
+                                            This parameter is currently not
+                                            applied. */
   SL_RTL_REF_TX_POWER =         3,    /**< Reference RSSI value of the
                                             TX-device at 1.0 m distance in dBm.
                                             Default value is -45.0 dBm. */
@@ -971,10 +1011,8 @@ typedef enum  {
   /**< Distance estimate based solely on the most recent procedure input. */
   SL_RTL_CS_DISTANCE_ESTIMATE_TYPE_VELOCITY,
   /**< Provides a velocity estimate derived from PCT data. Negative velocity
-       denotes approaching target. This feature is experimental and currently
-       only supports specific channel maps with
-       sl_rtl_cs_mode::SL_RTL_CS_MODE_PBR and
-       sl_rtl_algo_mode::SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST. */
+       denotes approaching target. This feature is experimental and has limited
+       support. Refer to section Supported Combinations for details. */
 } sl_rtl_cs_distance_estimate_type;
 
 typedef enum  {

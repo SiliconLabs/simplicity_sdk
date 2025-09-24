@@ -71,9 +71,14 @@
 // <i> Default: 1
 // <i> This option is enabled assuming all buffers passed to any PSA function reside
 // <i> in memory that is accessible only to the PSA function during its execution.
+// <i> This improves performance by avoiding extra buffer copies, reducing memory
+// <i> usage and allocation overhead. However, it is NOT the most secure option and
+// <i> should only be enabled if all buffers passed to PSA functions are exclusively
+// <i> accessible to PSA and never shared with untrusted code.
 // <i> This option MUST be disabled whenever buffer arguments are in memory shared
 // <i> with an untrusted party, for example where arguments to PSA calls are passed
-// <i> across a trust boundary.
+// <i> across a trust boundary, e.g. if TrustZone is enabled, and the PSA Crypto core
+// <i> is placed in the Secure domain.
 #define SL_MBEDTLS_PSA_ASSUME_EXCLUSIVE_BUFFERS 1
 
 // </h>

@@ -103,7 +103,7 @@ typedef enum {
  *   Pointer to SE image to validate.
  *
  * @return
- *   One of the following @ref status codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -124,7 +124,7 @@ sl_status_t sl_se_check_se_image(sl_se_command_context_t *cmd_ctx,
  *   Pointer to SE image to apply.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -145,7 +145,7 @@ sl_status_t sl_se_apply_se_image(sl_se_command_context_t *cmd_ctx,
  *   Pointer to 32-bit word where to return previous version.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -171,7 +171,7 @@ sl_status_t sl_se_get_upgrade_status_se_image(sl_se_command_context_t *cmd_ctx,
  *   Size of Host image to validate.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -196,7 +196,7 @@ sl_status_t sl_se_check_host_image(sl_se_command_context_t *cmd_ctx,
  *   Size of Host image to apply.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -218,7 +218,7 @@ sl_status_t sl_se_apply_host_image(sl_se_command_context_t *cmd_ctx,
  *   Pointer to 32-bit word where to return previous version.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -256,7 +256,7 @@ sl_se_get_upgrade_status_host_image(sl_se_command_context_t *cmd_ctx,
  *   Length of key buffer in bytes (16 or 64 bytes).
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -288,7 +288,7 @@ sl_status_t sl_se_init_otp_key(sl_se_command_context_t *cmd_ctx,
  *   Length of pubkey buffer (64 bytes).
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -331,7 +331,7 @@ sl_status_t sl_se_init_otp(sl_se_command_context_t *cmd_ctx,
  *   Pointer to uint32_t word where version shall be returned.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -351,7 +351,7 @@ sl_status_t sl_se_get_otp_version(sl_se_command_context_t *cmd_ctx,
  *   Pointer to OTP initialization structure.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_COMMAND if OTP configuration isn't initialized
  *   - @c SL_STATUS_ABORT when the operation is not attempted.
@@ -370,7 +370,7 @@ sl_status_t sl_se_read_otp(sl_se_command_context_t *cmd_ctx,
  *   Pointer to uint32_t word where version shall be returned.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_OWNERSHIP when the ownership is already taken
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
@@ -393,7 +393,7 @@ sl_status_t sl_se_get_se_version(sl_se_command_context_t *cmd_ctx,
  *   current status of the debug configuration.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -412,7 +412,7 @@ sl_status_t sl_se_get_debug_lock_status(sl_se_command_context_t *cmd_ctx,
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_apply_debug_lock(sl_se_command_context_t *cmd_ctx);
@@ -435,7 +435,7 @@ sl_status_t sl_se_apply_debug_lock(sl_se_command_context_t *cmd_ctx);
  *   Number of bytes to write to flash. NB: Must be equal to \ref SL_SE_USER_DATA_SIZE
  *   size
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -455,7 +455,7 @@ sl_status_t sl_se_write_user_data(sl_se_command_context_t *cmd_ctx,
  *   Number of bytes to read from flash, NB: Must be equal to \ref SL_SE_USER_DATA_SIZE
  *   size
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  *   - @c SL_STATUS_NOT_INITIALIZED if element is empty/unwritten
@@ -481,7 +481,7 @@ sl_status_t sl_se_get_user_data(sl_se_command_context_t *cmd_ctx,
  * @param[in] num_bytes
  *   Number of bytes to write to flash. NB: Must be divisable by four.
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -500,7 +500,7 @@ sl_status_t sl_se_write_user_data(sl_se_command_context_t *cmd_ctx,
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -520,7 +520,7 @@ sl_status_t sl_se_erase_user_data(sl_se_command_context_t *cmd_ctx);
  *   SE_Status_t containing current SE status.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK upon command completion. Errors are encoded in the
  *                        different parts of the returned status object.
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
@@ -541,7 +541,7 @@ sl_status_t sl_se_get_status(sl_se_command_context_t *cmd_ctx,
  *   Pointer to array of size 16 bytes.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -563,7 +563,7 @@ sl_status_t sl_se_get_serialnumber(sl_se_command_context_t *cmd_ctx,
  *   Pointer to uint32_t word where reset cause shall be returned.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  ******************************************************************************/
@@ -590,7 +590,7 @@ sl_status_t sl_se_get_reset_cause(sl_se_command_context_t *cmd_ctx,
  *   be returned.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_PARAMETER when cmd_ctx or reset_cause is NULL
@@ -654,7 +654,7 @@ __STATIC_INLINE bool sl_se_lifecycle_event_flag_is_set(uint64_t *flags, sl_se_li
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_enable_secure_debug(sl_se_command_context_t *cmd_ctx);
@@ -671,7 +671,7 @@ sl_status_t sl_se_enable_secure_debug(sl_se_command_context_t *cmd_ctx);
  *   locked debug port.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_disable_secure_debug(sl_se_command_context_t *cmd_ctx);
@@ -692,7 +692,7 @@ sl_status_t sl_se_disable_secure_debug(sl_se_command_context_t *cmd_ctx);
  *   Pointer to debug options structure.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_set_debug_options(sl_se_command_context_t *cmd_ctx,
@@ -716,7 +716,7 @@ sl_status_t sl_se_set_debug_options(sl_se_command_context_t *cmd_ctx,
  *   commissioning information in the secure engine.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_COMMAND if device erase is disabled.
  ******************************************************************************/
@@ -740,7 +740,7 @@ sl_status_t sl_se_erase_device(sl_se_command_context_t *cmd_ctx);
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_disable_device_erase(sl_se_command_context_t *cmd_ctx);
@@ -760,7 +760,7 @@ sl_status_t sl_se_disable_device_erase(sl_se_command_context_t *cmd_ctx);
  *   SE challenge storage.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  ******************************************************************************/
@@ -779,7 +779,7 @@ sl_status_t sl_se_get_challenge(sl_se_command_context_t *cmd_ctx,
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  ******************************************************************************/
 sl_status_t sl_se_roll_challenge(sl_se_command_context_t *cmd_ctx);
@@ -801,7 +801,7 @@ sl_status_t sl_se_roll_challenge(sl_se_command_context_t *cmd_ctx);
  *   Debug options to open/unlock.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -831,7 +831,7 @@ sl_status_t sl_se_open_debug(sl_se_command_context_t *cmd_ctx,
  *   Tamper signals to disable. Each signal represented by a bit.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_OPERATION when the SE command ID is not recognized
  *   - @c SL_STATUS_INVALID_CREDENTIALS when the command is not authorized
@@ -877,7 +877,7 @@ sl_status_t sl_se_read_cert_size(sl_se_command_context_t *cmd_ctx,
  *   Length of certificate in number of bytes.
  *
  * @return
- *   Status code, @ref status
+ *   Status code, @ref sl_status_t
  ******************************************************************************/
 sl_status_t sl_se_read_cert(sl_se_command_context_t *cmd_ctx,
                             sl_se_cert_type_t cert_type,
@@ -900,7 +900,7 @@ sl_status_t sl_se_read_cert(sl_se_command_context_t *cmd_ctx,
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  *   - @c SL_STATUS_COMMAND_IS_INVALID when already in active mode
@@ -918,7 +918,7 @@ sl_status_t sl_se_enter_active_mode(sl_se_command_context_t *cmd_ctx);
  *   Pointer to an SE command context object.
  *
  * @return
- *   One of the following sl_status_t codes:
+ *   One of the following @ref sl_status_t codes:
  *   - @c SL_STATUS_OK when the command was executed successfully
  *   - @c SL_STATUS_INVALID_PARAMETER when an invalid parameter was passed
  *   - @c SL_STATUS_COMMAND_IS_INVALID when already not in active mode
@@ -938,8 +938,8 @@ sl_status_t sl_se_exit_active_mode(sl_se_command_context_t *cmd_ctx);
  *
  * @return
  *   SL_STATUS_OK when the function executed successfully, else, a status code
- *   of type sl_status_t that indicates why the function was not successful,
- *   @ref status
+ *   of type @ref sl_status_t that indicates why the function was not successful,
+ *   @ref sl_status_t
  ******************************************************************************/
 sl_status_t sl_se_get_rollback_counter(sl_se_command_context_t *cmd_ctx,
                                        uint32_t *rollback_counter);
@@ -956,8 +956,8 @@ sl_status_t sl_se_get_rollback_counter(sl_se_command_context_t *cmd_ctx,
  *              Set to NULL to ignore
  * @return
  *   SL_STATUS_OK when the function executed successfully, else, a status code
- *   of type sl_status_t that indicates why the function was not successful,
- *   @ref status
+ *   of type @ref sl_status_t that indicates why the function was not successful,
+ *   @ref sl_status_t
  ******************************************************************************/
 sl_status_t sl_se_increment_rollback_counter(sl_se_command_context_t *cmd_ctx,
                                              uint32_t *rollback_counter);
@@ -973,8 +973,8 @@ sl_status_t sl_se_increment_rollback_counter(sl_se_command_context_t *cmd_ctx,
  *
  * @return
  *   SL_STATUS_OK when the function executed successfully, else, a status code
- *   of type sl_status_t that indicates why the function was not successful,
- *   @ref status
+ *   of type @ref sl_status_t that indicates why the function was not successful,
+ *   @ref sl_status_t
  ******************************************************************************/
 sl_status_t sl_se_get_upgrade_file_version(sl_se_command_context_t *cmd_ctx,
                                            uint32_t *version);
@@ -990,8 +990,8 @@ sl_status_t sl_se_get_upgrade_file_version(sl_se_command_context_t *cmd_ctx,
  *
  * @return
  *   \ref SL_STATUS_OK when the function executed successfully, else, a status code
- *   of type sl_status_t that indicates why the function was not successful,
- *   @ref status
+ *   of type @ref sl_status_t that indicates why the function was not successful,
+ *   @ref sl_status_t
  ******************************************************************************/
 sl_status_t sl_se_set_upgrade_file_version(sl_se_command_context_t *cmd_ctx,
                                            uint32_t version);

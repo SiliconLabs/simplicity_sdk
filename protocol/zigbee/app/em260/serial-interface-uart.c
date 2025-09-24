@@ -48,6 +48,17 @@ const uint8_t ashPort = ASH_PORT;
 extern const uint8_t ashPort;
 #endif //SL_ZIGBEE_TEST
 
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#if defined(SL_CATALOG_IOSTREAM_EUSART_PRESENT)
+#define IOSTREAM_INSTANCE_HEADER "sl_iostream_init_eusart_instances.h"
+#elif defined(SL_CATALOG_IOSTREAM_USART_PRESENT)
+#define IOSTREAM_INSTANCE_HEADER "sl_iostream_init_usart_instances.h"
+#endif // SL_CATALOG_IOSTREAM_EUSART_PRESENT
+
+#include IOSTREAM_INSTANCE_HEADER
+#include "sli_iostream_uart.h"
+#endif // SL_CATALOG_KERNEL_PRESENT
+
 //------------------------------------------------------------------------------
 // Global Variables
 
@@ -98,6 +109,10 @@ bool serialCommandReceived(void)
                             halCommonGetInt16uMillisecondTick())
           > delayTestDelayLength)) {
     delayTestDelayLength = 0;
+#ifdef SL_CATALOG_KERNEL_PRESENT
+    // set it to unblock while waiting for data
+    sl_iostream_uart_set_read_block(sl_iostream_uart_vcom_handle, false);
+#endif // SL_CATALOG_KERNEL_PRESENT
     ashReceive(&ezspBuffer);
   }
   if (ezspBuffer != SL_ZIGBEE_NULL_MESSAGE_BUFFER) {

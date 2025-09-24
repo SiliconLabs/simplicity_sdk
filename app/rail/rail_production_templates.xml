@@ -6,10 +6,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_bt_dmp_soc_range_test.rail_bt_dmp_soc_range_test.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_bt_dmp_soc_range_test/rail_bt_dmp_soc_range_test.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2719a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4197a brd4198a brd4198b brd4199b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[mb]g2[246-9].* .*efr32[fmbz]g28.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4197a brd4198a brd4198b brd4199b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4406a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[mb]g2[246-9].* .*efr32[fmbz]g28.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_bt_dmp_soc_range_test_series_3" label="RAIL Bluetooth DMP - SoC Range Test" description="The Range Test application, running on Micrium OS RTOS and multiprotocol RAIL, demonstrates the over-the-air range of the EFR32. It serves as both a transmitter and a receiver, with adjustable packet length and transmission options. Output power can be set from -15 dBm to +20 dBm. In Rx Mode, it inspects received packets based on device IDs, displaying Packet Error Rate, Bit Error Rate, and RSSI. The CLI can also be used for configuration. Wireless Gecko mobile app can also be used to control this application over Bluetooth. Note: Avoid powering the boards from a coin cell due to higher current consumption during continuous radio usage, particularly in Rx Mode. For portability, consider using a USB power bank instead.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_bt_dmp_soc_range_test.rail_bt_dmp_soc_range_test.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_bt_dmp_soc_range_test/rail_bt_dmp_soc_range_test.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -21,10 +36,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_bt_dmp_soc_range_test_std.rail_bt_dmp_soc_range_test_std.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_bt_dmp_soc_range_test_std/rail_bt_dmp_soc_range_test_std.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2719a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4332a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[mb]g2[1246-9].* .*efr32[fmbz]g28.* .*rm21.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4332a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4406a brd4411a brd4412a brd4413a brd4414a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[mb]g2[1246-9].* .*efr32[fmbz]g28.* .*rm21.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_bt_dmp_soc_range_test_std_series_3" label="RAIL Bluetooth DMP - SoC Range Test BLE and IEEE802.15.4" description="This application showcases the over-the-air range of Silicon Labs boards using 5 predefined standard PHYs. The sample app serves as both a Transmitter and a Receiver, with role selection available in the LCD menu. Flashing the app onto two separate boards facilitates testing of radio features and specifications. The LCD menu provides essential information about settings, allowing users to make changes. In Tx Mode, users can transmit packets, adjusting packet length and quantity. Output power can be set via the LCD menu. In Rx Mode, the app listens on the predefined PHY, displaying Packet Error Rate, Bit Error Rate and RSSI. CLI enables configuration control, while the Wireless Gecko mobile app offers Bluetooth control. Supported platforms include MicriumOS and FreeRTOS.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_bt_dmp_soc_range_test_std.rail_bt_dmp_soc_range_test_std.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_bt_dmp_soc_range_test_std/rail_bt_dmp_soc_range_test_std.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -36,10 +66,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_burst_duty_cycle.rail_soc_burst_duty_cycle.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_burst_duty_cycle/rail_soc_burst_duty_cycle.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_burst_duty_cycle/readme.md"/>
-    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4411a brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_burst_duty_cycle_series_3" label="RAIL - SoC Burst Duty Cycle" description="The example sends a burst in Master Mode (sending a burst long enough to be received by a Slave) and listens in Duty Cycle mode in Slave mode. The app checks the time of the burst and tells the user if the Slave ON time is too short for reliable reception. With one click, this bare-metal sample app can be run on an OS; currently, MicriumOS and FreeRTOS are supported.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_burst_duty_cycle.rail_soc_burst_duty_cycle.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_burst_duty_cycle/rail_soc_burst_duty_cycle.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_burst_duty_cycle/readme.md"/>
+    <properties key="boardCompatibility" value="brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -51,10 +96,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_emode.rail_soc_emode.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_emode/rail_soc_emode.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_emode/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_emode_series_3" label="RAIL - SoC Energy Mode" description="The Silicon Labs RAIL - SoC Energy Mode sample application is a ready-to-use program designed to evaluate energy consumption in custom radio designs. By iterating over available energy modes or using TX/RX radio operations, you can assess the impact on energy usage. This application serves as a valuable tool for optimizing power efficiency. Whether working with MicriumOS or FreeRTOS, the Energy Mode example provides insights into how different energy levels affect the radio performance. Remember that continuous radio usage draws more current, so consider powering the board via USB rather than a coin cell for accurate assessments.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_emode.rail_soc_emode.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_emode/rail_soc_emode.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_emode/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -66,10 +126,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_empty.rail_soc_empty.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_empty/rail_soc_empty.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_empty/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_empty_series_3" label="RAIL - SoC Empty" description="The RAIL Empty project is a bare-bones RAIL app that can be a basis for proprietary solutions. This comes prepared with a Single PHY radio configurator and a basic callback function for RAIL. With one click, this bare-metal sample app can be run on an OS; currently, MicriumOS and FreeRTOS are supported.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_empty.rail_soc_empty.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_empty/rail_soc_empty.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_empty/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -81,10 +156,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_light.rail_soc_light.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_light/rail_soc_light.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_light/readme.md"/>
-    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*fgm230s.* .*efr32zg28.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4411a brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*fgm230s.* .*efr32zg28.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_light_series_3" label="RAIL - SoC Light" description="The purpose of the application is to demonstrate a simple wireless communication between two or more boards. In combination with the Switch sample application it creates a basic light functionality, where the light can be toggled in the Light node. After power up, the node is in ADVERTISE state. It means broadcast messages are sent periodically. After pushing PB1 button, the node is connected, and ready for toggling the light. This is called the READY state. If the Switch module has done the same procedure, light can be toggled from all the boards with pushing BP0 button.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_light.rail_soc_light.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_light/rail_soc_light.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_light/readme.md"/>
+    <properties key="boardCompatibility" value="brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -96,10 +186,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_long_preamble_duty_cycle.rail_soc_long_preamble_duty_cycle.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_long_preamble_duty_cycle/rail_soc_long_preamble_duty_cycle.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_long_preamble_duty_cycle/readme.md"/>
-    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4411a brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_long_preamble_duty_cycle_series_3" label="RAIL - SoC Long Preamble Duty Cycle" description="The Silicon Labs RAIL - SoC Long Preamble Duty Cycle example is a comprehensive duty cycle solution built on the RAIL framework. It supports both receive and transmit modes. In receive mode, the device spends most of its time in a low-power state (EM1 or EM2) and periodically wakes up to check for incoming packets. In transmit mode, the device sends a single packet using a long preamble. This application is useful for optimizing radio configurations and designing Low Duty-Cycle (LDC) periods on the receiver, aiming to conserve energy without compromising Packet Error Rate (PER) reduction. The EFR32 radios' low-duty-cycle mode efficiently reduces current consumption while keeping the MCU in its lowest power mode.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_long_preamble_duty_cycle.rail_soc_long_preamble_duty_cycle.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_long_preamble_duty_cycle/rail_soc_long_preamble_duty_cycle.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_long_preamble_duty_cycle/readme.md"/>
+    <properties key="boardCompatibility" value="brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -126,8 +231,8 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_railtest.rail_soc_railtest.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_railtest/rail_soc_railtest.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_railtest/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2603a brd2608a brd2703a brd2704a brd2705a brd2709a brd2710a brd2713a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4312a brd4316a brd4317a brd4318a brd4328a brd4328b brd4331a brd4332a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*efr32[zfmb]g.* .*efr32[m]r21.* .*zgm.* .*fgm230s.* .*rm21.* .*bgm220sc2[2-3]hna.* .*mgm240s.* .*mgm240p.* .*mgm260p.* .*mgm270s.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2603a brd2608a brd2703a brd2704a brd2705a brd2709a brd2710a brd2713a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183b brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4316a brd4317a brd4318a brd4328a brd4328b brd4332a brd4350a brd4351a brd4356a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*efr32[zfmb]g2[013456789].* .*efr32[zfmb]g22(?!l).* .*efr32[m]r21.* .*zgm.* .*fgm230s.* .*rm21.* .*mgm240s.* .*mgm240p.* .*mgm260p.* .*mgm270s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
     <properties key="category" value="RAIL Examples"/>
@@ -156,10 +261,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_range_test.rail_soc_range_test.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_range_test/rail_soc_range_test.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4197a brd4198a brd4198b brd4199b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_range_test_series_3" label="RAIL - SoC Range Test" description="The Range Test application, running on Micrium OS RTOS and multiprotocol RAIL, demonstrates the over-the-air range of the EFR32. It serves as both a transmitter and a receiver, with adjustable packet length and transmission options. Output power can be set from -15 dBm to +20 dBm. In Rx Mode, it inspects received packets based on device IDs, displaying Packet Error Rate, Bit Error Rate, and RSSI. The CLI can also be used for configuration. Note: Avoid powering the boards from a coin cell due to higher current consumption during continuous radio usage, particularly in Rx Mode. For portability, consider using a USB power bank instead.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_range_test.rail_soc_range_test.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_range_test/rail_soc_range_test.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -171,10 +291,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_range_test_std.rail_soc_range_test_std.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_range_test_std/rail_soc_range_test_std.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4332a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4407a brd4408a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[1246-9].* .*efr32[fmbz]g28.* .*rm21.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4109a brd4110a brd4110b brd4111a brd4111b brd4113a brd4115a brd4115b brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4191a brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4199b brd4332a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4406a brd4411a brd4412a brd4413a brd4414a brd4415a brd4420a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[1246-9].* .*efr32[fmbz]g28.* .*rm21.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_range_test_std_series_3" label="RAIL - SoC Range Test BLE and IEEE802.15.4" description="This application showcases the over-the-air range of Silicon Labs boards using 5 predefined standard PHYs. The sample app serves as both a Transmitter and a Receiver, with role selection available in the LCD menu. Flashing the app onto two separate boards facilitates testing of radio features and specifications. The LCD menu provides essential information about settings, allowing users to make changes. In Tx Mode, users can transmit packets, adjusting packet length and quantity. Output power can be set via the LCD menu. In Rx Mode, the app listens on the predefined PHY, displaying Packet Error Rate, Bit Error Rate and RSSI. CLI enables configuration control. Supported platforms include MicriumOS and FreeRTOS.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_range_test_std.rail_soc_range_test_std.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_range_test_std/rail_soc_range_test_std.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_range_test/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -186,10 +321,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx.rail_soc_simple_trx.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx/rail_soc_simple_trx.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4411a brd4415a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_simple_trx_series_3" label="RAIL - SoC Simple TRX" description="The Silicon Labs RAIL - SoC Simple TRX sample application demonstrates the most basic exchange of transmit and receive operations between two nodes implemented in RAIL. It serves as a straightforward link test setup, where the nodes primarily listen, except for short periods when packet transmission occurs. This example is ideal for evaluating radio performance, testing connectivity, or verifying signal integrity. The Simple TRX application initializes RAIL to support a single PHY radio configuration and defines an empty radio event handler, making it a recommended starting point for RAIL-based projects. Whether assessing energy consumption, optimizing radio configuration, or simply testing communication, the Simple TRX provides a solid foundation1.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx.rail_soc_simple_trx.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx/rail_soc_simple_trx.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -201,10 +351,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_auto_ack.rail_soc_simple_trx_auto_ack.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_auto_ack/rail_soc_simple_trx_auto_ack.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_auto_ack/readme.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4411a brd4415a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_simple_trx_auto_ack_series_3" label="RAIL - SoC Simple TRX with Auto-ACK" description="The Silicon Labs RAIL - SoC Simple TRX with Auto-ACK example demonstrates how RAIL's Auto-ACK feature works. It sets up a straightforward link test that requires Auto-ACK functionality. In this application, two nodes exchange transmit and receive operations using RAIL. The nodes primarily listen, except for brief periods when packet transmission occurs. This sample is valuable for evaluating radio performance, testing connectivity, or verifying signal integrity. Whether optimizing energy consumption, fine-tuning radio configuration, or simply assessing communication reliability, the Simple TRX with Auto-ACK provides a practical starting point.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_auto_ack.rail_soc_simple_trx_auto_ack.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_auto_ack/rail_soc_simple_trx_auto_ack.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_auto_ack/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -231,10 +396,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_ncp.rail_soc_simple_trx_ncp.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_ncp/rail_soc_simple_trx_ncp.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_ncp/readme_vcom.md"/>
-    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2600a brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4411a brd4415a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_simple_trx_ncp_series_3" label="RAIL - NCP Simple TRX with CPC Support (VCOM)" description="The Silicon Labs RAIL - NCP Simple TRX with CPC Support (VCOM) sample application showcases the integration of RAIL (Radio Abstraction Interface Layer) with CPC (Co-Processor Communication). In this example, the NCP (Network Co-Processor) device communicates with the host via CPC channels. The application initializes RAIL for a single PHY radio configuration, enabling transmit and receive operations. It serves as a foundation for building more complex network protocols, leveraging the CPC feature for efficient communication between the host and the co-processor. Whether designing wireless mesh networks, sensor networks, or custom protocols, the Simple TRX with CPC Support (VCOM) provides a starting point for seamless co-processor interaction.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_ncp.rail_soc_simple_trx_ncp.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_ncp/rail_soc_simple_trx_ncp.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_ncp/readme_vcom.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -246,10 +426,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_ncp.rail_soc_simple_trx_ncp_spi.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_ncp/rail_soc_simple_trx_ncp_spi.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_ncp/readme_spi.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4411a brd4415a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_simple_trx_ncp_spi_series_3" label="RAIL - NCP Simple TRX with CPC Support (SPI)" description="The Silicon Labs RAIL - NCP Simple TRX with CPC Support (SPI) sample application seamlessly integrates RAIL (Radio Abstraction Interface Layer) with CPC (Co-Processor Communication) via the SPI interface. In this example, the NCP (Network Co-Processor) device communicates with the host using CPC channels over SPI. The application initializes RAIL for a single PHY radio configuration, enabling transmit and receive operations. It serves as a foundational starting point for building more complex network protocols, leveraging the CPC feature for efficient communication between the host and the co-processor. Whether designing wireless mesh networks, sensor networks, or custom protocols, the Simple TRX with CPC Support (SPI) provides a practical foundation.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_ncp.rail_soc_simple_trx_ncp_spi.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_ncp/rail_soc_simple_trx_ncp_spi.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_ncp/readme_spi.md"/>
+    <properties key="boardCompatibility" value="brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -261,10 +456,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_std.rail_soc_simple_trx_std.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_std/rail_soc_simple_trx_std.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_std/readme.md"/>
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd2719a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4270a brd4270b brd4271a brd4276a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[124-9].* .*(?!efr32bg22c112)efr32[fmbz]g28.* .*rm21.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2608a brd2703a brd2705a brd2709a brd2710a brd4108a brd4116a brd4117a brd4118a brd4120a brd4121a brd4171a brd4176a brd4179b brd4180a brd4180b brd4181a brd4181b brd4181c brd4182a brd4183a brd4183c brd4184a brd4184b brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4270a brd4270b brd4271a brd4276a brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4403a brd4403b brd4403c brd4411a brd4415a brd4421a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[124-9].* .*(?!efr32bg22c112)efr32[fmbz]g28.* .*rm21.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_simple_trx_std_series_3" label="RAIL - SoC Simple TRX Standards" description="The Silicon Labs RAIL - SoC Simple TRX Standards example showcases the most straightforward packet exchange of transmit and receive operations between two nodes implemented in RAIL. This application adheres to compatibility with Bluetooth LE, IEEE 802.15.4 (2.4 GHz only), and IEEE 802.15.4g (subGHz only) standards. The nodes primarily listen, with brief periods for packet transmission. It serves as a foundational starting point for evaluating radio performance, connectivity testing, or signal integrity verification in various wireless scenarios. Whether fine-tuning energy consumption, optimizing radio configurations, or assessing communication reliability, the Simple TRX Standards provides a versatile foundation.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_simple_trx_std.rail_soc_simple_trx_std.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_simple_trx_std/rail_soc_simple_trx_std.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_simple_trx_std/readme.md"/>
+    <properties key="boardCompatibility" value="brd2719a brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
@@ -276,10 +486,25 @@
     <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_switch.rail_soc_switch.slcp"/>
     <properties key="projectFilePaths" value="example/soc/rail_soc_switch/rail_soc_switch.slcp"/>
     <properties key="readmeFiles" value="documentation/example/rail_soc_switch/readme.md"/>
-    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4407a brd4408a brd4411a brd4415a com.silabs.board.none"/>
-    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.* .*si[bmx]g301.*"/>
+    <properties key="boardCompatibility" value="brd4116a brd4117a brd4118a brd4120a brd4121a brd4182a brd4185a brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4270a brd4270b brd4271a brd4272a brd4276a brd4328a brd4328b brd4400a brd4400b brd4400c brd4401a brd4401b brd4401c brd4402a brd4402b brd4402c brd4411a brd4415a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*(?!efr32bg22c112)efr32[fmb]g2[2-9].* .*efr32[fmz]g23.* .*efr32zg28.* .*fgm230s.*"/>
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
     <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="RAIL Examples"/>
+    <properties key="quality" value="PRODUCTION"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+    <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+  </descriptors>
+  <descriptors name="rail_soc_switch_series_3" label="RAIL - SoC Switch" description="The purpose of the application is to demonstrate simple wireless communication between two or more boards. In combination with the Light sample application, it creates basic switch functionality, where the light can be toggled in the Light node. After power-up, the node is in SCAN state. It means the broadcast messages of the light modules can be captured. After pushing PB1 button, the closest Light module will be connected. This is called the LINK state. If the Light module has done the same procedure, light can be toggled from all the boards by pushing BP0 button.&#10;">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="solutionReferenceId" value="app.rail.example.soc.rail_soc_switch.rail_soc_switch.slcp"/>
+    <properties key="projectFilePaths" value="example/soc/rail_soc_switch/rail_soc_switch.slcp"/>
+    <properties key="readmeFiles" value="documentation/example/rail_soc_switch/readme.md"/>
+    <properties key="boardCompatibility" value="brd4407a brd4408a com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*si[bmx]g301.*"/>
+    <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code visual-studio-code-cmake"/>
+    <properties key="toolchainCompatibility" value="gcc"/>
     <properties key="category" value="RAIL Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>

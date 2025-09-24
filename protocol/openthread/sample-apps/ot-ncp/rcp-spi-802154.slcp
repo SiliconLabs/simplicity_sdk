@@ -79,6 +79,7 @@ configuration:
   
 tag:
   - prebuilt_demo
+  - hardware:component:exp_header:spi
 
 readme:
   - path: ./README-MP-RCP.md

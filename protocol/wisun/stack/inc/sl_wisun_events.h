@@ -90,6 +90,8 @@ typedef enum {
   SL_WISUN_BR_MSG_STOPPED_IND_ID                  = 0x96,
   /// This event is sent once the routing table is updated (topology change).
   SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID     = 0x97,
+  /// This event is sent once an event has been logged.
+  SL_WISUN_MSG_LOGGER_EVENT_IND_ID                = 0x98,
 } sl_wisun_msg_ind_id_t;
 
 /**************************************************************************//**
@@ -269,7 +271,34 @@ SL_PACK_END()
 /** @} (end SL_WISUN_MSG_SOCKET_CONNECTED_IND) */
 
 /**************************************************************************//**
- * @defgroup SL_WISUN_MSG_SOCKET_CONNECTION_AVAILABLE_IND sl_wisun_msg_socket_connection_available_ind
+ * @defgroup SL_WISUN_MSG_LOGGER_EVENT_IND_ID sl_wisun_msg_logger_event_ind
+ * @{
+ ******************************************************************************/
+
+/// Indication message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the indication
+  uint32_t status;
+  /// Logger event data
+  sl_wisun_logger_event_t logger_event;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_logger_event_ind_body_t;
+SL_PACK_END()
+
+/// Indication message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Indication message body
+  sl_wisun_msg_logger_event_ind_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_logger_event_ind_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_LOGGER_EVENT_IND_ID) */
+
+/**************************************************************************//**
+ * @defgroup SL_WISUN_MSG__IND sl_wisun_msg_socket_connection_available_ind
  * @{
  ******************************************************************************/
 
@@ -791,6 +820,8 @@ typedef struct {
     sl_wisun_br_msg_stopped_ind_body_t br_stopped;
     /// #SL_WISUN_BR_MSG_ROUTING_TABLE_UPDATE_IND_ID event data
     sl_wisun_br_msg_routing_table_update_ind_body_t br_routing_table_update;
+    //  #SL_WISUN_MSG_LOGGER_EVENT_IND_ID event data
+    sl_wisun_msg_logger_event_ind_body_t logger_event;
   } evt;
 } SL_ATTRIBUTE_PACKED sl_wisun_evt_t;
 SL_PACK_END()

@@ -781,11 +781,11 @@ void bootloader_ppusatdnRestoreState(Bootloader_PPUSATDnCLKENnState_t *ctx)
   bootloader_ppusatdConfigstate = IDLE;
 }
 
-__attribute__ ((weak)) void sli_bootloader_preHook(void)
+__attribute__ ((weak, noinline)) void sli_bootloader_preHook(void)
 {
 }
 
-__attribute__ ((weak)) void sli_bootloader_postHook(void)
+__attribute__ ((weak, noinline)) void sli_bootloader_postHook(void)
 {
 }
 

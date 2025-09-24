@@ -1206,6 +1206,110 @@ typedef struct {
 } SL_ATTRIBUTE_PACKED sl_wisun_mac_params_t;
 SL_PACK_END()
 
+/// Enumeration for event types
+typedef enum {
+  SL_WISUN_LOGGER_EVENT_TYPE_NONE = 0,
+  /// Event published when a neighbor's lifetime changes
+  SL_WISUN_LOGGER_EVENT_TYPE_NEIGHBOR_LIFETIME_CHANGED = 1,
+  /// Event published when a frame is received
+  SL_WISUN_LOGGER_EVENT_TYPE_FRAME_RECEIVED = 2,
+  /// Event published when a frame is dropped due to frame counter failure
+  SL_WISUN_LOGGER_EVENT_TYPE_FRAME_COUNTER_FAILURE = 4,
+  /// Event published when a tx fails
+  SL_WISUN_LOGGER_EVENT_TYPE_TX_FAILURE = 8,
+} sl_wisun_logger_event_type_t;
+
+/// Enumeration for event log frame types
+typedef enum {
+  /// PAN Advertisement Solicit frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_PAS = 0,
+  /// PAN Advertisement frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_PA = 1,
+  /// LFN PAN Advertisement Solicit frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_LPAS = 2,
+  /// LFN PAN Advertisement frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_LPA = 3,
+  /// EAPOL frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_EAPOL = 4,
+  /// PAN Configuration Solicit frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_PCS = 5,
+  /// PAN Configuration frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_PC = 6,
+  /// LFN PAN Configuration Solicit frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_LPCS = 7,
+  /// LFN PAN Configuration frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_LPC = 8,
+  /// LFN Time Sync
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_LTS = 9,
+  /// Data frame
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_DATA = 10,
+  /// Undefined frame type
+  SL_WISUN_LOGGER_EVENT_FRAME_TYPE_UNDEF = 255,
+} sl_wisun_logger_event_frame_type_t;
+
+/// Neighbor lifetime change information
+SL_PACK_START(1)
+typedef struct {
+  /// Lifetime of the neighbor in seconds after update
+  uint32_t lifetime;
+} SL_ATTRIBUTE_PACKED sl_wisun_logger_event_neighbor_lifetime_changed_t;
+SL_PACK_END()
+
+/// Wisun Pan Advertisement information
+SL_PACK_START(1)
+typedef struct {
+  /// PAN ID
+  uint16_t pan_id;
+  /// Routing cost
+  uint16_t routing_cost;
+  /// PAN size
+  uint16_t pan_size;
+  /// Load factor
+  uint8_t load_factor;
+} SL_ATTRIBUTE_PACKED sl_wisun_logger_event_pa_data_t;
+SL_PACK_END()
+
+/// Frame received information
+SL_PACK_START(1)
+typedef struct {
+  /// Frame type
+  uint32_t type;
+  /// RSSI of the received frame
+  int8_t rssi;
+  /// Data of the received frame
+  union {
+    /// PAN Advertisement information
+    sl_wisun_logger_event_pa_data_t pa;
+  } data;
+} SL_ATTRIBUTE_PACKED sl_wisun_logger_event_frame_received_t;
+SL_PACK_END()
+
+/// TX failure information
+SL_PACK_START(1)
+typedef struct {
+  /// Frame type
+  uint32_t type;
+} SL_ATTRIBUTE_PACKED sl_wisun_logger_event_tx_failure_t;
+SL_PACK_END()
+
+/// Wisun Event information
+SL_PACK_START(1)
+typedef struct {
+  /// Event type
+  uint64_t type;
+  /// Address of the node
+  sl_wisun_mac_address_t address;
+  union {
+    /// Neighbor lifetime change information
+    sl_wisun_logger_event_neighbor_lifetime_changed_t neighbor_lifetime_changed;
+    /// Frame received information
+    sl_wisun_logger_event_frame_received_t frame_received;
+    /// TX failure information
+    sl_wisun_logger_event_tx_failure_t tx_failure;
+  } u;
+} SL_ATTRIBUTE_PACKED sl_wisun_logger_event_t;
+SL_PACK_END()
+
 /**************************************************************************//**
  * Handler called for an IPv6 packet from Wi-SUN network.
  *

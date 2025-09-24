@@ -68,7 +68,6 @@ static event_cc_t m_CCEventQueueStorage[ZAF_EVENT_DISTRIBUTOR_SOC_CONFIG_CC_QUEU
 static QueueHandle_t m_CCEventQueue = { 0 };
 
 static bool learnModeInProgress;
-static bool resetInProgress;
 
 static void
 set_protocol_default(void)
@@ -294,23 +293,12 @@ event_manager(const uint8_t event)
       break;
     case EVENT_SYSTEM_FLUSHMEM_READY:
       zafi_nvm_app_reset();
-      if (resetInProgress) {
-        resetInProgress = false;
-        /* Soft reset */
-        zpal_reboot_with_info(MFG_ID_ZWAVE_ALLIANCE, ZPAL_RESET_EVENT_FLUSH_MEMORY);
-      } else {
-        zafi_nvm_app_load_configuration();
-      }
+      /* Soft reset */
+      zpal_reboot_with_info(MFG_ID_ZWAVE_ALLIANCE, ZPAL_RESET_EVENT_FLUSH_MEMORY);
       break;
     case EVENT_SYSTEM_RESET:
-      resetInProgress = true;
-      if (zaf_event_distributor_is_primary_controller()) {
-        ZPAL_LOG_DEBUG(ZPAL_LOG_ZAF_EVENT_DISTRIBUTOR, "Primary controller. Skip Device Reset Locally Notification.\n");
-        set_protocol_default();
-      } else {
-        /* Send reset notification*/
-        CC_DeviceResetLocally_notification_tx();
-      }
+      /* Send reset notification*/
+      CC_DeviceResetLocally_notification_tx();
       break;
 
     default:
@@ -432,7 +420,6 @@ void
 zaf_event_distributor_init(void)
 {
   learnModeInProgress = false;
-  resetInProgress = false;
 
   EventQueueInit();
 
@@ -441,12 +428,6 @@ zaf_event_distributor_init(void)
                          g_aEventHandlerTable, NULL);
 
   zafi_nvm_app_load_configuration();
-}
-
-ZW_WEAK uint8_t
-zaf_event_distributor_is_primary_controller(void)
-{
-  return 0;
 }
 
 const SEventDistributor *

@@ -121,9 +121,9 @@ static bool isMessageAllowed(sl_zigbee_af_interpan_header_t *headerData,
                              uint8_t *messageContents);
 
 #if ((defined(EMBER_AF_PRINT_ENABLE) && defined(SL_ZIGBEE_AF_PRINT_APP)) || (defined(SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT)))
-static void printMessage(sl_zigbee_af_interpan_header_t *headerData);
+static void printMessage(sl_zigbee_mac_passthrough_type_t passthroughType, sl_zigbee_af_interpan_header_t *headerData);
 #else
-  #define printMessage(x)
+  #define printMessage(x, y)
 #endif
 
 #if !defined SL_ZIGBEE_AF_PLUGIN_INTERPAN_CUSTOM_FILTER
@@ -622,8 +622,10 @@ static uint8_t parseInterpanMessage(uint8_t *message,
   return (finger - message);
 }
 
-bool sli_zigbee_af_interpan_process_message(uint8_t messageLength,
-                                            uint8_t *messageContents)
+bool sli_zigbee_af_interpan_process_message(
+  sl_zigbee_mac_passthrough_type_t passthroughType,
+  uint8_t messageLength,
+  uint8_t *messageContents)
 {
   sl_zigbee_aps_frame_t apsFrame;
   sl_zigbee_incoming_message_type_t type;
@@ -639,7 +641,7 @@ bool sli_zigbee_af_interpan_process_message(uint8_t messageLength,
   if (payloadOffset == 0) {
     return false;
   }
-  printMessage(&headerData);
+  printMessage(passthroughType, &headerData);
 
   payload = messageContents + payloadOffset;
   payloadLength = messageLength - payloadOffset;
@@ -648,14 +650,16 @@ bool sli_zigbee_af_interpan_process_message(uint8_t messageLength,
                                                     payloadLength,
                                                     payload)
 #ifdef SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_CLIENT_PRESENT
-      || sli_zigbee_af_zll_commissioning_client_interpan_pre_message_received_callback(&headerData,
-                                                                                       payloadLength,
-                                                                                       payload)
+      || (((passthroughType & SL_802154_PASSTHROUGH_INTERNAL_ZLL) == SL_802154_PASSTHROUGH_INTERNAL_ZLL)
+          && (sli_zigbee_af_zll_commissioning_client_interpan_pre_message_received_callback(&headerData,
+                                                                                            payloadLength,
+                                                                                            payload)))
 #endif // ZSL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_CLIENT_PRESENT
 #ifdef SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_SERVER_PRESENT
-      || sli_zigbee_af_zll_commissioning_server_interpan_pre_message_received_callback(&headerData,
-                                                                                       payloadLength,
-                                                                                       payload)
+      || (((passthroughType & SL_802154_PASSTHROUGH_INTERNAL_ZLL) == SL_802154_PASSTHROUGH_INTERNAL_ZLL)
+          && (sli_zigbee_af_zll_commissioning_server_interpan_pre_message_received_callback(&headerData,
+                                                                                            payloadLength,
+                                                                                            payload)))
 #endif // SL_CATALOG_ZIGBEE_ZLL_COMMISSIONING_SERVER_PRESENT
       ) {
     return true;
@@ -835,9 +839,13 @@ static bool isMessageAllowed(sl_zigbee_af_interpan_header_t *headerData,
 
 #if ((defined(EMBER_AF_PRINT_ENABLE) && defined(SL_ZIGBEE_AF_PRINT_APP)) || (defined(SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT)))
 
-static void printMessage(sl_zigbee_af_interpan_header_t *headerData)
+static void printMessage(sl_zigbee_mac_passthrough_type_t passthroughType, sl_zigbee_af_interpan_header_t *headerData)
 {
-  sl_zigbee_af_app_print("RX inter-PAN message (");
+  if (passthroughType & SL_802154_PASSTHROUGH_INTERNAL_ZLL) {
+    sl_zigbee_af_app_print("RX ZLL inter-PAN message (");
+  } else {
+    sl_zigbee_af_app_print("RX inter-PAN message (");
+  }
   if (headerData->messageType == SL_ZIGBEE_AF_INTER_PAN_UNICAST) {
     sl_zigbee_af_app_print("uni");
   } else if (headerData->messageType == SL_ZIGBEE_AF_INTER_PAN_BROADCAST) {

@@ -71,3 +71,9 @@ uint8_t cs_initiator_cli_get_cs_sync_antenna_usage(void);
  * @return conn_phy
  ******************************************************************************/
 uint8_t cs_initiator_cli_get_conn_phy(void);
+
+/***************************************************************************//**
+ * CLI Getter for number of procedures to be executed
+ * @return procedure_counter
+ ******************************************************************************/
+uint8_t cs_initiator_cli_get_procedure_counter(void);

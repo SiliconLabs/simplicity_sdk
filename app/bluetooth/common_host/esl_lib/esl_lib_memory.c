@@ -103,7 +103,7 @@ void _esl_lib_free(void *ptr, const char *file, const char *func, uint32_t line)
   if (item != NULL) {
     // Remove from the list
     sl_slist_remove(&list, &item->node);
-    if (item->file[8] != 'e') { // events excluded
+    if (item->file[8] != 'e') { // events excluded from the log (would be too excessive)
       esl_lib_log_debug(LOG_MODULE, ESL_LIB_LOG_HANDLE_FORMAT "Freed %zu B allocated by %s:%s()@%u" APP_LOG_NL,
                         ESL_LIB_LOG_PTR(item->ptr),
                         item->size,
@@ -158,12 +158,12 @@ void esl_lib_memory_log(void)
   }
   // Iterate and print items
   SL_SLIST_FOR_EACH_ENTRY(list, item, malloc_list_item_t, node) {
-    esl_lib_log_debug(LOG_MODULE, ESL_LIB_LOG_HANDLE_FORMAT "%zu B allocated by %s:%s()@%u not released!" APP_LOG_NL,
-                      ESL_LIB_LOG_PTR(item->ptr),
-                      item->size,
-                      item->file,
-                      item->func,
-                      item->line);
+    esl_lib_log_warning(LOG_MODULE, ESL_LIB_LOG_HANDLE_FORMAT "%zu B allocated by %s:%s()@%u not released!" APP_LOG_NL,
+                        ESL_LIB_LOG_PTR(item->ptr),
+                        item->size,
+                        item->file,
+                        item->func,
+                        item->line);
     count++;
     size += item->size;
   }

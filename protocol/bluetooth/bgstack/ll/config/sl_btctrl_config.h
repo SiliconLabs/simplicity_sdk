@@ -135,6 +135,26 @@
 #ifndef SL_BT_CONTROLLER_USE_LEGACY_VENDOR_SPECIFIC_EVENT_CODE
 #define SL_BT_CONTROLLER_USE_LEGACY_VENDOR_SPECIFIC_EVENT_CODE     (0)
 #endif
+
+// <o SL_BT_CONTROLLER_ADAPTIVITY_MODE> Adaptive Frequency Hopping operation mode
+//   <SL_BTCTRL_CHANNELMAP_FLAG_ACTIVE_ADAPTIVITY=> Active AFH
+//   <SL_BTCTRL_CHANNELMAP_FLAG_PASSIVE_ADAPTIVITY=> Passive AFH
+// <i> Choose between active AFH and passive AFH
+// <i> Default: Active AFH
+// <d> SL_BTCTRL_CHANNELMAP_FLAG_ACTIVE_ADAPTIVITY
+#ifndef SL_BT_CONTROLLER_ADAPTIVITY_MODE
+#define SL_BT_CONTROLLER_ADAPTIVITY_MODE     (SL_BTCTRL_CHANNELMAP_FLAG_ACTIVE_ADAPTIVITY)
+#endif
+
+// <o SL_BT_CONTROLLER_PA_CONFIG> Power Amplifier (PA) Configuration
+// <SL_BT_BLUETOOTH_PA_AUTOMODE=> Automode PA configuration
+// <SL_BT_BLUETOOTH_HIGHEST_PA=> Highest available PA configuration
+// <SL_BT_BLUETOOTH_RAIL_UTIL_PA=> RAIL Utility component PA configuration
+// <i> Select the Power Amplifier configuration
+// <i> Default: RAIL Utility component PA configuration
+#ifndef SL_BT_CONTROLLER_PA_CONFIG
+#define SL_BT_CONTROLLER_PA_CONFIG     SL_BT_BLUETOOTH_RAIL_UTIL_PA
+#endif
 // </h> Bluetooth Controller Configuration
 
 // <<< end of configuration section >>>

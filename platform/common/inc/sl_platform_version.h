@@ -32,7 +32,7 @@
 
 #define SL_PLATFORM_MAJOR_VERSION     5
 #define SL_PLATFORM_MINOR_VERSION     2
-#define SL_PLATFORM_PATCH_VERSION     0
+#define SL_PLATFORM_PATCH_VERSION     2
 
 #define SL_PLATFORM_VERSION      ((SL_PLATFORM_MAJOR_VERSION <<  8)   \
                                   | (SL_PLATFORM_MINOR_VERSION <<  4) \

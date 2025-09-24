@@ -119,6 +119,7 @@ typedef enum {
   SL_WISUN_MSG_SET_REGULATION_PARAMS_REQ_ID               = 0x4E,
   SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_REQ_ID         = 0x4F,
   SL_WISUN_MSG_SET_EAP_IDENTITY_REQ_ID                    = 0x50,
+  SL_WISUN_MSG_SET_EVENT_FILTER_REQ_ID                    = 0x51,
 } sl_wisun_msg_req_id_t;
 
 /// Wi-SUN Message API confirmation IDs
@@ -199,6 +200,7 @@ typedef enum {
   SL_WISUN_MSG_SET_REGULATION_PARAMS_CNF_ID               = 0x4E,
   SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_CNF_ID         = 0x4F,
   SL_WISUN_MSG_SET_EAP_IDENTITY_CNF_ID                    = 0x50,
+  SL_WISUN_MSG_SET_EVENT_FILTER_CNF_ID                    = 0x51,
 } sl_wisun_msg_cnf_id_t;
 
 /**************************************************************************//**
@@ -3203,6 +3205,51 @@ typedef struct {
 SL_PACK_END()
 
 /** @} (end SL_WISUN_MSG_SET_LEAF) */
+
+/**************************************************************************//**
+ * @defgroup SL_WISUN_MSG_SET_EVENT_FILTER sl_wisun_msg_set_event_filter
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// neighbor MAC address
+  sl_wisun_mac_address_t mac_address;
+  /// Bitmask for the specified events
+  uint64_t events;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_event_filter_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_set_event_filter_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_event_filter_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_event_filter_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_set_event_filter_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_event_filter_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_SET_EVENT_FILTER) */
 
 /**************************************************************************//**
  * @defgroup SL_WISUN_MSG_SET_DIRECT_CONNECT_STATE sl_wisun_msg_set_direct_connect_state

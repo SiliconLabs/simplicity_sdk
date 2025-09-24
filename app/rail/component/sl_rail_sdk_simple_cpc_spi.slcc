@@ -28,9 +28,6 @@ provides:
 requires:
   - name: cpc_secondary
   - name: status
-  - name: emlib_common
-  - name: emlib_core
-  - name: emlib_cmu
 
 recommends:
   - id: cpc_secondary_driver_spi_eusart
@@ -42,7 +39,10 @@ recommends:
     instance:
     - exp
     condition: [device_generic_family_efr32xg22]
-
+  - id: cpc_secondary_driver_spi_eusart
+    instance:
+    - exp
+    condition: [device_series_3]
 
 template_contribution:
   - name: component_catalog

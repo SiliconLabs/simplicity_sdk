@@ -140,6 +140,7 @@
   - name: device_has_mpu
   - name: device_has_radio
   - name: device_has_radio_2g4hz
+  - name: device_has_swo
   - name: device_supports_rail
   - name: device_no_rail_api
   - name: device_supports_bluetooth

@@ -177,7 +177,7 @@ void sli_zigbee_stack_radio_needs_calibrating_handler(void);
 void sli_zigbee_stack_unused_pan_id_found_handler(sl_802154_pan_id_t panId, uint8_t channel);
 
 //why did we need these sl_.. prefixed handlers here
-void sl_802154_filter_match_message_handler(uint8_t filterIndexMatch,
+void sl_802154_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                             uint8_t legacyPassthroughType,
                                             sl_zigbee_rx_packet_info_t *packetInfo,
                                             uint8_t messageLength,

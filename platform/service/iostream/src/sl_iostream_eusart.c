@@ -703,6 +703,8 @@ static void on_power_manager_event(sl_power_manager_em_t from,
     case SL_POWER_MANAGER_EM1:
       SL_SLIST_FOR_EACH_ENTRY(eusart_stream_list, eusart_context, sl_iostream_eusart_context_t, node) {
         sl_clock_manager_enable_bus_clock(eusart_context->bus_clock);
+        // Re-enable EUSART for non EM2 capable instance
+        EUSART_ENABLE(sl_device_peripheral_eusart_get_base_addr(eusart_context->eusart));
       }
       break;
 

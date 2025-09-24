@@ -11,7 +11,7 @@ class PhyFilters_Caracal(IPhyFilter):
                            'Phys_Internal_MBus',
                            'Phys_Internal_Base_Standard_IEEE802154',
                            'Phys_RAIL_Base_Standard_ZWave',
-                           'Phys_Internal_Base_Customer_Signify',
+                           'Phys_secret1',
                            'Phys_Studio_IEEE802154'
                         ]
 

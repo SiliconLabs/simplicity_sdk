@@ -158,7 +158,8 @@ typedef enum {
   RAS_STATE_MODE_ON_DEMAND_RETRIEVE_LOST,
   RAS_STATE_MODE_ON_DEMAND_ACK,
   RAS_STATE_MODE_ON_DEMAND_GET,
-  RAS_STATE_MODE_ON_DEMAND_ABORT
+  RAS_STATE_MODE_ON_DEMAND_ABORT,
+  RAS_STATE_MODE_REAL_TIME_REENABLE
 } ras_state_t;
 
 /// RAS client properties
@@ -214,6 +215,7 @@ typedef struct {
   uint32_t procedure_start_time_ms;
   uint32_t procedure_stop_time_ms;
   uint32_t log_error_counter;
+  uint8_t drop_counter;
   app_timer_t timer_handle;
   bool error_timer_started;
   bool error_timer_elapsed;

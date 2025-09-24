@@ -267,6 +267,49 @@ sl_status_t esl_key_lib_deinit_database(db_handle_p hnd)
   return status;
 }
 
+sl_status_t esl_key_lib_split_threadsafe_handle(db_handle_p hnd_src, db_handle_p *hnd_out)
+{
+  sl_status_t status = SL_STATUS_NULL_POINTER;
+
+  if (hnd_src != NULL && hnd_out != NULL) {
+    *hnd_out = (db_handle_p)malloc(sizeof(struct db_handle_s));
+
+    if (*hnd_out == NULL) {
+      status = SL_STATUS_ALLOCATION_FAILED;
+    } else {
+      memcpy(*hnd_out, hnd_src, sizeof(struct db_handle_s));
+      (*hnd_out)->sqlite_db_handle = NULL; // Copy handle must not have an open connection
+      status = SL_STATUS_OK;
+    }
+  }
+
+  return status;
+}
+
+sl_status_t esl_key_lib_free_threadsafe_handle(db_handle_p hnd)
+{
+  sl_status_t status = SL_STATUS_NULL_POINTER;
+
+  if (hnd != NULL) {
+    int rc;
+
+    hnd->keep_it_open = false; // force close on deinit!
+    rc = disconnect_db(hnd);
+
+    if (rc == SQLITE_OK || rc == SQLITE_DONE) {
+      free(hnd);
+      hnd = NULL;
+      status = SL_STATUS_OK;
+    } else if (rc == SQLITE_BUSY) {
+      status = SL_STATUS_BUSY;
+    } else {
+      status = SL_STATUS_FAIL;
+    }
+  }
+
+  return status;
+}
+
 sl_status_t esl_key_lib_alloc_record(esl_key_lib_record_type_t type, db_record_p *record_hnd_out)
 {
   sl_status_t status = SL_STATUS_INVALID_PARAMETER;
@@ -971,7 +1014,9 @@ static int connect_db(db_handle_p hnd)
       return SQLITE_OK;
     }
 
-    rc = sqlite3_open(hnd->database_name, db);
+    rc = sqlite3_open_v2(hnd->database_name, db,
+                         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX,
+                         NULL);
 
     if (rc != SQLITE_OK) {
       app_log_critical("Failed to open database: %s" APP_LOG_NL, sqlite3_errmsg(*db));

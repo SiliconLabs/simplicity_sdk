@@ -106,6 +106,7 @@ configuration:
 
 tag:
   - prebuilt_demo
+  - hardware:component:button:2+
 
 readme:
   - path: ./README.md

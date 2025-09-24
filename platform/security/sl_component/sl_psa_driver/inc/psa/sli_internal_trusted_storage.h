@@ -66,27 +66,33 @@ psa_status_t sli_psa_its_set_root_key(uint8_t *root_key, size_t root_key_size);
 
 /* Allocated range of NVM3 IDs for PSA ITS usage */
 #define SLI_PSA_ITS_NVM3_RANGE_SIZE  (0x00400UL)
-#if (SL_PSA_ITS_SUPPORT_V3_DRIVER)
-#define SLI_PSA_ITS_NVM3_RANGE_END   (0x87100UL)
-#define SLI_PSA_ITS_NVM3_RANGE_START  (SLI_PSA_ITS_NVM3_RANGE_END - SLI_PSA_ITS_NVM3_RANGE_SIZE)
-#else
-#define SLI_PSA_ITS_NVM3_RANGE_BASE  (0x83100UL)
-#endif
 
 #ifndef SL_PSA_ITS_MAX_FILES
 #define SL_PSA_ITS_MAX_FILES    SLI_PSA_ITS_NVM3_RANGE_SIZE
 #endif
 
-#if (SL_PSA_ITS_SUPPORT_V3_DRIVER)
+#if SL_PSA_ITS_MAX_FILES > SLI_PSA_ITS_NVM3_RANGE_SIZE
+#error "Trying to store more ITS files then our NVM3 range allows for"
+#endif
 
-#if !defined(SL_PSA_ITS_REMOVE_V1_HEADER_SUPPORT) && SL_PSA_ITS_SUPPORT_V1_DRIVER
-#define SLI_PSA_ITS_SUPPORT_V1_FORMAT_INTERNAL
+#if (SL_PSA_ITS_SUPPORT_V3_DRIVER)
+#define SLI_PSA_ITS_NVM3_RANGE_BASE  (0x87100UL)
+#define SLI_PSA_ITS_NVM3_RANGE_START  (SLI_PSA_ITS_NVM3_RANGE_BASE - SLI_PSA_ITS_NVM3_RANGE_SIZE)
+#define SLI_PSA_ITS_NVM3_RANGE_END    (SLI_PSA_ITS_NVM3_RANGE_START + SL_PSA_ITS_MAX_FILES)
+#else
+#define SLI_PSA_ITS_NVM3_RANGE_BASE  (0x83100UL)
 #endif
 
 #if SL_PSA_ITS_SUPPORT_V2_DRIVER
 #define SLI_PSA_ITS_NVM3_RANGE_START_V2_DRIVER (0x83100UL)
 #define SLI_PSA_ITS_NVM3_RANGE_END_V2_DRIVER \
   SLI_PSA_ITS_NVM3_RANGE_START_V2_DRIVER + SLI_PSA_ITS_NVM3_RANGE_SIZE
+#endif
+
+#if (SL_PSA_ITS_SUPPORT_V3_DRIVER)
+
+#if !defined(SL_PSA_ITS_REMOVE_V1_HEADER_SUPPORT) && SL_PSA_ITS_SUPPORT_V1_DRIVER
+#define SLI_PSA_ITS_SUPPORT_V1_FORMAT_INTERNAL
 #endif
 
 #if defined(SLI_PSA_ITS_ENCRYPTED)
@@ -121,6 +127,12 @@ psa_status_t sli_encrypt_its_file(sli_its_file_meta_v2_t *metadata,
                                   sli_its_encrypted_blob_t *blob,
                                   size_t blob_size,
                                   size_t *blob_length);
+#endif
+
+#if defined(SLI_STATIC_TESTABLE) && (SL_PSA_ITS_SUPPORT_V3_DRIVER)
+// in test mode, expose the init function
+void init_cache(void);
+bool cache_initialized(void);
 #endif
 
 #endif // SL_PSA_ITS_SUPPORT_V3_DRIVER

@@ -127,9 +127,9 @@ typedef union {
     mbedtls_transparent_test_driver_hash_operation_t test_driver_ctx;
 #endif
 #if defined(MBEDTLS_PSA_CRYPTO_DRIVERS)
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     sli_se_transparent_hash_operation_t sli_se_transparent_ctx;
-#endif /* SLI_MBEDTLS_DEVICE_HSE */
+#endif /* SLI_MBEDTLS_DEVICE_HSE  && ! SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS */
 #if defined(SLI_MBEDTLS_DEVICE_VSE)
     sli_cryptoacc_transparent_hash_operation_t sli_cryptoacc_transparent_ctx;
 #endif /* SLI_MBEDTLS_DEVICE_VSE */
@@ -151,7 +151,9 @@ typedef union {
 #endif
 #if defined(MBEDTLS_PSA_CRYPTO_DRIVERS)
 #if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     sli_se_transparent_cipher_operation_t sli_se_transparent_ctx;
+#endif /* ! SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS */
 #if defined(SLI_MBEDTLS_DEVICE_HSE) && defined(SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS)
     sli_se_opaque_cipher_operation_t sli_se_opaque_ctx;
 #endif /* SLI_MBEDTLS_DEVICE_HSE  && SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS */

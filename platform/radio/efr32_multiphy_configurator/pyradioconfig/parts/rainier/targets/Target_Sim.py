@@ -55,7 +55,7 @@ class TargetSimRainier(Target_Sim_Bobcat):
         self.SYNTH_OVERRIDE(model)
 
         # Fast switching overrides
-        if any(word in model.phy.name.lower() for word in ['hop', 'scan', 'signify']):
+        if any(word in model.phy.name.lower() for word in ['hop', 'scan']):
             # For fast switching simulation, since we will be changing the channel we can not use
             # divided down VCO clocking (FPGA requires integer mult of HFXO)
             model.vars.adc_clock_mode.value_forced = model.vars.adc_clock_mode.var_enum.HFXOMULT
@@ -76,9 +76,6 @@ class TargetSimRainier(Target_Sim_Bobcat):
                         model.phy.name == 'PHY_Bluetooth_1M_HADM_prod' or \
                         model.phy.name == 'PHY_Bluetooth_2M_HADM_prod' or \
                         model.phy.name == 'PHY_Bluetooth_1M_AOX_prod' or \
-                        model.phy.name == 'PHY_Signify_SUN_FSK_2Mbps_500kHz' or \
-                        model.phy.name == 'PHY_Signify_SUN_FSK_1Mbps_500kHz' or \
-                        model.phy.name == 'PHY_Signify_Concurrent' or \
                         model.phy.name == 'PHY_Bluetooth_2M_AOX_prod':
             self.MODEM_SHAPING_OVERRIDE(model)
             self.FRC_DFLCTRL_DISABLE(model)

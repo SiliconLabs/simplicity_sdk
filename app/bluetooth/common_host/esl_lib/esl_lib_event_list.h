@@ -99,6 +99,23 @@ sl_status_t esl_lib_event_push_error(esl_lib_status_t      lib_status,
                                      sl_status_t           status,
                                      esl_lib_status_data_t data);
 
+/**************************************************************************//**
+ * Perform a simple garbage collection step for the event list.
+ *
+ * @details This function removes the oldest event from the garbage collection
+ * list (`evt_gc_list`) if the garbage collection step counter indicates that
+ * enough events have been processed. The removed event's memory is freed.
+ *
+ * @param[in] keep_depth Minimum number of events to retain in the list to
+ *            ensure the event receiver has enough time to handle the event
+ *            data
+ *
+ * @return SL_STATUS_OK if an event was removed and its memory freed.
+ * @return SL_STATUS_IDLE if the garbage collection list is empty or fewer than
+ *         `keep_depth` events have been processed since the last step.
+ *****************************************************************************/
+sl_status_t esl_lib_event_gc_step(uint32_t keep_depth);
+
 #ifdef __cplusplus
 };
 #endif

@@ -450,7 +450,6 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         trecs_used = model.vars.MODEM_VITERBIDEMOD_VTDEMODEN.value
         enhdsss_used = model.vars.MODEM_EHDSSSCTRL_EHDSSSEN.value
         # https://jira.silabs.com/browse/MCUW_RADIO_CFG-2587
-        # enabling concurrent detection on signify PHYs causes FSM to get stuck in presense of 802154 blocker
         # making this calculation makes sure concurrent detection is disabled for standalone PHYs
         if trecs_used and enhdsss_used:
             self._reg_write(model.vars.MODEM_COCURRMODE_DSSSCONCURRENT, 1)
@@ -463,7 +462,6 @@ class CalcDemodulatorRainier(Calc_Demodulator_Bobcat):
         is_ble_longrange = model.vars.MODEM_LONGRANGE_LRBLE.value
         # https://jira.silabs.com/browse/MCUW_RADIO_CFG-2587
         # For the most PHYs, FEC is not selected in PHY's definition. So, TRECSCFG_SOFTD = 0 is as the default.
-        # For Signify 1M PHY, FEC is selected in PHY's definition and uses TRECS demod. TRECS demod provides softcode
         # and hardcode to Viterbi decoder in FRC. So, we set TRECSCFG_SOFTD = 1 to get better performance.
 
         if not(is_ble_longrange) and (trecs_used and fec_enabled):

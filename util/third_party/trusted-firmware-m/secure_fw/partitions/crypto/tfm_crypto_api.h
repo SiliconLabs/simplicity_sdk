@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "tfm_crypto_defs.h"
 #ifdef TFM_PSA_API
 #include "psa/service.h"

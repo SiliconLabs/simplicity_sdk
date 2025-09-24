@@ -4,14 +4,14 @@ from pyradioconfig.calculator_model_framework.interfaces.iphy_filter import IPhy
 class PhyFiltersRainier(IPhyFilter):
 
     # Studio black list (files removed before Studio distribution)
-    customer_phy_groups = ['Phys_imagotag',
+    customer_phy_groups = ['Phys_secret1',
                            'Phys_Internal_Base_Experimental',
                            'Phys_Internal_Base_Utility',
                            'Phys_Internal_Base_ValOnly',
                            'Phys_Internal_Connect',
-                           'Phys_Internal_Base_Customer_Signify',
+                           'Phys_secret2',
                            'Phys_Internal_Base_FastSw',
-                           'Phys_Internal_Base_DutyCycle'
+                           'Phys_Internal_Base_DutyCycle',
                            ]
 
     # Studio white list (these PHYs show in Studio as proprietary starting points)

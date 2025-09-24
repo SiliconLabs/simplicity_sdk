@@ -46,7 +46,7 @@ void sli_zigbee_stack_set_mac_passthrough_flags(sl_zigbee_mac_passthrough_type_t
 
 // Callback Indirection
 
-void sli_802154_stack_filter_match_message_handler(uint8_t filterIndexMatch,
+void sli_802154_stack_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                    uint8_t legacyPassthroughType,
                                                    sl_zigbee_rx_packet_info_t *packetInfo,
                                                    uint8_t messageLength,

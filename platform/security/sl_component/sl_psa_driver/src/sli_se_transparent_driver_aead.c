@@ -30,7 +30,7 @@
 
 #include "sli_psa_driver_features.h"
 
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 
 #include "psa/crypto.h"
 
@@ -276,4 +276,4 @@ psa_status_t sli_se_transparent_aead_abort(
   return PSA_SUCCESS;
 }
 
-#endif // SLI_MBEDTLS_DEVICE_HSE
+#endif // #if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)

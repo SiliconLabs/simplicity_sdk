@@ -336,10 +336,10 @@ typedef struct {
   /// Currently active tamper sources.
   uint32_t tamper_status_raw;
 #if defined(_SILICON_LABS_32B_SERIES_3)
-  uint8_t rom_revision;
   /// ROM revision
-  uint8_t otp_patch_sequence;
+  uint8_t rom_revision;
   /// OTP patch sequence
+  uint8_t otp_patch_sequence;
 #endif
 } sl_se_status_t;
 
@@ -466,6 +466,7 @@ typedef struct {
 #if defined(_SILICON_LABS_32B_SERIES_3)
 /// @addtogroup sl_se_crypto_alg Crypto Algorithm Utilities
 /// @{
+
 /// SE Crypto algorithms (ciphers, AEADs, MACs, hashes, etc) used for
 /// the code region write function.
 typedef enum {

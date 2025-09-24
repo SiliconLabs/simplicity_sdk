@@ -200,7 +200,7 @@ typedef enum {
 /// @brief Structure to hold NVM3 memory information.
 typedef struct {
   bool isMemoryLow;                               ///< True if NVM3 instance is running low on memory
-  size_t availableMemory;                         ///< Available memory for the user in bytes
+  size_t availableMemory;                         ///< Usable memory in bytes before a repack operation is triggered
   bool isCacheLow;                                ///< True if cache size is insufficient or overflowed
   size_t additionalCacheNeeded;                   ///< Additional cache size needed to accommodate all objects
 } nvm3_MemInfo_t;
@@ -1092,22 +1092,24 @@ sl_status_t nvm3_getMemInfo(nvm3_Handle_t *h, nvm3_MemInfo_t *memInfo);
    is at this limit, no space is left for wear-levelling, and page erases will be
    forced for every object written. The NVM3 instance should therefore be configured
    with enough flash pages to put the maximum allowed basic storage significantly
-   higher than the actual basic storage.
+   higher than the actual basic storage. Note that with security features such as
+   authenticated encryption (AES-GCM) enabled, the available basic storage is
+   reduced by 16 bytes.
 
    ## Max Allowed Basic Storage with 4 kB page size
    |                Flash pages    |                Total size (bytes)    |    Max allowed basic storage (bytes)    |                                     |                                      |                                      |
    |-------------------------------|--------------------------------------|-----------------------------------------|-------------------------------------|--------------------------------------|--------------------------------------|
    |                               |                                      |    Max object size = 204 bytes          |    Max object size = 254 bytes      |    Max object size = 1900 bytes      |    Max object size = 4096 bytes      |
-   |    3                          |    12228                             |    3652                                 |    3552                             |    260                               |    0                                 |
-   |    4                          |    16304                             |    7728                                 |    7628                             |    4336                              |    0                                 |
-   |    5                          |    20380                             |    11804                                |    11704                            |    8412                              |    4020                              |
-   |    6                          |    24456                             |    15880                                |    15780                            |    12488                             |    8096                              |
-   |    7                          |    28532                             |    19956                                |    19856                            |    16564                             |    12172                             |
-   |    8                          |    32608                             |    24032                                |    23932                            |    20640                             |    16248                             |
-   |    9                          |    36684                             |    28108                                |    28008                            |    24716                             |    20324                             |
-   |    10                         |    40760                             |    32184                                |    32084                            |    28792                             |    24400                             |
+   |    3                          |    12228                             |    3652                                 |    3552                             |    260                               |    -                                 |
+   |    4                          |    16304                             |    7728                                 |    7628                             |    4336                              |    -                                 |
+   |    5                          |    20380                             |    11804                                |    11704                            |    8412                              |    -                                 |
+   |    6                          |    24456                             |    15880                                |    15780                            |    12488                             |    4004                              |
+   |    7                          |    28532                             |    19956                                |    19856                            |    16564                             |    8080                              |
+   |    8                          |    32608                             |    24032                                |    23932                            |    20640                             |    12156                             |
+   |    9                          |    36684                             |    28108                                |    28008                            |    24716                             |    16232                             |
+   |    10                         |    40760                             |    32184                                |    32084                            |    28792                             |    20308                             |
 
-## Max Allowed Basic Storage with 8 kB page size
+   ## Max Allowed Basic Storage with 8 kB page size
    |                Flash pages    |                Total size (bytes)    |    Max allowed basic storage (bytes)    |                                     |                                      |                                      |
    |-------------------------------|--------------------------------------|-----------------------------------------|-------------------------------------|--------------------------------------|--------------------------------------|
    |                               |                                      |    Max object size = 204 bytes          |    Max object size = 254 bytes      |    Max object size = 1900 bytes      |    Max object size = 4096 bytes      |

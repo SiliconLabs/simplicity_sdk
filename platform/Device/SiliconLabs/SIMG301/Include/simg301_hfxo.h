@@ -51,8 +51,8 @@ typedef struct hfxo_typedef{
   uint32_t       RESERVED2[1U];                 /**< Reserved for future use                            */
   __IOM uint32_t CFG;                           /**< Configuration Register                             */
   uint32_t       RESERVED3[1U];                 /**< Reserved for future use                            */
-  __IOM uint32_t SLEEPYXTALCFG0;                /**< New Register                                       */
-  __IOM uint32_t SLEEPYXTALCFG1;                /**< New Register                                       */
+  __IOM uint32_t SLEEPYXTALCFG0;                /**< Sleepy Crystal Configuration 0                     */
+  __IOM uint32_t SLEEPYXTALCFG1;                /**< Sleepy Crystal Configuration 1                     */
   __IOM uint32_t CTRL;                          /**< Control Register                                   */
   uint32_t       RESERVED4[3U];                 /**< Reserved for future use                            */
   __IOM uint32_t EXTCLKPKDETCTRL;               /**< Peak Detector Control Register                     */
@@ -76,8 +76,8 @@ typedef struct hfxo_typedef{
   uint32_t       RESERVED13[1U];                /**< Reserved for future use                            */
   __IOM uint32_t CFG_SET;                       /**< Configuration Register                             */
   uint32_t       RESERVED14[1U];                /**< Reserved for future use                            */
-  __IOM uint32_t SLEEPYXTALCFG0_SET;            /**< New Register                                       */
-  __IOM uint32_t SLEEPYXTALCFG1_SET;            /**< New Register                                       */
+  __IOM uint32_t SLEEPYXTALCFG0_SET;            /**< Sleepy Crystal Configuration 0                     */
+  __IOM uint32_t SLEEPYXTALCFG1_SET;            /**< Sleepy Crystal Configuration 1                     */
   __IOM uint32_t CTRL_SET;                      /**< Control Register                                   */
   uint32_t       RESERVED15[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXTCLKPKDETCTRL_SET;           /**< Peak Detector Control Register                     */
@@ -101,8 +101,8 @@ typedef struct hfxo_typedef{
   uint32_t       RESERVED24[1U];                /**< Reserved for future use                            */
   __IOM uint32_t CFG_CLR;                       /**< Configuration Register                             */
   uint32_t       RESERVED25[1U];                /**< Reserved for future use                            */
-  __IOM uint32_t SLEEPYXTALCFG0_CLR;            /**< New Register                                       */
-  __IOM uint32_t SLEEPYXTALCFG1_CLR;            /**< New Register                                       */
+  __IOM uint32_t SLEEPYXTALCFG0_CLR;            /**< Sleepy Crystal Configuration 0                     */
+  __IOM uint32_t SLEEPYXTALCFG1_CLR;            /**< Sleepy Crystal Configuration 1                     */
   __IOM uint32_t CTRL_CLR;                      /**< Control Register                                   */
   uint32_t       RESERVED26[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXTCLKPKDETCTRL_CLR;           /**< Peak Detector Control Register                     */
@@ -126,8 +126,8 @@ typedef struct hfxo_typedef{
   uint32_t       RESERVED35[1U];                /**< Reserved for future use                            */
   __IOM uint32_t CFG_TGL;                       /**< Configuration Register                             */
   uint32_t       RESERVED36[1U];                /**< Reserved for future use                            */
-  __IOM uint32_t SLEEPYXTALCFG0_TGL;            /**< New Register                                       */
-  __IOM uint32_t SLEEPYXTALCFG1_TGL;            /**< New Register                                       */
+  __IOM uint32_t SLEEPYXTALCFG0_TGL;            /**< Sleepy Crystal Configuration 0                     */
+  __IOM uint32_t SLEEPYXTALCFG1_TGL;            /**< Sleepy Crystal Configuration 1                     */
   __IOM uint32_t CTRL_TGL;                      /**< Control Register                                   */
   uint32_t       RESERVED37[3U];                /**< Reserved for future use                            */
   __IOM uint32_t EXTCLKPKDETCTRL_TGL;           /**< Peak Detector Control Register                     */

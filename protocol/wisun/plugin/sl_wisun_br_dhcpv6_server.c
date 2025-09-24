@@ -276,6 +276,10 @@ static int dhcp_send_reply(struct sockaddr_in6 *dest,
                            struct pktbuf *reply)
 {
   char dst_addr_str[MAX_IPV6_STRING_LEN_WITH_TRAILING_NULL];
+  if (reply->err) {
+    sl_wisun_trace_error("dhcp_send_reply: reply buffer error");
+    return -1;
+  }
   int32_t retval = sendto(dhcpv6_server_socket, pktbuf_head(reply), reply->buf_len, 0, (struct sockaddr *)dest, sizeof(struct sockaddr_in6));
   if (retval <= 0) {
     sl_wisun_trace_error("dhcp_send_reply: sendto failed %d", retval);
@@ -325,11 +329,18 @@ if (len < 33) {
     pktbuf_free(&buf);
     return -1;
   }
+
   pktbuf_push_tail_be16(reply, DHCPV6_OPT_RELAY);
   pktbuf_push_tail_be16(reply, pktbuf_len(&buf));
   pktbuf_push_tail(reply, pktbuf_head(&buf), pktbuf_len(&buf));
 
   pktbuf_free(&buf);
+
+  if (reply->err) {
+    sl_wisun_trace_error("dhcp_handle_request_fwd: reply buffer error");
+    return -1;
+  }
+
   return 0;
 }
 
@@ -380,6 +391,12 @@ static int dhcp_handle_request(uint8_t *req, int len, struct pktbuf *reply)
   dhcp_fill_vendor_data(reply);
   dhcp_fill_identity_association(reply, hwaddr, iaid);
   dhcp_fill_rapid_commit(reply);
+
+  if (reply->err) {
+    sl_wisun_trace_error("dhcp_handle_request: reply buffer error");
+    return -1;
+  }
+
   return 0;
 }
 

@@ -41,10 +41,15 @@ template_file:
 config_file:
   - path: config/template/sl_mbedtls_config.h
     file_id: mbedtls_config
+    condition: [trustzone_unaware]
+  - path: config/template/sl_mbedtls_trustzone_config.h
+    file_id: mbedtls_config
     # We use tz_secure_key_library_s instead of trustzone_secure since the
     # secure bootloader will need this file to build.
+    condition: [trustzone_secure]
     unless: [tz_secure_key_library_s, trustzone_nonsecure]
-  - path: config/template/sl_mbedtls_config.h
+
+  - path: config/template/sl_mbedtls_trustzone_config.h
     file_id: mbedtls_config
     export: true
     condition: [trustzone_nonsecure]
@@ -66,6 +71,13 @@ define:
 
   - name: MBEDTLS_CONFIG_FILE
     value: "<sl_mbedtls_config.h>"
+    condition: [trustzone_unaware]
+  - name: MBEDTLS_CONFIG_FILE
+    value: "<sl_mbedtls_trustzone_config.h>"
+    condition: [trustzone_nonsecure]
+  - name: MBEDTLS_CONFIG_FILE
+    value: "<sl_mbedtls_trustzone_config.h>"
+    condition: [trustzone_secure]
 
 requires:
   - name: component_catalog

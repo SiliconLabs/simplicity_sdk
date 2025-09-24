@@ -60,7 +60,7 @@ template_contribution:
     unless: [device_sdid_200]
 
   - name: memory_flash_size
-    value: 0x1E000
+    value: 0x20000
 
   - name: memory_ram_start
     value: 0x20000000

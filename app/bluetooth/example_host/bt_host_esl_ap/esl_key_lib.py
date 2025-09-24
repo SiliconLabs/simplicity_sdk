@@ -24,7 +24,8 @@ ESL Key Library
 #    misrepresented as being the original software.
 # 3. This notice may not be removed or altered from any source distribution.
 
-from ctypes import c_ubyte, c_uint16, byref
+from ctypes import c_ubyte, c_uint16, byref, memmove, sizeof
+import ctypes
 from ap_constants import (
     BROADCAST_ADDRESS,
     PA_SUBEVENT_MAX,
@@ -206,18 +207,41 @@ class Lib:
 
     def __init__(self, file_name="bonding.db"):
         self.key_db_handle = eklw.db_handle_p()
-        status = eklw.esl_key_lib_init_database(file_name, byref(self.key_db_handle))
+        self.file_name = file_name
+        status = eklw.esl_key_lib_init_database(self.file_name, byref(self.key_db_handle))
         if status != eklw.SL_STATUS_OK:
             raise Error(status)
 
+    def _free_key_db_handle(self, handle):
+        """Explicitly free the memory allocated for a Key DB handle copy."""
+        if handle:
+            status = eklw.esl_key_lib_free_threadsafe_handle(handle)
+            if status != eklw.SL_STATUS_OK:
+                raise Error(status)            
+            del handle
+
+    def _copy_key_db_handle(self):
+        """Create a threadsafe shallow copy of the self.key_db_handle content."""
+        if not self.key_db_handle:
+            raise ValueError("The ESL key library is not initialized.")
+        
+        copy_handle = eklw.db_handle_p()
+        status = eklw.esl_key_lib_split_threadsafe_handle(self.key_db_handle, byref(copy_handle))
+        if status != eklw.SL_STATUS_OK:
+            raise Error(status)
+   
+        # Return the handle and a cleanup function for ease of use
+        return copy_handle, lambda: self._free_key_db_handle(copy_handle)
+
     def find_ltk(self, address: esl_lib.Address) -> bytes:
         """Search for Long Term Key entry for the given address"""
+        key_db_handle, cleanup = self._copy_key_db_handle()
         key_record = eklw.db_record_p()
         ble_address = eklw.bd_addr()
         ble_address.addr = (c_ubyte * 6).from_buffer_copy(address.addr)
         try:
             status = eklw.esl_key_lib_get_record_by_ble_address(
-                self.key_db_handle, byref(ble_address), byref(key_record)
+                key_db_handle, byref(ble_address), byref(key_record)
             )
             if status == eklw.SL_STATUS_OK:
                 ltk_key_out = eklw.aes_key_128()
@@ -228,15 +252,17 @@ class Lib:
                 return bytes(ltk_key_out.data)
         finally:
             eklw.esl_key_lib_free_record(key_record)
+            cleanup()  # Explicitly free the copied handle
         return None
 
     def find_esl(self, address: esl_lib.Address) -> ESLRecord:
         """Search for ESL database record for the given address"""
+        key_db_handle, cleanup = self._copy_key_db_handle()
         db_record = eklw.db_record_p()
         ble_address = eklw.bd_addr()
         ble_address.addr = (c_ubyte * 6).from_buffer_copy(address.addr)
         status = eklw.esl_key_lib_get_record_by_ble_address(
-            self.key_db_handle, byref(ble_address), byref(db_record)
+            key_db_handle, byref(ble_address), byref(db_record)
         )
         if status == eklw.SL_STATUS_OK:
             esl = ESLRecord(address)
@@ -262,26 +288,29 @@ class Lib:
                     esl.group = (esl_address_out.value & ESL_GROUP_MASK) >> 8
                 ap_address = eklw.bd_addr()
                 status = eklw.esl_key_lib_get_bind_address(
-                    self.key_db_handle, db_record, byref(ap_address)
+                    key_db_handle, db_record, byref(ap_address)
                 )
                 if status == eklw.SL_STATUS_OK:
                     esl.ap_address = bytes(ap_address.addr)
                 return esl
             finally:
                 eklw.esl_key_lib_free_record(db_record)
+        cleanup()
         return None
 
     def add_esl(self, esl_record: ESLRecord):
         """Add new ESL database entry for the given address"""
+        key_db_handle, cleanup = self._copy_key_db_handle()
         ltk_key = eklw.aes_key_128()
         esl_db_record = eklw.db_record_p()
         ble_address = eklw.bd_addr()
         ble_address.addr = (c_ubyte * 6).from_buffer_copy(esl_record.address.addr)
         if esl_record.ltk is None:  # searching for an existing record
             status = eklw.esl_key_lib_get_record_by_ble_address(
-                self.key_db_handle, byref(ble_address), byref(esl_db_record)
+                key_db_handle, byref(ble_address), byref(esl_db_record)
             )
             if status != eklw.SL_STATUS_OK:
+                cleanup()
                 raise ValueError(
                     f"The {esl_record.address} address can't be found in the database!"
                 )
@@ -292,6 +321,7 @@ class Lib:
                 or record_type.value != eklw.ESL_KEY_LIB_TAG_RECORD
             ):
                 eklw.esl_key_lib_free_record(esl_db_record)
+                cleanup()
                 raise ValueError(
                     f"The {esl_record.address} address does not match any ESL in the database!"
                 )
@@ -324,7 +354,7 @@ class Lib:
             )
 
         if esl_record.ap_address is None:
-            status = eklw.esl_key_lib_store_record(self.key_db_handle, esl_db_record)
+            status = eklw.esl_key_lib_store_record(key_db_handle, esl_db_record)
         else:
             ap_db_record = eklw.db_record_p()
             ap_address = eklw.bd_addr()
@@ -332,9 +362,10 @@ class Lib:
 
             if esl_record.apk is None:
                 status = eklw.esl_key_lib_get_record_by_ble_address(
-                    self.key_db_handle, byref(ap_address), byref(ap_db_record)
+                    key_db_handle, byref(ap_address), byref(ap_db_record)
                 )
                 if status != eklw.SL_STATUS_OK:
+                    cleanup()
                     raise ValueError(
                         f"The {esl_record.ap_address} address can't be found in the database!"
                     )
@@ -347,6 +378,7 @@ class Lib:
                     or record_type.value != eklw.ESL_KEY_LIB_AP_RECORD
                 ):
                     eklw.esl_key_lib_free_record(ap_db_record)
+                    cleanup()
                     raise ValueError(
                         f"The {esl_record.ap_address} address does not match any AP in the database!"
                     )
@@ -363,39 +395,43 @@ class Lib:
                     esl_record.apk[AES_KEY_SIZE:EAD_KEY_MATERIAL_SIZE]
                 )
                 eklw.esl_key_lib_set_ap_key_material(byref(ap_key), ap_db_record)
-                status = eklw.esl_key_lib_store_record(self.key_db_handle, ap_db_record)
+                status = eklw.esl_key_lib_store_record(key_db_handle, ap_db_record)
                 if status == eklw.SL_STATUS_OK:
                     status = eklw.esl_key_lib_store_record_and_bind(
-                        self.key_db_handle, esl_db_record, byref(ap_address)
+                        key_db_handle, esl_db_record, byref(ap_address)
                     )
             eklw.esl_key_lib_free_record(ap_db_record)
         eklw.esl_key_lib_free_record(esl_db_record)
+        cleanup()
         if status != eklw.SL_STATUS_OK:
             raise DBRecordError(status, esl_record)
 
     def delete_node(self, address: esl_lib.Address):
         """Delete the ESL database entry with the specified address"""
+        key_db_handle, cleanup = self._copy_key_db_handle()
         ble_address = eklw.bd_addr()
         ble_address.addr = (c_ubyte * 6).from_buffer_copy(address.addr)
         status = eklw.esl_key_lib_delete_record_by_ble_address(
-            self.key_db_handle, byref(ble_address)
+            key_db_handle, byref(ble_address)
         )
+        cleanup()
         if status != eklw.SL_STATUS_OK:
             raise Error(status)
 
     def delete_ltk(self, address: esl_lib.Address, ap_address: esl_lib.Address = None):
         """Delete the LTK key of an ESL database entry with the specified address"""
+        key_db_handle, cleanup = self._copy_key_db_handle()
         esl_record = eklw.db_record_p()
         ble_address = eklw.bd_addr()
         ble_address.addr = (c_ubyte * 6).from_buffer_copy(address.addr)
         try:
             status = eklw.esl_key_lib_get_record_by_ble_address(
-                self.key_db_handle, byref(ble_address), byref(esl_record)
+                key_db_handle, byref(ble_address), byref(esl_record)
             )
             if status == eklw.SL_STATUS_OK:
                 ap_bd_addr = eklw.bd_addr()
                 status = eklw.esl_key_lib_get_bind_address(
-                    self.key_db_handle, esl_record, byref(ap_bd_addr)
+                    key_db_handle, esl_record, byref(ap_bd_addr)
                 )
                 if status == eklw.SL_STATUS_OK and ap_address is not None and esl_lib.Address(bytes(ap_bd_addr.addr)) != ap_address:
                     # Do not delete LTK keys that belongs to another AP!
@@ -407,8 +443,9 @@ class Lib:
                     byref(ltk_key), esl_record
                 )
                 if status == eklw.SL_STATUS_OK:
-                    status = eklw.esl_key_lib_store_record(self.key_db_handle, esl_record)
+                    status = eklw.esl_key_lib_store_record(key_db_handle, esl_record)
                 if status != eklw.SL_STATUS_OK:
                     raise Error(status)
         finally:
             eklw.esl_key_lib_free_record(esl_record)
+            cleanup()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="AN1086: Using the Gecko Bootloader with Silicon Labs Bluetooth Applications" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1086-gecko-bootloader-bluetooth.pdf" category="Application Notes" priority="15">
+<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/ContentItem.ecore">
+  <contentItemData name="" label="AN1086: Using the Gecko Bootloader with Silicon Labs Bluetooth Applications" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1086-gecko-bootloader-bluetooth.pdf" category="Application Notes" priority="15">
     <description>Includes detailed information on using the Gecko Bootloader with Silicon Labs Bluetooth applications. It supplements the general Gecko Bootloader implementation information provided in UG489: Silicon Labs Gecko Bootloader  User's Guide. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="15"/>
@@ -8,14 +8,14 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1137: Bluetooth Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1137-bluetooth-mesh-network-performance.pdf" category="Application Notes" priority="25">
+  <contentItemData name="" label="AN1137: Bluetooth Mesh Network Performance" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1137-bluetooth-mesh-network-performance.pdf" category="Application Notes" priority="25">
     <description>Details methods for testing Bluetooth mesh network performance; results are intended to provide guidance  on design practices and principles as well as expected field performance results. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="25"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1142: Mesh Network Performance Comparison" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1142-mesh-network-performance-comparison.pdf" category="Application Notes" priority="25">
+  <contentItemData name="" label="AN1142: Mesh Network Performance Comparison" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1142-mesh-network-performance-comparison.pdf" category="Application Notes" priority="25">
     <description>Reviews the Zigbee, Thread, and Bluetooth mesh networks to evaluate their differences in performance and behavior. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="25"/>
@@ -23,15 +23,7 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
-    <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1267: Radio Frequency Physical Layer Evaluation in Bluetooth SDK v3.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1267-bt-rf-phy-evaluation-using-dtm-sdk-v3x.pdf" category="Application Notes" priority="25">
+  <contentItemData name="" label="AN1267: Radio Frequency Physical Layer Evaluation in Bluetooth SDK v3.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1267-bt-rf-phy-evaluation-using-dtm-sdk-v3x.pdf" category="Application Notes" priority="25">
     <description>Reviews performing radio frequency physical layer evaluation with EFR32BG SoCs and BGM modules using  the Direct Test Mode protocol in Bluetooth SDK v3.x.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="25"/>
@@ -39,21 +31,7 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1298: Transitioning from the v1.x to the v2.x Bluetooth Mesh SDK" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1298-transitioning-from-bluetooth-mesh-1x-to-2x.pdf" category="Application Notes" priority="1">
-    <description>Describes the differences between using Bluetooth mesh SDK v1.x in Simplicity Studio 4 and using  Bluetooth mesh SDK v2.x in Simplicity Studio 5. Outlines the steps needed to migrate a v1.x project to v2.x.   </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="1"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1300: Understanding the Silicon Labs Bluetooth Mesh Sensor Model in SDK v2.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1300-understanding-bluetooth-mesh-sensor-model-demo-sdk-2x.pdf" category="Application Notes" priority="14">
-    <description>Discusses the basics of sensor models and describe the related sample applications in the SDK that create a wireless network of sensors and sensor clients using Bluetooth mesh technology.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="14"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
     <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
@@ -61,14 +39,7 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1308: Bluetooth Mesh Interoperability Testing Report" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1308-bt-mesh-interop-report.pdf" category="Application Notes" priority="25">
-    <description>Includes the results of the interoperability testing of Silicon Labs' ICs and Bluetooth Mesh stack with Android and iOS smart phones. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="25"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
+  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
     <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
@@ -76,63 +47,35 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1315: Bluetooth Mesh Device Power Consumption Measurements" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1315-bluetooth-mesh-power-consumption-measurements.pdf" category="Application Notes" priority="25">
-    <description>Describes Low Power Node (LPN) and Friend operation and the parameters related to power consumption. It also  describes how to measure the power consumption of EFR32BG devices acting as Bluetooth mesh LPNs using the setup  and procedures recommended in AN969: Measuring Power Consumption in Wireless Gecko Devices. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="25"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1316: Bluetooth Mesh Parameter Tuning for Network Optimization" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1316-bluetooth-mesh-network-optimization.pdf" category="Application Notes" priority="25">
-    <description>Describes in detail how the Bluetooth mesh toplogy can influence network operation. Provides tips on how to tune your network and its nodes to achieve best performance.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="25"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1318: IV Update in a Bluetooth Mesh Network" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1318-bluetooth-mesh-iv-update.pdf" category="Application Notes" priority="14">
-    <description>Provides background information on the sequence number and IV index in a Bluetooth mesh network and the IV Update  and IV Index Recovery procedures. It also discusses how to implement IV Update functionality in a Bluetooth mesh  application.       </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="14"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1368: Bluetooth Mesh Remote Provisioning" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1368-bluetooth-mesh-remote-provisioning.pdf" category="Application Notes" priority="14">
+  <contentItemData name="" label="AN1368: Bluetooth Mesh Remote Provisioning" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1368-bluetooth-mesh-remote-provisioning.pdf" category="Application Notes" priority="14">
     <description>Describes the Bluetooth Mesh Remote Provisioning feature and provides an example walkthrough. With the feature, a device can be provisioned without a direct radio connection between the provisioner and the unprovisioned node.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1371: Bluetooth Mesh NCP Host Provisioner Example Walkthrough" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1371-bluetooth-mesh-host-provisioner-example.pdf" category="Application Notes" priority="14">
+  <contentItemData name="" label="AN1371: Bluetooth Mesh NCP Host Provisioner Example Walkthrough" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1371-bluetooth-mesh-host-provisioner-example.pdf" category="Application Notes" priority="14">
     <description>The NCP Host Provisioner example demonstrates how to run a provisioner on a computer with a NCP node connected. The user can provision, configure, and reset other nodes through the NCP node.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1386: Bluetooth Mesh Certificate-Based Provisioning" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1386-bluetooth-mesh-certificate-based-provisioning.pdf" category="Application Notes" priority="14">
-    <description>Describes how certificates are used to establish the authenticity of devices wishing to join a mesh network.    </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="14"/>
-    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1405: Bluetooth Mesh on Advertising Extensions" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1405-bt-mesh-advertising-extensions.pdf" category="Application Notes" priority="14">
+  <contentItemData name="" label="AN1405: Bluetooth Mesh on Advertising Extensions" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1405-bt-mesh-advertising-extensions.pdf" category="Application Notes" priority="14">
     <description>Describes the Bluetooth Mesh Advertising Extensions feature. The non-standard Bluetooth  Mesh modification achieves better performance through utilizing the Bluetooth 5 Advertising Extensions feature,  which allows sending much larger advertisement packets. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="AN1438: Networked Lighting Control" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/an1438-network-lighting-control.pdf" category="Application Notes" priority="14">
+  <contentItemData name="" label="AN1438: Networked Lighting Control" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/an1438-network-lighting-control.pdf" category="Application Notes" priority="14">
     <description>Describes the following Networked Lighting Control (NLC) profiles: ambient light sensor, basic scene selector, dimming control, basic lightness controller, and occupancy sensor. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/slBtMesh-index.html" category="Application Notes" priority="9">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/slBtMesh-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
@@ -171,6 +114,20 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1308: Bluetooth Mesh Interoperability Testing Report" itemURI="https://docs.silabs.com/btmesh/latest/bt-mesh-interop-report/index.html" category="Application Notes" priority="25">
+    <description>Includes the results of the interoperability testing of Silicon Labs' ICs and Bluetooth Mesh stack with Android and iOS smart phones. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="25"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1386: Bluetooth Mesh Certificate-Based Provisioning" itemURI="https://docs.silabs.com/btmesh/latest/btmesh-certificate-based-provisioning/index.html" category="Application Notes" priority="14">
+    <description>Describes how certificates are used to establish the authenticity of devices wishing to join a mesh network.    </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1370: Bluetooth Mesh Device Firmware Update Example Walkthrough" itemURI="https://docs.silabs.com/btmesh/latest/btmesh-device-firmware-update-example/index.html" category="Application Notes" priority="14">
     <description>Describes the bootloader configurations and the device firmware update (DFU) models in the SDK's example projects, and walks through a firmware update demonstration.   </description>
     <property key="core.category" value="Application Notes"/>
@@ -182,6 +139,27 @@
     <description>Provides background information on the Bluetooth Mesh Device Firmware Update (DFU) feature, including the BLOB transfer, the DFU roles in a Bluetooth mesh network, the models required for these roles, and the firmware update process. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1318: IV Update in a Bluetooth Mesh Network" itemURI="https://docs.silabs.com/btmesh/latest/btmesh-iv-update/index.html" category="Application Notes" priority="14">
+    <description>Provides background information on the sequence number and IV index in a Bluetooth mesh network and the IV Update  and IV Index Recovery procedures. It also discusses how to implement IV Update functionality in a Bluetooth mesh  application.       </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1316: Bluetooth Mesh Parameter Tuning for Network Optimization" itemURI="https://docs.silabs.com/btmesh/latest/btmesh-network-optimization/index.html" category="Application Notes" priority="25">
+    <description>Describes in detail how the Bluetooth mesh toplogy can influence network operation. Provides tips on how to tune your network and its nodes to achieve best performance.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="25"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1315: Bluetooth Mesh Device Power Consumption Measurements" itemURI="https://docs.silabs.com/btmesh/latest/btmesh-power-consumption-measurements/index.html" category="Application Notes" priority="25">
+    <description>Describes Low Power Node (LPN) and Friend operation and the parameters related to power consumption. It also  describes how to measure the power consumption of EFR32BG devices acting as Bluetooth mesh LPNs using the setup  and procedures recommended in AN969: Measuring Power Consumption in Wireless Gecko Devices. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="25"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -223,6 +201,14 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1222:  Production Programming of Series 2 and Series 3 Devices" itemURI="https://docs.silabs.com/btmesh/latest/prod-programming-series2-and-series3/index.html" category="Application Notes" priority="50">
+    <description>Demonstrates how to properly program, provision, and configure Series 2 and Series 3 devices in a production environment.    </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1218: Series 2 Secure Boot with RTSL" itemURI="https://docs.silabs.com/btmesh/latest/series2-secure-boot-with-rtsl/index.html" category="Application Notes" priority="15">
     <description>Contains detailed information on configuring and using the Secure Boot with hardware Root of Trust and Secure Loader on  Series 2 devices, including how to provision the signing key. This is a companion document to UG489: Silicon Labs Gecko  Bootloader User's Guide. </description>
     <property key="core.category" value="Application Notes"/>
@@ -247,6 +233,20 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1298: Transitioning from the v1.x to the v2.x Bluetooth Mesh SDK" itemURI="https://docs.silabs.com/btmesh/latest/transitioning-from-bluetooth-mesh-1x-to-2x/index.html" category="Application Notes" priority="1">
+    <description>Describes the differences between using Bluetooth mesh SDK v1.x in Simplicity Studio 4 and using  Bluetooth mesh SDK v2.x in Simplicity Studio 5. Outlines the steps needed to migrate a v1.x project to v2.x.   </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="1"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1300: Understanding the Silicon Labs Bluetooth Mesh Sensor Model in SDK v2.x" itemURI="https://docs.silabs.com/btmesh/latest/understanding-bluetooth-mesh-sensor-model-demo-sdk-6x-and-higher/index.html" category="Application Notes" priority="14">
+    <description>Discusses the basics of sensor models and describe the related sample applications in the SDK that create a wireless network of sensors and sensor clients using Bluetooth mesh technology.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="14"/>
+    <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1135: Using Third Generation Non-Volatile Memory (NVM3) Data Storage" itemURI="https://docs.silabs.com/btmesh/latest/using-third-generation-nonvolatile-memory/index.html" category="Application Notes" priority="20">
     <description>Explains how NVM3 can be used as non-volatile data storage in various protocol implementations. </description>
     <property key="core.category" value="Application Notes"/>
@@ -262,7 +262,7 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Bluetooth Mesh API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/API_BLUETOOTH_MESH_HTML/index.html" category="Reference Manuals" priority="10">
+  <contentItemData name="" label="Silicon Labs Bluetooth Mesh API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/API_BLUETOOTH_MESH_HTML/index.html" category="Reference Manuals" priority="10">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs Bluetooth Mesh stack. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="10"/>
@@ -276,14 +276,14 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Bluetooth Mesh Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-bt-mesh-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Silicon Labs Bluetooth Mesh Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-bt-mesh-release-notes/index.html" category="Release Notes" priority="1">
     <description>Lists compatibility requirements and sources for all software components  in the development environment. Discusses the latest changes to the Silicon Labs Bluetooth mesh SDK and associated utilities, including added/deleted/deprecated  features/API, and lists fixed and known issues. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
     <description>A detailed overview of the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform includes EMLIB, EMDRV, RAIL Library, NVM3, and the component-based infrastructure. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
@@ -291,7 +291,7 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG118: Blue Gecko Bluetooth Profile Toolkit Developer's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/ug118-bluegecko-bt-profile-toolkit.pdf" category="User's Guides" priority="12">
+  <contentItemData name="" label="UG118: Blue Gecko Bluetooth Profile Toolkit Developer's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/ug118-bluegecko-bt-profile-toolkit.pdf" category="User's Guides" priority="12">
     <description>Reviews using this XML-based mark-up language to describe the Bluetooth GATT database,  configure access and security properties, and include the GATT database as part of the firmware. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="12"/>
@@ -299,14 +299,14 @@
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG472: Bluetooth Mesh Stack and Bluetooth Mesh Configurator User's Guide for SDK v2.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/ug472-bluetooth-mesh-v2x-node-configuration-users-guide.pdf" category="User's Guides" priority="12">
+  <contentItemData name="" label="UG472: Bluetooth Mesh Stack and Bluetooth Mesh Configurator User's Guide for SDK v2.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/ug472-bluetooth-mesh-v2x-node-configuration-users-guide.pdf" category="User's Guides" priority="12">
     <description>Describes the components, stack, and DCD (Device Composition Data) configuration options for the  Bluetooth Mesh v2.x SDK. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="12"/>
     <property key="core.partCompatibility" value=".*efr32bg2(1|2.*f512|4).* .*efr32mg2[1247].* .*mgm(2[124]).* .*bgm(21|22.*hna|24).*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG572: Bluetooth Mesh Stack and Bluetooth Mesh Configurator User's Guide for SDK v5.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/app/btmesh/documentation/ug572-bluetooth-mesh-v5x-node-configuration.pdf" category="User's Guides" priority="12">
+  <contentItemData name="" label="UG572: Bluetooth Mesh Stack and Bluetooth Mesh Configurator User's Guide for SDK v5.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/btmesh/documentation/ug572-bluetooth-mesh-v5x-node-configuration.pdf" category="User's Guides" priority="12">
     <description>Introduces Simplicity Studio 5 Bluetooth Mesh SDK components. Describes how to modify the Device Composition Data (DCD), including device information, elements, and models. Describes the stack configuration options to optimize RAM and persistent storage usage. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="12"/>

@@ -54,11 +54,11 @@ psa_status_t sli_hostcrypto_transparent_hash_compute(psa_algorithm_t alg,
                                                      size_t hash_size,
                                                      size_t *hash_length)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   if ((input == NULL && input_length > 0)
       || (hash == NULL && hash_size > 0)
@@ -70,41 +70,41 @@ psa_status_t sli_hostcrypto_transparent_hash_compute(psa_algorithm_t alg,
   *hash_length = 0;
 
   switch (alg) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case PSA_ALG_SHA_1:
       if (hash_size < SX_HASH_DIGESTSZ_SHA1) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
       }
       break;
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case PSA_ALG_SHA_224:
       if (hash_size < SX_HASH_DIGESTSZ_SHA2_224) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
       }
       break;
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case PSA_ALG_SHA_256:
       if (hash_size < SX_HASH_DIGESTSZ_SHA2_256) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
       }
       break;
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case PSA_ALG_SHA_384:
       if (hash_size < SX_HASH_DIGESTSZ_SHA2_384) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
       }
       break;
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case PSA_ALG_SHA_512:
       if (hash_size < SX_HASH_DIGESTSZ_SHA2_512) {
         return PSA_ERROR_BUFFER_TOO_SMALL;
       }
       break;
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
     default:
       return PSA_ERROR_NOT_SUPPORTED;
   }
@@ -117,31 +117,31 @@ psa_status_t sli_hostcrypto_transparent_hash_compute(psa_algorithm_t alg,
   }
 
   switch (alg) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case PSA_ALG_SHA_1:
       sx_status = sx_hash_create_sha1(&hash_ctx, sizeof(hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case PSA_ALG_SHA_224:
       sx_status = sx_hash_create_sha224(&hash_ctx, sizeof(hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case PSA_ALG_SHA_256:
       sx_status = sx_hash_create_sha256(&hash_ctx, sizeof(hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case PSA_ALG_SHA_384:
       sx_status = sx_hash_create_sha384(&hash_ctx, sizeof(hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case PSA_ALG_SHA_512:
       sx_status = sx_hash_create_sha512(&hash_ctx, sizeof(hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
   }
 
   if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
@@ -171,7 +171,7 @@ psa_status_t sli_hostcrypto_transparent_hash_compute(psa_algorithm_t alg,
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)alg;
   (void)input;
@@ -182,14 +182,14 @@ psa_status_t sli_hostcrypto_transparent_hash_compute(psa_algorithm_t alg,
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 static psa_status_t sli_hostcrypto_transparent_hash_create(
   sli_hostcrypto_transparent_hash_operation_t *operation)
 {
@@ -205,31 +205,31 @@ static psa_status_t sli_hostcrypto_transparent_hash_create(
   }
 
   switch (operation->digest_size) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case SX_HASH_DIGESTSZ_SHA1:
       sx_status = sx_hash_create_sha1(&operation->hash_ctx, sizeof(operation->hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case SX_HASH_DIGESTSZ_SHA2_224:
       sx_status = sx_hash_create_sha224(&operation->hash_ctx, sizeof(operation->hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case SX_HASH_DIGESTSZ_SHA2_256:
       sx_status = sx_hash_create_sha256(&operation->hash_ctx, sizeof(operation->hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case SX_HASH_DIGESTSZ_SHA2_384:
       sx_status = sx_hash_create_sha384(&operation->hash_ctx, sizeof(operation->hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case SX_HASH_DIGESTSZ_SHA2_512:
       sx_status = sx_hash_create_sha512(&operation->hash_ctx, sizeof(operation->hash_ctx));
       break;
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
     default:
       (void) sx_status;
       if (sli_sxsymcrypt_unlock_cryptomaster_selection()) {
@@ -254,11 +254,11 @@ psa_status_t sli_hostcrypto_transparent_hash_setup(
   sli_hostcrypto_transparent_hash_operation_t *operation,
   psa_algorithm_t alg)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   if (operation == NULL) {
     return PSA_ERROR_INVALID_ARGUMENT;
@@ -272,50 +272,50 @@ psa_status_t sli_hostcrypto_transparent_hash_setup(
   memset(operation, 0, sizeof(sli_hostcrypto_transparent_hash_operation_t));
 
   switch (alg) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case PSA_ALG_SHA_1:
       operation->digest_size = SX_HASH_DIGESTSZ_SHA1;
       operation->hash_block_size = SX_HASH_BLOCKSZ_SHA1;
       break;
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case PSA_ALG_SHA_224:
       operation->digest_size = SX_HASH_DIGESTSZ_SHA2_224;
       operation->hash_block_size = SX_HASH_BLOCKSZ_SHA2_224;
       break;
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case PSA_ALG_SHA_256:
       operation->digest_size = SX_HASH_DIGESTSZ_SHA2_256;
       operation->hash_block_size = SX_HASH_BLOCKSZ_SHA2_256;
       break;
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case PSA_ALG_SHA_384:
       operation->digest_size = SX_HASH_DIGESTSZ_SHA2_384;
       operation->hash_block_size = SX_HASH_BLOCKSZ_SHA2_384;
       break;
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case PSA_ALG_SHA_512:
       operation->digest_size = SX_HASH_DIGESTSZ_SHA2_512;
       operation->hash_block_size = SX_HASH_BLOCKSZ_SHA2_512;
       break;
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
     default:
       return PSA_ERROR_NOT_SUPPORTED;
   }
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)operation;
   (void)alg;
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
 psa_status_t sli_hostcrypto_transparent_hash_update(
@@ -323,11 +323,11 @@ psa_status_t sli_hostcrypto_transparent_hash_update(
   const uint8_t *input,
   size_t input_length)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   psa_status_t psa_status;
   int sx_status = SX_ERR_UNITIALIZED_OBJ;
@@ -338,21 +338,21 @@ psa_status_t sli_hostcrypto_transparent_hash_update(
   }
 
   switch (operation->digest_size) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case SX_HASH_DIGESTSZ_SHA1:
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case SX_HASH_DIGESTSZ_SHA2_224:
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case SX_HASH_DIGESTSZ_SHA2_256:
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case SX_HASH_DIGESTSZ_SHA2_384:
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case SX_HASH_DIGESTSZ_SHA2_512:
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
     break;
     default:
       // Digest size must have not been initialized by the setup function.
@@ -467,7 +467,7 @@ psa_status_t sli_hostcrypto_transparent_hash_update(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)operation;
   (void)input;
@@ -475,7 +475,7 @@ psa_status_t sli_hostcrypto_transparent_hash_update(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
 psa_status_t sli_hostcrypto_transparent_hash_finish(
@@ -484,11 +484,11 @@ psa_status_t sli_hostcrypto_transparent_hash_finish(
   size_t hash_size,
   size_t *hash_length)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   psa_status_t psa_status;
   int sx_status = SX_ERR_UNITIALIZED_OBJ;
@@ -500,21 +500,21 @@ psa_status_t sli_hostcrypto_transparent_hash_finish(
   }
 
   switch (operation->digest_size) {
-#if defined(PSA_WANT_ALG_SHA_1)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)
     case SX_HASH_DIGESTSZ_SHA1:
-#endif // PSA_WANT_ALG_SHA_1
-#if defined(PSA_WANT_ALG_SHA_224)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA1
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA224)
     case SX_HASH_DIGESTSZ_SHA2_224:
-#endif // PSA_WANT_ALG_SHA_224
-#if defined(PSA_WANT_ALG_SHA_256)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA224
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA256)
     case SX_HASH_DIGESTSZ_SHA2_256:
-#endif // PSA_WANT_ALG_SHA_256
-#if defined(PSA_WANT_ALG_SHA_384)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA256
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA384)
     case SX_HASH_DIGESTSZ_SHA2_384:
-#endif // PSA_WANT_ALG_SHA_384
-#if defined(PSA_WANT_ALG_SHA_512)
+#endif // SLI_PSA_DRIVER_FEATURE_SHA384
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA512)
     case SX_HASH_DIGESTSZ_SHA2_512:
-#endif // PSA_WANT_ALG_SHA_512
+#endif // SLI_PSA_DRIVER_FEATURE_SHA512
     break;
     default:
       // Digest size must have not been initialized by the setup function.
@@ -580,7 +580,7 @@ psa_status_t sli_hostcrypto_transparent_hash_finish(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)operation;
   (void)hash;
@@ -589,17 +589,17 @@ psa_status_t sli_hostcrypto_transparent_hash_finish(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
 psa_status_t sli_hostcrypto_transparent_hash_abort(
   sli_hostcrypto_transparent_hash_operation_t *operation)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   if (operation != NULL) {
     // Accelerator does not keep state, so just zero out the context and we're good.
@@ -608,24 +608,24 @@ psa_status_t sli_hostcrypto_transparent_hash_abort(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)operation;
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
 psa_status_t sli_hostcrypto_transparent_hash_clone(
   const sli_hostcrypto_transparent_hash_operation_t *source_operation,
   sli_hostcrypto_transparent_hash_operation_t *target_operation)
 {
-#if defined(PSA_WANT_ALG_SHA_1)    \
-  || defined(PSA_WANT_ALG_SHA_224) \
-  || defined(PSA_WANT_ALG_SHA_256) \
-  || defined(PSA_WANT_ALG_SHA_384) \
-  || defined(PSA_WANT_ALG_SHA_512)
+#if defined(SLI_PSA_DRIVER_FEATURE_SHA1)    \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA224) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA256) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA384) \
+  || defined(SLI_PSA_DRIVER_FEATURE_SHA512)
 
   if (source_operation == NULL
       || target_operation == NULL) {
@@ -650,14 +650,14 @@ psa_status_t sli_hostcrypto_transparent_hash_clone(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_SHA_*
+#else // SLI_PSA_DRIVER_FEATURE_SHA_*
 
   (void)source_operation;
   (void)target_operation;
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_SHA_*
+#endif // SLI_PSA_DRIVER_FEATURE_SHA_*
 }
 
 #endif // SLI_MBEDTLS_DEVICE_HC

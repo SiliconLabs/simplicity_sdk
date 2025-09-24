@@ -2,12 +2,12 @@
  * @brief RAIL Configuration
  * @details
  *   WARNING: Auto-Generated Radio Config Header  -  DO NOT EDIT
- *   Radio Configurator Version: 2404.5.3 (87e0e7d3e5)
- *   RAIL Adapter Version: 2.4.33 (d7e1e7244b)
+ *   Radio Configurator Version: 2504.1.1 (a165f360ce)
+ *   RAIL Adapter Version: 2.4.33 (14b7437903)
  *   RAIL Compatibility: 2.x
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib

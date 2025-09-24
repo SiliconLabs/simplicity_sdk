@@ -30,7 +30,7 @@
 
 #include "sli_psa_driver_features.h"
 
-#if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 
 #include "psa/crypto.h"
 
@@ -595,4 +595,4 @@ psa_status_t sli_se_transparent_mac_abort(
   #endif // SLI_PSA_DRIVER_FEATURE_MAC_MULTIPART
 }
 
-#endif // SLI_MBEDTLS_DEVICE_HSE
+#endif // #if defined(SLI_MBEDTLS_DEVICE_HSE) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)

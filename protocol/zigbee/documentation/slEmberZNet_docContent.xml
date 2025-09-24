@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
-  <contentItemData name="" label="AN1118S: Supplemental Information for Certifying Zigbee 3.0 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1118-supporting-materials.zip" category="Application Notes" priority="5">
+<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/ContentItem.ecore">
+  <contentItemData name="" label="AN1118S: Supplemental Information for Certifying Zigbee 3.0 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1118-supporting-materials.zip" category="Application Notes" priority="5">
     <description>Contains three complete PICS documents for Z3ColorControlLight, zigbee_z3_gateway and Z3SmartOutlet reference designs,  along with XML files for Z3ColorControlLight clusters. Note that the Z3ColorControlLight was previously released  in older SDK distributions, but is no longer shipped in current releases. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="5"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1154: Using Tokens for Non-Volatile Data Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1154-tokens-for-non-volatile-storage.pdf" category="Application Notes" priority="12">
+  <contentItemData name="" label="AN1154: Using Tokens for Non-Volatile Data Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1154-tokens-for-non-volatile-storage.pdf" category="Application Notes" priority="12">
     <description>Describes tokens and shows how to use them for non-volatile data storage in EmberZNet PRO and Silicon Labs Flex  applications.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
@@ -15,15 +15,7 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1222: Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="13">
-    <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="13"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
-    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=""/>
-  </contentItemData>
-  <contentItemData name="" label="AN1303: Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="13">
+  <contentItemData name="" label="AN1303: Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="13">
     <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="13"/>
@@ -31,7 +23,7 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="13">
+  <contentItemData name="" label="AN1311: Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="13">
     <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="13"/>
@@ -39,51 +31,35 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1320: Building a Customized NCP Application with Zigbee EmberZNet 7.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1320-customized-ncp-zigbee7.pdf" category="Application Notes" priority="11">
+  <contentItemData name="" label="AN1320: Building a Customized NCP Application with Zigbee EmberZNet 7.0 and Higher" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1320-customized-ncp-zigbee7.pdf" category="Application Notes" priority="11">
     <description>Provides instructions for configuring various aspects of a component-based NCP application using Zigbee EmberZNet SDK 7.0 and higher with the tools included in Simplicity Studio 5. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="11"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1325: Zigbee Cluster Configurator User's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1325-zigbee-cluster-configurator-users-guide.pdf" category="Application Notes" priority="9">
-    <description>Describes how to use the Zigbee Cluster Configurator, an advanced configuration tool within Simplicity Studio that allows developers to manage the Zigbee endpoints, clusters and commands implemented by their device.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="9"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee"/>
-    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=""/>
-  </contentItemData>
-  <contentItemData name="" label="AN1385: Performance Results for Multi-PAN RCP for OpenThread and Zigbee" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1385-multi-pan-rcp-performance-test.pdf" category="Application Notes" priority="13">
-    <description>Summarizes the results of simultaneous Thread and Zigbee throughput performance testing for the concurrent  multiprotocol / multi-PAN RCP, running both OpenThread and Zigbee on the host processor. </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="13"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee Thread"/>
-    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
-    <property key="core.boardCompatibility" value=""/>
-  </contentItemData>
-  <contentItemData name="" label="AN1387: Backing Up and Restoring a Z3 Green Power Combo Gateway" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1387-gpcombogateway-backup-restore.pdf" category="Application Notes" priority="13">
+  <contentItemData name="" label="AN1387: Backing Up and Restoring a Z3 Green Power Combo Gateway" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1387-gpcombogateway-backup-restore.pdf" category="Application Notes" priority="13">
     <description>Describes how to use the backup and restore feature in a zigbee_gp_z3_gateway_combo scenario application.             </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="13"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1389: Running Zigbee Host Applications in a Docker Container" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1389-running-host-applications-in-docker-containers.pdf" category="Application Notes" priority="13">
+  <contentItemData name="" label="AN1389: Running Zigbee Host Applications in a Docker Container" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1389-running-host-applications-in-docker-containers.pdf" category="Application Notes" priority="13">
     <description>Zigbee EmberZNet 7.0 and higher no longer supports compiling host applications in MinGW for Windows. This document offers an alternative solution by using a Docker container to run the NCP Host Application.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="13"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN1425: Large Network Performance with Dynamic Multiprotocol Bluetooth LE and Zigbee System-on-Chips" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an1425-large-network-testing-dmp-ble-zigbee-soc.pdf" category="Application Notes" priority="12">
+  <contentItemData name="" label="AN1425: Large Network Performance with Dynamic Multiprotocol Bluetooth LE and Zigbee System-on-Chips" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an1425-large-network-testing-dmp-ble-zigbee-soc.pdf" category="Application Notes" priority="12">
     <description>This application note summarizes the results of Zigbee/BLE dynamic multiprotocol (DMP) large network performance tests using Zigbee unicast and broadcast packets to measure the reliability, latency, and loss of a variety of scenarios. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="12"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN700.1: Manufacturing Test Guidelines for the EFR32" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an700-1-mfg-test-guidelines-efr32.pdf" category="Application Notes" priority="10">
+  <contentItemData name="" label="AN700.1: Manufacturing Test Guidelines for the EFR32" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an700-1-mfg-test-guidelines-efr32.pdf" category="Application Notes" priority="10">
     <description>Details the different options for integrating RF testing and characterization into standard test flows for the EFR32. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="10"/>
@@ -91,42 +67,42 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN706: EZSP-UART Host Interfacing Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an706-ezsp-uart-host-interfacing-guide.pdf" category="Application Notes" priority="11">
+  <contentItemData name="" label="AN706: EZSP-UART Host Interfacing Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an706-ezsp-uart-host-interfacing-guide.pdf" category="Application Notes" priority="11">
     <description>Describes procedures for initial tests of a host connected to a Zigbee processor using EZSP-UART. It  assumes that you have already read  UG101, the UART Gateway Protocol Reference Guide. You should have a basic  understanding of the UART Gateway protocol, as well as the signals needed by the UART interface. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="11"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN708: Setting Manufacturing Certificates and Installation Codes" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an708-setting-manufacturing-certificates.pdf" category="Application Notes" priority="10">
+  <contentItemData name="" label="AN708: Setting Manufacturing Certificates and Installation Codes" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an708-setting-manufacturing-certificates.pdf" category="Application Notes" priority="10">
     <description>Provides an overview of the use of install codes and certificates in a Smart Energy network. Describes the  components of a Smart Energy certificate and the differences between test certificates and production  certificates. Explains how to use Silicon Labs utilities to program, verify and erase install codes and  certificates. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="10"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN711: EZSP-SPI Host Interfacing Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an711-ezsp-spi-host-interfacing-guide.pdf" category="Application Notes" priority="11">
+  <contentItemData name="" label="AN711: EZSP-SPI Host Interfacing Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an711-ezsp-spi-host-interfacing-guide.pdf" category="Application Notes" priority="11">
     <description>Details the EZSP-SPI Protocol used by a host microcontroller to communicate with an Ember network  co-processor (NCP) running the EmberZNet PRO stack. It includes recommended procedures for developing  and testing a driver for the EZSP-SPI Protocol on a new host microcontroller. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="11"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN714: Smart Energy ECC-Enabled Device Setup Process" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an714-smart-energy-ecc-enabled-device-setup.pdf" category="Application Notes" priority="13">
+  <contentItemData name="" label="AN714: Smart Energy ECC-Enabled Device Setup Process" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an714-smart-energy-ecc-enabled-device-setup.pdf" category="Application Notes" priority="13">
     <description>Describes how to set up a device with the security resources required to support Smart Energy (SE) security,  which is based on certificate-based key establishment (CBKE) using Elliptic-Curve Cryptography (ECC). You  should be familiar the Zigbee Smart Energy Profile specification. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="13"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN716:  Instructions for Using Image Builder" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an716-image-builder-instructions.pdf" category="Application Notes" priority="11">
+  <contentItemData name="" label="AN716:  Instructions for Using Image Builder" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an716-image-builder-instructions.pdf" category="Application Notes" priority="11">
     <description>Provides instructions for creating Zigbee Over-the-air (OTA) bootloader files with Image Builder, which takes  an existing file (or multiple files) and wraps them in the file format as declared in the Zigbee specification.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="11"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN718: Manufacturing Test Overview" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an718-mfg-test-overview.pdf" category="Application Notes" priority="10">
+  <contentItemData name="" label="AN718: Manufacturing Test Overview" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an718-mfg-test-overview.pdf" category="Application Notes" priority="10">
     <description>Provides a high-level description of the different options for integrating RF testing and characterization  into your standard test flows. It is intended for customers who are moving from the early prototype  development stage to the manufacturing production environment and need assistance with manufacturing test.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="10"/>
@@ -134,17 +110,25 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="AN724: Designing for Multiple Networks on a Single Zigbee Chip" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/an724-multi-network.pdf" category="Application Notes" priority="11">
+  <contentItemData name="" label="AN724: Designing for Multiple Networks on a Single Zigbee Chip" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/an724-multi-network.pdf" category="Application Notes" priority="11">
     <description>Describes the multi-network stack feature that allows a single-radio chip to be concurrently part of more than one  distinct network. Some limitations and restrictions are enforced by the multi-network stack and should be taken  into account during the design of a multi-network application. These limitations are mostly related to the role  the node assumes on the networks and are discussed here in detail. </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="11"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/slEmberZNet-index.html" category="Application Notes" priority="9">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/slEmberZNet-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
+    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=""/>
+  </contentItemData>
+  <contentItemData name="" label="AN1222: Production Programming of Series 2 Devices" itemURI="https://docs.silabs.com/btmesh/latest/prod-programming-series2-and-series3/index.html" category="Application Notes" priority="13">
+    <description>Demonstrates how to properly program, provision, and configure Series 2 and Series 3 devices in a production environment.    </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="13"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
@@ -210,6 +194,14 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
+  <contentItemData name="" label="AN1385: Performance Results for Multi-PAN RCP for OpenThread and Zigbee" itemURI="https://docs.silabs.com/zigbee/latest/multi-pan-rcp-performance-for-openthread-and-zigbee/index.html" category="Application Notes" priority="13">
+    <description>Summarizes the results of simultaneous Thread and Zigbee throughput performance testing for the concurrent  multiprotocol / multi-PAN RCP, running both OpenThread and Zigbee on the host processor. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="13"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee Thread"/>
+    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=""/>
+  </contentItemData>
   <contentItemData name="" label="AN1333: Running  Zigbee, OpenThread, and Bluetooth Concurrently on a Linux Host with a Multiprotocol Co-Processor" itemURI="https://docs.silabs.com/zigbee/latest/multiprotocol-solution-linux/index.html" category="Application Notes" priority="9">
     <description>Describes how to run any combination of Zigbee EmberZNet, OpenThread, and Bluetooth networking stacks on a  Linux host processor, interfacing with a single EFR32 radio co-processor (RCP) with multiprotocol and multi-PAN  support, as well as how to run the Zigbee stack on the EFR32 as a network co-processor (NCP) alongside the  OpenThread RCP.    </description>
     <property key="core.category" value="Application Notes"/>
@@ -270,6 +262,14 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
+  <contentItemData name="" label="AN1325: Zigbee Cluster Configurator User's Guide" itemURI="https://docs.silabs.com/zigbee/latest/zigbee-cluster-configurator-users-guide/index.html" category="Application Notes" priority="9">
+    <description>Describes how to use the Zigbee Cluster Configurator, an advanced configuration tool within Simplicity Studio that allows developers to manage the Zigbee endpoints, clusters and commands implemented by their device.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="9"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee"/>
+    <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
+    <property key="core.boardCompatibility" value=""/>
+  </contentItemData>
   <contentItemData name="" label="AN1323: Configuring Antenna Diversity for Zigbee EmberZNet 7.0 and Higher" itemURI="https://docs.silabs.com/zigbee/latest/zigbee-config-antenna-diversity/index.html" category="Application Notes" priority="12">
     <description>Describes how to use Project Configurator to configure both receive and transmit Antenna Diversity in Zigbee EmberZNet applications.  </description>
     <property key="core.category" value="Application Notes"/>
@@ -299,28 +299,28 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="QSG180: Zigbee EmberZNet Quick Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/qsg180-zigbee-emberznet-7x-quick-start-guide.pdf" category="Quick Start Guides" priority="2">
+  <contentItemData name="" label="QSG180: Zigbee EmberZNet Quick Start Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/qsg180-zigbee-emberznet-7x-quick-start-guide.pdf" category="Quick Start Guides" priority="2">
     <description>Provides basic information on configuring, building, and installing applications for the EFR32MG family of SoCs using the Zigbee EmberZNet Software Development Kit (SDK) v7.0 and higher with Simplicity Studio 5.  </description>
     <property key="core.category" value="Quick Start Guides"/>
     <property key="core.priority" value="2"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="API Reference for the EmberZNet SOC Platform" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/120-3022-000_API_SoC/index.html" category="Reference Manuals" priority="2">
+  <contentItemData name="" label="API Reference for the EmberZNet SOC Platform" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/120-3022-000_API_SoC/index.html" category="Reference Manuals" priority="2">
     <description>Lists SoC Platform APIs used to interface to the EmberZNet PRO stack, HAL, and status of  the application-controlled network. These APIs concern network management, device and stack management,  messaging, fragmentation, serial communication, token access, peripheral access, bootload utilities, and  others. They are independent of the Application Framework and therefore can be used to develop applications  that do not rely on the Zigbee Cluster Library. </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="2"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="Zigbee Application Framework API Reference" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/120-3023-000_AF_API/index.html" category="Reference Manuals" priority="1">
+  <contentItemData name="" label="Zigbee Application Framework API Reference" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/120-3023-000_AF_API/index.html" category="Reference Manuals" priority="1">
     <description>Describes Zigbee Application Framework APIs, the CLI interface, and callbacks.  </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="UG105: Advanced Application Programming with the Stack and HAL APIs" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/ug105-adv-app-programming.pdf" category="Reference Manuals" priority="7">
+  <contentItemData name="" label="UG105: Advanced Application Programming with the Stack and HAL APIs" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/ug105-adv-app-programming.pdf" category="Reference Manuals" priority="7">
     <description>A companion to the EmberZNet API references, for developers whose applications require functionality not available through Project Configurator and the  application framework, or who prefer working with an API. Includes an introduction to the stack API, a  discussion of advanced design issues to consider when developing an application using the API, and  provides an example application.  </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="7"/>
@@ -334,7 +334,7 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-platform-release-notes/index.html" category="Release Notes" priority="3">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-platform-release-notes/index.html" category="Release Notes" priority="3">
     <description>A detailed overview of all the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform consists of: EMLIB, EMDRV, RAIL Library, NVM3, and the mbedTLS Plugin. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="3"/>
@@ -342,7 +342,7 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="Zigbee EmberZNet Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.1/sisdk-zigbee-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Zigbee EmberZNet Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-zigbee-release-notes/index.html" category="Release Notes" priority="1">
     <description>Lists compatibility requirements and sources for all software components  in the development environment. Discusses the latest changes to the Zigbee 7.x   stack (and associated utilities) including added/deleted/deprecated  features/API, and lists bugs that have been fixed  since the last release and any pending ones. </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
@@ -357,28 +357,28 @@
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="UG100: EZSP Protocol Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/ug100-ezsp-reference-guide.pdf" category="User's Guides" priority="7">
+  <contentItemData name="" label="UG100: EZSP Protocol Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/ug100-ezsp-reference-guide.pdf" category="User's Guides" priority="7">
     <description>Describes the EmberZNet Serial Protocol (EZSP), used by a host application processor to interact with the EmberZNet PRO stack running on an NCP over either a SPI or a UART interface. Describes the frame formats  for different EZSP-bound stack activities such as network management, messaging, bootloading, and token  access.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="7"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="UG101: UART Protocol Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/ug101-uart-gateway-protocol-reference.pdf" category="User's Guides" priority="8">
+  <contentItemData name="" label="UG101: UART Protocol Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/ug101-uart-gateway-protocol-reference.pdf" category="User's Guides" priority="8">
     <description>Describes the protocol used by EZSP-UART to reliably carry commands and responses between a host processor  and a network co-processor. The topics discussed include a brief overview of Ember-designed ASH (Asynchronus  Serial Host) protocol, general ASH frame format, different ASH frames, and their operation.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="8"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="UG103.09: ZLL Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/ug103-09-fundamentals-zll.pdf" category="User's Guides" priority="8">
+  <contentItemData name="" label="UG103.09: ZLL Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/ug103-09-fundamentals-zll.pdf" category="User's Guides" priority="8">
     <description>Compares the ZLL stack and network with the EmberZNet PRO stack and network, with notes about considerations  when implementing a ZLL solution. Includes a basic description of ZLL configuration and commissioning, and  notes about the interoperability of ZLL and non-ZLL devices. </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="8"/>
     <property key="core.partCompatibility" value=".*host.* .*rm21.* .*efr32m[gr]2.* .*mgm2.* .*simg301.*"/>
     <property key="core.boardCompatibility" value=""/>
   </contentItemData>
-  <contentItemData name="" label="UG392: Using Silicon Labs Green Power with EmberZNet PRO" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.1/protocol/zigbee/documentation/ug392-using-sl-green-power-with-ezp.pdf" category="User's Guides" priority="10">
+  <contentItemData name="" label="UG392: Using Silicon Labs Green Power with EmberZNet PRO" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/zigbee/documentation/ug392-using-sl-green-power-with-ezp.pdf" category="User's Guides" priority="10">
     <description>Introduces Silicon Labs Green Power components within the EmberZNet PRO stack and explains how  to enable your network for Green Power.  </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="10"/>

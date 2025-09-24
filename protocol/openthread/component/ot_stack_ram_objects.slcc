@@ -44,6 +44,9 @@ define:
 requires:
   - name: code_classification
   - name: ot_headers
+  - name: aes_ccm_ram_functions
+    condition:
+      - device_series_3
 
 toolchain_settings:
   - option: gcc_c++_compiler_option

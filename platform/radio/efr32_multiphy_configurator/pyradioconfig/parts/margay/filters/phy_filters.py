@@ -5,12 +5,12 @@ class PhyFilters(IPhyFilter):
 
     #Studio black list (files removed before Studio distribution)
     customer_phy_groups = [
-                            'Phys_Internal_Base_Customer_Aclara',
-                            'Phys_Internal_Base_Customer_Acuity',
-                            'Phys_Internal_Base_Customer_Chamberlain',
-                            'Phys_Internal_Base_Customer_Essence',
-                            'Phys_Internal_Base_Customer_HoneywellEnergyAxis',
-                            'Phys_Internal_Base_Customer_Lutron',
+                            'Phys_secret1',
+                            'Phys_secret2',
+                            'Phys_secret3',
+                            'Phys_secret4',
+                            'Phys_secret5',
+                            'Phys_secret6',
                             'Phys_Internal_Base_Experimental',
                             'Phys_Internal_Base_Utility',
                             'Phys_Internal_Base_ValOnly',

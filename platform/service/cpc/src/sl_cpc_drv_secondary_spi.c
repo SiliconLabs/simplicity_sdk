@@ -2210,6 +2210,7 @@ static void flush_rx(void)
   }
   #endif
 
+  currently_receiving_rx_buffer_handle->data_length = sli_cpc_hdlc_get_length(currently_receiving_rx_buffer_handle->hdlc_header);
   sli_cpc_push_back_driver_buffer_handle(&rx_pending_list_head, currently_receiving_rx_buffer_handle);
 
   currently_receiving_rx_buffer_handle = NULL;

@@ -28,9 +28,6 @@ provides:
 requires:
   - name: cpc_secondary
   - name: status
-  - name: emlib_common
-  - name: emlib_core
-  - name: emlib_cmu
 
 template_contribution:
   - name: component_catalog
