@@ -70,6 +70,13 @@
   #define SLI_STATIC static
 #endif
 
+#define CACHE_WORDS_MAX (((SLI_PSA_ITS_NVM3_RANGE_END - SLI_PSA_ITS_NVM3_RANGE_START) + 31) / 32)
+
+// If you are seeing this error, NVM3_RANGE_START or _END were not set correctly.
+#if CACHE_WORDS_MAX > (SLI_PSA_ITS_NVM3_RANGE_SIZE + 31 / 32)
+#error "Cache size exceeds the maximum number of ITS files"
+#endif
+
 // -------------------------------------
 // Threading support
 
@@ -157,10 +164,6 @@ void sli_its_release_mutex(void)
 #define SLI_PSA_ITS_NVM3_INVALID_KEY (0)
 #define SLI_PSA_ITS_NVM3_UNKNOWN_KEY (1)
 
-#if SL_PSA_ITS_MAX_FILES > SLI_PSA_ITS_NVM3_RANGE_SIZE
-#error "Trying to store more ITS files then our NVM3 range allows for"
-#endif
-
 #define SLI_PSA_ITS_CACHE_INIT_CHUNK_SIZE 16
 
 // Enable backwards-compatibility with keys stored with a v1 header unless disabled.
@@ -190,7 +193,7 @@ void sli_its_release_mutex(void)
 // Local global static variables
 
 SLI_STATIC bool nvm3_uid_set_cache_initialized = false;
-SLI_STATIC uint32_t nvm3_uid_set_cache[(SL_PSA_ITS_MAX_FILES + 31) / 32] = { 0 };
+SLI_STATIC uint32_t nvm3_uid_set_cache[CACHE_WORDS_MAX] = { 0 };
 
 typedef struct {
   psa_storage_uid_t uid;
@@ -338,9 +341,18 @@ static inline bool cache_lookup(nvm3_ObjectKey_t key)
   uint32_t offset = i - 32 * bin;
   return (bool)((nvm3_uid_set_cache[bin] >> offset) & 0x1);
 }
-
+#if defined(SLI_STATIC_TESTABLE)
+bool cache_initialized(void)
+{
+  return nvm3_uid_set_cache_initialized;
+}
+void init_cache(void)
+{
+  nvm3_uid_set_cache_initialized = false;
+#else
 static void init_cache(void)
 {
+#endif
   size_t num_keys_referenced_by_nvm3;
   nvm3_ObjectKey_t keys_referenced_by_nvm3[SLI_PSA_ITS_CACHE_INIT_CHUNK_SIZE] = { 0 };
 
@@ -1615,10 +1627,6 @@ psa_status_t sli_psa_its_set_root_key(uint8_t *root_key, size_t root_key_size)
 #define SLI_PSA_ITS_NVM3_INVALID_KEY        (0)
 #define SLI_PSA_ITS_NVM3_UNKNOWN_KEY        (1)
 
-#if SL_PSA_ITS_MAX_FILES > SLI_PSA_ITS_NVM3_RANGE_SIZE
-#error "Trying to store more ITS files then our NVM3 range allows for"
-#endif
-
 #define SLI_PSA_ITS_CACHE_INIT_CHUNK_SIZE 16
 
 // Internal error codes local to this compile unit
@@ -1627,10 +1635,12 @@ psa_status_t sli_psa_its_set_root_key(uint8_t *root_key, size_t root_key_size)
 
 // -------------------------------------
 // Local global static variables
-
+#if !defined(CACHE_WORDS_MAX) || (CACHE_WORDS_MAX <= 0)
+#error "CACHE_WORDS_MAX must be defined and greater than zero"
+#endif
 SLI_STATIC bool nvm3_uid_set_cache_initialized = false;
-SLI_STATIC uint32_t nvm3_uid_set_cache[(SL_PSA_ITS_MAX_FILES + 31) / 32] = { 0 };
-SLI_STATIC uint32_t nvm3_uid_tomb_cache[(SL_PSA_ITS_MAX_FILES + 31) / 32] = { 0 };
+SLI_STATIC uint32_t nvm3_uid_set_cache[CACHE_WORDS_MAX] = { 0 };
+SLI_STATIC uint32_t nvm3_uid_tomb_cache[CACHE_WORDS_MAX] = { 0 };
 #if SL_PSA_ITS_SUPPORT_V2_DRIVER
 SLI_STATIC uint32_t its_driver_version = SLI_PSA_ITS_NOT_CHECKED;
 #endif // SL_PSA_ITS_SUPPORT_V2_DRIVER
@@ -1729,6 +1739,11 @@ psa_status_t psa_its_set_v1(psa_storage_uid_t uid,
 // Local function definitions
 static inline uint32_t get_index(nvm3_ObjectKey_t key)
 {
+  if (key < SLI_PSA_ITS_NVM3_RANGE_START
+      || key > SLI_PSA_ITS_NVM3_RANGE_END) {
+    return NVM3_KEY_INVALID;
+  }
+
   return (key - (SLI_PSA_ITS_NVM3_RANGE_START)) / 32;
 }
 
@@ -1737,25 +1752,37 @@ static inline uint32_t get_offset(nvm3_ObjectKey_t key)
   return (key - (SLI_PSA_ITS_NVM3_RANGE_START)) % 32;
 }
 
-static inline void set_cache(nvm3_ObjectKey_t key)
+static inline uint32_t set_cache(nvm3_ObjectKey_t key)
 {
-  nvm3_uid_set_cache[get_index(key)] |= (1 << get_offset(key));
-  nvm3_uid_tomb_cache[get_index(key)] &= ~(1 << get_offset(key));
+  uint32_t offset = get_offset(key);
+  uint32_t index = get_index(key);
+  if (index < CACHE_WORDS_MAX) {
+    nvm3_uid_set_cache[index] |= (1 << offset);
+    nvm3_uid_tomb_cache[index] &= ~(1 << offset);
+    return index;
+  }
+  return NVM3_KEY_INVALID;
 }
 
-static inline void set_tomb(nvm3_ObjectKey_t key)
+static inline uint32_t set_tomb(nvm3_ObjectKey_t key)
 {
-  nvm3_uid_tomb_cache[get_index(key)] |= (1 << get_offset(key));
+  uint32_t offset = get_offset(key);
+  uint32_t index = get_index(key);
+  if (index < CACHE_WORDS_MAX) {
+    nvm3_uid_tomb_cache[index] |= (1 << offset);
 
-  uint32_t cache_not_empty = 0;
-  for ( size_t i = 0; i < (((SL_PSA_ITS_MAX_FILES) +31) / 32); i++ ) {
-    cache_not_empty += nvm3_uid_set_cache[i];
-  }
-  if (cache_not_empty == 0) {
-    for ( size_t i = 0; i < (((SL_PSA_ITS_MAX_FILES) +31) / 32); i++ ) {
-      nvm3_uid_tomb_cache[i] = 0;
+    uint32_t cache_not_empty = 0;
+    for ( size_t i = 0; i < CACHE_WORDS_MAX; i++ ) {
+      cache_not_empty += nvm3_uid_set_cache[i];
     }
+    if (cache_not_empty == 0) {
+      for ( size_t i = 0; i < CACHE_WORDS_MAX; i++ ) {
+        nvm3_uid_tomb_cache[i] = 0;
+      }
+    }
+    return index;
   }
+  return NVM3_KEY_INVALID;
 }
 
 #if SL_PSA_ITS_SUPPORT_V2_DRIVER
@@ -1791,19 +1818,35 @@ static inline bool object_lives_in_s(const void *object, size_t object_size)
 }
 #endif
 
-static inline void clear_cache(nvm3_ObjectKey_t key)
+static inline uint32_t clear_cache(nvm3_ObjectKey_t key)
 {
-  nvm3_uid_set_cache[get_index(key)] ^= (1 << get_offset(key));
+  uint32_t offset = get_offset(key);
+  uint32_t index = get_index(key);
+  if (index < CACHE_WORDS_MAX) {
+    nvm3_uid_set_cache[index] ^= (1 << offset);
+    return index;
+  }
+  return NVM3_KEY_INVALID;
 }
 
 static inline bool lookup_cache(nvm3_ObjectKey_t key)
 {
-  return (bool)((nvm3_uid_set_cache[get_index(key)] >> get_offset(key)) & 0x1);
+  uint32_t offset = get_offset(key);
+  uint32_t index = get_index(key);
+  if (index < CACHE_WORDS_MAX) {
+    return (bool)((nvm3_uid_set_cache[index] >> offset) & 0x1);
+  }
+  return false;
 }
 
 static inline bool lookup_tomb(nvm3_ObjectKey_t key)
 {
-  return (bool)((nvm3_uid_tomb_cache[get_index(key)] >> get_offset(key)) & 0x1);
+  uint32_t offset = get_offset(key);
+  uint32_t index = get_index(key);
+  if (index < CACHE_WORDS_MAX) {
+    return (bool)((nvm3_uid_tomb_cache[index] >> offset) & 0x1);
+  }
+  return false;
 }
 
 static inline nvm3_ObjectKey_t increment_obj_id(nvm3_ObjectKey_t id)
@@ -1832,9 +1875,18 @@ static inline nvm3_ObjectKey_t derive_nvm3_id(psa_storage_uid_t uid)
 {
   return SLI_PSA_ITS_NVM3_RANGE_START + (prng(uid) % (SL_PSA_ITS_MAX_FILES));
 }
-
+#if defined(SLI_STATIC_TESTABLE) && (SL_PSA_ITS_SUPPORT_V3_DRIVER)
+bool cache_initialized(void)
+{
+  return nvm3_uid_set_cache_initialized;
+}
+void init_cache(void)
+{
+  nvm3_uid_set_cache_initialized = false;
+#else
 static void init_cache(void)
 {
+#endif
   size_t num_keys_referenced_by_nvm3;
   nvm3_ObjectKey_t keys_referenced_by_nvm3[SLI_PSA_ITS_CACHE_INIT_CHUNK_SIZE] = { 0 };
   size_t num_del_keys_from_nvm3;
@@ -1854,7 +1906,10 @@ static void init_cache(void)
                                                    range_end - 1);
 
     for (size_t i = 0; i < num_keys_referenced_by_nvm3; i++) {
-      set_cache(keys_referenced_by_nvm3[i]);
+      if (NVM3_KEY_INVALID == set_cache(keys_referenced_by_nvm3[i])) {
+        nvm3_uid_set_cache_initialized = false;
+        return;
+      }
     }
     num_del_keys_from_nvm3 = nvm3_enumDeletedObjects(nvm3_defaultHandle,
                                                      deleted_keys_from_nvm3,
@@ -1862,7 +1917,9 @@ static void init_cache(void)
                                                      range_start,
                                                      range_end - 1);
     for (size_t i = 0; i < num_del_keys_from_nvm3; i++) {
-      set_tomb(deleted_keys_from_nvm3[i]);
+      if (NVM3_KEY_INVALID == set_tomb(deleted_keys_from_nvm3[i])) {
+        return;
+      }
     }
   }
   nvm3_uid_set_cache_initialized = true;
@@ -2352,7 +2409,10 @@ static psa_status_t find_nvm3_id(psa_storage_uid_t uid,
     init_cache();
 #endif
   }
-
+  if (nvm3_uid_set_cache_initialized == false) {
+    // Cache initialization failed, NVM3 has invalid entries and needs to be cleared.
+    return PSA_ERROR_STORAGE_FAILURE;
+  }
   for (size_t i = 0; i < SL_PSA_ITS_MAX_FILES; ++i ) {
     if (!lookup_cache(nvm3_object_id)) {
       // dont exist
@@ -2915,7 +2975,9 @@ psa_status_t psa_its_set(psa_storage_uid_t uid,
   if (status == ECODE_NVM3_OK) {
     // Power-loss might occur, however upon boot, the look-up table will be
     // re-filled as long as the data has been successfully written to NVM3.
-    set_cache(nvm3_object_id);
+    if ( NVM3_KEY_INVALID == set_cache(nvm3_object_id)) {
+      psa_status = PSA_ERROR_INVALID_ARGUMENT;
+    }
   } else {
     psa_status = PSA_ERROR_STORAGE_FAILURE;
   }
@@ -3178,9 +3240,12 @@ psa_status_t psa_its_remove(psa_storage_uid_t uid)
   if (status == ECODE_NVM3_OK) {
     // Power-loss might occur, however upon boot, the look-up table will be
     // re-filled as long as the data has been successfully written to NVM3.
-    clear_cache(nvm3_object_id);
-    set_tomb(nvm3_object_id);
-    psa_status = PSA_SUCCESS;
+    if ((NVM3_KEY_INVALID != clear_cache(nvm3_object_id))
+        && (NVM3_KEY_INVALID != set_tomb(nvm3_object_id))) {
+      psa_status = PSA_SUCCESS;
+    } else {
+      psa_status = PSA_ERROR_INVALID_ARGUMENT;
+    }
   } else {
     psa_status = PSA_ERROR_STORAGE_FAILURE;
   }

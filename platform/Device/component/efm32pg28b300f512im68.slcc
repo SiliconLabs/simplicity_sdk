@@ -156,6 +156,7 @@
   - name: device_has_emu_temp_sensor
   - name: device_has_fpu
   - name: device_has_mpu
+  - name: device_has_swo
   - name: device_compute_basic
 - recommends:
   - id: trustzone_unaware

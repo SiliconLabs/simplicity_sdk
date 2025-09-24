@@ -219,6 +219,14 @@
           name: "sequence",
           description: "The sequence number.",
         },
+        {
+          type: "uint8_t",
+          name: "radius",
+          description: "The radius of the message.
+                        Note that in context of use of this in a send API,
+                        it gets updated internally based on message type
+                        and radius supplied in the API.",
+        },
       ]
     },
     {
@@ -1347,6 +1355,13 @@
           description: "Timestamp of the moment when Start Frame Delimiter (SFD) was received.",
         }
       ]
+    },
+    {
+      name: "sl_zigbee_mac_filter_match_data_t",
+      description: "This is a bitmask describing a filter for MAC
+      data messages that the stack should accept and pass through
+      to the application.",
+      definition: "uint16_t"
     }
   ],
 
@@ -1681,7 +1696,11 @@
           value: "0x39",
           description: "Valid range of a CTUNE value is 0x0000-0x01FF.
                         Higher order bits (0xFE00) of the 16-bit value
-                        are ignored.",
+                        are ignored.
+                        Note setting this parameter using ezsp API for setting configuration value
+                        invokes internal manufacturer library function call, mfglibInternalSetCtune,
+                        unlike a zigbee stack call, and hence the return value of the ezsp set API
+                        should be interpreted of type sl_status_t type.",
         },
         {
           name: "SL_ZIGBEE_EZSP_CONFIG_ASSUME_TC_CONCENTRATOR_TYPE",
@@ -9789,9 +9808,9 @@
                     application's configured MAC filters.",
       responseArguments: [
         {
-          type: "uint8_t",
-          name: "filterIndexMatch",
-          description: "The index of the filter that was matched.",
+          type: "sl_zigbee_mac_filter_match_data_t",
+          name: "filterValueMatch",
+          description: "The value of the filter that was matched.",
         },
         {
           type: "sl_zigbee_mac_passthrough_type_t",

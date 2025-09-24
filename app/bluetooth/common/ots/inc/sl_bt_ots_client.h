@@ -668,6 +668,23 @@ sl_status_t sl_bt_ots_client_abort(sl_bt_ots_client_handle_t client);
 void sli_bt_ots_client_on_bt_event(sl_bt_msg_t *evt);
 
 /***************************************************************************//**
+ * Forcefully remove an OTS client from the client list.
+ *
+ * @note This function is used to forcibly remove an OTS client from the
+ * client list in cases where the connection close request returns an error
+ * status, and the connection_closed_id event is not expected.
+ * Does not free the client - if it's dynamically allocated, then it's up to
+ * the caller.
+ *
+ * @param[in] client Client handle to be removed from the client list.
+ *
+ * @return SL_STATUS_OK if the client was successfully removed.
+ * @return SL_STATUS_NOT_FOUND if the client was not found in the list.
+ * @return SL_STATUS_NULL_POINTER if the provided client handle is NULL.
+ ******************************************************************************/
+sl_status_t sli_bt_ots_client_force_remove(sl_bt_ots_client_handle_t client);
+
+/***************************************************************************//**
  * OTS Client - internal init.
  ******************************************************************************/
 void sli_bt_ots_client_init(void);

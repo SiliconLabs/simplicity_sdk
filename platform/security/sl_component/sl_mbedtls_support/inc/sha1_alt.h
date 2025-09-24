@@ -49,24 +49,20 @@
 
 #include "em_device.h"
 
-#if defined(SEMAILBOX_PRESENT)
-#include "sli_se_transparent_types.h"
-#define SL_HASH_OPERATION_CTX_TYPE sli_se_transparent_hash_operation_t
-#elif defined(CRYPTOACC_PRESENT)
-#include "sli_cryptoacc_transparent_types.h"
-#define SL_HASH_OPERATION_CTX_TYPE sli_cryptoacc_transparent_hash_operation_t
-#endif
-
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/**
- * \brief          SHA-1 context structure
- */
-typedef SL_HASH_OPERATION_CTX_TYPE mbedtls_sha1_context;
+#if defined(SEMAILBOX_PRESENT) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
+#include "sli_se_transparent_types.h"
+typedef sli_se_transparent_hash_operation_t mbedtls_sha1_context;
+#elif defined(SYMCRYPTO_PRESENT)
+#include "sli_hostcrypto_transparent_types.h"
+typedef sli_hostcrypto_transparent_hash_operation_t mbedtls_sha1_context;
+#elif defined(CRYPTOACC_PRESENT)
+#include "sli_cryptoacc_transparent_types.h"
+typedef sli_cryptoacc_transparent_hash_operation_t mbedtls_sha1_context;
+#endif
 
 #ifdef __cplusplus
 }

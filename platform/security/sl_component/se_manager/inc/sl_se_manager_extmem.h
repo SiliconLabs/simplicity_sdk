@@ -51,10 +51,17 @@ extern "C" {
  * @addtogroup sl_se_manager_extmem External memory support
  *
  * @brief
- *   External memory configuration, read, write and erase
+ *   API for managing and accessing the external memory.
  *
  * @details
- *   API for managing and accessing the external memory.
+ *   The API for the external memory includes functions for managing
+ *   external flash memory on Series-3 devices. The exerrnal flash
+ *   memory is partitioned in a number of Code Regions and one Data region.
+ *   The number of Code Regions is defined by @ref SL_SE_MAX_CODE_REGIONS and
+ *   varies on different devices.
+ *   The APIs include functions for
+ *     - Code region configuration, erase and write
+ *     - Data region get location, erase and write
  *
  * @{
  ******************************************************************************/
@@ -142,6 +149,7 @@ typedef union {
 
 // -----------------------------------------------------------------------------
 // Prototypes
+
 /// @addtogroup sl_se_memory_region_utils
 /// @{
 
@@ -166,7 +174,7 @@ typedef union {
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_get_config(sl_se_command_context_t *cmd_ctx,
                                          sl_se_code_region_config_t *regions_array,
@@ -187,7 +195,7 @@ sl_status_t sl_se_code_region_get_config(sl_se_command_context_t *cmd_ctx,
  *
  *   This function can not be used to apply new configurations to a code region
  *   that has been closed, and will return an error. To reopen a code region,
- *   please refer \ref sl_se_erase_code_region.
+ *   please refer \ref sl_se_code_region_erase.
  *
  * @param[in] cmd_ctx
  *   Pointer to an SE command context object.
@@ -201,7 +209,7 @@ sl_status_t sl_se_code_region_get_config(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_apply_config(sl_se_command_context_t *cmd_ctx,
                                            sl_se_code_region_config_t *regions_array,
@@ -237,7 +245,7 @@ sl_status_t sl_se_code_region_set_active_banked(sl_se_command_context_t *cmd_ctx
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_erase(sl_se_command_context_t *cmd_ctx,
                                     unsigned int region_idx);
@@ -264,13 +272,13 @@ sl_status_t sl_se_code_region_erase(sl_se_command_context_t *cmd_ctx,
  * @param[in] block_offset
  *   32KB block offset into the code region
  *
- * @param[in] num_block
+ * @param[in] num_blocks
  *   Number of 32KB blocks to erase
  *
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_partial_erase(sl_se_command_context_t *cmd_ctx,
                                             unsigned int region_idx,
@@ -292,7 +300,7 @@ sl_status_t sl_se_code_region_partial_erase(sl_se_command_context_t *cmd_ctx,
  *   the data buffer, e.g. SHA-256, in order to verify the integrity.
  *
  *   It is recommended to erase the code region by calling
- *   sl_se_erase_code_region before writing a new version of the code image.
+ *   sl_se_code_region_erase before writing a new version of the code image.
  *   The data buffer can be located in RAM or memory-mapped flash.
  *   The size of the data buffer cannot be longer than the code region.
  *
@@ -321,7 +329,7 @@ sl_status_t sl_se_code_region_partial_erase(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_write(sl_se_command_context_t *cmd_ctx,
                                     unsigned int region_idx,
@@ -354,7 +362,7 @@ sl_status_t sl_se_code_region_write(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_close(sl_se_command_context_t *cmd_ctx,
                                     unsigned int region_idx,
@@ -378,7 +386,7 @@ sl_status_t sl_se_code_region_close(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_code_region_get_version(sl_se_command_context_t *cmd_ctx,
                                           unsigned int region_idx,
@@ -411,7 +419,7 @@ sl_status_t sl_se_code_region_get_version(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_code_region_erase_non_blocking(sl_se_command_context_t *cmd_ctx,
@@ -450,7 +458,7 @@ sl_status_t sli_se_code_region_erase_non_blocking(sl_se_command_context_t *cmd_c
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_code_region_partial_erase_non_blocking(sl_se_command_context_t *cmd_ctx,
@@ -500,7 +508,7 @@ sl_status_t sli_se_code_region_partial_erase_non_blocking(sl_se_command_context_
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_code_region_write_non_blocking(sl_se_command_context_t *cmd_ctx,
@@ -538,7 +546,7 @@ sl_status_t sli_se_code_region_write_non_blocking(sl_se_command_context_t *cmd_c
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_data_region_get_location(sl_se_command_context_t *cmd_ctx,
                                            void  **address,
@@ -567,7 +575,7 @@ sl_status_t sl_se_data_region_get_location(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 sl_status_t sl_se_data_region_write(sl_se_command_context_t *cmd_ctx,
                                     void *address,
@@ -593,7 +601,7 @@ sl_status_t sl_se_data_region_write(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sl_se_data_region_erase(sl_se_command_context_t *cmd_ctx,
@@ -629,7 +637,7 @@ sl_status_t sl_se_data_region_erase(sl_se_command_context_t *cmd_ctx,
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_data_region_erase_non_blocking(sl_se_command_context_t *cmd_ctx,
@@ -666,7 +674,7 @@ sl_status_t sli_se_data_region_erase_non_blocking(sl_se_command_context_t *cmd_c
  * @return
  *   SL_STATUS_OK when the function was successfully, or else, a status code
  *   of type sl_status_t that indicates why the command was not successful,
- *   ref sl_status.h.
+ *   @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_data_region_write_non_blocking(sl_se_command_context_t *cmd_ctx,
@@ -686,7 +694,7 @@ sl_status_t sli_se_data_region_write_non_blocking(sl_se_command_context_t *cmd_c
  *   Pointer to an SE command context object.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_RAM
 sl_status_t sli_se_erase_host_region(sl_se_command_context_t *cmd_ctx);
@@ -736,7 +744,7 @@ bool sli_se_flash_is_idle(void);
  *   Pointer to an @ref sli_se_flash_state_t object.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_flash_get_status(sl_se_command_context_t *cmd_ctx,
@@ -754,7 +762,7 @@ sl_status_t sli_se_flash_get_status(sl_se_command_context_t *cmd_ctx,
  *   Pointer to an SE command context object.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_flash_pause(sl_se_command_context_t *cmd_ctx);
@@ -770,7 +778,7 @@ sl_status_t sli_se_flash_pause(sl_se_command_context_t *cmd_ctx);
  *   Pointer to an SE command context object.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_flash_resume(sl_se_command_context_t *cmd_ctx);
@@ -784,7 +792,7 @@ sl_status_t sli_se_flash_resume(sl_se_command_context_t *cmd_ctx);
  *   Pointer to an SE command context object.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_qspi_configure_clock_fsrco(sl_se_command_context_t *cmd_ctx);
@@ -829,7 +837,7 @@ sl_status_t sli_se_qspi_configure_clock_fsrco(sl_se_command_context_t *cmd_ctx);
  * frequency.
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SE_MANAGER, SL_CODE_CLASS_TIME_CRITICAL)
 sl_status_t sli_se_qspi_configure_clock_flpll(sl_se_command_context_t *cmd_ctx,
@@ -845,7 +853,7 @@ sl_status_t sli_se_qspi_configure_clock_flpll(sl_se_command_context_t *cmd_ctx,
  *   FLPLL configuration, \ref sli_se_qspi_flpll_config_t
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 sl_status_t sli_se_qspi_get_flpll_config(sl_se_command_context_t *cmd_ctx,
                                          sli_se_qspi_flpll_config_t *flpll_cfg);
@@ -872,7 +880,7 @@ sl_status_t sli_se_qspi_get_flpll_config(sl_se_command_context_t *cmd_ctx,
  *   to write to non-writeable bits in the register
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 sl_status_t sli_se_qspi_configure_reg(sl_se_command_context_t *cmd_ctx,
                                       sli_se_qspi_reg_t reg,
@@ -892,7 +900,7 @@ sl_status_t sli_se_qspi_configure_reg(sl_se_command_context_t *cmd_ctx,
  *   The register value
  *
  * @return SL_STATUS_OK if the operation is successful, or error code
- *         defined in sl_status.h.
+ *         defined in @file sl_status.h.
  ******************************************************************************/
 sl_status_t sli_se_qspi_get_reg(sl_se_command_context_t *cmd_ctx,
                                 sli_se_qspi_reg_t reg,

@@ -30,18 +30,18 @@
 #include "sl_component_catalog.h"
 
 #endif
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
 #include "api/btl_interface.h"
 
-#endif // BOOTLOADER_ENABLE
-#ifdef SL_APP_PROPERTIES
+#endif
+#if defined(SL_APP_PROPERTIES)
 #include "api/application_properties.h"
 
-#endif // SL_APP_PROPERTIES
+#endif
 
 #define TOTAL_INTERRUPTS    (16 + EXT_IRQ_COUNT)
 
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
 extern MainBootloaderTable_t mainStageTable;
 extern void SystemInit2(void);
 
@@ -49,16 +49,16 @@ extern void SystemInit2(void);
  * Exception / Interrupt Handler Function Prototype
  *----------------------------------------------------------------------------*/
 typedef void (*VECTOR_TABLE_Type)(void);
-#endif
+#endif // defined(BOOTLOADER_ENABLE)
 
-#ifdef SL_APP_PROPERTIES
+#if defined(SL_APP_PROPERTIES)
 extern ApplicationProperties_t sl_app_properties;
 
 /*----------------------------------------------------------------------------
  * Exception / Interrupt Handler Function Prototype
  *----------------------------------------------------------------------------*/
 typedef void (*VECTOR_TABLE_Type)(void);
-#endif
+#endif // defined(SL_APP_PROPERTIES)
 
 /*---------------------------------------------------------------------------
  * External References
@@ -68,7 +68,7 @@ extern uint32_t __STACK_LIMIT;
 #if defined (SL_TRUSTZONE_SECURE) \
   && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 extern uint64_t __STACK_SEAL;
-#endif // SL_TRUSTZONE_SECURE
+#endif // defined(SL_TRUSTZONE_SECURE)
 
 extern __NO_RETURN void __PROGRAM_START(void);
 
@@ -76,7 +76,7 @@ extern __NO_RETURN void __PROGRAM_START(void);
 extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 void Copy_Table();
 void Zero_Table();
-#endif // __START
+#endif // defined(__START) && defined(__GNUC__)
 
 /*---------------------------------------------------------------------------
  * Internal References
@@ -87,12 +87,12 @@ void Default_Handler(void);
 #if defined (__GNUC__)
 #ifndef __STACK_SIZE
 #define __STACK_SIZE    0x00000400
-#endif // __STACK_SIZE
+#endif
 
 #ifndef __HEAP_SIZE
 #define __HEAP_SIZE    0x00000C00
-#endif // __HEAP_SIZE
-#endif // __GNUC__
+#endif
+#endif // defined(__GNUC__)
 
 /*----------------------------------------------------------------------------
  * Exception / Interrupt Handler
@@ -112,7 +112,7 @@ void SysTick_Handler(void) __attribute__ ((weak, alias("Default_Handler")));
 /* Provide a dummy value for the sl_app_properties symbol. */
 void sl_app_properties(void);    /* Prototype to please MISRA checkers. */
 void sl_app_properties(void) __attribute__ ((weak, alias("Default_Handler")));
-#endif
+#endif // defined(SL_APP_PROPERTIES)
 
 /* Part Specific Interrupts */
 void SETAMPERHOST_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -213,7 +213,7 @@ void FPUEXH_IRQHandler(void) __attribute__ ((weak, alias("Default_Handler")));
 #if defined (__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
-#endif // __GNUC__
+#endif // defined(__GNUC__)
 
 #if defined (__ICCARM__)
 #pragma data_alignment=512
@@ -226,7 +226,7 @@ __VECTOR_TABLE_ATTRIBUTE = {
 #else
 extern const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS];
 const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
-#endif
+#endif // defined(__ICCARM__)
   { .topOfStack = &__INITIAL_SP },            /*      Initial Stack Pointer     */
   { &Reset_Handler },                         /*      Reset Handler             */
   { &NMI_Handler },                           /*      -14 NMI Handler           */
@@ -237,18 +237,18 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
   { &SecureFault_Handler },                   /*      -9 Secure Fault Handler   */
   { &Default_Handler },                       /*      Reserved                  */
   { &Default_Handler },                       /*      Reserved                  */
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
   { (VECTOR_TABLE_Type) & mainStageTable },
 #else
   { &Default_Handler },                        /*      Reserved                  */
-#endif
+#endif // defined(BOOTLOADER_ENABLE)
   { &SVC_Handler },                            /*      -5 SVCall Handler         */
   { &DebugMon_Handler },                       /*      -4 Debug Monitor Handler  */
-#ifdef SL_APP_PROPERTIES
+#if defined(SL_APP_PROPERTIES)
   { (VECTOR_TABLE_Type) & sl_app_properties }, /*      Application properties    */
 #else
   { &sl_app_properties },                      /*      Application properties    */
-#endif
+#endif // defined(SL_APP_PROPERTIES)
   { &PendSV_Handler },                         /*      -2 PendSV Handler         */
   { &SysTick_Handler },                        /*      -1 SysTick Handler        */
 
@@ -347,7 +347,7 @@ const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS] __VECTOR_TABLE_ATTRIBUTE = {
 
 #if defined (__GNUC__)
 #pragma GCC diagnostic pop
-#endif // __GNUC__
+#endif
 
 #if defined (__START) && defined (__GNUC__)
 void Copy_Table()
@@ -375,7 +375,7 @@ void Zero_Table()
     *pDest++ = 0UL;
   }
 }
-#endif // __START
+#endif // defined(__START) && defined(__GNUC__)
 
 #if !defined(SL_LEGACY_LINKER) \
   && !defined(SL_RAM_LINKER)   \
@@ -416,9 +416,117 @@ void CopyToRam(void)
   CopyMemory(from, to, num_instructions);
 }
 #pragma language=restore
-#endif
-#endif
+#endif // defined(__GNUC__)
+#endif // !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER) && !defined(BOOTLOADER_ENABLE)
+#if !defined(SL_RAM_LINKER)             \
+  && !defined(SL_SRAM_DMEM_ECC_DISABLE) \
+  && !defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT)
+/*---------------------------------------------------------------------------
+ * ECC fast initialization function using ARM Store Multiple (STM) instruction
+ *
+ * @param start Pointer to the start address of the memory region to initialize
+ * @param end   Pointer to the end address of the memory region to initialize
+ *---------------------------------------------------------------------------*/
+__STATIC_FORCEINLINE void ecc_write_zeros(uint32_t *start, uint32_t *end)
+{
+  uint32_t                remaining    = 0;
+  volatile const uint32_t *ram_ptr     = (volatile const uint32_t *) start;
+  volatile const uint32_t *end_ram_ptr = (volatile const uint32_t *) end;
 
+  // This fast ECC initialization performs N times 256-byte writes of value 0 by using the ARM
+  // Store Multiple (STM)instruction. Each STM can write up to 32 bytes at once. Hence, 256-byte
+  // writes takes 8 STMs of 32 byte each. The remaining RAM space size may not be multiple of
+  // 256 bytes. So the last RAM chunk (whose size < 256 bytes)is written with zeros using 32-bit
+  // word writes (STR instruction).
+  //
+  // NOTE: Reset_Handler() pushes a few data onto the main stack. However, the following code
+  // will overwrite the stack data with zeros. This is not a problem as the stack data
+  // of Reset_Handler() will never be used after the ECC initialization. An application
+  // is not supposed to return from Reset_Handler().
+  __ASM volatile (
+    // Initialize registers and RAM end address for the 1st loop.
+    "MOVS r5, #0                       \n"           // Store 32 bytes of zeros in 8 registers (R5-R12).
+    "MOVS r6, #0                       \n"
+    "MOVS r7, #0                       \n"
+    "MOVS r8, #0                       \n"
+    "MOVS r9, #0                       \n"
+    "MOVS r10, #0                      \n"
+    "MOVS r11, #0                      \n"
+    "MOVS r12, #0                      \n"
+    "SUBS %[remaining], %[end_ptr], %[ram_ptr] \n" // remaining = end_ptr - ram_ptr.
+    "MOV r3, #256                      \n"         // R3 = 256 (block size).
+    "UDIV r4, %[remaining], r3         \n"         // R4 = remaining / 256 (number of 256-byte blocks).
+    "MUL r4, r4, r3                    \n"         // R4 = R4 * 256 (total size of 256-byte blocks).
+    "ADD r4, %[ram_ptr], r4            \n"         // R4 = ram_ptr + total size of 256-byte blocks.
+    // 1st loop for N x 256-byte writes using STM
+    "1:                                \n"
+    "CMP %[ram_ptr], r4                \n"    // Compare ram_ptr with R4.
+    "BHS 2f                            \n"    // If ram_ptr >= R4, branch to label 2.
+    "STM %[ram_ptr]!, {r5-r12}         \n"    // Store multiple registers (r5-r12) into memory and increment ram_ptr.
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "STM %[ram_ptr]!, {r5-r12}         \n"
+    "B 1b                              \n"    // Branch to label 1.
+    // 2nd loop in case there is a last chunk < 256 bytes using STR
+    "2:                                \n"
+    "CMP %[ram_ptr], %[end_ptr]        \n"                  // Compare ram_ptr with end_ptr.
+    "BHS 3f                            \n"                  // If ram_ptr >= end_ptr, branch to label 3.
+    "STR r5, [%[ram_ptr]], #4          \n"                  // Store R5 at ram_ptr and increment ram_ptr.
+    "B 2b                              \n"                  // Branch to label 2.
+    "3:                                \n"
+    :
+    :[end_ptr] "r" (end_ram_ptr), [ram_ptr] "r" (ram_ptr), [remaining] "r" (remaining)  // ram_ptr and remaining are read/write. end_ptr is read-only.
+    : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "memory"
+    );
+}
+
+/*---------------------------------------------------------------------------
+ * ECC preserve initialization function using ARM Load/Store Multiple
+ * (LDM/STM) instructions
+ *
+ * @param start Pointer to the start address of the memory region to initialize
+ * @param end   Pointer to the end address of the memory region to initialize
+ *---------------------------------------------------------------------------*/
+__STATIC_FORCEINLINE void ecc_mem_init(uint32_t *start, uint32_t *end)
+{
+  uint32_t                remaining    = 0;
+  volatile const uint32_t *ram_ptr     = (volatile const uint32_t *) start;
+  volatile const uint32_t *end_ram_ptr = (volatile const uint32_t *) end;
+
+  // The ECC preserve initialization leverages the LDM/STM instructions working each on 32 bytes
+  // of data at a time.
+  __ASM volatile (
+    // Initialize RAM end address for the 1st loop.
+    "SUBS %[remaining], %[end_ptr], %[ram_ptr] \n" // remaining = end_ptr - ram_ptr.
+    "MOV r3, #32                       \n"         // R3 = 32 (block size).
+    "UDIV r4, %[remaining], r3         \n"         // R4 = remaining / 32 (number of 32-byte blocks).
+    "MUL r4, r4, r3                    \n"         // R4 = R4 * 32 (total size of 32-byte blocks).
+    "ADD r4, %[ram_ptr], r4            \n"         // R4 = ram_ptr + total size of 32-byte blocks.
+    // 1st loop for N x 32-byte read/write using LDM/STM
+    "1:                                \n"
+    "CMP %[ram_ptr], r4                \n"         // Compare ram_ptr with R4.
+    "BHS 2f                            \n"         // If ram_ptr >= R4, branch to label 2.
+    "LDM %[ram_ptr], {r5-r12}         \n"          // Load multiple values into r5-r12 from ram_ptr.
+    "STM %[ram_ptr]!, {r5-r12}         \n"         // Store multiple registers (r5-r12) into memory and increment ram_ptr.
+    "B 1b                              \n"         // Branch to label 1.
+    // 2nd loop in case there is a last chunk < 32 bytes using LDR/STR
+    "2:                                \n"
+    "CMP %[ram_ptr], %[end_ptr]        \n"                  // Compare ram_ptr with end_ptr.
+    "BHS 3f                            \n"                  // If ram_ptr >= end_ptr, branch to label 3.
+    "LDR r5, [%[ram_ptr]]              \n"                  // Load the current RAM word into r5.
+    "STR r5, [%[ram_ptr]], #4          \n"                  // Store the value read by LDR at ram_ptr and increment ram_ptr.
+    "B 2b                              \n"                  // Branch to label 2.
+    "3:                                \n"
+    :
+    :[end_ptr] "r" (end_ram_ptr), [ram_ptr] "r" (ram_ptr), [remaining] "r" (remaining)  // ram_ptr and remaining are read/write. end_ram_ptr is read-only.
+    : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "memory"
+    );
+}
+#endif // !defined(SL_RAM_LINKER) && !defined(SL_SRAM_DMEM_ECC_DISABLE) && !defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT)
 /*---------------------------------------------------------------------------
  * Reset Handler called on controller reset
  *---------------------------------------------------------------------------*/
@@ -453,8 +561,10 @@ __NO_RETURN void Reset_Handler(void)
   // The ECC initialization code uses assembly to protect the ECC initialization sequence
   // from C compiler with optimization settings.
 
-  bool     ecc_init_fast = true;
-  uint32_t reset_cause   = EMU->RSTCAUSE & ~_EMU_RSTCAUSE_POR_MASK;
+  extern uint32_t __ram_end__; // Linker script variable
+
+  bool            ecc_init_fast = true;
+  uint32_t        reset_cause   = EMU->RSTCAUSE & ~_EMU_RSTCAUSE_POR_MASK;
 
   if (reset_cause != 0) {
     // Not a Power-On-Reset. Perform the repaint algorithm.
@@ -471,88 +581,10 @@ __NO_RETURN void Reset_Handler(void)
   // the ECC initialization is completely skipped as the bootloader Reset_Handler() takes care
   // of the ECC initialization.
 #if !defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT)
-  uint32_t                remaining = 0;
-  volatile const uint32_t *ram_ptr  = (volatile const uint32_t *) SRAM_BASE;
-
   if (ecc_init_fast) {
-    // This fast ECC initialization performs N times 256-byte writes of value 0 by using the ARM
-    // Store Multiple (STM)instruction. Each STM can write up to 32 bytes at once. Hence, 256-byte
-    // writes takes 8 STMs of 32 byte each. The remaining RAM space size may not be multiple of
-    // 256 bytes. So the last RAM chunk (whose size < 256 bytes)is written with zeros using 32-bit
-    // word writes (STR instruction).
-    //
-    // NOTE: Reset_Handler() pushes a few data onto the main stack. However, the following code
-    // will overwrite the stack data with zeros. This is not a problem as the stack data
-    // of Reset_Handler() will never be used after the ECC initialization. An application
-    // is not supposed to return from Reset_Handler().
-    __ASM volatile (
-      // Initialize registers and RAM end address for the 1st loop.
-      "MOVS r5, #0                       \n"         // Store 32 bytes of zeros in 8 registers (R5-R12).
-      "MOVS r6, #0                       \n"
-      "MOVS r7, #0                       \n"
-      "MOVS r8, #0                       \n"
-      "MOVS r9, #0                       \n"
-      "MOVS r10, #0                      \n"
-      "MOVS r11, #0                      \n"
-      "MOVS r12, #0                      \n"
-      "SUBS %[remaining], %[end_ptr], %[ram_ptr] \n" // remaining = end_ptr - ram_ptr.
-      "MOV r3, #256                      \n"         // R3 = 256 (block size).
-      "UDIV r4, %[remaining], r3         \n"         // R4 = remaining / 256 (number of 256-byte blocks).
-      "MUL r4, r4, r3                    \n"         // R4 = R4 * 256 (total size of 256-byte blocks).
-      "ADD r4, %[ram_ptr], r4            \n"         // R4 = ram_ptr + total size of 256-byte blocks.
-      // 1st loop for N x 256-byte writes using STM
-      "1:                                \n"
-      "CMP %[ram_ptr], r4                \n"  // Compare ram_ptr with R4.
-      "BHS 2f                            \n"  // If ram_ptr >= R4, branch to label 2.
-      "STM %[ram_ptr]!, {r5-r12}         \n"  // Store multiple registers (r5-r12) into memory and increment ram_ptr.
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "STM %[ram_ptr]!, {r5-r12}         \n"
-      "B 1b                              \n"  // Branch to label 1.
-      // 2nd loop in case there is a last chunk < 256 bytes using STR
-      "2:                                \n"
-      "CMP %[ram_ptr], %[end_ptr]        \n"                  // Compare ram_ptr with end_ptr.
-      "BHS 3f                            \n"                  // If ram_ptr >= end_ptr, branch to label 3.
-      "STR r5, [%[ram_ptr]], #4          \n"                  // Store R5 at ram_ptr and increment ram_ptr.
-      "B 2b                              \n"                  // Branch to label 2.
-      "3:                                \n"
-      :[ram_ptr] "+r" (ram_ptr), [remaining] "+r" (remaining) // ram_ptr and remaining are read/write.
-      :[end_ptr] "r" ((SRAM_BASE + SRAM_SIZE))                // end_ptr is read-only.
-      : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "memory"
-      );
+    ecc_write_zeros((uint32_t *) SRAM_BASE, &__ram_end__);
   } else {
-    // The ECC preserve initilization leverages the LDM/STM instructions working each on 32 bytes
-    // of data at a time.
-    __ASM volatile (
-      // Initialize RAM end address for the 1st loop.
-      "SUBS %[remaining], %[end_ptr], %[ram_ptr] \n" // remaining = end_ptr - ram_ptr.
-      "MOV r3, #32                       \n"         // R3 = 32 (block size).
-      "UDIV r4, %[remaining], r3         \n"         // R4 = remaining / 32 (number of 32-byte blocks).
-      "MUL r4, r4, r3                    \n"         // R4 = R4 * 32 (total size of 32-byte blocks).
-      "ADD r4, %[ram_ptr], r4            \n"         // R4 = ram_ptr + total size of 32-byte blocks.
-      // 1st loop for N x 32-byte read/write using LDM/STM
-      "1:                                \n"
-      "CMP %[ram_ptr], r4                \n"         // Compare ram_ptr with R4.
-      "BHS 2f                            \n"         // If ram_ptr >= R4, branch to label 2.
-      "LDM %[ram_ptr], {r5-r12}         \n"          // Load multiple values into r5-r12 from ram_ptr.
-      "STM %[ram_ptr]!, {r5-r12}         \n"         // Store multiple registers (r5-r12) into memory and increment ram_ptr.
-      "B 1b                              \n"         // Branch to label 1.
-      // 2nd loop in case there is a last chunk < 32 bytes using LDR/STR
-      "2:                                \n"
-      "CMP %[ram_ptr], %[end_ptr]        \n"                  // Compare ram_ptr with end_ptr.
-      "BHS 3f                            \n"                  // If ram_ptr >= end_ptr, branch to label 3.
-      "LDR r5, [%[ram_ptr]]              \n"                  // Load the current RAM word into r5.
-      "STR r5, [%[ram_ptr]], #4          \n"                  // Store the value read by LDR at ram_ptr and increment ram_ptr.
-      "B 2b                              \n"                  // Branch to label 2.
-      "3:                                \n"
-      :[ram_ptr] "+r" (ram_ptr), [remaining] "+r" (remaining) // ram_ptr and remaining are read/write.
-      :[end_ptr] "r" ((SRAM_BASE + SRAM_SIZE))                // end_ptr is read-only.
-      : "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "r12", "memory"
-      );
+    ecc_mem_init((uint32_t *) SRAM_BASE, &__ram_end__);
   }
 #endif // !defined(SL_CATALOG_GECKO_BOOTLOADER_INTERFACE_PRESENT)
 
@@ -568,7 +600,7 @@ __NO_RETURN void Reset_Handler(void)
 #if defined (SL_TRUSTZONE_SECURE) \
   && defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
   __TZ_set_STACKSEAL_S((uint32_t *) (&__STACK_SEAL));
-#endif // SL_TRUSTZONE_SECURE && __ARM_FEATURE_CMSE
+#endif // defined(SL_TRUSTZONE_SECURE) && defined(__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
   #ifndef __NO_SYSTEM_INIT
   SystemInit();                    /* CMSIS System Initialization */
@@ -578,24 +610,25 @@ __NO_RETURN void Reset_Handler(void)
   && !defined(SL_RAM_LINKER)   \
   && !defined(BOOTLOADER_ENABLE)
   CopyToRam();
-#endif
+#endif // !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER) && !defined(BOOTLOADER_ENABLE)
 
-#ifdef BOOTLOADER_ENABLE
+#if defined(BOOTLOADER_ENABLE)
   SystemInit2();
-#endif // BOOTLOADER_ENABLE
+#endif // defined(BOOTLOADER_ENABLE)
+
 #if defined (__GNUC__) && defined (__START)
   Copy_Table();
   Zero_Table();
   __START();
 #else
   __PROGRAM_START();               /* Enter PreMain (C library entry point) */
-#endif // __GNUC__
+#endif // defined(__GNUC__) && defined(__START)
 }
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wmissing-noreturn"
-#endif // __ARMCC_VERSION
+#endif // defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 
 /*----------------------------------------------------------------------------
  * Default Handler for Exceptions / Interrupts
@@ -609,4 +642,4 @@ void Default_Handler(void)
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
   #pragma clang diagnostic pop
-#endif // __ARMCC_VERSION
+#endif // defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)

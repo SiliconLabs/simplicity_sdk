@@ -45,6 +45,16 @@ template_contribution:
           help: "PBR:2 or RTT:1"
   - name: cli_command
     value:
+      name: proc_count
+      handler: cs_initiator_cli_procedure_counter
+      shortcuts:
+        - name: pc
+      help: "Set max procedure counter"
+      argument:
+        - type: uint8
+          help: "Free running:0 or Synchronized:1"
+  - name: cli_command
+    value:
       name: sub_mode
       handler: cs_initiator_cli_sub_mode
       shortcuts:

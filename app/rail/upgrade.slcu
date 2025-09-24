@@ -1,6 +1,24 @@
 upgrade:
   - sdk:
       id: simplicity_sdk
+      version: "2025.6.2"
+    component:
+      - trigger: sl_rail_sdk_simple_cpc
+        description: >
+          Simple RAIL CPC for NCP projects component has been modified, removed not needed requires.
+        remove:
+          - sl_rail_sdk_simple_cpc
+        add:
+          - sl_rail_sdk_simple_cpc
+      - trigger: sl_rail_sdk_simple_cpc_spi
+        description: >
+          Simple RAIL CPC for NCP projects (SPI) component has been modified, removed not needed requires.
+        remove:
+          - sl_rail_sdk_simple_cpc_spi
+        add:
+          - sl_rail_sdk_simple_cpc_spi
+  - sdk:
+      id: simplicity_sdk
       version: "2024.12.0"
     component:
       - trigger: simple_rail_assistance

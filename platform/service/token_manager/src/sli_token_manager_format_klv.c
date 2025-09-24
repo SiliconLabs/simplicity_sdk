@@ -532,8 +532,22 @@ sl_status_t sli_write_klv_object(sl_klv_handle_t const *klv_handle,
   uint32_t klv_main_start = *((uint32_t *)klv_start_address);
   if ((klv_main_start != SLI_TOKEN_KLV_STATIC_SECURE_TOKEN_MAIN_START)
       && (klv_main_start != SLI_TOKEN_KLV_STATIC_DEVICE_TOKEN_MAIN_START)) {
-    TOKENDBG(printf("Invalid KLV chain start\n"));
-    return SL_STATUS_NOT_INITIALIZED;
+    // KLV chain is not initialized, need to initialize it.
+    TOKENDBG(printf("KLV chain is not initialized, need to initialize it\n"));
+    if (klv_start_address == (uint32_t)SLI_TOKEN_STATIC_SECURE_TOKEN_BASE) {
+      // Initialize KLV chain for secure token
+      klv_main_start = SLI_TOKEN_KLV_STATIC_SECURE_TOKEN_MAIN_START;
+      // Write the initialized value to the secure token's KLV start address.
+      if (sli_token_manager_flash_write(klv_start_address, &klv_main_start, sizeof(klv_main_start)) != SL_STATUS_OK) {
+        TOKENDBG(printf("Failed to initialize KLV chain start\n"));
+        return SL_STATUS_INITIALIZATION;
+      }
+    } else {
+      // Initialize KLV chain for device token
+      klv_main_start = SLI_TOKEN_KLV_STATIC_DEVICE_TOKEN_MAIN_START;
+      // Copy the initialized value to the device token's KLV start address.
+      memcpy((void *)klv_start_address, &klv_main_start, sizeof(klv_main_start));
+    }
   }
 
   uint32_t *current_pointer =

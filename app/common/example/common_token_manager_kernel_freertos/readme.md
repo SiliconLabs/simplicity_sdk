@@ -60,8 +60,3 @@ No Arguments
 ## Requirements
 
 Silicon Labs board
-Before performing operations, the following command should be run on commander:
-commander tokens erase --type secure --securerange <secure token region address> --device simg301
-ex - commander tokens erase --type secure --securerange 0x138f000:+0x2000 --device simg301
-commander tokens erase --type device --device simg301
-This is to erase and then initialize the KLV chain.

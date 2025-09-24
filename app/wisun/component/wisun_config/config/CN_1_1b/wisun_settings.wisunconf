@@ -16,11 +16,10 @@
   "radioConfPath": "../rail/radio_settings.radioconf",
   "allowedChannels": ["0-255"],
   "defaultPhy": {
-    "profile": "wisun_fan_1_0",
+    "profile": "wisun_fan_1_1",
     "regulatoryDomain": 4,
-    "operatingClass": 1,
-    "operatingMode": 27,
-    "fec": false
+    "phyModeId": 2,
+    "channelPlanId": 160
   },
   "modeSwitchPhys": []
 }

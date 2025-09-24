@@ -1025,6 +1025,39 @@ sl_status_t sl_bt_ots_client_abort(sl_bt_ots_client_handle_t client)
   return sc;
 }
 
+sl_status_t sli_bt_ots_client_force_remove(sl_bt_ots_client_handle_t client)
+{
+  if (client == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Check if the client exists in the list
+  sl_bt_ots_client_t *handle;
+  SL_SLIST_FOR_EACH_ENTRY(client_list, handle, sl_bt_ots_client_t, node) {
+    if (handle == client) {
+      // Remove the client from the list
+      sl_slist_remove(&client_list, &handle->node);
+
+      // Clear the client's queues
+      clear_queue(handle->connection);
+
+      // Clear the active client for the connection
+      uint8_t connection_index = client_index(handle->connection);
+      if (connection_index != INVALID_INDEX && active_client[connection_index] == handle) {
+        active_client[connection_index] = NULL;
+      }
+
+      // Update the client's status
+      handle->status = CLIENT_STATUS_DISCONNECTED;
+
+      return SL_STATUS_OK;
+    }
+  }
+
+  // Return not found if the client is not in the list
+  return SL_STATUS_NOT_FOUND;
+}
+
 void sli_bt_ots_client_init(void)
 {
   CORE_DECLARE_IRQ_STATE;

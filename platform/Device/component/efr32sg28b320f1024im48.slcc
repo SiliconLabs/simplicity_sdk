@@ -166,6 +166,7 @@
   - name: device_has_mpu
   - name: device_has_radio
   - name: device_has_radio_subghz
+  - name: device_has_swo
   - name: device_compute_basic
 - recommends:
   - id: trustzone_unaware

@@ -18,6 +18,9 @@
 #ifdef SL_COMPONENT_CATALOG_PRESENT
 #include "sl_component_catalog.h"
 #endif
+#ifdef SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT
+#include "multirail-demo.h"
+#endif // SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT
 
 #include "sl_zigbee.h"
 
@@ -175,6 +178,12 @@ static void zigbee_stack_task(void *p_arg)
 #ifdef SL_ZIGBEE_AF_NCP
   sli_zigbee_ncp_init_callback();
 #endif
+#ifdef SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT
+  // Multi RAIL GP init function must be called after sli_zigbee_stack_init_callback()
+  // otherwise it will cause an assertion when trying to initialize Multi RAIL GP plugin
+  // because the RAIL handle is not initialized.
+  sl_zigbee_multirail_gp_tx_queue_init();
+#endif // SL_CATALOG_ZIGBEE_MULTIRAIL_DEMO_PRESENT
 
   while (true) {
     sli_zigbee_stack_tick_callback();

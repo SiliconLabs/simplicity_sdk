@@ -216,7 +216,6 @@ class CALC_Shaping_jumbo(CALC_Shaping):
             shaping = 1
             coeff = self.update_coeffs(model, c, coeff)
 
-        # filter derived from Imagotag legacy PHY transmit capture
         elif shaping_filter_option.value == model.vars.shaping_filter.var_enum.Custom_PSK.value:
             coeff[0] = 51
             coeff[1] = 117

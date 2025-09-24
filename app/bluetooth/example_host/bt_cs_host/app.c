@@ -85,14 +85,13 @@
 #define INITATOR_ACTION_MSG_LEN (sizeof(cs_acp_cmd_id_t) + sizeof(cs_acp_initiator_action_cmd_data_t))
 
 // Optstring argument for getopt
-#define OPTSTRING NCP_HOST_OPTSTRING APP_LOG_OPTSTRING "m:R:I:F:wo:p:a:q:s:TPhM:"
+#define OPTSTRING NCP_HOST_OPTSTRING APP_LOG_OPTSTRING "m:R:I:F:wo:p:a:q:s:TPhM:S"
 
 // Usage info
 #define USAGE APP_LOG_NL "%s " NCP_HOST_USAGE APP_LOG_USAGE                                                \
   "\n[-m <cs_main_mode>] [-M <cs_sub_mode>] [-R <max_reflector_instances>] [-I <max_initiator_instances>]" \
   "[-F <reflector_ble_address>] [-w] [-o] [-p <channel_map_preset>] [-a <cs_tone_antenna_config_idx_req>]" \
-  "[-q <cs_sync_antenna_req>] [-s <cs_procedure_scheduling>] [-T] [-P] [-h]" APP_LOG_NL
-
+  "[-q <cs_sync_antenna_req>] [-s <cs_procedure_scheduling>] [-T] [-P] [-S] [-h]" APP_LOG_NL
 // Detailed argument list
 #define CS_HOST_OPTIONS                                                            \
   "    -m  CS main mode.\n"                                                        \
@@ -142,7 +141,10 @@
   "    -T  Enable RTT trace including BGAPI messages and RTL log.\n"               \
   "        Note that the RTT blocks the target if no client is connected.\n"       \
   "    -P  Use 1M connection PHY\n"                                                \
-  "        Note: Default is 2M\n"
+  "        Used only for initiator instances"                                      \
+  "        Note: Default is 2M\n"                                                  \
+  "    -S  Enable synchronized mode\n"                                             \
+  "        max_procedure_count = 1\n"
 
 // Options info
 #define OPTIONS    \
@@ -402,6 +404,10 @@ void app_init(int argc, char *argv[])
         cs_sub_mode = atoi(optarg);
         break;
 
+      case 'S':
+        initiator_config.max_procedure_count = 1; // Synchronized mode
+        break;
+
       default:
         sc = ncp_host_set_option((char)cli_opt, optarg);
         if (sc == SL_STATUS_NOT_FOUND) {
@@ -545,9 +551,8 @@ void app_init(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
   if (rtl_config.algo_mode == SL_RTL_CS_ALGO_MODE_REAL_TIME_FAST
-      && (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt || initiator_config.cs_sub_mode == sl_bt_cs_mode_rtt)) {
-    app_log_error(APP_PREFIX "Real-time fast mode is not supported with %s mode RTT!" APP_LOG_NL,
-                  (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt) ? "main" : "sub");
+      && initiator_config.cs_main_mode == sl_bt_cs_mode_rtt) {
+    app_log_error(APP_PREFIX "Real-time fast mode is not supported with main mode RTT!" APP_LOG_NL);
     exit(EXIT_FAILURE);
   }
   app_log_info(APP_PREFIX "RSSI reference TX power @ 1m: %d dBm" APP_LOG_NL,
@@ -1473,7 +1478,13 @@ static void cs_on_error(uint8_t conn_handle, cs_error_event_t err_evt, sl_status
                      sc);
       }
       break;
-
+    case CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED:
+      app_log_error(APP_INSTANCE_PREFIX "RAS reception error!"
+                                        "[E: 0x%x sc: 0x%x]" APP_LOG_NL,
+                    conn_handle,
+                    err_evt,
+                    sc);
+      break;
     // Close connection
     default:
       app_log_error(APP_INSTANCE_PREFIX "Error happened! Closing connection"

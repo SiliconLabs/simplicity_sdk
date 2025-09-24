@@ -23,4 +23,3 @@ config_file:
   directory: rail
   condition:
   - device_family_fgm23
-

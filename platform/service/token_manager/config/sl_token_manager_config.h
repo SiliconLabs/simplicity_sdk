@@ -59,6 +59,21 @@
 
 // </e>
 #endif
+
+#if defined(SL_COMMON_TOKEN_MANAGER_ENABLE_DYNAMIC_TOKENS)
+#ifndef SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS
+// <e SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS> Enable Override Tokens
+// <i> The static tokens can be stored as override tokens in NVM3 storage space.
+// <i> Once the override token are stored in NVM3, they can be accessed using
+// <i> sl_token_manager_get_data() API to read the data.
+// <i> By default this feature is disabled.
+// <i> For more details, refer to Common Token Manager documentation
+// <i> https://docs.silabs.com/gecko-platform/latest/platform-service/common-token-manager .
+// <i> Default: 0
+#define SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS  0
+// </e>
+#endif
+#endif
 // </h>
 
 #if (SL_TOKEN_MANAGER_CUSTOM_MANUFACTURING_TOKENS_PRESENT)

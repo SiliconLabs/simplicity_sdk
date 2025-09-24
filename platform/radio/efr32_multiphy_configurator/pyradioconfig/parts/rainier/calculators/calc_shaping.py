@@ -166,7 +166,6 @@ class CalcShapingRainier(Calc_Shaping_Bobcat):
             shaping = 3
             coeff = self.update_coeffs(model, c, coeff)
 
-        # filter derived from Imagotag legacy PHY transmit capture
         elif shaping_filter_option.value == model.vars.shaping_filter.var_enum.Custom_PSK.value:
             coeff[0] = 51
             coeff[1] = 117

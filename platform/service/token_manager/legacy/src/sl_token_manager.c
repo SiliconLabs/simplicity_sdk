@@ -339,29 +339,28 @@ sl_status_t sl_token_set_data(uint32_t token,
     }
   }
 
-  if (nvm3Key != 0) {
-    if (tokensActive) {
-      if ((token < TOKEN_COUNT) && (tokenIsCnt[token])) {
-        status = nvm3_writeCounter(nvm3_defaultHandle,
-                                   nvm3Key,
-                                   *(uint32_t *) data);
-        TOKENDBG(printf("halInternalSetTokenData nvm3_writeCounter value: 0x%0lx status: 0x%0lx\r\n",
-                        *(uint32_t *) data,
-                        status); )
-      } else { //Basic/indexed token
-        offset = index == 0x7FU ? 0U : index;
-        status = nvm3_writeData(nvm3_defaultHandle,
-                                nvm3Key + offset,
-                                data,
-                                length);
-        TOKENDBG(printf("halInternalSetTokenData nvm3_writeData length: %0lx status: 0x%0lx\r\n",
-                        length,
-                        status); )
-      }
-    } else {
-      TOKENDBG(printf("halInternalSetTokenData supressed\r\n"); )
+  if (tokensActive) {
+    if ((token < TOKEN_COUNT) && (tokenIsCnt[token])) {
+      status = nvm3_writeCounter(nvm3_defaultHandle,
+                                 nvm3Key,
+                                 *(uint32_t *) data);
+      TOKENDBG(printf("halInternalSetTokenData nvm3_writeCounter value: 0x%0lx status: 0x%0lx\r\n",
+                      *(uint32_t *) data,
+                      status); )
+    } else {   //Basic/indexed token
+      offset = index == 0x7FU ? 0U : index;
+      status = nvm3_writeData(nvm3_defaultHandle,
+                              nvm3Key + offset,
+                              data,
+                              length);
+      TOKENDBG(printf("halInternalSetTokenData nvm3_writeData length: %0lx status: 0x%0lx\r\n",
+                      length,
+                      status); )
     }
+  } else {
+    TOKENDBG(printf("halInternalSetTokenData supressed\r\n"); )
   }
+
   if (status != SL_STATUS_OK) {
     halNvm3Callback(status);
   }

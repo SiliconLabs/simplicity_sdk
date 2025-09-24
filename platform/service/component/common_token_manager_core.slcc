@@ -68,5 +68,3 @@ template_contribution:
       include: sl_token_manager_api.h
       handler: sl_token_manager_init
     priority: 9900
-ui_hints:
-  visibility: never

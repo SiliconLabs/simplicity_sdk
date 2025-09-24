@@ -21,7 +21,7 @@
 #include "stack/internal/inc/raw-message-internal-def.h"
 
 typedef struct {
-  uint8_t filterIndexMatch;
+  sl_zigbee_mac_filter_match_data_t filterValueMatch;
   uint8_t legacyPassthroughType;
   sl_zigbee_rx_packet_info_t packetInfo;
   uint8_t messageLength;

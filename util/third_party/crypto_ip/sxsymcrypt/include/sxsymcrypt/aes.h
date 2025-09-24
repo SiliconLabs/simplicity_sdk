@@ -437,6 +437,7 @@ int sx_blkcipher_create_aes_generic(struct sxblkcipher *c,
  * @remark - GCM and GMAC support AAD split in multiple chunks, using context
  *           saving.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_GCM, SL_CODE_CLASS_SECURITY)
 int sx_aead_create_aesgcm_enc(struct sxaead *c, const struct sxkeyref *key,
     const char *iv);
 
@@ -469,6 +470,7 @@ int sx_aead_create_aesgcm_enc(struct sxaead *c, const struct sxkeyref *key,
  * @remark - GCM and GMAC support AAD split in multiple chunks, using context
  *           saving.
  */
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_GCM, SL_CODE_CLASS_SECURITY)
 int sx_aead_create_aesgcm_dec(struct sxaead *c, const struct sxkeyref *key,
     const char *iv);
 
@@ -510,7 +512,7 @@ int sx_aead_create_aesgcm_dec(struct sxaead *c, const struct sxkeyref *key,
  *           operation is completed.
  * @remark - CCM DOES NOT support AAD split in multiple chunks
  */
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_SLI_CRYPTO, SL_CODE_CLASS_TIME_CRITICAL)
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_AES_CCM, SL_CODE_CLASS_SECURITY)
 int sx_aead_create_aesccm_enc(struct sxaead *c, const struct sxkeyref *key,
     const char *nonce, size_t noncesz,
     size_t tagsz, size_t aadsz, size_t datasz);

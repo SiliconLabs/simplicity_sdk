@@ -28,6 +28,8 @@
  *
  ******************************************************************************/
 
+#include <stdint.h>
+
 #include "sl_memory_manager.h"
 #include "sli_memory_manager.h"
 
@@ -46,7 +48,7 @@
  *********************************   DEFINES   *********************************
  ******************************************************************************/
 
-#define SLI_MEM_POOL_OUT_OF_MEMORY     0xFFFFFFFF
+#define SLI_MEM_POOL_OUT_OF_MEMORY     UINTPTR_MAX
 #define SLI_MEM_POOL_REQUIRED_PADDING(obj_size) (((sizeof(size_t) - ((obj_size) % sizeof(size_t))) % sizeof(size_t)))
 
 /***************************************************************************//**

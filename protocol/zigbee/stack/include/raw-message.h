@@ -60,7 +60,7 @@ sl_status_t sl_zigbee_set_mac_filter_match_list(const sl_zigbee_mac_filter_match
 /** @brief Called when the stack has received a raw MAC message that has
  *    matched one of the application's configured MAC filters.
  *
- * @param filterIndexMatch       Index of the filter that was matched.
+ * @param filterValueMatch       Value of the filter that was matched.
  * @param legacyPassthroughType  Legacy passthrough message type.
  * @param packetInfo             Struct containing information about the packet, like last LQI/RSSI.
  * @param messageLength          Length of the matching message.
@@ -68,7 +68,7 @@ sl_status_t sl_zigbee_set_mac_filter_match_list(const sl_zigbee_mac_filter_match
  * @internal SL_ZIGBEE_IPC_ARGS
  * {# messageContents | length: messageLength | max: MAX_IPC_VEC_ARG_CAPACITY #}
  */
-void sl_802154_filter_match_message_handler(uint8_t filterIndexMatch,
+void sl_802154_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                             uint8_t legacyPassthroughType,
                                             sl_zigbee_rx_packet_info_t *packetInfo,
                                             uint8_t messageLength,

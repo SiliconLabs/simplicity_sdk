@@ -152,7 +152,9 @@ typedef union {
 #endif
 #if defined(MBEDTLS_PSA_CRYPTO_DRIVERS)
 #if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     sli_se_transparent_mac_operation_t sli_se_transparent_ctx;
+#endif /* ! SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS */
 #if defined(SLI_MBEDTLS_DEVICE_HSE) && defined(SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS)
     sli_se_opaque_mac_operation_t sli_se_opaque_ctx;
 #endif /* SLI_MBEDTLS_DEVICE_HSE  && SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS */
@@ -177,7 +179,9 @@ typedef union {
 #endif
 #if defined(MBEDTLS_PSA_CRYPTO_DRIVERS)
 #if defined(SLI_MBEDTLS_DEVICE_HSE)
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
     sli_se_transparent_aead_operation_t sli_se_transparent_ctx;
+#endif /* ! SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS */
 #if defined(SLI_MBEDTLS_DEVICE_HSE) && defined(SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS)
     sli_se_opaque_aead_operation_t sli_se_opaque_ctx;
 #endif /* SLI_MBEDTLS_DEVICE_HSE  && SLI_PSA_DRIVER_FEATURE_OPAQUE_KEYS */

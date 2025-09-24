@@ -1,4 +1,4 @@
---[[ This script validates following as part of the multi-network and multi-PAN configurations.
+--[[ This script validates following:
     a) To use a multi-network or multi-PAN feature, secondary network config option must be enabled.
     b) For multi-network application:
       - Make sure multi-network component is enabled.
@@ -7,7 +7,8 @@
       - Make sure multi-PAN component is enabled,
       - Make sure both device types are selected for coordinator role.
     d) To use multi-network the primary and secondary security should be one of the SE/HA ones or Z3
-    e) Zigbee Light Link component shall not be included for multi-network or multi-PAN scenarios --]]
+    e) Zigbee Light Link component shall not be included for multi-network or multi-PAN scenarios
+    f) Zigbee End Device Support component must be included for a sleepy end device or an end device --]]
 
 local device_type_primary_val = slc.config("SLI_ZIGBEE_PRIMARY_NETWORK_DEVICE_TYPE").value
 local device_type_secondary_val = slc.config("SLI_ZIGBEE_SECONDARY_NETWORK_DEVICE_TYPE").value
@@ -17,6 +18,11 @@ local secondary_network_enabled = slc.config("SLI_ZIGBEE_SECONDARY_NETWORK_ENABL
 local coordinator_device_type_val = "SLI_ZIGBEE_NETWORK_DEVICE_TYPE_COORDINATOR_OR_ROUTER"
 local rx_on_device_list_val = Set("SLI_ZIGBEE_NETWORK_DEVICE_TYPE_COORDINATOR_OR_ROUTER", "SLI_ZIGBEE_NETWORK_DEVICE_TYPE_ROUTER", "SLI_ZIGBEE_NETWORK_DEVICE_TYPE_END_DEVICE")
 local supported_multi_network_security_types = Set("SLI_ZIGBEE_NETWORK_SECURITY_TYPE_3_0","SLI_ZIGBEE_NETWORK_SECURITY_TYPE_HA","SLI_ZIGBEE_NETWORK_SECURITY_TYPE_HA_1_2","SLI_ZIGBEE_NETWORK_SECURITY_TYPE_SE_TEST","SLI_ZIGBEE_NETWORK_SECURITY_TYPE_SE_FULL")
+
+local pro_compliance_support = slc.is_selected("zigbee_pro_compliance")
+local end_device_support = slc.is_selected("zigbee_end_device_support")
+local end_device_type_val = "SLI_ZIGBEE_NETWORK_DEVICE_TYPE_END_DEVICE"
+local sleepy_end_device_type_val = "SLI_ZIGBEE_NETWORK_DEVICE_TYPE_SLEEPY_END_DEVICE"
 
 if secondary_network_enabled then
   if not slc.is_selected("zigbee_multi_network") then
@@ -78,5 +84,15 @@ else
                       validation.target_for_project(),
                       "Addition of multi-network component will cause increase in flash size for no reason.",
                       nil)
+  end
+end
+
+if end_device_support == false and pro_compliance_support == false then
+  if (device_type_primary_val == end_device_type_val or device_type_primary_val == sleepy_end_device_type_val) or 
+     (secondary_network_enabled and (device_type_secondary_val == end_device_type_val or device_type_secondary_val == sleepy_end_device_type_val)) then
+      validation.error("Zigbee End Device Support component must be enabled for end device or sleepy end device type.",
+      validation.target_for_project(),
+      "Select Zigbee End Device Support component when using end device or sleepy end device types.",
+      nil)
   end
 end

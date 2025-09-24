@@ -59,7 +59,7 @@
 
 #include "em_device.h"
 
-#if defined(SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 #include "sli_se_transparent_functions.h"
 #define SLI_DEVICE_HAS_AES_192
 #define MAC_IMPLEMENTATION_PRESENT
@@ -70,11 +70,23 @@
 #define MAC_FINISH_DE_FCT   sli_se_transparent_mac_verify_finish
 #define MAC_ABORT_FCT       sli_se_transparent_mac_abort
 #define MAC_ONESHOT_EN_FCT  sli_se_transparent_mac_compute
-#define MAC_ONESHOT_DE_FCT  sli_se_transparent_mac_verify
 
 #if defined(RADIOAES_PRESENT)
 #include "sli_protocol_crypto.h"
 #endif
+
+#elif defined(SYMCRYPTO_PRESENT)
+#include "sli_hostcrypto_transparent_functions.h"
+#define SLI_DEVICE_HAS_AES_192
+#define MAC_IMPLEMENTATION_PRESENT
+#define MAC_SETUP_EN_FCT    sli_hostcrypto_transparent_mac_sign_setup
+#define MAC_SETUP_DE_FCT    sli_hostcrypto_transparent_mac_verify_setup
+#define MAC_UPDATE_FCT      sli_hostcrypto_transparent_mac_update
+#define MAC_FINISH_EN_FCT   sli_hostcrypto_transparent_mac_sign_finish
+#define MAC_FINISH_DE_FCT   sli_hostcrypto_transparent_mac_verify_finish
+#define MAC_ABORT_FCT       sli_hostcrypto_transparent_mac_abort
+#define MAC_ONESHOT_EN_FCT  sli_hostcrypto_transparent_mac_compute
+
 #elif defined(CRYPTOACC_PRESENT)
 #include "sli_cryptoacc_transparent_functions.h"
 #define SLI_DEVICE_HAS_AES_192
@@ -86,7 +98,6 @@
 #define MAC_FINISH_DE_FCT   sli_cryptoacc_transparent_mac_verify_finish
 #define MAC_ABORT_FCT       sli_cryptoacc_transparent_mac_abort
 #define MAC_ONESHOT_EN_FCT  sli_cryptoacc_transparent_mac_compute
-#define MAC_ONESHOT_DE_FCT  sli_cryptoacc_transparent_mac_verify
 #endif
 
 #if defined(MAC_IMPLEMENTATION_PRESENT)

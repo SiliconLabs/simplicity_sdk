@@ -2,6 +2,18 @@
 
 This guide shows how to migrate projects from previous SDKs to a newer one.
 
+# 7.24.1 {#migrate-section-7-24-1}
+
+## How to migrate the Wall Controller sample application
+
+The configuration macro `SHORT_BUTTON_PRESS_DURATION` was renamed to `SHORT_BUTTON_PRESS_DURATION_MS`.
+
+Modify the `app_button_press_btn_0_handler` function to use the new macro:
+```diff
+- sl_sleeptimer_start_timer_ms(&my_sleeptimer_handle, SHORT_BUTTON_PRESS_DURATION, sleeptimer_cb, NULL, 0, 0);
++ sl_sleeptimer_start_timer_ms(&my_sleeptimer_handle, SHORT_BUTTON_PRESS_DURATION_MS, sleeptimer_cb, NULL, 0, 0);
+```
+
 # 7.24.0 {#migrate-section-7-24-0}
 
 ## Power Manager

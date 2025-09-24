@@ -42,6 +42,8 @@
 #include "sl_rail_features.h"
 #include "socket/socket.h"
 #include "arpa/inet.h"
+#include "common/endian.h"
+#include "app_event_log.h"
 
 #ifdef SL_CATALOG_POWER_MANAGER_PRESENT
 #include "sl_power_manager.h"
@@ -405,6 +407,8 @@ void app_cli_init(void)
 
   app_task_id = osThreadNew(app_cli_task, NULL, &app_task_attribute);
   assert(app_task_id != 0);
+
+  app_event_log_init();
 }
 
 void app_about(void)
@@ -850,6 +854,9 @@ void sl_wisun_on_event(sl_wisun_evt_t *evt)
       break;
     case SL_WISUN_MSG_DIRECT_CONNECT_LINK_STATUS_IND_ID:
       app_handle_direct_connect_link_status_ind(evt);
+      break;
+    case SL_WISUN_MSG_LOGGER_EVENT_IND_ID:
+      app_handle_event_logger_ind(evt);
       break;
     default:
       printf("[Unknown event: %d]\r\n", evt->header.id);
@@ -3028,6 +3035,76 @@ void app_reset_duty_cycle(sl_cli_command_arg_t *arguments)
     goto cleanup;
   }
   printf("[Duty cycle counters reset]\r\n");
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_set_event_log_filter(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t ret;
+  char *address_str = NULL;
+  sl_wisun_mac_address_t address;
+  const app_enum_t *value_enum;
+  uint8_t *event_mask_ptr;
+  uint64_t event_mask = 0;
+  size_t event_mask_len;
+
+  app_wisun_cli_mutex_lock();
+
+  address_str = sl_cli_get_argument_string(arguments, 0);
+  event_mask_ptr = sl_cli_get_argument_hex(arguments, 1, &event_mask_len);
+  if (event_mask_len > 8) {
+    printf("[Failed: invalid event mask length: %u]\r\n", event_mask_len);
+    goto cleanup;
+  }
+  memcpy(((uint8_t*)&(event_mask)) + 8 - event_mask_len, event_mask_ptr, event_mask_len);
+  event_mask = read_be64((uint8_t *)&event_mask);
+
+  value_enum = app_util_get_enum_by_string(app_mac_enum, address_str);
+  if (value_enum) {
+    // Assume enumeration means a broadcast address
+    address = APP_BROADCAST_MAC;
+  } else {
+    // Attempt to convert the MAC address string
+    ret = app_util_get_mac_address(&address, address_str);
+    if (ret != SL_STATUS_OK) {
+      printf("[Failed: unable to parse the MAC address: %lu]\r\n", ret);
+      goto cleanup;
+    }
+  }
+
+  ret = sl_wisun_set_event_filter(&address, event_mask);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set event log filter: %lu]\r\n", ret);
+    goto cleanup;
+  }
+
+  printf("[Event log filter set]\r\n");
+
+cleanup:
+
+  app_wisun_cli_mutex_unlock();
+}
+
+void app_event_log(sl_cli_command_arg_t *arguments)
+{
+  sl_status_t ret;
+  char *address_str = NULL;
+  sl_wisun_mac_address_t address;
+
+  app_wisun_cli_mutex_lock();
+
+  address_str = sl_cli_get_argument_string(arguments, 0);
+  // Attempt to convert the MAC address string
+  ret = app_util_get_mac_address(&address, address_str);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to parse the MAC address: %lu]\r\n", ret);
+    goto cleanup;
+  }
+
+  app_event_log_print(&address);
 
 cleanup:
 

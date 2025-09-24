@@ -359,7 +359,7 @@ static bool is_option_valid(simple_argparse_handle_p hnd,
   char *token;
 
   if (str != NULL) {
-    char *copy = malloc(strlen(hnd->argparse_descriptor[index].valid_options));
+    char *copy = malloc(strlen(hnd->argparse_descriptor[index].valid_options) + 1);
     if (copy != NULL) {
       strcpy(copy, hnd->argparse_descriptor[index].valid_options);
       token = strtok_re(copy, SIMPLE_ARGPARSE_ARGUMENT_DELIMITERS, &context);

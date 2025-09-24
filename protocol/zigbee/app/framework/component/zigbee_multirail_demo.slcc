@@ -30,6 +30,8 @@ template_contribution:
     priority: -9900
     condition:
       - zigbee_gp
+    unless:
+      - cmsis_rtos2
   - name: cli_group
     value:
       group: plugin

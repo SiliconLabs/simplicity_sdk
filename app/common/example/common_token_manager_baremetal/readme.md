@@ -25,7 +25,7 @@ Argument 0:
 2 - To write an override token created for static secure tokens
 Argument 1:
 This argument is for the key.
-If argument 0 is either 2 or 3, the key should be less than 0xFFF.
+If argument 0 is either 1 or 2, the key should be less than 0xFFF.
 Argument 2:
 This argument is for providing data.
 
@@ -54,3 +54,7 @@ No Arguments
 
 * Increment Counter Token (increment_counter_token)
 No Arguments
+
+## Requirements
+
+Silicon Labs board

@@ -1,6 +1,6 @@
 project_name: common_token_manager_kernel_freertos
 package: platform
-quality: evaluation
+quality: production
 label: Platform - Common Token Manager Kernel FreeRtos
 description: >
   This example project demonstrates use of the CTM interface.

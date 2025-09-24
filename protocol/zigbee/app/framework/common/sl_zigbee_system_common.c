@@ -81,6 +81,9 @@ extern void sli_zigbee_af_init_done(void);
 #include "cortexm3/diagnostic.h"
 #include "sl_zigbee_debug_print.h"
 #endif // (defined(SL_CATALOG_ZIGBEE_DEBUG_PRINT_PRESENT) && !defined(SL_ZIGBEE_TEST) && !defined(EZSP_HOST) && !defined(PRO_COMPLIANCE))
+#ifdef EZSP_HOST
+extern sl_status_t halStackInitTokens(void);
+#endif // EZSP_HOST
 
 void sli_zigbee_app_framework_init_callback(void)
 {

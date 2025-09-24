@@ -53,7 +53,7 @@
 #define SLI_HOSTCRYPTO_CMAC_CTX_SAVE            (1u << 5)
 #define SLI_HOSTCRYPTO_CMAC_MAC_SIZE            16
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
 static psa_status_t sli_hostcrypto_hmac_validate_key(
   const psa_key_attributes_t *attributes,
   psa_algorithm_t alg,
@@ -87,9 +87,9 @@ static psa_status_t sli_hostcrypto_hmac_validate_key(
 
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 static psa_status_t sli_hostcrypto_cmac_validate_key(
   const psa_key_attributes_t *attributes)
 {
@@ -111,7 +111,7 @@ static psa_status_t sli_hostcrypto_cmac_validate_key(
 
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
 
 psa_status_t sli_hostcrypto_transparent_mac_compute(
   const psa_key_attributes_t *attributes,
@@ -124,7 +124,7 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
   size_t mac_size,
   size_t *mac_length)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
   if (key_buffer == NULL
       || attributes == NULL
@@ -144,7 +144,7 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
                                                     (const char *)key_buffer);
 
   *mac_length = 0;
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(alg)) {
     psa_status = sli_hostcrypto_hmac_validate_key(attributes, alg, &output_len);
     if (psa_status != PSA_SUCCESS) {
@@ -192,9 +192,9 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
       return PSA_ERROR_HARDWARE_FAILURE;
     }
   } else
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
   // If not HMAC, continue with the regular MAC algos
   if (PSA_ALG_FULL_LENGTH_MAC(alg) == PSA_ALG_CMAC) {
     psa_status = sli_hostcrypto_cmac_validate_key(attributes);
@@ -232,11 +232,11 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
       return PSA_ERROR_HARDWARE_FAILURE;
     }
   } else
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
   {
-#if !defined(PSA_WANT_ALG_CMAC)
+#if !defined(SLI_PSA_DRIVER_FEATURE_CMAC)
     (void)key_buffer_size;
-#endif // !PSA_WANT_ALG_CMAC
+#endif // !SLI_PSA_DRIVER_FEATURE_CMAC
     return PSA_ERROR_NOT_SUPPORTED;
   }
 
@@ -263,7 +263,7 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
 
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#else // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)attributes;
   (void)key_buffer;
@@ -277,16 +277,16 @@ psa_status_t sli_hostcrypto_transparent_mac_compute(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 }
 
 // Make sure that the two locations of 'alg' are in the same place, since we access them
 // interchangeably.
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
 _Static_assert(offsetof(sli_hostcrypto_transparent_mac_operation_t, hmac.alg)
                == offsetof(sli_hostcrypto_transparent_mac_operation_t, cmac.alg),
                "hmac.alg and cmac.alg are not aliases");
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
 psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
   sli_hostcrypto_transparent_mac_operation_t *operation,
@@ -295,7 +295,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
   size_t key_buffer_size,
   psa_algorithm_t alg)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
   if (operation == NULL
       || attributes == NULL
@@ -313,7 +313,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
   // start by resetting context
   memset(operation, 0, sizeof(*operation));
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(alg)) {
     size_t output_len = 0;
     status = sli_hostcrypto_hmac_validate_key(attributes, alg, &output_len);
@@ -371,10 +371,10 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
     operation->hmac.alg = alg;
     return PSA_SUCCESS;
   } else
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
   // If not HMAC, check other algos
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
   if (PSA_ALG_FULL_LENGTH_MAC(alg) == PSA_ALG_CMAC) {
     status = sli_hostcrypto_cmac_validate_key(attributes);
     if (status != PSA_SUCCESS) {
@@ -391,17 +391,17 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
     operation->cmac.alg = alg;
     status = PSA_SUCCESS;
   } else
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
   {
-#if !defined(PSA_WANT_ALG_CMAC)
+#if !defined(SLI_PSA_DRIVER_FEATURE_CMAC)
     (void)key_buffer_size;
-#endif // !PSA_WANT_ALG_CMAC
+#endif // !SLI_PSA_DRIVER_FEATURE_CMAC
     status = PSA_ERROR_NOT_SUPPORTED;
   }
 
   return status;
 
-#else // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#else // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)operation;
   (void)attributes;
@@ -411,7 +411,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_setup(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 }
 
 psa_status_t sli_hostcrypto_transparent_mac_verify_setup(sli_hostcrypto_transparent_mac_operation_t *operation,
@@ -430,7 +430,7 @@ psa_status_t sli_hostcrypto_transparent_mac_verify_setup(sli_hostcrypto_transpar
                                                    alg);
 }
 
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 static psa_status_t sli_hostcrypto_cmac_create(
   sli_hostcrypto_transparent_mac_operation_t *operation)
 {
@@ -456,14 +456,14 @@ static psa_status_t sli_hostcrypto_cmac_create(
 
   return PSA_SUCCESS;
 }
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
 
 psa_status_t sli_hostcrypto_transparent_mac_update(
   sli_hostcrypto_transparent_mac_operation_t *operation,
   const uint8_t *input,
   size_t input_length)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
   if (operation == NULL
       || input == NULL) {
@@ -474,16 +474,16 @@ psa_status_t sli_hostcrypto_transparent_mac_update(
     return PSA_SUCCESS;
   }
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(operation->hmac.alg)) {
     return sli_hostcrypto_transparent_hash_update(
       &operation->hmac.hash_ctx,
       input,
       input_length);
   } else
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
   if (PSA_ALG_FULL_LENGTH_MAC(operation->cmac.alg) == PSA_ALG_CMAC) {
     psa_status_t psa_status = PSA_ERROR_CORRUPTION_DETECTED;
     int sx_status = SX_ERR_UNITIALIZED_OBJ;
@@ -607,12 +607,12 @@ psa_status_t sli_hostcrypto_transparent_mac_update(
 
     return PSA_SUCCESS;
   } else
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
   {
     return PSA_ERROR_BAD_STATE;
   }
 
-#else // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#else // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)operation;
   (void)input;
@@ -620,7 +620,7 @@ psa_status_t sli_hostcrypto_transparent_mac_update(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 }
 
 psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
@@ -629,7 +629,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
   size_t mac_size,
   size_t *mac_length)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
   if (operation == NULL
       || mac == NULL
@@ -641,7 +641,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
 
   *mac_length = 0;
 
-#if defined(PSA_WANT_ALG_HMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   if (PSA_ALG_IS_HMAC(operation->hmac.alg)) {
     uint8_t buffer[128 + 64];
     size_t olen;
@@ -694,10 +694,10 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
     memset(buffer, 0, sizeof(buffer));
     return PSA_SUCCESS;
   } else
-#endif // PSA_WANT_ALG_HMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC
 
   // Check algorithm and store if supported
-#if defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_CMAC)
   if (PSA_ALG_FULL_LENGTH_MAC(operation->cmac.alg) == PSA_ALG_CMAC) {
     // Check output size
     int sx_status = SX_ERR_UNITIALIZED_OBJ;
@@ -758,12 +758,12 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
 
     return PSA_SUCCESS;
   } else
-#endif // PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_CMAC
   {
     return PSA_ERROR_NOT_SUPPORTED;
   }
 
-#else // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#else // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)operation;
   (void)mac;
@@ -772,7 +772,7 @@ psa_status_t sli_hostcrypto_transparent_mac_sign_finish(
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 }
 
 psa_status_t sli_hostcrypto_transparent_mac_verify_finish(
@@ -810,7 +810,7 @@ psa_status_t sli_hostcrypto_transparent_mac_verify_finish(
 psa_status_t sli_hostcrypto_transparent_mac_abort(
   sli_hostcrypto_transparent_mac_operation_t *operation)
 {
-#if defined(PSA_WANT_ALG_HMAC) || defined(PSA_WANT_ALG_CMAC)
+#if defined(SLI_PSA_DRIVER_FEATURE_HMAC) || defined(SLI_PSA_DRIVER_FEATURE_CMAC)
 
   // There's no state in hardware that we need to preserve, so zeroing out the context suffices.
   if (operation == NULL) {
@@ -820,13 +820,13 @@ psa_status_t sli_hostcrypto_transparent_mac_abort(
   memset(operation, 0, sizeof(*operation));
   return PSA_SUCCESS;
 
-#else // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#else // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 
   (void)operation;
 
   return PSA_ERROR_NOT_SUPPORTED;
 
-#endif // PSA_WANT_ALG_HMAC) || PSA_WANT_ALG_CMAC
+#endif // SLI_PSA_DRIVER_FEATURE_HMAC || SLI_PSA_DRIVER_FEATURE_CMAC
 }
 
 #endif // defined(SLI_MBEDTLS_DEVICE_HC)

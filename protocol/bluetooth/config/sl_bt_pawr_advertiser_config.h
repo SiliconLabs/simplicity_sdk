@@ -36,9 +36,9 @@
 // <h> Bluetooth PAwR Advertiser Configuration
 
 // <o SL_BT_CONFIG_MAX_PAWR_ADVERTISERS> Max number of PAwR advertisers <0-255>
-// <i> Default: 0
+// <i> Default: 1
 // <i> Define the number of periodic advertising sets that the application needs to use concurrently for Periodic Advertising with Responses (PAwR). This number must not exceed the number of periodic advertising sets configured by SL_BT_CONFIG_MAX_PERIODIC_ADVERTISERS in the component "bluetooth_feature_periodic_adv" or the total number of advertising sets configured by SL_BT_CONFIG_USER_ADVERTISERS in the component "bluetooth_feature_advertiser".
-#define SL_BT_CONFIG_MAX_PAWR_ADVERTISERS (0)
+#define SL_BT_CONFIG_MAX_PAWR_ADVERTISERS (1)
 
 // <o SL_BT_CONFIG_MAX_PAWR_ADVERTISED_DATA_LENGTH_HINT> Hint what will be the maximum length of advertised data in PAwR trains <0-251>
 // <i> Default: 61 (suitable for ESL use)

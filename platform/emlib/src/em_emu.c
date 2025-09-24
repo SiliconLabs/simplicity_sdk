@@ -1452,11 +1452,15 @@ SL_WEAK void EMU_EFPEM4PresleepHook(void)
  * @brief
  *   Enter energy mode 4 (EM4).
  *
+ * @details
+ *   This function never returns. It waits after the EM4 entry request to make
+ *   sure the CPU is properly shutdown by calling WFI.
+ *
  * @note
  *   Only a power on reset or external reset pin can wake the device from EM4.
  *   Device which is configured in Boost DC-DC mode can not enter EM4.
  ******************************************************************************/
-void EMU_EnterEM4(void)
+__NO_RETURN void EMU_EnterEM4(void)
 {
   /* Device with Boost DC-DC cannot enter EM4 because Boost DC-DC module does not
    * have BYPASS switch so DC-DC converter can not be set to bypass mode. */
@@ -1501,8 +1505,8 @@ void EMU_EnterEM4(void)
 #if defined(_DCDC_IF_EM4ERR_MASK)
   /* Make sure DCDC Mode is not modified, from this point forward,
    * by another code section. */
-  CORE_DECLARE_IRQ_STATE;
-  CORE_ENTER_CRITICAL();
+  // Make sure that we are not interrupted while we are entering em4
+  CORE_CRITICAL_IRQ_DISABLE();
 
   /* Workaround for bug that may cause a Hard Fault on EM4 entry */
   CMU_CLOCK_SELECT_SET(SYSCLK, FSRCO);
@@ -1590,8 +1594,14 @@ void EMU_EnterEM4(void)
 #if defined(_DCDC_IF_EM4ERR_MASK)
   /* If EM4ERR flag in DCDC->IF is set, mean that device cannot enter EM4, device will be suspended in this assertion */
   EFM_ASSERT((DCDC->IF & _DCDC_IF_EM4ERR_MASK) == 0);
-  CORE_EXIT_CRITICAL();
 #endif
+
+  // Wait for EM4 entry using WFI.
+  __WFI();
+
+  for (;; ) {
+    // __NO_RETURN
+  }
 }
 
 /***************************************************************************//**
@@ -1599,8 +1609,8 @@ void EMU_EnterEM4(void)
  *   Enter energy mode 4 (EM4).
  *
  * @details
- *   This function waits after the EM4 entry request to make sure the CPU
- *   is properly shutdown or the EM4 entry failed.
+ *   This function never returns. It waits after the EM4 entry request to make
+ *   sure the CPU is properly shutdown by calling WFI.
  *
  * @note
  *   Only a power on reset or external reset pin can wake the device from EM4.
@@ -1608,18 +1618,16 @@ void EMU_EnterEM4(void)
 void EMU_EnterEM4Wait(void)
 {
   EMU_EnterEM4();
-
-  // The EM4 entry waiting loop should take 4 cycles by loop minimally (Compiler dependent).
-  // We would then wait for (EMU_EM4_ENTRY_WAIT_LOOPS * 4) clock cycles.
-  for (uint16_t i = 0; i < EMU_EM4_ENTRY_WAIT_LOOPS; i++) {
-    __NOP();
-  }
 }
 
 #if defined(_EMU_EM4CTRL_MASK)
 /***************************************************************************//**
  * @brief
  *   Enter energy mode 4 hibernate (EM4H).
+ *
+ * @details
+ *   This function never returns. It waits after the EM4 entry request to make
+ *   sure the CPU is properly shutdown by calling WFI.
  *
  * @note
  *   Retention of clocks and GPIO in EM4 can be configured using
@@ -1636,6 +1644,10 @@ void EMU_EnterEM4H(void)
 /***************************************************************************//**
  * @brief
  *   Enter energy mode 4 shutoff (EM4S).
+ *
+ * @details
+ *   This function never returns. It waits after the EM4 entry request to make
+ *   sure the CPU is properly shutdown by calling WFI.
  *
  * @note
  *   Retention of clocks and GPIO in EM4 can be configured using

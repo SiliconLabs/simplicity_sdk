@@ -214,6 +214,10 @@ sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config)
   config->rtos_enabled = true;
 #endif // !SL_CATALOG_KERNEL_PRESENT
 
+  // The PA config is in sl_btctrl_config.h
+  config->paMode = SL_BT_CONTROLLER_PA_CONFIG;
+
+// Beginning of TX Power and IRQ priority initialization section
 #if defined(SL_CATALOG_BLUETOOTH_PRESENT) // Stack present
 
 #if ((SL_BT_CONTROLLER_MIN_POWER_LEVEL_OVERRIDE == 1) && (SL_BT_CONFIG_MIN_TX_POWER == -30))
@@ -265,6 +269,7 @@ sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config)
   config->radio_irq_priority = SL_BT_CONTROLLER_RADIO_IRQ_PRIORITY;
 
 #endif // SL_CATALOG_BLUETOOTH_PRESENT
+// End of TX Power and IRQ priority initialization section
 
 #if defined(SL_CATALOG_BLUETOOTH_RCP_PRESENT) && !defined(SL_CATALOG_KERNEL_PRESENT)
   sli_btctrl_events_init();
@@ -335,11 +340,11 @@ sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config)
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_EVEN_SCHEDULING_PRESENT)
-  sl_btctrl_init_empty_center_anchor_selection();
+  sl_btctrl_init_even_anchor_selection();
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PAWR_SCHEDULING_PRESENT)
-  sl_btctrl_init_even_anchor_selection();
+  sl_btctrl_init_empty_center_anchor_selection();
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_CONNECTION_PRESENT)
@@ -421,7 +426,7 @@ sl_status_t sl_btctrl_init_functional(struct sl_btctrl_config *config)
 #endif
 
 #if defined(SL_CATALOG_BLUETOOTH_FEATURE_AFH_PRESENT)
-  status = sl_btctrl_init_afh(1);
+  status = sl_btctrl_init_afh(SL_BT_CONTROLLER_ADAPTIVITY_MODE);
   if (status != SL_STATUS_OK) {
     return status;
   }

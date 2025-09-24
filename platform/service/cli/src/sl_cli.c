@@ -264,7 +264,7 @@ __WEAK bool sli_cli_tick(sl_cli_handle_t handle)
 #endif
   } else {
     if (handle->input_len >= handle->input_size - 1) {
-      sli_cli_io_printf("%s\n", status_to_string(SL_STATUS_FULL));
+      sli_cli_io_printf("%s%s", status_to_string(SL_STATUS_FULL), SL_CLI_EOL_STRING);
     }
   }
   handle->tick_in_progress = false;
@@ -373,7 +373,7 @@ sl_status_t sl_cli_handle_input(sl_cli_handle_t handle, char *string)
   if (handle->command_function == NULL) {
     status = sl_cli_command_execute(handle, string);
     if (status != SL_STATUS_OK) {
-      sli_cli_io_printf("%s\n", status_to_string(status));
+      sli_cli_io_printf("%s%s", status_to_string(status), SL_CLI_EOL_STRING);
     }
   } else {
     handle->command_function(string, handle->aux_argument);

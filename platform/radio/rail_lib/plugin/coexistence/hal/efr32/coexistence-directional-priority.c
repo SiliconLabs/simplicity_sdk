@@ -20,13 +20,17 @@
  *
  ******************************************************************************/
 
+#include "coexistence-hal.h"
+#include "rail.h"
+
 #ifdef _SILICON_LABS_32B_SERIES_2
 #include "em_timer.h"
 #else
+#if SL_RAIL_UTIL_COEX_DP_ENABLED
+#error Series-3 directional priority is not yet supported
+#endif
 #include "sl_hal_timer.h"
 #endif
-#include "coexistence-hal.h"
-#include "rail.h"
 
 #if SL_RAIL_UTIL_COEX_DP_ENABLED
 #ifdef PLATFORM_HEADER

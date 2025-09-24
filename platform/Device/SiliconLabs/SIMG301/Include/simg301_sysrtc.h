@@ -52,11 +52,11 @@ typedef struct sysrtc_typedef{
   __IOM uint32_t CNT;                           /**< Counter Value Register                             */
   __IM uint32_t  SYNCBUSY;                      /**< Synchronization Busy Register                      */
   __IOM uint32_t LOCK;                          /**< Configuration Lock Register                        */
-  __IM uint32_t  MSCNT;                         /**< New Register                                       */
-  __IOM uint32_t MSCMPVAL;                      /**< New Register                                       */
-  __IOM uint32_t MSCMPBUF;                      /**< New Register                                       */
-  __IOM uint32_t IF;                            /**< New Register                                       */
-  __IOM uint32_t IEN;                           /**< New Register                                       */
+  __IM uint32_t  MSCNT;                         /**< Millisecond Counter Register                       */
+  __IOM uint32_t MSCMPVAL;                      /**< Millisecond Compare Register                       */
+  __IOM uint32_t MSCMPBUF;                      /**< Millisecond Compare Buffer Register                */
+  __IOM uint32_t IF;                            /**< Interrupt Flag Register                            */
+  __IOM uint32_t IEN;                           /**< Interrupt Enable Register                          */
   uint32_t       RESERVED0[2U];                 /**< Reserved for future use                            */
   uint32_t       RESERVED1[1U];                 /**< Reserved for future use                            */
   uint32_t       RESERVED2[3U];                 /**< Reserved for future use                            */
@@ -82,11 +82,11 @@ typedef struct sysrtc_typedef{
   __IOM uint32_t CNT_SET;                       /**< Counter Value Register                             */
   __IM uint32_t  SYNCBUSY_SET;                  /**< Synchronization Busy Register                      */
   __IOM uint32_t LOCK_SET;                      /**< Configuration Lock Register                        */
-  __IM uint32_t  MSCNT_SET;                     /**< New Register                                       */
-  __IOM uint32_t MSCMPVAL_SET;                  /**< New Register                                       */
-  __IOM uint32_t MSCMPBUF_SET;                  /**< New Register                                       */
-  __IOM uint32_t IF_SET;                        /**< New Register                                       */
-  __IOM uint32_t IEN_SET;                       /**< New Register                                       */
+  __IM uint32_t  MSCNT_SET;                     /**< Millisecond Counter Register                       */
+  __IOM uint32_t MSCMPVAL_SET;                  /**< Millisecond Compare Register                       */
+  __IOM uint32_t MSCMPBUF_SET;                  /**< Millisecond Compare Buffer Register                */
+  __IOM uint32_t IF_SET;                        /**< Interrupt Flag Register                            */
+  __IOM uint32_t IEN_SET;                       /**< Interrupt Enable Register                          */
   uint32_t       RESERVED8[2U];                 /**< Reserved for future use                            */
   uint32_t       RESERVED9[1U];                 /**< Reserved for future use                            */
   uint32_t       RESERVED10[3U];                /**< Reserved for future use                            */
@@ -112,11 +112,11 @@ typedef struct sysrtc_typedef{
   __IOM uint32_t CNT_CLR;                       /**< Counter Value Register                             */
   __IM uint32_t  SYNCBUSY_CLR;                  /**< Synchronization Busy Register                      */
   __IOM uint32_t LOCK_CLR;                      /**< Configuration Lock Register                        */
-  __IM uint32_t  MSCNT_CLR;                     /**< New Register                                       */
-  __IOM uint32_t MSCMPVAL_CLR;                  /**< New Register                                       */
-  __IOM uint32_t MSCMPBUF_CLR;                  /**< New Register                                       */
-  __IOM uint32_t IF_CLR;                        /**< New Register                                       */
-  __IOM uint32_t IEN_CLR;                       /**< New Register                                       */
+  __IM uint32_t  MSCNT_CLR;                     /**< Millisecond Counter Register                       */
+  __IOM uint32_t MSCMPVAL_CLR;                  /**< Millisecond Compare Register                       */
+  __IOM uint32_t MSCMPBUF_CLR;                  /**< Millisecond Compare Buffer Register                */
+  __IOM uint32_t IF_CLR;                        /**< Interrupt Flag Register                            */
+  __IOM uint32_t IEN_CLR;                       /**< Interrupt Enable Register                          */
   uint32_t       RESERVED16[2U];                /**< Reserved for future use                            */
   uint32_t       RESERVED17[1U];                /**< Reserved for future use                            */
   uint32_t       RESERVED18[3U];                /**< Reserved for future use                            */
@@ -142,11 +142,11 @@ typedef struct sysrtc_typedef{
   __IOM uint32_t CNT_TGL;                       /**< Counter Value Register                             */
   __IM uint32_t  SYNCBUSY_TGL;                  /**< Synchronization Busy Register                      */
   __IOM uint32_t LOCK_TGL;                      /**< Configuration Lock Register                        */
-  __IM uint32_t  MSCNT_TGL;                     /**< New Register                                       */
-  __IOM uint32_t MSCMPVAL_TGL;                  /**< New Register                                       */
-  __IOM uint32_t MSCMPBUF_TGL;                  /**< New Register                                       */
-  __IOM uint32_t IF_TGL;                        /**< New Register                                       */
-  __IOM uint32_t IEN_TGL;                       /**< New Register                                       */
+  __IM uint32_t  MSCNT_TGL;                     /**< Millisecond Counter Register                       */
+  __IOM uint32_t MSCMPVAL_TGL;                  /**< Millisecond Compare Register                       */
+  __IOM uint32_t MSCMPBUF_TGL;                  /**< Millisecond Compare Buffer Register                */
+  __IOM uint32_t IF_TGL;                        /**< Interrupt Flag Register                            */
+  __IOM uint32_t IEN_TGL;                       /**< Interrupt Enable Register                          */
   uint32_t       RESERVED24[2U];                /**< Reserved for future use                            */
   uint32_t       RESERVED25[1U];                /**< Reserved for future use                            */
   uint32_t       RESERVED26[3U];                /**< Reserved for future use                            */

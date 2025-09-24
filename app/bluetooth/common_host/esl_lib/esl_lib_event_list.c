@@ -44,8 +44,24 @@
 // Private variables
 
 // Event list
-static sl_slist_node_t    *evt_list;
+static sl_slist_node_t    *evt_list = NULL;
+static sl_slist_node_t    *evt_gc_list = NULL;
 static uint32_t           evt_counter = 0;
+static uint32_t           gc_step_counter = 0;
+
+// -----------------------------------------------------------------------------
+// Local Function Definitions
+
+static sl_status_t esl_lib_event_gc_push(esl_lib_evt_t *evt)
+{
+  if (evt == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  sl_slist_push_back(&evt_gc_list, &evt->node);
+
+  return SL_STATUS_OK;
+}
 
 // -----------------------------------------------------------------------------
 // Public function definitions
@@ -64,8 +80,8 @@ sl_status_t esl_lib_event_list_remove_first(void)
   // Remove first item
   sl_slist_remove(&evt_list, &first->node);
 
-  // Free allocated event memory
-  esl_lib_memory_free(first);
+  // Free allocated event memory somewhat later
+  esl_lib_event_gc_push(first);
 
   return SL_STATUS_OK;
 }
@@ -216,4 +232,23 @@ sl_status_t esl_lib_event_push_error(esl_lib_status_t      lib_status,
     sc = esl_lib_event_list_push_back(evt);
   }
   return sc;
+}
+
+sl_status_t esl_lib_event_gc_step(uint32_t keep_depth)
+{
+  esl_lib_evt_t *oldest;
+
+  if ((uint32_t)(evt_counter - gc_step_counter) <= keep_depth || evt_gc_list == NULL) {
+    return SL_STATUS_IDLE;
+  }
+
+  gc_step_counter++;
+
+  oldest = (esl_lib_evt_t *) evt_gc_list;
+  if (oldest != NULL) {
+    sl_slist_remove(&evt_gc_list, &oldest->node);
+    esl_lib_memory_free(oldest);
+  }
+
+  return SL_STATUS_OK;
 }

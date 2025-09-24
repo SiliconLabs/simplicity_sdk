@@ -810,6 +810,11 @@ static sl_status_t subscribe_next(cs_ras_client_t *client)
 static bool handle_value(cs_ras_client_t *client,
                          sl_bt_evt_gatt_characteristic_value_t *data)
 {
+  // Mark events as handled
+  if (data->characteristic == client->handles->array[CS_RAS_CHARACTERISTIC_INDEX_ON_DEMAND_RANGING_DATA]
+      || data->characteristic == client->handles->array[CS_RAS_CHARACTERISTIC_INDEX_REAL_TIME_RANGING_DATA]) {
+    return true;
+  }
   // Check for characteristic
   if (data->characteristic != client->handles->array[CS_RAS_CHARACTERISTIC_INDEX_RANGING_DATA_READY]
       && data->characteristic != client->handles->array[CS_RAS_CHARACTERISTIC_INDEX_RANGING_DATA_OVERWRITTEN]) {

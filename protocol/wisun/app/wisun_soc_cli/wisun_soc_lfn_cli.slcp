@@ -38,12 +38,14 @@ source:
   - path: "app.c"
   - path: "app_cli.c"
   - path: "app_settings.c"
+  - path: "app_event_log.c"
 
 include:
   - path: "."
     file_list:
     - path: "app_cli.h"
     - path: "app_settings.h"
+    - path: "app_event_log.h"
 
 define:
   - name: "DEBUG_EFM_USER"
@@ -121,6 +123,8 @@ configuration:
   - name: SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_SELECTION
     value: "SL_RAIL_UTIL_SFM_SEQUENCER_SUN_MODULATIONS_OFDM"
     condition: [device_sdid_220]
+  - name: SL_SLEEPTIMER_WALLCLOCK_CONFIG
+    value: 1
 
 template_contribution:
   - name: "event_handler"

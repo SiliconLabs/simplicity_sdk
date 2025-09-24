@@ -329,7 +329,7 @@ void sl_wisun_connected_event_hnd(sl_wisun_evt_t *evt)
 
   // update internal time stat
   sl_sleeptimer_tick64_to_ms(sl_sleeptimer_get_tick_count64(), &time_ms);
-  _time_stat.tot_disconnected_ms += (time_ms  - _time_stat.connected_ms);
+  _time_stat.tot_disconnected_ms += (time_ms  - _time_stat.disconnected_ms);
   _time_stat.curr_ms = time_ms;
   _time_stat.connected_ms = time_ms;
   ++_time_stat.conn_cnt;
@@ -342,7 +342,7 @@ void sl_wisun_connected_event_hnd(sl_wisun_evt_t *evt)
   __CHECK_FOR_STATUS(evt->evt.error.status);
 }
 
-/* Socket disconnected event handler */
+/* Disconnected event handler */
 void sl_wisun_disconnected_event_hnd(sl_wisun_evt_t *evt)
 {
   uint64_t time_ms = 0;
@@ -351,7 +351,7 @@ void sl_wisun_disconnected_event_hnd(sl_wisun_evt_t *evt)
 
   // update internal time stat
   sl_sleeptimer_tick64_to_ms(sl_sleeptimer_get_tick_count64(), &time_ms);
-  _time_stat.tot_connected_ms += (time_ms  - _time_stat.disconnected_ms);
+  _time_stat.tot_connected_ms += (time_ms  - _time_stat.connected_ms);
   _time_stat.curr_ms = time_ms;
   _time_stat.disconnected_ms = time_ms;
 
@@ -360,7 +360,7 @@ void sl_wisun_disconnected_event_hnd(sl_wisun_evt_t *evt)
   _join_state = SL_WISUN_JOIN_STATE_DISCONNECTED;
 }
 
-/* Socket connection lost event handler */
+/* Connection lost event handler */
 void sl_wisun_connection_lost_event_hnd(sl_wisun_evt_t *evt)
 {
   sl_status_t stat;
@@ -387,6 +387,16 @@ void sl_wisun_error_event_hnd(sl_wisun_evt_t *evt)
 /* Join state event handler */
 void sl_wisun_join_state_event_hnd(sl_wisun_evt_t *evt)
 {
+  uint64_t time_ms = 0;
+
+  // update internal time stat
+  if (_join_state == SL_WISUN_JOIN_STATE_OPERATIONAL
+      && (sl_wisun_join_state_t)evt->evt.join_state.join_state != SL_WISUN_JOIN_STATE_OPERATIONAL) {
+    sl_sleeptimer_tick64_to_ms(sl_sleeptimer_get_tick_count64(), &time_ms);
+    _time_stat.tot_connected_ms += (time_ms  - _time_stat.connected_ms);
+    _time_stat.curr_ms = time_ms;
+    _time_stat.disconnected_ms = time_ms;
+  }
   _join_state = (sl_wisun_join_state_t)evt->evt.join_state.join_state;
 #if HEARTBEAT_ENABLED
   (void) evt;
@@ -436,18 +446,19 @@ void sl_wisun_br_stopped_hnd(sl_wisun_evt_t *evt)
   __CHECK_FOR_STATUS(evt->evt.error.status);
 }
 
-/* Wisun app core init */
+/* Wi-SUN app core init */
 void sl_wisun_app_core_init(void)
 {
   // init wisun network mutex
   _app_core_mtx = osMutexNew(&_app_wisun_mtx_attr);
   assert(_app_core_mtx != NULL);
 
+  // init wisun event flags
   _app_core_state = osEventFlagsNew(&_app_wisun_evt_attr);
   assert(_app_core_state != NULL);
 }
 
-/* App core get error */
+/* App core get state */
 sl_status_t sl_wisun_app_core_get_state(uint32_t * const state)
 {
   *state = osEventFlagsGet(_app_core_state);
@@ -458,6 +469,7 @@ sl_status_t sl_wisun_app_core_get_state(uint32_t * const state)
   return SL_STATUS_OK;
 }
 
+/* App core wait state */
 sl_status_t sl_wisun_app_core_wait_state(const uint32_t state, const uint32_t timeout)
 {
   uint32_t ret = 0UL;
@@ -465,14 +477,14 @@ sl_status_t sl_wisun_app_core_wait_state(const uint32_t state, const uint32_t ti
   return (ret & APP_WISUN_EVTFLAG_ERROR_MSK) ? SL_STATUS_FAIL : SL_STATUS_OK;
 }
 
-/* Connecting to the wisun network */
+/* Connecting to the Wi-SUN network */
 void sl_wisun_app_core_network_connect(void)
 {
   sl_status_t ret = SL_STATUS_FAIL;
   sl_wisun_join_state_t join_state = SL_WISUN_JOIN_STATE_DISCONNECTED;
   uint64_t time_ms = 0ULL;
 
-  _app_wisun_mutex_acquire(); // get mutex
+  _app_wisun_mutex_acquire();
 
 #if defined(SL_CATALOG_WISUN_APP_SETTING_PRESENT)
   // Init app PHY config

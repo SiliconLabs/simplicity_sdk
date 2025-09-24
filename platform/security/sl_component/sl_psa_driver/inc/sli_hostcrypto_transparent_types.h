@@ -42,7 +42,7 @@
 
 // -----------------------------------------------------------------------------
 // Type Definitions
-#define PSA_KEY_LOCATION_SLI_HOSTCRYPTO_TRANSPARENT  ((psa_key_location_t)0x000003UL)
+#define PSA_KEY_LOCATION_SLI_HOSTCRYPTO_TRANSPARENT  (PSA_KEY_LOCATION_VENDOR_FLAG | (psa_key_location_t) 0x3UL)
 
 typedef enum {
   SLI_HOSTCRYPTO_ENCRYPT = 0,
@@ -90,7 +90,7 @@ typedef union {
     size_t  current_block_len;              ///< current number of bytes in current block
     struct sxmac cmac_ctx;                  ///< CMAC state context
   } cmac;
-  #if defined(PSA_WANT_ALG_HMAC)
+  #if defined(SLI_PSA_DRIVER_FEATURE_HMAC)
   struct {
     psa_algorithm_t alg;                    ///< HMAC type
     sli_hostcrypto_transparent_hash_operation_t hash_ctx;  ///< Hash context for multipart HMAC

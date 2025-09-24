@@ -339,7 +339,7 @@ typedef struct {
 typedef struct {
   uint16_t mode;
   uint8_t eui64[8];
-  uint8_t key[16];  // ignored if (mode & TRUST_CENTER_KEY_LIVES_IN_PSA)
+  uint8_t key[16];  // ignored if using Secure Key Storage
 } tokTypeStackTrustCenter;
 typedef struct {
   uint32_t activeChannels;

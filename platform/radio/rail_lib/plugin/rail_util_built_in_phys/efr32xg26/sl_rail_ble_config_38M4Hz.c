@@ -2,12 +2,12 @@
  * @brief RAIL Configuration
  * @details
  *   WARNING: Auto-Generated Radio Config  -  DO NOT EDIT
- *   Radio Configurator Version: 2404.4.4
+ *   Radio Configurator Version: 2504.1.1
  *   RAIL Adapter Version: 2.4.33
  *   RAIL Compatibility: 2.x
  *******************************************************************************
  * # License
- * <b>Copyright 2019 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -67,11 +67,11 @@ static const uint8_t hfxoRetimingConfigEntries[] = {
 };
 
 #ifdef RADIO_CONFIG_ENABLE_STACK_INFO
-static const uint8_t stackInfo_0[2] = { 0x03, 0x05 };
+static const uint8_t stackInfo_0[2] = { 0x03, 0x0a };
 static const uint8_t stackInfo_1[2] = { 0x03, 0x00 };
-static const uint8_t stackInfo_2[2] = { 0x03, 0x04 };
-static const uint8_t stackInfo_3[2] = { 0x03, 0x03 };
-static const uint8_t stackInfo_4[2] = { 0x03, 0x07 };
+static const uint8_t stackInfo_2[2] = { 0x03, 0x03 };
+static const uint8_t stackInfo_3[2] = { 0x03, 0x04 };
+static const uint8_t stackInfo_4[2] = { 0x03, 0x05 };
 #endif // RADIO_CONFIG_ENABLE_STACK_INFO
 
 static RAIL_ChannelConfigEntryAttr_t channelConfigEntryAttr_0 = {
@@ -113,7 +113,7 @@ static RAIL_ChannelConfigEntryAttr_t channelConfigEntryAttr_1 = {
 };
 
 static const uint32_t phyInfo_0[] = {
-  18UL,
+  20UL,
   0x00924924UL, // 146.28571428571428
   (uint32_t) NULL,
   (uint32_t) irCalConfig_0,
@@ -133,10 +133,11 @@ static const uint32_t phyInfo_0[] = {
   (uint32_t) NULL,
   (uint32_t) NULL,
   (uint32_t) NULL,
+  (uint32_t) 0UL,
 };
 
 static const uint32_t phyInfo_1[] = {
-  18UL,
+  20UL,
   0x00444444UL, // 68.26666666666667
   (uint32_t) NULL,
   (uint32_t) irCalConfig_0,
@@ -156,10 +157,11 @@ static const uint32_t phyInfo_1[] = {
   (uint32_t) NULL,
   (uint32_t) NULL,
   (uint32_t) NULL,
+  (uint32_t) 0UL,
 };
 
 static const uint32_t phyInfo_2[] = {
-  18UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -179,10 +181,11 @@ static const uint32_t phyInfo_2[] = {
   (uint32_t) NULL,
   (uint32_t) NULL,
   (uint32_t) NULL,
+  (uint32_t) 0UL,
 };
 
 static const uint32_t phyInfo_3[] = {
-  18UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -202,10 +205,11 @@ static const uint32_t phyInfo_3[] = {
   (uint32_t) NULL,
   (uint32_t) NULL,
   (uint32_t) NULL,
+  (uint32_t) 0UL,
 };
 
 static const uint32_t phyInfo_4[] = {
-  18UL,
+  20UL,
   0x0071C71CUL, // 113.77777777777779
   (uint32_t) NULL,
   (uint32_t) irCalConfig_1,
@@ -225,6 +229,7 @@ static const uint32_t phyInfo_4[] = {
   (uint32_t) NULL,
   (uint32_t) NULL,
   (uint32_t) NULL,
+  (uint32_t) 0UL,
 };
 
 const uint32_t sl_rail_ble_phy_1Mbps_viterbi_38M4Hz_modemConfigBase[] = {
@@ -836,7 +841,7 @@ const uint32_t sl_rail_ble_phy_500kbps_38M4Hz_0_37_modemConfig[] = {
 const uint32_t sl_rail_ble_phy_simulscan_38M4Hz_0_37_modemConfig[] = {
   0x03014FFCUL, (uint32_t) &phyInfo_4,
   0x00014010UL, 0x00004100UL,
-  0x0001403CUL, 0x00000010UL,
+  0x0001403CUL, 0x00000000UL,
   0x00014048UL, 0x03000720UL,
   0x00014050UL, 0x00000000UL,
   0x0001405CUL, 0x00000F0DUL,

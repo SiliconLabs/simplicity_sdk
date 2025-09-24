@@ -3,7 +3,15 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.24.2 {#section-7-24-2}
+
 # 7.24.1 {#section-7-24-1}
+
+## User Credential Command Class
+
+The return type of function `CC_UserCredential_delete_all_credentials_of_type`
+has been changed from `void` to `bool` to indicate whether any credentials were deleted.  
+If you override this function, update your implementation to return a boolean value.
 
 # 7.24.0 {#section-7-24-0}
 

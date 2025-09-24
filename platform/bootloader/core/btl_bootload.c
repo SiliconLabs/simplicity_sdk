@@ -907,6 +907,7 @@ SL_WEAK bool bootload_commitBootloaderUpgrade(uint32_t upgradeAddress, uint32_t 
     BTL_DEBUG_PRINT("SE response: ");
     BTL_DEBUG_PRINT_WORD_HEX(response);
     BTL_DEBUG_PRINT_LF();
+    (void)response; // Suppress unused variable warning
   }
 
   sli_se_mailbox_execute_command(&applyImage);

@@ -382,7 +382,7 @@ sl_status_t sl_se_deinit_command_context(sl_se_command_context_t *cmd_ctx);
 /// | 4     | Reset     | The device is reset.    |
 /// | 7     | Erase OTP | Erases the OTP configuration of the device.    |
 ///
-/// These responses are cumulative, meaning that if a filter response is triggered, an interrupt will also be triggered. For a full overview of the tamper signals, see @ref sl_se_manager_defines.h.
+/// These responses are cumulative, meaning that if a filter response is triggered, an interrupt will also be triggered. For a full overview of the tamper signals, see @file sl_se_manager_defines.h.
 ///
 /// The tamper configuration is one-time-programmable, and is done using the initialise OTP command to the SE (see @ref sl_se_init_otp).
 /// This means that tamper settings must be written together with secure boot settings, and are immutable after they are written.

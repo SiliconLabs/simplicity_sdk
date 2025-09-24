@@ -72,6 +72,13 @@ template_contribution:
   - name: component_catalog
     value: zigbee_security_manager_dlk_ecc
 
+# TODO remove this define once PSEC-6609 is resolved
+define:
+  - name: NO_CRYPTO_ACCELERATION
+    value: 1
+    condition:
+      - device_series_3
+
 documentation:
   docset: zigbee
   document: zigbee-af-api/zigbee-security-manager-ecc

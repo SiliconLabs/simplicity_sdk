@@ -25,6 +25,17 @@
 #include "app/util/ezsp/ezsp-frame-utilities.h"
 #include "stack/config/sl_zigbee_configuration_defaults.h"
 
+#if defined(SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT) && defined(SL_CATALOG_KERNEL_PRESENT) && !defined(SL_CATALOG_CPC_PRESENT)
+#if defined(SL_CATALOG_IOSTREAM_EUSART_PRESENT)
+#define IOSTREAM_INSTANCE_HEADER "sl_iostream_init_eusart_instances.h"
+#elif defined(SL_CATALOG_IOSTREAM_USART_PRESENT)
+#define IOSTREAM_INSTANCE_HEADER "sl_iostream_init_usart_instances.h"
+#endif
+
+#include IOSTREAM_INSTANCE_HEADER
+#include "sli_iostream_uart.h"
+#endif // SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT && SL_CATALOG_KERNEL_PRESENT && !SL_CATALOG_CPC_PRESENT
+
 #define DEFAULT_TC_POLICY (SL_ZIGBEE_EZSP_DECISION_ALLOW_JOINS | SL_ZIGBEE_EZSP_DECISION_ALLOW_UNSECURED_REJOINS)
 extern uint8_t sli_zigbee_num_multi_pan_forks;
 extern uint16_t trustCenterPolicies[];
@@ -32,8 +43,18 @@ extern uint16_t trustCenterPolicies[];
 //------------------------------------------------------------------------------
 // Common APIs
 
+#if defined(SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT) && defined(SL_CATALOG_KERNEL_PRESENT) && !defined(SL_CATALOG_CPC_PRESENT)
+static void uart_on_new_rx_data(void *data)
+{
+  sli_zigbee_stack_rtos_stack_wakeup_isr_handler();
+}
+#endif // SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT && SL_CATALOG_KERNEL_PRESENT && !SL_CATALOG_CPC_PRESENT
+
 void sli_zigbee_xncp_init(void)
 {
+#if defined(SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT) && defined(SL_CATALOG_KERNEL_PRESENT) && !defined(SL_CATALOG_CPC_PRESENT)
+  sli_iostream_uart_subscribe_to_new_data(sl_iostream_uart_vcom_handle, uart_on_new_rx_data, NULL);
+#endif // SL_CATALOG_IOSTREAM_UART_COMMON_PRESENT && SL_CATALOG_KERNEL_PRESENT && !SL_CATALOG_CPC_PRESENT
 #ifdef SL_ZIGBEE_MULTI_NETWORK_STRIPPED
   trustCenterPolicies[0] = DEFAULT_TC_POLICY;
 #else // SL_ZIGBEE_MULTI_NETWORK_STRIPPED

@@ -150,7 +150,7 @@ WEAK(void sl_zigbee_ezsp_mac_passthrough_message_handler(uint8_t messageType,
 }
 #endif
 
-WEAK(void sl_zigbee_ezsp_mac_filter_match_message_handler(uint8_t filterIndexMatch,
+WEAK(void sl_zigbee_ezsp_mac_filter_match_message_handler(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                           uint8_t legacyPassthroughType,
                                                           uint8_t lastHopLqi,
                                                           int8_t lastHopRssi,

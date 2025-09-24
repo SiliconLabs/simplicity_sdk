@@ -1,4 +1,4 @@
-/***************************************************************************//**
+/*******************************************************************************
  * @file
  * @brief Timer Posix specific code
  *******************************************************************************
@@ -51,7 +51,7 @@ static struct sigaction sig_act;
 // -----------------------------------------------------------------------------
 // Private function declarations
 
-/***************************************************************************//**
+/*******************************************************************************
  * Delete timer
  *
  * @param[in] timer_id Pointer to the ID of the timer
@@ -62,7 +62,7 @@ static struct sigaction sig_act;
  ******************************************************************************/
 static sl_status_t delete_timer(timer_t *timer_id);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Find timer
  *
  * @param[in] timer_id Pointer to the ID of the timer
@@ -74,16 +74,7 @@ static sl_status_t delete_timer(timer_t *timer_id);
  ******************************************************************************/
 static app_timer_t* find_timer(timer_t *timer_id);
 
-/***************************************************************************//**
- * Check if timer is in the list
- *
- * @param[in] timer app_timer reference
- *
- * @returns true if the timer is in the list, flase if not
- ******************************************************************************/
-static bool contains_app_timer(app_timer_t *timer);
-
-/***************************************************************************//**
+/*******************************************************************************
  * Common timer callback
  *
  * @param[in] sig Required by function prototype, unused parameter
@@ -94,7 +85,7 @@ static bool contains_app_timer(app_timer_t *timer);
  ******************************************************************************/
 static void handler(int sig, siginfo_t *si, void *uc);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Append a timer to the end of the linked list.
  *
  * @param[in] timer Pointer to the timer handle.
@@ -103,7 +94,7 @@ static void handler(int sig, siginfo_t *si, void *uc);
  ******************************************************************************/
 static void append_app_timer(app_timer_t *timer);
 
-/***************************************************************************//**
+/*******************************************************************************
  * Remove a timer from the linked list.
  *
  * @param[in] timer Pointer to the timer handle.
@@ -117,7 +108,7 @@ static bool remove_app_timer(app_timer_t *timer);
 // -----------------------------------------------------------------------------
 // Public function definitions
 
-/***************************************************************************//**
+/*******************************************************************************
  * Timer init
  ******************************************************************************/
 void app_timer_init(void)
@@ -146,7 +137,7 @@ void app_timer_init(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Step
  ******************************************************************************/
 void sli_app_timer_step(void)
@@ -176,7 +167,7 @@ void sli_app_timer_step(void)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Start timer
  ******************************************************************************/
 sl_status_t app_timer_start(app_timer_t *timer,
@@ -194,14 +185,10 @@ sl_status_t app_timer_start(app_timer_t *timer,
     return SL_STATUS_NULL_POINTER;
   }
 
-  if (contains_app_timer(timer)) {
-    return SL_STATUS_ALREADY_EXISTS;
-  }
+  (void)app_timer_stop(timer);
 
   // Check if timer was already used
-  while ((timer != tmp_timer_ptr) && (NULL != tmp_timer_ptr)) {
-    tmp_timer_ptr = tmp_timer_ptr->next;
-  }
+  tmp_timer_ptr = find_timer(&(timer->app_timer_handle.timer_id));
   if (timer != tmp_timer_ptr) {
     timer->app_timer_handle.triggered                           = false;
     timer->callback                                             = callback;
@@ -253,7 +240,7 @@ sl_status_t app_timer_start(app_timer_t *timer,
   return 0;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Stop timer
  ******************************************************************************/
 sl_status_t app_timer_stop(app_timer_t *timer)
@@ -265,8 +252,7 @@ sl_status_t app_timer_stop(app_timer_t *timer)
 
   if (NULL == timer) {
     return SL_STATUS_NULL_POINTER;
-  }
-  if (contains_app_timer(timer)) {
+  } else {
     tmp_timer_ptr = find_timer(&(timer->app_timer_handle.timer_id));
     if (NULL != tmp_timer_ptr) {
       status = timer_settime(timer->app_timer_handle.timer_id, 0, &ts, NULL);
@@ -290,7 +276,7 @@ sl_status_t app_timer_stop(app_timer_t *timer)
 // -----------------------------------------------------------------------------
 //Private function definitions
 
-/***************************************************************************//**
+/*******************************************************************************
  * Delete timer
  ******************************************************************************/
 static sl_status_t delete_timer(timer_t *timer_id)
@@ -330,7 +316,7 @@ static sl_status_t delete_timer(timer_t *timer_id)
   return SL_STATUS_OK;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Find timer
  ******************************************************************************/
 static app_timer_t *find_timer(timer_t *timer_id)
@@ -345,23 +331,7 @@ static app_timer_t *find_timer(timer_t *timer_id)
   return local_timer;
 }
 
-/***************************************************************************//**
- * Check if app timer is in the list
- ******************************************************************************/
-static bool contains_app_timer(app_timer_t *timer)
-{
-  app_timer_t *local_timer = app_timer_head;
-
-  while (NULL != local_timer) {
-    if (timer == local_timer) {
-      return true;
-    }
-    local_timer = local_timer->next;
-  }
-  return false;
-}
-
-/***************************************************************************//**
+/*******************************************************************************
  * Common handler
  ******************************************************************************/
 static void handler(int sig, siginfo_t *si, void *uc)
@@ -389,7 +359,7 @@ static void handler(int sig, siginfo_t *si, void *uc)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Append timer
  ******************************************************************************/
 static void append_app_timer(app_timer_t *timer)
@@ -414,7 +384,7 @@ static void append_app_timer(app_timer_t *timer)
   timer->next = NULL;
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Remove timer
  ******************************************************************************/
 static bool remove_app_timer(app_timer_t *timer)

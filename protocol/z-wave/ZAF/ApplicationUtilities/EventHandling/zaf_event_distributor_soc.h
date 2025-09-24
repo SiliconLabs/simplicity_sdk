@@ -77,13 +77,6 @@ void zaf_event_distributor_app_zw_command_status(SZwaveCommandStatusPackage *Sta
 extern void zaf_event_distributor_app_event_manager(const uint8_t event);
 
 /**
- * @brief Used by application to verify if it is a primary controller
- *
- * @return uint8_t 1 if it is primary controller else 0
- */
-uint8_t zaf_event_distributor_is_primary_controller(void);
-
-/**
  * @brief Enqueues an event in the application queue
  * @param event The event to enqueue.
  * @return Returns true if the event was enqueued and false otherwise.

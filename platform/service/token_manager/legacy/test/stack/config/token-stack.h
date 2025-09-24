@@ -132,6 +132,7 @@
 
 #define CREATOR_USER_TEST_TOK_01      0x0002
 #define CREATOR_USER_TEST_TOK_02      0x0010
+#define CREATOR_USER_TEST_TOK_03      0x0000
 #define CREATOR_USER_TEST_TOK_COUNTER 0x0020
 #define CREATOR_USER_TEST_TOK_MAX_KEY 0xfffc
 
@@ -176,6 +177,7 @@
 #define NVM3KEY_USER_TEST_TOK_COUNTER (NVM3KEY_DOMAIN_USER | 0x0020)
 #define NVM3KEY_USER_TEST_TOK_MAX_KEY (NVM3KEY_DOMAIN_USER | 0xfffc)
 
+#define NVM3KEY_USER_TEST_TOK_03      (NVM3KEY_DOMAIN_USER | 0x0000)
 /** @} END NVM3 Object Keys  */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -236,6 +238,7 @@ typedef sl_802154_long_addr_t tokTypeParentLongId;
 
 typedef uint32_t tokTypeTestTok01;
 typedef uint32_t tokTypeTestTok02;
+typedef uint32_t tokTypeTestTok03;
 typedef uint32_t tokTypeTestCounter;
 typedef uint32_t tokTypeTestTokMaxKey;
 
@@ -283,6 +286,9 @@ DEFINE_INDEXED_TOKEN(USER_TEST_TOK_02,
                      tokTypeTestTok02,
                      5,
                      { 0x00000000, })
+DEFINE_BASIC_TOKEN(USER_TEST_TOK_03,
+                   tokTypeTestTok03,
+                   0x0000)
 DEFINE_COUNTER_TOKEN(USER_TEST_TOK_COUNTER,
                      tokTypeTestCounter,
                      0)

@@ -267,7 +267,6 @@ SECTIONS
 
     __Vectors_End = .;
     __Vectors_Size = __Vectors_End - __Vectors;
-    __lma_ramfuncs_start__ = .;
   } > FLASH
 
 {%- if not bootloader_enable %}
@@ -373,12 +372,13 @@ SECTIONS
     . = ALIGN({{ram_code_alignment}});
     __vma_ramfuncs_end__ = .;
   } > RAM_ALIAS AT > FLASH
+
+  __lma_ramfuncs_start__ = LOADADDR(text_ram);
+  __lma_ramfuncs_end__ = LOADADDR(text_ram) + SIZEOF(text_ram);
 {%- endif %}
 
   .rodata (READONLY):
   {
-    __lma_ramfuncs_end__ = .;
-    __rodata_start__ = .;
     {%- for section in rodata_sections %}
         __start_{{section}} = .;
         KEEP(*({{section}}))
@@ -477,14 +477,18 @@ SECTIONS
   } > BOOTLOADER_RESET_REGION
 {%- endif %}
 
-  .stack (NOLOAD):
-  {
 {%- if not bootloader_enable %}
+  text_ram_vma (NOLOAD):
+  {
     /* Offset the location counter to account for RAM code that was placed in
        the aliased RAM region.
      */
     . += (__vma_ramfuncs_end__ - __vma_ramfuncs_start__);
+  } > RAM
 {%- endif %}
+
+  .stack (NOLOAD):
+  {
     . = ALIGN(8);
     __StackLimit = .;
     KEEP(*(.stack*))

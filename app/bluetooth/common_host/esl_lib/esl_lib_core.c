@@ -953,6 +953,9 @@ static void esl_lib_core_internal_reset(void)
   while ((last_evt = esl_lib_event_list_get_first()) != NULL) {
     esl_lib_event_list_remove_first();
   }
+  while (esl_lib_event_gc_step(0) != SL_STATUS_IDLE) {
+    // Keep calling until all events are freed
+  }
   esl_lib_log_core_debug("Event list cleanup complete" APP_LOG_NL);
 }
 

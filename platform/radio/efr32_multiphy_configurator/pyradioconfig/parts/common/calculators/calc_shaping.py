@@ -278,7 +278,6 @@ class CALC_Shaping(ICalculator):
             c = self.root_raised_cosine_filter(model)
             shaping = 1
 
-        # filter derived from Imagotag legacy PHY transmit capture
         elif shaping_filter_option.value == model.vars.shaping_filter.var_enum.Custom_PSK.value:
             c[0] = 51
             c[1] = 117

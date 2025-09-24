@@ -419,7 +419,7 @@ static void on_boot_timer_expire(app_timer_t *timer, void *data)
 #if defined(SECURITY) && SECURITY == 1
 static void ncp_sec_host_command_handler(buf_ncp_host_t *buf)
 {
-  uint8_t response[DEFAULT_HOST_BUFLEN];
+  uint8_t response[DEFAULT_HOST_BUFLEN] = { 0 };
   sl_bt_msg_t *command = NULL;
   sl_bt_msg_t *resp_cmd = NULL;
   int32_t ret;

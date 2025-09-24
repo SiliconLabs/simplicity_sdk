@@ -5,11 +5,11 @@ class PhyFilters(IPhyFilter):
 
     customer_phy_groups = [
                             'Phys_Internal_Base_Standard_IEEE802154',
-                            'Phys_imagotag',
+                            'Phys_secret1',
                             'Phys_sim_tests',
                             'Phys_Internal',
-                            'Phys_Internal_Base_Customer_Garmin',
-                            'Phys_Internal_Base_Customer_Quuppa',
+                            'Phys_secret2',
+                            'Phys_secret3',
                             'Phys_Utility',
                         ]
 

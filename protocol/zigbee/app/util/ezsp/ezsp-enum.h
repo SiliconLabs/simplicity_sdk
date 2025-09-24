@@ -159,7 +159,11 @@ enum {
   // sli_zigbee_allow_tc_rejoins_using_well_known_key_timeout_sec value.
   SL_ZIGBEE_EZSP_CONFIG_TC_REJOINS_USING_WELL_KNOWN_KEY_TIMEOUT_S = 0x38,
   // Valid range of a CTUNE value is 0x0000-0x01FF. Higher order bits (0xFE00)
-  // of the 16-bit value are ignored.
+  // of the 16-bit value are ignored. Note setting this parameter using ezsp API
+  // for setting configuration value invokes internal manufacturer library
+  // function call, mfglibInternalSetCtune, unlike a zigbee stack call, and
+  // hence the return value of the ezsp set API should be interpreted of type
+  // sl_status_t type.
   SL_ZIGBEE_EZSP_CONFIG_CTUNE_VALUE             = 0x39,
   // To configure non trust center node to assume a concentrator type of the
   // trust center it join to, until it receive many-to-one route request from

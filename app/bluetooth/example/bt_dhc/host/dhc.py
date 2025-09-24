@@ -26,7 +26,6 @@ Dynamic Hardware Configuration host application
 # 3. This notice may not be removed or altered from any source distribution.
 
 import argparse
-import bgapi
 import time
 import datetime
 import math
@@ -35,12 +34,17 @@ import os
 import socket
 import subprocess
 from dhc_classes import *
+import importlib
 
 # Configuration
 PATH_CONFIG = os.path.abspath(os.path.join((__file__), '../configuration_sample.json'))
 PATH_XAPI   = os.path.abspath(os.path.join((__file__), '../../../../../../protocol/bluetooth/api/sl_bt.xapi'))
 JSON_GROUP  = "silabs_dhc"
 MSG_LEN_MAX = 16
+
+def load_package(name):
+    module = importlib.import_module(name)
+    globals()[name] = module
 
 def main(port,
          protocol,
@@ -55,6 +59,7 @@ def main(port,
         print(f"Configuration data file: {config_file}")
 
     if protocol == "NCP":
+        load_package("bgapi")
         print(f"XAPI file: {xapi}")
         dhc_transport = DHCTransportNcp(port, xapi)
     elif protocol == "RCP":

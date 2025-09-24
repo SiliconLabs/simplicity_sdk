@@ -7,7 +7,7 @@ description: >
   printed on the display of the main board if available and can be read via
   the serial port VCOM. It can measure in two CS measurement main modes PBR (default)
   and RTT. RTT mode can be selected by setting the `CS_INITIATOR_DEFAULT_CS_MODE`
-  macro to `sl_bt_cs_mode_rtt`. Submode can also be used by setting the 
+  macro to `sl_bt_cs_mode_rtt`. Submode can also be used by setting the
   `CS_INITIATOR_DEFAULT_CS_SUB_MODE` to RTT. Submode is disabled by default.
   The initiator can measure in two object tracking modes: in moving object
   tracking mode (default) or in stationary object tracking mode. In moving object
@@ -103,12 +103,16 @@ configuration:
     value: 40000000
     unless:
       - hardware_board
+  - name: SL_CLOCK_MANAGER_PCLK_DIVIDER
+    value: CMU_SYSCLKCTRL_PCLKPRESC_DIV2
   - name: SL_STACK_SIZE
     value: 3496
   - name: SL_BT_CONFIG_BUFFER_SIZE
     value: 22000
   - name: SL_BT_CONFIG_MAX_CS_PROCEDURES
     value: 4
+  - name: SL_BT_CONTROLLER_CONN_EVENT_LENGTH_EXTENSION
+    value: 1
   - name: SL_PSA_KEY_USER_SLOT_COUNT
     value: 0
     condition:

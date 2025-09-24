@@ -94,6 +94,37 @@ sl_status_t DLL_EXPORT esl_key_lib_init_database(const char* db_id, db_handle_p 
 sl_status_t DLL_EXPORT esl_key_lib_deinit_database(db_handle_p hnd);
 
 /**************************************************************************//**
+ * Create a threadsafe copy of an existing (initialized) database handle.
+ *
+ * This function creates a new database handle that can be used in a
+ * multi-threaded environment. The new handle is independent but shares
+ * the same underlying database as the original handle.
+ *
+ * @param[in] hnd_src Existing database handle to copy from.
+ * @param[out] hnd_out Pointer to the new threadsafe database handle.
+ *
+ * @retval SL_STATUS_OK The threadsafe handle was successfully created.
+ * @retval SL_STATUS_NULL_POINTER One or more parameters are NULL.
+ * @retval SL_STATUS_ALLOCATION_FAILED Memory allocation for the new handle
+ *         has failed.
+ *****************************************************************************/
+sl_status_t DLL_EXPORT esl_key_lib_split_threadsafe_handle(db_handle_p hnd_src,
+                                                           db_handle_p *hnd_out);
+
+/**************************************************************************//**
+ * Free a threadsafe database handle.
+ *
+ * This function releases the memory allocated for a threadsafe database
+ * handle created by @ref esl_key_lib_split_threadsafe_handle.
+ *
+ * @param[in] hnd Threadsafe database handle to free.
+ *
+ * @retval SL_STATUS_OK The handle was successfully freed.
+ * @retval SL_STATUS_NULL_POINTER Input parameter is NULL.
+ *****************************************************************************/
+sl_status_t DLL_EXPORT esl_key_lib_free_threadsafe_handle(db_handle_p hnd);
+
+/**************************************************************************//**
  * Allocate space for a record.
  *
  * @param[in] type Record type.

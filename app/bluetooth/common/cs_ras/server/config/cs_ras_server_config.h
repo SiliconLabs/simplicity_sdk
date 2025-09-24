@@ -123,18 +123,48 @@
 
 // <o CS_PROCEDURE_MAX_LEN> Procedure maximum length [bytes]
 // <i> Maximum length of a procedure stored by the ranging database
-// <i> Default: 10000
+// <i> The optimal value of " Procedure maximum length" is dependent on several
+// <i> configuration values, and can be calculated by the following equation:
+// <i> procedure_max_length = 4 + (subevents * 8) + (mode0_steps * mode0_size) +
+// <i> channels * ( ( 1 + ( antenna_paths + 1 ) * 4) + 1 )
+// <i> where
+// <i> - subevents value is constant 1 since one subevent per procedure is supported,
+// <i> - mode0_size is
+// <i>   - 4 for Reflector and
+// <i>   - 6 for Initiator,
+// <i> - mode0_steps value is the configuration "Mode 0 steps",
+// <i> - channels value means the number of channels from the channel mask that can be
+// <i> derived from the "Channel map preset" settings:
+// <i>   - "High"   - 72 (default),
+// <i>   - "Medium" - 37,
+// <i>   - "Low"    - 20,
+// <i>   - "Custom" - Number of 1s in channel mask,
+// <i> - antenna_paths value is controlled by the "Antenna configuration", and limited by
+// <i> number of antennas presented on each board (capabilities). Maximum can be calculated using
+// <i> the product of used Initiator and Reflector antennae. The default maximum value for antenna_paths is 4.
+// <i> These settings were selected by assuming that the controller creates only one
+// <i> subevent per procedure, and the measuring mode is PBR. In RTT mode there are far less data is created.
+// <i> The default is calculated by using the constants and settings above using the worst case scenario,
+// <i> which gives 1614 bytes.
+// <i> Addition to that, if you use RTT as submode, you should add the following equation to calculate the
+// <i> size.
+// <i> (1 + mode1_size) * channels / main_mode_steps
+// <i> where
+// <i> mode1_size is 6, and main_mode_steps is 2. The later can be changed in cs_initiator_client.h.
+// <i> RAM consumption can be reduced by changing the affected settings and reducing
+// <i> "Procedure maximum length" accordingly.
+// <i> Default: 1866
 #ifndef CS_PROCEDURE_MAX_LEN
-#define CS_PROCEDURE_MAX_LEN                                                        10000
+#define CS_PROCEDURE_MAX_LEN                                                        1866
 #endif
 // </h>
 
 // <h> Procedure per connection
 
 // <o CS_RAS_PROCEDURE_PER_CONNECTION> Maximum concurrent procedures per connections <1..255>
-// <i> Default: 6
+// <i> Default: 2
 #ifndef CS_RAS_PROCEDURE_PER_CONNECTION
-#define CS_RAS_PROCEDURE_PER_CONNECTION 6u
+#define CS_RAS_PROCEDURE_PER_CONNECTION                                             2u
 #endif
 // </h>
 

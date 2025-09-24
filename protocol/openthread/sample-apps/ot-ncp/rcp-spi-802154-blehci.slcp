@@ -109,6 +109,7 @@ template_contribution:
 
 tag:
   - prebuilt_demo
+  - hardware:component:exp_header:spi
 
 readme:
   - path: ./README-MP-DMP-RCP.md

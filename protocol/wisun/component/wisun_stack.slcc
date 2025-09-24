@@ -65,6 +65,10 @@ include:
   - path: "inc/arpa/"
     file_list:
     - path: "inet.h"
+  - path: "src/"
+    file_list:
+    - path: "common/endian.h"
+    - path: "common/int24.h"
 
 documentation:
   docset: wisun

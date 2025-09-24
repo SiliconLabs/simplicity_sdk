@@ -59,12 +59,18 @@
 
 #include "em_device.h"
 
-#if defined(SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 #include "sli_se_transparent_functions.h"
 #define AEAD_IMPLEMENTATION_PRESENT
 #define SLI_DEVICE_HAS_AES_192
 #define AEAD_ENCRYPT_TAG_FCT    sli_se_driver_aead_encrypt_tag
 #define AEAD_DECRYPT_TAG_FCT    sli_se_driver_aead_decrypt_tag
+#elif defined(SYMCRYPTO_PRESENT)
+#include "sli_hostcrypto_transparent_functions.h"
+#define AEAD_IMPLEMENTATION_PRESENT
+#define SLI_DEVICE_HAS_AES_192
+#define AEAD_ENCRYPT_TAG_FCT    sli_hostcrypto_transparent_aead_encrypt_tag
+#define AEAD_DECRYPT_TAG_FCT    sli_hostcrypto_transparent_aead_decrypt_tag
 #elif defined(CRYPTOACC_PRESENT)
 #include "sli_cryptoacc_transparent_functions.h"
 #define AEAD_IMPLEMENTATION_PRESENT

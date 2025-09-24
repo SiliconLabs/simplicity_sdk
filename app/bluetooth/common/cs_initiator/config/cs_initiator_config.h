@@ -82,9 +82,46 @@
 #endif
 
 // <o CS_INITIATOR_MAX_RANGING_DATA_SIZE> Maximum ranging data size <32..2500>
-// <i> Default: 2500
+// <i> The optimal value of "Maximum ranging data size" is dependent on several configuration values,
+// <i> and can be calculated by the following equation:
+// <i> ranging_max_size = 4 + (subevents * 8) + (mode0_steps * mode0_size) +
+// <i> channels * ( ( 1 + ( antenna_paths + 1 ) * 4) + 1 )
+// <i> where
+// <i> - subevents value is constant 1 since one subevent per procedure is supported,
+// <i> - mode0_size is
+// <i>   - 4 for Reflector and
+// <i>   - 6 for Initiator,
+// <i> - mode0_steps value is the configuration "Mode 0 steps",
+// <i> - channels value means the number of channels from the channel mask that can be
+// <i> derived from the "Channel map preset" settings:
+// <i>   - "High"   - 72 (default),
+// <i>   - "Medium" - 37,
+// <i>   - "Low"    - 20,
+// <i>   - "Custom" - Number of 1s in channel mask,
+// <i> - antenna_paths value is controlled by the "Antenna configuration", and limited by number of
+// <i> antennas presented on each board (capabilities). Maximum can be calculated using the product
+// <i> of used Initiator and Reflector antennae. The default maximum value for antenna_paths is 4.
+// <i> These settings were selected by assuming that the controller creates only one subevent per procedure,
+// <i> and the measuring mode is PBR. In RTT mode there are far less data is created.
+// <i> The default is calculated by using the constants and settings above using the worst case scenario,
+// <i> which gives 1614 bytes.
+// <i> Addition to that, if you use RTT as submode, you should add the following equation to calculate the
+// <i> size.
+// <i> (1 + mode1_size) * channels / main_mode_steps
+// <i> where
+// <i> mode1_size is 6, and main_mode_steps is 2. The later can be changed in cs_initiator_client.h.
+// <i> RAM consumption can be reduced by changing the affected settings and reducing
+// <i> "Procedure maximum length" accordingly.
+// <i> Default: 1866
 #ifndef CS_INITIATOR_MAX_RANGING_DATA_SIZE
-#define CS_INITIATOR_MAX_RANGING_DATA_SIZE            (2500)
+#define CS_INITIATOR_MAX_RANGING_DATA_SIZE            (1866)
+#endif
+
+// <o CS_INITIATOR_MAX_DROP> Maximum dropped procedures <2..10>
+// <i> Maximum number of dropped procedures if current ranging data is not received.
+// <i> Default: 10
+#ifndef CS_INITIATOR_MAX_DROP
+#define CS_INITIATOR_MAX_DROP                         10
 #endif
 
 // <o CS_INITIATOR_ERROR_TIMEOUT_MS> Error timeout [msec] <100..5000>
@@ -107,9 +144,10 @@
 // <i> Default: 0
 #define CS_INITIATOR_DEFAULT_CONNECTION_PERIPHERAL_LATENCY  0
 
-// <o CS_INITIATOR_DEFAULT_TIMEOUT> Supervision timeout [msec]
-// <i> Default: 200
-#define CS_INITIATOR_DEFAULT_TIMEOUT 200
+// <o CS_INITIATOR_DEFAULT_TIMEOUT> Supervision timeout <10..3200>
+// <i> Connection supervision timeout in the units of 10 ms (from 100 ms to 32 s)
+// <i> Default: 500
+#define CS_INITIATOR_DEFAULT_TIMEOUT 500
 
 // <o CS_INITIATOR_DEFAULT_MIN_CE_LENGTH> Minimum length of the connection event <1..65535>
 // <i> Value in units of 0.625 ms

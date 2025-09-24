@@ -174,8 +174,7 @@
 #ifndef SL_CLOCK_MANAGER_HFRCO_DPLL_EN
 #define SL_CLOCK_MANAGER_HFRCO_DPLL_EN    0
 #endif
-
-// <o SL_CLOCK_MANAGER_DPLL_FREQ> Target Frequency in Hz <16000000-100000000>
+// <o SL_CLOCK_MANAGER_DPLL_FREQ> Target Frequency in Hz <20000000-100000000>
 // <i> DPLL target frequency
 // <d> 76800000
 #ifndef SL_CLOCK_MANAGER_DPLL_FREQ
@@ -321,7 +320,7 @@
 
 // <<< sl:start pin_tool >>>
 
-// <cmu signal=CLKIN0> SL_CLOCK_MANAGER_CLKIN0
+// <cmu signal=CLKIN0 optional=true> SL_CLOCK_MANAGER_CLKIN0
 // $[CMU_SL_CLOCK_MANAGER_CLKIN0]
 
 

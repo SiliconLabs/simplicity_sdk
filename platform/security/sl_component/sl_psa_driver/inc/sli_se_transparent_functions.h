@@ -69,6 +69,7 @@ psa_status_t sli_se_transparent_driver_init(void);
 
 psa_status_t sli_se_transparent_driver_deinit(void);
 
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 //------------------------------------------------------------------------------
 // Hashing
 
@@ -164,6 +165,8 @@ psa_status_t sli_se_transparent_cipher_finish(
   size_t output_size,
   size_t *output_length);
 
+#endif // #if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
+
 //------------------------------------------------------------------------------
 // Signature
 
@@ -209,6 +212,7 @@ psa_status_t sli_se_transparent_verify_hash(
   const uint8_t *signature,
   size_t signature_length);
 
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 //------------------------------------------------------------------------------
 // MAC
 
@@ -345,6 +349,8 @@ psa_status_t sli_se_transparent_aead_verify(
 
 psa_status_t sli_se_transparent_aead_abort(
   sli_se_transparent_aead_operation_t *operation);
+
+#endif // #if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 
 //------------------------------------------------------------------------------
 // Key handling

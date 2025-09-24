@@ -7,24 +7,24 @@ from pyradioconfig.calculator_model_framework.interfaces.iphy_filter import IPhy
 class PhyFilters(IPhyFilter):
 
     customer_phy_groups = [
-                            'Phys_Acuity',
-                            'Phys_ATnT',
+                            'Phys_secret1',
+                            'Phys_secret2',
                             'Phys_Bluetooth_LE',
                             'Phys_Deprecated',
-                            'Phys_Diehl_Hydrometer',
-                            'Phys_Essence',
+                            'Phys_secret3',
+                            'Phys_secret4',
                             'Phys_IEEE802154',
-                            'Phys_imagotag',
-                            'Phys_Landis_Gyr',
-                            'Phys_lutron',
+                            'Phys_secret5',
+                            'Phys_secret6',
+                            'Phys_secret7',
                             'Phys_Mbus_lab',
                             'Phys_RAIL',
                             'Phys_sim_tests',
                             'Phys_Utility',
-                            'Phys_Velux',
+                            'Phys_secret8',
                             'Phys_ZWave',
                             'Phys_Internal',
-                            'Phys_Internal_Base_Customer_Signify',
+                            'Phys_secret9',
                         ]
 
     sim_tests_phy_groups = ['Phys_sim_tests']

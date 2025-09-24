@@ -1973,8 +1973,8 @@ void sl_zigbee_ezsp_mac_passthrough_message_handler(
 // A callback invoked by the EmberZNet stack when a raw MAC message that has
 // matched one of the application's configured MAC filters.
 void sl_zigbee_ezsp_mac_filter_match_message_handler(
-  // The index of the filter that was matched.
-  uint8_t filterIndexMatch,
+  // The value of the filter that was matched.
+  sl_zigbee_mac_filter_match_data_t filterValueMatch,
   // The type of MAC passthrough message received.
   sl_zigbee_mac_passthrough_type_t legacyPassthroughType,
   // Information about the incoming packet.

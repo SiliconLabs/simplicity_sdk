@@ -44,7 +44,7 @@
 
 #include "em_device.h"
 
-#if defined(SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 #include "sli_se_transparent_functions.h"
 #define HASH_IMPLEMENTATION_PRESENT
 #define HASH_SETUP_FCT      sli_se_transparent_hash_setup
@@ -52,6 +52,14 @@
 #define HASH_FINISH_FCT     sli_se_transparent_hash_finish
 #define HASH_ABORT_FCT      sli_se_transparent_hash_abort
 #define HASH_ONESHOT_FCT    sli_se_transparent_hash_compute
+#elif defined(SYMCRYPTO_PRESENT)
+#include "sli_hostcrypto_transparent_functions.h"
+#define HASH_IMPLEMENTATION_PRESENT
+#define HASH_SETUP_FCT      sli_hostcrypto_transparent_hash_setup
+#define HASH_UPDATE_FCT     sli_hostcrypto_transparent_hash_update
+#define HASH_FINISH_FCT     sli_hostcrypto_transparent_hash_finish
+#define HASH_ABORT_FCT      sli_hostcrypto_transparent_hash_abort
+#define HASH_ONESHOT_FCT    sli_hostcrypto_transparent_hash_compute
 #elif defined(CRYPTOACC_PRESENT)
 #include "sli_cryptoacc_transparent_functions.h"
 #define HASH_IMPLEMENTATION_PRESENT

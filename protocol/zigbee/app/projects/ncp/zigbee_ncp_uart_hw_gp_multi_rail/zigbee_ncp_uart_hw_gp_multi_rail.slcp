@@ -87,6 +87,14 @@ configuration:
     value: 1000
   - name: SL_ZIGBEE_BROADCAST_TABLE_SIZE
     value: 21
+  - name: SL_STACK_SIZE
+    value: 4096
+    condition:
+      - cmsis_rtos2
+  - name: SL_ZIGBEE_STACK_RTOS_TASK_STACK_SIZE
+    value: 4096
+    condition:
+      - cmsis_rtos2
 
 source:
   - path: main.c

@@ -39,8 +39,6 @@ config_file:
   - device_has_radio_subghz
   - device_generic_family_efr32xg23
   unless:
-  - device_has_radio_2g4hz
-  - device_has_radio_dualband
   - hardware_board_rb
   - hardware_board_tb
   - hardware_board_stk
@@ -55,8 +53,6 @@ config_file:
   - device_generic_family_efr32xg23
   - device_supports_zwave
   unless:
-  - device_has_radio_2g4hz
-  - device_has_radio_dualband
   - hardware_board_rb
   - hardware_board_tb
   - hardware_board_stk
@@ -81,8 +77,6 @@ config_file:
   - device_has_radio_subghz
   - device_generic_family_efr32xg25
   unless:
-  - device_has_radio_2g4hz
-  - device_has_radio_dualband
   - hardware_board_rb
   - hardware_board_tb
   - hardware_board_stk
@@ -151,8 +145,6 @@ config_file:
   - device_has_radio_subghz
   - device_generic_family_efr32xg28
   unless:
-  - device_has_radio_2g4hz
-  - device_has_radio_dualband
   - hardware_board_rb
   - hardware_board_tb
   - hardware_board_stk
@@ -167,8 +159,6 @@ config_file:
   - device_generic_family_efr32xg28
   - device_supports_zwave
   unless:
-  - device_has_radio_2g4hz
-  - device_has_radio_dualband
   - hardware_board_rb
   - hardware_board_tb
   - hardware_board_stk

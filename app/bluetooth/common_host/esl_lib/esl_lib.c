@@ -100,6 +100,7 @@ sl_status_t esl_lib_start(char                   *config,
   esl_lib_deinit();
 
   event_handler_step(); // process the last event
+  (void)esl_lib_event_gc_step(0);
 
   // Log memory status
   esl_lib_memory_log();
@@ -927,19 +928,23 @@ static bool filter_event(esl_lib_evt_t *evt)
 // Event handler mechanism
 static void event_handler_step(void)
 {
-  esl_lib_evt_t *last_evt = esl_lib_event_list_get_first();
-  if (last_evt != NULL) {
-    const bool log_event = filter_event(last_evt);
+  esl_lib_evt_t *first_evt = esl_lib_event_list_get_first();
+
+  // Allow asynchronous processing of events passed by pointers
+  esl_lib_event_gc_step(16); // Use 0 if event processing is synchronous (not in Python AP)
+
+  if (first_evt != NULL) {
+    const bool log_event = filter_event(first_evt);
     if (log_event) {
-      esl_lib_log_api_debug("EVT emitted, type = %u" APP_LOG_NL, last_evt->evt_code);
+      esl_lib_log_api_debug("EVT emitted, type = %u" APP_LOG_NL, first_evt->evt_code);
     }
     if (event_handler_cb != NULL) {
       if (log_event) {
-        esl_lib_log_api_debug("Calling EVT callback for type %u" APP_LOG_NL, last_evt->evt_code);
+        esl_lib_log_api_debug("Calling EVT callback for type %u" APP_LOG_NL, first_evt->evt_code);
       }
-      event_handler_cb(last_evt->evt_code, &(last_evt->data));
+      event_handler_cb(first_evt->evt_code, &(first_evt->data));
       if (log_event) {
-        esl_lib_log_api_debug("EVT callback finished for type %u" APP_LOG_NL, last_evt->evt_code);
+        esl_lib_log_api_debug("EVT callback finished for type %u" APP_LOG_NL, first_evt->evt_code);
       }
     }
     esl_lib_event_list_remove_first();

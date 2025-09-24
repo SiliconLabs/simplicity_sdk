@@ -781,8 +781,9 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             esl_lib_log_connection_debug(CONN_FMT "Connection request withdrawn, connection handle = %u will close" APP_LOG_NL,
                                          ESL_LIB_LOG_PTR(conn),
                                          conn->connection_handle);
-            close_connection(conn); // Overrides conn->last_error
+            (void)close_connection(conn); // Overrides conn->last_error
             esl_lib_core_connection_complete();
+            (void)app_timer_stop(&conn->timer); // Stop the timer since we drop the current connection_handle below
             conn->connection_handle = SL_BT_INVALID_CONNECTION_HANDLE; // Ensure immediate handle re-use
             conn->command_complete = true;
             esl_lib_initiate_auto_connection(conn);
@@ -1174,27 +1175,27 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             }
           }
         }
-      }
-      sc = sl_bt_external_bondingdb_set_data(evt->data.evt_external_bondingdb_data_request.connection,
-                                             evt->data.evt_external_bondingdb_data_request.type,
-                                             bonding_data_len,
-                                             bonding_data);
-      if (sc == SL_STATUS_OK) {
-        lib_status = ESL_LIB_STATUS_NO_ERROR;
-      } else {
-        esl_lib_log_level_t level = conn->established ? ESL_LIB_LOG_LEVEL_ERROR : ESL_LIB_LOG_LEVEL_ERROR;
-        // Set library status accordingly.
-        lib_status = ESL_LIB_STATUS_BONDING_FAILED;
-        conn->state = ESL_LIB_CONNECTION_STATE_BONDING_RECOVERY;
-        // Defer forced close on error - normally the close event should come, this is just a watchdog
-        (void)close_connection(conn);
-        conn->last_error = sc; // Override last_error from close_connection
-        esl_lib_log(level, ESL_LIB_LOG_MODULE_CONNECTION,
-                    CONN_FMT "Bonding %s, reconnecting, connection handle = %u, sc = 0x%04x" APP_LOG_NL,
-                    ESL_LIB_LOG_PTR(conn),
-                    conn->established ? "procedure disrupted" : "is not possible",
-                    conn->connection_handle,
-                    sc);
+        sc = sl_bt_external_bondingdb_set_data(evt->data.evt_external_bondingdb_data_request.connection,
+                                               evt->data.evt_external_bondingdb_data_request.type,
+                                               bonding_data_len,
+                                               bonding_data);
+        if (sc == SL_STATUS_OK) {
+          lib_status = ESL_LIB_STATUS_NO_ERROR;
+        } else {
+          esl_lib_log_level_t level = conn->established ? ESL_LIB_LOG_LEVEL_ERROR : ESL_LIB_LOG_LEVEL_ERROR;
+          // Set library status accordingly.
+          lib_status = ESL_LIB_STATUS_BONDING_FAILED;
+          conn->state = ESL_LIB_CONNECTION_STATE_BONDING_RECOVERY;
+          // Defer forced close on error - normally the close event should come, this is just a watchdog
+          (void)close_connection(conn);
+          conn->last_error = sc; // Override last_error from close_connection
+          esl_lib_log(level, ESL_LIB_LOG_MODULE_CONNECTION,
+                      CONN_FMT "Bonding %s, reconnecting, connection handle = %u, sc = 0x%04x" APP_LOG_NL,
+                      ESL_LIB_LOG_PTR(conn),
+                      conn->established ? "procedure disrupted" : "is not possible",
+                      conn->connection_handle,
+                      sc);
+        }
       }
       break;
     case sl_bt_evt_sm_passkey_request_id:
@@ -2963,12 +2964,10 @@ static sl_status_t write_next_config_value(esl_lib_connection_t *conn)
   sl_status_t sc = SL_STATUS_NULL_POINTER;
 
   if (conn != NULL && conn->command != NULL) {
-    esl_lib_tlv_t *tlv
-      = (esl_lib_tlv_t *)&conn->command->data.cmd_configure_tag.tlv_data.data[conn->config_index];
-
     bool move_to_next = true;
 
     while (move_to_next) {
+      esl_lib_tlv_t *tlv = NULL;
       esl_lib_log_connection_debug(CONN_FMT "Next configure tag TLV data %u / %u, connection handle = %u" APP_LOG_NL,
                                    ESL_LIB_LOG_PTR(conn),
                                    conn->config_index,
@@ -3024,8 +3023,12 @@ static sl_status_t write_next_config_value(esl_lib_connection_t *conn)
         }
       }
 
-      // Move to next TLV
-      conn->config_index += (sizeof(esl_lib_tlv_t) + tlv->data.len);
+      conn->config_index += sizeof(esl_lib_tlv_t);
+
+      if (!conn->command_complete) {
+        // Move to next TLV until the very last one reached
+        conn->config_index += tlv->data.len;
+      }
     }
   }
   return sc;

@@ -559,15 +559,15 @@ void sl_zigbee_af_zll_touch_link_target_cb(
 /** @brief
  * A callback invoked by the EmberZNet stack when a raw MAC message that has
  * matched one of the application's configured MAC filters.
- * @param filterIndexMatch filter index match.
+ * @param filterValueMatch filter value match.
  * @param messageType message type.
  * @param packetInfo RX packet info.
  * @param messageLength message length.
  * @param messageContents message contents.
  */
 void sl_zigbee_af_mac_filter_match_message_cb(
-  // filter index match.
-  uint8_t filterIndexMatch,
+  // filter value match.
+  sl_zigbee_mac_filter_match_data_t filterValueMatch,
   // message type.
   sl_zigbee_mac_passthrough_type_t messageType,
   // RX packet info.

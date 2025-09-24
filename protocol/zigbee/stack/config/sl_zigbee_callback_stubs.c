@@ -752,8 +752,8 @@ SL_WEAK void sl_zigbee_zll_touch_link_target_handler(
 // A callback invoked by the EmberZNet stack when a raw MAC message that has
 // matched one of the application's configured MAC filters.
 SL_WEAK void sl_802154_filter_match_message_handler(
-  // filter index match.
-  uint8_t filterIndexMatch,
+  // filter value match.
+  sl_zigbee_mac_filter_match_data_t filterValueMatch,
   // message type.
   sl_zigbee_mac_passthrough_type_t messageType,
   // RX packet info.
@@ -763,7 +763,7 @@ SL_WEAK void sl_802154_filter_match_message_handler(
   // message contents.
   uint8_t *messageContents)
 {
-  (void)filterIndexMatch;
+  (void)filterValueMatch;
   (void)messageType;
   (void)packetInfo;
   (void)messageLength;
@@ -2326,8 +2326,8 @@ SL_WEAK void sl_zigbee_zll_touch_link_target_handler(
 // -----------------------------------------------------------------------------
 // Weak implementation of public Callback sl_zigbee_af_mac_filter_match_message_cb
 SL_WEAK void sl_zigbee_af_mac_filter_match_message_cb(
-  // filter index match.
-  uint8_t filterIndexMatch,
+  // filter value match.
+  sl_zigbee_mac_filter_match_data_t filterValueMatch,
   // message type.
   sl_zigbee_mac_passthrough_type_t messageType,
   // RX packet info.
@@ -2337,7 +2337,7 @@ SL_WEAK void sl_zigbee_af_mac_filter_match_message_cb(
   // message contents.
   uint8_t *messageContents)
 {
-  (void)filterIndexMatch;
+  (void)filterValueMatch;
   (void)messageType;
   (void)packetInfo;
   (void)messageLength;
@@ -2347,8 +2347,8 @@ SL_WEAK void sl_zigbee_af_mac_filter_match_message_cb(
 // A callback invoked by the EmberZNet stack when a raw MAC message that has
 // matched one of the application's configured MAC filters.
 SL_WEAK void sl_802154_filter_match_message_handler(
-  // filter index match.
-  uint8_t filterIndexMatch,
+  // filter value match.
+  sl_zigbee_mac_filter_match_data_t filterValueMatch,
   // message type.
   sl_zigbee_mac_passthrough_type_t messageType,
   // RX packet info.
@@ -2359,12 +2359,12 @@ SL_WEAK void sl_802154_filter_match_message_handler(
   uint8_t *messageContents)
 {
   sl_zigbee_af_push_callback_network_index();
-  sli_zigbee_af_mac_filter_match_message(filterIndexMatch,
+  sli_zigbee_af_mac_filter_match_message(filterValueMatch,
                                          messageType,
                                          packetInfo,
                                          messageLength,
                                          messageContents);
-  sl_zigbee_af_mac_filter_match_message_cb(filterIndexMatch,
+  sl_zigbee_af_mac_filter_match_message_cb(filterValueMatch,
                                            messageType,
                                            packetInfo,
                                            messageLength,

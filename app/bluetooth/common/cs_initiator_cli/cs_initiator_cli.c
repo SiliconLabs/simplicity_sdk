@@ -70,6 +70,7 @@ static uint8_t channel_map_preset = CHANNEL_MAP_PRESET_HIGH;
 static uint8_t antenna_config_idx = ACI_DUAL;
 static uint8_t cs_sync_antenna_usage = CS_SYNC_ANT_SWITCHING;
 static uint8_t conn_phy = sl_bt_gap_phy_2m;
+static uint8_t procedure_counter = 0; // Number of procedures to be executed
 
 // -----------------------------------------------------------------------------
 // Public functions
@@ -96,6 +97,14 @@ uint8_t cs_initiator_cli_get_sub_mode(void)
 uint8_t cs_initiator_cli_get_algo_mode(void)
 {
   return algo_mode;
+}
+
+/*******************************************************************************
+ * CLI Getter for CS algorithm mode
+ ******************************************************************************/
+uint8_t cs_initiator_cli_get_procedure_counter(void)
+{
+  return procedure_counter;
 }
 
 /*******************************************************************************
@@ -239,6 +248,23 @@ void cs_initiator_cli_conn_phy(sl_cli_command_arg_t *arguments)
     app_log("OK. Connection PHY set to %d" APP_LOG_NL,
             arg_data);
     conn_phy = arg_data;
+  }
+}
+
+/*******************************************************************************
+ * CLI Callback for "conn_phy" command
+ * @param[in] arguments pointer to CLI arguments
+ ******************************************************************************/
+void cs_initiator_cli_procedure_counter(sl_cli_command_arg_t *arguments)
+{
+  uint8_t arg_data;
+  arg_data = sl_cli_get_argument_uint8(arguments, 0);
+  if (arg_data != 0 && arg_data != 1) {
+    app_log("ERROR. Only 0 and 1 are supported." APP_LOG_NL);
+  } else {
+    app_log("OK. Procedure counter set to %d" APP_LOG_NL,
+            arg_data);
+    procedure_counter = arg_data;
   }
 }
 

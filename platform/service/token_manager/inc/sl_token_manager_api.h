@@ -186,41 +186,76 @@ void halInternalAssertFailed(const char * filename, int linenumber);
 ///
 /// @n @section common_token_manager Introduction
 ///
-/// The Common Token Manager (CTM) provides a means to read and write manufacturing (static device and static secure) and
-/// dynamic tokens such as manufacturing ID, channel number, transmit power, and various pieces of information
-/// that the application needs to be persistent between device power cycles.
-/// The token system is designed to abstract implementation details and simplify interacting with differing non-volatile systems.
-/// The majority of tokens are stored in NVM3 where they can be rewritten.
+/// The Common Token Manager (CTM) provides a means to read and write manufacturing
+/// (static device and static secure) and dynamic tokens such as manufacturing ID,
+/// channel number, transmit power, and various pieces of information that the application
+/// needs to be persistent between device power cycles. The token system is designed to
+/// abstract implementation details and simplify interacting with differing non-volatile
+/// systems. The majority of tokens are stored in NVM3 where they can be rewritten.
 /// By default the CTM uses NVM3 component for storage.
 ///
-/// The CTM API is designed to be used across different platforms, providing a unified interface
-/// for token management. It supports both dynamic tokens and static tokens.
-/// - The dynamic tokens are stored in NVM3, which can be modified at runtime, allowing for read and write operations.
-/// - The static tokens are typically used for manufacturing data and are not intended to be modified after the initial write.
+/// The CTM API is designed to be used across different platforms, providing a unified
+/// interface for token management. It supports both dynamic tokens and static tokens.
+/// - The dynamic tokens are stored in NVM3, which can be modified at runtime,
+/// allowing for read and write operations.
+/// - The static tokens are typically used for manufacturing data and are not
+///   intended to be modified after the initial write.
 ///   The static tokens are further divided into
-///   - Static device tokens, which are stored in secure memory regions, has limited storage capacity, and are mass erase protected.
-///   - Static secure tokens, which are stored in a dedicated flash region, with additional security measures when flash is external (uses 128-bit AES-GCM mode to secure the data).
-///     The static secure region has a reserved 8k space at the end of flash. This space is used for storing larger size tokens.
+///   - Static device tokens, which are stored in secure memory regions, has limited
+///     storage capacity, and are mass erase protected.
+///   - Static secure tokens, which are stored in a dedicated flash region, with
+///     additional security measures when flash is external (uses 128-bit AES-GCM
+///     mode to secure the data). The static secure region has a reserved 8k space
+///     at the end of flash. This space is used for storing larger size tokens.
 ///
-/// In CTM, tokens are identified by a 32-bit identifier that includes the token type, size, and a unique key.
-/// The token type can be one of the following:
+/// In CTM, tokens are identified by a 32-bit identifier that includes the token type,
+/// size, and a unique key. The token type can be one of the following:
 /// - SL_TOKEN_TYPE_NVM3: For dynamic tokens stored in NVM3.
 /// - SL_TOKEN_TYPE_NVM3_SECONDARY: For dynamic tokens stored in a secondary NVM3 instance.
 /// - SL_TOKEN_TYPE_STATIC_DEVICE: For static device tokens stored in secure memory.
 /// - SL_TOKEN_TYPE_STATIC_SECURE: For static secure tokens stored in a dedicated flash region.
-/// The token size is embedded in the identifier for only static tokens, allowing the CTM to manage tokens of varying sizes.
+/// The token size is embedded in the identifier for only static tokens,
+/// allowing the CTM to manage tokens of varying sizes.
 ///
 /// To create a 32-bit token identifier, the CTM provides helper macros such as:
 /// - SL_TOKEN_GET_STATIC_DEVICE_TOKEN(token): Creates a static device token.
 /// - SL_TOKEN_GET_STATIC_SECURE_TOKEN(token): Creates a static secure token.
-/// - SL_TOKEN_GET_DYNAMIC_TOKEN(token, IsCounterObj): Creates a dynamic token for default NVM3 instance.
-/// - SL_TOKEN_GET_DYNAMIC_SECONDARY_INSTANCE_TOKEN(token, IsCounterObj): Creates a dynamic token for a secondary NVM3 instance.
-/// - SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token): Creates a dynamic override token for static tokens.
+/// - SL_TOKEN_GET_DYNAMIC_TOKEN(token, IsCounterObj): Creates a dynamic token for
+///   default NVM3 instance.
+/// - SL_TOKEN_GET_DYNAMIC_SECONDARY_INSTANCE_TOKEN(token, IsCounterObj): Creates a
+///   dynamic token for a secondary NVM3 instance.
+/// - SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token): Creates a dynamic override token
+///   for static tokens.
 /// For more information refer to @ref `sl_token_manager_defines.h` file.
 ///
 /// The CTM API provides functions to initialize the token manager, read and write token data,
-/// increment counter tokens, and manage token sizes. It also supports partial reads of token data,
-/// allowing applications to access specific portions of token data without needing to read the entire token.
+/// increment counter tokens, and manage token sizes. It also supports partial reads of
+/// token data, allowing applications to access specific portions of token data without
+/// needing to read the entire token.
+///
+/// ## Override Tokens
+/// This feature enables applications to store copies of static manufacturing
+/// tokens in NVM3, allowing read/write operations on the NVM3 version rather
+/// than relying exclusively on the immutable or restricted static token regions.
+/// It offers a flexible way to override factory-programmed values when necessary,
+/// while preserving the integrity of the original static data.
+///
+/// To enable NVM3 override functionality, the override config flag
+/// `SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS` in your project sl_token_manager_config.h
+/// configuration file should be `enabled` or set to `1`, by enabling this feature
+/// the default token retrieval mechanisms can be overridden by custom implementations.
+///
+/// The search order for tokens read request (when the override flag is enabled) is as follows:
+///
+/// - By default search a static token in NVM3, when NVM3 override config flag is
+/// active, if found return the token data read from NVM3 region.
+/// - If the token is not found in NVM3, search in manufacturing region.
+///
+/// Note: Enabling the override flag may introduce latency compared to direct reads
+/// from static region, particularly in time-sensitive scenarios such as device boot-up
+/// where rapid access to token data is critical. Furthermore, storing override token
+/// data in NVM3 consumes NVM3 memory, which can be a limiting factor on
+/// resource-constrained devices.
 ///
 /// @} end common_token_manager ******************************************************/
 

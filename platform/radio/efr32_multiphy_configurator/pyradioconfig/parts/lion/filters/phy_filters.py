@@ -5,9 +5,9 @@ class PhyFilters(IPhyFilter):
 
     customer_phy_groups = [
                             'Phys_Internal_Base_Common',
-                            'Phys_Internal_Base_Customer_Dexcom',
-                            'Phys_Internal_Base_Customer_Imagotag',
-                            'Phys_Internal_base_Customer_Quuppa',
+                            'Phys_secret1',
+                            'Phys_secret2',
+                            'Phys_secret3',
                             'Phys_Internal_Base_Experimental',
                             'Phys_Internal_Base_Simulation',
                             'Phys_Internal_Base_Utility',

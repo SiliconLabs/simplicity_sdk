@@ -50,21 +50,21 @@
 // <h> FIFO and Queue Configuration
 // <h> Receive Packet Queue
 // <o SL_RAIL_UTIL_INIT_RX_PACKET_QUEUE_INSTANCE_ENTRIES> Receive Packet Queue Entries
-// <BuiltIn=>-16
-// <None=>0
+// <-16=>BuiltIn
+// <0=>None
 // <8=>8
 // <16=>16
 // <32=>32
 // <64=>64
 // <128=>128
 // <256=>256
-// <i> Default: BuiltIn
+// <i> Default: -16
 #define SL_RAIL_UTIL_INIT_RX_PACKET_QUEUE_INSTANCE_ENTRIES -16
 // </h>
 // <h> Receive FIFO
 // <o SL_RAIL_UTIL_INIT_RX_FIFO_INSTANCE_BYTES> Receive FIFO Bytes
-// <BuiltIn=>-512
-// <None=>0
+// <-512=>BuiltIn
+// <0=>None
 // <64=>64
 // <128=>128
 // <256=>256
@@ -72,12 +72,12 @@
 // <1024=>1024
 // <2048=>2048
 // <4096=>4096
-// <i> Default: BuiltIn
+// <i> Default: -512
 #define SL_RAIL_UTIL_INIT_RX_FIFO_INSTANCE_BYTES -512
 // </h>
 // <h> Transmit FIFO
 // <q SL_RAIL_UTIL_INIT_TX_FIFO_INSTANCE_BYTES> Configure initial TX FIFO
-// <None=>0
+// <0=>None
 // <64=>64
 // <128=>128
 // <256=>256
@@ -85,7 +85,7 @@
 // <1024=>1024
 // <2048=>2048
 // <4096=>4096
-// <i> Default: None
+// <i> Default: 0
 #define SL_RAIL_UTIL_INIT_TX_FIFO_INSTANCE_BYTES 0
 // </h>
 // </h>

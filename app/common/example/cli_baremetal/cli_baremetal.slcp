@@ -36,6 +36,8 @@ readme:
   - path: readme.md
 ui_hints:
   highlight: readme.md
+tag:
+  - hardware:component:led:1+
 configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: 1

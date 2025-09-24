@@ -23,13 +23,14 @@
 
 //------------------------------------------------------------------------------
 
-void sli_zigbee_af_interpan_mac_filter_match_message_callback(uint8_t filterIndexMatch,
+void sli_zigbee_af_interpan_mac_filter_match_message_callback(sl_zigbee_mac_filter_match_data_t filterValueMatch,
                                                               sl_zigbee_mac_passthrough_type_t legacyPassthroughType,
                                                               sl_zigbee_rx_packet_info_t* packetInfo,
                                                               uint8_t messageLength,
                                                               uint8_t *messageContents)
 {
-  sli_zigbee_af_interpan_process_message(messageLength,
+  sli_zigbee_af_interpan_process_message(legacyPassthroughType,
+                                         messageLength,
                                          messageContents);
 }
 

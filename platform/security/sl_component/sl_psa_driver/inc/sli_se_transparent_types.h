@@ -47,20 +47,24 @@
 
 #if defined(SLI_MBEDTLS_DEVICE_HSE)
 
-#include "sl_se_manager_types.h"
-
-#include "sli_se_driver_aead.h"
-#include "sli_se_driver_mac.h"
-#include "sli_se_driver_cipher.h"
-
 // Replace inclusion of crypto_driver_common.h with the new psa driver interface
 // header file when it becomes available.
 #include "psa/crypto_driver_common.h"
 
 // -----------------------------------------------------------------------------
-// Types
+// Defines
 
-#define PSA_KEY_LOCATION_SLI_SE_TRANSPARENT  ((psa_key_location_t)0x000002UL)
+#define PSA_KEY_LOCATION_SLI_SE_TRANSPARENT  (PSA_KEY_LOCATION_VENDOR_FLAG | (psa_key_location_t) 2UL)
+
+#if !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
+
+#include "sl_se_manager_types.h"
+#include "sli_se_driver_aead.h"
+#include "sli_se_driver_mac.h"
+#include "sli_se_driver_cipher.h"
+
+// -----------------------------------------------------------------------------
+// Types
 
 /// PSA transparent accelerator driver compatible context structure
 typedef struct {
@@ -107,6 +111,7 @@ typedef struct {
   sli_se_driver_aead_operation_t operation;
 } sli_se_transparent_aead_operation_t;
 
+#endif // !SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS
 #endif // SLI_MBEDTLS_DEVICE_HSE
 
 /** \} (end addtogroup sl_psa_drivers_se) */

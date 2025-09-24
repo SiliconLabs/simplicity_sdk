@@ -330,27 +330,27 @@ typedef struct smu_typedef{
 /* Bit fields for SMU M33CTRL */
 #define _SMU_M33CTRL_RESETVALUE                            0x00000000UL                             /**< Default value for SMU_M33CTRL               */
 #define _SMU_M33CTRL_MASK                                  0x0000001FUL                             /**< Mask for SMU_M33CTRL                        */
-#define SMU_M33CTRL_LOCKSVTAIRCR                           (0x1UL << 0)                             /**< New BitField                                */
+#define SMU_M33CTRL_LOCKSVTAIRCR                           (0x1UL << 0)                             /**< Lock Secure VTAIRCR                         */
 #define _SMU_M33CTRL_LOCKSVTAIRCR_SHIFT                    0                                        /**< Shift value for SMU_LOCKSVTAIRCR            */
 #define _SMU_M33CTRL_LOCKSVTAIRCR_MASK                     0x1UL                                    /**< Bit mask for SMU_LOCKSVTAIRCR               */
 #define _SMU_M33CTRL_LOCKSVTAIRCR_DEFAULT                  0x00000000UL                             /**< Mode DEFAULT for SMU_M33CTRL                */
 #define SMU_M33CTRL_LOCKSVTAIRCR_DEFAULT                   (_SMU_M33CTRL_LOCKSVTAIRCR_DEFAULT << 0) /**< Shifted mode DEFAULT for SMU_M33CTRL        */
-#define SMU_M33CTRL_LOCKNSVTOR                             (0x1UL << 1)                             /**< New BitField                                */
+#define SMU_M33CTRL_LOCKNSVTOR                             (0x1UL << 1)                             /**< Lock Non-secure VTOR                        */
 #define _SMU_M33CTRL_LOCKNSVTOR_SHIFT                      1                                        /**< Shift value for SMU_LOCKNSVTOR              */
 #define _SMU_M33CTRL_LOCKNSVTOR_MASK                       0x2UL                                    /**< Bit mask for SMU_LOCKNSVTOR                 */
 #define _SMU_M33CTRL_LOCKNSVTOR_DEFAULT                    0x00000000UL                             /**< Mode DEFAULT for SMU_M33CTRL                */
 #define SMU_M33CTRL_LOCKNSVTOR_DEFAULT                     (_SMU_M33CTRL_LOCKNSVTOR_DEFAULT << 1)   /**< Shifted mode DEFAULT for SMU_M33CTRL        */
-#define SMU_M33CTRL_LOCKSMPU                               (0x1UL << 2)                             /**< New BitField                                */
+#define SMU_M33CTRL_LOCKSMPU                               (0x1UL << 2)                             /**< Lock Secure MPU configuration               */
 #define _SMU_M33CTRL_LOCKSMPU_SHIFT                        2                                        /**< Shift value for SMU_LOCKSMPU                */
 #define _SMU_M33CTRL_LOCKSMPU_MASK                         0x4UL                                    /**< Bit mask for SMU_LOCKSMPU                   */
 #define _SMU_M33CTRL_LOCKSMPU_DEFAULT                      0x00000000UL                             /**< Mode DEFAULT for SMU_M33CTRL                */
 #define SMU_M33CTRL_LOCKSMPU_DEFAULT                       (_SMU_M33CTRL_LOCKSMPU_DEFAULT << 2)     /**< Shifted mode DEFAULT for SMU_M33CTRL        */
-#define SMU_M33CTRL_LOCKNSMPU                              (0x1UL << 3)                             /**< New BitField                                */
+#define SMU_M33CTRL_LOCKNSMPU                              (0x1UL << 3)                             /**< Lock Non-secure MPU configuration           */
 #define _SMU_M33CTRL_LOCKNSMPU_SHIFT                       3                                        /**< Shift value for SMU_LOCKNSMPU               */
 #define _SMU_M33CTRL_LOCKNSMPU_MASK                        0x8UL                                    /**< Bit mask for SMU_LOCKNSMPU                  */
 #define _SMU_M33CTRL_LOCKNSMPU_DEFAULT                     0x00000000UL                             /**< Mode DEFAULT for SMU_M33CTRL                */
 #define SMU_M33CTRL_LOCKNSMPU_DEFAULT                      (_SMU_M33CTRL_LOCKNSMPU_DEFAULT << 3)    /**< Shifted mode DEFAULT for SMU_M33CTRL        */
-#define SMU_M33CTRL_LOCKSAU                                (0x1UL << 4)                             /**< New BitField                                */
+#define SMU_M33CTRL_LOCKSAU                                (0x1UL << 4)                             /**< Lock SAU                                    */
 #define _SMU_M33CTRL_LOCKSAU_SHIFT                         4                                        /**< Shift value for SMU_LOCKSAU                 */
 #define _SMU_M33CTRL_LOCKSAU_MASK                          0x10UL                                   /**< Bit mask for SMU_LOCKSAU                    */
 #define _SMU_M33CTRL_LOCKSAU_DEFAULT                       0x00000000UL                             /**< Mode DEFAULT for SMU_M33CTRL                */

@@ -1768,6 +1768,10 @@ sl_status_t sli_clock_manager_hal_get_rco_calibration_count(uint32_t *count)
 
 /***************************************************************************//**
  * Sets SYSCLK clock source clock.
+ *
+ * @note On series 3, we actively wait for the oscillator to be ready before
+ *       switching the SYSCLK branch. This is to not gate the SYSCLK branch
+ *       during switching for other HW modules connected to SYSCLK branch.
  ******************************************************************************/
 sl_status_t sli_clock_manager_hal_set_sysclk_source(sl_oscillator_t source)
 {
@@ -1780,18 +1784,38 @@ sl_status_t sli_clock_manager_hal_set_sysclk_source(sl_oscillator_t source)
     case SL_OSCILLATOR_FSRCO:
       CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_FSRCO;
       break;
+
     case SL_OSCILLATOR_HFXO:
+      if ((HFXO0->STATUS & HFXO_STATUS_RDY) == 0) {
+        HFXO0->CTRL_SET = HFXO_CTRL_FORCEEN;
+        while ((HFXO0->STATUS & HFXO_STATUS_RDY) == 0) ;
+      }
       CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_HFXO;
+      HFXO0->CTRL_CLR = HFXO_CTRL_FORCEEN;
       break;
+
     case SL_OSCILLATOR_HFRCODPLL:
+      if ((HFRCO0->STATUS & HFRCO_STATUS_RDY) == 0) {
+        HFRCO0->CTRL_SET = HFRCO_CTRL_FORCEEN;
+        while ((HFRCO0->STATUS & HFRCO_STATUS_RDY) == 0) ;
+      }
       CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_HFRCODPLL;
+      HFRCO0->CTRL_CLR = HFRCO_CTRL_FORCEEN;
       break;
+
     case SL_OSCILLATOR_CLKIN0:
       CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_CLKIN0;
       break;
+
     case SL_OSCILLATOR_SOCPLL0:
+      if ((SOCPLL0->STATUS & SOCPLL_STATUS_RDY) == 0) {
+        SOCPLL0->CTRL_SET = SOCPLL_CTRL_FORCEEN;
+        while ((SOCPLL0->STATUS & SOCPLL_STATUS_RDY) == 0) ;
+      }
       CMU->SYSCLKCTRL = (CMU->SYSCLKCTRL & ~_CMU_SYSCLKCTRL_CLKSEL_MASK) | CMU_SYSCLKCTRL_CLKSEL_SOCPLL;
+      SOCPLL0->CTRL_CLR = SOCPLL_CTRL_FORCEEN;
       break;
+
     default:
       return_status = SL_STATUS_INVALID_PARAMETER;
       break;

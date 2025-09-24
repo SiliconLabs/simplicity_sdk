@@ -109,10 +109,11 @@
 // <o SL_CLOCK_MANAGER_PCLK_DIVIDER> PCLK branch divider
 //   <CMU_SYSCLKCTRL_PCLKPRESC_DIV1=> DIV1
 //   <CMU_SYSCLKCTRL_PCLKPRESC_DIV2=> DIV2
+//   <SL_CLOCK_MANAGER_PCLK_DIV_MIN=> MIN
 // <i> PCLK branch is derived from HCLK. This clock drives the APB bus interface.
-// <d> CMU_SYSCLKCTRL_PCLKPRESC_DIV2
+// <d> SL_CLOCK_MANAGER_PCLK_DIV_MIN
 #ifndef SL_CLOCK_MANAGER_PCLK_DIVIDER
-#define SL_CLOCK_MANAGER_PCLK_DIVIDER    CMU_SYSCLKCTRL_PCLKPRESC_DIV2
+#define SL_CLOCK_MANAGER_PCLK_DIVIDER    SL_CLOCK_MANAGER_PCLK_DIV_MIN
 #endif
 
 // </h>
@@ -324,18 +325,17 @@
 #define SL_CLOCK_MANAGER_QSPICLK_ADVANCED_CONFIG_EN    0
 #endif
 
-// <o SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ> Custom QSPI Frequency
+// <o SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ> Custom QSPI Frequency <90000000-160000000>
 // <i> Configures the QSPI to run at a specified frequency when
 // <i> SL_CLOCK_MANAGER_QSPICLK_ADVANCED_CONFIG_EN is enabled. The default
-// <i> flash frequency will be overridden by the custom flash frequency, when
-// <i> the custom frequency is configured to be greater than 0 Hz.
+// <i> flash frequency will be overridden by the custom flash frequency.
 // <i> The QSPI custom flash frequency must be less than the QSPI max supported
 // <i> frequency. Running at a frequency lower than the max supported frequency
 // <i> will impact performance. Note that the custom flash frequency is not
 // <i> scaled and could cause radio interference.
-// <d> 0
+// <d> 133000000
 #ifndef SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ
-#define SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ    0
+#define SL_CLOCK_MANAGER_QSPICLK_CUSTOM_FREQ    133000000
 #endif
 // </e>
 // </h>

@@ -52,17 +52,21 @@ extern "C" {
 
 #include "em_device.h"
 
-#if defined(SEMAILBOX_PRESENT)
+#if defined(SEMAILBOX_PRESENT) && !defined(SLI_EXCLUDE_PSA_SE_SYMCRYPTO_DRIVERS)
 #include "sli_se_transparent_types.h"
+#define CMAC_IMPLEMENTATION_PRESENT
 #define SL_MAC_OPERATION_CTX_TYPE sli_se_transparent_mac_operation_t
 #elif defined(CRYPTOACC_PRESENT)
 #include "sli_cryptoacc_transparent_types.h"
+#define CMAC_IMPLEMENTATION_PRESENT
 #define SL_MAC_OPERATION_CTX_TYPE sli_cryptoacc_transparent_mac_operation_t
 #endif
 
+#if defined(CMAC_IMPLEMENTATION_PRESENT)
 struct mbedtls_cmac_context_t {
   SL_MAC_OPERATION_CTX_TYPE ctx;
 };
+#endif
 
 #ifdef __cplusplus
 }
