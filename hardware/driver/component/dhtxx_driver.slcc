@@ -1,0 +1,32 @@
+id: dhtxx_driver
+package: board_drivers
+label: DHTXX (DHT11/DHT22) - Temperature and Humidity Sensor
+description: >
+  Driver for DHT11 and DHT22 temperature and humidity sensors with configurable type selection.
+  Supports both sensor types with automatic protocol detection and pin tool integration.
+category: Platform|Board Drivers
+quality: production
+root_path: hardware/driver/dhtxx
+provides:
+  - name: dhtxx_driver
+  - name: dht_driver # Backward compatibility
+  - name: dht11_driver # Backward compatibility
+requires:
+  - name: gpio
+  - name: sleeptimer
+  - name: status
+include:
+  - path: inc
+    file_list:
+      - path: dhtxx.h
+source:
+  - path: src/dhtxx.c
+config_file:
+  - path: config/sl_dhtxx_config.h
+    file_id: dhtxx_config
+template_contribution:
+  - name: component_catalog
+    value: dhtxx_driver
+documentation:
+  docset: gecko-platform
+  document: platform-hardware-driver/dhtxx

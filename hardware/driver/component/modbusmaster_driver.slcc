@@ -1,0 +1,27 @@
+id: modbusmaster_driver
+package: platform
+label: ModbusMaster RTU - RS485 Communication
+description: >
+  ModbusMaster RTU driver for RS485 communication with configurable DE/RE pin control.
+  Supports reading holding registers (0x03) and input registers (0x04) with pin tool integration.
+category: Platform|Board Drivers
+quality: production
+root_path: hardware/driver/modbus
+provides:
+  - name: modbusmaster_driver
+  - name: modbus_driver # Backward compatibility
+requires:
+  - name: sleeptimer
+  - name: iostream
+include:
+  - path: inc
+    file_list:
+      - path: modbusmaster.h
+source:
+  - path: src/modbusmaster.c
+config_file:
+  - path: config/sl_modbusmaster_config.h
+    file_id: modbusmaster_config
+documentation:
+  docset: gecko-platform
+  document: platform-hardware-driver/modbusmaster
