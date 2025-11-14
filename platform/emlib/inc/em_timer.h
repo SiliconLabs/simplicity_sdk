@@ -349,7 +349,7 @@ typedef struct {
     false,                /* Select X2 quadrature decode mode (if used). */           \
     false,                /* Disable one shot. */                                     \
     false,                /* Not started/stopped/reloaded by other timers. */         \
-    false                 /* Disable ability to start/stop/reload other timers. */    \
+    false                 /* Is able to start/stop/reload other timers. */            \
   }
 #else
 #define TIMER_INIT_DEFAULT                                                            \
