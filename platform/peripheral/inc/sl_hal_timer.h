@@ -235,7 +235,7 @@ typedef sl_hal_timer_init_t sl_hal_timer_config_t;
     (bool)_TIMER_CFG_DEBUGRUN_DEFAULT,                   /* Stop counter during debug halt. */                     \
     (bool)_TIMER_CFG_DMACLRACT_DEFAULT,                  /* Stop counter during debug halt. */                     \
     (bool)_TIMER_CFG_RETIMEEN_DEFAULT,                   /* Disable retime. */                                     \
-    (bool)_TIMER_CFG_DISSYNCOUT_DEFAULT,                 /* Disable ability to start/stop/reload other timers. */  \
+    (bool)_TIMER_CFG_DISSYNCOUT_DEFAULT,                 /* Is able to start/stop/reload other timers. */          \
     (bool)_TIMER_CFG_ATI_DEFAULT,                        /* No ATI. */                                             \
     (bool)_TIMER_CFG_RSSCOIST_DEFAULT,                   /* RSSCOIST is disabled. */                               \
     (bool)_TIMER_CTRL_X2CNT_DEFAULT,                     /* Not 2x count mode. */                                  \
@@ -255,7 +255,7 @@ typedef sl_hal_timer_init_t sl_hal_timer_config_t;
     (bool)_TIMER_CFG_DEBUGRUN_DEFAULT,                   /* Stop counter during debug halt. */                     \
     (bool)_TIMER_CFG_DMACLRACT_DEFAULT,                  /* Stop counter during debug halt. */                     \
     (bool)_TIMER_CFG_RETIMEEN_DEFAULT,                   /* Disable retime. */                                     \
-    (bool)_TIMER_CFG_DISSYNCOUT_DEFAULT,                 /* Disable ability to start/stop/reload other timers. */  \
+    (bool)_TIMER_CFG_DISSYNCOUT_DEFAULT,                 /* Is able to start/stop/reload other timers. */          \
     (bool)_TIMER_CFG_ATI_DEFAULT,                        /* No ATI. */                                             \
     (bool)_TIMER_CFG_RSSCOIST_DEFAULT,                   /* RSSCOIST is disabled. */                               \
     (bool)_TIMER_CTRL_X2CNT_DEFAULT                      /* Not 2x count mode. */                                  \
