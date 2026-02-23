@@ -553,7 +553,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
   // CC:0083.01.12.11.007: Destination User Unique Identifier must reference an existing User
   if (U3C_DB_OPERATION_RESULT_SUCCESS != CC_UserCredential_get_user(destination_uuid, NULL, NULL)
       && !local_initiative) {
-    CC_UserCredential_send_association_report(
+    CC_UserCredential_AssociationReport_tx(
       &source_metadata, &destination_metadata, U3C_UCAR_STATUS_DESTINATION_USER_UNIQUE_IDENTIFIER_NONEXISTENT, p_rx_options);
     return U3C_DB_OPERATION_RESULT_ERROR;
   }
@@ -580,7 +580,7 @@ ZW_WEAK u3c_db_operation_result CC_UserCredential_move_credential_and_report(
   }
 
   if (U3C_DB_OPERATION_RESULT_SUCCESS == operation_result || !local_initiative) {
-    CC_UserCredential_send_association_report(&source_metadata, &destination_metadata, status, p_rx_options);
+    CC_UserCredential_AssociationReport_tx(&source_metadata, &destination_metadata, status, p_rx_options);
   }
 
   return operation_result;
@@ -593,25 +593,6 @@ ZW_WEAK bool CC_UserCredential_send_association_report(
   RECEIVE_OPTIONS_TYPE_EX * const p_rx_options
   )
 {
-  if ((NULL == p_source_metadata)
-      || (NULL == p_destination_metadata)) {
-    assert(false);
-    return false;
-  }
-  ZW_APPLICATION_TX_BUFFER tx_buffer;
-  ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME * p_cmd = &tx_buffer.ZW_UserCredentialAssociationReportFrame;
-
-  p_cmd->cmdClass                         = COMMAND_CLASS_USER_CREDENTIAL;
-  p_cmd->cmd                              = USER_CREDENTIAL_ASSOCIATION_REPORT;
-  p_cmd->credentialType                   = (uint8_t)p_source_metadata->type;
-  p_cmd->credentialSlot1                  = (uint8_t)(p_source_metadata->slot >> 8); // MSB
-  p_cmd->credentialSlot2                  = (uint8_t)p_source_metadata->slot; // LSB
-  p_cmd->destinationUserUniqueIdentifier1 = (uint8_t)(p_destination_metadata->uuid >> 8); // MSB
-  p_cmd->destinationUserUniqueIdentifier2 = (uint8_t)p_destination_metadata->uuid; // LSB
-  p_cmd->userCredentialAssociationStatus  = (uint8_t)status;
-
-  zaf_tx_options_t tx_options;
-  zaf_transport_rx_to_tx_options(p_rx_options, &tx_options);
-  return zaf_transport_tx((uint8_t *)&tx_buffer, sizeof(ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME),
-                          NULL, &tx_options);
+  CC_UserCredential_AssociationReport_tx(p_source_metadata, p_destination_metadata, status, p_rx_options);
+  return true;
 }

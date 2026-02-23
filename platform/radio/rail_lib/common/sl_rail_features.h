@@ -266,6 +266,14 @@ extern "C" {
 #define SL_RAIL_SUPPORTS_VDET 0
 #endif
 
+/// Boolean to indicate whether the selected chip supports RX duty cycling.
+/// See also runtime refinement \ref sl_rail_supports_rx_duty_cycling().
+#if (_SILICON_LABS_32B_SERIES_3_CONFIG == 301)
+#define SL_RAIL_SUPPORTS_RX_DUTY_CYCLING (1U)
+#else
+#define SL_RAIL_SUPPORTS_RX_DUTY_CYCLING (0U)
+#endif
+
 #ifndef DOXYGEN_UNDOCUMENTED
 /// Boolean to indicate whether the selected chip supports the Sequencer User
 /// See also runtime refinement \ref sl_rail_supports_sequencer_user().

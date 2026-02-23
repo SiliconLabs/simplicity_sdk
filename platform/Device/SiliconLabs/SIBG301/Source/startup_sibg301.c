@@ -378,8 +378,7 @@ void Zero_Table()
 #endif // defined(__START) && defined(__GNUC__)
 
 #if !defined(SL_LEGACY_LINKER) \
-  && !defined(SL_RAM_LINKER)   \
-  && !defined(BOOTLOADER_ENABLE)
+  && !defined(SL_RAM_LINKER)
 #if defined (__GNUC__)
 __attribute__((optimize("no-tree-loop-distribute-patterns")))
 #endif
@@ -607,8 +606,7 @@ __NO_RETURN void Reset_Handler(void)
   #endif
 
 #if !defined(SL_LEGACY_LINKER) \
-  && !defined(SL_RAM_LINKER)   \
-  && !defined(BOOTLOADER_ENABLE)
+  && !defined(SL_RAM_LINKER) 
   CopyToRam();
 #endif // !defined(SL_LEGACY_LINKER) && !defined(SL_RAM_LINKER) && !defined(BOOTLOADER_ENABLE)
 

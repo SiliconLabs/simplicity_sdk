@@ -10,9 +10,13 @@ metadata:
         license: Zlib
 root_path: platform/service/device_init/
 config_file:
+  - path: config/s2/sdid205/38M/sl_device_init_hfrco_config.h
+    file_id: device_init_hfrco_config
+    condition: [device_has_hfrco_38m]
   - path: config/s2/sl_device_init_hfrco_config.h
     file_id: device_init_hfrco_config
     condition: [device_series_2]
+    unless: [device_has_hfrco_38m]
 include:
   - path: inc
     file_list:

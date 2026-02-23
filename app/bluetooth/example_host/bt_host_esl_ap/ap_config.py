@@ -44,6 +44,10 @@ IMAGE_MAX_AUTO_UPLOAD_COUNT = 2
 # Retry count for ESL command opcodes re-sending
 ESL_CMD_MAX_RETRY_COUNT = 3
 
+# Limit of unsuccessful onboarding attempts before blocking the tag to avoid endless retries
+# Set it higher than the internal retry limits of the ESL C library (ESL_LIB_CONNECTION_RETRY_COUNT_MAX value)
+UNSUCCESSFUL_ONBOARDING_LIMIT = 6
+
 # Pending count for connection requests: 1 is the minmum ad also the safest value, but auto provisioning will be the slowest
 ESL_CMD_MAX_PENDING_CONNECTION_REQUEST_COUNT = 4096 # Best if aligned with elw.ESL_LIB_SKIPLIST_MAX_LEVEL_LIB macro value
 
@@ -55,7 +59,7 @@ RSSI_THRESHOLD = -80
 
 # Scanning parameters
 SCAN_INTERVAL_DEFAULT_MS = 15.0
-SCAN_WINDOW_DEFAULT_MS = 13.75
+SCAN_WINDOW_DEFAULT_MS = 15.0
 
 # The maximum number of threads can be limited by the system - it is better to avoid creating too many
 MAX_ADVERTISER_TIMEOUT_THREADS = 750 # If there are more ESLs advertising at the same time, this will be the upper limit of the reported count!

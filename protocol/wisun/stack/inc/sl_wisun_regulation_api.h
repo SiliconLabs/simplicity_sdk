@@ -130,7 +130,7 @@ static const sl_wisun_regulation_params_t SL_WISUN_REGULATION_PARAMS_NONE = {
   .fixed_cca_threshold_dbm = INT8_MAX,  // Use adaptive CCA threshold
 };
 
-/// Parameter set for ARIB regional regulation.
+/// Parameter set for ARIB regional regulation (ARIB-STD-T108).
 /// This parameter set is used for Japan and other ARIB compliant regions.
 static const sl_wisun_regulation_params_t SL_WISUN_REGULATION_PARAMS_ARIB = {
   .version = SL_WISUN_REGULATION_PARAMS_API_VERSION,
@@ -162,13 +162,14 @@ static const sl_wisun_regulation_params_t SL_WISUN_REGULATION_PARAMS_WPC = {
   .fixed_cca_threshold_dbm = INT8_MAX,  // Use adaptive CCA threshold
 };
 
-/// Parameter set for ETSI regional regulation.
+/// Parameter set for ETSI regional regulation (ETSI EN 300 220-1).
 /// This parameter set is used for Europe and other ETSI compliant regions.
 static const sl_wisun_regulation_params_t SL_WISUN_REGULATION_PARAMS_ETSI = {
   .version = SL_WISUN_REGULATION_PARAMS_API_VERSION,
   .max_edfe_duration_ms = UINT32_MAX,  // No EDFE duration limit
-  .duty_cycle_budget_s = 90,  // 10% (LBR) and 2.5% (RN) measured over a period of 60 minutes
-  .duty_cycle_budget_per_channel_s = -1,
+  .duty_cycle_budget_s = -1,
+  .duty_cycle_budget_per_channel_s = 100,  // 100 s / 1 h per 200 kHz spectrum
+                                           // (Section 5.21 Polite spectrum access)
   .duty_cycle_warning_threshold_percent = 50,
   .duty_cycle_alert_threshold_percent = 90,
   .duty_cycle_skip_ack = false,

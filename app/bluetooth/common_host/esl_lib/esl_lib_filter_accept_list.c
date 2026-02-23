@@ -115,7 +115,7 @@ size_t filter_accept_list_get_size(filter_list_p list)
   return skip_list_get_node_count(list);
 }
 
-const filter_node_p filter_accept_list_insert_command(filter_list_p list, filter_data_p command)
+filter_node_p filter_accept_list_insert_command(filter_list_p list, filter_data_p command)
 {
   return skip_list_insert_node(list, (void *)command);
 }
@@ -138,9 +138,9 @@ filter_data_p filter_accept_list_remove_command_by_address(filter_list_p list,
   return (filter_data_p)skip_list_remove_node(list, (void *)&stub);
 }
 
-const void *const filter_accept_list_get_command_by_address(filter_list_p list,
-                                                            bd_addr *address,
-                                                            uint8_t address_type)
+const void *filter_accept_list_get_command_by_address(filter_list_p list,
+                                                      bd_addr *address,
+                                                      uint8_t address_type)
 {
   esl_lib_command_list_cmd_t stub;
   filter_node_p node = NULL;

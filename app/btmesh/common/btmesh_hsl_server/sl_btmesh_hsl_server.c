@@ -2676,13 +2676,11 @@ static void delayed_saturation_level_request(void)
 /** @} (end addtogroup SaturationGenericLevel) */
 
 /*******************************************************************************
- * This function is registered as callback to be executed when the underlying
- * Generic OnOff state had been changed
+ * This function is called when an "Off" request requires all current
+ * move transitions for hue and saturation to be halted immediately.
  ******************************************************************************/
-void lightness_server_onoff_changed_cb(void)
+void sl_btmesh_hsl_server_stop_all_transitions(void)
 {
-  // If the OnOff state had been changed for the light, ongoing Generic Level Move
-  // transitions must be stopped
   saturation_level_move_stop();
   hue_level_move_stop();
 }
@@ -2728,8 +2726,6 @@ static void init_hsl_models(void)
                                   saturation_level_request,
                                   saturation_level_change,
                                   saturation_level_recall);
-
-  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
 /*******************************************************************************

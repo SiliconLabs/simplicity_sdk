@@ -122,6 +122,9 @@ static bool is_actively_waiting_for_clock_restore = false;
 // Indicates if the clock restore was completed from the HFXO ISR
 static volatile bool is_restored_from_hfxo_isr = false;
 static volatile bool is_restored_from_hfxo_isr_internal = false;
+#else
+// Store if we are currently sleeping in EM1HCLKDIV
+static volatile bool em1hclkdiv_sleep_in_progress = false;
 #endif
 
 /*******************************************************************************
@@ -366,7 +369,6 @@ __NO_INLINE void sl_power_manager_sleep(void)
 
   evaluate_wakeup(SL_POWER_MANAGER_EM0);
 #else
-  bool first_iteration = true;
   current_em = SL_POWER_MANAGER_EM1;
 
   // Notify listeners of transition to EM1
@@ -376,12 +378,11 @@ __NO_INLINE void sl_power_manager_sleep(void)
     // Get lowest EM
     lowest_em = get_lowest_em();
 
-    if (first_iteration == true
-        && lowest_em > SL_POWER_MANAGER_EM1) {
+    if (em1hclkdiv_sleep_in_progress == false && lowest_em > SL_POWER_MANAGER_EM1) {
       // Hook function for specific operations when we enter sleep with no EM1 requirement.
       // Even though deepsleep is not entered, additional operations to reduce power can be perfomed.
       sli_power_manager_em1hclkdiv_presleep_operations();
-      first_iteration = false;
+      em1hclkdiv_sleep_in_progress = true;
     }
 
     // Apply EM1 energy mode
@@ -392,9 +393,10 @@ __NO_INLINE void sl_power_manager_sleep(void)
     primask_state = yield_critical_with_primask(primask_state);
   } while (sl_power_manager_sleep_on_isr_exit() == true);
 
-  if (first_iteration == false) {
+  if (em1hclkdiv_sleep_in_progress == true) {
     // Since the lowest_em can change inside ISR, we don't use it for the condition check.
     sli_power_manager_em1hclkdiv_postsleep_operations();
+    em1hclkdiv_sleep_in_progress = false;
   }
 #endif
 
@@ -472,7 +474,12 @@ void sli_power_manager_update_em_requirement(sl_power_manager_em_t em,
   }
 #else
   (void)em;
-  (void)add;
+  if (add == true && em1hclkdiv_sleep_in_progress == true) {
+    // If we are coming from EM1HCLKDIV and adding an EM1 requirement, we need to perform
+    // the post-sleep operations.
+    sli_power_manager_em1hclkdiv_postsleep_operations();
+    em1hclkdiv_sleep_in_progress = false;
+  }
 #endif
 }
 

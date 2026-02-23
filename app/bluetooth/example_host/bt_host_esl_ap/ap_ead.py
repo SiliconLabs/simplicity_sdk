@@ -96,10 +96,10 @@ class EAD:
 
     def decrypt(self, data, key_material):
         """Decrypt encrypted PA data"""
-        if data is None or key_material is None or not key_material.valid:
-            return None
-
         ad_data = b""
+        if data is None or key_material is None or not key_material.valid:
+            return ad_data
+
         add_data = (ENCRYPTED_DATA_B1_HEADER).to_bytes(1, byteorder="little")
         randomizer, enc_data = self.unpack(data)
 

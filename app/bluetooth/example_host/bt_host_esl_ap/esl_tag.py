@@ -29,7 +29,7 @@ from collections import namedtuple
 from datetime import datetime as dt
 from image_converter import XbmConverter
 from ap_constants import *
-from ap_config import IOP_TEST, ADVERTISING_TIMEOUT, CONNECTING_TIMEOUT
+from ap_config import IOP_TEST, ADVERTISING_TIMEOUT, CONNECTING_TIMEOUT, UNSUCCESSFUL_ONBOARDING_LIMIT
 from ap_logger import getLogger
 from ap_sensor import SENSOR_INFO_LENGTH_SHORT, SENSOR_INFO_LENGTH_LONG, SENSOR_TYPES
 import esl_lib_wrapper as elw
@@ -116,6 +116,7 @@ class Tag:
         self._full_config_to_write = False
         self._state_timestamp = dt.now()
         self._current_time_last_set = dt.now().timestamp()
+        self._disconnection_counter = 0
         # ESL specific attributes
         self.ble_address = address
         self.ots_image_type = {}
@@ -384,6 +385,8 @@ class Tag:
             )
             self._state_timestamp = now
             self._state = new_state
+            if (new_state == TagState.IDLE):
+                self.limit_connection_retries()
 
     @property
     def connection_handle(self):
@@ -426,7 +429,7 @@ class Tag:
             key: value for key, value in self.gatt_values.items() if key in keys
         }
         self._full_config_to_write = bool(len(self.gatt_write_values) == len(keys))
-        # Keep ESL Address if exists and the previous config has been finished succesfully, delete the rest - also make the ESL object invalid for possible future re-discovery
+        # Keep ESL Address if exists and the previous config has been finished successfully, delete the rest - also make the ESL object invalid for possible future re-discovery
         self.gatt_values = {
             key: value
             for key, value in self.gatt_values.items()
@@ -457,6 +460,7 @@ class Tag:
     def unblock(self):
         """Release from blocked state"""
         self._blocked = elw.ESL_LIB_STATUS_NO_ERROR
+        self._disconnection_counter = 0
 
     def reset_advertising(self):
         """Enable re-discovery of an already known (reported) tag"""
@@ -490,6 +494,20 @@ class Tag:
         """Clear the BASIC_STATE_FLAG_SYNCHRONIZED flag internally to consider a tag unsynced"""
         # while clearing the bit it is still possible that the tag is actually synced so doing this allows it to recover silently
         self.basic_state_flags = self.basic_state_flags & ~BASIC_STATE_FLAG_SYNCHRONIZED
+
+    def limit_connection_retries(self):
+        """Limit disconnection retries of unprovisioned tags"""
+        if not self.provisioned:
+            self._disconnection_counter += 1
+            if self._disconnection_counter >= UNSUCCESSFUL_ONBOARDING_LIMIT:
+                self.block(elw.ESL_LIB_STATUS_CONN_CONFIG_FAILED)
+                self.log.error(
+                    "Tag at address %s blocked due to exceeding maximum connection retries (%d)",
+                    self.ble_address,
+                    UNSUCCESSFUL_ONBOARDING_LIMIT,
+                )
+        else:
+            self._disconnection_counter = 0
 
     def handle_response(self, data):
         """Handle TLV response"""
@@ -743,7 +761,7 @@ class Tag:
                 self._past_timer.cancel()
                 self.connection_handle = None
                 if evt.reason == elw.SL_STATUS_BT_CTRL_REMOTE_USER_TERMINATED:
-                    if self.provisioned and not self.pending_unassociate and self._past_subevents_max > self.group_id:
+                    if self.provisioned and not self.pending_unassociate and self.past_initiated and self._past_subevents_max > self.group_id:
                         self.__update_flags(BASIC_STATE_FLAG_SYNCHRONIZED)
                     else:
                         self.__update_flags(BASIC_STATE_FLAG_SYNCHRONIZED, False)
@@ -962,6 +980,7 @@ class Tag:
                 ):
                     self._past_timer.cancel()
                 self._past_subevents_max = None
+                self.state = TagState.IDLE
             elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_TIMEOUT:
                 if self._past_timer.is_alive():
                     self._past_timer.cancel()
@@ -976,6 +995,7 @@ class Tag:
                     self.close_connection(force_close=True)
                     if not self.busy:
                         self.connection_handle = None
+                        self.state = TagState.IDLE
                 else:
                     self.connection_handle = None
             elif evt.lib_status == elw.ESL_LIB_STATUS_OTS_GOTO_FAILED:
@@ -1072,6 +1092,9 @@ class Tag:
                 self.log.debug("Abort connection to ESL at %s.", self.ble_address)
             status = self.lib.close_connection(self.connection_handle)
             self.busy = (status == elw.SL_STATUS_OK)
+            if not self.busy:
+                self.connection_handle = None
+                self.reset_advertising()
         except esl_lib.CommandFailedError as e:
             self.log.error(e)
 
@@ -1294,7 +1317,7 @@ class Tag:
             raise InvalidTagStateError(
                 f"Invalid ESL object state: {self._state} at address {self.ble_address}!"
             )
-        if self._past_subevents_max is not None:
+        if self.past_initiated:
             raise InvalidTagStateError(
                 f"PAST has been already initiated for ESL at address {self.ble_address}!"
             )

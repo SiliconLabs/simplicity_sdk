@@ -7309,6 +7309,16 @@ bool sl_rail_supports_trustzone_secure_peripherals(sl_rail_handle_t rail_handle)
 bool sl_rail_supports_prs_lna_bypass(sl_rail_handle_t rail_handle);
 
 /**
+ * Indicate whether this chip supports RX duty cycling.
+ *
+ * @param[in] rail_handle A radio-generic or real RAIL instance handle.
+ * @return true if RX duty cycling is supported; false otherwise.
+ *
+ * Runtime refinement of compile-time \ref SL_RAIL_SUPPORTS_RX_DUTY_CYCLING.
+ */
+bool sl_rail_supports_rx_duty_cycling(sl_rail_handle_t rail_handle);
+
+/**
  * Indicate whether RAIL supports the BTC protocol on this chip.
  *
  * @param[in] rail_handle A radio-generic or real RAIL instance handle.

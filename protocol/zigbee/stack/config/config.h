@@ -37,7 +37,7 @@
 #define SL_ZIGBEE_SPECIAL_VERSION  0
 
 // 2 bytes
-#define SL_ZIGBEE_BUILD_NUMBER 436
+#define SL_ZIGBEE_BUILD_NUMBER 532
 #define SL_ZIGBEE_FULL_VERSION (  ((uint16_t)SL_ZIGBEE_MAJOR_VERSION << 12)   \
                                   | ((uint16_t)SL_ZIGBEE_MINOR_VERSION <<  8) \
                                   | ((uint16_t)SL_ZIGBEE_PATCH_VERSION <<  4) \

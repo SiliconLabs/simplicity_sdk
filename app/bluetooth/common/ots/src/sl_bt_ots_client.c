@@ -39,7 +39,7 @@
 // -----------------------------------------------------------------------------
 // Definitions
 
-#define PRIOR_CHANNEL_PDU   240
+#define PRIOR_CHANNEL_PDU   252
 #define PRIOR_CHANNEL_SDU   SL_BT_L2CAP_TRANSFER_MAX_SDU
 
 #define OTS_CLIENT_BUFFER_SIZE        SL_BT_OTS_CLIENT_CONFIG_WRITE_REQUEST_DATA_SIZE

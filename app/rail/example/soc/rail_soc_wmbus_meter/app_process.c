@@ -424,14 +424,9 @@ void handle_unlimited_access(sl_rail_handle_t rail_handle)
  ******************************************************************************/
 sl_rail_status_t send_packet_at(sl_rail_handle_t rail_handle, uint16_t length, uint64_t send_at)
 {
-  last_tx_length = sl_rail_sdk_wmbus_phy_software(tx_buffer, (uint8_t) length, TX_BUFFER_LENGTH);
+  last_tx_length = length;
   sl_rail_write_tx_fifo(rail_handle, tx_buffer, last_tx_length, true);
-  if ( last_tx_length != length ) {
-    //Only for Series 1 Mode T M2O
-    sl_rail_set_fixed_length(rail_handle, last_tx_length);
-  } else {
-    sl_rail_set_fixed_length(rail_handle, SL_RAIL_SET_FIXED_LENGTH_INVALID);
-  }
+
   sl_rail_scheduled_tx_config_t schedule = {
     .when = send_at,
     .mode = SL_RAIL_TIME_ABSOLUTE,

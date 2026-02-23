@@ -302,6 +302,13 @@ static uint8_t      sLastLqi         = 0;
 static int8_t       sLastRssi        = 0;
 static otExtAddress sExtAddress[RADIO_EXT_ADDR_COUNT];
 
+#if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
+// Need higher than default rxToTx turnaround time for enhanced ACKs
+// Default is 192 us. (SL_RAIL_UTIL_PROTOCOL_IEEE802154_2P4GHZ_TIMING_RX_TO_TX_US)
+// (See below in default sRailIeee802154Config)
+#define IEEE802154_2015_ENH_ACK_TIMING_RX_TO_TX_US 256
+#endif
+
 // CSMA config: Should be globally scoped
 #define CSL_CSMA_BACKOFF_TIME_IN_US 150
 sl_rail_csma_config_t csmaConfig    = SL_RAIL_CSMA_CONFIG_802_15_4_2003_2P4_GHZ_OQPSK_CSMA;
@@ -458,14 +465,10 @@ static const sl_rail_ieee802154_config_t sRailIeee802154Config = {
         },
     .timings =
         {
-            .idle_to_rx = 100,
-            .tx_to_rx   = 192 - 10,
-            .idle_to_tx = 100,
-#if OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2
-            .rx_to_tx = 256, // accommodate enhanced ACKs
-#else
-            .rx_to_tx = 192,
-#endif
+            .idle_to_rx             = 100,
+            .tx_to_rx               = 192 - 10,
+            .idle_to_tx             = 100,
+            .rx_to_tx               = 192,
             .rxsearch_timeout       = 0,
             .tx_to_rxsearch_timeout = 0,
             .tx_to_tx               = 0,
@@ -1115,6 +1118,10 @@ static sl_rail_handle_t efr32RailInit(efr32CommonConfig *aCommonConfig)
     OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);
 
 #if (OPENTHREAD_CONFIG_THREAD_VERSION >= OT_THREAD_VERSION_1_2)
+    // Need higher than default rxToTx turnaround time for enhanced ACKs
+    RAIL_TransitionTime_t rxToEnhAckTxUs = IEEE802154_2015_ENH_ACK_TIMING_RX_TO_TX_US;
+    RAIL_IEEE802154_SetRxToEnhAckTx(handle, &rxToEnhAckTxUs);
+
     // Enhanced Frame Pending
     status = sl_rail_ieee802154_enable_early_frame_pending(handle, true);
     OT_ASSERT(status == SL_RAIL_STATUS_NO_ERROR);

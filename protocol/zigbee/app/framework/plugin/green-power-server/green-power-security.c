@@ -233,19 +233,104 @@ uint8_t sli_zigbee_af_gp_outgoing_command_encrypt(sl_zigbee_gp_address_t * gpdAd
   return totalLength;
 }
 
-bool sli_zigbee_af_gp_calculate_incoming_command_decrypt(sl_zigbee_gp_address_t * gpdAddr,
-                                                         uint32_t gpdSecurityFrameCounter,
-                                                         uint8_t payloadLength,
-                                                         uint8_t * payload)
+bool sli_zigbee_af_gp_incoming_command_decrypt_and_validate_mic(sl_zigbee_gp_address_t * gpdAddr,
+                                                                bool rxAfterTx,
+                                                                uint8_t keyType,
+                                                                uint8_t securityLevel,
+                                                                uint32_t gpdSecurityFrameCounter,
+                                                                uint8_t * gpdCommandId,
+                                                                uint8_t * gpdCommandPayload,
+                                                                uint32_t commissioningNotificationMic)
 {
   uint8_t nonce[SECURITY_BLOCK_SIZE] = { 0 };
+  uint8_t temp[MAX_PAYLOAD_LENGTH + SL_ZIGBEE_GP_SECURITY_MIC_LENGTH];
   initializeNonce(true,
                   nonce,
                   gpdAddr,
                   gpdSecurityFrameCounter);
-  uint8_t temp[MAX_PAYLOAD_LENGTH + SL_ZIGBEE_GP_SECURITY_MIC_LENGTH];
-  sl_zigbee_sec_man_aes_ccm(nonce, false, payload, 0, payloadLength, temp);
-  memmove(payload, &temp, payloadLength);
+  uint8_t payload[MAX_PAYLOAD_LENGTH] = { 0 };
+  uint8_t headerLength = prepareHeader(DIRECTION_GPD_TO_GPP,
+                                       rxAfterTx,
+                                       payload,
+                                       gpdAddr,
+                                       keyType,
+                                       securityLevel,
+                                       gpdSecurityFrameCounter);
+
+  uint8_t payloadLength = appendPayload(&payload[headerLength],
+                                        *gpdCommandId,
+                                        gpdCommandPayload);
+  uint8_t totalLength = headerLength + payloadLength;
+  // Append 4 bytes of commissioningNotificationMic to the end of payload
+  sl_util_store_low_high_int32u(&payload[totalLength], commissioningNotificationMic);
+  uint8_t authenticationStartIndex = 0;
+  uint8_t encryptionStartIndex;
+  uint8_t authenticationLength;
+  uint8_t encryptionLength;
+  if (securityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC) {
+    encryptionStartIndex = totalLength;
+    authenticationLength = totalLength;
+    encryptionLength = 0;
+  } else {
+    encryptionStartIndex = headerLength;
+    authenticationLength = headerLength;
+    encryptionLength = payloadLength;
+  }
+  sl_zigbee_af_green_power_cluster_println("Decrypt and validate MIC (%s).", __FUNCTION__);
+
+  sl_zigbee_sec_man_key_t key;
+  sl_zigbee_sec_man_context_t context;
+  sl_zigbee_sec_man_init_context(&context);
+  //check this; using internal as a safe option for replacing
+  //crypto keys right now (due to uncertainty whether these
+  //keys live somewhere else in storage)
+  context.core_key_type = SL_ZB_SEC_MAN_KEY_TYPE_INTERNAL;
+  sl_zigbee_sec_man_export_key(&context, &key);
+
+  sl_zigbee_af_green_power_cluster_print("Using KeyType = %d fc = %08X Key :[", keyType, gpdSecurityFrameCounter);
+  for (int i = 0; i < 16; i++) {
+    sl_zigbee_af_green_power_cluster_print("%02X ", key.key[i]);
+  }
+  sl_zigbee_af_green_power_cluster_print("]\n");
+  sl_zigbee_af_green_power_cluster_print("Prepared Nonce :[");
+  for (int i = 0; i < NONCE_LENGTH; i++) {
+    sl_zigbee_af_green_power_cluster_print("%02X ", nonce[i]);
+  }
+  sl_zigbee_af_green_power_cluster_print("]\n");
+  sl_zigbee_af_green_power_cluster_print("Prepared Payload :[");
+  for (int i = 0; i < totalLength; i++) {
+    sl_zigbee_af_green_power_cluster_print("%02X ", payload[i]);
+  }
+  sl_zigbee_af_green_power_cluster_print("]\n");
+  sl_zigbee_af_green_power_cluster_println("encryptionStartIndex: %02X,totalLength: %02X payloadLength: %02X",
+                                           encryptionStartIndex,
+                                           totalLength,
+                                           payloadLength);
+  sl_status_t status = sl_zigbee_sec_man_aes_ccm(nonce,
+                                                 false, // decrypt
+                                                 payload + authenticationStartIndex,
+                                                 authenticationLength,
+                                                 authenticationLength + encryptionLength,
+                                                 temp);
+  if (status != SL_STATUS_OK) {
+    sl_zigbee_af_green_power_cluster_println("Decryption and MIC validation failed, status: %x", status);
+    return false;
+  }
+  sl_zigbee_af_green_power_cluster_println("Decryption and MIC validation successful");
+  if (securityLevel == SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED) {
+    *gpdCommandId = temp[encryptionStartIndex];
+    sl_zigbee_af_green_power_cluster_println("Decrypted GPD Command ID: %x", *gpdCommandId);
+
+    if (gpdCommandPayload != NULL && gpdCommandPayload[0] != 0) {
+      memcpy(gpdCommandPayload + 1, temp + encryptionStartIndex + 1, gpdCommandPayload[0]);
+      sl_zigbee_af_green_power_cluster_print("Decrypted Payload: [");
+      for (int i = 0; i < gpdCommandPayload[0]; i++) {
+        sl_zigbee_af_green_power_cluster_print("%02X ", gpdCommandPayload[i + 1]);
+      }
+      sl_zigbee_af_green_power_cluster_print("]\n");
+    }
+  }
+
   return true;
 }
 

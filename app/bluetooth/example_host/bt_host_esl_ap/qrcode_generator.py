@@ -26,13 +26,15 @@ QR code generator for ESL demo
 # 3. This notice may not be removed or altered from any source distribution.
 
 from image_converter import XbmConverter, Image
-from intelhex import IntelHex
 from itertools import zip_longest
-import ap_logger
+from intelhex import IntelHex
+import multiprocessing
 import subprocess
+import ap_logger
 import argparse
-import qrcode
 import bincopy
+import qrcode
+import uuid
 import sys
 import os
 import re
@@ -54,10 +56,16 @@ except KeyError:
     pass
 
 
+class ProcessAbortError(Exception):
+    """Custom exception for aborting process in multiprocessing worker"""
+    def __init__(self, exitcode):
+        self.exitcode = exitcode
+        super().__init__(f"Process aborted with exit code {exitcode}")
+
+
 def abort(exitcode):
     ap_logger.log(f"Aborting with error code {exitcode}!", _half_indent_log=True)
-    sys.exit(exitcode)
-
+    raise ProcessAbortError(exitcode)
 
 class Commander:
     """Simplicity Commander helper"""
@@ -188,6 +196,101 @@ def find_magic_in_hex(ihex):
     return addr, size
 
 
+def process_device(params):
+    board, ip, args = params
+    commander = Commander(board, ip)
+    # Helper for generating unique filenames during parallel processing
+    device_id = board or ip or str(uuid.uuid4())
+    # Make sure that the resulting filename is valid
+    safe_id = re.sub(r'[^a-zA-Z0-9_-]', '_', device_id)
+
+    # 1) Check if file is in a known format: Intel HEX (.hex), or Motorola S-Records (.s37)
+    ihex = None
+    if args.hex == FALLBACK_HEX:
+        log.warning(
+            "No input file specified, try reading it from the device. This may take a little longer than if we had an input file."
+        )
+        args.hex = f"readout_{safe_id}.hex"
+        commander.read_mem(args.hex)
+        log.info("Temporary file processing in progress...")
+    try:
+        f = bincopy.BinFile(args.hex)
+    except IOError as e:
+        log.critical(e)
+        abort(e.errno)
+    except bincopy.UnsupportedFileFormatError:
+        log.error(f"Can't open file: {args.hex} due to unknown format.")
+        abort(-4)
+    else:
+        try:
+            ihex = IntelHex(io.StringIO(f.as_ihex()))
+        except:
+            log.error("IntelHex import error.")
+            abort(-5)
+    finally:
+        if args.hex.startswith("readout_") and args.hex.endswith(".hex"):
+            try:
+                os.remove(args.hex)
+                log.info(f"Temporary file removed: {args.hex}")
+            except PermissionError:
+                log.warning(f"Could not remove temporary file: {args.hex}")
+
+    # 2) Read MAC address and create QR code data
+    uid = commander.get_board_uid()
+    log.info(f"UID: {uid}")
+    data = "connect " + uid
+
+    # 3) Generate QR code: the generated data should be a binary which can be flashed to NVM
+    bin_image, _ = generate_qrcode(data, args.height, args.width)
+
+    # 4) Find the magic constant with commander in the given hex file
+    try:
+        start_addr, size = find_magic_in_hex(ihex)
+    except EOFError:
+        log.error(
+            "The QR Code region could not be found. Please check if you have the correct firmware and specified the right target!"
+        )
+        abort(-6)
+
+    # 5) Check if the space is enough for the QR code
+    if size < len(bin_image):
+        log.error("There is not enough memory to flash the QR code")
+        abort(-7)
+
+    # 6) Generate unique filename per device
+    merged_hex_filename = f"merged_{safe_id}.hex"
+
+    merged_hex = merge_qr_hex(bin_image, ihex, start_addr, hex_file_out=merged_hex_filename)
+    commander.flash_board(merged_hex)
+    log.info(f"Done. Cleaning up merged_{safe_id}.hex")
+    os.remove(merged_hex)
+
+
+def validate_serialno(value):
+    """Validate J-Link serial number: must be exactly 9 digits"""
+    if not re.match(r'^\d{9}$', value):
+        raise argparse.ArgumentTypeError(f"Serial number must be exactly 9 digits, got: {value}")
+    return value
+
+
+def validate_ip(value):
+    """Validate IP address: must be valid IPv4 or IPv6 format"""
+    # Simple validation for IPv4
+    ipv4_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
+    # Simple validation for IPv6
+    ipv6_pattern = r'^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$'
+    
+    if re.match(ipv4_pattern, value):
+        # Additional check for valid IPv4 octets (0-255)
+        octets = value.split('.')
+        if all(0 <= int(octet) <= 255 for octet in octets):
+            return value
+    elif re.match(ipv6_pattern, value):
+        return value
+    
+    raise argparse.ArgumentTypeError(f"IP address must be valid IPv4 or IPv6 format, got: {value}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -202,8 +305,18 @@ Can be omitted if the device is already flashed with the correct file and is unl
         nargs="?",
         default=FALLBACK_HEX,
     )
-    parser.add_argument("-s", "--serialno", nargs='+', help="J-Link serial number(s) of target WSTK(s)")
-    parser.add_argument("-i", "--ip", nargs='+', help="IP address(s) of target WSTK(s)")
+    parser.add_argument(
+        "-s", "--serialno", 
+        action='append',
+        type=validate_serialno,
+        help="J-Link serial number of target WSTK (exactly 9 digits). Use multiple times for multiple devices: -s 440128129 -s 440128130"
+    )
+    parser.add_argument(
+        "-i", "--ip", 
+        action='append',
+        type=validate_ip,
+        help="IP address of target WSTK (IPv4 or IPv6). Use multiple times for multiple devices: -i 192.168.1.10 -i 192.168.1.11"
+    )
     parser.add_argument(
         "-w",
         "--width",
@@ -225,64 +338,50 @@ Can be omitted if the device is already flashed with the correct file and is unl
     if args.ip is None:
         args.ip = [None]
 
-    for board, ip in zip_longest(args.serialno, args.ip):
-        commander = Commander(board, ip)
+    device_list = list(zip_longest(args.serialno, args.ip))
+    task_list = [(board, ip, args) for board, ip in device_list]
 
-        # 1) Check if file is in a known format: Intel HEX (.hex), or Motorola S-Records (.s37)
-        ihex = None
-        if args.hex == FALLBACK_HEX:
-            log.warning(
-                "No input file specified, try reading it from the device. This may take a little longer than if we had an input file."
-            )
-            commander.read_mem(args.hex)
-            log.info("Temporary file processing in progress...")
-        try:
-            f = bincopy.BinFile(args.hex)
-        except IOError as e:
-            log.critical(e)
-            abort(e.errno)
-        except bincopy.UnsupportedFileFormatError:
-            log.error(f"Can't open file: {args.hex} due to unknown format.")
-            abort(-4)
-        else:
+    cpu_count = os.cpu_count() or 1
+    chunk_size = max(1, len(task_list) // cpu_count)
+
+    def cleanup_pool(pool):
+        """Helper to terminate and join pool"""
+        if pool:
+            pool.terminate()
+            pool.join()
+    
+    pool = None
+    try: 
+        pool = multiprocessing.Pool(processes=min(cpu_count, len(task_list)))
+        async_result = pool.map_async(process_device, task_list, chunksize=chunk_size)
+        
+        # Poll with short timeout to make CTRL+C responsive
+        while not async_result.ready():
             try:
-                ihex = IntelHex(io.StringIO(f.as_ihex()))
-            except:
-                log.error("IntelHex import error.")
-                abort(-5)
-        finally:
-            if args.hex == FALLBACK_HEX:
-                os.remove(args.hex)
-                log.info(f"Temporary file removed: {args.hex}")
-
-        # 2) Read MAC address and create QR code data
-        uid = commander.get_board_uid()
-        log.info(f"UID: {uid}")
-        data = "connect " + uid
-
-        # 3) Generate QR code: the generated data should be a binary which can be flashed to NVM
-        bin_image, _ = generate_qrcode(data, args.height, args.width)
-
-        # 4) Find the magic constant with commander in the given hex file
-        try:
-            start_addr, size = find_magic_in_hex(ihex)
-        except EOFError:
-            log.error(
-                "The QR Code region could not be found. Please check if you have the correct firmware and specified the right target!"
-            )
-            abort(-6)
-        # 5) Check if the space is enough for the QR code
-        if size < len(bin_image):
-            log.error("There is not enough memory to flash the QR code")
-            abort(-7)
-
-        # 6) Create the new hex file and flash it on the device
-
-        merged_hex = merge_qr_hex(bin_image, ihex, start_addr)
-        commander.flash_board(merged_hex)
-        log.info("Done. Cleaning up.")
-        os.remove(merged_hex)
-
+                async_result.get(timeout=0.5)  # Short timeout for quick CTRL+C response
+                break
+            except multiprocessing.TimeoutError:
+                continue  # Not ready yet, continue polling
+        
+        # If we got here, tasks completed successfully
+        async_result.get()  # Verify there are no errors
+            
+    except KeyboardInterrupt:
+        log.warning("Interrupted by user")
+        cleanup_pool(pool)
+        sys.exit(130)  # Standard exit code CTRL+C-hez
+    except ProcessAbortError as e:
+        log.critical(f"Process failed with exit code {e.exitcode}")
+        cleanup_pool(pool)
+        sys.exit(e.exitcode)
+    except Exception as e:
+        log.critical(f"Unexpected error: {e}")
+        cleanup_pool(pool)
+        sys.exit(1)
+    finally:
+        if pool:
+            pool.close()
+            pool.join()
 
 if __name__ == "__main__":
     main()

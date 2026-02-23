@@ -552,10 +552,16 @@ bool sli_zigbee_af_gp_calculate_incoming_command_mic(sl_zigbee_gp_address_t * gp
                                                      uint8_t * gpdCommandPayload,
                                                      bool encryptedPayload,
                                                      uint8_t mic[4]);
-bool sli_zigbee_af_gp_calculate_incoming_command_decrypt(sl_zigbee_gp_address_t * gpdAddr,
-                                                         uint32_t gpdSecurityFrameCounter,
-                                                         uint8_t payloadLength,
-                                                         uint8_t * payload);
+
+bool sli_zigbee_af_gp_incoming_command_decrypt_and_validate_mic(sl_zigbee_gp_address_t * gpdAddr,
+                                                                bool rxAfterTx,
+                                                                uint8_t keyType,
+                                                                uint8_t securityLevel,
+                                                                uint32_t gpdSecurityFrameCounter,
+                                                                uint8_t * gpdCommandId,
+                                                                uint8_t * gpdCommandPayload,
+                                                                uint32_t commissioningNotificationMic);
+
 uint8_t sli_zigbee_af_gp_outgoing_command_encrypt(sl_zigbee_gp_address_t * gpdAddr,
                                                   uint32_t gpdSecurityFrameCounter,
                                                   uint8_t keyType,

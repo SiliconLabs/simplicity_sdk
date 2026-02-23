@@ -403,18 +403,18 @@ static sl_status_t state_in_procedure_on_ranging_data(cs_initiator_t            
   }
   // Initiator data
   if (data->evt_ranging_data.procedure_state == CS_PROCEDURE_STATE_ABORTED) {
-    if (initiator->ras_client.real_time_mode) {
-      initiator_log_info(INSTANCE_PREFIX "Instance new state: INITIATOR_STATE_IN_PROCEDURE" LOG_NL,
-                         initiator->conn_handle);
-      initiator->initiator_state = (uint8_t)INITIATOR_STATE_IN_PROCEDURE;
-    } else {
+    if (initiator->config.max_procedure_count != 0) {
       initiator_log_info(INSTANCE_PREFIX "Instance new state: WAIT_REFLECTOR_PROCEDURE_ABORTED" LOG_NL,
                          initiator->conn_handle);
       initiator->initiator_state = (uint8_t)INITIATOR_STATE_WAIT_REFLECTOR_PROCEDURE_ABORTED;
+    } else {
+      initiator_log_info(INSTANCE_PREFIX "Instance new state: INITIATOR_STATE_IN_PROCEDURE" LOG_NL,
+                         initiator->conn_handle);
+      initiator->initiator_state = (uint8_t)INITIATOR_STATE_IN_PROCEDURE;
+      // Allow upcoming procedures
+      reset_subevent_data(initiator, false);
+      sc = SL_STATUS_OK;
     }
-    // Allow upcoming procedures
-    reset_subevent_data(initiator, false);
-    sc = SL_STATUS_OK;
   } else if (data->evt_ranging_data.procedure_state == CS_PROCEDURE_STATE_COMPLETED) {
     initiator_log_info(INSTANCE_PREFIX "Instance new state: WAIT_REFLECTOR_PROCEDURE_COMPLETE" LOG_NL,
                        initiator->conn_handle);
@@ -438,9 +438,15 @@ static sl_status_t state_in_procedure_on_cs_result(cs_initiator_t             *i
     return sc;
   }
 
-  initiator_log_info(INSTANCE_PREFIX "Initiator ranging data %u complete" LOG_NL,
-                     initiator->conn_handle,
-                     initiator->ranging_counter);
+  if (procedure_state == CS_PROCEDURE_STATE_ABORTED) {
+    initiator_log_info(INSTANCE_PREFIX "Initiator ranging data %u aborted" LOG_NL,
+                       initiator->conn_handle,
+                       initiator->ranging_counter);
+  } else {
+    initiator_log_info(INSTANCE_PREFIX "Initiator ranging data %u complete" LOG_NL,
+                       initiator->conn_handle,
+                       initiator->ranging_counter);
+  }
 
   // Pass a ranging data event
   data_out.evt_ranging_data.initiator_part = true;

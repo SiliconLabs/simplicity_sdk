@@ -290,6 +290,8 @@ cs_procedure_state_t ranging_data_is_complete(uint8_t *data,
                                                 &subevent_header);
   }
 
+  (void)subevent;
+
   if (aborted) {
     return CS_PROCEDURE_STATE_ABORTED;
   }

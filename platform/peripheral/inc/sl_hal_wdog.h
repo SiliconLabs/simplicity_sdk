@@ -569,6 +569,9 @@ __INLINE bool sl_hal_wdog_is_locked(WDOG_TypeDef *wdog)
  *
  * void wdog_example(void)
  * {
+ *   // Enable bus clock for WDOG0
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_WDOG0);
+ *
  *   // Initialize WDOG with default configuration
  *   sl_hal_wdog_init_t init = SL_HAL_WDOG_INIT_DEFAULT;
  *

@@ -499,6 +499,11 @@ void app_init(int argc, char *argv[])
     exit(EXIT_FAILURE);
   }
 
+  if (initiator_config.cs_main_mode == sl_bt_cs_mode_rtt && initiator_config.cs_sub_mode == sl_bt_cs_mode_rtt) {
+    app_log_error(APP_PREFIX "CS main mode RTT and CS sub mode RTT combination is not supported!" APP_LOG_NL);
+    exit(EXIT_FAILURE);
+  }
+
   // Log procedure scheduling
   if (initiator_config.procedure_scheduling == CS_PROCEDURE_SCHEDULING_OPTIMIZED_FOR_FREQUENCY) {
     app_log_info(APP_PREFIX "Using frequency optimized procedure scheduling." APP_LOG_NL);
@@ -816,6 +821,17 @@ void sl_bt_on_event(sl_bt_msg_t *evt)
       }
       break;
     }
+    // -------------------------------
+    // This event indicates that the BT stack buffer resources were exhausted
+    case sl_bt_evt_system_resource_exhausted_id:
+      app_log_error(APP_PREFIX "BT stack buffers exhausted, data loss may have occurred! "
+                               "buf_discarded='%u' buf_alloc_fail='%u' heap_alloc_fail='%u'" APP_LOG_NL,
+                    evt->data.evt_system_resource_exhausted.num_buffers_discarded,
+                    evt->data.evt_system_resource_exhausted.num_buffer_allocation_failures,
+                    evt->data.evt_system_resource_exhausted.num_heap_allocation_failures);
+      break;
+    default:
+      break;
   }
 }
 
@@ -1108,7 +1124,8 @@ static void on_connection_closed(uint8_t conn_handle)
       }
 
       // Restart scanning for new reflector connections
-      (void)ble_peer_manager_central_create_connection();
+      sc = ble_peer_manager_central_create_connection();
+      app_assert_status(sc);
       app_log_info(APP_PREFIX "Scanning restarted for new reflector connections..." APP_LOG_NL);
 
       cs_host_state.num_reflector_connections--;

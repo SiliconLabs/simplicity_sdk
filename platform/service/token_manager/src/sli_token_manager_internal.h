@@ -240,8 +240,8 @@ sl_status_t sli_token_manager_set_dynamic_data(uint32_t token,
                                                uint32_t length);
 
 /***************************************************************************//**
- * For NVM3 override of a manufacturing tokens, returns NVM3 key region value allocated
- * for manufacturing tokens.
+ * For NVM3 override of a manufacturing tokens, returns NVM3 key region value
+ * allocated for manufacturing tokens.
  *
  * @param[in] token The token identifier in 32-bit token format.
  *
@@ -249,6 +249,25 @@ sl_status_t sli_token_manager_set_dynamic_data(uint32_t token,
  * SL_TOKEN_NVM3_REGION_STATIC_SECURE_TOKEN_RANGE.
  ******************************************************************************/
 uint32_t sli_token_manager_get_nvm3_key_space_region (uint32_t token);
+
+/***************************************************************************//**
+ * Read the data associated with the specified override token.
+ * To read an override token, the token manager must be initialized and
+ * the override feature must be enabled.
+ *
+ * @param[in]  token     The manufacturing key for the override token.
+ * @param[out] data      A pointer to where the token data should be placed.
+ * @param[in]  offset    Indicates the number of bytes to skip from the
+ *                       beginning of the token data before starting to read.
+ * @param[in]  length    The size of the data (full or partial) to be read,
+ *                       in bytes.
+ *
+ * @return SL_STATUS_OK if successful, an error code otherwise.
+ ******************************************************************************/
+sl_status_t sli_token_manager_get_override_token_data(uint32_t token,
+                                                      void *data,
+                                                      uint32_t offset,
+                                                      uint32_t length);
 #endif // (SL_COMMON_TOKEN_MANAGER_ENABLE_DYNAMIC_TOKENS)
 
 /***************************************************************************//**

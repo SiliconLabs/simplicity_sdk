@@ -442,7 +442,7 @@ static sl_zigbee_gp_tx_queue_entry_t* get_gp_stub_tx_queue(sl_zigbee_gp_address_
                                                     128) != SL_ZIGBEE_NULL_MESSAGE_BUFFER) {
     // Allocate a buffer and prepare a outgoing MAC header using gpd address in the sli_zigbee_gp_tx_queue
     sli_buffer_manager_buffer_t header = sli_zigbee_gpdf_make_header(true, NULL, &(sli_zigbee_gp_tx_queue.addr));
-    if (header != SL_ZIGBEE_NULL_MESSAGE_BUFFER) {
+    if (header == SL_ZIGBEE_NULL_MESSAGE_BUFFER) {
       return NULL;
     }
 

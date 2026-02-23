@@ -238,7 +238,7 @@ class JSONHelper:
                 )
                 return
             json.dump(data, f, sort_keys=False, indent=2)
-            self._log.debug("ESL network config file %s saved succesfully!", file)
+            self._log.debug("ESL network config file %s saved successfully!", file)
 
 
 def main():

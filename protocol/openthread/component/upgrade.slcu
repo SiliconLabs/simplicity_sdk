@@ -52,4 +52,7 @@ upgrade:
           In sisdk-2025.6.0 the sl_system component was deprecated and support for baremetal applications has been removed.
           For baremetal applications sl_system_compatibility is now used for a seamless transition.
           For RTOS applications you can manually upgrade your project to sl_main or add the define SL_SUPPRESS_DEPRECATION_WARNINGS_SDK_2025_6 to your project to keep sl_system until it is removed.
-          sl_system support for RTOS applications will be removed in sisdk-2026.6.0 and your project will need to upgrade to sl_main. 
+          sl_system support for RTOS applications will be removed in sisdk-2026.6.0 and your project will need to upgrade to sl_main.
+      - script: protocol/openthread/component/script/upgrade_ncp_cli_support.lua
+        description: >
+          Add CLI support to NCP applications.

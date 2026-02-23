@@ -252,12 +252,13 @@ static void handle_scan_event(bd_addr *address,
 
     // Handle if the default PHY is not supported
     if (sc == SL_STATUS_INVALID_PARAMETER) {
-      app_log_status_warning_f(sc, "Connection PHY is not supported and set to 1M PHY" APP_LOG_NL);
+      app_log_status_warning_f(sc,
+                               "Connection open on the requested PHY is not supported. "
+                               "Opening connection on 1M PHY and changing it later." APP_LOG_NL);
 
-      central_state.phy = sl_bt_gap_phy_coding_1m_uncoded;
       sc = sl_bt_connection_open(*address,
                                  address_type,
-                                 central_state.phy,
+                                 sl_bt_gap_phy_coding_1m_uncoded,
                                  &connection_handle_central);
     }
     // Assertion to first or second attempt to connect
@@ -550,6 +551,9 @@ void bt_on_event_central(sl_bt_msg_t *evt)
 
       central_state.state = THROUGHPUT_STATE_CONNECTED;
       throughput_central_on_state_change(central_state.state);
+
+      sc = throughput_central_set_connection_phy(central_state.phy);
+      app_log_status_warning_f(sc, "Connection PHY could not be set" APP_LOG_NL);
 
       central_state.discovery_state = THROUGHPUT_DISCOVERY_STATE_SERVICE;
       throughput_central_on_discovery_state_change(central_state.discovery_state);

@@ -290,23 +290,6 @@ typedef enum {
 /** @} (end rail_sdk_wmbus_support_types) */
 
 /**
- * Runs the required software based phy processes on the buffer, depending
- * on the mode. The buffer must be big enough to hold the processed data.
- * Currently, only T mode's Meter to Other requires software based crc and 3of6 encoding.
- * For that, the buffer should be at 436B long for the longest packet.
- * All other modes passes through this call without modifications
- * sl_rail_sdk_wmbus_set_mode should be called before using this function.
- *
- * @param[in,out] buffer        The buffer that holds the data, and what will hold the processed data
- * @param[in]     length        Length of the input buffer
- * @param[in]     buffer_length Size of the buffer, to prevent writing outside of the buffer
- *
- * @return The length of the processed packet, that can be passed to the hardware, or 0 on error
- */
-uint16_t sl_rail_sdk_wmbus_phy_software(uint8_t *buffer, uint8_t length,
-                                        uint16_t buffer_length);
-
-/**
  * Get the current Wireless M-Bus accessibility settings
  * @return the current value
  */

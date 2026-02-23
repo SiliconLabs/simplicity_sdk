@@ -60,6 +60,11 @@
 // <i> This option will allow Trust Center Rejoin (unsecure rejoin) attempts when the device is using a well-known key, such as "ZigBeeAlliance09".  This exposes a potential security hole on the Trust Center side but is an option for backward compatibility with networks that need it. Note that the Trust Center may have its own policy for handling insecure rejoins and may choose to not send the network key to the rejoining device if it is using a well known link key.
 #define SL_ZIGBEE_AF_PLUGIN_END_DEVICE_SUPPORT_ALLOW_REJOINS_WITH_WELL_KNOWN_LINK_KEY   0
 
+// <o SL_ZIGBEE_AF_PLUGIN_END_DEVICE_SUPPORT_MOVE_DELAY_SECONDS> End device Move Delay (seconds) <1-65535>
+// <i> Default: 10
+// <i> This option sets the delay (in seconds) before an end device attempts to move (rejoin) to a new parent.
+#define SL_ZIGBEE_AF_PLUGIN_END_DEVICE_SUPPORT_MOVE_DELAY_SECONDS   10
+
 // </h>
 
 // <<< end of configuration section >>>

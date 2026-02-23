@@ -641,7 +641,7 @@ RAIL_Status_t RAIL_IEEE802154_Config2p4GHzRadioAntDivCoexFem(RAIL_Handle_t railH
  * Time in microseconds to listen for a packet on the 2 Mbps channel.
  * This timeout can be configured at runtime using \ref RAIL_IEEE802154_Config2MbpsRxTimeout().
  */
-#define RAIL_IEEE802154_2MBPS_RECEIVE_TIMEOUT_US 1500UL
+#define RAIL_IEEE802154_2MBPS_RECEIVE_TIMEOUT_US 150UL
 
 #ifndef SLI_LIBRAIL_ALIAS
 

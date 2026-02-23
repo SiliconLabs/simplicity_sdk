@@ -1,60 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.silabs.com/ss/ContentItem.ecore">
-  <contentItemData name="" label="AN1154: Using Tokens for Non-Volatile Data Storage" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1154-tokens-for-non-volatile-storage.pdf" category="Application Notes" priority="42">
-    <description>Describes tokens and shows how to use them for non-volatile data storage in EmberZNet PRO and Silicon Labs Flex  applications.   </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="42"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1222-efr32xg2x-production-programming.pdf" category="Application Notes" priority="50">
-    <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1252: Building Low Power Networks with the Silicon Labs Connect Stack v3.x" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1252-connect-v3x-low-power-networks.pdf" category="Application Notes" priority="40">
-    <description>Illustrates reducing power consumption in a Connect v3.x application using the sensor example.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="40"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1253: EFR32 Radio Configurator Guide for Simplicity Studio 5" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1253-efr32-radio-configurator-guide-for-ssv5.pdf" category="Application Notes" priority="50">
-    <description>Describes the radio configurator GUI for RAIL framework applications in Simplicity Studio 5. With it, you can  create standard or custom radio configurations on which to run your RAIL-based applications. The role of each GUI item is explained.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1303-efr32-dci-swd-programming.pdf" category="Application Notes" priority="50">
-    <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an1311-mbedtls-psa-crypto-porting-guide.pdf" category="Application Notes" priority="50">
-    <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="50"/>
-    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="AN961: Bringing Up Custom Devices for the EFR32MG and EFR32FG Families" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/an961-custom-nodes-efr32.pdf" category="Application Notes" priority="30">
-    <description>Describes how to initialize a piece of custom hardware (a 'device') based on the EFR32MG and EFR32FG  families so that it interfaces correctly with a network stack. The same procedures can be used to  restore devices whose settings have been corrupted or erased.   </description>
-    <property key="core.category" value="Application Notes"/>
-    <property key="core.priority" value="30"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee Thread"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/slRail-index.html" category="Application Notes" priority="9">
+<contentItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="null http://www.silabs.com/ss/Studio.ecore">
+  <contentItemData name="" label="Documentation Index" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.3/app/rail/documentation/slRail-index.html" category="Application Notes" priority="9">
     <description>Provides an overview and hyperlinks to all packaged documentation.</description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="9"/>
@@ -77,6 +23,29 @@
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1252: Building Low Power Networks with the Silicon Labs Connect Stack v3.x" itemURI="https://docs.silabs.com/connect-stack/latest/connect-v3x-low-power-networks/index.html" category="Application Notes" priority="40">
+    <description>Illustrates reducing power consumption in a Connect v3.x application using the sensor example.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="40"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN961: Bringing Up Custom Devices for the EFR32MG and EFR32FG Families" itemURI="https://docs.silabs.com/connect-stack/latest/custom-nodes-efr32/index.html" category="Application Notes" priority="30">
+    <description>Describes how to initialize a piece of custom hardware (a 'device') based on the EFR32MG and EFR32FG  families so that it interfaces correctly with a network stack. The same procedures can be used to  restore devices whose settings have been corrupted or erased.   </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="30"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1303:  Programming Series 2 Devices Using the Debug Challenge Interface (DCI) and Serial Wire Debug (SWD)" itemURI="https://docs.silabs.com/connect-stack/latest/efr32-dci-swd-programming/index.html" category="Application Notes" priority="50">
+    <description>Describes how to provision and configure Series 2 devices through the DCI and SWD.   </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1271:  Secure Key Storage" itemURI="https://docs.silabs.com/connect-stack/latest/efr32-secure-key-storage/index.html" category="Application Notes" priority="50">
     <description>How to securely &quot;wrap&quot; keys in EFR32 Series 2 devices with Secure Vault, so they can be stored in  non-volatile storage. </description>
     <property key="core.category" value="Application Notes"/>
@@ -87,6 +56,22 @@
   </contentItemData>
   <contentItemData name="" label="AN1247:  Anti-Tamper Protection Configuration and Use" itemURI="https://docs.silabs.com/connect-stack/latest/efr32-secure-vault-tamper/index.html" category="Application Notes" priority="50">
     <description>How to program, provision, and configure the anti-tamper module on EFR32 Series 2 devices with  Secure Vault.          </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1311:  Integrating Crypto Functionality Using PSA Crypto Compared to Mbed TLS" itemURI="https://docs.silabs.com/connect-stack/latest/mbedtls-psa-crypto-porting-guide/index.html" category="Application Notes" priority="50">
+    <description>Describes how to integrate crypto functionality into applications using PSA Crypto  compared to Mbed TLS.  </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread Wi-SUN"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1222:  Production Programming of Series 2 Devices" itemURI="https://docs.silabs.com/connect-stack/latest/prod-programming-series2-and-series3/index.html" category="Application Notes" priority="50">
+    <description>Details on programming, provisioning, and configuring Series 2 devices in production environments.  Covers Secure Engine Subsystem of Series 2 devices, which runs easily upgradeable Secure Engine (SE) or Virtual Secure Engine (VSE) firmware.    </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
     <property key="core.sdkAndProtocolTags" value="Bluetooth Bluetooth\ Mesh Zigbee Proprietary Thread"/>
@@ -117,6 +102,14 @@
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
+  <contentItemData name="" label="AN1154: Using Tokens for Non-Volatile Data Storage" itemURI="https://docs.silabs.com/connect-stack/latest/using-tokens-for-non-volatile-storage/index.html" category="Application Notes" priority="42">
+    <description>Describes tokens and shows how to use them for non-volatile data storage in EmberZNet PRO and Silicon Labs Flex  applications.   </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="42"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
   <contentItemData name="" label="AN1244: EFR32 Migration Guide for Proprietary Applications" itemURI="https://docs.silabs.com/rail/latest/efr32-migration-guide-for-proprietary-apps/index.html" category="Application Notes" priority="50">
     <description>Describes the distinguishing features of different EFR32 families that are most relevant to porting proprietary wireless applications between them. Provides insight that is also helpful when selecting an initial target platform for proprietary wireless solutions. </description>
     <property key="core.category" value="Application Notes"/>
@@ -126,6 +119,13 @@
   </contentItemData>
   <contentItemData name="" label="AN972: EFR32 RF Evaluation Guide" itemURI="https://docs.silabs.com/rail/latest/efr32-rf-eval-guide/index.html" category="Application Notes" priority="50">
     <description>Describes using RAILTest to evaluate radio functionality, as well as peripherals, deep sleep states, etc. With it you can fully evaluate the receiving and transmitting performance and test RF functionality of development kit hardware or custom hardware. </description>
+    <property key="core.category" value="Application Notes"/>
+    <property key="core.priority" value="50"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="AN1253: EFR32 Radio Configurator Guide for Simplicity Studio 5" itemURI="https://docs.silabs.com/rail/latest/proprietary-radio-configurator-guide/index.html" category="Application Notes" priority="50">
+    <description>Describes the radio configurator GUI for RAIL framework applications in Simplicity Studio 5. With it, you can  create standard or custom radio configurations on which to run your RAIL-based applications. The role of each GUI item is explained.  </description>
     <property key="core.category" value="Application Notes"/>
     <property key="core.priority" value="50"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
@@ -159,28 +159,21 @@
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs Connect API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/API_CONNECT_HTML/index.html" category="Reference Manuals" priority="30">
+  <contentItemData name="" label="Silicon Labs Connect API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.3/app/rail/documentation/API_CONNECT_HTML/index.html" category="Reference Manuals" priority="30">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs Connect stack.  </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="30"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Silicon Labs RAIL API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/API_RAIL_HTML/index.html" category="Reference Manuals" priority="50">
+  <contentItemData name="" label="Silicon Labs RAIL API Reference Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.3/app/rail/documentation/API_RAIL_HTML/index.html" category="Reference Manuals" priority="50">
     <description>Contains a comprehensive list of APIs used to interface to the Silicon Labs RAIL library.  </description>
     <property key="core.category" value="Reference Manuals"/>
     <property key="core.priority" value="50"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="Flex SDK Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-connect-release-notes/index.html" category="Release Notes" priority="1">
-    <description>Lists compatibility requirements and sources for all software components in the development environment.  Discusses the latest changes to the SiliconLabs Flex SDK, including added/deleted/deprecated features/API.  Reviews fixed and known issues.  </description>
-    <property key="core.category" value="Release Notes"/>
-    <property key="core.priority" value="1"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.2/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
+  <contentItemData name="" label="Gecko Platform Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.3/sisdk-platform-release-notes/index.html" category="Release Notes" priority="1">
     <description>A detailed overview of the changes, additions, and fixes in the Gecko Platform components.  The Gecko Platform includes EMLIB, EMDRV, RAIL Library, NVM3, and the component-based infrastructure.    </description>
     <property key="core.category" value="Release Notes"/>
     <property key="core.priority" value="1"/>
@@ -188,25 +181,10 @@
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
-  <contentItemData name="" label="UG103.01: Wireless Networking Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/ug103-01-fundamentals-wireless-network.pdf" category="User's Guides" priority="10">
-    <description>Introduces some fundamental concepts of wireless networking. These concepts are referred to in other Fundamentals documents. If you are new to wireless networking, you should read this document first.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="10"/>
-    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary Thread Wi-SUN"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG103.12: Connect Fundamentals" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/ug103-12-fundamentals-connect.pdf" category="User's Guides" priority="10">
-    <description>Describes the features and functions of the Silicon Labs Connect stack, including its device types, network topologies, and its 'building block' development methodology using plugins.  </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="10"/>
-    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
-    <property key="core.boardCompatibility" value=".*"/>
-  </contentItemData>
-  <contentItemData name="" label="UG435.01: About the Connect v3.x User's Guide" itemURI="asset://com.silabs.sdk.stack.sisdk_2025.6.2/app/rail/documentation/ug435-01-about-connect-v3x-users-guide.pdf" category="User's Guides" priority="31">
-    <description>Introduces the Connect User's Guide for the Flex SDK v3.x. </description>
-    <property key="core.category" value="User's Guides"/>
-    <property key="core.priority" value="31"/>
+  <contentItemData name="" label="RAIL SDK Release Notes" itemURI="https://docs.silabs.com/sisdk-release-notes/2025.6.3/sisdk-rail-release-notes/index.html" category="Release Notes" priority="1">
+    <description>Lists compatibility requirements and sources for all software components in the development environment.  Discusses the latest changes to the SiliconLabs RAIL SDK, including added/deleted/deprecated features/API.  Reviews fixed and known issues.  </description>
+    <property key="core.category" value="Release Notes"/>
+    <property key="core.priority" value="1"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -237,6 +215,13 @@
     <description>Explains standalone (serial) and application (OTA) bootloader options available for use within Connect v3.x -based applications </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="36"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG103.12: Connect Fundamentals" itemURI="https://docs.silabs.com/connect-stack/latest/connect-fundamentals/index.html" category="User's Guides" priority="10">
+    <description>Describes the features and functions of the Silicon Labs Connect stack, including its device types, network topologies, and its 'building block' development methodology using plugins.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="10"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>
@@ -296,6 +281,14 @@
     <description>Describes the process to implement a Connect-based application on top of one of the supported Real Time Operating Systems (RTOS).   </description>
     <property key="core.category" value="User's Guides"/>
     <property key="core.priority" value="35"/>
+    <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
+    <property key="core.boardCompatibility" value=".*"/>
+  </contentItemData>
+  <contentItemData name="" label="UG103.01: Wireless Networking Fundamentals" itemURI="https://docs.silabs.com/connect-stack/latest/wireless-networking-application-development-fundamentals/index.html" category="User's Guides" priority="10">
+    <description>Introduces some fundamental concepts of wireless networking. These concepts are referred to in other Fundamentals documents. If you are new to wireless networking, you should read this document first.  </description>
+    <property key="core.category" value="User's Guides"/>
+    <property key="core.priority" value="10"/>
+    <property key="core.sdkAndProtocolTags" value="Zigbee Proprietary Thread Wi-SUN"/>
     <property key="core.partCompatibility" value=".*efr32[bfmz]g2.* .*mgm2.* .*rm21.* .*fgm230s.* .*zgm2.* .*bgm220sc2[2-3]hna.*"/>
     <property key="core.boardCompatibility" value=".*"/>
   </contentItemData>

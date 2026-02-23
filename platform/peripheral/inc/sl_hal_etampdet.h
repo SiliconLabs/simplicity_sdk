@@ -763,6 +763,9 @@ __STATIC_INLINE uint32_t sl_hal_etampdet_get_seed_value(sl_hal_etampdet_channel_
  *
  * void etampdet_example(void)
  * {
+ *   // Enable bus clock for ETAMPDET
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_ETAMPDET);
+ *
  *   // Initialize ETAMPDET with default configuration (bypass prescalers)
  *   sl_hal_etampdet_init_t etampdet_init = SL_HAL_ETAMPDET_INIT_DEFAULT;
  *   sl_hal_etampdet_init(&etampdet_init);

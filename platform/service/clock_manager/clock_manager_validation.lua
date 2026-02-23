@@ -40,6 +40,7 @@ local hfrcoem23_band = slc.config("SL_CLOCK_MANAGER_HFRCOEM23_BAND")
 local hfrco_band = slc.config("SL_CLOCK_MANAGER_HFRCO_BAND")
 local dpll_freq = slc.config("SL_CLOCK_MANAGER_DPLL_FREQ")
 local rffpll_freq = slc.config("SL_CLOCK_MANAGER_RFFPLL_FREQ")
+local max_freq_is_38m = slc.is_provided("device_has_hfrco_38m")
 local is_series_2 = slc.is_provided("device_series_2")
 local is_efr32xg21 = slc.is_provided("device_generic_family_efr32xg21")
 local is_efr32xg22 = slc.is_provided("device_generic_family_efr32xg22")
@@ -135,6 +136,28 @@ if (sysclk_source.value == "CMU_SYSCLKCTRL_CLKSEL_CLKIN0") or (em01grpbclk_sourc
   end
 end
 
+-- HFRCO related
+local hfrco_freq = hfrco_band_to_frequency(hfrco_band.value)
+if max_freq_is_38m and hfrco_freq > 38000000 then
+  validation.error(
+  "HFRCO band frequency must not exceed 38MHz",
+  validation.target_for_defines({"SL_CLOCK_MANAGER_HFRCO_BAND"}),
+  nil,
+  nil)
+elseif is_series_2 and not is_efr32xg25 and hfrco_freq > 80000000 then
+  validation.error(
+  "HFRCO band frequency must not exceed 80MHz",
+  validation.target_for_defines({"SL_CLOCK_MANAGER_HFRCO_BAND"}),
+  nil,
+  nil)
+elseif hfrco_freq > 100000000 then
+  validation.error(
+  "HFRCO band frequency must not exceed 100MHz",
+  validation.target_for_defines({"SL_CLOCK_MANAGER_HFRCO_BAND"}),
+  nil,
+  nil)
+end
+
 -- DPLL related
  if dpll_enable.value == "1" then
   local dpll_n = tonumber(slc.config("SL_CLOCK_MANAGER_DPLL_N").value)
@@ -165,6 +188,25 @@ end
       nil)
     end
   end
+  if max_freq_is_38m and dpll_freq_expected > 38000000 then
+    validation.error(
+    "DPLL frequency must not exceed 38MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_DPLL_FREQ"}),
+    nil,
+    nil)
+  elseif is_series_2 and dpll_freq_expected > 80000000 then
+    validation.error(
+    "DPLL frequency must not exceed 80MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_DPLL_FREQ"}),
+    nil,
+    nil)
+  elseif dpll_freq_expected > 100000000 then
+    validation.error(
+    "DPLL frequency must not exceed 100MHz",
+    validation.target_for_defines({"SL_CLOCK_MANAGER_DPLL_FREQ"}),
+    nil,
+    nil)
+  end
  end
 
  -- SOCPLL related
@@ -189,7 +231,7 @@ end
   if socpll_refclk_freq ~= nil and socpll_advanced_settings ~= nil and socpll_advanced_settings.value == "1"
      and (socpll_refclk_freq < 34000000 or socpll_refclk_freq > 44000000) then
     validation.error(
-      "SOCPLL reference clock frequency must be between 38MHz and 40MHz",
+      "SOCPLL reference clock frequency must be between 34MHz and 44MHz inclusively",
       validation.target_for_defines({"SL_CLOCK_MANAGER_SOCPLL_REFCLK"}),
       nil,
       nil)
@@ -540,6 +582,9 @@ if is_sixx301 then
 -- maximum configuration value, but the datasheet numbers might be lower. For example, if the datasheet
 -- indicates a 78 MHz maximum HCLK frequency, we'll use a maximum of 80 MHz, because it's the corresponding
 -- HFRCO band.
+elseif max_freq_is_38m then
+  device_thresholds = series2_thresholds(38.4, 38.4)  -- HCLK < 38.4MHz, PCLK < 38.4MHz
+
 elseif is_efr32xg21 or is_efr32xg22 then
   device_thresholds = series2_thresholds(80, 50)  -- HCLK < 80MHz, PCLK < 50MHz
 
@@ -547,7 +592,7 @@ elseif is_efr32xg23 or is_efr32xg24 or is_efr32xg26 or is_efr32xg27 or is_efr32x
   device_thresholds = series2_thresholds(80, 40)  -- HCLK < 80MHz, PCLK < 40MHz
 
 elseif is_efr32xg25 then
-  device_thresholds = series2_thresholds(100, 50)  -- HCLK < 100MHz, PCLK < 50
+  device_thresholds = series2_thresholds(100, 50)  -- HCLK < 100MHz, PCLK < 50MHz
 end
 
 -- Generic frequency calculation and validation function

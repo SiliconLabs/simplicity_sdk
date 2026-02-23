@@ -13,7 +13,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/ncp-spi/ncp-spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -30,7 +30,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_cpc_spi/zigbee_ncp_cpc_spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -47,7 +47,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_cpc_uart/zigbee_ncp_cpc_uart.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -64,7 +64,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_spi/zigbee_ncp_mp_spi.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -81,7 +81,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_mp_uart_hw/zigbee_ncp_mp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -98,7 +98,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw/zigbee_ncp_uart_hw.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -115,7 +115,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_uart_hw_gp_multi_rail/zigbee_ncp_uart_hw_gp_multi_rail.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -132,7 +132,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/ncp/zigbee_ncp_xncp_led/zigbee_ncp_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -149,7 +149,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_gateway_combo/zigbee_gp_z3_gateway_combo.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -166,7 +166,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_gp_z3_light_combo/zigbee_gp_z3_light_combo.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -183,7 +183,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_host_minimal/zigbee_host_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -200,7 +200,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_minimal/zigbee_minimal.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -217,7 +217,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_unified_test_harness/zigbee_unified_test_harness.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -234,7 +234,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_gateway/zigbee_z3_gateway.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -251,7 +251,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_light/zigbee_z3_light.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -268,7 +268,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/z3/zigbee_z3_switch/zigbee_z3_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -285,7 +285,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -302,7 +302,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_sensor/zigbee_gpd_sensor_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -319,7 +319,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -336,7 +336,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_gpd_switch/zigbee_gpd_switch_single_btn_led.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -353,7 +353,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_mp_z3_tc_custom_tc/zigbee_host_mp_z3_tc_custom_tc.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -370,7 +370,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_host_xncp_led/zigbee_host_xncp_led.slcp"/>
     <properties key="filters" value="Device\ Type|Host Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -387,7 +387,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_minimal_rtos/zigbee_minimal_rtos.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -404,7 +404,7 @@
     <properties key="category" value="Zigbee Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbee_standardized_rf_testing/zigbee_standardized_rf_testing.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -421,7 +421,7 @@
     <properties key="category" value="Zigbee Host Application"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/zigbee/app/projects/zigbeed/zigbeed.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|Host Project\ Difficulty|Beginner Wireless\ Technology|Zigbee"/>
   </descriptors>

@@ -155,13 +155,16 @@ uint16_t lightness_validate_and_correct(uint16_t);
 /** @} (end addtogroup btmesh_lighting_server) */
 
 /***************************************************************************//**
- * Register a callback function to be called when the lightness state changes.
- * Example: when the lightness state is changed by a client request, either by
+ * Register a callback function to be called when the OnOff request is completed.
+ * Example: when the OnOff request is completed by a client request, either by
  * a Generic OnOff Set message or a Light Lightness Set message.
- *
  ******************************************************************************/
-typedef void (*sl_btmesh_lighting_onoff_state_change_cb_t)(void);
+typedef void (*sl_btmesh_lighting_generic_onoff_cb_t)(uint8_t onoff);
+typedef void (*sl_btmesh_lighting_pri_level_move_cb_t)(void);
+typedef void (*sl_btmesh_lighting_pri_level_halt_cb_t)(void);
 
-sl_status_t sl_btmesh_register_lightness_onoff_state_change_cb(sl_btmesh_lighting_onoff_state_change_cb_t callback);
+sl_status_t sl_btmesh_register_lighting_generic_onoff_cb(sl_btmesh_lighting_generic_onoff_cb_t callback);
+sl_status_t sl_btmesh_register_lightness_pri_level_move_cb(sl_btmesh_lighting_pri_level_move_cb_t cb);
+sl_status_t sl_btmesh_register_lightness_pri_level_halt_cb(sl_btmesh_lighting_pri_level_halt_cb_t cb);
 
 #endif // SL_BTMESH_LIGHTING_SERVER_H

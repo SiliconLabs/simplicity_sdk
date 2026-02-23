@@ -214,6 +214,7 @@ requires:
   - name: freertos_heap
   - name: sleeptimer
     condition: [power_manager]
+  - name: code_classification
   - name: component_catalog
     condition: [power_manager]
 validation_helper:

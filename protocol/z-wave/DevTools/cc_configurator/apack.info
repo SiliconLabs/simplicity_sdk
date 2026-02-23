@@ -11,3 +11,8 @@ uc.triggerExtension=cc_config
 function(uc_generate) {
   cmd=$(python) cc_configurator.py -i ${contentFolder} -o ${generationOutput} generate
 }
+
+# A stub upgrade function to generate an empty report. No actual upgrade is needed.
+function(uc_upgrade) {
+  cmd=$(python) generateEmptyUpgradeResult.py -r ${results} 
+}

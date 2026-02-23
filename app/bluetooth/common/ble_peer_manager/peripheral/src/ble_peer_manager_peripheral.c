@@ -44,6 +44,12 @@ typedef struct ble_peer_manager_advertiser_s {
   sl_bt_gap_phy_t adv_phy;
 } ble_peer_manager_advertiser_t;
 
+typedef enum {
+  BLE_PEER_MANAGER_STATE_IDLE = 0u,
+  BLE_PEER_MANAGER_STATE_CLOSING,
+  BLE_PEER_MANAGER_ADVERTISING,
+} ble_peer_manager_state_id;
+
 // -----------------------------------------------------------------------------
 // Forward declaration of private functions
 static ble_peer_manager_state_id get_state(void);

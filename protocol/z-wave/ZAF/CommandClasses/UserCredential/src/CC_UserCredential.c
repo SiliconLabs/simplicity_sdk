@@ -380,7 +380,10 @@ static uint8_t lifeline_reporting(ccc_pair_t * p_ccc_pair)
   ++p_ccc_pair;
   p_ccc_pair->cmdClass = COMMAND_CLASS_USER_CREDENTIAL;
   p_ccc_pair->cmd      = ADMIN_PIN_CODE_REPORT;
-  return 3;
+  ++p_ccc_pair;
+  p_ccc_pair->cmdClass = COMMAND_CLASS_USER_CREDENTIAL;
+  p_ccc_pair->cmd      = USER_CREDENTIAL_ASSOCIATION_REPORT;
+  return 4;
 }
 
 REGISTER_CC_V5(COMMAND_CLASS_USER_CREDENTIAL, USER_CREDENTIAL_VERSION,

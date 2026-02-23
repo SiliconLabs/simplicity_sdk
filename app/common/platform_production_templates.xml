@@ -12,7 +12,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_attestation/tz_psa_attestation_ws.slcw" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
     <properties key="solutionProjects" value="app.common.example.tz_psa_attestation.tz_psa_attestation_s.slcp app.common.example.tz_psa_attestation.tz_psa_attestation_ns.tz_psa_attestation_ns.slcp" />
@@ -30,7 +30,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_crypto_ecdh/tz_psa_crypto_ecdh_ws.slcw" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
     <properties key="solutionProjects" value="app.common.example.tz_psa_crypto_ecdh.tz_psa_crypto_ecdh_s.slcp app.common.example.tz_psa_crypto_ecdh.tz_psa_crypto_ecdh_ns.tz_psa_crypto_ecdh_ns.slcp" />
@@ -48,7 +48,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_baremetal/blink_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -63,7 +63,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_baremetal/blink_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -80,7 +80,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_kernel_freertos/blink_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -96,7 +96,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_kernel_freertos/blink_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -113,7 +113,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_kernel_micriumos/blink_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -128,7 +128,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_kernel_micriumos/blink_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -145,7 +145,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_pwm_baremetal/blink_pwm_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -160,7 +160,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_pwm_baremetal/blink_pwm_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -177,7 +177,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_pwm_freertos/blink_pwm_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -192,7 +192,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/blink_pwm_freertos/blink_pwm_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -209,7 +209,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_baremetal/cli_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -224,7 +224,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_baremetal/cli_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -241,7 +241,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_kernel_freertos/cli_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -257,7 +257,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_kernel_freertos/cli_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -274,7 +274,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_kernel_micriumos/cli_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -289,7 +289,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cli_kernel_micriumos/cli_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -306,7 +306,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/common_token_manager_baremetal/common_token_manager_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -323,7 +323,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/common_token_manager_kernel_freertos/common_token_manager_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -340,7 +340,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/coulomb_baremetal/coulomb_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -357,7 +357,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/coulomb_dcdc_baremetal/coulomb_dcdc_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -367,14 +367,14 @@
     <properties key="solutionReferenceId" value="app.common.example.cpc_secondary_spi_security_device_recovery.cpc_secondary_spi_security_device_recovery.slcp" />
     <properties key="projectFilePaths" value="example/cpc_secondary_spi_security_device_recovery/cpc_secondary_spi_security_device_recovery.slcp" />
     <properties key="readmeFiles" value="example/cpc_secondary_spi_security_device_recovery/readme.md" />
-    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2603a brd4109a brd4110b brd4111b brd4116a brd4117a brd4171a brd4176a brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4308a brd4308b brd4308c brd4308d brd4316a brd4317a brd4318a brd4328a brd4328b brd4335a brd4350a brd4351a brd4356a brd4401b brd4401c brd4411a brd4412a brd4413a brd4420a com.silabs.board.none" />
+    <properties key="boardCompatibility" value="brd2601a brd2601b brd2602a brd2603a brd4109a brd4110b brd4111b brd4116a brd4117a brd4171a brd4176a brd4180a brd4180b brd4181a brd4181b brd4181c brd4186a brd4186b brd4186c brd4187a brd4187b brd4187c brd4188a brd4188b brd4194a brd4195a brd4195b brd4196a brd4196b brd4197a brd4198a brd4198b brd4204a brd4204b brd4204c brd4204d brd4205a brd4205b brd4210a brd4263a brd4263b brd4263c brd4264a brd4264b brd4264c brd4265a brd4265b brd4308a brd4308b brd4308c brd4308d brd4316a brd4317a brd4318a brd4328a brd4328b brd4335a brd4350a brd4351a brd4356a brd4411a brd4412a brd4413a brd4420a com.silabs.board.none" />
     <properties key="partCompatibility" value=".*bgm21.* .*bgm24.* .*efm32pg23.* .*efm32pg28.* .*efr32bg21.* .*efr32bg24.* .*efr32bg27.* .*efr32bg29.* .*efr32fg23.* .*efr32fg28.* .*efr32mg21.* .*efr32mg24.* .*efr32mg26.* .*efr32mg27.* .*efr32mg29.* .*efr32mr21.* .*efr32sg23.* .*efr32sg28.* .*efr32zg23.* .*efr32zg28.* .*fgm23.* .*mgm21.* .*mgm24.* .*mgm26.* .*mgm27.* .*zgm23.*" />
     <properties key="ideCompatibility" value="generic-template iar-embedded-workbench makefile-ide simplicity-ide visual-studio-code" />
     <properties key="toolchainCompatibility" value="gcc iar" />
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_spi_security_device_recovery/cpc_secondary_spi_security_device_recovery.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -391,7 +391,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_freertos/cpc_secondary_vcom_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -407,7 +407,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_freertos/cpc_secondary_vcom_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -424,7 +424,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_micriumos/cpc_secondary_vcom_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -441,7 +441,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_security_device_recovery/cpc_secondary_vcom_security_device_recovery.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -457,7 +457,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_security_device_recovery/cpc_secondary_vcom_security_device_recovery.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -474,7 +474,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/cpc_secondary_vcom_security_micriumos/cpc_secondary_vcom_security_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -491,7 +491,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/dci_swd_programming/dci_swd_programming.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -508,7 +508,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/dmadrv_baremetal/dmadrv_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -525,7 +525,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/dmadrv_kernel_freertos/dmadrv_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -542,7 +542,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/emode_baremetal/emode_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -559,7 +559,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/i2cspm_baremetal/i2cspm_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -576,7 +576,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/i2cspm_kernel_freertos/i2cspm_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -592,7 +592,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/i2cspm_kernel_freertos/i2cspm_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value="mcu.arm.si.*" /></descriptors>
@@ -609,7 +609,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/i2cspm_kernel_micriumos/i2cspm_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -626,7 +626,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_eusart_baremetal/iostream_eusart_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -643,7 +643,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_eusart_kernel_freertos/iostream_eusart_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -659,7 +659,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_eusart_kernel_freertos/iostream_eusart_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -676,7 +676,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_eusart_kernel_micriumos/iostream_eusart_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -693,7 +693,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_usart_baremetal/iostream_usart_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -708,7 +708,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_usart_baremetal/iostream_usart_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -725,7 +725,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_usart_kernel_micriumos/iostream_usart_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -740,7 +740,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/iostream_usart_kernel_micriumos/iostream_usart_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -757,7 +757,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/joystick_baremetal/joystick_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -774,7 +774,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/joystick_kernel_freertos/joystick_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -791,7 +791,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/joystick_kernel_micriumos/joystick_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -808,7 +808,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/math_mvp_demo/math_mvp_demo.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -825,7 +825,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_aescrypt/mbedtls_aescrypt.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -841,7 +841,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_aescrypt/mbedtls_aescrypt.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -858,7 +858,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_ecdh/mbedtls_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -874,7 +874,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_ecdh/mbedtls_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -891,7 +891,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_ecdsa/mbedtls_ecdsa.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -907,7 +907,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mbedtls_ecdsa/mbedtls_ecdsa.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -924,7 +924,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_baremetal/memlcd_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -939,7 +939,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_baremetal/memlcd_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -956,7 +956,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_kernel_freertos/memlcd_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -972,7 +972,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_kernel_freertos/memlcd_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -989,7 +989,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_kernel_micriumos/memlcd_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1004,7 +1004,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/memlcd_kernel_micriumos/memlcd_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -1021,7 +1021,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mpu_simple_baremetal/mpu_simple_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1036,7 +1036,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/mpu_simple_baremetal/mpu_simple_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -1053,7 +1053,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/nvm3_baremetal/nvm3_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1068,7 +1068,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/nvm3_baremetal/nvm3_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -1085,7 +1085,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/nvm3_kernel_freertos/nvm3_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1101,7 +1101,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/nvm3_kernel_freertos/nvm3_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1118,7 +1118,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/power_manager_baremetal/power_manager_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1133,7 +1133,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/power_manager_baremetal/power_manager_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -1150,7 +1150,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/power_manager_kernel_micriumos/power_manager_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -1165,7 +1165,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/power_manager_kernel_micriumos/power_manager_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -1182,7 +1182,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_aead/psa_crypto_aead.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1198,7 +1198,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_aead/psa_crypto_aead.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1215,7 +1215,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_asymmetric_key/psa_crypto_asymmetric_key.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1231,7 +1231,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_asymmetric_key/psa_crypto_asymmetric_key.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1248,7 +1248,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_cipher/psa_crypto_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1264,7 +1264,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_cipher/psa_crypto_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1281,7 +1281,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_dsa/psa_crypto_dsa.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1297,7 +1297,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_dsa/psa_crypto_dsa.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1314,7 +1314,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_ecdh/psa_crypto_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1330,7 +1330,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_ecdh/psa_crypto_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1347,7 +1347,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_hash/psa_crypto_hash.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1363,7 +1363,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_hash/psa_crypto_hash.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1380,7 +1380,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_kdf/psa_crypto_kdf.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1396,7 +1396,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_kdf/psa_crypto_kdf.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1413,7 +1413,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_mac/psa_crypto_mac.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1429,7 +1429,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_mac/psa_crypto_mac.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1446,7 +1446,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_symmetric_key/psa_crypto_symmetric_key.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1462,7 +1462,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_symmetric_key/psa_crypto_symmetric_key.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1479,7 +1479,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_x509/psa_crypto_x509.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1495,7 +1495,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/psa_crypto_x509/psa_crypto_x509.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1512,7 +1512,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_asymmetric_key_handling/se_manager_asymmetric_key_handling.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1528,7 +1528,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_asymmetric_key_handling/se_manager_asymmetric_key_handling.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1545,7 +1545,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_attestation/se_manager_attestation.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1561,7 +1561,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_attestation/se_manager_attestation.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1578,7 +1578,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_block_cipher/se_manager_block_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1594,7 +1594,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_block_cipher/se_manager_block_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1611,7 +1611,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_ecdh/se_manager_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1627,7 +1627,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_ecdh/se_manager_ecdh.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1644,7 +1644,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_ecjpake/se_manager_ecjpake.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1660,7 +1660,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_ecjpake/se_manager_ecjpake.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1677,7 +1677,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_hash/se_manager_hash.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1693,7 +1693,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_hash/se_manager_hash.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1710,7 +1710,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_kdf/se_manager_kdf.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1726,7 +1726,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_kdf/se_manager_kdf.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1743,7 +1743,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_key_provisioning/se_manager_key_provisioning.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1759,7 +1759,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_key_provisioning/se_manager_key_provisioning.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -1776,7 +1776,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_secure_debug/se_manager_secure_debug.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1792,7 +1792,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_secure_debug/se_manager_secure_debug.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1809,7 +1809,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_secure_identity/se_manager_secure_identity.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1825,7 +1825,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_secure_identity/se_manager_secure_identity.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1842,7 +1842,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_signature/se_manager_signature.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1858,7 +1858,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_signature/se_manager_signature.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1875,7 +1875,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_stream_cipher/se_manager_stream_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1891,7 +1891,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_stream_cipher/se_manager_stream_cipher.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1908,7 +1908,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_symmetric_key_handling/se_manager_symmetric_key_handling.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1924,7 +1924,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_symmetric_key_handling/se_manager_symmetric_key_handling.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1941,7 +1941,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_tamper/se_manager_tamper.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1957,7 +1957,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_tamper/se_manager_tamper.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*simg301.*" /></descriptors>
@@ -1974,7 +1974,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/se_manager_user_data/se_manager_user_data.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -1991,7 +1991,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/segment_lcd_ldma/segment_lcd_ldma.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2008,7 +2008,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/segment_lcd_tempsensor/segment_lcd_tempsensor.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2025,7 +2025,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/segment_lcd_timer/segment_lcd_timer.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2042,7 +2042,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sht4x_i2cspm_baremetal/sht4x_i2cspm_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2059,7 +2059,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sht4x_i2cspm_kernel_freertos/sht4x_i2cspm_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2076,7 +2076,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sht4x_i2cspm_kernel_micriumos/sht4x_i2cspm_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2093,7 +2093,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/simple_button_baremetal/simple_button_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2108,7 +2108,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/simple_button_baremetal/simple_button_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2125,7 +2125,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/simple_button_kernel_micriumos/simple_button_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2140,7 +2140,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/simple_button_kernel_micriumos/simple_button_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2157,7 +2157,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_baremetal/sleeptimer_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2172,7 +2172,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_baremetal/sleeptimer_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2189,7 +2189,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_kernel_freertos/sleeptimer_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2205,7 +2205,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_kernel_freertos/sleeptimer_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -2222,7 +2222,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_wallclock_baremetal/sleeptimer_wallclock_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2237,7 +2237,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_wallclock_baremetal/sleeptimer_wallclock_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2254,7 +2254,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_wallclock_kernel_freertos/sleeptimer_wallclock_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2270,7 +2270,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/sleeptimer_wallclock_kernel_freertos/sleeptimer_wallclock_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -2287,7 +2287,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_eusart_master_baremetal/spidrv_eusart_master_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2304,7 +2304,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_eusart_master_kernel_micriumos/spidrv_eusart_master_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2321,7 +2321,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_eusart_slave_baremetal/spidrv_eusart_slave_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2338,7 +2338,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_eusart_slave_kernel_micriumos/spidrv_eusart_slave_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2355,7 +2355,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_master_baremetal/spidrv_master_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2370,7 +2370,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_master_baremetal/spidrv_master_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2387,7 +2387,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_master_kernel_micriumos/spidrv_master_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2402,7 +2402,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_master_kernel_micriumos/spidrv_master_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2419,7 +2419,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_slave_baremetal/spidrv_slave_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2434,7 +2434,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_slave_baremetal/spidrv_slave_baremetal.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2451,7 +2451,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_slave_kernel_micriumos/spidrv_slave_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2466,7 +2466,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/spidrv_slave_kernel_micriumos/spidrv_slave_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2483,7 +2483,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tempdrv_kernel_freertos/tempdrv_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2499,7 +2499,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tempdrv_kernel_freertos/tempdrv_kernel_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.* .*simg301.*" /></descriptors>
@@ -2516,7 +2516,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tempdrv_kernel_micriumos/tempdrv_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   </descriptors>
@@ -2531,7 +2531,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tempdrv_kernel_micriumos/tempdrv_kernel_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner" />
   <properties key="partCompatibility" value=".*sibg301.*" /></descriptors>
@@ -2548,7 +2548,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_attestation/tz_psa_attestation_ns/tz_psa_attestation_ns.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2565,7 +2565,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_attestation/tz_psa_attestation_s.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2582,7 +2582,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_crypto_ecdh/tz_psa_crypto_ecdh_ns/tz_psa_crypto_ecdh_ns.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2599,7 +2599,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/tz_psa_crypto_ecdh/tz_psa_crypto_ecdh_s.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2616,7 +2616,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_cdc_acm_freertos/usb_device_cdc_acm_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2633,7 +2633,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_cdc_acm_micriumos/usb_device_cdc_acm_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2650,7 +2650,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_composite_freertos/usb_device_composite_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2667,7 +2667,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_composite_micriumos/usb_device_composite_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2684,7 +2684,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_hid_freertos/usb_device_hid_freertos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>
@@ -2701,7 +2701,7 @@
     <properties key="category" value="Example|Platform" />
     <properties key="quality" value="PRODUCTION" />
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default" />
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}" />
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}" />
     <properties key="sltPackagePath" value="app/common/example/usb_device_hid_micriumos/usb_device_hid_micriumos.slcp" />
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced" />
   </descriptors>

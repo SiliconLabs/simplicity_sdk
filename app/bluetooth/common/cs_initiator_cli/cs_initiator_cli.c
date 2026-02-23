@@ -154,6 +154,11 @@ void cs_initiator_cli_mode(sl_cli_command_arg_t *arguments)
       cli_print("ERROR. Only preset HIGH is supported with RTT mode!\n");
       return;
     }
+    if (arg_data == sl_bt_cs_mode_rtt
+        && cs_sub_mode == sl_bt_cs_mode_rtt) {
+      cli_print("ERROR. CS main mode RTT and CS sub mode RTT combination is not supported!\n");
+      return;
+    }
     cli_print("OK. Initiator mode set to: %d\n", arg_data);
   } else {
     cli_print("ERROR. Mode should be %d or %d\n",
@@ -174,6 +179,11 @@ void cs_initiator_cli_sub_mode(sl_cli_command_arg_t *arguments)
     if (arg_data == sl_bt_cs_mode_rtt
         && channel_map_preset != CHANNEL_MAP_PRESET_HIGH) {
       cli_print("ERROR. Only preset HIGH is supported with RTT mode!\n");
+      return;
+    }
+    if (arg_data == sl_bt_cs_mode_rtt
+        && cs_main_mode == sl_bt_cs_mode_rtt) {
+      cli_print("ERROR. CS main mode RTT and CS sub mode RTT combination is not supported!\n");
       return;
     }
     cli_print("OK. Initiator sub mode set to: %d\n", arg_data);

@@ -46,6 +46,7 @@
 #include "ncp_sec_host.h"
 
 #define NCP_SEC_PAYLOAD_OVERHEAD  9
+#define BGAPI_HDR_LEN_FIELD_LEN   2
 
 typedef struct conn_nonce{
   uint32_t counter;
@@ -556,13 +557,31 @@ void security_decrypt(char *src, char *dst, unsigned *len)
 
 void security_decrypt_packet(char *src, char *dst, unsigned *len)
 {
-  uint16_t new_length = (((uint16_t)(src[0] & 0x07) << 8) | (uint8_t)src[1]) - NCP_SEC_PAYLOAD_OVERHEAD;
-  *dst++ = ((src[0] & ~(1 << 6)) & 0xf8) | (uint8_t)(new_length >> 8);//clr encrypted and length high bits
+  if (*len < (NCP_SEC_PAYLOAD_OVERHEAD + BGAPI_HDR_LEN_FIELD_LEN) ) {
+    app_log_warning("Invalid length parameter: %u, minimum length is %u" APP_LOG_NL, *len, NCP_SEC_PAYLOAD_OVERHEAD);
+    *len = 0;
+    return;
+  }
+  uint16_t new_length = (((uint16_t)(src[0] & 0x07) << 8) | (uint8_t)src[1]);
+  if (new_length < NCP_SEC_PAYLOAD_OVERHEAD) {
+    app_log_warning("Invalid packet length: %u" APP_LOG_NL, new_length);
+    *len = 0;
+    return;
+  }
+  new_length = new_length - NCP_SEC_PAYLOAD_OVERHEAD;
+
+  //clr encrypted and length high bits
+  *dst++ = ((src[0] & ~(1 << 6)) & 0xf8) | (uint8_t)(new_length >> 8);
   *dst++ = (uint8_t)(new_length & 0xff);
 
   // remove tag and counter value
   *len = *len - NCP_SEC_PAYLOAD_OVERHEAD;
-  new_length += 4;
+  new_length += SL_BT_MSG_HEADER_LEN;
+  if (new_length != (*len)) {
+    app_log_warning("Packet length validation failed!" APP_LOG_NL);
+    *len = 0;
+    return;
+  }
 
   //verify counter to prevent replay attacks
   conn_nonce_t nonce;
@@ -581,13 +600,13 @@ void security_decrypt_packet(char *src, char *dst, unsigned *len)
   }
 
   uint8_t auth_data[7];
-  memcpy(auth_data, src, 2);
-  memcpy(auth_data + 2, &nonce.counter, 4);
+  memcpy(auth_data, src, BGAPI_HDR_LEN_FIELD_LEN);
+  memcpy(auth_data + BGAPI_HDR_LEN_FIELD_LEN, &nonce.counter, 4);
   auth_data[6] = nonce.counter_hi;
 
   sl_status_t err = aes_ccm_decrypt(ccm_key, (uint8_t *)&nonce,
-                                    (uint8_t *)src + 2, *len - 2,
-                                    auth_data, 7,
+                                    (uint8_t *)src + BGAPI_HDR_LEN_FIELD_LEN, *len - BGAPI_HDR_LEN_FIELD_LEN,
+                                    auth_data, sizeof(auth_data),
                                     (uint8_t *)dst, (uint8_t *)src + *len);
   if (err) {
     app_log_warning("Packet decryption failed 0x%04x, len: %u/%u" APP_LOG_NL, err, *len, new_length);

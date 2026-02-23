@@ -32,6 +32,7 @@ enum {
     HIF_CMD_REQ_DATA_TX_ABORT                 = 0x11,
     HIF_CMD_CNF_DATA_TX                       = 0x12,
     HIF_CMD_IND_DATA_RX                       = 0x13,
+    HIF_CMD_SET_DATA_EDFE                     = 0x14,
     HIF_CMD_REQ_RADIO_ENABLE                  = 0x20,
     HIF_CMD_REQ_RADIO_LIST                    = 0x21,
     HIF_CMD_CNF_RADIO_LIST                    = 0x22,
@@ -82,6 +83,7 @@ enum hif_fatal_code {
     HIF_EINVAL_SCF           = 0x100f,
     HIF_EINVAL_FRAME         = 0x1010,
     HIF_EINVAL_CHAN_FIXED    = 0x1011,
+    HIF_EINVAL_EDFE_FMT      = 0x1012,
     HIF_ENOTSUP              = 0x2000,
     HIF_ENOTSUP_FHSS_DEFAULT = 0x2001,
 };

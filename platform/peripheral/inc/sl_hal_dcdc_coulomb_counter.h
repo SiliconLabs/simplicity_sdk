@@ -481,6 +481,9 @@ __STATIC_INLINE bool sl_hal_dcdc_coulomb_counter_calhalt_is_set(void)
  * @n @section dcdccoulombcounter_example Example
  *  @code{.c}
  *  {
+ *    // Enable bus clock for DCDC coulomb counter
+ *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_DCDC);
+ *
  *    // Initialize with default configuration
  *    sl_hal_dcdc_coulomb_counter_init_t init = SL_HAL_DCDC_COULOMB_COUNTER_INIT_DEFAULT;
  *

@@ -143,6 +143,24 @@ extern "C" {
 #define DECREMENT_BANK_COUNTER(heap, start_addr, end_addr)
 #endif
 
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+#define SLI_MEMORY_STAT_HEAP_INCREASE(_heap, _inc)      \
+  do {                                                  \
+    (_heap)->used_size += (size_t)(_inc);               \
+    if ((_heap)->used_size > (_heap)->high_watermark) { \
+      (_heap)->high_watermark = (_heap)->used_size;     \
+    }                                                   \
+  } while (0)
+
+#define SLI_MEMORY_STAT_HEAP_DECREASE(_heap, _dec) \
+  do {                                             \
+    (_heap)->used_size -= (size_t)(_dec);          \
+  } while (0)
+#else
+#define SLI_MEMORY_STAT_HEAP_INCREASE(_heap, _inc) do { (void)(_heap); (void)(_inc); } while (0)
+#define SLI_MEMORY_STAT_HEAP_DECREASE(_heap, _dec) do { (void)(_heap); (void)(_dec); } while (0)
+#endif
+
 /*******************************************************************************
  *********************************   TYPEDEF   *********************************
  ******************************************************************************/

@@ -76,6 +76,7 @@ typedef struct {
   uint16_t ipv6_mru;
   uint8_t max_edfe_fragment_count;
   uint16_t socket_rx_buffer_size;
+  uint8_t fan_tps_version;
 } app_settings_wisun_t;
 
 typedef struct {

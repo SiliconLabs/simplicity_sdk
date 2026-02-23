@@ -190,4 +190,20 @@ JOB_STATUS CC_UserCredential_UsageNotification_tx(
   const u3c_credential_metadata_t * const p_credential_metadata
   );
 
+/**
+ * @brief Sends a Credential Association Report frame.
+ *
+ * @param[in] p_source_metadata Source credential metadata.
+ * @param[in] p_destination_metadata Destination credential metadata.
+ * @param[in] status Status of association set action.
+ * @param[in] p_rx_options Pointer to the details of the received frame.
+ * @return true if the frame was enqueued succesfully.
+ */
+void CC_UserCredential_AssociationReport_tx(
+  u3c_credential_metadata_t const * const p_source_metadata,
+  u3c_credential_metadata_t const * const p_destination_metadata,
+  u3c_user_credential_association_report_status_t const status,
+  RECEIVE_OPTIONS_TYPE_EX * const p_rx_options
+  );
+
 #endif /* CC_USER_CREDENTIAL_TX_H */

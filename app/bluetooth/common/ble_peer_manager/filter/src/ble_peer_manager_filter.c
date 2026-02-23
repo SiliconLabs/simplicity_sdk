@@ -109,7 +109,7 @@ void ble_peer_manager_filter_init(void)
   for (uint8_t i = 0; i < MAX_NUMBER_OF_ADDRESS_FILTERS; i++) {
     memset(&(active_filter.address[i].addr), 0xFF, sizeof(bd_addr));
   }
-  ble_peer_manager_reset_filter();
+  (void)ble_peer_manager_reset_filter();
 }
 
 void ble_peer_manager_set_filter_bt_address(bool enabled)
@@ -302,7 +302,7 @@ sl_status_t ble_peer_manager_set_filter_rssi(int8_t rssi)
   return SL_STATUS_OK;
 }
 
-bool ble_peer_manager_is_filter_set()
+bool ble_peer_manager_is_filter_set(void)
 {
   if (active_filter.filter_set.total > FILTER_CLEARED) {
     return true;
@@ -311,15 +311,24 @@ bool ble_peer_manager_is_filter_set()
   }
 }
 
-void ble_peer_manager_reset_filter()
+sl_status_t ble_peer_manager_reset_filter(void)
 {
+  if (!ble_peer_manager_is_filter_set_allowed()) {
+    return SL_STATUS_INVALID_STATE;
+  }
   // Free pointers and set to 0
-  sl_free(active_filter.device_name);
-  active_filter.device_name = NULL;
-  sl_free(active_filter.service_data);
-  active_filter.service_data = NULL;
-  sl_free(active_filter.manufacturer_data);
-  active_filter.manufacturer_data = NULL;
+  if (active_filter.device_name != NULL) {
+    sl_free(active_filter.device_name);
+    active_filter.device_name = NULL;
+  }
+  if (active_filter.service_data != NULL) {
+    sl_free(active_filter.service_data);
+    active_filter.service_data = NULL;
+  }
+  if (active_filter.manufacturer_data != NULL) {
+    sl_free(active_filter.manufacturer_data);
+    active_filter.manufacturer_data = NULL;
+  }
 
   // Set values of active_filter to 0
   active_filter.rssi = 0;
@@ -332,6 +341,7 @@ void ble_peer_manager_reset_filter()
 
   // Set flags to 0
   active_filter.filter_set.total = FILTER_CLEARED;
+  return SL_STATUS_OK;
 }
 
 // Find match for the filters

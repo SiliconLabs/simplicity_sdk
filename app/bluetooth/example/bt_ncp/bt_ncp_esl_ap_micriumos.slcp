@@ -41,6 +41,7 @@ component:
       - device_series_3
   - id: mpu
   - id: app_assert
+  - id: bluetooth_feature_connection_pawr_scheduling
 
 requires:
   - name: bluetooth_stack
@@ -62,7 +63,6 @@ requires:
   - name: bluetooth_feature_periodic_advertiser
   - name: bluetooth_feature_connection_phy_update
   - name: bluetooth_feature_external_bonding_database
-  - name: bluetooth_feature_connection_pawr_scheduling
   - name: bluetooth_feature_use_accurate_api_address_types
 
 source:
@@ -140,6 +140,34 @@ configuration:
     value: "2"
   - name: SL_BT_CONFIG_EXTERNAL_LOCAL_IRK 
     value: "1"
+  - name: SL_BT_CONTROLLER_SCANNER_RECEPTION_EARLY_ABORT
+    value: "1"
+  - name: SL_BT_CONTROLLER_CONN_EVENT_LENGTH_EXTENSION
+    value: "1"
+  - name: SL_BT_CONFIG_MAX_QUEUED_ADV_REPORTS
+    value: "8"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_SCAN_MIN
+    value: "255"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_SCAN_MAX
+    value: "212"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_SCAN_STEP
+    value: "2"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_ADV_MIN
+    value: "212"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_ADV_STEP
+    value: "6"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_CONN_MIN
+    value: "140"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_INIT_MIN
+    value: "48"
+  - name: SL_BT_CONTROLLER_SCHEDULER_PRI_INIT_MAX
+    value: "7"
+  - name: SL_BT_CONTROLLER_COMPLETED_PACKETS_THRESHOLD
+    value: "3"
+  - name: SL_BT_CONTROLLER_COMPLETED_PACKETS_EVENTS_TIMEOUT
+    value: "2"
+  - name: SL_BT_CONTROLLER_CONN_EVENT_LENGTH_MIN
+    value: "1"
   - name: SL_CLOCK_MANAGER_LFRCO_PRECISION
     value: "cmuPrecisionHigh"
   - name: SL_CLOCK_MANAGER_LFXO_PRECISION
@@ -150,6 +178,8 @@ configuration:
     value: "37"
     condition:
       - hardware_board_has_lfxo
+  - name: SL_CLOCK_MANAGER_HFRCO_DPLL_EN
+    value: "1"
   - name: SL_BOARD_ENABLE_VCOM
     value: "1"
   - name: SL_UARTDRV_USART_VCOM_TX_BUFFER_SIZE

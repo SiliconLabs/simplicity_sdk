@@ -153,10 +153,6 @@ static void start_rx(UARTDRV_Handle_t handle)
   volatile uint32_t* uartCfgPtr = &handle->peripheral.uart->CTRLX_SET;
   const uint32_t setRts = USART_CTRLX_RTSINV; // invert signal logic to pull high RTS
 #endif
-#ifdef _SILICON_LABS_32B_SERIES_1 /* series 1 doesn't have SET/CLR registers */
-  volatile uint32_t* uartCfgPtr = &handle->peripheral.uart->CTRLX;
-  const uint32_t setRts = handle->peripheral.uart->CTRLX | USART_CTRLX_RTSINV;
-#endif
   // in these templates link address points to next descriptor
   LDMA_Descriptor_t xferTemplate = LDMA_DESCRIPTOR_LINKREL_P2M_BYTE(src, NULL, size, 1);
   xferTemplate.xfer.doneIfs = 0; // don't trigger interrupt
@@ -278,9 +274,6 @@ int sl_hci_uart_read(uint8_t *data, uint16_t len)
           || (read_chunk + 1) % UART_RX_CHUNKS_N == write_chunk)) {
 #ifdef _SILICON_LABS_32B_SERIES_2
     handle->peripheral.uart->CTRLX_CLR = USART_CTRLX_RTSINV;
-#endif
-#ifdef _SILICON_LABS_32B_SERIES_1 /* series 1 doesn't have SET/CLR registers */
-    handle->peripheral.uart->CTRLX &= ~USART_CTRLX_RTSINV;
 #endif
   }
 

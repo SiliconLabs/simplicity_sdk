@@ -32,7 +32,6 @@
 #include <unistd.h>
 #include <inttypes.h>
 #include "ncp_host.h"
-#include "app_log_cli.h"
 #include "sl_bt_api.h"
 #include "sl_bt_ots_client.h"
 #include "sl_status.h"
@@ -69,7 +68,7 @@
 // -----------------------------------------------------------------------------
 // Forward declaration of private functions
 
-static void parse_config(char *config, esl_lib_ap_state_t *data);
+static void parse_config(char *config);
 static sl_status_t ap_init(esl_lib_ap_state_t **handle_out);
 static void run_command(esl_lib_command_list_cmd_t *cmd);
 static void esl_lib_core_step(void);
@@ -125,7 +124,7 @@ void esl_lib_init(char *config)
 
   // Parse configuration
   esl_lib_log_core_debug("Parsing host library configuration: %s" APP_LOG_NL, config);
-  parse_config(config, ap_state);
+  parse_config(config);
   // Initialize NCP connection.
   esl_lib_log_core_debug("Initializing NCP host" APP_LOG_NL);
   sc = ncp_host_init();
@@ -216,73 +215,6 @@ sl_status_t esl_lib_core_get_identity_address(bd_addr *address, uint8_t *type)
   return sc;
 }
 
-sl_status_t esl_lib_core_suspend_scan(uint16_t init_interval, uint16_t init_window)
-{
-  sl_status_t sc = SL_STATUS_OK;
-  // There's room to speed up the suspend/resume processes by creating a custom
-  // NCP for them and doing the stack calls in NCP, not via the much slower UART
-  if (ap_state->scanner_suspended == ESL_LIB_FALSE
-      && ap_state->scan.enabled != ESL_LIB_FALSE) {
-    if (init_interval == 0) {
-      // Take previous user settings for the otherwise implausible 0 value
-      init_interval = ap_state->scan.parameters.interval;
-    }
-
-    if (init_window == 0) {
-      // Set it 100% scanning for the otherwise implausible 0 value
-      init_window = init_interval;
-    }
-
-    esl_lib_log_core_debug("Suspend scanning for connection initiation with parameters: I/W %u/%u" APP_LOG_NL,
-                           init_interval,
-                           init_window);
-    ap_state->scanner_suspended = ap_state->scan.enabled;
-    // Try stop scanning, ignore result
-    (void)sl_bt_scanner_stop();
-
-    // Set the requested scan interval and window values - basically, it's used
-    // to initiate a subsequent connection, hence the variable naming.
-    sc = sl_bt_scanner_set_parameters(sl_bt_scanner_scan_mode_passive,
-                                      init_interval,
-                                      init_window);
-  }
-
-  return sc;
-}
-
-sl_status_t esl_lib_resume_scanning()
-{
-  sl_status_t sc = SL_STATUS_OK;
-
-  if (ap_state->scanner_suspended != ESL_LIB_FALSE) {
-    // Try resuming only if it is currently suspended
-    esl_lib_log_core_debug("Resume scanner to last state" APP_LOG_NL);
-    // There's room to speed up the suspend/resume processes by creating a
-    // custom NCP for them and doing the stack calls in NCP (not via UART!)
-    if (ap_state->scan.enabled == ESL_LIB_TRUE) {
-      sc = sl_bt_scanner_set_parameters(ap_state->scan.parameters.mode,
-                                        ap_state->scan.parameters.interval,
-                                        ap_state->scan.parameters.window);
-      if (sc == SL_STATUS_OK) {
-        sc = sl_bt_scanner_start(ap_state->scan.parameters.scanning_phy,
-                                 ap_state->scan.parameters.discover_mode);
-        esl_lib_log_core_debug("Scanner is enabled again with parameters: I/W %u/%u" APP_LOG_NL,
-                               ap_state->scan.parameters.interval,
-                               ap_state->scan.parameters.window);
-      }
-
-      if (sc != SL_STATUS_OK ) {
-        // If resuming didn't succeed, then the safest thing to do is to report status change to the applicartion
-        ap_state->scan.enabled = ESL_LIB_FALSE;
-        send_scan_status();
-      }
-    }
-    // Resume should be executed regardless of the result
-    ap_state->scanner_suspended = ESL_LIB_FALSE;
-  }
-  return sc;
-}
-
 // -----------------------------------------------------------------------------
 // Private functions
 
@@ -353,6 +285,15 @@ static void esl_lib_core_on_bt_event(sl_bt_msg_t *evt)
                                ESL_LIB_CONN_TIMEOUT_DEFAULT * 10,
                                ESL_LIB_CONN_MIN_CE_LENGTH,
                                ESL_LIB_CONN_MAX_CE_LENGTH);
+      }
+
+      // Try to set prefferred PHY (not forced, not critical)
+      sc = sl_bt_connection_set_default_preferred_phy(sl_bt_gap_phy_2m,
+                                                      sl_bt_gap_phy_1m | sl_bt_gap_phy_2m);
+      if (sc != SL_STATUS_OK) {
+        esl_lib_log_core_warning("Failed to set preferred PHY, sc = 0x%04x, using default" APP_LOG_NL, sc);
+      } else {
+        esl_lib_log_core_debug("Default PHY successfully set: preferred = 2M, accepted = 1M & 2M" APP_LOG_NL);
       }
 
       // Allocate and add event to the event list
@@ -465,13 +406,12 @@ static void esl_lib_core_on_bt_event(sl_bt_msg_t *evt)
   }
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Parse configuration string.
  *
  * @param[in]  config Library configuration.
- * @param[out] rdata Radio data structure handle.
  ******************************************************************************/
-static void parse_config(char *config, esl_lib_ap_state_t *data)
+static void parse_config(char *config)
 {
   sl_status_t sc;
   simple_argparse_parameter_pair_p parsed;
@@ -495,7 +435,7 @@ static void parse_config(char *config, esl_lib_ap_state_t *data)
     exit(EXIT_FAILURE);
   } else {
     esl_lib_log_core_debug("AP host library parsed commands: %d" APP_LOG_NL, parsed_count);
-    for (size_t i = 0; i < parsed_count; ++i) {
+    for (int i = 0; i < parsed_count; ++i) {
       esl_lib_log_core_debug("%s : %s" APP_LOG_NL, parsed[i].arg, parsed[i].opt);
 
       if (strcmp(arg_descriptor[0].arg, parsed[i].arg) == 0) {
@@ -535,7 +475,7 @@ static void parse_config(char *config, esl_lib_ap_state_t *data)
   esl_lib_log_core_debug("AP host library configured" APP_LOG_NL);
 }
 
-/***************************************************************************//**
+/*******************************************************************************
  * Allocate and initialize radio data.
  *
  * @return Radio data pointer.
@@ -900,30 +840,57 @@ static bool find_service_in_advertisement(uint8_t *data, uint8_t len)
 {
   uint8_t  ad_field_length;
   uint8_t  ad_field_type;
-  uint8_t  i               = 0;
+  uint16_t i               = 0;
   uint8_t  esl_uuid_arr[2] = ESL_SERVICE_UUID;
   uint16_t esl_uuid        = *((uint16_t *)esl_uuid_arr);
-  uint8_t  uuid_len        = sizeof(esl_uuid);
   uint16_t *ptr;
+  const uint8_t head_len   = 2 * sizeof(uint8_t);
+  const uint8_t uuid_len   = sizeof(esl_uuid);
 
-  if (len < 2 + uuid_len) {
-    return 0;
+  // Basic sanity check: need at least 2 bytes for length+type
+  if (data == NULL || len < (head_len + uuid_len)) {
+    return false;
   }
+
   // Parse advertisement packet
-  while (i < len) {
+  while (i < (uint16_t)len) {
     ad_field_length = data[i];
-    ad_field_type   = data[i + 1];
+
+    // Validate AD field length to prevent buffer overflow
+    // AD length should not be 0, and (i + 1 + ad_field_length) must not exceed len
+    if (ad_field_length == 0) {
+      // Zero-length field is invalid, stop parsing
+      break;
+    }
+
+    // Check if we have enough data for the complete AD structure
+    // Need: 1 byte (length already read) + 1 byte (type) + ad_field_length-1 bytes (data)
+    if (i + 1 + ad_field_length > len) {
+      // Malformed packet: advertised length exceeds buffer, stop parsing
+      break;
+    }
+
+    ad_field_type = data[i + 1];
+    // Check for 16-bit Service UUIDs AD types
     if (ad_field_type == AD_TYPE_INCOMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS
         || ad_field_type == AD_TYPE_COMPLETE_LIST_OF_16_BIT_SERVICE_CLASS_UUIDS) {
-      for (uint8_t j = i + 2; j < i + ad_field_length + 1; j += sizeof(uint16_t)) {
+      // Calculate safe end boundary for UUID iteration
+      uint16_t field_end = i + 1 + ad_field_length;
+
+      // Iterate through UUIDs in this AD structure
+      // Start at i+2 (skip length and type bytes)
+      for (uint16_t j = i + head_len; j + uuid_len <= field_end && j + uuid_len <= len; j += uuid_len) {
+        // Safe to read uint16_t at this position
         ptr = ((uint16_t *)&data[j]);
         if (*ptr == esl_uuid) {
           return true;
         }
       }
     }
-    // advance to the next AD struct
-    i = i + ad_field_length + 1;
+
+    // Advance to the next AD struct
+    // The next structure starts at: current position + 1 (length byte) + ad_field_length (data)
+    i = i + 1 + ad_field_length;
   }
   return false;
 }

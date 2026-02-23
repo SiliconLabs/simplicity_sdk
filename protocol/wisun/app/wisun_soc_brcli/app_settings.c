@@ -154,8 +154,9 @@
 #define APP_SETTINGS_WISUN_DEFAULT_IPV6_MRU 1504
 #define APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT 5
 #define APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE 2048
-#define APP_SETTINGS_WISUN_DEFAULT_IPV6_PREFIX  "fd12:3456::/64"
-#define APP_SETTINGS_WISUN_DEFAULT_DHCPV6_SERVER  ""
+#define APP_SETTINGS_WISUN_DEFAULT_IPV6_PREFIX "fd12:3456::/64"
+#define APP_SETTINGS_WISUN_DEFAULT_DHCPV6_SERVER ""
+#define APP_SETTINGS_WISUN_DEFAULT_FAN_TPS_VERSION SL_WISUN_FAN_VERSION_DEFAULT
 
 #define APP_SETTINGS_MAC_DEFAULT_MIN_BE 3
 #define APP_SETTINGS_MAC_DEFAULT_MAX_BE 5
@@ -281,6 +282,7 @@ static const app_settings_wisun_t app_settings_wisun_default = {
   .ipv6_mru = APP_SETTINGS_WISUN_DEFAULT_IPV6_MRU,
   .max_edfe_fragment_count = APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT,
   .socket_rx_buffer_size = APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE,
+  .fan_tps_version = APP_SETTINGS_WISUN_DEFAULT_FAN_TPS_VERSION,
 };
 
 static const app_settings_ping_t app_settings_ping_default = {
@@ -488,6 +490,14 @@ static const app_enum_t app_settings_wifi_security_type_enum[] = {
 };
 
 #endif
+
+static const app_enum_t app_settings_wisun_fan_tps_version_enum[] =
+{
+  { "DEFAULT", SL_WISUN_FAN_VERSION_DEFAULT },
+  { "FAN 1.0", SL_WISUN_FAN_VERSION_1_0 },
+  { "FAN 1.1", SL_WISUN_FAN_VERSION_1_1 },
+  { NULL, 0 }
+};
 
 static sl_status_t app_settings_get_fan10_phy_config(char *value_str,
                                                      const char *key_str,
@@ -867,6 +877,19 @@ const app_settings_entry_t app_settings_entries[] =
     .set_handler = app_settings_set_tx_power,
     .get_handler = app_settings_get_tx_power,
     .description = "TX power in ddBm [int16]"
+  },
+  {
+    .key = "fan_tps_version",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.fan_tps_version,
+    .input_enum_list = app_settings_wisun_fan_tps_version_enum,
+    .output_enum_list = app_settings_wisun_fan_tps_version_enum,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Wi-SUN FAN TPS version [uint8]"
   },
   {
     .key = "unicast_dwell_interval",

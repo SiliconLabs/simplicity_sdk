@@ -48,6 +48,22 @@ if cs_main_mode ~= nil and cs_algo_mode ~= nil then
   end
 end
 
+-- CS main mode RTT and CS sub mode RTT combination is not supported!
+local cs_main_mode = slc.config('CS_INITIATOR_DEFAULT_CS_MAIN_MODE').value
+local cs_sub_mode = slc.config('CS_INITIATOR_DEFAULT_CS_SUB_MODE').value
+err_msg = "CS main mode is incompatible with"
+
+if cs_main_mode ~= nil and cs_sub_mode ~= nil then
+  if cs_main_mode == 'sl_bt_cs_mode_rtt' and cs_sub_mode == 'sl_bt_cs_mode_rtt' then
+    validation.error(
+    err_msg .. " CS sub mode!",
+    validation.target_for_defines({'CS_INITIATOR_DEFAULT_CS_SUB_MODE'}),
+    [[CS main mode (]] .. cs_main_mode .. [[) is incompatible with 
+    CS sub mode (]] .. cs_sub_mode .. [[)! ]] .. modify_msg,
+    nil)
+  end
+end
+
 -- CS algo mode real-time fast and synchronized procedure execution (max procedure count == 1)
 -- combination is not supported!
 local cs_max_proc_count =

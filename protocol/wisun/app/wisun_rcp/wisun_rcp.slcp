@@ -15,6 +15,8 @@ component:
   - id: wisun_default_radioconf
   - id: wisun_stack_ffn
   - id: wisun_rcp_app
+  - id: cpc_secondary_recommended_uart_interface
+    condition: [cpc_secondary]
 
 configuration:
   - name: SL_CPC_RX_PAYLOAD_MAX_LENGTH
@@ -28,16 +30,37 @@ configuration:
     condition: [cpc_secondary]
   - name: SL_CPC_DRV_UART_VCOM_RX_QUEUE_SIZE
     value: 2
-    condition: [cpc_secondary, cpc_secondary_driver_uart_usart]
+    condition: [cpc_secondary]
   - name: SL_CPC_DRV_UART_VCOM_TX_QUEUE_SIZE
     value: 2
-    condition: [cpc_secondary, cpc_secondary_driver_uart_usart]
-  - name: SL_CPC_DRV_UART_VCOM_RX_QUEUE_SIZE
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_UART_EXP_RX_QUEUE_SIZE
     value: 2
-    condition: [cpc_secondary, cpc_secondary_driver_uart_eusart]
-  - name: SL_CPC_DRV_UART_VCOM_TX_QUEUE_SIZE
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_UART_EXP_TX_QUEUE_SIZE
     value: 2
-    condition: [cpc_secondary, cpc_secondary_driver_uart_eusart]
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_UART_MIKROE_RX_QUEUE_SIZE
+    value: 2
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_UART_MIKROE_TX_QUEUE_SIZE
+    value: 2
+    condition: [cpc_secondary]
+  - name: SL_CPC_RX_BUFFER_MAX_COUNT
+    value: 4
+    condition: [cpc_secondary, cpc_secondary_driver_spi]
+  - name: SL_CPC_DRV_SPI_EXP_RX_QUEUE_SIZE
+    value: 3
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_SPI_EXP_TX_QUEUE_SIZE
+    value: 2
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_SPI_MIKROE_RX_QUEUE_SIZE
+    value: 3
+    condition: [cpc_secondary]
+  - name: SL_CPC_DRV_SPI_MIKROE_TX_QUEUE_SIZE
+    value: 2
+    condition: [cpc_secondary]
   - name: SL_BOARD_ENABLE_VCOM
     value: 1
   - name: OS_CFG_APP_HOOKS_EN

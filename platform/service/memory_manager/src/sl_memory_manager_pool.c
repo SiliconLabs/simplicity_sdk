@@ -32,6 +32,7 @@
 
 #include "sl_memory_manager.h"
 #include "sli_memory_manager.h"
+#include "sl_memory_manager_config.h"
 
 #include "sl_assert.h"
 #include "sl_core.h"
@@ -50,6 +51,69 @@
 
 #define SLI_MEM_POOL_OUT_OF_MEMORY     UINTPTR_MAX
 #define SLI_MEM_POOL_REQUIRED_PADDING(obj_size) (((sizeof(size_t) - ((obj_size) % sizeof(size_t))) % sizeof(size_t)))
+
+#if (defined(SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE) && (SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE == 1))
+/***************************************************************************//**
+ * Checks if a value looks like a valid free list pointer.
+ * Used as a quick O(1) pre-check for double-free detection.
+ *
+ * A value looks like a free list pointer if it's either:
+ * - The end-of-list marker (SLI_MEM_POOL_OUT_OF_MEMORY), OR
+ * - A block-aligned address within the pool's memory range
+ *
+ * @param[in] pool_handle  Pointer to the memory pool handle.
+ * @param[in] value        The value to check.
+ *
+ * @return true if value looks like it could be a free list pointer.
+ ******************************************************************************/
+static inline bool sli_looks_like_free_list_ptr(const sl_memory_pool_t *pool_handle,
+                                                size_t value)
+{
+  // Check for end-of-list marker.
+  if (value == SLI_MEM_POOL_OUT_OF_MEMORY) {
+    return true;
+  }
+
+  // Check if it points within the pool's block range.
+  size_t pool_start = (size_t)pool_handle->block_address;
+  size_t pool_end = pool_start + (pool_handle->block_size * pool_handle->block_count);
+
+  if ((value >= pool_start) && (value < pool_end)) {
+    // Must be aligned to a block boundary.
+    size_t offset = value - pool_start;
+    return (offset % pool_handle->block_size) == 0;
+  }
+
+  return false;
+}
+
+/***************************************************************************//**
+ * Checks if a block is in the free list by walking the list.
+ * Used as O(n) verification when the quick check is suspicious.
+ *
+ * @param[in] pool_handle  Pointer to the memory pool handle.
+ * @param[in] block        The block address to search for.
+ *
+ * @return true if block is found in the free list (already freed).
+ *
+ * @note Must be called within an atomic section.
+ ******************************************************************************/
+static bool sli_block_is_in_free_list(const sl_memory_pool_t *pool_handle,
+                                      const void *block)
+{
+  void *current = pool_handle->block_free;
+
+  while ((size_t)current != SLI_MEM_POOL_OUT_OF_MEMORY) {
+    if (current == block) {
+      return true;
+    }
+    // Follow the free list to the next block.
+    current = (void *)*(size_t *)current;
+  }
+
+  return false;
+}
+#endif // (defined(SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE) && (SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE == 1))
 
 /***************************************************************************//**
  * Creates a memory pool.
@@ -75,6 +139,12 @@ sl_status_t sl_memory_delete_pool(sl_memory_pool_t *pool_handle)
   if (pool_handle == NULL) {
     return SL_STATUS_NULL_POINTER;
   }
+
+  // Verify that the pool was properly initialized.
+  if (pool_handle->block_address == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
   // Verify that no blocks are allocated.
   free_block_count = sl_memory_pool_get_free_block_count(pool_handle);
   if (free_block_count != pool_handle->block_count) {
@@ -126,6 +196,15 @@ sl_status_t sl_memory_pool_alloc(sl_memory_pool_t *pool_handle,
   // Update the next free block using the address saved in that block.
   pool_handle->block_free = (void *)*(size_t *)block_addr;
 
+#if defined(MEMORY_MANAGER_TEST_CONDITIONS)
+  // Clear the first word of the allocated block so it doesn't look like
+  // a free list pointer. This enables O(1) double-free detection in most cases.
+  // Without this, unwritten blocks would trigger the O(n) verification path
+  // because they still contain the old "next" pointer from the free list.
+  // This is only done in test conditions to avoid performance impact.
+  *(size_t *)block_addr = 0;
+#endif
+
   CORE_EXIT_ATOMIC();
 
 #if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
@@ -154,13 +233,35 @@ sl_status_t sl_memory_pool_free(sl_memory_pool_t *pool_handle,
     return SL_STATUS_INVALID_PARAMETER;
   }
 
+  CORE_ENTER_ATOMIC();
+
+#if (defined(SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE) && (SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE == 1))
+  // Double-free detection using hybrid approach:
+  //
+  // O(1) check: does block content look like a free list pointer?
+  // After allocation, sl_memory_pool_alloc() clears the first word to 0.
+  // After a legitimate free, the block contains a pointer to the next free block
+  // (a valid block address) or the end marker. If the block was allocated and the
+  // user didn't overwrite the first word with a valid block address (rare), the
+  // content will be 0 and this check will pass quickly.
+  size_t stored_value = *(size_t *)block;
+  if (sli_looks_like_free_list_ptr(pool_handle, stored_value)) {
+    // Content looks suspicious - verify by walking the free list.
+    if (sli_block_is_in_free_list(pool_handle, block)) {
+      // Block is actually in the free list - this is a double-free.
+      CORE_EXIT_ATOMIC();
+      return SL_STATUS_INVALID_PARAMETER;
+    }
+    // False positive: user data happened to look like a free list pointer.
+    // Proceed with normal free.
+  }
+#endif // (defined(SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE) && (SL_MEMORY_MANAGER_POOL_DOUBLE_FREE_PROTECTION_ENABLE == 1))
+
 #if defined(SL_CATALOG_MEMORY_PROFILER_PRESENT)
   sli_memory_profiler_track_free(pool_handle, block);
 #endif
 
-  CORE_ENTER_ATOMIC();
-
-  // Save the current free block address in this block.
+  // Save the current free block address in this block and update free list head.
   *(size_t *)block = (size_t)pool_handle->block_free;
   pool_handle->block_free = block;
 
@@ -175,7 +276,7 @@ sl_status_t sl_memory_pool_free(sl_memory_pool_t *pool_handle,
 uint32_t sl_memory_pool_get_free_block_count(const sl_memory_pool_t *pool_handle)
 {
   uint32_t free_block_count = 0;
-  uint32_t *free_block;
+  void *free_block;
 
   if (pool_handle == NULL) {
     return 0;
@@ -188,7 +289,7 @@ uint32_t sl_memory_pool_get_free_block_count(const sl_memory_pool_t *pool_handle
 
   // Go through the free block list and count the number of free blocks remaining.
   while ((size_t)free_block != SLI_MEM_POOL_OUT_OF_MEMORY) {
-    free_block = *(uint32_t **)free_block;
+    free_block = (void *)*(size_t *)free_block;
     free_block_count++;
   }
 

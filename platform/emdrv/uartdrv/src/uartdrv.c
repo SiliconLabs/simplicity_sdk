@@ -1968,7 +1968,7 @@ __STATIC_INLINE void AbortTxDmaTransfers(UARTDRV_Handle_t handle)
         txBuffer->callback(handle,
                            ECODE_EMDRV_UARTDRV_ABORTED,
                            txBuffer->data,
-                           txBuffer->itemsRemaining
+                           txBuffer->transferCount - txBuffer->itemsRemaining
                            #if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) \
                            && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
                            , txBuffer->userParam
@@ -2015,7 +2015,7 @@ __STATIC_INLINE void AbortRxDmaTransfers(UARTDRV_Handle_t handle)
         rxBuffer->callback(handle,
                            ECODE_EMDRV_UARTDRV_ABORTED,
                            rxBuffer->data,
-                           rxBuffer->itemsRemaining
+                           rxBuffer->transferCount - rxBuffer->itemsRemaining
                            #if defined(UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE) \
                            && (UARTDRV_USER_SPECIFIED_CALLBACK_ENABLE == 1)
                            , rxBuffer->userParam

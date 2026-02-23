@@ -655,7 +655,7 @@ static sl_status_t search_image(image_transfer_t *image_transfer,
 static image_transfer_t *find_image_transfer_by_client(sl_bt_ots_client_handle_t client)
 {
   image_transfer_t *image_transfer;
-  // Check init needs
+
   SL_SLIST_FOR_EACH_ENTRY(image_transfer_list, image_transfer, image_transfer_t, node) {
     if (client == &image_transfer->ots_client) {
       return image_transfer;
@@ -667,7 +667,7 @@ static image_transfer_t *find_image_transfer_by_client(sl_bt_ots_client_handle_t
 static image_transfer_t *find_image_transfer_by_handle(esl_lib_image_transfer_handle_t handle)
 {
   image_transfer_t *image_transfer;
-  // Check init needs
+
   SL_SLIST_FOR_EACH_ENTRY(image_transfer_list, image_transfer, image_transfer_t, node) {
     if ((image_transfer_t *)handle == image_transfer) {
       return image_transfer;
@@ -854,7 +854,7 @@ static void remove_transfer(image_transfer_t **image_transfer,
                            ESL_LIB_LOG_PTR(*image_transfer),
                            status);
     }
-    finish_transfer = false;
+    finish_transfer = false; // override input parameter
   }
 
   if (finish_transfer) {
@@ -1292,6 +1292,12 @@ static void init_timeout(app_timer_t *timer,
     return;
   }
 
+  if (&(image_transfer->timer) != timer) {
+    esl_lib_log_it_warning(IT_FMT "Init timeout on unknown timer handle, ignoring" APP_LOG_NL,
+                           ESL_LIB_LOG_PTR(image_transfer));
+    return;
+  }
+
   esl_lib_log_it_error(IT_FMT "OTS init timeout" APP_LOG_NL,
                        ESL_LIB_LOG_PTR(image_transfer));
   // Send operation finished with error event
@@ -1304,7 +1310,13 @@ static void gatt_timeout(app_timer_t *timer,
   image_transfer_t *image_transfer = (image_transfer_t *)data;
 
   if (find_image_transfer_by_handle(image_transfer) == ESL_LIB_IMAGE_TRANSFER_INVALID_HANDLE) {
-    esl_lib_log_it_warning(IT_FMT "GATT timeout on already removed handle, ignoring" APP_LOG_NL,
+    esl_lib_log_it_warning(IT_FMT "OTS GATT timeout on already removed handle, ignoring" APP_LOG_NL,
+                           ESL_LIB_LOG_PTR(image_transfer));
+    return;
+  }
+
+  if (&(image_transfer->timer) != timer) {
+    esl_lib_log_it_warning(IT_FMT "OTS GATT timeout on unknown timer handle, ignoring" APP_LOG_NL,
                            ESL_LIB_LOG_PTR(image_transfer));
     return;
   }
@@ -1321,7 +1333,13 @@ static void transfer_timeout(app_timer_t *timer,
   image_transfer_t *image_transfer = (image_transfer_t *)data;
 
   if (find_image_transfer_by_handle(image_transfer) == ESL_LIB_IMAGE_TRANSFER_INVALID_HANDLE) {
-    esl_lib_log_it_warning(IT_FMT "Transfer timeout on already removed handle, ignoring" APP_LOG_NL,
+    esl_lib_log_it_warning(IT_FMT "OTS transfer timeout on already removed handle, ignoring" APP_LOG_NL,
+                           ESL_LIB_LOG_PTR(image_transfer));
+    return;
+  }
+
+  if (&(image_transfer->timer) != timer) {
+    esl_lib_log_it_warning(IT_FMT "OTS transfer timeout on unknown timer handle, ignoring" APP_LOG_NL,
                            ESL_LIB_LOG_PTR(image_transfer));
     return;
   }

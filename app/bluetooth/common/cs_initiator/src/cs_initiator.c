@@ -1129,11 +1129,11 @@ void cs_ras_client_on_ranging_data_reception_finished(uint8_t                   
     initiator_log_info(INSTANCE_PREFIX "RAS - real-time data reception restarted" LOG_NL,
                        initiator->conn_handle);
   }
-  if ((sc != SL_STATUS_OK) || (lost_segments > 0)) {
+  if (sc != SL_STATUS_OK) {
     initiator_log_error(INSTANCE_PREFIX "RAS - reception finished - failure! [sc: 0x%lx]" LOG_NL,
                         initiator->conn_handle,
                         (unsigned long)sc);
-    if (sc != SL_STATUS_ABORT) {
+    if ((lost_segments > 0) && (sc != SL_STATUS_ABORT)) {
       on_error(initiator,
                CS_ERROR_EVENT_RAS_CLIENT_DATA_RECEPTION_FINISH_FAILED,
                sc);
@@ -1354,6 +1354,8 @@ bool cs_ras_client_on_timeout(uint8_t connection,
   on_error(initiator,
            CS_ERROR_EVENT_RAS_CLIENT_REALTIME_RECEIVE_FAILED,
            SL_STATUS_TIMEOUT);
+  (void)timeout;
+  (void)action;
   // Perform the action automatically
   return false;
 }

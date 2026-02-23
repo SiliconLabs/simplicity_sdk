@@ -152,3 +152,11 @@ upgrade:
       - script: protocol/zigbee/component/scripts/upgrade_zigbee_token_manager.lua
         description: >
           The Token Manager component has been added to the project. This is a legacy component that handles the management of tokens. No action is required, but the user is encouraged to read the corresponding zigbee 2025.6 release notes that describe the new Common Token Manager component.
+
+  - sdk:
+      id: simplicity_sdk
+      version: 2025.6.3
+    configuration:
+      - script: protocol/zigbee/component/scripts/upgrade_zigbee_end_device_configuration.lua
+        description: >
+          Introduced a new configuration parameter SL_ZIGBEE_AF_PLUGIN_END_DEVICE_SUPPORT_MOVE_DELAY_SECONDS that allows configuring the delay time (in seconds) for scheduling end device moves as part of the end device support component.

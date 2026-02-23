@@ -83,6 +83,10 @@ include:
 readme:
   - path: readme.md
 
+
+config_file:
+  - path: config/app_config.h
+
 other_file:
   - path: image/readme_img0.png
 
@@ -102,13 +106,15 @@ configuration:
   - name: SL_STACK_SIZE
     value: 3496
   - name: SL_BT_CONFIG_BUFFER_SIZE
-    value: 22000
+    value: 10000
   - name: SL_BT_CONFIG_USER_ADVERTISERS
     value: 4
   - name: SL_BT_CONFIG_MAX_CONNECTIONS
     value: 4
   - name: SL_BT_CONFIG_MAX_CS_PROCEDURES
     value: 4
+  - name: SL_BT_CONTROLLER_SCANNER_RECEPTION_EARLY_ABORT
+    value: 1
   - name: SL_BT_CONTROLLER_CONN_EVENT_LENGTH_EXTENSION
     value: 1
   - name: SL_BOARD_ENABLE_VCOM

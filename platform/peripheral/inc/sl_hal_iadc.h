@@ -1521,6 +1521,9 @@ __INLINE sl_hal_iadc_positive_port_input_t sl_hal_iadc_port_pin_to_pos_port(cons
  *  IADC Basic example:
  *  @code{.c}
  *  {
+ *    // Enable bus clock for IADC0
+ *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_IADC0);
+ *
  *    // Initialize IADC
  *    sl_hal_iadc_init_t init = {
  *      .iadc_clk_suspend0 = false,

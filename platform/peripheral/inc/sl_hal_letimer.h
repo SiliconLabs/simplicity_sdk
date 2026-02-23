@@ -752,6 +752,9 @@ __INLINE uint32_t sl_hal_letimer_get_top_buffer(LETIMER_TypeDef *letimer)
  * // Example of configuring LETIMER for PWM generation
  * void letimer_pwm_example(void)
  * {
+ *   // Enable bus clock for LETIMER0
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_LETIMER0);
+ *
  *   // Initialize with custom configuration for PWM generation
  *   sl_hal_letimer_init_t init = SL_HAL_LETIMER_INIT_DEFAULT;
  *

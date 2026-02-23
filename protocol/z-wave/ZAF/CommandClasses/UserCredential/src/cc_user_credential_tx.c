@@ -20,6 +20,7 @@
 #include "zaf_transport_tx.h"
 #include "ZAF_TSE.h"
 #include "ZW_TransportSecProtocol.h"
+#include "association_plus_base.h"
 #include <string.h>
 
 /****************************************************************************/
@@ -92,10 +93,16 @@ void fill_rx_frame_with_local(RECEIVE_OPTIONS_TYPE_EX * p_rx_options)
   /**
    * If an operation was initiated locally, there is no incoming
    * frame to parse the receive options from.
-   * Use the Controller's ID as the source and the node's own ID as the
-   * destination.
+   * Use the first node in the Lifeline association group as the source
+   * and the node's own ID as the destination.
    */
-  p_rx_options->sourceNode.nodeId = ZAF_GetSucNodeId();
+
+  destination_info_t * pNodeList = NULL;
+  uint8_t listLength = 0;
+  NODE_LIST_STATUS status = handleAssociationGetnodeList(LIFELINE_GROUP_ID, 0, &pNodeList, &listLength);
+  if (status == NODE_LIST_STATUS_SUCCESS && pNodeList != NULL) {
+    p_rx_options->sourceNode.nodeId = pNodeList->node.nodeId;
+  } // Otherwise, it stays at 0
   p_rx_options->destNode.nodeId = ZAF_GetNodeID();
   p_rx_options->securityKey = GetHighestSecureLevel(ZAF_GetSecurityKeys());
 }
@@ -347,4 +354,33 @@ JOB_STATUS CC_UserCredential_UsageNotification_tx(
   return CC_Notification_TriggerAndTransmit(
     0, notification_event, notification_event_parameters,
     (uint8_t)(p_event_parameters - notification_event_parameters), NULL, false);
+}
+
+void CC_UserCredential_AssociationReport_tx(
+  u3c_credential_metadata_t const * const p_source_metadata,
+  u3c_credential_metadata_t const * const p_destination_metadata,
+  u3c_user_credential_association_report_status_t const status,
+  RECEIVE_OPTIONS_TYPE_EX * const p_rx_options
+  )
+{
+  if ((p_source_metadata == NULL) || (p_destination_metadata == NULL)) {
+    assert(false);
+  }
+
+  ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME * p_frame =
+    (ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME *)report_out_frame;
+
+  p_frame->cmdClass                         = COMMAND_CLASS_USER_CREDENTIAL;
+  p_frame->cmd                              = USER_CREDENTIAL_ASSOCIATION_REPORT;
+  p_frame->credentialType                   = (uint8_t)p_source_metadata->type;
+  p_frame->credentialSlot1                  = (uint8_t)(p_source_metadata->slot >> 8); // MSB
+  p_frame->credentialSlot2                  = (uint8_t)p_source_metadata->slot; // LSB
+  p_frame->destinationUserUniqueIdentifier1 = (uint8_t)(p_destination_metadata->uuid >> 8); // MSB
+  p_frame->destinationUserUniqueIdentifier2 = (uint8_t)p_destination_metadata->uuid; // LSB
+  p_frame->userCredentialAssociationStatus  = (uint8_t)status;
+
+  report_out_size = sizeof(ZW_USER_CREDENTIAL_ASSOCIATION_REPORT_FRAME);
+
+  bool notify_lifeline = (status == U3C_UCAR_STATUS_SUCCESS);
+  send_report(p_rx_options, notify_lifeline);
 }

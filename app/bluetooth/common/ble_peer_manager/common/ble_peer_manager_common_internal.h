@@ -55,12 +55,4 @@
 #define ble_peer_manager_log_hexdump(p_data, len)
 #endif
 
-typedef enum {
-  BLE_PEER_MANAGER_STATE_IDLE = 0u,
-  BLE_PEER_MANAGER_STATE_CONNECTING,
-  BLE_PEER_MANAGER_STATE_CLOSING,
-  BLE_PEER_MANAGER_SCANNING,
-  BLE_PEER_MANAGER_ADVERTISING,
-} ble_peer_manager_state_id;
-
 #endif // BLE_PEER_MANAGER_COMMON_INTERNAL_H

@@ -7,7 +7,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd2703a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd2703a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd2703a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -19,7 +19,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg26b410f3200im48.*"/>
     <property key="core.boardCompatibility" value="brd4116a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4116a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4116a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -31,7 +31,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4180a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -43,7 +43,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4186c.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -55,7 +55,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP (No buttons) - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
     <property key="core.boardCompatibility" value="brd4407a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4407a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp-no-buttons/ot-ble-dmp-no-buttons-brd4407a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -66,7 +66,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd2703a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd2703a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd2703a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -77,7 +77,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg26b410f3200im48.*"/>
     <property key="core.boardCompatibility" value="brd4116a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4116a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4116a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -88,7 +88,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4180a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -99,7 +99,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4186c.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -110,7 +110,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="OpenThread BLE DMP - SoC FreeRTOS"/>
     <property key="core.partCompatibility" value=".*simg301m104lil.*"/>
     <property key="core.boardCompatibility" value="brd4407a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4407a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/ot-ble-dmp/ot-ble-dmp-brd4407a.s37"/>
     <property key="core.readmeFiles" value="../openthread/sample-apps/ot-ble-dmp/README.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -120,7 +120,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="Zigbee BLE - DirectDeviceLight"/>
     <property key="core.partCompatibility" value=".*efr32mg21a020f1024im32.*"/>
     <property key="core.boardCompatibility" value="brd4180a"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/zigbee_ble_direct_device_light/zigbee_ble_direct_device_light-brd4180a.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/zigbee_ble_direct_device_light/zigbee_ble_direct_device_light-brd4180a.s37"/>
     <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_direct_device_light/readme.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -130,7 +130,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="Zigbee BLE - DynamicMultiprotocolLightSed"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light_sed/zigbee_ble_dynamic_multiprotocol_light_sed-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light_sed/zigbee_ble_dynamic_multiprotocol_light_sed-brd4186c.s37"/>
     <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light_sed/readme.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>
@@ -140,7 +140,7 @@ It is identical to the ot-ble-dmp application with the exception that support fo
     <property key="demos.blurb" value="Zigbee BLE - DynamicMultiprotocolLight"/>
     <property key="core.partCompatibility" value=".*efr32mg24b210f1536im48.*"/>
     <property key="core.boardCompatibility" value="brd4186c"/>
-    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.2/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light/zigbee_ble_dynamic_multiprotocol_light-brd4186c.s37"/>
+    <property key="demos.imageFile" value="asset://com.silabs.sdk.stack.sisdk_2025.6.3/protocol/multiprotocol/demos/zigbee_ble_dynamic_multiprotocol_light/zigbee_ble_dynamic_multiprotocol_light-brd4186c.s37"/>
     <property key="core.readmeFiles" value="../zigbee/app/projects/multiprotocol/zigbee_ble_dynamic_multiprotocol_light/readme.md"/>
     <property key="filters" value="Capability|Multiprotocol Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Zigbee"/>
     <property key="core.quality" value="PRODUCTION"/>

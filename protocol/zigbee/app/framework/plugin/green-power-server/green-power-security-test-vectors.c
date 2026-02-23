@@ -317,6 +317,7 @@ sl_status_t sli_zigbee_af_gp_test_security(void)
     sl_zigbee_af_green_power_cluster_println("[[FAIL 1]]");
     all_test_vectors_passed = false;
   }
+
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   gpdAddr.id.sourceId = 0x12345678;
   gpdAddr.applicationId = 0;
@@ -482,6 +483,23 @@ sl_status_t sli_zigbee_af_gp_test_security(void)
     all_test_vectors_passed = false;
   }
 
+  gpdCommandId = 0x20; // Level 2 - gpd command ID is not encrypted.
+  bool ret = sli_zigbee_af_gp_incoming_command_decrypt_and_validate_mic(&gpdAddr,
+                                                                        false, // Rx after TX - this is to build the header
+                                                                        0, // Key type : Shared Key = 0, Individual Key = 1
+                                                                        2, // Security Level : Encrypted = 3, MIC only = 2,
+                                                                        fc, // secured frame counter,
+                                                                        &gpdCommandId,
+                                                                        NULL,
+                                                                        0x727E78CF
+                                                                        );
+  if (ret != true) {
+    sl_zigbee_af_green_power_cluster_println("[[FAIL - A.1.5.4.2 Decryption Test]]");
+    all_test_vectors_passed = false;
+  } else {
+    sl_zigbee_af_green_power_cluster_println("[[PASS - A.1.5.4.2 Decryption Test]]");
+  }
+
   // Shared Key Security Level 3 Application Id 0 - Incoming
   sl_zigbee_af_green_power_cluster_println("\nTest Vector (A.1.5.4.3) MIC of command id = 0x02 (No Payload) SharedKey seclevel = 0b11 Application Id 0");
   sl_zigbee_key_data_t testKey3 = { { 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF } };
@@ -514,6 +532,23 @@ sl_status_t sli_zigbee_af_gp_test_security(void)
   if (!single_test_vector_passed) {
     sl_zigbee_af_green_power_cluster_println("[[FAIL 7]]");
     all_test_vectors_passed = false;
+  }
+
+  gpdCommandId = 0x83; // Level 3 - gpd command ID (0x20) is encrypted.
+  ret = sli_zigbee_af_gp_incoming_command_decrypt_and_validate_mic(&gpdAddr,
+                                                                   false, // Rx after TX - this is to build the header
+                                                                   0, // Key type : Shared Key = 0, Individual Key = 1
+                                                                   3, // Security Level : Encrypted = 3, MIC only = 2,
+                                                                   fc, // secured frame counter,
+                                                                   &gpdCommandId,
+                                                                   NULL,
+                                                                   0xDD2443CA
+                                                                   );
+  if (ret != true || gpdCommandId != 0x20) {
+    sl_zigbee_af_green_power_cluster_println("[[FAIL - A.1.5.4.3 Decryption Test]]");
+    all_test_vectors_passed = false;
+  } else {
+    sl_zigbee_af_green_power_cluster_println("[[PASS - A.1.5.4.3 Decryption Test]]");
   }
 
   // Shared Key Security Level 2 Application Id 0 - Incoming

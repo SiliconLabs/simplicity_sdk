@@ -76,14 +76,14 @@
 {#-
   Code Region 0 is usually the bootloader region. The default logical size is 32kb.
 #}
-{%- if axip_region0_enabled is defined %}
-  {%- if code_region0_size is defined %}
-    {%- set logical_code_region0_size = code_region0_size | first %}
-  {%- else %}
-    {%- set logical_code_region0_size = 32768 %}
-  {%- endif %}
-  {%- set logical_code_region0_size = ((logical_code_region0_size // 32768) * 32768) %}
+{%- if code_region0_size is defined %}
+  {%- set logical_code_region0_size = code_region0_size | first %}
+{%- else %}
+  {%- set logical_code_region0_size = 32768 %}
+{%- endif %}
+{%- set logical_code_region0_size = ((logical_code_region0_size // 32768) * 32768) %}
 
+{%- if axip_region0_enabled is defined %}
   {#-
     With AXiP enabled, every 8 logical pages effectively uses 9 physical pages.
   #}
@@ -95,32 +95,32 @@
   Code Region 1 is usually the app region. The default logical size depends on
   the part's flash size. Those default sizes are defined in the lookup table below.
 #}
-{%- if axip_region1_enabled is defined %}
-  {%- if code_region1_size is defined %}
-    {%- set logical_code_region1_size = code_region1_size | first %}
+{%- if code_region1_size is defined %}
+  {%- set logical_code_region1_size = code_region1_size | first %}
+{%- else %}
+
+  {%- if device_has_ext_mem is defined %}
+    {#-
+      Calculate Code Region 1 size for External Flash parts.
+    #}
+    {%- set logical_code_region1_size = ((((8 * flash_size) // 9) - physical_code_region0_size) // 2) %}
+
   {%- else %}
-
-    {%- if device_has_ext_mem is defined %}
-      {#-
-        Calculate Code Region 1 size for External Flash parts.
-      #}
-      {%- set logical_code_region1_size = ((((8 * flash_size) // 9) - physical_code_region0_size) // 2) %}
-
-    {%- else %}
-      {#-
-        Code Region 1 size's look-up table for Co-Packaged Flash parts.
-      #}
-      {%- if (flash_size == 1900544) %} {#- 2MB Co-Packaged Flash #}
-        {%- set logical_code_region1_size = 884736 %}
-      {%- elif (flash_size == 2949120) %} {#- 3MB Co-Packaged Flash #}
-        {%- set logical_code_region1_size = 1441792 %}
-      {%- elif (flash_size == 3997696) %} {#- 4MB Co-Packaged Flash #}
-        {%- set logical_code_region1_size = 2031616 %}
-      {%- endif %}
+    {#-
+      Code Region 1 size's look-up table for Co-Packaged Flash parts.
+    #}
+    {%- if (flash_size == 1900544) %} {#- 2MB Co-Packaged Flash #}
+      {%- set logical_code_region1_size = 884736 %}
+    {%- elif (flash_size == 2949120) %} {#- 3MB Co-Packaged Flash #}
+      {%- set logical_code_region1_size = 1441792 %}
+    {%- elif (flash_size == 3997696) %} {#- 4MB Co-Packaged Flash #}
+      {%- set logical_code_region1_size = 2031616 %}
     {%- endif %}
   {%- endif %}
-  {%- set logical_code_region1_size = ((logical_code_region1_size // 32768) * 32768) %}
+{%- endif %}
+{%- set logical_code_region1_size = ((logical_code_region1_size // 32768) * 32768) %}
 
+{%- if axip_region1_enabled is defined %}
   {#-
     With AXiP enabled, every 8 logical pages effectively uses 9 physical pages.
   #}
@@ -572,6 +572,9 @@ SECTIONS
 
   } > RAM AT > FLASH
 
+.code_flash_end : {
+  code_flash_end = .;
+} > FLASH
 
 /* Calculate heap size based on RAM limits. */
 heap_limit = ORIGIN(RAM) + LENGTH(RAM);  /* End of RAM */
@@ -690,6 +693,14 @@ heap_size = heap_limit - __HeapBase;
   memory_flash_end = 0x{{ '%0x' % (memory_flash_start | first) }} + 0x{{ '%0x' % (memory_flash_size | first) }};
   physical_flash_end = 0x{{ '%0x' % (flash_addr) }} + 0x{{ '%0x' % (flash_size) }};
   ASSERT( memory_flash_end <= physical_flash_end, "The template contribution to memory_flash_size exceeds the available flash_size. Check your SLCC or SLCP file to review the flash size defined by memory_flash_size for the sixx301 family.")
+{%- endif %}
+{#-
+  Ensure the code in flash doesn't overflow into other flash regions. 
+#}
+{%- if bootloader_enable %}
+  ASSERT( code_flash_end - 0x{{ '%0x' % bootloader_flash_startaddr }} <= 0x{{ '%0x' % logical_code_region0_size }}, "Code size exceeds code region 0 capacity. Flash partitions can be reconfigured: https://docs.silabs.com/gecko-platform/latest/flash-partitions-series3/")
+{%- else %}
+  ASSERT( code_flash_end - 0x{{ '%0x' % app_flash_start }} <= 0x{{ '%0x' % logical_code_region1_size }}, "Code size exceeds code region 1 capacity. Flash partitions can be reconfigured: https://docs.silabs.com/gecko-platform/latest/flash-partitions-series3/")
 {%- endif %}
 } {#- END of SECTIONS #}
 

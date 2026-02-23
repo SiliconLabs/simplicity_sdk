@@ -1030,7 +1030,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR (for SL_ZIGBEE_EZSP_ERROR_INVALID_ID) if the NCP does not recognize <i>configId</i>.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>configId</i>.</td></tr>
 
     <tr><td>uint16_t value</td><td colspan="2">The configuration value.</td></tr>
 </table><br>
@@ -1048,7 +1048,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the configuration value was changed, SL_STATUS_ZIGBEE_EZSP_ERROR if there was an error. Retrievable EZSP errors can be SL_ZIGBEE_EZSP_ERROR_OUT_OF_MEMORY if the new value exceeded the available memory, SL_ZIGBEE_EZSP_ERROR_INVALID_VALUE if the new value was out of bounds, SL_ZIGBEE_EZSP_ERROR_INVALID_ID if the NCP does not recognize <i>configId</i>, SL_ZIGBEE_EZSP_ERROR_INVALID_CALL if configuration values can no longer be modified.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the configuration value was changed, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. Possible error codes include SL_STATUS_INVALID_STATE if the stack is not in a state where configuration values can be changed, and SL_STATUS_INVALID_PARAMETER if the new value is not valid.</td></tr>
 </table><br>
 
     <table class="outline"><col width="300"><col width="200"><col width="200">
@@ -1136,7 +1136,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the endpoint was added, SL_STATUS_ZIGBEE_EZSP_ERROR if there was an error. Errors could be SL_ZIGBEE_EZSP_ERROR_OUT_OF_MEMORY if there is not enough memory available to add the endpoint, SL_ZIGBEE_EZSP_ERROR_INVALID_VALUE if the endpoint already exists, SL_ZIGBEE_EZSP_ERROR_INVALID_CALL if endpoints can no longer be added.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the endpoint was added, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_ALLOCATION_FAILED is returned if there is not enough memory available to add the endpoint, SL_STATUS_INVALID_PARAMETER if the endpoint already exists.</td></tr>
 </table><br>
 
     <table class="outline"><col width="300"><col width="200"><col width="200">
@@ -1152,7 +1152,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the policy was changed, SL_STATUS_ZIGBEE_EZSP_ERROR (for SL_ZIGBEE_EZSP_ERROR_INVALID_ID) if the NCP does not recognize <i>policyId</i>.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the policy was changed, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>policyId</i>.</td></tr>
 </table><br>
 
     <table class="outline"><col width="300"><col width="200"><col width="200">
@@ -1166,7 +1166,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the policy was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR (for SL_ZIGBEE_EZSP_ERROR_INVALID_ID) if the NCP does not recognize <i>policyId</i>.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the policy was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>policyId</i>.</td></tr>
 
     <tr><td>sl_zigbee_ezsp_decision_id_t decisionId</td><td colspan="2">The current decision for the specified policy.</td></tr>
 </table><br>
@@ -1196,7 +1196,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR otherwise.  Errors could be SL_ZIGBEE_EZSP_ERROR_INVALID_ID if the NCP does not recognize <i>valueId</i>, SL_ZIGBEE_EZSP_ERROR_INVALID_VALUE if the length of the returned <i>value</i> exceeds the size of local storage allocated to receive it.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>valueId</i>.</td></tr>
 
     <tr><td>uint8_t valueLength</td><td colspan="2">Both a command and response parameter. On command, the maximum size in bytes of local storage allocated to receive the returned <i>value</i>. On response, the actual length in bytes of the returned <i>value</i>.</td></tr>
 
@@ -1216,7 +1216,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR otherwise.  Errors could be SL_ZIGBEE_EZSP_ERROR_INVALID_ID if the NCP does not recognize <i>valueId</i>, SL_ZIGBEE_EZSP_ERROR_INVALID_VALUE if the length of the returned <i>value</i> exceeds the size of local storage allocated to receive it.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was read successfully, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>valueId</i>.</td></tr>
 
     <tr><td>uint8_t valueLength</td><td colspan="2">Both a command and response parameter. On command, the maximum size in bytes of local storage allocated to receive the returned <i>value</i>. On response, the actual length in bytes of the returned <i>value</i>.</td></tr>
 
@@ -1238,7 +1238,7 @@
 
     <tr><td colspan="3" style="border-top: solid black 1px;"><b>Response Parameters:</b></td></tr>
 
-    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was changed, SL_STATUS_ZIGBEE_EZSP_ERROR otherwise.  Errors could be SL_ZIGBEE_EZSP_ERROR_INVALID_VALUE if the new value was out of bounds, SL_ZIGBEE_EZSP_ERROR_INVALID_ID if the NCP does not recognize <i>valueId</i>, SL_ZIGBEE_EZSP_ERROR_INVALID_CALL if the value could not be modified.</td></tr>
+    <tr><td>sl_status_t status</td><td colspan="2">SL_STATUS_OK if the value was changed, SL_STATUS_ZIGBEE_EZSP_ERROR if send command failed. SL_STATUS_INVALID_PARAMETER is returned if the NCP does not recognize <i>valueId</i>.</td></tr>
 </table><br>
 
     <table class="outline"><col width="300"><col width="200"><col width="200">

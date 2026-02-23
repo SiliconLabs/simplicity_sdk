@@ -988,6 +988,9 @@ __INLINE void sl_hal_gpio_enable_debug_swd_io(bool enable)
  *
  *  @code{.c}
  *  {
+ *    // Enable bus clock for GPIO
+ *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+ *
  *    // Define GPIO pin
  *    sl_gpio_t led_pin = {
  *      .port = 0,  // Port A

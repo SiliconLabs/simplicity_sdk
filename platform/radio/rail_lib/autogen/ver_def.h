@@ -42,10 +42,10 @@ typedef struct
                           //  LOCAL_COMMITS_FLAG << 1 | DIRTY_FLAG)
 } FW_GIT_INFO_t;
 
-#define GIT_INFO_SHORT_HASH (0x8bcd01f6UL)
+#define GIT_INFO_SHORT_HASH (0xe9723eb0UL)
 #define GIT_INFO_TAG_MAJOR (2)
 #define GIT_INFO_TAG_MINOR (19)
-#define GIT_INFO_TAG_REV (2)
+#define GIT_INFO_TAG_REV (3)
 #define GIT_INFO_TAG_BUILD (0)
 #define GIT_INFO_DETAILS (0x11)
 

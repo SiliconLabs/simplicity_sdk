@@ -4337,7 +4337,11 @@ osStatus_t osMessageQueueGet(osMessageQueueId_t mq_id,
     if (CORE_InIrqContext() == true) {
       return osErrorParameter;
     } else {
-      OSSemPend(&p_msgqueue->sem_get, (OS_TICK)timeout, OS_OPT_PEND_BLOCKING, &ts, &err);
+      OSSemPend(&p_msgqueue->sem_get, 
+                (OS_TICK)((timeout == osWaitForever)? 0u : timeout), 
+                OS_OPT_PEND_BLOCKING, 
+                &ts, 
+                &err);
     }
   }
 

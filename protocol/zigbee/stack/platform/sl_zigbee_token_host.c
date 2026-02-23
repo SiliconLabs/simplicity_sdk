@@ -256,8 +256,8 @@ sl_status_t get_token_index(uint32_t token, uint32_t *token_index)
 
   for (uint32_t i = 0; i < sli_zigbee_token_count; i++) {
     indexed_token_start_id = tokenNvm3Keys[i];
-    // An indexed token (which has tokenArraySize[i] > 1) consumes tokenArraySize[i]*tokenSize[i] NVM3 key IDs
-    indexed_token_end_id = indexed_token_start_id + ((tokenArraySize[i] - 1) * tokenSize[i]);
+    // An indexed token (which has tokenArraySize[i] > 1) consumes tokenArraySize[i] NVM3 key IDs
+    indexed_token_end_id = indexed_token_start_id + (tokenArraySize[i] - 1);
     if ((nvm3_key >= indexed_token_start_id) && (nvm3_key <= indexed_token_end_id)) {
       *token_index = i;
       return SL_STATUS_OK;
@@ -671,8 +671,8 @@ static size_t getNvmOffset(uint32_t token, uint32_t len)
   for (i = 0; i < sli_zigbee_token_count; i++) {
     offset += PER_TOKEN_OVERHEAD;
     indexed_token_start_id = tokenNvm3Keys[i];
-    // An indexed token (which has tokenArraySize[i] > 1) consumes tokenArraySize[i]*tokenSize[i] NVM3 key IDs
-    indexed_token_end_id = indexed_token_start_id + ((tokenArraySize[i] - 1) * tokenSize[i]);
+    // An indexed token (which has tokenArraySize[i] > 1) consumes tokenArraySize[i] NVM3 key IDs
+    indexed_token_end_id = indexed_token_start_id + (tokenArraySize[i] - 1);
     if ((token >= indexed_token_start_id) && (token <= indexed_token_end_id)) {
       break;
     } else {

@@ -3,6 +3,13 @@
 The changes described in this file will possibly break the build and/or functionality of an
 existing application. The description serves the purpose of helping to fix the failing build.
 
+# 7.24.3 {#section-7-24-3}
+
+## Fixed underflow in Long Range output power calculation
+
+Resolved a bug where TX power values in Long Range were incorrectly treated as unsigned.
+This caused negative requests (e.g., -6 dBm) to be miscalculated, resulting in frames being transmitted at the maximum output power.
+
 # 7.24.2 {#section-7-24-2}
 
 # 7.24.1 {#section-7-24-1}
@@ -10,7 +17,7 @@ existing application. The description serves the purpose of helping to fix the f
 ## User Credential Command Class
 
 The return type of function `CC_UserCredential_delete_all_credentials_of_type`
-has been changed from `void` to `bool` to indicate whether any credentials were deleted.  
+has been changed from `void` to `bool` to indicate whether any credentials were deleted.
 If you override this function, update your implementation to return a boolean value.
 
 # 7.24.0 {#section-7-24-0}
@@ -37,7 +44,7 @@ zpal_nvm_backup_close return a zpal_status_t instead of void.
 ## Power Manager new implementation
 
 ### APIs update
-*Breaking change*  
+*Breaking change*
 - Changes at the application level
   - Power Manager operations are now divided into three domains: STACK, PAL, and APP.
   - New APIs (zw_power_manager_(lock/relock/is_active/lock_cancel)) have been introduced to manage power operations within the APP domain, serving as a wrapper to PAL code.
@@ -79,7 +86,7 @@ From Z-Wave Alliance https://github.com/Z-Wave-Alliance/z-wave-stack/issues/441
 
 
 ## Door Lock Keypad default bolt state
-The default bolt state of the Door Lock Keypad application was changed to unlocked.  
+The default bolt state of the Door Lock Keypad application was changed to unlocked.
 Unlocking the door bolt is no longer possible when the device is not included into a network.
 
 ## CLI change in DoorLockKeypad
@@ -101,7 +108,7 @@ After an exclusion from a foreign network, the controller sent nops. However, no
 So according to the network specification (NWK:01C8.1 & LR-NWK:0078.1), the controller no longer sends nops in case of foreign exclusion.
 
 ## Logging System
-*Breaking change*  
+*Breaking change*
 The macros `DPRINT` and `DPRINTF` have been replaced by `ZPAL_LOG` which has two additional parameters:
 the originating component and the log level severity.
 Logs can now be enabled selectively per component and messages can be routed to different channels based on the log level (debug, info, warning, error).
@@ -113,12 +120,12 @@ or edit `zw_log_config.h` directly in the project's `config` directory.
 For more information, refer to the documentation for *System Initialization and Action Processing*.
 
 ## User Credential Command Class
-*Breaking change*  
+*Breaking change*
 The specification for the *User Credential Association Set* and
 *User Credential Association Report* commands was updated in the 2025A certification program:
-the option to move a credential to a different slot was removed.  
+the option to move a credential to a different slot was removed.
 The end device implementation was aligned to the new specification.
-As a result, the API for `CC_UserCredential_move_credential_and_report` changed.  
+As a result, the API for `CC_UserCredential_move_credential_and_report` changed.
 Moving a credential to a different slot is still possible via the CLI;
 however, the lifeline group can no longer be notified about a credential slot change.
 

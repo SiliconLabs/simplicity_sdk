@@ -429,8 +429,7 @@ sl_status_t sli_memory_create_heap(void *base_addr,
 
 #if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
   // Add first free block metadata to heap usage.
-  heap->used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
-  heap->high_watermark += SLI_BLOCK_METADATA_SIZE_BYTE;
+  SLI_MEMORY_STAT_HEAP_INCREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
 #endif
 
   return SL_STATUS_OK;

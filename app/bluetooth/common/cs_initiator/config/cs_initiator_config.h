@@ -75,10 +75,10 @@
 // <h> General
 
 // <o CS_INITIATOR_MAX_CONNECTIONS> Maximum initiator connections <1..4>
-// <i> If less than 4 initiator instances are created SL_BT_CONFIG_BUFFER_SIZE can be reduced.
-// <i> Default: 4
+// <i> If more than 1 initiator instances are created SL_BT_CONFIG_BUFFER_SIZE shall be increased.
+// <i> Default: 1
 #ifndef CS_INITIATOR_MAX_CONNECTIONS
-#define CS_INITIATOR_MAX_CONNECTIONS                  (4)
+#define CS_INITIATOR_MAX_CONNECTIONS                  (1)
 #endif
 
 // <o CS_INITIATOR_MAX_RANGING_DATA_SIZE> Maximum ranging data size <32..2500>
@@ -211,11 +211,15 @@
 
 // <o CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL> Minimum connection interval (in 1.25 ms steps) <6..3200>
 // <i> Default: 6
+#ifndef CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL
 #define CS_INITIATOR_DEFAULT_MIN_CONNECTION_INTERVAL         6
+#endif
 
 // <o CS_INITIATOR_DEFAULT_MAX_CONNECTION_INTERVAL> Maximum connection interval (in 1.25 ms steps) <6..3200>
 // <i> Default: 6
+#ifndef CS_INITIATOR_DEFAULT_MAX_CONNECTION_INTERVAL
 #define CS_INITIATOR_DEFAULT_MAX_CONNECTION_INTERVAL         6
+#endif
 
 // <o CS_INITIATOR_DEFAULT_MIN_PROCEDURE_INTERVAL> Minimum delay between CS measurements [connection events] <1..255>
 // <i> Default: 38

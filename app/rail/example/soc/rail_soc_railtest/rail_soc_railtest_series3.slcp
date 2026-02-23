@@ -141,7 +141,7 @@ configuration:
   - name: SL_RAIL_UTIL_INIT_INIT_COMPLETE_CALLBACK_INST0_ENABLE
     value: "0"
   - name: SL_RAIL_UTIL_INIT_RADIO_CONFIG_SUPPORT_INST0_ENABLE
-    value: "0"
+    value: "1"
     condition:
       - a_radio_config
       - device_generic_family_sixx301
@@ -155,7 +155,7 @@ configuration:
     # This is the most generally applicable case of
     # overriding the default phy.
   - name: SL_RAIL_UTIL_INIT_PROTOCOL_INST0_DEFAULT
-    value: "SL_RAIL_UTIL_PROTOCOL_BLE_1MBPS"
+    value: "SL_RAIL_UTIL_PROTOCOL_PROPRIETARY"
     condition:
       - a_radio_config
       - device_generic_family_sixx301

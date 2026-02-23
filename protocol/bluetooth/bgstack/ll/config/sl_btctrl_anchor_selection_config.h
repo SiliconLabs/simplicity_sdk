@@ -9,8 +9,8 @@
 #define SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EMPTY_CENTER 1
 
 // <o SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM> Controller's anchor selection algorithm
-// <SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EVEN=> Anchor selection is done in an even manner
-// <SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EMPTY_CENTER=> Anchors are placed in alternating manner
+//   <SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EVEN=> Even - Best for single central multi-peripheral cases, by maximizing airtime and minimizing collisions.
+//   <SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EMPTY_CENTER=> Empty center - Best for ESL PAwR advertiser use cases, especially when PAwR subevents and connections have the same interval, it relies on procedures runtime.
 // <i> Default: SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EVEN
 #ifndef SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM
 #define SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM SL_BTCTRL_ANCHOR_SELECTION_ALGORITHM_EVEN

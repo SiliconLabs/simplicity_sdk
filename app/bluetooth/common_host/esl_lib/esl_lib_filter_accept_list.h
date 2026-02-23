@@ -140,8 +140,8 @@ size_t filter_accept_list_get_size(filter_list_p list);
  *       the previously added node and the storage space for the command
  *       passed as parameter will be released automatically.
  *****************************************************************************/
-const filter_node_p filter_accept_list_insert_command(filter_list_p list,
-                                                      filter_data_p command);
+filter_node_p filter_accept_list_insert_command(filter_list_p list,
+                                                filter_data_p command);
 
 /**************************************************************************//**
  * Remove a connection request from a Filter Accept List
@@ -205,9 +205,9 @@ filter_data_p filter_accept_list_remove_command_by_address(filter_list_p list,
  * @return    Pointer to node data (connect command) or NULL if address not
  *            found on the list
  *****************************************************************************/
-const void *const filter_accept_list_get_command_by_address(filter_list_p list,
-                                                            bd_addr *address,
-                                                            uint8_t address_type);
+const void *filter_accept_list_get_command_by_address(filter_list_p list,
+                                                      bd_addr *address,
+                                                      uint8_t address_type);
 
 /**************************************************************************//**
  * Remove the first node from a Filter Accept List

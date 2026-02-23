@@ -1691,7 +1691,7 @@ sl_zigbee_af_find_cluster_function(sl_zigbee_af_cluster_t *cluster,
 }
 
 #ifdef SL_ZIGBEE_AF_SUPPORT_COMMAND_DISCOVERY
-
+#if (SL_ZIGBEE_ZCL_GENERATED_COMMAND_COUNT > 0)
 static UNUSED uint16_t get_manufacturer_code_for_command(sl_zigbee_af_command_metadata_t *command)
 {
 #if (ZCL_GENERATED_COMMAND_MANUFACTURER_CODE_COUNT > 0)
@@ -1702,6 +1702,7 @@ static UNUSED uint16_t get_manufacturer_code_for_command(sl_zigbee_af_command_me
   return SL_ZIGBEE_AF_NULL_MANUFACTURER_CODE;
 #endif // ZCL_GENERATED_COMMAND_MANUFACTURER_CODE_COUNT
 }
+#endif
 
 // Resolve the manufacturing code for a command when the Discover Command
 // request specifies the wildcard 0xFFFF for the mfg code. Choose the mfg code

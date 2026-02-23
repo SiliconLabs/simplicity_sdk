@@ -2175,57 +2175,31 @@ static bool processCommNotificationsWithSecurityProcessingFailedFlag(uint16_t co
                                                                      uint8_t securityKeyType)
 {
   sl_zigbee_af_green_power_cluster_println("\nGP CN Security Processing Failed is set");
-  // MIC is only present if security processing failed is set, so validate MIC
-  uint8_t mic[4] = { 0 };
+
   uint8_t secLevel = (commNotificationOptions & SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_SECURITY_LEVEL)
                      >> SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_SECURITY_LEVEL_OFFSET;
-  bool securityProcessing = sli_zigbee_af_gp_calculate_incoming_command_mic(gpdAddr,
-                                                                            ((commNotificationOptions & SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_RX_AFTER_TX) ? true : false),
-                                                                            ((securityKeyType == SL_ZIGBEE_ZCL_GP_SECURITY_KEY_TYPE_INDIVIDIGUAL_GPD_KEY
-                                                                              || securityKeyType == SL_ZIGBEE_ZCL_GP_SECURITY_KEY_TYPE_DERIVED_INDIVIDUAL_GPD_KEY) \
-                                                                             ? SL_ZIGBEE_AF_GREEN_POWER_GP_INDIVIDUAL_KEY : SL_ZIGBEE_AF_GREEN_POWER_GP_SHARED_KEY),
-                                                                            secLevel,
-                                                                            gpdSecurityFrameCounter,
-                                                                            *gpdCommandId,
-                                                                            gpdCommandPayload,
-                                                                            ((secLevel > SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC) ? true : false),
-                                                                            mic);
+  bool securityProcessing = sli_zigbee_af_gp_incoming_command_decrypt_and_validate_mic(gpdAddr,
+                                                                                       ((commNotificationOptions & SL_ZIGBEE_AF_GP_COMMISSIONING_NOTIFICATION_OPTION_RX_AFTER_TX) ? true : false),
+                                                                                       ((securityKeyType == SL_ZIGBEE_ZCL_GP_SECURITY_KEY_TYPE_INDIVIDIGUAL_GPD_KEY
+                                                                                         || securityKeyType == SL_ZIGBEE_ZCL_GP_SECURITY_KEY_TYPE_DERIVED_INDIVIDUAL_GPD_KEY) \
+                                                                                        ? SL_ZIGBEE_AF_GREEN_POWER_GP_INDIVIDUAL_KEY : SL_ZIGBEE_AF_GREEN_POWER_GP_SHARED_KEY),
+                                                                                       secLevel,
+                                                                                       gpdSecurityFrameCounter,
+                                                                                       gpdCommandId,
+                                                                                       gpdCommandPayload,
+                                                                                       commissioningNotificationMic);
   sl_zigbee_af_green_power_cluster_print("\n GP CN Sec Level = %d, App Id = %d, MIC Validation : %s"
-                                         "\n GP CN Calculated Mic : %08X"
                                          "\n GP CN Received Mic   : %08X\n",
                                          secLevel,
                                          gpdAddr->applicationId,
                                          (securityProcessing ? "SUCCESS" : "FAILED"),
-                                         (*(uint32_t*)mic),
                                          commissioningNotificationMic);
-  if (!securityProcessing
-      || ((*(uint32_t*)mic) != commissioningNotificationMic)) {
+  if (!securityProcessing) {
     sl_zigbee_af_green_power_cluster_println("DROP - GP CN MIC Mismatch");
     sl_zigbee_af_green_power_server_gpd_security_failure_cb(gpdAddr);
     return false;
   }
 
-  if (SL_ZIGBEE_GP_SECURITY_LEVEL_FC_MIC_ENCRYPTED == secLevel) {
-    // Temp Payload to be decrypted without payloadLengthe in between in the form of : {commandId,{command payload}}
-    uint8_t payload[GP_COMMISSIONING_MAX_BYTES + 1] = { 0 };
-    payload[0] = *gpdCommandId;
-    uint8_t length = 1;
-    if ((gpdCommandPayload != NULL)
-        && (gpdCommandPayload[0] < GP_COMMISSIONING_MAX_BYTES)) {
-      memcpy((payload + 1), gpdCommandPayload + 1, gpdCommandPayload[0]);
-      length += gpdCommandPayload[0];
-    }
-    sli_zigbee_af_gp_calculate_incoming_command_decrypt(gpdAddr,
-                                                        gpdSecurityFrameCounter,
-                                                        length,
-                                                        payload);
-    // Copy back the decrypted command with octate string payload format.
-    *gpdCommandId = payload[0];
-    if ((gpdCommandPayload != NULL)
-        && (gpdCommandPayload[0] < GP_COMMISSIONING_MAX_BYTES)) {
-      memcpy((gpdCommandPayload + 1), (payload + 1), gpdCommandPayload[0]);
-    }
-  }
   return true;
 }
 

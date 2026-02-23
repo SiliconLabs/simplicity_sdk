@@ -56,21 +56,218 @@ const size_t __rom_end__ @ "ROM_SIZE";
 #endif
 
 // -----------------------------------------------------------------------------
-// Test Functions
+// Macros and Constants
+// -----------------------------------------------------------------------------
 
-// --------------------------------
+// Vector table relocation for RAM_ALIAS execution
+#define TOTAL_INTERRUPTS    (16 + EXT_IRQ_COUNT)
+
+// BootloaderResetCause_t occupies the first 4 bytes (0-3).
+#define BTL_RESET_REGION_PC_READ_FLAG_OFFSET  2  // Offset to 2nd uint16_t element (bytes 4-5)
+#define BTL_RESET_REGION_PC_READ_MAGIC        0xDEAD
+
+// -----------------------------------------------------------------------------
+// External Symbols
+// -----------------------------------------------------------------------------
+
+// External linker symbol for bootloader reset region
+extern uint32_t __ResetReasonStart__[];
+
+// -----------------------------------------------------------------------------
+// Global Variables
+// -----------------------------------------------------------------------------
+
+// Place RAM vector table in dedicated .ram_vector_table section (regular RAM)
+tVectorEntry ramVectorTable[TOTAL_INTERRUPTS]
+__attribute__((section(".ram_vector_table"), aligned(512)));
+
+// -----------------------------------------------------------------------------
+// Function Declarations
+// -----------------------------------------------------------------------------
+
 // Local function declarations
-
-__STATIC_INLINE bool enter_bootloader(void);
+bool enter_bootloader(void);
+bool check_qspi_authentication_error(void);
+bool check_software_reset_request(void);
+bool check_gpio_activation_methods(void);
 SL_NORETURN static void boot_to_app(uint32_t);
 
-void HardFault_Handler(void)
+// Forward declarations for RAM-resident fault handlers
+extern void hardfault_ram_handler(void);
+extern void busfault_ram_handler(void);
+extern void default_ram_handler(void);
+/**
+ * @brief Enable BusFault exception handling in SCB
+ *
+ * @details Enables BusFault exception handler to prevent bus faults
+ * from escalating to HardFaults. This allows RAM-resident BusFault_Handler
+ * to catch errors, set reset markers, and reboot cleanly for recovery.
+ *
+ * @note Must be called early in bootloader initialization.
+ */
+__STATIC_INLINE void enable_busfault_handler(void)
 {
-  BTL_DEBUG_PRINTLN("Fault          ");
-  reset_resetWithReason(BOOTLOADER_RESET_REASON_FATAL);
+  SCB->SHCSR |= SCB_SHCSR_BUSFAULTENA_Msk;
 }
 
-// Main Bootloader implementation
+/**
+ * @brief Check if application write is complete
+ *
+ * @details
+ *   Reads the entire 64-byte vector table chunk and checks for complete writes
+ *   by looking for uninitialized flash (0xFF values). Returns true if no address
+ *   contains 0xFF, indicating the app write was complete and successful.
+ *
+ * @param startOfAppSpace Start address of application space
+ * @return true if app write is complete, false if partial/incomplete write detected
+ */
+__STATIC_INLINE bool is_app_write_complete(uint32_t startOfAppSpace)
+{
+  // Read entire 64-byte chunk for comprehensive validation
+  volatile uint32_t *chunk = (volatile uint32_t *)startOfAppSpace;
+
+  // Check if any address is 0xFF (uninitialized flash)
+  for (int i = 0; i < 16; i++) {
+    if (chunk[i] == 0xFFFFFFFF) {
+      return false; // Found uninitialized flash - write incomplete
+    }
+  }
+
+  return true; // No 0xFF found, write complete
+}
+
+/**
+ * @brief Safely update VTOR register with error handling and rollback
+ *
+ * @param vector_table Pointer to the new vector table
+ */
+__STATIC_INLINE void update_vtor_safely(tVectorEntry *vector_table)
+{
+  if (!vector_table) {
+    return;
+  }
+
+  // Update VTOR with proper memory barriers
+  __asm volatile ("dmb" ::: "memory");
+  SCB->VTOR = (uint32_t) vector_table;
+  __asm volatile ("dsb" ::: "memory");
+  __asm volatile ("isb" ::: "memory");
+}
+
+/**
+ * @brief Initialize RAM vector table with custom fault handlers
+ *
+ * This function initializes the RAM-based vector table with a mix of Flash-based
+ * handlers (for Reset_Handler and stack pointer) and RAM_ALIAS-based handlers
+ * (for critical fault handlers). This ensures fault recovery even when Flash
+ * is corrupted or inaccessible.
+ */
+__STATIC_INLINE void initialize_ram_vector_table(void)
+{
+  // External reference to Flash vector table
+  extern const tVectorEntry __VECTOR_TABLE[TOTAL_INTERRUPTS];
+
+  // Initialize all entries to Default_Handler first
+  for (uint32_t i = 0; i < TOTAL_INTERRUPTS; ++i) {
+    ramVectorTable[i].VECTOR_TABLE_Type = default_ram_handler;
+  }
+
+  // Apply specific handler configuration
+  // Initial Stack Pointer (index 0) - keep from Flash
+  ramVectorTable[0].topOfStack = __VECTOR_TABLE[0].topOfStack;
+
+  // Reset_Handler (index 1) - keep from Flash
+  ramVectorTable[1].VECTOR_TABLE_Type = __VECTOR_TABLE[1].VECTOR_TABLE_Type;
+
+  // Critical fault handlers - RAM_ALIAS versions for fault recovery
+  ramVectorTable[3].VECTOR_TABLE_Type = hardfault_ram_handler;     // HardFault_Handler
+  ramVectorTable[5].VECTOR_TABLE_Type = busfault_ram_handler;      // BusFault_Handler
+
+  // Update VTOR with proper memory barriers and error handling
+  update_vtor_safely(ramVectorTable);
+}
+
+/**
+ * @brief HardFault exception handler (RAM-resident)
+ *
+ * @details Handles HardFault exceptions by writing reset reason to SRAM and triggering
+ * system reset. This allows the bootloader to detect the fault on next boot.
+ *
+ * @note Placed in RAM to ensure execution when Flash is inaccessible.
+ */
+__attribute__((section("text_bootloader_critical_ram")))
+__attribute__((used))
+void hardfault_ram_handler(void)
+{
+  volatile uint16_t *resetReasonBase = (volatile uint16_t *)&__ResetReasonStart__;
+  resetReasonBase[0] = BOOTLOADER_RESET_REASON_FATAL;     // reason
+  resetReasonBase[1] = BOOTLOADER_RESET_SIGNATURE_VALID;  // signature
+
+  uint32_t aircr = SCB->AIRCR;
+  aircr = (0x5FAUL << SCB_AIRCR_VECTKEY_Pos)
+          | (aircr & SCB_AIRCR_PRIGROUP_Msk)
+          | SCB_AIRCR_SYSRESETREQ_Msk;
+  __asm volatile ("dsb" ::: "memory");
+  SCB->AIRCR = aircr;
+  __asm volatile ("dsb" ::: "memory");
+
+  // Wait for reset
+  for (;; ) {
+    __NOP();
+  }
+}
+
+/**
+ * @brief BusFault exception handler (RAM-resident)
+ *
+ * @details Handles BusFault exceptions by writing reset reason to SRAM and triggering
+ * system reset. Primarily used for QSPI authentication error recovery in Series3
+ * devices with AXiP regions.
+ *
+ * @note Placed in RAM to ensure execution when Flash is inaccessible.
+ */
+__attribute__((section("text_bootloader_critical_ram")))
+__attribute__((used))
+void busfault_ram_handler(void)
+{
+  volatile uint16_t *extendedResetRegion = (volatile uint16_t *)&__ResetReasonStart__;
+
+  if (extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] == BTL_RESET_REGION_PC_READ_MAGIC) {
+    uint32_t aircr = SCB->AIRCR;
+    aircr = (0x5FAUL << SCB_AIRCR_VECTKEY_Pos)
+            | (aircr & SCB_AIRCR_PRIGROUP_Msk)
+            | SCB_AIRCR_SYSRESETREQ_Msk;
+    __asm volatile ("dsb" ::: "memory");
+    SCB->AIRCR = aircr;
+    __asm volatile ("dsb" ::: "memory");
+
+    // Wait for reset
+    for (;; ) {
+      __NOP();
+    }
+  }
+}
+
+/**
+ * @brief Default interrupt handler (RAM-resident)
+ *
+ * @details Handles all unhandled interrupts and exceptions. Placed in RAM to ensure
+ * execution when Flash is inaccessible.
+ *
+ */
+__attribute__((section("text_bootloader_critical_ram")))
+__attribute__((used))
+void default_ram_handler(void)
+{
+  // wait until reset
+  for (;; ) {
+    __NOP();
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Main Bootloader Implementation
+// -----------------------------------------------------------------------------
 
 int main(void)
 {
@@ -181,6 +378,10 @@ int main(void)
   return 0;
 }
 
+// -----------------------------------------------------------------------------
+// Data Structures and Tables
+// -----------------------------------------------------------------------------
+
 #ifdef BOOTLOADER_SUPPORT_STORAGE
 extern const BootloaderStorageFunctions_t storageFunctions;
 #endif
@@ -287,6 +488,12 @@ void SystemInit2(void)
 {
   // Initialize debug before first debug print
   BTL_DEBUG_INIT();
+  // Initialize RAM vector table with custom fault handlers FIRST to ensure
+  // fault handlers are accessible even when Flash has QSPI authentication errors
+  initialize_ram_vector_table();
+
+  // Enable BusFault handler EARLY to catch QSPI authentication errors
+  enable_busfault_handler();
 
   // Assumption: We should enter the app
   volatile bool enterApp = true;
@@ -299,23 +506,17 @@ void SystemInit2(void)
     verifyApp = false;
   }
 
-#if defined(LOCKBIT_SKIP_BOOT_CHECK)
-  bool skipLockBitCheck = true;
-#else
-  bool skipLockBitCheck = false;
-#endif
-
-  sl_se_code_region_config_t region_config = { 0 };
-  sl_se_command_context_t cmd_ctx = { 0 };
-  sl_se_init_command_context(&cmd_ctx);
-  sl_se_code_region_get_config(&cmd_ctx, &region_config, 1, 1);
-
   uint32_t startOfAppSpace = (uint32_t)mainStageTable.startOfAppSpace;
 
-  if ((region_config.locked == true) || skipLockBitCheck) {
-    // Sanity check application program counter
-    uint32_t pc = *(uint32_t *)(startOfAppSpace + 4);
-    if (pc == 0xFFFFFFFF) {
+  // Only perform vector table validation if we're planning to enter the app
+  // If enter_bootloader() returned true, skip this to go into firmware upgrade mode
+  if (enterApp) {
+    volatile uint16_t *extendedResetRegion = (volatile uint16_t *)&__ResetReasonStart__;
+    extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] = BTL_RESET_REGION_PC_READ_MAGIC;
+
+    // Check application vector table header (may trigger QSPI auth error in AXiP region)
+
+    if (!is_app_write_complete(startOfAppSpace)) {
       // Sanity check failed; enter the bootloader
       reset_setResetReason(BOOTLOADER_RESET_REASON_BADAPP);
       enterApp = false;
@@ -326,12 +527,13 @@ void SystemInit2(void)
       // If app verification fails, enter bootloader instead
       enterApp = bootload_verifyApplication(startOfAppSpace);
       if (!enterApp) {
+        extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] = 0;
         BTL_DEBUG_PRINTLN("App verify fail");
         reset_setResetReason(BOOTLOADER_RESET_REASON_BADAPP);
       }
     }
-  } else {
-    enterApp = false;
+    // Clear the PC read flag after application validation operations complete
+    extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] = 0;
   }
 
   if (enterApp) {
@@ -354,7 +556,9 @@ void SystemInit2(void)
 }
 
 /**
- * Jump to app
+ * @brief Jump to application
+ *
+ * @param startOfAppSpace Start address of application space
  */
 __attribute__ ((noreturn, naked)) static void boot_to_app(uint32_t startOfAppSpace)
 {
@@ -364,12 +568,75 @@ __attribute__ ((noreturn, naked)) static void boot_to_app(uint32_t startOfAppSpa
   }
 }
 
+// -----------------------------------------------------------------------------
+// Helper Functions
+// -----------------------------------------------------------------------------
+
 /**
- * Check whether we should enter the bootloader
+ * @brief Check whether we should enter the bootloader
  *
- * @return True if the bootloader should be entered
+ * @details Evaluates various conditions to determine if the bootloader should be entered.
+ * Checks for QSPI authentication errors, software reset requests, and GPIO activation
+ * methods in priority order to ensure proper recovery and upgrade operations.
+ *
+ * @return true if the bootloader should be entered, false otherwise
  */
-__STATIC_INLINE bool enter_bootloader(void)
+bool enter_bootloader(void)
+{
+  // Check for QSPI authentication errors that occurred during previous boot
+  // This is the highest priority as it indicates critical system state requiring recovery
+  if (check_qspi_authentication_error()) {
+    return true;
+  }
+
+  // Check if system was reset due to software request
+  if (check_software_reset_request()) {
+    return true;
+  }
+
+  // Check GPIO-based bootloader entry methods
+  if (check_gpio_activation_methods()) {
+    return true;
+  }
+
+  // No bootloader entry conditions met
+  return false;
+}
+
+/**
+ * @brief Check for QSPI authentication error recovery condition
+ *
+ * @details Checks if a QSPI authentication error occurred during the previous boot
+ * by examining the PC read flag in the extended reset region. If the flag is set,
+ * it indicates that a bus fault occurred while reading the application's vector
+ * table header, likely due to QSPI authentication failure.
+ *
+ * @return true if QSPI authentication error detected, false otherwise
+ */
+bool check_qspi_authentication_error(void)
+{
+  volatile uint16_t *extendedResetRegion = (volatile uint16_t *)&__ResetReasonStart__;
+
+  // Check if PC read flag indicates QSPI authentication error occurred
+  if (extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] == BTL_RESET_REGION_PC_READ_MAGIC) {
+    // Clear the flag to prevent repeated bootloader entry
+    extendedResetRegion[BTL_RESET_REGION_PC_READ_FLAG_OFFSET] = 0;
+    return true;  // QSPI authentication error - enter bootloader for recovery
+  }
+
+  return false;
+}
+
+/**
+ * @brief Check for software reset request conditions
+ *
+ * @details Examines the reset cause register to determine if the system was reset
+ * due to a software request. Checks for specific bootloader reset reasons that
+ * indicate the bootloader should be entered for recovery or upgrade operations.
+ *
+ * @return true if software reset request detected, false otherwise
+ */
+bool check_software_reset_request(void)
 {
 // *INDENT-OFF*
 #if defined(EMU_RSTCAUSE_SYSREQ)
@@ -377,31 +644,43 @@ __STATIC_INLINE bool enter_bootloader(void)
 #else
   if (RMU->RSTCAUSE & RMU_RSTCAUSE_SYSREQRST) {
 #endif
-    // Check if we were asked to run the bootloader...
+    // Check specific reset reasons that require bootloader entry
     switch (reset_classifyReset()) {
       case BOOTLOADER_RESET_REASON_BOOTLOAD:
       case BOOTLOADER_RESET_REASON_FORCE:
       case BOOTLOADER_RESET_REASON_UPGRADE:
       case BOOTLOADER_RESET_REASON_BADAPP:
-        // Asked to go into bootload mode
-        return true;
+        return true;  // Software requested bootloader entry
       default:
         break;
     }
   }
-// *INDENT-ON*
+  // *INDENT-ON*
+  return false;
+}
 
+/**
+ * @brief Check GPIO-based bootloader activation methods
+ *
+ * @details Checks various GPIO-based methods for bootloader activation including
+ * standard GPIO pins and EZSP GPIO pins. These methods allow external hardware
+ * to signal that the bootloader should be entered.
+ *
+ * @return true if GPIO activation detected, false otherwise
+ */
+bool check_gpio_activation_methods(void)
+{
 #ifdef BTL_GPIO_ACTIVATION
   if (gpio_enterBootloader()) {
     // GPIO pin state signals bootloader entry
-    return true;
+    return true;  // GPIO pin state signals bootloader entry
   }
 #endif
 
 #ifdef BTL_EZSP_GPIO_ACTIVATION
   if (ezsp_gpio_enterBootloader()) {
     // GPIO pin state signals bootloader entry
-    return true;
+    return true;  // EZSP GPIO pin state signals bootloader entry
   }
 #endif
 

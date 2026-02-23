@@ -661,6 +661,10 @@ __INLINE sl_i2c_fifo_threshold_t sl_hal_i2c_get_rx_fifo_threshold(const I2C_Type
  *  I2C TX example:
  *  @code{.c}
  *  {
+ *    // Enable bus clocks for I2C0 and GPIO
+ *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_I2C0);
+ *    sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPIO);
+ *
  *    // I2C init.
  *    sl_hal_i2c_init(i2c_peripheral, SL_I2C_LEADER_MODE);
  *

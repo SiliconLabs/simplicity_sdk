@@ -60,7 +60,7 @@ typedef enum {
 
 /**************************************************************************//**
  * Initialize security module.
- * @return  0 on success, -1 on failure.
+ * @return SL_STATUS_OK on success, error otherwise.
  *****************************************************************************/
 sl_status_t security_init(void);
 
@@ -99,7 +99,7 @@ void security_increase_security_rsp(uint8_t *public_key,
 
 /**************************************************************************//**
  * Function to decrypt a message.
- * @param[in] src pointer to ncoming encrypted packet.
+ * @param[in] src pointer to incoming encrypted packet.
  * @param[in] dst pointer to outgoing decrypted packet.
  * @param[in] len Length of data.
  *****************************************************************************/
@@ -107,9 +107,10 @@ void security_decrypt(char *src, char *dst, unsigned *len);
 
 /**************************************************************************//**
  * Function to decrypt a packet.
- * @param[in] src pointer to ncoming encrypted packet.
- * @param[in] dst pointer to outgoing decrypted packet.
- * @param[in] len Length of data.
+ * @param[in]     src pointer to incoming encrypted packet.
+ * @param[in]     dst pointer to outgoing decrypted packet.
+ * @param[in,out] len Length of data.
+ * @note *len = 0 signals error, caller should handle this case.
  *****************************************************************************/
 void security_decrypt_packet(char *src, char *dst, unsigned *len);
 
@@ -123,9 +124,10 @@ void security_encrypt(char *src, char *dst, unsigned *len);
 
 /**************************************************************************//**
  * Function to encrypt a packet.
- * @param[in] src pointer to incoming unencrypted packet.
- * @param[in] dst pointer to outgoing encrypted packet.
- * @param[in] len Length of data.
+ * @param[in]     src pointer to incoming unencrypted packet.
+ * @param[in]     dst pointer to outgoing encrypted packet.
+ * @param[in,out] len Length of data.
+ * @note *len = 0 signals error, caller should handle this case.
  *****************************************************************************/
 void security_encrypt_packet(char *src, char *dst, unsigned *len);
 

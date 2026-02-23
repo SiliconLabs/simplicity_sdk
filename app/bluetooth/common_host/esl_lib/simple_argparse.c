@@ -337,9 +337,9 @@ static int search_arg_index(simple_argparse_handle_p hnd, char *const arg)
 {
   int result = -1; // not found signal
 
-  for (int i = 0; i < hnd->valid_commands_count; ++i) {
+  for (size_t i = 0; i < hnd->valid_commands_count; ++i) {
     if (!strcmp(arg, hnd->argparse_descriptor[i].arg)) {
-      result = i;
+      result = (int)i;
       break;
     }
   }

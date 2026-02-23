@@ -37,7 +37,7 @@
 #include "sli_bt_ots_server_adaptation.h"
 
 #define OTS_L2CAP_MAX_PDU       250
-#define OTS_L2CAP_MAX_SDU       252
+#define OTS_L2CAP_MAX_SDU       SL_BT_L2CAP_TRANSFER_MAX_SDU
 #define OTS_L2CAP_SDU_PDU_DIFF  (OTS_L2CAP_MAX_SDU - OTS_L2CAP_MAX_PDU)
 
 #define OTS_SERVER_BUFFER_SIZE        255

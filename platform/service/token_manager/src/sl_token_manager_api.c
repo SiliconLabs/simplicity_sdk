@@ -215,7 +215,12 @@ sl_status_t sl_token_manager_get_data(uint32_t token,
 #if defined(SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS) && (SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS == 1)
       // Since the override config is enabled, read the token from NVM3 first.
       // If the token is not found, fall back to static storage.
-      status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token & 0xFFFF), data, 0, length);
+      // Once a token is overridden, it will always be read from NVM3.
+      // The original factory value will only be used if the override token is
+      // explicitly deleted from NVM3 or if NVM3 is erased. In these cases,
+      // token access will fall back to the factory-programmed value.
+      status = sli_token_manager_get_override_token_data(token & 0xFFFF, data, 0, length);
+
       if (status != SL_STATUS_NOT_FOUND) {
         break; // Override token found.
       }
@@ -283,7 +288,12 @@ sl_status_t sl_token_manager_get_partial_data(uint32_t token,
 #if defined(SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS) && (SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS == 1)
       // Since the override config is enabled, read the token from NVM3 first.
       // If the token is not found, fall back to static storage.
-      status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token & 0xFFFF), data, offset, length);
+      // Once a token is overridden, it will always be read from NVM3.
+      // The original factory value will only be used if the override token is
+      // explicitly deleted from NVM3 or if NVM3 is erased. In these cases,
+      // token access will fall back to the factory-programmed value.
+      status = sli_token_manager_get_override_token_data(token & 0xFFFF, data, offset, length);
+
       if (status != SL_STATUS_NOT_FOUND) {
         break; // Override token found.
       }

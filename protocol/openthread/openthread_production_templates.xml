@@ -13,7 +13,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ble-dmp/trustzone/ot-ble-dmp-tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
     <properties key="solutionProjects" value="protocol.openthread.sample-apps.ot-tz-secure-app.ot-tz-secure-application.slcp protocol.openthread.sample-apps.ot-ble-dmp.trustzone.ot-ble-dmp-tz-ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-storage-internal-single.bootloader-storage-internal-single.slcp"/>
@@ -31,7 +31,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/trustzone/ot-cli-ftd-tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
     <properties key="solutionProjects" value="protocol.openthread.sample-apps.ot-tz-secure-app.ot-tz-secure-application.slcp protocol.openthread.sample-apps.ot-cli.trustzone.ot-cli-ftd-tz-ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-storage-internal-single.bootloader-storage-internal-single.slcp"/>
@@ -49,7 +49,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/trustzone/ot-cli-mtd-tz.slcw"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
     <properties key="solutionProjects" value="protocol.openthread.sample-apps.ot-tz-secure-app.ot-tz-secure-application.slcp protocol.openthread.sample-apps.ot-cli.trustzone.ot-cli-mtd-tz-ns.slcp platform.bootloader.sample-apps.workspaces.bootloader-storage-internal-single.bootloader-storage-internal-single.slcp"/>
@@ -67,7 +67,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/ot-cli-ftd.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Thread"/>
   </descriptors>
@@ -84,7 +84,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/ot-cli-mtd.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Beginner Wireless\ Technology|Thread"/>
   </descriptors>
@@ -101,7 +101,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/trustzone/ot-cli-ftd-tz-ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -118,7 +118,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-cli/trustzone/ot-cli-mtd-tz-ns.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -135,7 +135,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-ftd-cpc.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -152,7 +152,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-ftd.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -169,7 +169,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-mtd-cpc.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -186,7 +186,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-ncp-mtd.slcp"/>
     <properties key="filters" value="Device\ Type|NCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -203,7 +203,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/ot-rcp.slcp"/>
     <properties key="filters" value="Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -220,7 +220,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/rcp-spi-802154-blehci.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -237,7 +237,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/rcp-spi-802154.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -254,7 +254,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/rcp-uart-802154-blehci.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Bluetooth Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -271,7 +271,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-ncp/rcp-uart-802154.slcp"/>
     <properties key="filters" value="Capability|Multiprotocol Device\ Type|RCP Project\ Difficulty|Advanced Wireless\ Technology|Thread Wireless\ Technology|Zigbee"/>
   </descriptors>
@@ -288,7 +288,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/ot-tz-secure-app/ot-tz-secure-application.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -305,7 +305,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/sleepy-demo/sleepy-demo-ftd.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -322,7 +322,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/sleepy-demo/sleepy-demo-mtd.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>
@@ -339,7 +339,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="PRODUCTION"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/sample-apps/sleepy-demo/sleepy-demo-ssed.slcp"/>
     <properties key="filters" value="Device\ Type|SoC Project\ Difficulty|Advanced Wireless\ Technology|Thread"/>
   </descriptors>

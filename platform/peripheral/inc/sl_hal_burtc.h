@@ -351,6 +351,9 @@ __INLINE void sl_hal_burtc_unlock(void)
  *
  * void burtc_example(void)
  * {
+ *   // Enable bus clock for BURTC
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_BURTC);
+ *
  *   // Initialize configuration structure with default settings
  *   sl_hal_burtc_init_t init = SL_HAL_BURTC_INIT_DEFAULT;
  *

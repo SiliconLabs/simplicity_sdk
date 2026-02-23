@@ -2161,6 +2161,10 @@ sl_status_t sl_btmesh_node_compare_dcd(uint8_t page_number,
  *   - @ref sl_btmesh_evt_prov_ddb_list : Device database list result
  *   - @ref sl_btmesh_prov_update_device_netkey_index : Update default network
  *     key index for a device database entry
+ *   - @ref sl_btmesh_prov_get_ddb_entry_count : Get the number of entries in
+ *     the the device database
+ *   - @ref sl_btmesh_prov_get_ddb_entry_by_count : Get the Nth entry from the
+ *     the device database
  *
  * These commands are available only if the Provisioner functionality is
  * compiled in the device. Otherwise, a "feature not implemented" error code
@@ -2206,6 +2210,8 @@ sl_status_t sl_btmesh_node_compare_dcd(uint8_t page_number,
 #define sl_btmesh_cmd_prov_get_provisioning_records_list_id              0x1c150028
 #define sl_btmesh_cmd_prov_get_provisioning_record_data_id               0x1d150028
 #define sl_btmesh_cmd_prov_init_provisioning_records_id                  0x1e150028
+#define sl_btmesh_cmd_prov_get_ddb_entry_count_id                        0x49150028
+#define sl_btmesh_cmd_prov_get_ddb_entry_by_count_id                     0x4a150028
 #define sl_btmesh_rsp_prov_init_id                                       0x00150028
 #define sl_btmesh_rsp_prov_scan_unprov_beacons_id                        0x01150028
 #define sl_btmesh_rsp_prov_create_provisioning_session_id                0x41150028
@@ -2244,6 +2250,8 @@ sl_status_t sl_btmesh_node_compare_dcd(uint8_t page_number,
 #define sl_btmesh_rsp_prov_get_provisioning_records_list_id              0x1c150028
 #define sl_btmesh_rsp_prov_get_provisioning_record_data_id               0x1d150028
 #define sl_btmesh_rsp_prov_init_provisioning_records_id                  0x1e150028
+#define sl_btmesh_rsp_prov_get_ddb_entry_count_id                        0x49150028
+#define sl_btmesh_rsp_prov_get_ddb_entry_by_count_id                     0x4a150028
 
 /**
  * @addtogroup sl_btmesh_prov_oob_capabilities OOB Capabilities
@@ -3514,7 +3522,8 @@ sl_status_t sl_btmesh_prov_get_key_refresh_phase(uint16_t netkey_index,
  *
  * Start a key refresh procedure from a non-default phase. Before calling this
  * function, keys to be used in the key refresh procedure should have been
- * specified by calling @ref sl_btmesh_test_prov_prepare_key_refresh command.
+ * specified by calling @ref sl_btmesh_config_client_prepare_key_refresh
+ * command.
  *
  * Note that this command should not normally be used. It is intended only for
  * resuming an interrupted key refresh procedure on a backup Provisioner when
@@ -3610,6 +3619,44 @@ sl_status_t sl_btmesh_prov_get_provisioning_record_data(uuid_128 uuid,
  *
  ******************************************************************************/
 sl_status_t sl_btmesh_prov_init_provisioning_records();
+
+/***************************************************************************//**
+ *
+ * Get the count of Provisioner device database entries.
+ *
+ * @param[out] count Number of entries in the device database.
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_prov_get_ddb_entry_count(uint16_t *count);
+
+/***************************************************************************//**
+ *
+ * Get a Provisioner device database entry by ordinal number. Note that if items
+ * are added or removed while the entries in the device database are being
+ * iterated using this API, the API does not guarantee that each item will be
+ * reported, or that each item will be reported only once.
+ *
+ * @param[in] which Ordinal for the entry to retrieve; must be smaller than the
+ *   entry count returned by @ref sl_btmesh_prov_get_ddb_entry_count
+ * @param[out] uuid UUID of the device
+ * @param[out] device_key Device Key
+ * @param[out] netkey_index Index of the network key with which the node was
+ *   initially provisioned. Used for network-level encryption of Configuration
+ *   Client messages.
+ * @param[out] address Unicast address of the primary element of the node
+ * @param[out] elements Number of elements in the node
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_prov_get_ddb_entry_by_count(uint16_t which,
+                                                  uuid_128 *uuid,
+                                                  aes_key_128 *device_key,
+                                                  uint16_t *netkey_index,
+                                                  uint16_t *address,
+                                                  uint8_t *elements);
 
 /** @} */ // end addtogroup sl_btmesh_prov
 
@@ -7085,7 +7132,7 @@ sl_status_t sl_btmesh_test_prov_get_device_key(uint16_t address,
  * @return SL_STATUS_OK if successful. Error code otherwise.
  *
  ******************************************************************************/
-sl_status_t sl_btmesh_test_prov_prepare_key_refresh(aes_key_128 net_key,
+SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_prov_prepare_key_refresh(aes_key_128 net_key,
                                                     size_t app_keys_len,
                                                     const uint8_t* app_keys);
 
@@ -7624,10 +7671,11 @@ typedef enum
                                             retry attempts to repeat e.g., the
                                             friend poll message if the friend
                                             update was not received by the LPN.
-                                            Range is from 0 to 10, default is 3 */
+                                            Range is from 0 to 239, default is 5 */
   sl_btmesh_lpn_retry_interval  = 0x4, /**< (0x4) Time interval between retry
                                             attempts in milliseconds. Range is 0
-                                            to 100 ms. */
+                                            to 60000 ms (1 minute), default is
+                                            100 ms. */
   sl_btmesh_lpn_clock_accuracy  = 0x5  /**< (0x5) Clock accuracy in ppm, which
                                             will be taken into account when
                                             opening and closing the receive
@@ -8077,6 +8125,7 @@ sl_status_t sl_btmesh_friend_deinit();
 #define sl_btmesh_cmd_config_client_get_dcd_id                           0x2c270028
 #define sl_btmesh_cmd_config_client_reset_node_id                        0x2d270028
 #define sl_btmesh_cmd_config_client_set_request_timeout_for_node_id      0x30270028
+#define sl_btmesh_cmd_config_client_prepare_key_refresh_id               0x31270028
 #define sl_btmesh_rsp_config_client_cancel_request_id                    0x00270028
 #define sl_btmesh_rsp_config_client_get_request_status_id                0x01270028
 #define sl_btmesh_rsp_config_client_get_default_timeout_id               0x2e270028
@@ -8124,6 +8173,7 @@ sl_status_t sl_btmesh_friend_deinit();
 #define sl_btmesh_rsp_config_client_get_dcd_id                           0x2c270028
 #define sl_btmesh_rsp_config_client_reset_node_id                        0x2d270028
 #define sl_btmesh_rsp_config_client_set_request_timeout_for_node_id      0x30270028
+#define sl_btmesh_rsp_config_client_prepare_key_refresh_id               0x31270028
 
 /**
  * @addtogroup sl_btmesh_evt_config_client_request_modified sl_btmesh_evt_config_client_request_modified
@@ -10123,6 +10173,33 @@ sl_status_t sl_btmesh_config_client_reset_node(uint16_t enc_netkey_index,
  ******************************************************************************/
 sl_status_t sl_btmesh_config_client_set_request_timeout_for_node(uint16_t lpn_address,
                                                                  uint16_t timeout_ms);
+
+/***************************************************************************//**
+ *
+ * Prepare the key refresh by feeding the new network key and all needed
+ * application keys. The function can be called multiple times to include more
+ * application keys. The network key must be the same in all calls. If the
+ * network key is changed, the network key from the 1st command is used.
+ * Sending application key data with length zero results in all initialization
+ * data being forgotten unless this is done in the first prepare command i.e.,
+ * trying to update only the network key. Also starting the key refresh
+ * procedure results in all the preparation data being forgotten.
+ *
+ * This command is needed if an application key is bound to different network
+ * key in some of the nodes. Otherwise it recommended to use @ref
+ * sl_btmesh_prov_start_key_refresh procedure directly which takes care of the
+ * key generation.
+ *
+ * @param[in] net_key New net key
+ * @param[in] app_keys_len Length of data in @p app_keys
+ * @param[in] app_keys list of new application keys, 16-bytes each
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_config_client_prepare_key_refresh(aes_key_128 net_key,
+                                                        size_t app_keys_len,
+                                                        const uint8_t* app_keys);
 
 /** @} */ // end addtogroup sl_btmesh_config_client
 
@@ -13922,6 +13999,8 @@ sl_status_t sl_btmesh_lc_client_set_property(uint16_t server_address,
 #define sl_btmesh_cmd_lc_server_set_regulator_interval_id                0x074d0028
 #define sl_btmesh_cmd_lc_server_set_event_mask_id                        0x084d0028
 #define sl_btmesh_cmd_lc_server_get_lc_state_id                          0x094d0028
+#define sl_btmesh_cmd_lc_server_set_regulator_mode_id                    0x0a4d0028
+#define sl_btmesh_cmd_lc_server_set_sensor_timeout_id                    0x0b4d0028
 #define sl_btmesh_rsp_lc_server_init_id                                  0x004d0028
 #define sl_btmesh_rsp_lc_server_deinit_id                                0x014d0028
 #define sl_btmesh_rsp_lc_server_update_mode_id                           0x024d0028
@@ -13932,6 +14011,8 @@ sl_status_t sl_btmesh_lc_client_set_property(uint16_t server_address,
 #define sl_btmesh_rsp_lc_server_set_regulator_interval_id                0x074d0028
 #define sl_btmesh_rsp_lc_server_set_event_mask_id                        0x084d0028
 #define sl_btmesh_rsp_lc_server_get_lc_state_id                          0x094d0028
+#define sl_btmesh_rsp_lc_server_set_regulator_mode_id                    0x0a4d0028
+#define sl_btmesh_rsp_lc_server_set_sensor_timeout_id                    0x0b4d0028
 
 /**
  * @brief These values define the possible states of Light Controller.
@@ -14016,6 +14097,32 @@ typedef enum
                                                                 and regulator
                                                                 output. */
 } sl_btmesh_lc_server_lc_debug_events_t;
+
+/**
+ * @brief These values define the regulator PI calculation mode. If the
+ * regulator is disabled, the output only depends on the configured lightness
+ * levels. Ignoring PI is non-standard behavior and should only be used for
+ * debugging purposes. If conitionally enabled, the regulator output is adjusted
+ * based on the sensor input, if available. This is default state. The
+ * conditionality permits a fallback to the disabled mode, which is the modus
+ * operandi in 1.1 and before. If permanently enabled, the regulator always
+ * adjusts the output based on the sensor input, even if it is zero, which will
+ * push the output to its maximum. This behavior has been introduced in Mesh
+ * 1.1.1 and should be used with caution, as the Test Specification is not yet
+ * updated to reflect this.
+ */
+typedef enum
+{
+  sl_btmesh_lc_server_lc_regulator_disabled    = 0x0, /**< (0x0) Regulator
+                                                           permanently disabled. */
+  sl_btmesh_lc_server_lc_regulator_conditional = 0x1, /**< (0x1) Regulator
+                                                           conditionally enabled
+                                                           \- only when sensor
+                                                           input is available
+                                                           (default). */
+  sl_btmesh_lc_server_lc_regulator_enabled     = 0x2  /**< (0x2) Regulator
+                                                           permanently enabled. */
+} sl_btmesh_lc_server_lc_regulator_mode_t;
 
 /**
  * @addtogroup sl_btmesh_evt_lc_server_mode_updated sl_btmesh_evt_lc_server_mode_updated
@@ -14373,7 +14480,9 @@ sl_status_t sl_btmesh_lc_server_init_all_properties(uint16_t elem_index);
  *
  * Update the bitmask that controls which messages are sent when the LC Server
  * publishes. By default, the bitmask will be enabled to publish all three
- * status messages.
+ * status messages. NOTE: This API will be deprecated in future releases because
+ * the publish behaviour defines only Light LC State Machine OnOff State changes
+ * to be reported.
  *
  * @param[in] elem_index Index of the element.
  * @param[in] status_type @parblock
@@ -14442,6 +14551,44 @@ sl_status_t sl_btmesh_lc_server_set_event_mask(uint16_t elem_index,
 sl_status_t sl_btmesh_lc_server_get_lc_state(uint16_t elem_index,
                                              uint8_t *state,
                                              uint32_t *transition_time);
+
+/***************************************************************************//**
+ *
+ * Set the regulator mode (disabled, conditional, or enabled). This controls
+ * whether the LC regulator PI calculation is permanently disabled,
+ * conditionally enabled (only when sensor input is available), or permanently
+ * enabled.
+ *
+ * @param[in] elem_index Index of the element.
+ * @param[in] mode @parblock
+ *   Enum @ref sl_btmesh_lc_server_lc_regulator_mode_t. Regulator mode:
+ *
+ *   lc_regulator_disabled (0) - Permanently disabled lc_regulator_conditional
+ *   (1) - Enabled when sensor input available (default) lc_regulator_enabled
+ *   (2) - Permanently enabled
+ *   @endparblock
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_lc_server_set_regulator_mode(uint16_t elem_index,
+                                                   uint8_t mode);
+
+/***************************************************************************//**
+ *
+ * Set the sensor timeout period. If no sensor status message is received within
+ * this period, the sensor is considered disconnected and the ambient lux level
+ * is cleared to zero.
+ *
+ * @param[in] elem_index Index of the element.
+ * @param[in] timeout_ms Timeout period in milliseconds (must be non-zero,
+ *   default: 5000ms).
+ *
+ * @return SL_STATUS_OK if successful. Error code otherwise.
+ *
+ ******************************************************************************/
+sl_status_t sl_btmesh_lc_server_set_sensor_timeout(uint16_t elem_index,
+                                                   uint32_t timeout_ms);
 
 /** @} */ // end addtogroup sl_btmesh_lc_server
 

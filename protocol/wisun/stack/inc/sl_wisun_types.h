@@ -585,6 +585,10 @@ typedef struct {
   uint8_t channel_spacing;
   /// PHY mode ID
   uint8_t phy_mode_id;
+  /// Specifies the set of channels on which the device is permitted to transmit.
+  /// This mask applies to asynchronous (PAS, PA, ...), unicast and broadcast frames.
+  /// The channel mask is advertised in both US-IE and BS-IE elements.
+  uint8_t channel_mask[SL_WISUN_CHANNEL_MASK_SIZE];
 } sl_wisun_phy_config_explicit_t;
 
 /// Explicit RAIL configuration

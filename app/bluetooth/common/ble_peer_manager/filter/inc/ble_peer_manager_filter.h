@@ -200,14 +200,17 @@ sl_status_t ble_peer_manager_set_filter_rssi(int8_t rssi);
  * @retval true if there are filters set
  * @retval false if there are no filters set
  *****************************************************************************/
-bool ble_peer_manager_is_filter_set();
+bool ble_peer_manager_is_filter_set(void);
 
 /**************************************************************************//**
  * Reset filters.
  *
  * Reset all filters to default values.
+ *
+ * @retval SL_STATUS_OK if successful
+ * @retval SL_STATUS_INVALID_STATE if not allowed to modify filters
  *****************************************************************************/
-void ble_peer_manager_reset_filter();
+sl_status_t ble_peer_manager_reset_filter(void);
 
 /**************************************************************************//**
  * Find a match for the filters.

@@ -423,3 +423,46 @@ sl_status_t sli_token_manager_get_static_token_size(sl_token_type_t token_type,
                                              size_out);
 #endif
 }
+
+#if defined(SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS) && (SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS == 1)
+/***************************************************************************//**
+ * Read the data associated with the specified override token created for static tokens.
+ * To read an override token, the token manager must be initialized and
+ * the override feature must be enabled.
+ *
+ * @param[in]  token     The manufacturing key for the override token.
+ * @param[out] data      A pointer to where the token data should be placed.
+ * @param[in]  offset    Indicates the number of bytes to skip from the beginning of the
+ *                       token data before starting to read.
+ * @param[in]  length    The size of the data (full or partial) to be read, in bytes.
+ *
+ * @return SL_STATUS_OK if successful, an error code otherwise.
+ ******************************************************************************/
+sl_status_t sli_token_manager_get_override_token_data(uint32_t token,
+                                                      void *data,
+                                                      uint32_t offset,
+                                                      uint32_t length)
+{
+  sl_status_t status = SL_STATUS_OK;
+  // Special handling for MFG_EUI_64 token.
+  if ((token & 0xFFFF) == TOKEN_MFG_EUI_64) {
+    tokTypeMfgEui64 eui64;
+
+    memset(eui64, 0xFFU, sizeof(tokTypeMfgEui64));
+    // Check if the Custom EUI64 override token is present.
+    status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(TOKEN_MFG_CUSTOM_EUI_64),
+                                                &eui64,
+                                                offset,
+                                                length);
+    if (status == SL_STATUS_OK) {
+      // Override value is found, copy the data.
+      memcpy((char*)data, eui64, length);
+    }
+  } else {
+    // Read the override token
+    status = sli_token_manager_get_dynamic_data(SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token & 0xFFFF), data, offset, length);
+  }
+
+  return status;
+}
+#endif // SL_TOKEN_MANAGER_ENABLE_OVERRIDE_TOKENS

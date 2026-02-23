@@ -1648,6 +1648,58 @@ sl_status_t sl_btmesh_prov_init_provisioning_records() {
 
 }
 
+sl_status_t sl_btmesh_prov_get_ddb_entry_count(uint16_t *count) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+
+    cmd->header=sl_btmesh_cmd_prov_get_ddb_entry_count_id+(((0)&0xff)<<8)+(((0)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    if (count) {
+        *count = rsp->data.rsp_prov_get_ddb_entry_count.count;
+    }
+    return rsp->data.rsp_prov_get_ddb_entry_count.result;
+
+}
+
+sl_status_t sl_btmesh_prov_get_ddb_entry_by_count(uint16_t which,
+                                                  uuid_128 *uuid,
+                                                  aes_key_128 *device_key,
+                                                  uint16_t *netkey_index,
+                                                  uint16_t *address,
+                                                  uint8_t *elements) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_prov_get_ddb_entry_by_count.which=which;
+
+    cmd->header=sl_btmesh_cmd_prov_get_ddb_entry_by_count_id+(((2)&0xff)<<8)+(((2)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    if (uuid) {
+        *uuid = rsp->data.rsp_prov_get_ddb_entry_by_count.uuid;
+    }
+    if (device_key) {
+        memcpy(device_key,&rsp->data.rsp_prov_get_ddb_entry_by_count.device_key,sizeof(aes_key_128));
+    }
+    if (netkey_index) {
+        *netkey_index = rsp->data.rsp_prov_get_ddb_entry_by_count.netkey_index;
+    }
+    if (address) {
+        *address = rsp->data.rsp_prov_get_ddb_entry_by_count.address;
+    }
+    if (elements) {
+        *elements = rsp->data.rsp_prov_get_ddb_entry_by_count.elements;
+    }
+    return rsp->data.rsp_prov_get_ddb_entry_by_count.result;
+
+}
+
 sl_status_t sl_btmesh_proxy_connect(uint8_t connection, uint32_t *handle) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
 
@@ -3633,7 +3685,7 @@ sl_status_t sl_btmesh_test_prov_get_device_key(uint16_t address,
 
 }
 
-sl_status_t sl_btmesh_test_prov_prepare_key_refresh(aes_key_128 net_key,
+SL_BGAPI_DEPRECATED sl_status_t sl_btmesh_test_prov_prepare_key_refresh(aes_key_128 net_key,
                                                     size_t app_keys_len,
                                                     const uint8_t* app_keys) {
     struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
@@ -5467,6 +5519,29 @@ sl_status_t sl_btmesh_config_client_set_request_timeout_for_node(uint16_t lpn_ad
 
 }
 
+sl_status_t sl_btmesh_config_client_prepare_key_refresh(aes_key_128 net_key,
+                                                        size_t app_keys_len,
+                                                        const uint8_t* app_keys) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    memcpy(&cmd->data.cmd_config_client_prepare_key_refresh.net_key,&net_key,sizeof(aes_key_128));
+    if ((17+app_keys_len) > SL_BGAPI_MAX_PAYLOAD_SIZE )
+    {
+        return SL_STATUS_COMMAND_TOO_LONG;
+    }
+    cmd->data.cmd_config_client_prepare_key_refresh.app_keys.len=app_keys_len;
+    memcpy(cmd->data.cmd_config_client_prepare_key_refresh.app_keys.data,app_keys,app_keys_len);
+
+    cmd->header=sl_btmesh_cmd_config_client_prepare_key_refresh_id+(((17+app_keys_len)&0xff)<<8)+(((17+app_keys_len)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_config_client_prepare_key_refresh.result;
+
+}
+
 sl_status_t sl_btmesh_mbt_client_init(uint16_t elem_index,
                                       uint16_t max_servers,
                                       uint16_t max_blocks,
@@ -7059,6 +7134,40 @@ sl_status_t sl_btmesh_lc_server_get_lc_state(uint16_t elem_index,
         *transition_time = rsp->data.rsp_lc_server_get_lc_state.transition_time;
     }
     return rsp->data.rsp_lc_server_get_lc_state.result;
+
+}
+
+sl_status_t sl_btmesh_lc_server_set_regulator_mode(uint16_t elem_index,
+                                                   uint8_t mode) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_lc_server_set_regulator_mode.elem_index=elem_index;
+    cmd->data.cmd_lc_server_set_regulator_mode.mode=mode;
+
+    cmd->header=sl_btmesh_cmd_lc_server_set_regulator_mode_id+(((3)&0xff)<<8)+(((3)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_lc_server_set_regulator_mode.result;
+
+}
+
+sl_status_t sl_btmesh_lc_server_set_sensor_timeout(uint16_t elem_index,
+                                                   uint32_t timeout_ms) {
+    struct sl_btmesh_packet *cmd = (struct sl_btmesh_packet *)sl_btmesh_cmd_msg;
+
+    struct sl_btmesh_packet *rsp = (struct sl_btmesh_packet *)sl_btmesh_rsp_msg;
+
+    cmd->data.cmd_lc_server_set_sensor_timeout.elem_index=elem_index;
+    cmd->data.cmd_lc_server_set_sensor_timeout.timeout_ms=timeout_ms;
+
+    cmd->header=sl_btmesh_cmd_lc_server_set_sensor_timeout_id+(((6)&0xff)<<8)+(((6)&0x700)>>8);
+
+
+    sl_btmesh_host_handle_command();
+    return rsp->data.rsp_lc_server_set_sensor_timeout.result;
 
 }
 

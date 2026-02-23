@@ -15,7 +15,6 @@ provides:
 
 requires:
   - name: cpc_secondary
-  - name: cpc_secondary_recommended_uart_interface
 
 define:
   - name: DEBUG_EFM_USER

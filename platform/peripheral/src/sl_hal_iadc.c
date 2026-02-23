@@ -399,7 +399,12 @@ void sl_hal_iadc_calculate_gain_offset(IADC_TypeDef *iadc,
 #if defined(_IADC_CFG_ADCMODE_HIGHACCURACY)
     case SL_HAL_IADC_CFG_ADC_MODE_HIGH_ACCURACY:
       // Get reference voltage in volts.
-      ref_voltage = sl_hal_iadc_get_reference_voltage(init->configs[config].reference) / 1000.0f;
+      if (init->configs[config].reference == SL_HAL_IADC_REFERENCE_VREFINT_1V2) {
+        // Internal reference voltage (VBGR) depends on the chip revision.
+        ref_voltage = (float)sl_hal_iadc_get_reference_voltage(init->configs[config].reference) / 1000.0f;
+      } else {
+        ref_voltage = (float)init->configs[config].vref / 1000.0f;
+      }
 
       // Get OSR from config register.
       osr_value = (iadc->CFG[config].CFG & _IADC_CFG_OSRHA_MASK) >> _IADC_CFG_OSRHA_SHIFT;
@@ -427,15 +432,15 @@ void sl_hal_iadc_calculate_gain_offset(IADC_TypeDef *iadc,
       iadc->CFG[config].SCALE |= ((uint32_t)ana_gain_round & 0x1FFF) << _IADC_SCALE_GAIN13LSB_SHIFT;
 
       // Get offset value for high accuracy mode from DEVINFO.
-      offset_ana1_high_acc_int = (uint16_t)(DEVINFO->IADC0OFFSETCAL0 & _DEVINFO_IADC0OFFSETCAL0_OFFSETANA1HIACC_MASK)
-                                 >> _DEVINFO_IADC0OFFSETCAL0_OFFSETANA1HIACC_SHIFT;
+      offset_ana1_high_acc_int = (uint16_t)((DEVINFO->IADC0OFFSETCAL0 & _DEVINFO_IADC0OFFSETCAL0_OFFSETANA1HIACC_MASK)
+                                            >> _DEVINFO_IADC0OFFSETCAL0_OFFSETANA1HIACC_SHIFT);
 
       // 2. OSR adjustment.
       // Get offset from DEVINFO.
-      offset_ana_base = (int16_t)(DEVINFO->IADC0OFFSETCAL0 & _DEVINFO_IADC0OFFSETCAL0_OFFSETANABASE_MASK)
-                        >> _DEVINFO_IADC0OFFSETCAL0_OFFSETANABASE_SHIFT;
+      offset_ana_base = (int16_t)((DEVINFO->IADC0OFFSETCAL0 & _DEVINFO_IADC0OFFSETCAL0_OFFSETANABASE_MASK)
+                                  >> _DEVINFO_IADC0OFFSETCAL0_OFFSETANABASE_SHIFT);
       // 1 << osr_value is the same as pow(2, osr_value).
-      offset_ana = offset_ana_base + (offset_ana1_high_acc_int) / (1 << osr_value);
+      offset_ana = offset_ana_base + (float)offset_ana1_high_acc_int / (float)(1 << osr_value);
 
       // 3. Reference voltage adjustment.
       offset_ana = (offset_ana) * (1.25f / ref_voltage);

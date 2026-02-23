@@ -925,6 +925,12 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
+  ret = app_settings_get_channel_mask(app_settings_wisun.allowed_channels, &channel_mask);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to get channel mask: %lu]\r\n", ret);
+    goto cleanup;
+  }
+
   switch (phy_config_type) {
       case SL_WISUN_PHY_CONFIG_FAN10:
         phy_config.config.fan10.reg_domain = app_settings_wisun.regulatory_domain;
@@ -948,6 +954,7 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
 
         phy_config.config.explicit_plan.channel_spacing = channel_spacing_id;
         phy_config.config.explicit_plan.phy_mode_id = app_settings_wisun.phy_mode_id;
+        memcpy(phy_config.config.explicit_plan.channel_mask, channel_mask.mask, SL_WISUN_CHANNEL_MASK_SIZE);
         break;
       case SL_WISUN_PHY_CONFIG_IDS:
         phy_config.config.ids.protocol_id  = app_settings_wisun.protocol_id;
@@ -1070,6 +1077,12 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
+  ret = sl_wisun_set_fan_tps_version(app_settings_wisun.fan_tps_version);
+  if (ret != SL_STATUS_OK) {
+    printf("[Failed: unable to set FAN TPS version: %lu]\r\n", ret);
+    goto cleanup;
+  }
+
   trustedca_count = sl_wisun_keychain_get_trustedca_count();
   if (!trustedca_count) {
     printf("[Failed: unable to locate trusted CAs]\r\n");
@@ -1133,7 +1146,6 @@ static void app_join(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
-  ret = app_settings_get_channel_mask(app_settings_wisun.allowed_channels, &channel_mask);
   ret = sl_wisun_set_channel_mask(&channel_mask);
   if (ret != SL_STATUS_OK) {
     printf("[Failed: unable to set channel mask: %lu]\r\n", ret);

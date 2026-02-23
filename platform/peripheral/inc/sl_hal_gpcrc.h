@@ -431,6 +431,9 @@ __INLINE uint32_t sl_hal_gpcrc_read_data_byte_reversed(GPCRC_TypeDef *gpcrc)
  * {
  *   uint32_t checksum;
  *
+ *   // Enable bus clock for GPCRC0
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPCRC0);
+ *
  *   // Initialize GPCRC, 32-bit fixed polynomial is default
  *   sl_hal_gpcrc_init_t init = SL_HAL_GPCRC_INIT_DEFAULT;
  *   init.init_value = 0xFFFFFFFF; // Standard CRC-32 init value
@@ -447,6 +450,9 @@ __INLINE uint32_t sl_hal_gpcrc_read_data_byte_reversed(GPCRC_TypeDef *gpcrc)
  * void gpcrc_example_crc16(void)
  * {
  *   uint16_t checksum;
+ *
+ *   // Enable bus clock for GPCRC0
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_GPCRC0);
  *
  *   // Initialize GPCRC with the 16-bit polynomial 0x8005
  *   sl_hal_gpcrc_init_t init = SL_HAL_GPCRC_INIT_DEFAULT;

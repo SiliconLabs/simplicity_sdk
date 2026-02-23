@@ -49,7 +49,10 @@ ZW_WEAK void CC_UserCredential_UserCapabilitiesGet_handler(cc_handler_output_t *
   pReport->properties1 =
     ((0 << 7) & USER_CAPABILITIES_REPORT_PROPERTIES1_USER_SCHEDULE_SUPPORT_BIT_MASK)
     | ((cc_user_credential_is_all_users_checksum_supported() << 6) & USER_CAPABILITIES_REPORT_PROPERTIES1_ALL_USERS_CHECKSUM_SUPPORT_BIT_MASK)
-    | ((cc_user_credential_is_user_checksum_supported() << 5) & USER_CAPABILITIES_REPORT_PROPERTIES1_USER_CHECKSUM_SUPPORT_BIT_MASK);
+    | ((cc_user_credential_is_user_checksum_supported() << 5) & USER_CAPABILITIES_REPORT_PROPERTIES1_USER_CHECKSUM_SUPPORT_BIT_MASK)
+    | USER_CAPABILITIES_REPORT_PROPERTIES1_UTF_16_ENCODING_SUPPORT_BIT_MASK
+    | USER_CAPABILITIES_REPORT_PROPERTIES1_EXTENDED_ASCII_ENCODING_SUPPORT_BIT_MASK
+    | USER_CAPABILITIES_REPORT_PROPERTIES1_ASCII_ENCODING_SUPPORT_BIT_MASK;
 
   pReport->supportedUserTypesBitMaskLength = 2;
   pReport->supportedUserTypesBitMask1 = supported_user_types_bit_mask & 0xFF;

@@ -51,8 +51,6 @@ typedef struct ble_peer_manager_scanner_s {
 
 // -----------------------------------------------------------------------------
 // Forward declaration of private functions
-static ble_peer_manager_state_id get_state(void);
-static void set_state(ble_peer_manager_state_id new_state);
 static void on_connection_timeout(app_timer_t *timer, void *data);
 static sl_status_t process_scan_response(bd_addr *address,
                                          sl_bt_gap_address_type_t address_type,
@@ -62,22 +60,27 @@ static sl_status_t process_scan_response(bd_addr *address,
 // -----------------------------------------------------------------------------
 // Static variables
 static ble_peer_manager_scanner_t scanner;
-static uint8_t central_active_conn_handle;
+static uint8_t central_active_conn_handle = SL_BT_INVALID_CONNECTION_HANDLE;
+static bool scanning = false;
 static app_timer_t timer;
-static ble_peer_manager_state_id state;
 
 // -----------------------------------------------------------------------------
 // Public functions
-void ble_peer_manager_central_init()
+void ble_peer_manager_central_init(void)
 {
-  // Set default values
+  // Set initial state
+  (void)app_timer_stop(&timer);
+  if (scanning) {
+    (void)sl_bt_scanner_stop();
+  }
+  central_active_conn_handle = SL_BT_INVALID_CONNECTION_HANDLE;
+  scanning = false;
   scanner.scanning_phy = BLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCANNING_PHY;
   scanner.scan_discovery_mode = BLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_DISCOVERY_MODE;
   scanner.scan_mode = BLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_MODE;
   scanner.scan_interval = BLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_INTERVAL;
   scanner.scan_window = BLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_WINDOW;
-  ble_peer_manager_reset_filter();
-  set_state(BLE_PEER_MANAGER_STATE_IDLE);
+  (void)ble_peer_manager_reset_filter();
   ble_peer_manager_clear_all_connections();
 }
 
@@ -93,72 +96,126 @@ void ble_peer_manager_central_on_bt_event(sl_bt_msg_t *evt)
       break;
     }
     case sl_bt_evt_connection_opened_id:
-      if (evt->data.evt_connection_opened.connection == central_active_conn_handle
-          && evt->data.evt_connection_opened.role == sl_bt_connection_role_central) {
-        app_timer_stop(&timer);
-        sl_bt_scanner_stop();
-        ble_peer_manager_add_connection(evt->data.evt_connection_opened.connection,
-                                        evt->data.evt_connection_opened.address,
-                                        sl_bt_connection_role_central);
-        ble_peer_manager_log_info("Connection opened, device is central" APP_LOG_NL);
-        peer_evt.evt_id = BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL;
-        peer_evt.connection_id = evt->data.evt_connection_opened.connection;
-        set_state(BLE_PEER_MANAGER_STATE_IDLE);
-        ble_peer_manager_on_event(&peer_evt);
+      // Handle the requested central connection handle only
+      if ((evt->data.evt_connection_opened.connection != central_active_conn_handle)
+          || (evt->data.evt_connection_opened.role != sl_bt_connection_role_central)) {
+        break;
       }
+      // Remove active connecting handle
+      central_active_conn_handle = SL_BT_INVALID_CONNECTION_HANDLE;
+      // Stop the timer of the connection establishment
+      (void)app_timer_stop(&timer);
+      if (scanning) {
+        // Try to stop scanning
+        sc = sl_bt_scanner_stop();
+        if (sc != SL_STATUS_OK) {
+          ble_peer_manager_log_error("Failed to stop scanner: 0x%04lx" APP_LOG_NL,
+                                     (unsigned long)sc);
+          // Emit an error event
+          peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+          peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+          ble_peer_manager_on_event(&peer_evt);
+        } else {
+          scanning = false;
+        }
+      }
+      // Add connection to the database
+      sc = ble_peer_manager_add_connection(evt->data.evt_connection_opened.connection,
+                                           evt->data.evt_connection_opened.address,
+                                           sl_bt_connection_role_central);
+      if (sc != SL_STATUS_OK) {
+        ble_peer_manager_log_error("Failed to add connection: 0x%04lx" APP_LOG_NL,
+                                   (unsigned long)sc);
+        // Emit an error event
+        peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+        ble_peer_manager_on_event(&peer_evt);
+      } else {
+        ble_peer_manager_log_info("Connection opened, device is central" APP_LOG_NL);
+      }
+      // Emit the connection opened event
+      peer_evt.evt_id = BLE_PEER_MANAGER_ON_CONN_OPENED_CENTRAL;
+      peer_evt.connection_id = evt->data.evt_connection_opened.connection;
+      ble_peer_manager_on_event(&peer_evt);
       break;
 
     case sl_bt_evt_connection_closed_id:
-      if (ble_peer_manager_is_conn_handle_in_array(evt->data.evt_connection_closed.connection)
-          && ble_peer_manager_is_conn_handle_central(evt->data.evt_connection_closed.connection)) {
-        ble_peer_manager_log_info("Central device connection closed, reason 0x%x." APP_LOG_NL,
-                                  evt->data.evt_connection_closed.reason);
-
-        sc = ble_peer_manager_delete_connection(evt->data.evt_connection_closed.connection);
-        if (sc != SL_STATUS_OK) {
-          peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
-          peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-          ble_peer_manager_on_event(&peer_evt);
-        }
-
-        peer_evt.evt_id = BLE_PEER_MANAGER_ON_CONN_CLOSED;
-        peer_evt.connection_id = evt->data.evt_connection_closed.connection;
-        set_state(BLE_PEER_MANAGER_STATE_IDLE);
+      // The active connecting handle is closed
+      if (evt->data.evt_connection_closed.connection == central_active_conn_handle) {
+        ble_peer_manager_log_info("Central active connection closed, reason 0x%04lx." APP_LOG_NL,
+                                  (unsigned long)evt->data.evt_connection_closed.reason);
+        // Stop the timer of the connection establishment
+        (void)app_timer_stop(&timer);
+        // Remove active connecting handle
+        central_active_conn_handle = SL_BT_INVALID_CONNECTION_HANDLE;
+        // Since the connection is not reported earlier there is no need to send
+        // any events
+        break;
+      }
+      // Not the active connecting handle is closed
+      // Check if it should be handled (it is in the database and central)
+      if (!ble_peer_manager_is_conn_handle_in_array(evt->data.evt_connection_closed.connection)
+          || !ble_peer_manager_is_conn_handle_central(evt->data.evt_connection_closed.connection)) {
+        break;
+      }
+      ble_peer_manager_log_info("Central device connection closed, reason 0x%04lx." APP_LOG_NL,
+                                (unsigned long)evt->data.evt_connection_closed.reason);
+      // Delete the connection from the database
+      sc = ble_peer_manager_delete_connection(evt->data.evt_connection_closed.connection);
+      if (sc != SL_STATUS_OK) {
+        // Emit an error event
+        peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
         ble_peer_manager_on_event(&peer_evt);
       }
+      // Emit the connection closed event
+      peer_evt.evt_id = BLE_PEER_MANAGER_ON_CONN_CLOSED;
+      peer_evt.connection_id = evt->data.evt_connection_closed.connection;
+      ble_peer_manager_on_event(&peer_evt);
+
       break;
 
     case sl_bt_evt_scanner_legacy_advertisement_report_id:
-      if (get_state() == BLE_PEER_MANAGER_SCANNING) {
-        sc = process_scan_response(&(evt->data.evt_scanner_legacy_advertisement_report.address),
-                                   evt->data.evt_scanner_legacy_advertisement_report.address_type,
-                                   evt->data.evt_scanner_legacy_advertisement_report.rssi,
-                                   &(evt->data.evt_scanner_legacy_advertisement_report.data));
-        if (sc != SL_STATUS_OK
-            && sc != SL_STATUS_NOT_INITIALIZED
-            && sc != SL_STATUS_NOT_FOUND
-            && sc != SL_STATUS_ALREADY_EXISTS) {
-          peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
-          peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-          ble_peer_manager_on_event(&peer_evt);
-        }
+      // Check the scan response only if requested
+      if (!scanning
+          || (central_active_conn_handle != SL_BT_INVALID_CONNECTION_HANDLE)) {
+        break;
+      }
+      // Process scan response and open connection if a match is found
+      sc = process_scan_response(&(evt->data.evt_scanner_legacy_advertisement_report.address),
+                                 evt->data.evt_scanner_legacy_advertisement_report.address_type,
+                                 evt->data.evt_scanner_legacy_advertisement_report.rssi,
+                                 &(evt->data.evt_scanner_legacy_advertisement_report.data));
+      if (sc != SL_STATUS_OK
+          && sc != SL_STATUS_NOT_INITIALIZED
+          && sc != SL_STATUS_NOT_FOUND
+          && sc != SL_STATUS_ALREADY_EXISTS) {
+        // Emit an error event
+        peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+        ble_peer_manager_on_event(&peer_evt);
       }
       break;
 
     case sl_bt_evt_scanner_extended_advertisement_report_id:
-      if (get_state() == BLE_PEER_MANAGER_SCANNING) {
-        sc = process_scan_response(&(evt->data.evt_scanner_extended_advertisement_report.address),
-                                   evt->data.evt_scanner_extended_advertisement_report.address_type,
-                                   evt->data.evt_scanner_extended_advertisement_report.rssi,
-                                   &(evt->data.evt_scanner_extended_advertisement_report.data));
-        if (sc != SL_STATUS_OK
-            && sc != SL_STATUS_NOT_INITIALIZED
-            && sc != SL_STATUS_NOT_FOUND
-            && sc != SL_STATUS_ALREADY_EXISTS) {
-          peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
-          peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-          ble_peer_manager_on_event(&peer_evt);
-        }
+      // Check the scan response only if requested
+      if (!scanning
+          || (central_active_conn_handle != SL_BT_INVALID_CONNECTION_HANDLE)) {
+        break;
+      }
+      // Process scan response and open connection if a match is found
+      sc = process_scan_response(&(evt->data.evt_scanner_extended_advertisement_report.address),
+                                 evt->data.evt_scanner_extended_advertisement_report.address_type,
+                                 evt->data.evt_scanner_extended_advertisement_report.rssi,
+                                 &(evt->data.evt_scanner_extended_advertisement_report.data));
+      if (sc != SL_STATUS_OK
+          && sc != SL_STATUS_NOT_INITIALIZED
+          && sc != SL_STATUS_NOT_FOUND
+          && sc != SL_STATUS_ALREADY_EXISTS) {
+        // Emit an error event
+        peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+        peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+        ble_peer_manager_on_event(&peer_evt);
       }
       break;
   }
@@ -170,7 +227,7 @@ sl_status_t ble_peer_manager_central_set_scanner(sl_bt_gap_phy_coding_t scanning
                                                  uint8_t scan_interval,
                                                  uint8_t scan_window)
 {
-  if (get_state() == BLE_PEER_MANAGER_SCANNING) {
+  if (scanning) {
     ble_peer_manager_log_info("Already scanning. \
                               New settings will take effect the next time scanning is started." APP_LOG_NL);
   }
@@ -182,25 +239,47 @@ sl_status_t ble_peer_manager_central_set_scanner(sl_bt_gap_phy_coding_t scanning
   return SL_STATUS_OK;
 }
 
-sl_status_t ble_peer_manager_central_create_connection()
+sl_status_t ble_peer_manager_central_create_connection(void)
 {
   sl_status_t sc;
-  if (get_state() == BLE_PEER_MANAGER_SCANNING) {
+  uint8_t conn_count = ble_peer_manager_get_active_conn_number();
+
+  if (!ble_peer_manager_is_filter_set()) {
+    return SL_STATUS_INVALID_STATE;
+  }
+
+  if (scanning) {
     ble_peer_manager_log_info("Already scanning" APP_LOG_NL);
     return SL_STATUS_OK;
   }
 
-  // Set scanner
+  // Check for active connecting handle
+  if (central_active_conn_handle != SL_BT_INVALID_CONNECTION_HANDLE) {
+    ble_peer_manager_log_error("Connection establishment already in progress" APP_LOG_NL);
+    return SL_STATUS_INVALID_STATE;
+  }
+
+  // Check if we reached the maximum allowed connection count
+  if (conn_count >= BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT) {
+    ble_peer_manager_log_error("Max allowed connection count reached, cannot open new connection" APP_LOG_NL);
+    return SL_STATUS_WOULD_OVERFLOW;
+  }
+
+  // Set scanner parameters
   sc = sl_bt_scanner_set_parameters(scanner.scan_mode,
                                     scanner.scan_interval,
                                     scanner.scan_window);
   if (sc != SL_STATUS_OK) {
+    ble_peer_manager_log_error("Failed to set scanner parameters..." APP_LOG_NL);
     return sc;
   }
   // Start scanning, based on filtering it will open connection as central
   sc = sl_bt_scanner_start(scanner.scanning_phy, sl_bt_scanner_discover_generic);
   ble_peer_manager_log_info("Started scanning..." APP_LOG_NL);
-  set_state(BLE_PEER_MANAGER_SCANNING);
+  if (sc == SL_STATUS_OK) {
+    // Register scanning state
+    scanning = true;
+  }
   return sc;
 }
 
@@ -208,35 +287,42 @@ sl_status_t ble_peer_manager_central_open_connection(bd_addr *address, uint8_t a
 {
   sl_status_t sc;
   uint8_t new_connection_handle;
+  uint8_t conn_count = ble_peer_manager_get_active_conn_number();
 
-  if (get_state() == BLE_PEER_MANAGER_STATE_CONNECTING) {
+  if (address == NULL) {
+    return SL_STATUS_NULL_POINTER;
+  }
+
+  // Check for active connecting handle
+  if (central_active_conn_handle != SL_BT_INVALID_CONNECTION_HANDLE) {
     ble_peer_manager_log_error("Connection establishment already in progress" APP_LOG_NL);
     return SL_STATUS_INVALID_STATE;
   }
 
   // Check if we reached the maximum allowed connection count
-  if (ble_peer_manager_get_active_conn_number() >= BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT) {
+  if (conn_count >= BLE_PEER_MANAGER_COMMON_MAX_ALLOWED_CONN_COUNT) {
     ble_peer_manager_log_error("Max allowed connection count reached, cannot open new connection" APP_LOG_NL);
-    return SL_STATUS_ABORT;
+    return SL_STATUS_WOULD_OVERFLOW;
   }
-
+  // Start the timer of the connection establishment
   sc = app_timer_start(&timer,
                        BLE_PEER_MANAGER_COMMON_TIMEOUT_GATT_MS,
                        on_connection_timeout,
-                       (void *)((size_t)central_active_conn_handle),
+                       NULL,
                        false);
   if (sc != SL_STATUS_OK) {
-    app_timer_stop(&timer);
     return sc;
   }
+  // Start connection establishment
   sc = sl_bt_connection_open(*address,
                              address_type,
                              scanner.scanning_phy,
                              &new_connection_handle);
   if (sc != SL_STATUS_OK) {
+    (void)app_timer_stop(&timer);
     return sc;
   }
-  set_state(BLE_PEER_MANAGER_STATE_CONNECTING);
+  // Register active connecting handle
   central_active_conn_handle = new_connection_handle;
   return sc;
 }
@@ -244,58 +330,53 @@ sl_status_t ble_peer_manager_central_open_connection(bd_addr *address, uint8_t a
 sl_status_t ble_peer_manager_central_close_connection(uint8_t conn_handle)
 {
   sl_status_t sc = SL_STATUS_OK;
-  if (ble_peer_manager_is_conn_handle_in_array(conn_handle)
-      && ble_peer_manager_is_conn_handle_central(conn_handle)) {
-    ble_peer_manager_log_info("Closing connection." APP_LOG_NL);
-    sc = sl_bt_connection_close(conn_handle);
-    set_state(BLE_PEER_MANAGER_STATE_CLOSING);
-    if (sc != SL_STATUS_OK) {
-      return sc;
-    }
-  } else {
+  if (conn_handle == SL_BT_INVALID_CONNECTION_HANDLE) {
+    return SL_STATUS_INVALID_HANDLE;
+  }
+  // Check if the handle is in the central connection database
+  if (!ble_peer_manager_is_conn_handle_in_array(conn_handle)
+      || !ble_peer_manager_is_conn_handle_central(conn_handle)) {
     ble_peer_manager_log_error("Connection handle not found." APP_LOG_NL);
     return SL_STATUS_NOT_FOUND;
   }
+  // Handle is in the central connection database
+  ble_peer_manager_log_info("Closing connection." APP_LOG_NL);
+  // Start connection close, an event will notify the result
+  sc = sl_bt_connection_close(conn_handle);
   return sc;
 }
 
-bool ble_peer_manager_is_filter_set_allowed()
+bool ble_peer_manager_is_filter_set_allowed(void)
 {
-  if (get_state() == BLE_PEER_MANAGER_SCANNING) {
-    return false;
-  }
-  return true;
+  return !scanning;
 }
 
 // -----------------------------------------------------------------------------
 // Private functions
-static ble_peer_manager_state_id get_state(void)
-{
-  return state;
-}
-
-static void set_state(ble_peer_manager_state_id new_state)
-{
-  state = new_state;
-}
 
 void on_connection_timeout(app_timer_t *timer, void *data)
 {
   (void)timer;
-  uint8_t connection = (uint8_t)(size_t)data;
+  (void)data;
+  sl_status_t sc;
   ble_peer_manager_evt_type_t peer_evt;
-  // Check for validity
-  if (connection != SL_BT_INVALID_CONNECTION_HANDLE) {
+  // Check for validity of requested handle
+  if (central_active_conn_handle != SL_BT_INVALID_CONNECTION_HANDLE) {
     // Close connection
     ble_peer_manager_log_info("Connection timeout. Closing connection." APP_LOG_NL);
-    (void)sl_bt_connection_close(connection);
-    set_state(BLE_PEER_MANAGER_STATE_CLOSING);
+    sc = sl_bt_connection_close(central_active_conn_handle);
+    if (sc == SL_STATUS_OK) {
+      return;
+    } else {
+      ble_peer_manager_log_error("Failed to close connection in on_connection_timeout" APP_LOG_NL);
+    }
   } else {
     ble_peer_manager_log_error("Invalid connection handle in on_connection_timeout" APP_LOG_NL);
-    peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
-    peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
-    ble_peer_manager_on_event(&peer_evt);
   }
+  // Emit an error event
+  peer_evt.evt_id = BLE_PEER_MANAGER_ERROR;
+  peer_evt.connection_id = SL_BT_INVALID_CONNECTION_HANDLE;
+  ble_peer_manager_on_event(&peer_evt);
 }
 
 // Process scan response
@@ -309,7 +390,6 @@ sl_status_t process_scan_response(bd_addr *address,
   if (!ble_peer_manager_is_filter_set()) {
     return SL_STATUS_NOT_INITIALIZED;
   }
-
   bool match = ble_peer_manager_find_match(address, address_type, rssi, adv_data);
   if (!match) {
     return SL_STATUS_NOT_FOUND;

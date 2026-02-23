@@ -578,9 +578,9 @@ struct sl_memory_heap_t {
 
 /// @brief Heap information.
 typedef struct {
-  uint32_t base_addr;               ///< Heap base address.
-  size_t used_size;                 ///< Used size (in bytes), independently of alignment.
-  size_t free_size;                 ///< Free size (in bytes), independently of alignment. Excludes free block metadata.
+  size_t base_addr;                 ///< Heap base address.
+  size_t used_size;                 ///< Used size (in bytes).
+  size_t free_size;                 ///< Free size (in bytes). Excludes free block metadata.
   size_t total_size;                ///< Total heap size (in bytes).
   size_t free_block_count;          ///< Number of free blocks.
   size_t free_block_largest_size;   ///< Largest free block size (in bytes).

@@ -782,6 +782,12 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
     goto cleanup;
   }
 
+  status = sl_wisun_set_fan_tps_version(app_settings_wisun.fan_tps_version);
+  if (status != SL_STATUS_OK) {
+    printf("[Failed: unable to set FAN TPS version: %lu]\r\n", status);
+    goto cleanup;
+  }
+
   switch (app_settings_wisun.network_size) {
     case SL_WISUN_NETWORK_SIZE_SMALL:
       params = SL_WISUN_BR_PARAMS_PROFILE_SMALL;
@@ -979,6 +985,7 @@ static void app_start(sl_wisun_phy_config_type_t phy_config_type)
         }
         phy_config.config.explicit_plan.channel_spacing = channel_spacing_id;
         phy_config.config.explicit_plan.phy_mode_id = app_settings_wisun.phy_mode_id;
+        memcpy(phy_config.config.explicit_plan.channel_mask, channel_mask.mask, SL_WISUN_CHANNEL_MASK_SIZE);
         break;
       case SL_WISUN_PHY_CONFIG_IDS:
         phy_config.config.ids.protocol_id  = app_settings_wisun.protocol_id;

@@ -878,6 +878,58 @@ static void handle_lc_server_light_onoff_updated_event(
 static void handle_lc_server_linear_output_updated_event(
   sl_btmesh_evt_lc_server_linear_output_updated_t *evt)
 {
+  uint8_t state = 0;
+  uint32_t transition_time = 0;
+  sl_status_t sc = sl_btmesh_lc_server_get_lc_state(evt->elem_index,
+                                                    &state,
+                                                    &transition_time);
+  app_assert_status_f(sc, "Failed to get LC state");
+
+  // If LC is off, don't update the lightness.
+  // For generic server components the usual pattern is that the middleware
+  // component calls sl_btmesh_generic_server_update stack API when it receives
+  // and processes the sl_btmesh_evt_generic_server_client_request_id stack event.
+  // In case of Light Lightness Server and Light LC Server models when the
+  // sl_btmesh_generic_server_update stack API updates the Light Lightness
+  // Linear state (or any bound state) then it disables LC mode automatically.
+  // In case of baremetal apps, the main loop calls sl_btmesh_pop_event from
+  // sl_btmesh_step in each iteration to pop and process a single event in the
+  // middleware components and application. The btmesh stack runs in each
+  // iteration of the main loop as well. Normally, the middleware components
+  // process an event almost immediately after the stack puts the event into the
+  // event queue.
+  // If there is delay in event processing because multiple mesh events were
+  // generated in a short time and the processing of some events or other
+  // application code execution takes long time then it is possible that the
+  // sl_btmesh_evt_lc_server_linear_output_updated_id event is generated
+  // (LC regulator emits it periodically from mesh stack) before the
+  // sl_btmesh_evt_generic_server_client_request_id event is processed by
+  // middleware components or application which updates the Light Lightness
+  // Linear state in stack by calling sl_btmesh_generic_server_update API,
+  // which generates the sl_btmesh_evt_lc_server_mode_updated_id event to
+  // inform that the LC mode is disabled.
+  // There is a race condition because the events can be received in two
+  // different orders depending on the timing of event processing:
+  // 1) Correct order:
+  //   - sl_btmesh_evt_lc_server_linear_output_updated_id
+  //   - sl_btmesh_evt_generic_server_client_request_id
+  //   - sl_btmesh_evt_lc_server_mode_updated_id
+  // 2) Incorrect order:
+  //   - sl_btmesh_evt_generic_server_client_request_id
+  //   - sl_btmesh_evt_lc_server_linear_output_updated_id
+  //   - sl_btmesh_evt_lc_server_mode_updated_id
+  // In case of incorrect order the LC mode is disabled in the stack before
+  // the sl_btmesh_evt_lc_server_linear_output_updated_id event is processed
+  // however the sl_btmesh_evt_lc_server_mode_updated_id event is put into
+  // the event queue last so the middleware component and application is not
+  // aware that the LC mode has already been disabled.
+  // The sl_btmesh_lc_server_get_lc_state API is called (sync getter) to check
+  // the current LC state (including mode) to avoid overriding the new lightness
+  // transition when the LC mode has already been disabled.
+  if (state == sl_btmesh_lc_server_lc_state_off) {
+    return;
+  }
+
   // Convert from linear to actual lightness value
   uint16_t lightness = (uint16_t)sqrt(65535
                                       * (uint32_t)(evt->linear_output_value));

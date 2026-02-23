@@ -22,6 +22,7 @@
 #include "sl_sleeptimer.h"
 #include "sl_atomic.h"
 #include "sli_power_manager.h"
+#include "sl_code_classification.h"
 
 #if configUSE_TICKLESS_IDLE == 0
 #error "This port requires configUSE_TICKLESS_IDLE to be enabled."
@@ -56,7 +57,6 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
 static void sli_os_schedule_wakeup(TickType_t os_ticks);
 
 #if defined(SL_CATALOG_POWER_MANAGER_ARM_SLEEP_ON_EXIT_PRESENT)
-SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_freertos_pend_wfi_isr_handler();
 #endif
 
@@ -96,12 +96,14 @@ void vPortSetupTimerInterrupt(void)
  * @param xExpectedIdleTime Time in os ticks that the system is expected to
  *                          sleep.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 SL_WEAK void sli_iot_power_set_expected_idle(TickType_t expected_idle)
 {
   (void)expected_idle;
   return;
 }
 
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 {
   sl_atomic_store(is_sleeping, true);
@@ -143,6 +145,7 @@ void vPortSuppressTicksAndSleep(TickType_t xExpectedIdleTime)
 /***************************************************************************//**
  * Function called when schedule wakeup timer expires.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_t *handle, void *data)
 {
   uint32_t current_tick_count = sl_sleeptimer_get_tick_count();
@@ -177,6 +180,7 @@ static void sli_schedule_wakeup_timer_expire_handler(sl_sleeptimer_timer_handle_
  *
  * @param os_ticks Delay, in os ticks, before next wakeup/tick.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 static void sli_os_schedule_wakeup(TickType_t os_ticks)
 {
   sl_status_t status;
@@ -212,6 +216,7 @@ static void sli_os_schedule_wakeup(TickType_t os_ticks)
 /***************************************************************************//**
  * Function called by power manager to ensure that system is ok to sleep.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 SL_WEAK bool sli_iot_power_ok_to_sleep(void)
 {
   return true;
@@ -265,6 +270,7 @@ bool sl_power_manager_sleep_on_isr_exit()
  * This is because the sleep-on-exit logic is in the interrupt exit hook.
  * To initiate a sleep, we only need to trigger the KERNEL1 interrupt.
  ******************************************************************************/
+SL_CODE_CLASSIFY(SL_CODE_COMPONENT_FREERTOS_KERNEL, SL_CODE_CLASS_TIME_CRITICAL)
 void sl_freertos_pend_wfi_isr_handler()
 {
   if (sl_power_manager_is_ok_to_sleep() == true) {

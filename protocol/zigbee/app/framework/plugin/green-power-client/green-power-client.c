@@ -991,6 +991,7 @@ static bool commissioningGpdfCallback(sl_zigbee_gp_params_t *params)
   // Commissioning: Step 12a: Proxy receives commissioning command
   // If applicationId == 0b0000 and srcId == 0 or reserved range 0xfffffff9 - 0xffffffffe
   // OR applicationId == 0b0010 and srcId == 0, drop frame.
+  bool frameFound = false;
   if (!sli_zigbee_af_gp_make_addr(&(params->addr),
                                   params->addr.applicationId,
                                   params->addr.id.sourceId,
@@ -1017,7 +1018,6 @@ static bool commissioningGpdfCallback(sl_zigbee_gp_params_t *params)
 
   // Step c
   // RxAfterTx is true
-  bool frameFound = false;
   if ((params->bidirectionalInfo & SL_ZIGBEE_GP_BIDIRECTION_INFO_RX_AFTER_TX_MASK)
       && (params->gpdCommandId == SL_ZIGBEE_ZCL_GP_GPDF_COMMISSIONING)
       && (params->addr.applicationId == SL_ZIGBEE_GP_APPLICATION_IEEE_ADDRESS)) {

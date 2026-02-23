@@ -64,6 +64,13 @@ $(PROJ_DIR)/main.c
 GATT_XML_FILES += $(PROJ_DIR)/config/btconf/gatt_configuration.btconf
 
 ################################################################################
+# Configuration                                                                #
+################################################################################
+override CFLAGS += \
+-DBLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_INTERVAL=21 \
+-DBLE_PEER_MANAGER_CENTRAL_CONFIG_DEFAULT_SCAN_WINDOW=21
+
+################################################################################
 # Target rules                                                                 #
 ################################################################################
 

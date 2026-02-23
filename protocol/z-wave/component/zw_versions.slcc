@@ -21,7 +21,7 @@ define:
 - name: ZAF_VERSION_MINOR
   value: 24
 - name: ZAF_VERSION_PATCH
-  value: 2
+  value: 3
 - name: ZAF_BUILD_NO
   value: 0xABCD
 # SDK
@@ -30,7 +30,7 @@ define:
 - name: SDK_VERSION_MINOR
   value: 24
 - name: SDK_VERSION_PATCH
-  value: 2
+  value: 3
 include:
   - path: "protocol/z-wave/ZAF/ApplicationUtilities/"
     file_list:

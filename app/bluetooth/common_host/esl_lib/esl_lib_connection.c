@@ -83,11 +83,6 @@ typedef struct {
   sl_bt_uuid_16_t dis_characteristics[ESL_LIB_CHARACTERISTIC_INDEX_DIS_SIZE];
 } esl_lib_connection_uuids_t;
 
-// for internal use, only
-extern sl_status_t esl_lib_resume_scanning(void);
-extern sl_status_t esl_lib_core_suspend_scan(uint16_t init_interval,
-                                             uint16_t init_window);
-
 // -----------------------------------------------------------------------------
 // Forward declaration of private functions
 
@@ -174,6 +169,9 @@ static esl_lib_connection_mode_t connection_mode = ESL_LIB_CONNECTION_MODE_SINGL
 
 // Foreign initiator identity
 static bool foreign_initiator_id = false;
+
+// Last IO capability known to the Bluetooth stack
+static sl_bt_sm_io_capability_t last_io_capabilities = sl_bt_sm_io_capability_noinputnooutput;
 
 // Service UUIDs
 static const esl_lib_connection_uuids_t uuid_map = {
@@ -305,7 +303,7 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
   sl_status_t             sc                = SL_STATUS_OK;
   uint8_t                 address_type      = sl_bt_gap_public_address;
   uint8_t                 connection_handle = SL_BT_INVALID_CONNECTION_HANDLE;
-  uint8_t                 io_capabilities   = sl_bt_sm_io_capability_noinputnooutput;
+  sl_bt_sm_io_capability_t io_capabilities  = sl_bt_sm_io_capability_noinputnooutput;
   uint8_t                 flags             = 0;
   esl_lib_connection_t    *conn             = ESL_LIB_INVALID_HANDLE;
   esl_lib_address_t       *identity         = NULL;
@@ -390,11 +388,15 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
                                    ESL_LIB_LOG_ADDR(*address));
     }
 
-    sc = sl_bt_sm_configure(flags, io_capabilities);
+    if (last_io_capabilities != io_capabilities) {
+      sc = sl_bt_sm_configure(flags, io_capabilities);
 
-    if (sc != SL_STATUS_OK) {
-      esl_lib_log_connection_error("Failed to configure SM, sc = 0x%04x" APP_LOG_NL, sc);
-      return sc;
+      if (sc != SL_STATUS_OK) {
+        esl_lib_log_connection_error("Failed to configure SM, sc = 0x%04x" APP_LOG_NL, sc);
+        return sc;
+      } else {
+        last_io_capabilities = io_capabilities;
+      }
     }
 
     // Search for re-usable esl_lib_connection_t type connection handle, ignore status
@@ -421,7 +423,6 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
       // Connect using the address only
       esl_lib_log_connection_debug("Opening connection to " ESL_LIB_LOG_ADDR_FORMAT APP_LOG_NL,
                                    ESL_LIB_LOG_ADDR(*address));
-      (void)esl_lib_core_suspend_scan(SCAN_INIT_INTERVAL, 0); // 0 has special meaning, see the implementation
       sc = sl_bt_connection_open(*addr,
                                  address_type,
                                  sl_bt_gap_phy_1m,
@@ -469,6 +470,11 @@ sl_status_t esl_lib_initiate_connection(esl_lib_command_list_cmd_t *cmd)
                                                            address_type);
           esl_lib_log_connection_error(CONN_FMT "Failed to make a pending new connection to " ESL_LIB_LOG_ADDR_FORMAT APP_LOG_NL,
                                        ESL_LIB_LOG_PTR(conn),
+                                       ESL_LIB_LOG_ADDR(*address));
+        } else {
+          (void)sl_bt_connection_close(connection_handle);
+          esl_lib_log_connection_error("Internal ESL library error, sc = 0x%04x while connecting to " ESL_LIB_LOG_ADDR_FORMAT APP_LOG_NL,
+                                       sc,
                                        ESL_LIB_LOG_ADDR(*address));
         }
       } else {
@@ -551,7 +557,6 @@ sl_status_t esl_lib_connection_add(uint8_t                  conn,
       ptr->command_complete = true;
       ptr->last_error = SL_STATUS_IN_PROGRESS; // Operation is in progress and not yet complete (pass or fail)
       *ptr_out = ptr;
-      sl_slist_push_back(&connection_list, &ptr->node);
 
       sc = app_timer_start(&ptr->timer,
                            CONNECTION_TIMEOUT_MS,
@@ -571,6 +576,8 @@ sl_status_t esl_lib_connection_add(uint8_t                  conn,
   }
   if (sc != SL_STATUS_OK) {
     esl_lib_log_connection_error("Add connection handle = %u failed = 0x%04x" APP_LOG_NL, conn, sc);
+  } else {
+    sl_slist_push(&connection_list, &ptr->node);
   }
 
   return sc;
@@ -736,6 +743,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
         auto_initiator_list = filter_accept_list_create_list(ESL_LIB_SKIPLIST_MAX_LEVEL_STACK,
                                                              filter_accept_list_compare);
       }
+      last_io_capabilities = sl_bt_sm_io_capability_noinputnooutput; // set by esl_lib_core boot event handler
       break;
     // Connection
     case sl_bt_evt_connection_opened_id:
@@ -752,8 +760,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
         sc = esl_lib_connection_find(evt->data.evt_connection_opened.connection,
                                      &conn);
         if (sc == SL_STATUS_OK) {
-          conn->last_error = esl_lib_resume_scanning();
-          (void)app_timer_stop(&conn->timer);
+          conn->last_error = app_timer_stop(&conn->timer);
           esl_lib_log_connection_debug(CONN_FMT "Connection found, connection handle = %u" APP_LOG_NL,
                                        ESL_LIB_LOG_PTR(conn),
                                        conn->connection_handle);
@@ -772,7 +779,22 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
                                                                          conn->address_type);
             // Also try to remove the address from the link layer accept list, ignoring the result.
             // May return SL_STATUS_BT_CTRL_INVALID_COMMAND_PARAMETERS on try remove item not on the list, but its irrelevant.
-            (void)sl_bt_accept_list_remove_device_by_address(conn->address, conn->address_type);
+            sl_status_t sc = sl_bt_accept_list_remove_device_by_address(conn->address, conn->address_type);
+            if (sc != SL_STATUS_OK && sc != SL_STATUS_BT_CTRL_INVALID_COMMAND_PARAMETERS) {
+              esl_lib_log_connection_warning(CONN_FMT "Accept list removal failed, connection handle = %u, sc = 0x%04x" APP_LOG_NL,
+                                             ESL_LIB_LOG_PTR(conn),
+                                             conn->connection_handle,
+                                             sc);
+            }
+          }
+          // Fallback check on the auto_acceptance_list just in case
+          if (conn->command == NULL) {
+            conn->command = filter_accept_list_remove_command_by_address(auto_acceptance_list,
+                                                                         &(conn->address),
+                                                                         conn->address_type);
+            esl_lib_log_connection_debug(CONN_FMT "Connection request found on acceptance list, connection handle = %u will close" APP_LOG_NL,
+                                         ESL_LIB_LOG_PTR(conn),
+                                         conn->connection_handle);
           }
           // Verify again that the command was found (for auto initiator requests, only)
           if (conn->command == NULL) {
@@ -783,17 +805,8 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
                                          conn->connection_handle);
             (void)close_connection(conn); // Overrides conn->last_error
             esl_lib_core_connection_complete();
-            (void)app_timer_stop(&conn->timer); // Stop the timer since we drop the current connection_handle below
-            conn->connection_handle = SL_BT_INVALID_CONNECTION_HANDLE; // Ensure immediate handle re-use
-            conn->command_complete = true;
-            esl_lib_initiate_auto_connection(conn);
             break;
           }
-
-          // Try to set PHY for the connection
-          (void)sl_bt_connection_set_preferred_phy(conn->connection_handle,
-                                                   PREFERRED_PHY,
-                                                   ACCEPTED_PHY);
 
           // Copy GATT database if present
           if (find_tlv(conn->command, ESL_LIB_CONNECT_DATA_TYPE_GATTDB_HANDLES, &tlv)) {
@@ -1081,7 +1094,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             }
           } else if (conn->state == ESL_LIB_CONNECTION_STATE_PAST_INIT) {
             (void)app_timer_stop(&conn->timer);
-            esl_lib_log_connection_debug(CONN_FMT "PAST init, connection handle = %u" APP_LOG_NL,
+            esl_lib_log_connection_debug(CONN_FMT "PAST transfer, connection handle = %u" APP_LOG_NL,
                                          ESL_LIB_LOG_PTR(conn),
                                          conn->connection_handle);
             pawr = (esl_lib_pawr_t *)conn->command->data.cmd_init_past.pawr_handle;
@@ -1096,10 +1109,18 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
                                         * ((pawr->config.adv_interval.max) + (pawr->config.adv_interval.max >> 2));
                 conn->state = ESL_LIB_CONNECTION_STATE_PAST_CLOSE_CONNECTION;
                 sc = app_timer_start(&conn->timer,
-                                     past_timeout,
+                                     past_timeout + (uint32_t)(PAST_GRACE_INTERVAL_COUNT * 1.25f),  // round up margin
                                      connection_timeout,
                                      conn,
                                      false);
+
+                if (sc == SL_STATUS_OK) {
+                  esl_lib_log_connection_debug(CONN_FMT "PAST transfer started, connection handle = %u, PAwR = " ESL_LIB_LOG_HANDLE_FORMAT "timeout = %d ms" APP_LOG_NL,
+                                               ESL_LIB_LOG_PTR(conn),
+                                               conn->connection_handle,
+                                               ESL_LIB_LOG_PTR(conn->command->data.cmd_init_past.pawr_handle),
+                                               past_timeout);
+                }
               }
               if (sc != SL_STATUS_OK) {
                 lib_status = ESL_LIB_STATUS_PAST_INIT_FAILED;
@@ -1110,7 +1131,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
             }
 
             if (sc != SL_STATUS_OK) {
-              esl_lib_log_connection_warning(CONN_FMT "PAST init unsuccesful, connection handle = %u, PAwR = " ESL_LIB_LOG_HANDLE_FORMAT " sc = 0x%04x" APP_LOG_NL,
+              esl_lib_log_connection_warning(CONN_FMT "PAST transfer unsuccessful, connection handle = %u, PAwR = " ESL_LIB_LOG_HANDLE_FORMAT "sc = 0x%04x" APP_LOG_NL,
                                              ESL_LIB_LOG_PTR(conn),
                                              conn->connection_handle,
                                              ESL_LIB_LOG_PTR(conn->command->data.cmd_init_past.pawr_handle),
@@ -1143,6 +1164,9 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
         esl_lib_log_connection_debug(CONN_FMT "Connection payload = %u" APP_LOG_NL,
                                      ESL_LIB_LOG_PTR(conn),
                                      conn->max_payload);
+      } else {
+        // Suppress error event for unknown connections
+        sc = SL_STATUS_OK;
       }
       break;
     // Bonding
@@ -1182,7 +1206,7 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
         if (sc == SL_STATUS_OK) {
           lib_status = ESL_LIB_STATUS_NO_ERROR;
         } else {
-          esl_lib_log_level_t level = conn->established ? ESL_LIB_LOG_LEVEL_ERROR : ESL_LIB_LOG_LEVEL_ERROR;
+          esl_lib_log_level_t level = conn->established ? ESL_LIB_LOG_LEVEL_ERROR : ESL_LIB_LOG_LEVEL_WARNING;
           // Set library status accordingly.
           lib_status = ESL_LIB_STATUS_BONDING_FAILED;
           conn->state = ESL_LIB_CONNECTION_STATE_BONDING_RECOVERY;
@@ -1196,6 +1220,9 @@ void esl_lib_connection_on_bt_event(sl_bt_msg_t *evt)
                       conn->connection_handle,
                       sc);
         }
+      } else {
+        // Suppress error event for unknown connections
+        sc = SL_STATUS_OK;
       }
       break;
     case sl_bt_evt_sm_passkey_request_id:
@@ -1944,8 +1971,9 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
             max_interval = PAST_CONN_INTERVAL_MAX;
           }
 
-          supervison_timeout *= (PAST_CONN_PERIPHERAL_LATENCY + 1); // Core spec. 5.4 Vol 4, Part E, 7.8.31.
+          supervison_timeout *= 2 * (PAST_CONN_PERIPHERAL_LATENCY + 1); // Core spec. 5.4 Vol 4, Part E, 7.8.31.
           supervison_timeout = (supervison_timeout / 10) + 1;
+          supervison_timeout += 9; // Round up to next multiple of 10ms
 
           if (supervison_timeout > PAST_CONN_MAX_TIMEOUT) {
             supervison_timeout = PAST_CONN_MAX_TIMEOUT;
@@ -1988,6 +2016,14 @@ static void run_command(esl_lib_command_list_cmd_t *cmd)
                                connection_timeout,
                                conn,
                                false);
+
+          if (sc == SL_STATUS_OK) {
+            esl_lib_log_connection_debug(CONN_FMT "Connection parameters set for PAST, connection handle = %u, PAwR = " ESL_LIB_LOG_HANDLE_FORMAT "timeout = %d ms" APP_LOG_NL,
+                                         ESL_LIB_LOG_PTR(conn),
+                                         conn->connection_handle,
+                                         ESL_LIB_LOG_PTR(pawr),
+                                         supervison_timeout);
+          }
         }
       } else {
         lib_status = ESL_LIB_STATUS_PAST_INIT_FAILED;
@@ -2328,13 +2364,11 @@ static sl_status_t close_connection(esl_lib_connection_t *conn)
     // Prevent executing any future commands until the connection is closed
     conn->command_complete = false;
 
-    if (sc == SL_STATUS_OK) {
-      (void)app_timer_start(&conn->timer,
-                            CLOSE_TIMEOUT_MS,
-                            connection_timeout,
-                            conn,
-                            false);
-    }
+    (void)app_timer_start(&conn->timer,
+                          CLOSE_TIMEOUT_MS,
+                          connection_timeout,
+                          conn,
+                          false);
   }
 
   return sc;
@@ -2651,7 +2685,6 @@ static void connection_timeout(app_timer_t *timer,
   esl_lib_connection_t *conn = (esl_lib_connection_t *)data;
   // Check if it exists
   if (esl_lib_connection_contains(conn)) {
-    (void)esl_lib_resume_scanning();
     if (conn->last_error == SL_STATUS_BT_CTRL_CONNECTION_TERMINATED_BY_LOCAL_HOST) {
       // This is the timeout for earlier local close request! Send error for closing because close event didn't arrive.
       status = ESL_LIB_STATUS_CONN_CLOSE_FAILED;
@@ -2952,7 +2985,7 @@ static sl_status_t save_tag_info(esl_lib_connection_t *conn)
     // Clear storage handle from connection
     conn->tag_info_data = NULL;
     // Add to the list
-    sl_slist_push_back(&conn->tag_info_list, &tag_info->node);
+    sl_slist_push(&conn->tag_info_list, &tag_info->node);
     // Set positive result
     sc = SL_STATUS_OK;
   }
@@ -3104,7 +3137,7 @@ static sl_status_t write_value(esl_lib_connection_t *conn,
                                      characteristic,
                                      conn->connection_handle);
       } else {
-        esl_lib_log_connection_warning(CONN_FMT "Writing value type %u (0x%02x) unsuccesful, connection handle = %u, length/sent: %u/%u, sc = 0x%04x" APP_LOG_NL,
+        esl_lib_log_connection_warning(CONN_FMT "Writing value type %u (0x%02x) unsuccessful, connection handle = %u, length/sent: %u/%u, sc = 0x%04x" APP_LOG_NL,
                                        ESL_LIB_LOG_PTR(conn),
                                        type,
                                        characteristic,
@@ -3128,7 +3161,7 @@ static bool find_tlv(esl_lib_command_list_cmd_t  *cmd,
                      esl_lib_connect_data_type_t type,
                      esl_lib_connect_tlv_t       **tlv_out)
 {
-  int data_index = 0;
+  uint32_t data_index = 0;
   esl_lib_connect_tlv_t *tlv;
 
   if (cmd == NULL || tlv_out == NULL) {
@@ -3230,11 +3263,14 @@ static sl_status_t esl_lib_initiate_auto_connection(esl_lib_connection_t *handle
     foreign_initiator_id = false;
   }
 
-  if (sc == SL_STATUS_OK) {
+  if (sc == SL_STATUS_OK && last_io_capabilities != sl_bt_sm_io_capability_noinputnooutput) {
     // Auto connection mode does only support the following SM config
     sc = sl_bt_sm_configure(0, sl_bt_sm_io_capability_noinputnooutput);
     if (sc != SL_STATUS_OK) {
       esl_lib_log_connection_error("Failed to configure SM, sc = 0x%04x" APP_LOG_NL, sc);
+      return SL_STATUS_BT_SMP_AUTHENTICATION_REQUIREMENTS;
+    } else {
+      last_io_capabilities = sl_bt_sm_io_capability_noinputnooutput;
     }
   }
 
@@ -3250,21 +3286,37 @@ static sl_status_t esl_lib_initiate_auto_connection(esl_lib_connection_t *handle
     sc = sl_bt_accept_list_add_device_by_address(*addr,
                                                  address_type);
     if (sc != SL_STATUS_OK) {
+      esl_lib_log_level_t level = (sc == SL_STATUS_BT_CTRL_MEMORY_CAPACITY_EXCEEDED)
+                                  ? ESL_LIB_LOG_LEVEL_DEBUG : ESL_LIB_LOG_LEVEL_WARNING;
+
       // If we couldn't pass it to the stack for any reason, then put it back to the acceptance list
-      filter_accept_list_insert_command(auto_acceptance_list, command);
+      (void)filter_accept_list_insert_command(auto_acceptance_list, command);
+      esl_lib_log(level, ESL_LIB_LOG_MODULE_CONNECTION,
+                  CONN_FMT "Stack busy, sc = 0x%04x - connection request deferred to source accept list." APP_LOG_NL,
+                  ESL_LIB_LOG_PTR(conn),
+                  sc);
     } else {
       // Otherwise put it on the auto initiator list
-      filter_accept_list_insert_command(auto_initiator_list, command);
+      (void)filter_accept_list_insert_command(auto_initiator_list, command);
     }
   }
 
   // Check if there's anything on the active list
   if (filter_accept_list_get_size(auto_initiator_list) == 0) {
-    return SL_STATUS_OK;
+    // Check for state inconsistency: library has no pending connections but NCP reports its list is full
+    if (sc == SL_STATUS_BT_CTRL_MEMORY_CAPACITY_EXCEEDED) {
+      // Discrepancy between the target NCP state and the library state - try forced recovery
+      sc = sl_bt_accept_list_remove_all_devices();
+      if (sc != SL_STATUS_OK) {
+        esl_lib_log_connection_error("Failed to clear link layer acceptance list during auto connection recovery, sc = 0x%04x" APP_LOG_NL, sc);
+      }
+      // Emit mass error events for pending connections to prevent them from getting stuck in initiating state in the Access Point
+      esl_lib_connection_emit_mass_errors(NULL); // NULL means all connections on the auto acceptance list
+    }
+    return sc;
   }
 
   if (sc == SL_STATUS_OK || sc == SL_STATUS_BT_CTRL_MEMORY_CAPACITY_EXCEEDED) {
-    (void)esl_lib_core_suspend_scan(SCAN_INIT_INTERVAL, 0);
     // Enable Initiator Filter Policy if everything went OK so far
     sc = sl_bt_connection_open_with_accept_list(sl_bt_gap_phy_1m, &connection_handle);
   }
@@ -3295,15 +3347,18 @@ static sl_status_t esl_lib_initiate_auto_connection(esl_lib_connection_t *handle
     if (sc == SL_STATUS_OK) {
       // Move to connecting state with no error present.
       conn->state = ESL_LIB_CONNECTION_STATE_CONNECTING;
-      // Set command initially to NULL for auto conn handles - it will e updated on successful connection open
+      // Set command initially to NULL for auto conn handles - it will be updated on successful connection open
       conn->command = NULL;
       conn->command_complete = false;
       esl_lib_log_connection_debug(CONN_FMT "Pending new auto connection to next address" APP_LOG_NL,
                                    ESL_LIB_LOG_PTR(conn));
     }
   } else if (sc != SL_STATUS_BT_CTRL_CONNECTION_LIMIT_EXCEEDED && sc != SL_STATUS_NO_MORE_RESOURCE) {
-    // Remove all accepted devie at Link Layer level on errors that we can't handle otherwise
+    // Remove all accepted device at Link Layer level on errors that we can't handle otherwise
     (void)sl_bt_accept_list_remove_all_devices();
+    esl_lib_log_connection_debug(CONN_FMT "Auto connection deferred, sc = 0x%04x - restoring source acceptance list." APP_LOG_NL,
+                                 ESL_LIB_LOG_PTR(conn),
+                                 sc);
     // Check if any list recovery is needed
     while ((command = filter_accept_list_pop_first_node(auto_initiator_list)) != NULL ) {
       // Try recover the internal acceptance list at least
@@ -3319,25 +3374,39 @@ static sl_status_t esl_lib_initiate_auto_connection(esl_lib_connection_t *handle
 
 static void esl_lib_connection_emit_mass_errors(esl_lib_connection_t *conn)
 {
-  if (conn != NULL) { // Ignore invalid calls
-    filter_data_p node_data;
+  filter_list_p target_list;
+  esl_lib_connection_t *working_conn;
+  esl_lib_connection_t local_conn = { 0 }; // Initialize to zero for local use
 
-    while ((node_data = filter_accept_list_pop_first_node(auto_initiator_list)) != NULL) {
-      conn->command = node_data;
-      // Set temporary BLE address for the connection handle
-      conn->address_type = node_data->data.cmd_connect.address.address_type;
-      memcpy(conn->address.addr,
-             node_data->data.cmd_connect.address.addr,
-             sizeof(conn->address.addr));
+  if (conn != NULL) {
+    target_list = auto_initiator_list;
+    working_conn = conn;
+  } else {
+    target_list = auto_acceptance_list;
+    working_conn = &local_conn;
+    // Set default state for error emission
+    local_conn.state = ESL_LIB_CONNECTION_STATE_OFF;
+  }
 
-      (void)send_connection_error(conn,
-                                  ESL_LIB_STATUS_CONN_FAILED,
-                                  SL_STATUS_BT_CTRL_CONNECTION_ACCEPT_TIMEOUT_EXCEEDED,
-                                  conn->state);
-      // Free node data, i.e. the connect command after it is no longer needed
-      esl_lib_memory_free(node_data);
-    }
-    // Invalidate address and command fields after processing
+  filter_data_p node_data;
+  while ((node_data = filter_accept_list_pop_first_node(target_list)) != NULL) {
+    working_conn->command = node_data;
+    // Set temporary BLE address for the connection handle
+    working_conn->address_type = node_data->data.cmd_connect.address.address_type;
+    memcpy(working_conn->address.addr,
+           node_data->data.cmd_connect.address.addr,
+           sizeof(working_conn->address.addr));
+
+    (void)send_connection_error(working_conn,
+                                ESL_LIB_STATUS_CONN_FAILED,
+                                SL_STATUS_BT_CTRL_CONNECTION_ACCEPT_TIMEOUT_EXCEEDED,
+                                working_conn->state);
+    // Free node data, i.e. the connect command after it is no longer needed
+    esl_lib_memory_free(node_data);
+  }
+
+  // Only invalidate address and command fields if conn was provided
+  if (conn != NULL) {
     memset(conn->address.addr, 0, sizeof(conn->address.addr));
     conn->address_type = sl_bt_gap_public_address;
     conn->command = NULL;

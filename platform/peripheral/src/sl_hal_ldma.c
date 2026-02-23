@@ -286,7 +286,7 @@ bool sl_hal_ldma_transfer_is_done(LDMA_TypeDef *ldma,
 
   /* *INDENT-OFF* */
   CORE_ATOMIC_SECTION(
-    if (((ldma->CHSTATUS & ch_mask) == 0) && ((ldma->CHDONE & ch_mask) == ch_mask)) {
+    if (ldma->CHDONE & ch_mask) {
       ret_val = true;
     }
   )

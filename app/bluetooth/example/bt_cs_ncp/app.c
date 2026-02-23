@@ -46,6 +46,7 @@
 #include "iostream_bgapi_trace.h"
 #include "sl_main_init.h"
 #include "sl_bluetooth_connection_config.h"
+#include "app_config.h"
 
 // -----------------------------------------------------------------------------
 // Macros
@@ -130,6 +131,9 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(const void *data)
   switch (cs_cmd->cmd_id) {
 #ifdef SL_CATALOG_CS_INITIATOR_CLIENT_PRESENT
     case CS_ACP_CMD_CREATE_INITIATOR:
+      #if defined(TRACE_RTL_LOGGING) && (TRACE_RTL_LOGGING == 1)
+      cs_cmd->data.initiator_cmd_data.rtl_config.rtl_logging_enabled = 1;
+      #endif
       sc = cs_initiator_create(cs_cmd->data.initiator_cmd_data.connection_id,
                                &cs_cmd->data.initiator_cmd_data.initiator_config,
                                &cs_cmd->data.initiator_cmd_data.rtl_config,
@@ -164,6 +168,10 @@ void sl_ncp_user_cs_cmd_message_to_target_cb(const void *data)
 #endif // SL_CATALOG_CS_REFLECTOR_PRESENT
     case CS_ACP_CMD_ANTENNA_CONFIGURE:
       sc = cs_antenna_configure((bool)cs_cmd->data.antenna_config_wired);
+      #if defined(ALWAYS_INIT_TRACE) && (ALWAYS_INIT_TRACE == 1)
+      sli_bgapi_trace_start();
+      rtl_log_init();
+      #endif
       break;
     case CS_ACP_CMD_ENABLE_TRACE:
       if (cs_cmd->data.enable_trace == 0) {

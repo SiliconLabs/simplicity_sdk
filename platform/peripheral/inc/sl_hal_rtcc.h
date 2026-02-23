@@ -638,6 +638,9 @@ __INLINE uint32_t sl_hal_rtcc_get_status(void)
  *
  * void rtcc_example(void)
  * {
+ *   // Enable bus clock for RTCC
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_RTCC);
+ *
  *   // Initialize RTCC with default settings
  *   sl_hal_rtcc_init_t rtcc_init = SL_HAL_RTCC_INIT_DEFAULT;
  *   sl_hal_rtcc_init(&rtcc_init);

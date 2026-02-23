@@ -344,7 +344,7 @@ skip_node_p skip_list_find_node(skip_list_p list,
   return current;
 }
 
-const void *const skip_list_get_node_data(skip_node_p node)
+const void *skip_list_get_node_data(skip_node_p node)
 {
   return node ? node->data : NULL;
 }

@@ -120,6 +120,7 @@ typedef enum {
   SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_REQ_ID         = 0x4F,
   SL_WISUN_MSG_SET_EAP_IDENTITY_REQ_ID                    = 0x50,
   SL_WISUN_MSG_SET_EVENT_FILTER_REQ_ID                    = 0x51,
+  SL_WISUN_MSG_SET_FAN_TPS_VERSION_REQ_ID                 = 0x52,
 } sl_wisun_msg_req_id_t;
 
 /// Wi-SUN Message API confirmation IDs
@@ -201,6 +202,7 @@ typedef enum {
   SL_WISUN_MSG_RESET_REGULATION_DUTY_CYCLE_CNF_ID         = 0x4F,
   SL_WISUN_MSG_SET_EAP_IDENTITY_CNF_ID                    = 0x50,
   SL_WISUN_MSG_SET_EVENT_FILTER_CNF_ID                    = 0x51,
+  SL_WISUN_MSG_SET_FAN_TPS_VERSION_CNF_ID                 = 0x52,
 } sl_wisun_msg_cnf_id_t;
 
 /**************************************************************************//**
@@ -2686,8 +2688,8 @@ typedef struct {
   uint16_t mtu_size;
   /// Channel exclusion mode
   uint8_t channel_exclusion_mode;
-  /// FAN version to which the node is certified
-  uint8_t fan_tps_version;
+  /// Reserved, set to zero
+  uint8_t reserved;
 } SL_ATTRIBUTE_PACKED  sl_wisun_msg_set_tbu_settings_req_body_t;
 SL_PACK_END()
 
@@ -3688,6 +3690,51 @@ typedef struct {
 SL_PACK_END()
 
 /** @} (end SL_WISUN_MSG_SET_EAP_IDENTITY) */
+
+/**************************************************************************//**
+ * @defgroup SL_WISUN_MSG_SET_FAN_TPS_VERSION sl_wisun_msg_set_fan_tps_version
+ * @{
+ ******************************************************************************/
+
+/// Request message body
+SL_PACK_START(1)
+typedef struct {
+  /// FAN TPS version
+  uint8_t fan_tps_version;
+  /// Reserved, set to zero
+  uint8_t reserved[3];
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_fan_tps_version_req_body_t;
+SL_PACK_END()
+
+/// Request message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Request message body
+  sl_wisun_msg_set_fan_tps_version_req_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_fan_tps_version_req_t;
+SL_PACK_END()
+
+/// Confirmation message body
+SL_PACK_START(1)
+typedef struct {
+  /// Status of the request
+  uint32_t status;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_fan_tps_version_cnf_body_t;
+SL_PACK_END()
+
+/// Confirmation message
+SL_PACK_START(1)
+typedef struct {
+  /// Common message header
+  sl_wisun_msg_header_t header;
+  /// Confirmation message body
+  sl_wisun_msg_set_fan_tps_version_cnf_body_t body;
+} SL_ATTRIBUTE_PACKED sl_wisun_msg_set_fan_tps_version_cnf_t;
+SL_PACK_END()
+
+/** @} (end SL_WISUN_MSG_SET_FAN_TPS_VERSION) */
 
 /** @} (end SL_WISUN_MSG_API) */
 

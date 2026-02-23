@@ -1861,13 +1861,11 @@ static void delayed_sec_level_request(void)
 /** @} (end addtogroup SecGenericLevel) */
 
 /*******************************************************************************
- * This function is registered as callback to be executed when the underlying
- * Generic OnOff state had been changed
+ * This function is called when an "Off" request requires all current
+ * move transitions for secondary level to be halted immediately.
  ******************************************************************************/
-static void lightness_server_onoff_changed_cb(void)
+void sl_btmesh_ctl_server_stop_all_transitions(void)
 {
-  // If the OnOff state had been changed for the light, ongoing Generic Level Move
-  // transitions must be stopped
   sec_level_move_stop();
 }
 
@@ -1900,8 +1898,6 @@ static void init_ctl_models(void)
                                   sec_level_request,
                                   sec_level_change,
                                   sec_level_recall);
-
-  sl_btmesh_register_lightness_onoff_state_change_cb(lightness_server_onoff_changed_cb);
 }
 
 /*******************************************************************************

@@ -77,7 +77,7 @@ sl_status_t ble_peer_manager_central_set_scanner(sl_bt_gap_phy_coding_t scanning
  *
  * @retval SL_STATUS_OK if successful otherwise error code.
  *****************************************************************************/
-sl_status_t ble_peer_manager_central_create_connection();
+sl_status_t ble_peer_manager_central_create_connection(void);
 
 /**************************************************************************//**
  * Open a connection as a central.

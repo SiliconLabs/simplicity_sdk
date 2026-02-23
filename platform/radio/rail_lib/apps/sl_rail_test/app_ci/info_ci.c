@@ -814,6 +814,10 @@ void printChipFeatures(sl_cli_command_arg_t *args)
                      "SL_RAIL_SUPPORTS_THERMAL_PROTECTION",
                      SL_RAIL_SUPPORTS_THERMAL_PROTECTION ? "Yes" : "No",
                      sl_rail_supports_thermal_protection(railHandle) ? "Yes" : "No");
+  responsePrintMulti("Feature:%s,CompileTime:%s,RunTime:%s",
+                     "SL_RAIL_SUPPORTS_RX_DUTY_CYCLING",
+                     SL_RAIL_SUPPORTS_RX_DUTY_CYCLING ? "Yes" : "No",
+                     sl_rail_supports_rx_duty_cycling(railHandle) ? "Yes" : "No");
 }
 
 void cliSeparatorHack(sl_cli_command_arg_t *args)

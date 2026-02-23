@@ -76,6 +76,7 @@ typedef struct {
   uint8_t max_edfe_fragment_count;
   uint16_t socket_rx_buffer_size;
   char eap_identity[SL_WISUN_EAP_IDENTITY_SIZE+1];
+  uint8_t fan_tps_version;
 } app_settings_wisun_t;
 
 typedef struct {

@@ -356,15 +356,19 @@
  * @param[in] token 16-bit unique key @ref sl_token_manager_manufacturing.h file
  *                  or sl_custom_manufacturing_token_header.h.
  * Key format  :
- *    | 31:27 | 26:21    | 20       |19:16        | 15:0     |
- *    |-------|----------|----------|-------------|----------|
- *    | type  | reserved | reserved | NVM3 domain | NVM3 key |
+ *    | 31:27 | 26:21    | 20       |19:16        | 15:12                  | 11:0                   |
+ *    |-------|----------|----------|-------------|------------------------|------------------------|
+ *    | type  | reserved | reserved | NVM3 region | NVM3 key (high nibble) | NVM3 key (low 12 bits) |
  *
- *    - type              : NVM3 Override Token.
- *    - NVM3 domain       : 0x8E000 - 0x8EFFF for static device tokens
- *                          0x8F000 - 0x8FFFF for static secure tokens
- *    - NVM3 key          : 16-bit unique key. @ref sl_token_manager_manufacturing.h file
- *                          or sl_custom_manufacturing_token_header.h.
+ *    - type                  : NVM3 Override Token.
+ *    - NVM3 region           : The region 0x80000 is used for static override tokens.
+ *    - NVM3 key (high nibble): Most significant 4 bits of the NVM3 key.
+ *                              0xE000 for static device tokens.
+ *                              0xF000 for static secure tokens.
+ *    - NVM3 key (low 12 bits): Least significant 12 bits of the NVM3 key.
+ *                              The static token key is a 16-bit unique value.
+ *                              For override tokens, the high nibble identifies
+ *                              the key type(NVM3 key (high nibble)), and the remaining 12 bits are reused.
  */
 #ifndef SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN
 #define SL_TOKEN_GET_DYNAMIC_OVER_RIDE_TOKEN(token)   (SL_TOKEN_TYPE_NVM3                                                                       \

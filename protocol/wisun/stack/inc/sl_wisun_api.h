@@ -1016,6 +1016,21 @@ sl_status_t sl_wisun_set_eap_identity(uint8_t identity_length,
 sl_status_t sl_wisun_set_event_filter(const sl_wisun_mac_address_t *address,
                                       uint64_t events);
 
+/**************************************************************************//**
+ * Set the FAN TPS Version.
+ *
+ * @param[in] fan_tps_version FAN TPS Version to set
+ * @return SL_STATUS_OK if successful, an error code otherwise
+ *
+ * This function sets the FAN TPS Version advertised in PAN Information Element.
+ * - #SL_WISUN_FAN_VERSION_DEFAULT: to keep the stack's default FAN TPS version
+ * - #SL_WISUN_FAN_VERSION_1_0: to force the stack to behave like a FAN 1.0 certified node
+ * - #SL_WISUN_FAN_VERSION_1_1: to force the stack to behave like a FAN 1.1 certified node
+ *
+ * Available in libraries: Full, FFN, LFN, BR (see @ref API_AVAILABILITY)
+ *****************************************************************************/
+sl_status_t sl_wisun_set_fan_tps_version(uint8_t fan_tps_version);
+
 /** @} (end SL_WISUN_API) */
 
 #ifdef __cplusplus

@@ -110,6 +110,16 @@ static inline void bitclr(uint8_t *bits, int i)
 void *bitfill(void *dst, bool val, uint32_t start, uint32_t end);
 
 /**
+ * @brief Copy bits from one bitmask to another
+ *
+ * @param dst Destination bitmask
+ * @param src Source bitmask
+ * @param len Number of bits to copy
+ * @return void* Destination bitmask
+ */
+ void *bitcpy(void *dst, const void *src, size_t len);
+
+/**
  * @brief Generate channel mask from string
  *
  * A NULL str allows the total number of channels.

@@ -27,6 +27,7 @@ ESL AP Core.
 import threading
 import re
 import os
+import sys
 import queue
 import random
 import struct
@@ -64,6 +65,7 @@ if ESL_MAX_TAGS_IN_GROUP < ESL_MAX_TAGS_IN_AUTO_GROUP:
     )
 
 def skip_if_stopped(method):
+    """Skip method execution if the stop_event is set"""
     def wrapper(self, *args, **kwargs):
         if hasattr(self, "stop_event") and self.stop_event.is_set():
             if hasattr(self, "log"):
@@ -105,15 +107,42 @@ class LibProxy:
             return lambda *args, **kwargs: self._guarded_method(name, attr, *args, **kwargs)
         return attr
 
+class StackSizeManager:
+    def __init__(self, logger):
+        self.log = logger
+
+    def configure_stack_size(self):
+        """Configure the thread stack size, trying larger sizes first."""
+        stack_size_base = 1024 * 1024  # 1 MB base size request
+        # Try setting 8 MB stack size
+        try:
+            threading.stack_size(8 * stack_size_base)
+            return  # Success, continue execution
+        except (threading.ThreadError, ValueError) as e:
+            # Log warning and try 2 MB
+            self.log.warning("Unable to set 8MB thread stack size: %s. Attempting 2MB fallback, which may restrict the number of supported ESLs." % str(e))
+
+        # Try setting 2 MB stack size
+        try:
+            threading.stack_size(2 * stack_size_base)
+            return  # Success, continue execution
+        except (threading.ThreadError, ValueError) as e:
+            # Log critical error and exit
+            self.log.critical("Failed to set 2MB thread stack size: %s. Cannot proceed safely." % str(e))
+            sys.exit(-1)
+
 class AccessPoint:
     """Access Point"""
 
     def __init__(
         self, config, unsecure, cmd_mode=False, demo_mode=False, exclusive_list=None
     ):
+        manager = StackSizeManager(self.log)
+        manager.configure_stack_size()  # Can terminate the script if stack setup fails
+
         self.exclusive_list = exclusive_list
         self.scan_runs = False
-        self.pawr_active = False
+        self.pawr_active = None # None: disabled, True: enabled, False: requested but not yet active
         self.pawr_advertising = False
         self.auto_override = False
         self.cmd_mode = cmd_mode if not demo_mode else True
@@ -197,17 +226,23 @@ class AccessPoint:
     ##################### CLI Handler methods #####################
 
     def ap_adv_start(self):
+        """Start advertising for the demo mode if not already advertising"""
         # Start advertising
         if not self.demo_mode:
             self.lib.general_command(CMD_AP_CONTROL_ADV_ENABLE, b"\x01")
             self.log.info("Demo mode enabled.")
             self.demo_mode = True
             self.cmd_mode = True
+            if not self.scan_runs:
+                self.log.warning("Scan is disabled in demo mode: this may lead to unexpected timeouts in the demo controller!")
+            if self.pawr_active is None:
+                self.log.error("PAwR is disabled in demo mode: ESLs won't enter the Synchronized state or react to commands from the demo controller!")
             self.set_mode_handlers()
         else:
             self.log.info("Demo mode is already enabled.")
 
     def ap_adv_stop(self):
+        """Stop advertising, call on demo mode deactivation"""
         if self.demo_mode:
             self.lib.general_command(CMD_AP_CONTROL_ADV_ENABLE, b"\x00")
             self.demo_mode = False
@@ -229,7 +264,7 @@ class AccessPoint:
                 self.log.info("Not in Demo mode.")
 
     def ap_demo_status(self):
-        # Get current status of the demo mode
+        """Get the current status of the demo mode"""
         log(
             "  Current demo status: {0}, controller {1}.".format(
                 "enabled"
@@ -1124,7 +1159,16 @@ class AccessPoint:
             )
 
         if start is None:
-            log(f"PAwR sync is currently{' ' if self.pawr_active else ' not '}running {'and being advertised' if self.pawr_advertising else ''}")
+            state_text = {
+                True: "running",
+                False: "not running yet",
+                None: "not running",
+            }[self.pawr_active]
+
+            log(
+                f"PAwR sync is currently {state_text}"
+                f"{' and being advertised' if self.pawr_advertising else ''}"
+            )
         elif not start:
             self.stop_pawr_train()
             # Clear unsent commands
@@ -1163,7 +1207,7 @@ class AccessPoint:
                 return
             self.cmd_mode = False
             if not self.auto_override:
-                if not self.pawr_active:
+                if self.pawr_active is None:
                     self.start_pawr_train(advertise=INITIAL_AUTO_ADVERTISE_PAWR_TRAIN)
                     self.log.debug("PAwR sync start requested.")
                 else:
@@ -1226,7 +1270,7 @@ class AccessPoint:
                 if (group_count := len(list)) != 0:
                     device_count = self.tag_db.device_count
                     self.log.info(
-                        "Succesfully saved network config for %d device%s in %d group%s to file '%s'.",
+                        "Successfully saved network config for %d device%s in %d group%s to file '%s'.",
                         device_count,
                         "" if device_count == 1 else "s",
                         group_count,
@@ -1246,7 +1290,7 @@ class AccessPoint:
                 else:
                     device_count = self.tag_db.device_count
                     self.log.info(
-                        "Succesfully loaded network config for %d device%s in %d group%s from file '%s'.",
+                        "Successfully loaded network config for %d device%s in %d group%s from file '%s'.",
                         device_count,
                         "" if device_count == 1 else "s",
                         group_count,
@@ -1505,6 +1549,7 @@ class AccessPoint:
                 tag.unassociate()
 
     def upload_next_image(self, tag: Tag):
+        """Upload next image in the automatic image upload sequence"""
         if tag is None:
             return
         tag.auto_image_count += 1
@@ -1594,13 +1639,14 @@ class AccessPoint:
                 log(traceback.format_exc())
                 self.shutdown_cli()
 
-    def ltk_conditional_removal(self, tag: Tag, reason: elw.sl_status_t):
+    def ltk_conditional_removal(self, tag: Tag, reason: int): # reason must be an elw.sl_status_t, but its not a valid PEP 484 type annotation syntax
+        """Remove stored LTK conditionally based on the disconnection reason and tag state"""
         if not tag.provisioned or (
             reason == elw.SL_STATUS_BT_CTRL_REMOTE_USER_TERMINATED
             and tag.pending_unassociate
         ):
             # delete stored LTK for tags that didn't finish provisioning before the connection closed according to ESL Profile spec.
-            # or if there's a pending unassociate executed succesfully
+            # or if there's a pending unassociate executed successfully
             self.log.debug(
                 "The bonding data for ESL at %s deleted due to incomplete configuration.",
                 tag.ble_address,
@@ -1609,6 +1655,7 @@ class AccessPoint:
             tag.reset()
 
     def check_sync(self, tag: Tag):
+        """Check if tag got synchronized despite the connection closing timeout"""
         if tag is not None and tag.provisioned and not tag.advertising:
             self.log.debug(
                 "Check if Tag at address %s got synchronized despite the connection closing timeout.",
@@ -1624,7 +1671,7 @@ class AccessPoint:
     def esl_event_system_boot(self, evt: esl_lib.EventSystemBoot):
         """Generic handler for the boot event of the ESL library"""
         self.scan_runs = False
-        self.pawr_active = False
+        self.pawr_active = None
         self.pawr_advertising = False
         self.pawr_handle = None
         self.pawr_restart = None
@@ -1712,25 +1759,27 @@ class AccessPoint:
             self.response_slot_delay = evt.config.response_slot.delay
             self.response_slot_spacing = evt.config.response_slot.spacing
             self.response_slot_count = evt.config.response_slot.count
-            if evt.enabled:
+        else:
+            self.log.info(
+                "Periodic Advertisement with Responses configured successfully."
+            )
+            if self.pawr_active and self.pawr_restart is None:
                 self.log.warning(
                     "Note that the new PAwR configuration will not take effect until the sync has been restarted!"
                 )
-        else:
-            self.log.info(
-                "Periodic Advertisement with Responses configured succesfully."
-            )
 
     def esl_event_pawr_status(self, evt: esl_lib.EventPawrStatus):
         """Generic handler for the PAwR status report event of the ESL library"""
         if evt.status == elw.ESL_LIB_PAWR_STATE_RUNNING:
             self.log.info("PAwR sync train started.")
             self.pawr_advertising = False
+            self.pawr_active = True
         elif evt.status == elw.ESL_LIB_PAWR_STATE_RUNNING_ADVERTISING:
             self.log.info("PAwR parameters extended advertisement running.")
             self.pawr_advertising = True
+            self.pawr_active = True
         else:
-            self.pawr_active = False
+            self.pawr_active = None
             if self.pawr_restart is not None:
                 self.log.info("PAwR train re-start requested.")
                 self.start_pawr_train(self.pawr_restart, self.pawr_advertising)
@@ -1810,6 +1859,7 @@ class AccessPoint:
         tag = self.tag_db.find(evt.connection_handle)
         if (
             evt.data_sent[0] == TLV_OPCODE_UPDATE_COMPLETE
+            and tag is not None
             and evt.data_sent[1] == tag.esl_id
         ):
             self.past(tag)
@@ -1834,7 +1884,7 @@ class AccessPoint:
                 and not tag.advertising
                 and evt.reason == elw.SL_STATUS_BT_CTRL_CONNECTION_TIMEOUT
             ):
-                # Handle a special edge case in which the synced flag is not set after "succesfully failed" disconnection
+                # Handle a special edge case in which the synced flag is not set after "successfully failed" disconnection
                 # i.e. the very last LL handshake can be lost due to radio noise -> sl_status is reported as 0x1008 yet the connection is in fact closed
                 self.log.debug(
                     "Check if ESL ID %d in group %d at address %s got synchronized despite the reported hypervisor timeout.",
@@ -1934,7 +1984,7 @@ class AccessPoint:
                     or evt.sl_status == elw.SL_STATUS_BT_CTRL_AUTHENTICATION_FAILURE
                 ):  # handle advertisers that refuse connection retry attempts - e.g. because bonded to other AP
                     if not tag.blocked:
-                        self.log.warning(
+                        self.log.error(
                             "Tag at address %s has been blocked due to unsuccessful connection attempt(s).",
                             evt.node_id,
                         )
@@ -1989,8 +2039,8 @@ class AccessPoint:
                         "No object found with the requested Object ID for address %s",
                         tag.ble_address,
                     )
-        elif evt.lib_status == elw.ESL_LIB_STATUS_PAWR_START_FAILED:
-            self.pawr_active = False
+        elif evt.lib_status == elw.ESL_LIB_STATUS_PAWR_START_FAILED or (evt.lib_status == elw.ESL_LIB_STATUS_PAWR_CONFIG_FAILED and evt.data == elw.ESL_LIB_PAWR_STATE_IDLE):
+            self.pawr_active = None
         elif evt.lib_status == elw.ESL_LIB_STATUS_PAST_INIT_FAILED:
             if evt.sl_status == elw.SL_STATUS_BT_CTRL_COMMAND_DISALLOWED:
                 self.log.info("PAST skipped by ESL already in Synchronized state.")
@@ -2004,14 +2054,14 @@ class AccessPoint:
         elif evt.lib_status == elw.ESL_LIB_STATUS_CONN_ESL_SERVICE_VIOLATION:
             tag = self.tag_db.find(evt.node_id)
             if tag is not None and not tag.blocked:
-                self.log.warning(
+                self.log.error(
                     "Device at address %s has been blocked due to missing mandatory service!",
                     evt.node_id,
                 )
                 tag.block(evt.lib_status)
         elif evt.lib_status == elw.ESL_LIB_STATUS_PAWR_SET_DATA_FAILED:
             already_sent = []  # List of slots for resent tag commands
-            # Resend unsuccesful commands
+            # Resend unsuccessful commands
             if evt.node_id.subevent in self.esl_pending_commands:
                 current_pending_commands = self.esl_pending_commands[evt.node_id.subevent]
                 for cmd in current_pending_commands:
@@ -2114,7 +2164,7 @@ class AccessPoint:
         if tag is None:
             return  # Happens until the RSSI threshold is met
         if (
-            not self.pawr_active
+            not self.pawr_active # PAwR is not running (yet)
             and not tag.advertising
             and not tag.state == TagState.CONNECTING
         ):
@@ -2161,7 +2211,7 @@ class AccessPoint:
             if tag.advertising:
                 if self.pawr_active and not self.max_conn_count_reached and not tag.blocked:
                     self.check_address_list(tag)
-            elif not self.pawr_active:
+            elif not self.pawr_active: # PAwR is not running (yet) if None or False
                 self.log.error(
                     "ESL tag cannot be synchronized because PAwR is not started!"
                 )
@@ -2351,7 +2401,26 @@ class AccessPoint:
             "ping": CCMD_PING,
             "unassociate": CCMD_UNASSOCIATE,
         }
-        command = mcommand.split(maxsplit=1)[0]
+        parts = mcommand.split()
+        command = parts[0]
+        try:
+            esl_id = (int(parts[1]), 0)
+        except (IndexError, ValueError):
+            esl_id = (BROADCAST_ADDRESS, 0)
+        tag = self.tag_db.find(esl_id)
+        # Display warning or error message if PAwR is not (yet) active and command requires it
+        if (
+            not self.pawr_active
+            and (
+                esl_id == BROADCAST_ADDRESS
+                or command == "led"
+                or (tag is not None and tag.state != TagState.CONNECTED)
+            )
+        ):
+            if command == "connect":
+                self.log.warning("PAwR is not running: connection request may time out in the demo controller!")
+            else:
+                self.log.error("PAwR is not running: command will time out in the demo controller!")
         # Additional actions for image update
         if command == "image_update":
             self.image_from_controller = b""
@@ -2409,7 +2478,11 @@ class AccessPoint:
 
     def demo_esl_event_connection_opened(self, evt: esl_lib.EventConnectionOpened):
         """ESL library connection opened event handler extension for demo mode"""
-        if self.controller_command != None and not self.demo_auto_reconfigure:
+        if self.demo_auto_reconfigure:
+            tag = self.tag_db.find(evt.address)
+            if tag is not None and tag.provisioned and not tag.blocked:
+                self.past(tag)
+        elif self.controller_command != None:
             if evt.status == elw.SL_STATUS_OK:
                 self.notify_controller(
                     self.controller_command, CONTROLLER_COMMAND_SUCCESS
@@ -2438,7 +2511,7 @@ class AccessPoint:
         """ESL library configure tag response event handler extension for demo mode"""
         if evt.status == elw.SL_STATUS_OK:
             tag = self.tag_db.find(evt.connection_handle)
-            if tag.provisioned and self.demo_auto_reconfigure:
+            if tag is not None and tag.provisioned and self.demo_auto_reconfigure:
                 self.ap_update_complete(tag.esl_id, tag.group_id)
 
     def demo_esl_event_connection_closed(self, evt: esl_lib.EventConnectionClosed):
@@ -2560,6 +2633,7 @@ class AccessPoint:
                         # since self.auto_configured_tags_in_single_run will always count brand new configurations, only: it can be zero, resulting in div by 0 exception
                         if (
                             time is not None
+                            and (self.auto_configured_tags_in_single_run != 0 or len(self.tag_db.list_esl_state(EslState.SYNCHRONIZED)) != 0)
                         ):  # if self.auto_config_start_time was not None, then time must be valid, at least
                             log(
                                 f"Last auto re-config session took a total time of {str(time.total_seconds())[:-3]}."
@@ -2678,7 +2752,7 @@ class AccessPoint:
         parameter:
             adv_interval: Periodic advertisement interval in natural units
         """
-        if not self.pawr_active:
+        if self.pawr_active is None:
             self.set_pawr_interval(adv_interval)
             if self.pawr_handle is None:
                 self.pawr_handle = self.lib.pawr_create()
@@ -2697,7 +2771,7 @@ class AccessPoint:
                 response_slot_count=self.response_slot_count,
             )
             self.lib.pawr_enable(self.pawr_handle, advertise=advertise)
-            self.pawr_active = True
+            self.pawr_active = False
         else:
             self.pawr_restart = (
                 adv_interval
@@ -2710,7 +2784,7 @@ class AccessPoint:
 
     def stop_pawr_train(self):
         """Stop periodic advertisement command"""
-        if self.pawr_active:
+        if self.pawr_active is not None:
             try:
                 self.lib.pawr_enable(self.pawr_handle, False)
             except Exception as e:
@@ -3092,13 +3166,17 @@ class AccessPoint:
                     self.log.warning(
                         "Tag address unknown: %s in group %d", addr, group_id
                     )
+                    if self.controller_command != None:
+                        self.notify_controller(self.controller_command, CONTROLLER_COMMAND_FAIL)
             else:
                 self.log.warning("Tag address unknown: %s", addr)
-            if self.controller_command != None:
-                self.notify_controller(self.controller_command, CONTROLLER_COMMAND_FAIL)
         else:
             esl_id = tag.esl_id
             group_id = tag.group_id
+        if self.pawr_active is None: # emit warning only if PAwR is not running at all and not even requested
+            self.log.error(
+                "PAwR is not running: command request is queued and won't be emitted until PAwR is active."
+            )
         return esl_id, group_id
 
     def route_command(self, esl_id, group_id, data, force_pawr=False):

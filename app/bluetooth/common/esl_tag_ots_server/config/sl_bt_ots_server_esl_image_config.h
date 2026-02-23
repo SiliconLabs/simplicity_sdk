@@ -43,10 +43,10 @@
 // <i> Size of Protocol Data Unit
 #define ESL_TAG_OTS_TRANSFER_MAX_PDU_SIZE                                   250
 
-// <o ESL_TAG_OTS_TRANSFER_MAX_SDU_SIZE> Serivice Data Unit size <23-250>
-// <i> Default: 250
+// <o ESL_TAG_OTS_TRANSFER_MAX_SDU_SIZE> Serivice Data Unit size <23-65535>
+// <i> Default: 65535
 // <i> Size of Service Data Unit - must be equal to or grater than PDU size.
-#define ESL_TAG_OTS_TRANSFER_MAX_SDU_SIZE                                   250
+#define ESL_TAG_OTS_TRANSFER_MAX_SDU_SIZE                                   65535
 
 // </h>
 

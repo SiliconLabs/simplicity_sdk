@@ -128,8 +128,6 @@ u3c_db_operation_result CC_UserCredential_move_credential_and_report(
 /**
  * @brief Sends a USER_CREDENTIAL_ASSOCIATION_REPORT frame.
  *
- * @param[out] p_frame Address of frame memory to fill.
- * @param[in,out] p_length Frame buffer length. Will be overwritten with the filled frame length.
  * @param[in] p_source_metadata Source credential metadata.
  * @param[in] p_destination_metadata Destination credential metadata.
  * @param[in] status Status of association set action.

@@ -255,7 +255,12 @@ sl_status_t sl_memory_reserve_no_retention(size_t size,
   }
 
 #if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-  sli_general_purpose_heap.used_size += size_real;
+  if (status == SL_STATUS_OK) {
+    // Account for the real heap consumption, including any extra bytes lost due to alignment.
+    size_t remaining = SLI_BLOCK_LEN_DWORD_TO_BYTE(sli_block_len_dword_decode(free_st_list_head));
+    size_t consumed = block_size_remaining - remaining;
+    SLI_MEMORY_STAT_HEAP_INCREASE(&sli_general_purpose_heap, consumed);
+  }
 #endif
 
   CORE_EXIT_ATOMIC();
@@ -813,9 +818,7 @@ sl_status_t sl_memory_heap_alloc_advanced(sl_memory_heap_t *heap,
     }
 
     // New block is created so there is a new metadata metadata.
-#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-    heap->used_size += SLI_BLOCK_METADATA_SIZE_BYTE;
-#endif
+    SLI_MEMORY_STAT_HEAP_INCREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
     allocated_blk->block_in_use = true;
     // Account for the split block that is free.
     heap->free_blocks_number++;
@@ -842,12 +845,7 @@ sl_status_t sl_memory_heap_alloc_advanced(sl_memory_heap_t *heap,
   }
 
   block_len_dw = sli_block_len_dword_decode(allocated_blk);
-#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-  heap->used_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(block_len_dw);
-  if (heap->used_size > heap->high_watermark) {
-    heap->high_watermark = heap->used_size;
-  }
-#endif
+  SLI_MEMORY_STAT_HEAP_INCREASE(heap, SLI_BLOCK_LEN_DWORD_TO_BYTE(block_len_dw));
 
   CORE_EXIT_ATOMIC();
 
@@ -927,9 +925,7 @@ sl_status_t sl_memory_heap_free(sl_memory_heap_t *heap,
   total_size_free_block_dw = block_len_dw + SLI_BLOCK_METADATA_SIZE_DWORD;
   sli_block_metadata_t *free_block = current_metadata;
   sli_block_metadata_t *next_block = NULL;
-#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-  heap->used_size -= SLI_BLOCK_LEN_DWORD_TO_BYTE(block_len_dw);
-#endif
+  SLI_MEMORY_STAT_HEAP_DECREASE(heap, SLI_BLOCK_LEN_DWORD_TO_BYTE(block_len_dw));
 
   // Decrement bank counters for banks spanning the freed allocation.
   // Include metadata as it is part of the allocation for the bank counters.
@@ -954,16 +950,16 @@ sl_status_t sl_memory_heap_free(sl_memory_heap_t *heap,
 
       // 2 free blocks have been merged, account for 1 free block only.
       heap->free_blocks_number--;
-#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-      // To account for one less metadata in heap.
-      heap->used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
-#endif
+      SLI_MEMORY_STAT_HEAP_DECREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
     } else if (current_metadata->heap_start_align) {
       // Special block whose data payload was aligned near heap start. Merge process is special as between
       // the heap start and the block metadata, there is a lost zone to be merged. But at heap start, there is
       // no valid metadata. A new valid metadata will exist after this special merge.
       free_block = metadata_prev_blk;
       total_size_free_block_dw += sli_block_offset_prev_dword_decode(current_metadata);
+      // Release the heap-start alignment padding that was previously counted as used.
+      SLI_MEMORY_STAT_HEAP_DECREASE(heap, SLI_BLOCK_LEN_DWORD_TO_BYTE(sli_block_offset_prev_dword_decode(current_metadata)));
+
       current_metadata->heap_start_align = false;
       sli_block_offset_prev_dword_encode(free_block, 0);   // heap start.
 
@@ -998,10 +994,7 @@ sl_status_t sl_memory_heap_free(sl_memory_heap_t *heap,
       // 2 free blocks have been merged, account for 1 free block only.
       heap->free_blocks_number--;
 
-#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-      // To account for one less metadata in heap.
-      heap->used_size -= SLI_BLOCK_METADATA_SIZE_BYTE;
-#endif
+      SLI_MEMORY_STAT_HEAP_DECREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
     }
   }
 
@@ -1176,6 +1169,9 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
   // BLOCK EXTENSION.
   if (size_real > current_block_len) {
     bool find_new_block = false;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+    bool removed_next_metadata = false;
+#endif
 
     reservation_offset = sli_block_offset_next_dword_decode(current_block) - (sli_block_len_dword_decode(current_block) + SLI_BLOCK_METADATA_SIZE_DWORD);
 
@@ -1231,6 +1227,9 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
           // Not enough space in next block, simply append all next block to current one
           // by updating all required blocks' metadata.
           heap->free_blocks_number--;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+          removed_next_metadata = true;
+#endif
           sli_block_len_dword_encode(current_block, (sli_block_len_dword_decode(current_block)
                                                      + SLI_BLOCK_METADATA_SIZE_DWORD
                                                      + sli_block_len_dword_decode(next_block)));
@@ -1300,9 +1299,12 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
     }
 #if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
     if (find_new_block == false) {
-      heap->used_size += size_real - current_block_len;
-      if (heap->used_size > heap->high_watermark) {
-        heap->high_watermark = heap->used_size;
+      size_t new_len = SLI_BLOCK_LEN_DWORD_TO_BYTE(sli_block_len_dword_decode(current_block));
+      SLI_MEMORY_STAT_HEAP_INCREASE(heap, (new_len - current_block_len));
+      if (removed_next_metadata) {
+        // The metadata of the adjacent free block was absorbed into the allocation.
+        // It no longer exists as overhead, so remove it from used_size.
+        SLI_MEMORY_STAT_HEAP_DECREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
       }
     }
 #endif
@@ -1311,6 +1313,10 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
   } else if (size_real < current_block_len) {
     size_t current_block_remaining_len = current_block_len - size_real;
     bool create_new_block = false;
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+    bool reduced_block = false;
+    bool added_free_metadata = false;
+#endif
     // Calculate reservation offset.
     reservation_offset = current_block->offset_neighbour_next - (current_block->length + SLI_BLOCK_METADATA_SIZE_DWORD);
 
@@ -1332,6 +1338,9 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
 
         // Update all relevant metadata fields of current block, next block, next next block (if applicable).
         sli_block_len_dword_encode(current_block, SLI_BLOCK_LEN_BYTE_TO_DWORD(size_real));
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+        reduced_block = true;
+#endif
         sli_block_offset_next_dword_encode(current_block, (sli_block_len_dword_decode(current_block) + SLI_BLOCK_METADATA_SIZE_DWORD));
         sli_memory_metadata_init(adjusted_next_block);
         sli_block_len_dword_encode(adjusted_next_block, (SLI_BLOCK_LEN_BYTE_TO_DWORD(current_block_remaining_len)
@@ -1378,6 +1387,9 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
 
         // Update all relevant metadata fields of current block, next block, next next block (if applicable).
         sli_block_len_dword_encode(current_block, SLI_BLOCK_LEN_BYTE_TO_DWORD(size_real));
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+        reduced_block = true;
+#endif
         sli_block_offset_next_dword_encode(current_block, (sli_block_len_dword_decode(current_block) + SLI_BLOCK_METADATA_SIZE_DWORD));
         sli_memory_metadata_init(adjusted_next_block);
         sli_block_len_dword_encode(adjusted_next_block, SLI_BLOCK_LEN_BYTE_TO_DWORD(current_block_remaining_len - SLI_BLOCK_METADATA_SIZE_BYTE));
@@ -1392,7 +1404,9 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
         } else {
           sli_block_offset_next_dword_encode(adjusted_next_block, 0);   // End of heap
         }
-
+#if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
+        added_free_metadata = true;
+#endif
         heap->free_blocks_number++;
         // Update head pointers accordingly.
         sli_update_free_list_heads(heap, adjusted_next_block, NULL, false);
@@ -1412,7 +1426,13 @@ sl_status_t sl_memory_heap_realloc(sl_memory_heap_t *heap,
                                       size_real + SLI_BLOCK_METADATA_SIZE_BYTE);
 #endif
 #if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-    heap->used_size -= current_block_len - size_real;
+    if (reduced_block) {
+      SLI_MEMORY_STAT_HEAP_DECREASE(heap, (current_block_len - size_real));
+      if (added_free_metadata) {
+        // A new free block metadata was created when splitting the reduced block.
+        SLI_MEMORY_STAT_HEAP_INCREASE(heap, SLI_BLOCK_METADATA_SIZE_BYTE);
+      }
+    }
 #endif
   } else {
     // If the size requested does not provoke a block extension or reduction, consider no error.
@@ -1496,7 +1516,20 @@ static sli_block_metadata_t *memory_manage_data_alignment(sl_memory_heap_t *heap
   }
 
 #if defined(SL_MEMORY_MANAGER_STATISTICS_API_ENABLE) && (SL_MEMORY_MANAGER_STATISTICS_API_ENABLE == 1)
-  heap->used_size += SLI_BLOCK_LEN_DWORD_TO_BYTE(align_offset);
+  size_t align_offset_bytes = SLI_BLOCK_LEN_DWORD_TO_BYTE(align_offset);
+  if (sli_block_offset_prev_dword_decode(old_block_metadata) == 0) {
+    // Heap-start alignment consumes bytes that are unavailable until the aligned block is freed.
+    SLI_MEMORY_STAT_HEAP_INCREASE(heap, align_offset_bytes);
+  } else {
+    sli_block_metadata_t *prev_block = (sli_block_metadata_t *)((uint64_t *)old_block_metadata
+                                                                - sli_block_offset_prev_dword_decode(old_block_metadata));
+    // If the previous block is already in use, the alignment padding becomes internal fragmentation
+    // and must be counted as used. If the previous block is free, the padding is merged back into
+    // the free space and should not affect used_size.
+    if (prev_block->block_in_use) {
+      SLI_MEMORY_STAT_HEAP_INCREASE(heap, align_offset_bytes);
+    }
+  }
 #else
   (void) heap;
 #endif

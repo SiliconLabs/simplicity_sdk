@@ -79,7 +79,7 @@ static State states[SL_ZIGBEE_SUPPORTED_NETWORKS];
 #endif // SL_CATALOG_ZIGBEE_NETWORK_FIND_SUB_GHZ_PRESENT
 
 #define NEVER_STOP_ATTEMPTING_REJOIN 0xFF
-#define MOVE_DELAY_QS (10 * 4)
+#define MOVE_DELAY_QS (SL_ZIGBEE_AF_PLUGIN_END_DEVICE_SUPPORT_MOVE_DELAY_SECONDS * 4)
 
 // *****************************************************************************
 // Functions

@@ -2862,7 +2862,7 @@ __INLINE void sl_hal_ldma_set_interrupts(LDMA_TypeDef *ldma,
 
 /***************************************************************************//**
  * @brief
- *   Get enabled and pending LDMA interrupt flags for LDMA channels 0 to 15.
+ *   Get enabled and pending LDMA interrupt flags for LDMA channels 0 to 7.
  *   Useful for handling more interrupt sources in the same interrupt handler.
  *
  * @note
@@ -2873,16 +2873,22 @@ __INLINE void sl_hal_ldma_set_interrupts(LDMA_TypeDef *ldma,
  *
  * @return
  *   Pending and enabled LDMA interrupt sources
- *   Return value is the bitwise AND of
- *   - the enabled interrupt sources in LDMA_IEN and
- *   - the pending interrupt flags LDMA_IF
  ******************************************************************************/
 __INLINE uint32_t sl_hal_ldma_get_enabled_pending_interrupts(LDMA_TypeDef *ldma)
 {
+#if defined(_SILICON_LABS_32B_SERIES_3_CONFIG_301)
+  const uint32_t iflags = ldma->IF;
+  const uint32_t ien    = ldma->IEN;  // Per-channel DONE enables live in IEN[7:0]; DONE flags live in IF[7:0].
+  const uint32_t done_mask  = 0xFFu;          // DONE0..7
+  const uint32_t done_flags = (iflags & done_mask) & (ien & done_mask);  // ERROR flags live in IF[23:16]; enable is a single bit in IEN[31].
+  const uint32_t error_flags_mask = 0xFFu << 16;  // ERROR0..7
+  const uint32_t error_flags = (ien & (1u << 31)) ? (iflags & error_flags_mask) : 0u;
+  return done_flags | error_flags;
+#else
   uint32_t ien;
-
   ien = ldma->IEN;
   return ldma->IF & ien;
+#endif
 }
 
 #if defined(_LDMA_IFH_MASK)

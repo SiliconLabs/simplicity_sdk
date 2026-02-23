@@ -77,19 +77,6 @@ void sl_rail_sdk_wmbus_set_accessibility(sl_rail_sdk_wmbus_accessibility_t new_w
   wmbus_accessibility = new_wmbus_accessibility;
 }
 
-uint16_t sl_rail_sdk_wmbus_phy_software(uint8_t *buffer,
-                                        uint8_t length,
-                                        uint16_t buffer_length)
-{
-  if (buffer == NULL) {
-    return 0;
-  }
-  (void)buffer_length;
-  (void)buffer;
-  //no other modes needs software encode currently
-  return length;
-}
-
 void sl_rail_sdk_wmbus_init(void)
 {
   // setting mode according to configuration

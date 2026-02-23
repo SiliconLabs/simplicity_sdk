@@ -13,7 +13,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/embedded-otbr/si91x_project/openthread-si91x-mcu-host.slcp"/>
     <properties key="filters" value=""/>
   </descriptors>
@@ -30,7 +30,7 @@
     <properties key="category" value="OpenThread Examples"/>
     <properties key="quality" value="EXPERIMENTAL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
-    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.2&quot;}"/>
+    <properties key="sltPackageIds" value="{&quot;simplicity-sdk&quot;:&quot;~2025.6.3&quot;}"/>
     <properties key="sltPackagePath" value="protocol/openthread/embedded-otbr/si91x_project/openthread-si91x-otbr-mcu-host.slcp"/>
     <properties key="filters" value=""/>
   </descriptors>

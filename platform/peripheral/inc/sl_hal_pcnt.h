@@ -781,6 +781,9 @@ __INLINE void sl_hal_pcnt_reset_counters(PCNT_TypeDef *pcnt)
  * @code{.c}
  * void pcnt_basic_example(void)
  * {
+ *   // Enable bus clock for PCNT0
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_PCNT0);
+ *
  *   // Configure PCNT with default settings for single input oversampling mode
  *   sl_hal_pcnt_init_t init = SL_HAL_PCNT_INIT_DEFAULT(SL_HAL_PCNT_MODE_OVS_SINGLE);
  *

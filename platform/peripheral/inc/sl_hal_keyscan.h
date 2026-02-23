@@ -363,6 +363,9 @@ __STATIC_INLINE void sl_hal_keyscan_set_interrupts(uint32_t flags)
  * // Example of configuring and using KEYSCAN
  * void keyscan_example(void)
  * {
+ *   // Enable bus clock for KEYSCAN
+ *   sl_clock_manager_enable_bus_clock(SL_BUS_CLOCK_KEYSCAN);
+ *
  *   // Configure KEYSCAN with custom settings
  *   sl_hal_keyscan_init_t keyscan_init = SL_HAL_KEYSCAN_INIT_DEFAULT;
  *

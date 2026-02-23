@@ -155,6 +155,7 @@
 #define APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT 5
 #define APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE 2048
 #define APP_SETTINGS_WISUN_DEFAULT_EAP_IDENTITY "Anonymous"
+#define APP_SETTINGS_WISUN_DEFAULT_FAN_TPS_VERSION SL_WISUN_FAN_VERSION_DEFAULT
 
 #define APP_SETTINGS_MAC_DEFAULT_MIN_BE 3
 #define APP_SETTINGS_MAC_DEFAULT_MAX_BE 5
@@ -263,6 +264,7 @@ static const app_settings_wisun_t app_settings_wisun_default = {
   .max_edfe_fragment_count = APP_SETTINGS_WISUN_DEFAULT_MAX_EDFE_FRAGMENT_COUNT,
   .socket_rx_buffer_size = APP_SETTINGS_WISUN_DEFAULT_SOCKET_RX_BUFFER_SIZE,
   .eap_identity = APP_SETTINGS_WISUN_DEFAULT_EAP_IDENTITY,
+  .fan_tps_version = APP_SETTINGS_WISUN_DEFAULT_FAN_TPS_VERSION,
 };
 
 static const app_settings_ping_t app_settings_ping_default = {
@@ -437,7 +439,6 @@ const app_enum_t app_settings_wisun_is_lfn_enum[] =
   { NULL, 0 }
 };
 
-
 static const app_enum_t app_settings_wisun_regulation_enum[] =
 {
   { "none", SL_WISUN_REGULATION_NONE },
@@ -471,6 +472,14 @@ static const app_enum_t app_settings_wisun_keychain_enum[] =
   { "automatic", SL_WISUN_KEYCHAIN_AUTOMATIC },
   { "builtin", SL_WISUN_KEYCHAIN_BUILTIN },
   { "nvm", SL_WISUN_KEYCHAIN_NVM },
+  { NULL, 0 }
+};
+
+static const app_enum_t app_settings_wisun_fan_tps_version_enum[] =
+{
+  { "DEFAULT", SL_WISUN_FAN_VERSION_DEFAULT },
+  { "FAN 1.0", SL_WISUN_FAN_VERSION_1_0 },
+  { "FAN 1.1", SL_WISUN_FAN_VERSION_1_1 },
   { NULL, 0 }
 };
 
@@ -849,6 +858,19 @@ const app_settings_entry_t app_settings_entries[] =
     .set_handler = app_settings_set_tx_power,
     .get_handler = app_settings_get_tx_power,
     .description = "TX power in ddBm [int16]"
+  },
+  {
+    .key = "fan_tps_version",
+    .domain = app_settings_domain_wisun,
+    .value_size = APP_SETTINGS_VALUE_SIZE_UINT8,
+    .input = APP_SETTINGS_INPUT_FLAG_DEFAULT,
+    .output = APP_SETTINGS_OUTPUT_FLAG_DEFAULT,
+    .value = &app_settings_wisun.fan_tps_version,
+    .input_enum_list = app_settings_wisun_fan_tps_version_enum,
+    .output_enum_list = app_settings_wisun_fan_tps_version_enum,
+    .set_handler = app_settings_set_integer,
+    .get_handler = app_settings_get_integer,
+    .description = "Wi-SUN FAN TPS version [uint8]"
   },
   {
     .key = "unicast_dwell_interval",

@@ -545,6 +545,17 @@ void esl_lib_ap_control_on_bt_event(sl_bt_msg_t *evt)
         }
       }
       break;
+
+    case sl_bt_evt_external_bondingdb_data_request_id:
+      if (ap_control.conn_handle == evt->data.evt_external_bondingdb_data_request.connection) {
+        // Bonding is not needed nor supported with the demo application
+        (void)sl_bt_external_bondingdb_set_data(evt->data.evt_external_bondingdb_data_request.connection,
+                                                evt->data.evt_external_bondingdb_data_request.type,
+                                                0,
+                                                NULL);
+      }
+      break;
+
     case sl_bt_evt_gatt_server_characteristic_status_id:
       if (evt->data.evt_gatt_server_characteristic_status.connection == ap_control.conn_handle
           && (evt->data.evt_gatt_server_characteristic_status.status_flags & sl_bt_gatt_server_client_config)) {
